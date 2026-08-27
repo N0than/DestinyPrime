@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AUDIENCE MASTERS V2 — Devenez le Roi de l'Audimat</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Spectral:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #16130e;
+  --paper: #efeade;
+  --paper-dark: #e4ddcc;
+  --rouge: #c8102e;
+  --bleu: #1f3a93;
+  --gris: #8a8378;
+  --vert: #2e6b3a;
+  --gold: #d4af37;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  background: var(--paper);
+  background-image: repeating-linear-gradient(0deg, rgba(22, 19, 14, 0.025) 0 1px, transparent 1px 3px);
+  color: var(--ink);
+  font-family: 'Spectral', Georgia, serif;
+  font-size: 16px;
+  line-height: 1.5;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+#app {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 12px 14px 60px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+h1, h2, h3, .display {
+  font-family: 'Anton', Impact, sans-serif;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  line-height: 1.05;
+}
+
+button { font-family: inherit; cursor: pointer; }
+button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
+
+/* ---- MASTHEAD ---- */
+.masthead { text-align: center; padding: 10px 0 8px; margin-bottom: 14px; }
+.masthead .over { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--gris); }
+.masthead h1 { font-size: clamp(32px, 8vw, 50px); }
+.masthead .under { font-style: italic; font-size: 13px; margin-top: 2px; color: #4a443b; margin-bottom: 10px; }
+
+/* ---- STATS TICKER ---- */
+.ticker {
+  display: flex; gap: 4px; justify-content: space-between;
+  border-top: 3px solid var(--ink); border-bottom: 3px solid var(--ink);
+  padding: 6px 2px; margin: 0 0 16px; background: rgba(255,255,255,0.4);
+}
+.tick { flex: 1; text-align: center; min-width: 0; padding: 0 2px; }
+.tick .lab { font-family: 'Anton', sans-serif; font-size: 9px; letter-spacing: 0.5px; text-transform: uppercase; color: var(--gris); white-space: nowrap; overflow: hidden; }
+.tick .val { font-family: 'Anton', sans-serif; font-size: 18px; }
+.tick .bar { height: 4px; background: var(--paper-dark); margin-top: 2px; border: 1px solid var(--ink); }
+.tick .bar i { display: block; height: 100%; background: var(--ink); transition: width 0.4s; }
+.tick.low .val { color: var(--rouge); }
+.tick.low .bar i { background: var(--rouge); }
+
+/* ---- ONBOARDING & CARDS ---- */
+.kicker { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--rouge); margin-bottom: 6px; }
+.card {
+  background: #f7f3e8; border: 1.5px solid var(--ink);
+  box-shadow: 4px 4px 0 rgba(22,19,14,0.85);
+  padding: 16px; margin-bottom: 16px; position: relative;
+}
+.tape { position: absolute; top: -10px; left: 50%; transform: translateX(-50%) rotate(-1.5deg); width: 80px; height: 20px; background: rgba(31,58,147,0.18); border: 1px dashed rgba(31,58,147,0.4); }
+
+.optgrid { display: grid; grid-template-columns: 1fr; gap: 10px; margin: 12px 0 20px; }
+@media(min-width: 520px) { .optgrid { grid-template-columns: 1fr 1fr; } }
+
+.opt {
+  text-align: left; background: #f7f3e8; border: 1.5px solid var(--ink); padding: 12px;
+  font-family: 'Spectral', serif; font-size: 14px; box-shadow: 3px 3px 0 var(--ink);
+  transition: transform 0.1s, background 0.1s;
+}
+.opt:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--ink); }
+.opt .ol { font-family: 'Anton', sans-serif; text-transform: uppercase; font-size: 16px; display: block; margin-bottom: 2px; }
+.opt .od { font-style: italic; color: #5c564a; font-size: 13px; display: block; }
+.opt.sel { background: var(--ink); color: var(--paper); }
+.opt.sel .od { color: #cfc8b6; }
+
+input[type=text] {
+  width: 100%; font-family: 'Anton', sans-serif; font-size: 20px; text-transform: uppercase;
+  padding: 10px; border: 2px solid var(--ink); background: #fff; letter-spacing: 1px;
+}
+label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; display: block; margin: 14px 0 6px; }
+
+.namebar { display: flex; gap: 8px; margin-bottom: 16px; }
+.namebar .btn { padding: 8px 14px; font-size: 13px; white-space: nowrap; }
+
+.btn {
+  display: inline-block; background: var(--ink); color: var(--paper); border: none;
+  font-family: 'Anton', sans-serif; text-transform: uppercase; letter-spacing: 1.5px;
+  font-size: 15px; padding: 12px 22px; box-shadow: 4px 4px 0 var(--rouge);
+  transition: transform 0.08s, box-shadow 0.08s;
+}
+.btn:hover { transform: translate(1px, 1px); box-shadow: 2px 2px 0 var(--rouge); }
+.btn.ghost { background: transparent; color: var(--ink); border: 2px solid var(--ink); box-shadow: none; }
+.btn.block { display: block; width: 100%; text-align: center; }
+
+/* ---- FULLSCREEN DILEMMA VIEW & ANIMATIONS ---- */
+.dilemma-container {
+  flex: 1; display: flex; flex-direction: column; gap: 14px;
+  will-change: transform, opacity;
+}
+
+.dilemma-container.slide-in {
+  animation: slideInRight 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.dilemma-container.slide-out {
+  animation: slideOutLeft 0.22s cubic-bezier(0.7, 0, 0.84, 0) forwards;
+  pointer-events: none;
+}
+
+@keyframes slideInRight {
+  0% { opacity: 0; transform: translateX(25px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideOutLeft {
+  0% { opacity: 1; transform: translateX(0); }
+  100% { opacity: 0; transform: translateX(-25px); }
+}
+
+.dilemma-card {
+  background: #fdfbf7; border: 2px solid var(--ink); box-shadow: 6px 6px 0 var(--ink);
+  padding: 20px; position: relative; margin-bottom: 0;
+}
+.dilemma-card h2 { font-size: clamp(22px, 5.5vw, 30px); margin-bottom: 10px; color: var(--ink); }
+.dilemma-card p { font-size: 16px; line-height: 1.45; }
+
+.choices { display: flex; flex-direction: column; gap: 10px; margin-top: 0; }
+.choice {
+  text-align: left; background: var(--paper); border: 1.5px solid var(--ink);
+  padding: 12px 14px; font-size: 15px; font-family: 'Spectral', serif;
+  box-shadow: 3px 3px 0 var(--ink); transition: transform 0.1s, box-shadow 0.1s, background 0.1s;
+}
+.choice:hover { transform: translate(1px, 1px); box-shadow: 1px 1px 0 var(--ink); background: #fff; }
+.choice .cl { font-family: 'Anton', sans-serif; text-transform: uppercase; font-size: 15px; letter-spacing: 0.5px; display: block; color: var(--bleu); }
+
+.choice.selected {
+  background: var(--bleu);
+  color: #fff;
+  border-color: var(--ink);
+  transform: translate(2px, 2px);
+  box-shadow: 0px 0px 0 var(--ink);
+}
+.choice.selected .cl {
+  color: #fff;
+}
+.choice.selected span {
+  color: rgba(255,255,255,0.85) !important;
+}
+
+/* ---- TABLE & AUDIENCE RESULTS ---- */
+.grid-table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+.grid-table th, .grid-table td { border: 1px solid var(--ink); padding: 6px 8px; text-align: left; }
+.grid-table th { background: var(--paper-dark); font-family: 'Anton', sans-serif; text-transform: uppercase; letter-spacing: 0.5px; }
+.grid-table tr:nth-child(even) { background: rgba(255,255,255,0.5); }
+
+.badge { background: var(--gold); color: var(--ink); font-family: 'Anton', sans-serif; padding: 2px 8px; font-size: 12px; text-transform: uppercase; border: 1px solid var(--ink); }
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+  .dilemma-container.slide-in, .dilemma-container.slide-out { animation: none !important; }
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+"use strict";
+
+const BARS = ["#EAEAEA", "#F2E33B", "#3EC6C6", "#4CBB4C", "#D648C8", "#E8392F", "#2C3BD6"];
+
+function renderMire(h = 8) {
+  return `
+    <div style="display: flex; height: ${h}px; border-radius: 2px; overflow: hidden;" aria-hidden="true">
+      ${BARS.map(b => `<div style="flex: 1; background: ${b};"></div>`).join('')}
+    </div>
+  `;
+}
+
+const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+const shuffle = arr => {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+};
+const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+const CHANNEL_TYPES = {
+  generaliste: {
+    label: "Généraliste",
+    desc: "Polyvalente. Capital de lancement : 50 M€.",
+    baseBudget: 50,
+    pdaMods: { j1524: 10, a2549: 15, s50: 20, csp: 12 }
+  },
+  divertissement: {
+    label: "Divertissement",
+    desc: "Jeux & Primes. Capital de lancement : 40 M€.",
+    baseBudget: 40,
+    pdaMods: { j1524: 18, a2549: 22, s50: 15, csp: 5 }
+  },
+  digital: {
+    label: "Jeunesse & Web",
+    desc: "Formats courts & streaming. Capital de lancement : 25 M€.",
+    baseBudget: 25,
+    pdaMods: { j1524: 35, a2549: 12, s50: 2, csp: 10 }
+  },
+  sport: {
+    label: "Sport & Extrême",
+    desc: "Droits de diffusion. Capital de lancement : 25 M€.",
+    baseBudget: 25,
+    pdaMods: { j1524: 15, a2549: 25, s50: 12, csp: 18 }
+  },
+  info: {
+    label: "Info 24/7",
+    desc: "Direct & Débats. Capital de lancement : 25 M€.",
+    baseBudget: 25,
+    pdaMods: { j1524: 5, a2549: 18, s50: 22, csp: 25 }
+  },
+  culture: {
+    label: "Culture & Savoir",
+    desc: "Documentaires & Débats. Capital de lancement : 25 M€.",
+    baseBudget: 25,
+    pdaMods: { j1524: 5, a2549: 10, s50: 18, csp: 30 }
+  }
+};
+
+const TARGET_STRATEGIES = {
+  j1524: {
+    nom: "15-24 ans (Digital Natives)",
+    desc: "Volatils, consommateurs de vidéo dynamique.",
+    objectif: "Capturer la génération zappeuse."
+  },
+  a2549: {
+    nom: "25-49 ans (Actifs / Ménagères)",
+    desc: "Cible reine des annonceurs publicitaires.",
+    objectif: "Maximiser les rentrées pub du Prime."
+  },
+  s50: {
+    nom: "50+ ans (Seniors / Fidèles)",
+    desc: "Audience très fidèle, consommatrice de JT.",
+    objectif: "Assurer un socle d'audimat garanti."
+  },
+  csp: {
+    nom: "CSP+ (Décideurs / Urbains)",
+    desc: "Public aisé recherchant de l'investigation.",
+    objectif: "Dominer l'influence culturelle."
+  }
+};
+
+const GENERATED_NAMES = {
+  generaliste: ["Canal 9", "Atlas TV", "Hexagone 1", "OmniVision", "La Grande Chaîne"],
+  info: ["Info Direct", "N1 Info", "Actu 24", "Flash Média", "Présence Info"],
+  divertissement: ["Pulse TV", "Star Show", "Maxi Fun", "Zap Channel", "Mega Prime"],
+  sport: ["Arena Sport", "Stade 24", "X-Sport", "Chrono TV", "Vitesse Max"],
+  culture: ["Savoir+", "Odyssée TV", "Arthea", "Documenta", "Clio Channel"],
+  digital: ["Nova Flux", "Pixel TV", "Stream Nation", "Vibe Zone", "Trend Media"]
+};
+
+const DILEMMA_BANK = [
+  {
+    id: 'd1',
+    titre: "Le clash du plateau de 19h",
+    desc: "Un chroniqueur insulte ouvertement son invité en direct. L'audience s'enflamme sur les réseaux.",
+    c: [
+      { l: "Sanctionner et suspendre le chroniqueur", b: -2, pda: { j1524: -1, a2549: +1, s50: +2, csp: +3 }, r: "La presse salue votre dignité. Le public jeune s'ennuie." },
+      { l: "Rejouer la séquence en boucle et créer le buzz", b: +6, pda: { j1524: +4, a2549: +2, s50: -2, csp: -3 }, r: "Audience en hausse ! Les annonceurs de luxe râlent." }
+    ]
+  },
+  {
+    id: 'd2',
+    titre: "Les Droits du Derby Football",
+    desc: "Les droits de diffusion du plus grand match de la saison sont aux enchères.",
+    c: [
+      { l: "Mettre le paquet et surenchérir", b: -18, pda: { j1524: +3, a2549: +6, s50: +3, csp: +2 }, r: "Gros investissement, mais une visibilité maximale ce week-end." },
+      { l: "Laisser filer et programmer un film classique", b: +3, pda: { j1524: -2, a2549: -3, s50: +1, csp: 0 }, r: "Économies réalisées, mais déception chez les fans de sport." }
+    ]
+  },
+  {
+    id: 'd3',
+    titre: "Documentaire Choc ou Publicité ?",
+    desc: "Une enquête exclusive met en cause votre sponsor principal sur le travail des enfants.",
+    c: [
+      { l: "Diffuser l'enquête coûte que coûte", b: -10, pda: { j1524: +3, a2549: +2, s50: +1, csp: +5 }, r: "Le sponsor claque la porte. Vous remportez le Prix du Journalisme." },
+      { l: "Censurer le reportage et garder le chèque", b: +12, pda: { j1524: -4, a2549: -2, s50: -1, csp: -5 }, r: "Trésorerie garnie, mais fuite de l'information sur le web." }
+    ]
+  },
+  {
+    id: 'd4',
+    titre: "L'Animateur Vedette sur le départ",
+    desc: "Votre star du JT exige un salaire doublé sous peine de partir chez le concurrent.",
+    c: [
+      { l: "Céder à toutes ses exigences", b: -9, pda: { j1524: 0, a2549: +3, s50: +4, csp: +1 }, r: "La vedette reste. L'équipe technique râle." },
+      { l: "La remplacer par un jeune talent inconnu", b: +3, pda: { j1524: +4, a2549: -1, s50: -3, csp: +1 }, r: "Vent de fraîcheur ! Les seniors zappent la chaîne." }
+    ]
+  },
+  {
+    id: 'd5',
+    titre: "Télé-Réalité : La Limite franchie",
+    desc: "Des candidats d'une émission d'enfermement organisent un dérapage prémédité.",
+    c: [
+      { l: "Couper le flux et recadrer le jeu", b: -4, pda: { j1524: -3, a2549: 0, s50: +2, csp: +2 }, r: "Décision morale louée par l'Arcom." },
+      { l: "Transformer ça en prime-time événement", b: +10, pda: { j1524: +6, a2549: +3, s50: -4, csp: -4 }, r: "Réseaux sociaux en ébullition. Les régies pub s'arrachent les spots." }
+    ]
+  },
+  {
+    id: 'd6',
+    titre: "Partenariat E-Sport & Twitch",
+    desc: "Opportunité de co-diffuser un tournoi mondial d'E-Sport sur votre antenne.",
+    c: [
+      { l: "Bousculer la grille et diffuser en direct", b: -5, pda: { j1524: +8, a2549: +1, s50: -5, csp: 0 }, r: "Audience jeune au rendez-vous !" },
+      { l: "Refuser et conserver les feuilletons", b: 0, pda: { j1524: -2, a2549: 0, s50: +3, csp: 0 }, r: "Statu quo payant auprès des seniors." }
+    ]
+  }
+];
+
+let gameState = {
+  screen: 1,
+  player: {
+    name: "",
+    type: "generaliste",
+    target: "a2549",
+    budget: 50,
+    pda: { j1524: 0.3, a2549: 1.0, s50: 0.3, csp: 0.3 }
+  },
+  competitors: [],
+  season: 1,
+  currentDilemmaIndex: 0,
+  dilemmaQueue: [],
+  logs: []
+};
+
+function initCompetitors() {
+  const names = ["Apex TV", "Pulse 24", "Nova Media", "Echo Vision", "Horizon 9", "Vanguard"];
+  const types = Object.keys(CHANNEL_TYPES);
+  const targets = Object.keys(TARGET_STRATEGIES);
+
+  gameState.competitors = names.map((name, i) => {
+    const cType = types[i % types.length];
+    let cTarget = (i < 2) ? gameState.player.target : targets[(i + 1) % targets.length];
+    const basePda = { ...CHANNEL_TYPES[cType].pdaMods };
+
+    return {
+      name,
+      type: cType,
+      target: cTarget,
+      budget: CHANNEL_TYPES[cType].baseBudget,
+      pda: basePda
+    };
+  });
+}
+
+function getAllChannels() {
+  return [gameState.player, ...gameState.competitors];
+}
+
+function getCalculatedPDAs() {
+  const channels = getAllChannels();
+  const demos = ['j1524', 'a2549', 's50', 'csp'];
+
+  const demoTotals = {};
+  demos.forEach(d => {
+    demoTotals[d] = channels.reduce((sum, c) => sum + Math.max(0.1, c.pda[d]), 0);
+  });
+
+  return channels.map(c => {
+    const normPda = {};
+    let sumNorm = 0;
+    demos.forEach(d => {
+      normPda[d] = (Math.max(0.1, c.pda[d]) / demoTotals[d]) * 100;
+      sumNorm += normPda[d];
+    });
+
+    return {
+      channel: c,
+      name: c.name,
+      pda: normPda,
+      globalPda: sumNorm / 4
+    };
+  });
+}
+
+function chooseDilemmaOption(choiceIndex) {
+  const dilemma = gameState.dilemmaQueue[gameState.currentDilemmaIndex];
+  const choice = dilemma.c[choiceIndex];
+
+  gameState.player.budget = Math.max(0, gameState.player.budget + choice.b);
+  for (const t in choice.pda) {
+    gameState.player.pda[t] = Math.max(0.1, gameState.player.pda[t] + choice.pda[t]);
+  }
+
+  gameState.competitors.forEach(comp => {
+    if (comp.target === gameState.player.target) {
+      comp.pda[comp.target] = Math.max(1, comp.pda[comp.target] + (choice.b > 0 ? -0.5 : 1));
+    } else {
+      comp.pda[comp.target] = Math.max(1, comp.pda[comp.target] + (Math.random() * 1.5 - 0.5));
+    }
+  });
+
+  gameState.logs.push({
+    title: dilemma.titre,
+    result: choice.r
+  });
+
+  gameState.currentDilemmaIndex++;
+
+  if (gameState.currentDilemmaIndex >= gameState.dilemmaQueue.length) {
+    gameState.screen = 7;
+  }
+
+  render();
+}
+
+function startNewSeason() {
+  gameState.season++;
+  gameState.currentDilemmaIndex = 0;
+  gameState.dilemmaQueue = shuffle(DILEMMA_BANK).slice(0, 4);
+  gameState.screen = 6;
+  render();
+}
+
+function renderMasthead(sub) {
+  return `
+    <div class="masthead">
+      <div class="over">Audience Masters V2 — Saison ${gameState.season}</div>
+      <h1>${gameState.player.name || "Nouveau Entrant TV"}</h1>
+      <div class="under">${sub}</div>
+      ${renderMire(8)}
+    </div>
+  `;
+}
+
+function renderTicker() {
+  const calculated = getCalculatedPDAs();
+  const playerCalc = calculated.find(item => item.channel === gameState.player);
+  const targetKey = gameState.player.target;
+
+  return `
+    <div class="ticker">
+      <div class="tick"><div class="lab">Budget</div><div class="val">${gameState.player.budget} M€</div></div>
+      <div class="tick ${targetKey === 'j1524' ? 'low' : ''}"><div class="lab">15-24 ans</div><div class="val">${playerCalc.pda.j1524.toFixed(1)}%</div></div>
+      <div class="tick ${targetKey === 'a2549' ? 'low' : ''}"><div class="lab">25-49 ans</div><div class="val">${playerCalc.pda.a2549.toFixed(1)}%</div></div>
+      <div class="tick ${targetKey === 's50' ? 'low' : ''}"><div class="lab">50+ ans</div><div class="val">${playerCalc.pda.s50.toFixed(1)}%</div></div>
+      <div class="tick ${targetKey === 'csp' ? 'low' : ''}"><div class="lab">CSP+</div><div class="val">${playerCalc.pda.csp.toFixed(1)}%</div></div>
+    </div>
+  `;
+}
+
+function render() {
+  const app = document.getElementById('app');
+  window.scrollTo(0, 0);
+
+  if (gameState.screen === 1) {
+    app.innerHTML = `
+      <div class="masthead">
+        <div class="over">Simulation & Stratégie Média</div>
+        <h1>AUDIENCE MASTERS</h1>
+        <div class="under">Incarnez un nouveau entrant télévisuel et construisez votre audience.</div>
+        ${renderMire(8)}
+      </div>
+      <div class="card center">
+        <div class="tape"></div>
+        <h2>CHALLENGE NOUVEAU ENTRANT</h2>
+        <p style="margin: 12px 0;">Démarrez en **Année 1** avec un capital d'amorce et **1 % d'audience** sur votre cible. Grimpez les échelons face aux chaînes historiques.</p>
+        <button class="btn block" id="btn-start" style="font-size: 18px; padding: 14px;">Lancer ma chaîne →</button>
+      </div>
+    `;
+    document.getElementById('btn-start').onclick = () => { gameState.screen = 2; render(); };
+    return;
+  }
+
+  if (gameState.screen === 2) {
+    app.innerHTML = `
+      ${renderMasthead("Étape 1/4 : Type de Chaîne & Capital Initial")}
+      <div class="kicker">ÉCRAN 2 — FORMAT D'ANTENNE</div>
+      <div class="optgrid">
+        ${Object.entries(CHANNEL_TYPES).map(([k, v]) => `
+          <button class="opt ${gameState.player.type === k ? 'sel' : ''}" data-type="${k}">
+            <span class="ol">${v.label}</span>
+            <span class="od">${v.desc}</span>
+          </button>
+        `).join('')}
+      </div>
+      <button class="btn block" id="btn-next-2">Étape suivante : Définir la cible →</button>
+    `;
+    app.querySelectorAll('.opt').forEach(b => {
+      b.onclick = () => {
+        gameState.player.type = b.dataset.type;
+        render();
+      };
+    });
+    document.getElementById('btn-next-2').onclick = () => { gameState.screen = 3; render(); };
+    return;
+  }
+
+  if (gameState.screen === 3) {
+    app.innerHTML = `
+      ${renderMasthead("Étape 2/4 : Choisissez votre Cible Prioritaire")}
+      <div class="kicker">ÉCRAN 3 — AUDIENCE CIBLÉE (1% AU DÉPART)</div>
+      <div class="optgrid">
+        ${Object.entries(TARGET_STRATEGIES).map(([k, v]) => `
+          <button class="opt ${gameState.player.target === k ? 'sel' : ''}" data-target="${k}">
+            <span class="ol">${v.nom}</span>
+            <span class="od"><b>Objectif :</b> ${v.objectif}</span>
+            <span class="od" style="margin-top: 4px;">${v.desc}</span>
+          </button>
+        `).join('')}
+      </div>
+      <button class="btn block" id="btn-next-3">Étape suivante : Nommer la chaîne →</button>
+    `;
+    app.querySelectorAll('.opt').forEach(b => {
+      b.onclick = () => {
+        gameState.player.target = b.dataset.target;
+        render();
+      };
+    });
+    document.getElementById('btn-next-3').onclick = () => { gameState.screen = 4; render(); };
+    return;
+  }
+
+  if (gameState.screen === 4) {
+    const currentDefaultName = gameState.player.name || GENERATED_NAMES[gameState.player.type][0];
+    app.innerHTML = `
+      ${renderMasthead("Étape 3/4 : Nom du nouveau entrant")}
+      <div class="card">
+        <div class="tape"></div>
+        <div class="kicker">ÉCRAN 4 — BAPTÊME D'ANTENNE</div>
+        <label for="chain-name">Nom de la chaîne TV</label>
+        <div class="namebar">
+          <input type="text" id="chain-name" value="${esc(currentDefaultName)}" maxlength="24">
+          <button class="btn ghost" id="btn-rand">🎲 Idée</button>
+        </div>
+      </div>
+      <button class="btn block" id="btn-next-4">Voir le Récapitulatif →</button>
+    `;
+    document.getElementById('btn-rand').onclick = () => {
+      const randomName = pick(GENERATED_NAMES[gameState.player.type]);
+      document.getElementById('chain-name').value = randomName;
+    };
+    document.getElementById('btn-next-4').onclick = () => {
+      const val = document.getElementById('chain-name').value.trim();
+      gameState.player.name = val || GENERATED_NAMES[gameState.player.type][0];
+
+      gameState.player.budget = CHANNEL_TYPES[gameState.player.type].baseBudget;
+
+      initCompetitors();
+
+      const targetDemo = gameState.player.target;
+      const demoTotals = {};
+      ['j1524', 'a2549', 's50', 'csp'].forEach(d => {
+        demoTotals[d] = gameState.competitors.reduce((sum, c) => sum + Math.max(1, c.pda[d]), 0);
+      });
+
+      gameState.player.pda = { j1524: 0.2, a2549: 0.2, s50: 0.2, csp: 0.2 };
+      gameState.player.pda[targetDemo] = demoTotals[targetDemo] * 0.0101;
+
+      gameState.screen = 5;
+      render();
+    };
+    return;
+  }
+
+  if (gameState.screen === 5) {
+    const typeObj = CHANNEL_TYPES[gameState.player.type];
+    const targetObj = TARGET_STRATEGIES[gameState.player.target];
+
+    app.innerHTML = `
+      ${renderMasthead("Étape 4/4 : Fiche Nouveau Entrant")}
+      <div class="card">
+        <div class="tape"></div>
+        <div class="kicker">ÉCRAN 5 — PARAMÈTRES ANNÉE 1</div>
+        <h2 style="color: var(--bleu);">${esc(gameState.player.name)}</h2>
+        <p><b>Format :</b> ${typeObj.label} | <b>Cible prioritaire :</b> ${targetObj.nom}</p>
+
+        <hr style="margin: 10px 0; border: none; border-top: 1px dashed var(--ink);">
+
+        <h3>CONDITIONS DE DÉPART</h3>
+        <ul style="margin: 8px 0 14px 18px; font-size: 14px;">
+          <li><b>Capital de départ :</b> ${gameState.player.budget} M€</li>
+          <li><b>Audience sur cible :</b> 1,0 % (Nouveau entrant)</li>
+          <li><b>Adversaires :</b> 6 chaînes établies avec de gros budgets.</li>
+        </ul>
+
+        <div class="badge">Objectif Année 1 : Passer le cap des 3% PDA</div>
+      </div>
+      <button class="btn block" id="btn-launch" style="font-size: 17px; padding: 14px;">🚀 DÉMARRER LA SAISON 1</button>
+    `;
+    document.getElementById('btn-launch').onclick = () => {
+      gameState.dilemmaQueue = shuffle(DILEMMA_BANK).slice(0, 4);
+      gameState.currentDilemmaIndex = 0;
+      gameState.screen = 6;
+      render();
+    };
+    return;
+  }
+
+  if (gameState.screen === 6) {
+    const dilemma = gameState.dilemmaQueue[gameState.currentDilemmaIndex];
+
+    app.innerHTML = `
+      ${renderMasthead(`Dilemme ${gameState.currentDilemmaIndex + 1} / ${gameState.dilemmaQueue.length} — Saison en cours`)}
+      ${renderTicker()}
+      <div class="dilemma-container slide-in">
+        <div class="dilemma-card">
+          <div class="kicker">DILEMME ${gameState.currentDilemmaIndex + 1} / ${gameState.dilemmaQueue.length} — SAISON ${gameState.season}</div>
+          <h2>${dilemma.titre}</h2>
+          <p>${dilemma.desc}</p>
+        </div>
+
+        <div class="choices">
+          ${dilemma.c.map((choice, i) => `
+            <button class="choice" data-idx="${i}">
+              <span class="cl">Option ${i + 1} : ${choice.l}</span>
+              <span style="font-size: 12px; color: var(--gris);">Impact estimé : Budget ${choice.b >= 0 ? '+' : ''}${choice.b} M€</span>
+            </button>
+          `).join('')}
+        </div>
+      </div>
+    `;
+
+    app.querySelectorAll('.choice').forEach(btn => {
+      btn.onclick = () => {
+        const container = app.querySelector('.dilemma-container');
+        btn.classList.add('selected');
+
+        if (container) {
+          container.classList.remove('slide-in');
+          container.classList.add('slide-out');
+        }
+
+        const choiceIdx = parseInt(btn.dataset.idx, 10);
+        setTimeout(() => {
+          chooseDilemmaOption(choiceIdx);
+        }, 220);
+      };
+    });
+    return;
+  }
+
+  if (gameState.screen === 7) {
+    const calculated = getCalculatedPDAs();
+    const standings = calculated.map(item => ({
+      name: item.channel === gameState.player ? item.name + " (Vous)" : item.name,
+      pda: item.globalPda.toFixed(1),
+      isPlayer: item.channel === gameState.player
+    })).sort((a, b) => b.pda - a.pda);
+
+    app.innerHTML = `
+      ${renderMasthead("CLASSEMENT MÉDIAMÉTRIE")}
+      <div class="card">
+        <div class="tape"></div>
+        <div class="kicker">BILAN DE LA SAISON ${gameState.season}</div>
+        <h2>PART D'AUDIENCE GLOBALE</h2>
+
+        <table class="grid-table">
+          <thead>
+            <tr>
+              <th>Rang</th>
+              <th>Chaîne TV</th>
+              <th>PDA Totale</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${standings.map((st, idx) => `
+              <tr style="${st.isPlayer ? 'font-weight: bold; background: rgba(31,58,147,0.1);' : ''}">
+                <td>#${idx + 1}</td>
+                <td>${esc(st.name)}</td>
+                <td>${st.pda}%</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+
+        <h3>DERNIÈRES DÉCISIONS</h3>
+        <ul style="margin: 6px 0 12px 18px; font-size: 13px;">
+          ${gameState.logs.slice(-4).map(l => `<li><b>${esc(l.title)} :</b> ${esc(l.result)}</li>`).join('')}
+        </ul>
+      </div>
+
+      <button class="btn block" id="btn-next-season">Lancer la Saison ${gameState.season + 1} →</button>
+    `;
+
+    document.getElementById('btn-next-season').onclick = () => {
+      startNewSeason();
+    };
+    return;
+  }
+}
+
+render();
+</script>
+</body>
+</html>
