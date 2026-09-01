@@ -324,8 +324,10 @@ const TARGET_STRATEGIES = {
   csp: { nom: "CSP+ (Décideurs / Urbains)", desc: "Public aisé recherchant de l'investigation.", objectif: "Dominer l'influence culturelle." }
 };
 
+const FICTIONAL_CHANNEL_NAMES = ["FT1", "MonteCarloTV", "C/ACTUS", "TV9", "Banal+", "La Cinq", "FR3", "C14", "Energie 12", "I-Télé", "TPS ReStra", "Virgini 17"];
+
 const GENERATED_NAMES = {
-  generaliste: ["Canal 9", "Atlas TV", "Hexagone 1", "OmniVision", "La Grande Chaîne"],
+  generaliste: FICTIONAL_CHANNEL_NAMES,
   info: ["Info Direct", "N1 Info", "Actu 24", "Flash Média", "Présence Info"],
   divertissement: ["Pulse TV", "Star Show", "Maxi Fun", "Zap Channel", "Mega Prime"],
   sport: ["Arena Sport", "Stade 24", "X-Sport", "Chrono TV", "Vitesse Max"],
@@ -960,7 +962,7 @@ let gameState = {
 };
 
 function initCompetitors() {
-  const names = ["FT1", "MonteCarloTV", "C/ACTUS", "TV9", "Banal+", "La Cinq", "FR3", "C14", "Energie 12", "I-Télé", "TPS ReStra", "Virgini 17"];
+  const names = shuffle(FICTIONAL_CHANNEL_NAMES).slice(0, 6);
   const types = Object.keys(CHANNEL_TYPES);
   const targets = Object.keys(TARGET_STRATEGIES);
 
@@ -1467,7 +1469,7 @@ function render() {
         <ul style="margin: 8px 0 14px 18px; font-size: 14px;">
           <li><b>Capital de départ :</b> ${nf1(gameState.player.tresorerie)} M€</li>
           <li><b>Audience sur cible :</b> 1,0 % (Nouveau entrant)</li>
-          <li><b>Adversaires :</b> 12 chaînes établies avec de gros budgets.</li>
+          <li><b>Adversaires :</b> 6 chaînes établies avec de gros budgets.</li>
         </ul>
 
         <div class="badge">Objectif Année 1 : Passer le cap des 3% PDA</div>
