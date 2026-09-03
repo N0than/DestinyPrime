@@ -97,25 +97,14 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 @keyframes alertPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
 
 .hud-toggle {
-  display: flex; align-items: center; justify-content: center; gap: 6px;
-  width: 100%; box-sizing: border-box;
-  border: none; border-top: 1px solid rgba(22,19,14,0.15); border-bottom: 3px solid var(--ink);
-  background: rgba(255,255,255,0.25);
-  padding: 5px 10px; cursor: pointer;
-  font-family: 'Anton', sans-serif; font-size: 9px; letter-spacing: 1.2px; text-transform: uppercase;
-  color: var(--gris);
-  transition: background 0.15s, color 0.15s;
+  display: block; width: 100%; height: 22px; padding: 0; margin: 0; border: none;
+  background: var(--bleu); cursor: pointer;
+  clip-path: polygon(0 0, 100% 0, 100% 58%, 58% 58%, 50% 100%, 42% 58%, 0 58%);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), background 0.15s;
+  transform-origin: center;
 }
-.hud-toggle:hover { color: var(--ink); background: rgba(255,255,255,0.5); }
-.hud-toggle.open { color: var(--ink); background: rgba(255,255,255,0.5); }
-.hud-toggle .chevron {
-  width: 7px; height: 7px; margin-top: -3px;
-  border-right: 2px solid var(--gris); border-bottom: 2px solid var(--gris);
-  transform: rotate(45deg);
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.15s, margin-top 0.3s ease;
-}
-.hud-toggle:hover .chevron, .hud-toggle.open .chevron { border-color: var(--ink); }
-.hud-toggle.open .chevron { transform: rotate(-135deg); margin-top: 3px; }
+.hud-toggle:hover { background: #16306e; }
+.hud-toggle.open { transform: scaleY(-1); }
 
 .hud-details {
   max-height: 0; overflow: hidden; opacity: 0;
@@ -1239,10 +1228,7 @@ function renderTicker() {
           <div class="val">${Math.round(p.popularite)}%</div>
         </div>
       </div>
-      <button class="hud-toggle${open ? ' open' : ''}" id="hud-toggle" aria-label="Détail des indicateurs" aria-expanded="${open}">
-        <span>Détail des indicateurs</span>
-        <span class="chevron"></span>
-      </button>
+      <button class="hud-toggle${open ? ' open' : ''}" id="hud-toggle" aria-label="Détail des indicateurs" aria-expanded="${open}"></button>
       <div class="hud-details${open ? ' open' : ''}" id="hud-details">
         <div class="hud-details-inner">
           ${detailRows.map(r => `
