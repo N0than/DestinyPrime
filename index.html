@@ -127,25 +127,10 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
   background: #f7f3e8; border: 1.5px solid var(--ink); box-shadow: 4px 4px 0 rgba(22,19,14,0.85);
   padding: 12px 14px; margin-top: 8px;
 }
-.hud-detail-row {
-  display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 8px;
-  padding: 5px 0; border-bottom: 1px dashed rgba(22,19,14,0.15);
-}
-.hud-detail-row:last-of-type { border-bottom: none; }
-.hud-detail-row .hdr-label {
-  font-family: 'Anton', sans-serif; font-size: 12px; text-transform: uppercase; letter-spacing: 0.3px;
-  display: flex; align-items: center; gap: 5px; white-space: nowrap;
-}
-.hud-detail-row .hdr-value { font-family: 'Anton', sans-serif; font-size: 13px; margin-left: auto; white-space: nowrap; }
-.hud-detail-row .hdr-desc { font-size: 12px; color: #5c564a; font-style: italic; flex-basis: 100%; margin-top: 2px; }
 .hud-detail-subtitle {
   font-family: 'Anton', sans-serif; font-size: 11px; letter-spacing: 1px; text-transform: uppercase;
-  color: var(--rouge); margin: 10px 0 6px;
+  color: var(--rouge); margin: 0 0 6px;
 }
-.hud-audience-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
-.hud-audience-cell { text-align: center; background: var(--paper); border: 1px solid var(--ink); padding: 5px 2px; }
-.hud-audience-cell .aud-lab { font-size: 9px; color: var(--gris); text-transform: uppercase; font-family: 'Anton', sans-serif; }
-.hud-audience-cell .aud-val { font-family: 'Anton', sans-serif; font-size: 14px; }
 
 .spark-list { display: flex; flex-direction: column; gap: 10px; }
 .spark-block { border: 1px solid rgba(22,19,14,0.15); padding: 6px 8px 4px; }
@@ -1263,22 +1248,6 @@ function renderTicker() {
   const pdaCible = playerCalc.pda[p.target];
   const open = !!gameState.hudExpanded;
 
-  const detailRows = [
-    { icon: '💰', label: 'Trésorerie', val: `${nf1(p.tresorerie)} M€`, desc: `Capital disponible. Sous ${nf1(TRESORERIE_CRITIQUE)} M€, la chaîne est mise sous tutelle.` },
-    { icon: '🎯', label: 'PDA Cible', val: `${nf1(pdaCible)}%`, desc: `Part d'audience captée sur votre cible prioritaire (${TARGET_STRATEGIES[p.target].nom}).` },
-    { icon: '📋', label: 'Coût de grille', val: `${nf1(p.coutGrilleCumul)} M€`, desc: 'Total cumulé des dépenses de programmation depuis le lancement de la chaîne.' },
-    { icon: '📺', label: 'Revenus pub', val: `${nf1(p.revenusPubCumul)} M€`, desc: 'Recettes publicitaires cumulées, calculées à partir de votre PDA cible et de votre popularité.' },
-    { icon: '⭐', label: 'Popularité', val: `${Math.round(p.popularite)}%`, desc: 'Perception du public. Amplifie vos gains au-delà de 75 % et vos pertes en dessous de 25 %.' }
-  ];
-
-  const audienceLabels = { j1524: '15-24 ans', a2549: '25-49 ans', s50: '50+ ans', csp: 'CSP+' };
-  const audienceHtml = Object.entries(playerCalc.pda).map(([k, v]) => `
-    <div class="hud-audience-cell">
-      <div class="aud-lab">${audienceLabels[k]}</div>
-      <div class="aud-val">${nf1(v)}%</div>
-    </div>
-  `).join('');
-
   const lastHistorySeason = gameState.history.length ? gameState.history[gameState.history.length - 1].season : null;
   const currentPoint = {
     season: gameState.season, tresorerie: p.tresorerie, pdaCible, coutGrille: p.coutGrilleCumul,
@@ -1325,15 +1294,6 @@ function renderTicker() {
       </button>
       <div class="hud-details${open ? ' open' : ''}" id="hud-details">
         <div class="hud-details-inner">
-          ${detailRows.map(r => `
-            <div class="hud-detail-row">
-              <span class="hdr-label"><span class="ic">${r.icon}</span>${r.label}</span>
-              <span class="hdr-value">${r.val}</span>
-              <span class="hdr-desc">${r.desc}</span>
-            </div>
-          `).join('')}
-          <div class="hud-detail-subtitle">Répartition de l'audience par cible</div>
-          <div class="hud-audience-grid">${audienceHtml}</div>
           <div class="hud-detail-subtitle">Évolution par saison</div>
           <div class="spark-list">${sparklinesHtml}</div>
         </div>
