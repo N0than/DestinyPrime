@@ -98,11 +98,10 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 @keyframes alertPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
 
 .hud-toggle {
-  display: block; width: 100%; box-sizing: border-box; padding: 0; margin: 0; border: none;
+  display: flex; align-items: flex-start; gap: 4px;
+  width: 100%; box-sizing: border-box; padding: 0; margin: 0; border: none;
   background: transparent; cursor: pointer;
 }
-.hud-toggle-spacer { display: block; height: 6px; background: rgba(255,255,255,0.4); }
-.hud-toggle-row { display: flex; align-items: center; gap: 4px; }
 .hud-toggle-line { flex: 1; height: 2px; background: var(--ink); }
 .hud-toggle-chevron {
   position: relative; flex-shrink: 0; width: 12px; height: 12px;
@@ -1242,12 +1241,9 @@ function renderTicker() {
         </div>
       </div>
       <button class="hud-toggle${open ? ' open' : ''}" id="hud-toggle" aria-label="Détail des indicateurs" aria-expanded="${open}">
-        <span class="hud-toggle-spacer"></span>
-        <span class="hud-toggle-row">
-          <span class="hud-toggle-line"></span>
-          <span class="hud-toggle-chevron"></span>
-          <span class="hud-toggle-line"></span>
-        </span>
+        <span class="hud-toggle-line"></span>
+        <span class="hud-toggle-chevron"></span>
+        <span class="hud-toggle-line"></span>
       </button>
       <div class="hud-details${open ? ' open' : ''}" id="hud-details">
         <div class="hud-details-inner">
