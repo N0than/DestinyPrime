@@ -132,15 +132,22 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
   color: var(--rouge); margin: 0 0 6px;
 }
 
-.spark-list { display: flex; flex-direction: column; gap: 10px; }
-.spark-block { border: 1px solid rgba(22,19,14,0.15); padding: 6px 8px 4px; }
-.spark-head {
+.spark-list { display: flex; flex-direction: column; }
+.spark-block { padding: 12px 0; border-bottom: 1px dashed rgba(22,19,14,0.15); }
+.spark-block:last-child { border-bottom: none; padding-bottom: 2px; }
+.spark-title {
   display: flex; align-items: center; gap: 5px;
   font-family: 'Anton', sans-serif; font-size: 11px; text-transform: uppercase; letter-spacing: 0.3px;
+  margin-bottom: 8px;
 }
-.spark-last-val { margin-left: auto; font-size: 12px; color: var(--gris); }
-.spark-svg { display: block; width: 100%; height: 40px; margin-top: 2px; }
-.spark-axis { display: flex; justify-content: space-between; font-size: 9px; color: var(--gris); font-style: italic; margin-top: 1px; }
+.spark-headrow { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 6px; }
+.spark-peak { text-align: right; }
+.spark-sublabel { font-family: 'Anton', sans-serif; font-size: 8.5px; letter-spacing: 1px; text-transform: uppercase; color: var(--gris); }
+.spark-cur-value { font-family: 'Anton', sans-serif; font-size: 21px; margin-top: 2px; }
+.spark-peak-value { font-family: 'Anton', sans-serif; font-size: 14px; color: var(--gold); margin-top: 2px; }
+.spark-peak-caption { font-size: 10px; color: var(--gris); font-style: italic; margin-top: 1px; }
+.spark-svg { display: block; width: 100%; height: 56px; }
+.spark-axis { display: flex; justify-content: space-between; font-size: 9px; color: var(--gris); font-style: italic; margin-top: 3px; }
 .spark-empty { font-size: 12px; color: var(--gris); font-style: italic; margin-top: 3px; }
 
 /* ---- ÉCRAN DE CONSÉQUENCES ---- */
@@ -322,12 +329,12 @@ function renderIndicatorSparkline(points, key, decimals, suffix, color, icon, la
   if (points.length < 2) {
     return `
       <div class="spark-block">
-        <div class="spark-head"><span class="ic">${icon}</span>${label}</div>
+        <div class="spark-title"><span class="ic">${icon}</span>${label}</div>
         <div class="spark-empty">Graphique disponible après la saison 1</div>
       </div>
     `;
   }
-  const w = 280, h = 44, pad = 4;
+  const w = 280, h = 56, pad = 4, baseline = h - pad;
   const vals = points.map(pt => pt[key]);
   const min = Math.min(...vals);
   const max = Math.max(...vals);
@@ -338,20 +345,43 @@ function renderIndicatorSparkline(points, key, decimals, suffix, color, icon, la
     const y = pad + (h - pad * 2) * (1 - (v - min) / range);
     return { x, y, v, season: points[i].season };
   });
+  const peakIdx = vals.indexOf(max);
   const linePts = coords.map(c => `${c.x.toFixed(1)},${c.y.toFixed(1)}`).join(' ');
-  const dots = coords.map((c, i) => `
-    <circle cx="${c.x.toFixed(1)}" cy="${c.y.toFixed(1)}" r="${i === coords.length - 1 ? 3 : 2}" fill="${i === coords.length - 1 ? color : 'var(--paper)'}" stroke="${color}" stroke-width="1.3">
-      <title>Saison ${c.season} : ${nf1(c.v)}${suffix}</title>
-    </circle>
-  `).join('');
+  const areaPts = `${pad.toFixed(1)},${baseline.toFixed(1)} ${linePts} ${(w - pad).toFixed(1)},${baseline.toFixed(1)}`;
+  const gradId = `spark-grad-${key}`;
+  const dots = coords.map((c, i) => {
+    const isPeak = i === peakIdx;
+    return `
+      <circle cx="${c.x.toFixed(1)}" cy="${c.y.toFixed(1)}" r="${isPeak ? 3.5 : 2}" fill="${isPeak ? 'var(--gold)' : 'var(--paper)'}" stroke="${isPeak ? 'var(--gold)' : color}" stroke-width="1.3">
+        <title>Saison ${c.season} : ${nf1(c.v)}${suffix}</title>
+      </circle>
+    `;
+  }).join('');
   const last = coords[coords.length - 1];
+  const peak = coords[peakIdx];
+  const peakCaption = peakIdx === coords.length - 1 ? 'en cours' : `Saison ${peak.season}`;
   return `
     <div class="spark-block">
-      <div class="spark-head">
-        <span class="ic">${icon}</span>${label}
-        <span class="spark-last-val">${nf1(last.v)}${suffix}</span>
+      <div class="spark-title"><span class="ic">${icon}</span>${label}</div>
+      <div class="spark-headrow">
+        <div class="spark-cur">
+          <div class="spark-sublabel">Valeur actuelle</div>
+          <div class="spark-cur-value">${nf1(last.v)}${suffix}</div>
+        </div>
+        <div class="spark-peak">
+          <div class="spark-sublabel">Sommet</div>
+          <div class="spark-peak-value">${nf1(peak.v)}${suffix}</div>
+          <div class="spark-peak-caption">${peakCaption}</div>
+        </div>
       </div>
       <svg class="spark-svg" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+          <linearGradient id="${gradId}" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="${color}" stop-opacity="0.28" />
+            <stop offset="100%" stop-color="${color}" stop-opacity="0" />
+          </linearGradient>
+        </defs>
+        <polygon points="${areaPts}" fill="url(#${gradId})" />
         <polyline points="${linePts}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
         ${dots}
       </svg>
