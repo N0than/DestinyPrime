@@ -77,11 +77,10 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 /* ---- HUD (5 INDICATEURS) ---- */
 .hud-wrap { margin: 0 0 16px; }
 .hud {
-  display: flex; align-items: stretch; gap: 6px;
-  border-top: 3px solid var(--ink); border-bottom: 3px solid var(--ink);
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px;
+  border-top: 3px solid var(--ink);
   padding: 8px 4px; background: rgba(255,255,255,0.4);
 }
-.hud-cells { flex: 1; min-width: 0; display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
 .hud-cell { position: relative; text-align: center; min-width: 0; padding: 0 3px; }
 .hud-cell .lab {
   font-family: 'Anton', sans-serif; font-size: 8.5px; letter-spacing: 0.5px; text-transform: uppercase;
@@ -98,15 +97,25 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 @keyframes alertPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
 
 .hud-toggle {
-  flex-shrink: 0; align-self: center;
-  width: 18px; height: 18px; border-radius: 50%; padding: 0;
-  background: transparent; border: 1.5px solid var(--gris); color: var(--gris);
-  display: flex; align-items: center; justify-content: center;
-  font-family: 'Anton', sans-serif; font-size: 12px; line-height: 1; cursor: pointer;
-  opacity: 0.55; transition: opacity 0.15s, border-color 0.15s, color 0.15s, transform 0.25s ease;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  width: 100%; box-sizing: border-box;
+  border: none; border-top: 1px solid rgba(22,19,14,0.15); border-bottom: 3px solid var(--ink);
+  background: rgba(255,255,255,0.25);
+  padding: 5px 10px; cursor: pointer;
+  font-family: 'Anton', sans-serif; font-size: 9px; letter-spacing: 1.2px; text-transform: uppercase;
+  color: var(--gris);
+  transition: background 0.15s, color 0.15s;
 }
-.hud-toggle:hover { opacity: 1; border-color: var(--ink); color: var(--ink); }
-.hud-toggle.open { opacity: 1; border-color: var(--ink); color: var(--ink); transform: rotate(45deg); }
+.hud-toggle:hover { color: var(--ink); background: rgba(255,255,255,0.5); }
+.hud-toggle.open { color: var(--ink); background: rgba(255,255,255,0.5); }
+.hud-toggle .chevron {
+  width: 7px; height: 7px; margin-top: -3px;
+  border-right: 2px solid var(--gris); border-bottom: 2px solid var(--gris);
+  transform: rotate(45deg);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.15s, margin-top 0.3s ease;
+}
+.hud-toggle:hover .chevron, .hud-toggle.open .chevron { border-color: var(--ink); }
+.hud-toggle.open .chevron { transform: rotate(-135deg); margin-top: 3px; }
 
 .hud-details {
   max-height: 0; overflow: hidden; opacity: 0;
@@ -150,7 +159,6 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 
 @media (max-width: 520px) {
   .hud { gap: 3px; padding: 6px 2px; }
-  .hud-cells { gap: 3px; }
   .hud-cell { padding: 0 1px; }
   .hud-cell .lab { font-size: 7.5px; gap: 2px; }
   .hud-cell .val { font-size: 20px; }
@@ -1210,30 +1218,31 @@ function renderTicker() {
   return `
     <div class="hud-wrap">
       <div class="hud">
-        <div class="hud-cells">
-          <div class="hud-cell hero${p.tresorerie < 0 ? ' alert' : ''}">
-            <div class="lab"><span class="ic">💰</span>Trésorerie</div>
-            <div class="val">${nf1(p.tresorerie)} M€</div>
-          </div>
-          <div class="hud-cell hero">
-            <div class="lab"><span class="ic">🎯</span>PDA Cible</div>
-            <div class="val">${nf1(pdaCible)}%</div>
-          </div>
-          <div class="hud-cell">
-            <div class="lab"><span class="ic">📋</span>Coût grille</div>
-            <div class="val">${nf1(p.coutGrilleCumul)} M€</div>
-          </div>
-          <div class="hud-cell">
-            <div class="lab"><span class="ic">📺</span>Revenus pub</div>
-            <div class="val">${nf1(p.revenusPubCumul)} M€</div>
-          </div>
-          <div class="hud-cell">
-            <div class="lab"><span class="ic">⭐</span>Popularité</div>
-            <div class="val">${Math.round(p.popularite)}%</div>
-          </div>
+        <div class="hud-cell hero${p.tresorerie < 0 ? ' alert' : ''}">
+          <div class="lab"><span class="ic">💰</span>Trésorerie</div>
+          <div class="val">${nf1(p.tresorerie)} M€</div>
         </div>
-        <button class="hud-toggle${open ? ' open' : ''}" id="hud-toggle" aria-label="Détail des indicateurs" aria-expanded="${open}">+</button>
+        <div class="hud-cell hero">
+          <div class="lab"><span class="ic">🎯</span>PDA Cible</div>
+          <div class="val">${nf1(pdaCible)}%</div>
+        </div>
+        <div class="hud-cell">
+          <div class="lab"><span class="ic">📋</span>Coût grille</div>
+          <div class="val">${nf1(p.coutGrilleCumul)} M€</div>
+        </div>
+        <div class="hud-cell">
+          <div class="lab"><span class="ic">📺</span>Revenus pub</div>
+          <div class="val">${nf1(p.revenusPubCumul)} M€</div>
+        </div>
+        <div class="hud-cell">
+          <div class="lab"><span class="ic">⭐</span>Popularité</div>
+          <div class="val">${Math.round(p.popularite)}%</div>
+        </div>
       </div>
+      <button class="hud-toggle${open ? ' open' : ''}" id="hud-toggle" aria-label="Détail des indicateurs" aria-expanded="${open}">
+        <span>Détail des indicateurs</span>
+        <span class="chevron"></span>
+      </button>
       <div class="hud-details${open ? ' open' : ''}" id="hud-details">
         <div class="hud-details-inner">
           ${detailRows.map(r => `
