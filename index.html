@@ -147,6 +147,17 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .hud-audience-cell .aud-lab { font-size: 9px; color: var(--gris); text-transform: uppercase; font-family: 'Anton', sans-serif; }
 .hud-audience-cell .aud-val { font-family: 'Anton', sans-serif; font-size: 14px; }
 
+.spark-list { display: flex; flex-direction: column; gap: 10px; }
+.spark-block { border: 1px solid rgba(22,19,14,0.15); padding: 6px 8px 4px; }
+.spark-head {
+  display: flex; align-items: center; gap: 5px;
+  font-family: 'Anton', sans-serif; font-size: 11px; text-transform: uppercase; letter-spacing: 0.3px;
+}
+.spark-last-val { margin-left: auto; font-size: 12px; color: var(--gris); }
+.spark-svg { display: block; width: 100%; height: 40px; margin-top: 2px; }
+.spark-axis { display: flex; justify-content: space-between; font-size: 9px; color: var(--gris); font-style: italic; margin-top: 1px; }
+.spark-empty { font-size: 12px; color: var(--gris); font-style: italic; margin-top: 3px; }
+
 /* ---- ÉCRAN DE CONSÉQUENCES ---- */
 .impact-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
 .impact-badge {
@@ -320,6 +331,48 @@ function fmtDelta(val, decimals, suffix) {
   const sign = val > 0 ? '+' : (val < 0 ? '' : '±');
   const formatted = val.toLocaleString('fr-FR', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
   return `${sign}${formatted}${suffix}`;
+}
+
+function renderIndicatorSparkline(points, key, decimals, suffix, color, icon, label) {
+  if (points.length < 2) {
+    return `
+      <div class="spark-block">
+        <div class="spark-head"><span class="ic">${icon}</span>${label}</div>
+        <div class="spark-empty">Graphique disponible après la saison 1</div>
+      </div>
+    `;
+  }
+  const w = 280, h = 44, pad = 4;
+  const vals = points.map(pt => pt[key]);
+  const min = Math.min(...vals);
+  const max = Math.max(...vals);
+  const range = (max - min) || 1;
+  const stepX = (w - pad * 2) / (points.length - 1);
+  const coords = vals.map((v, i) => {
+    const x = pad + stepX * i;
+    const y = pad + (h - pad * 2) * (1 - (v - min) / range);
+    return { x, y, v, season: points[i].season };
+  });
+  const linePts = coords.map(c => `${c.x.toFixed(1)},${c.y.toFixed(1)}`).join(' ');
+  const dots = coords.map((c, i) => `
+    <circle cx="${c.x.toFixed(1)}" cy="${c.y.toFixed(1)}" r="${i === coords.length - 1 ? 3 : 2}" fill="${i === coords.length - 1 ? color : 'var(--paper)'}" stroke="${color}" stroke-width="1.3">
+      <title>Saison ${c.season} : ${nf1(c.v)}${suffix}</title>
+    </circle>
+  `).join('');
+  const last = coords[coords.length - 1];
+  return `
+    <div class="spark-block">
+      <div class="spark-head">
+        <span class="ic">${icon}</span>${label}
+        <span class="spark-last-val">${nf1(last.v)}${suffix}</span>
+      </div>
+      <svg class="spark-svg" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-hidden="true">
+        <polyline points="${linePts}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
+        ${dots}
+      </svg>
+      <div class="spark-axis"><span>Saison ${coords[0].season}</span><span>Saison ${last.season}</span></div>
+    </div>
+  `;
 }
 
 function computeAttractivite(popularite) {
@@ -1011,7 +1064,8 @@ let gameState = {
   logs: [],
   lastConsequence: null,
   pendingNextStep: null,
-  hudExpanded: false
+  hudExpanded: false,
+  history: []
 };
 
 function initCompetitors() {
@@ -1123,6 +1177,14 @@ function chooseDilemmaOption(choiceIndex) {
     gameState.pendingNextStep = 8;
   } else if (gameState.currentDilemmaIndex >= gameState.dilemmaQueue.length) {
     gameState.pendingNextStep = 7;
+    gameState.history.push({
+      season: gameState.season,
+      tresorerie: player.tresorerie,
+      pdaCible: pdaCibleApres,
+      coutGrille: player.coutGrilleCumul,
+      revenusPub: player.revenusPubCumul,
+      popularite: player.popularite
+    });
   } else {
     gameState.pendingNextStep = 6;
   }
@@ -1179,6 +1241,7 @@ function resetGame() {
   gameState.lastConsequence = null;
   gameState.pendingNextStep = null;
   gameState.hudExpanded = false;
+  gameState.history = [];
   render();
 }
 
@@ -1215,6 +1278,21 @@ function renderTicker() {
       <div class="aud-val">${nf1(v)}%</div>
     </div>
   `).join('');
+
+  const lastHistorySeason = gameState.history.length ? gameState.history[gameState.history.length - 1].season : null;
+  const currentPoint = {
+    season: gameState.season, tresorerie: p.tresorerie, pdaCible, coutGrille: p.coutGrilleCumul,
+    revenusPub: p.revenusPubCumul, popularite: p.popularite
+  };
+  const chartPoints = lastHistorySeason === gameState.season ? gameState.history : [...gameState.history, currentPoint];
+
+  const sparklinesHtml = [
+    renderIndicatorSparkline(chartPoints, 'tresorerie', 1, ' M€', 'var(--bleu)', '💰', 'Trésorerie'),
+    renderIndicatorSparkline(chartPoints, 'pdaCible', 1, '%', 'var(--rouge)', '🎯', 'PDA Cible'),
+    renderIndicatorSparkline(chartPoints, 'coutGrille', 1, ' M€', 'var(--gris)', '📋', 'Coût de grille'),
+    renderIndicatorSparkline(chartPoints, 'revenusPub', 1, ' M€', 'var(--vert)', '📺', 'Revenus pub'),
+    renderIndicatorSparkline(chartPoints, 'popularite', 0, '%', 'var(--gold)', '⭐', 'Popularité')
+  ].join('');
 
   return `
     <div class="hud-wrap">
@@ -1256,6 +1334,8 @@ function renderTicker() {
           `).join('')}
           <div class="hud-detail-subtitle">Répartition de l'audience par cible</div>
           <div class="hud-audience-grid">${audienceHtml}</div>
+          <div class="hud-detail-subtitle">Évolution par saison</div>
+          <div class="spark-list">${sparklinesHtml}</div>
         </div>
       </div>
     </div>
