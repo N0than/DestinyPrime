@@ -103,16 +103,17 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 }
 .hud-toggle-line { flex: 1; height: 2px; background: var(--ink); }
 .hud-toggle-chevron {
-  flex-shrink: 0; width: 12px; height: 12px;
-  display: flex; align-items: center; justify-content: center;
+  position: relative; flex-shrink: 0; width: 12px; height: 12px;
   opacity: 0.4;
   transition: opacity 0.15s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.hud-toggle-chevron::before {
-  content: ''; width: 7px; height: 7px;
-  border-right: 1.4px solid var(--ink); border-bottom: 1.4px solid var(--ink);
-  transform: rotate(45deg); margin-top: -3px;
+.hud-toggle-chevron::before,
+.hud-toggle-chevron::after {
+  content: ''; position: absolute; left: 50%; top: 1px; width: 6px; height: 6px;
+  border-right: 1.3px solid var(--ink); border-bottom: 1.3px solid var(--ink);
+  transform: translateX(-50%) rotate(45deg);
 }
+.hud-toggle-chevron::after { top: 5px; }
 .hud-toggle:hover .hud-toggle-chevron { opacity: 1; }
 .hud-toggle.open .hud-toggle-chevron { transform: rotate(180deg); }
 
