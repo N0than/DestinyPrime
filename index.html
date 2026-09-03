@@ -78,17 +78,11 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .hud-wrap { margin: 0 0 16px; }
 .hud {
   display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px;
-  border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink);
+  border-top: 2px solid var(--ink);
   padding: 0; background: rgba(255,255,255,0.4);
   align-items: stretch;
 }
-.hud-cell {
-  position: relative; text-align: center; min-width: 0; padding: 8px 3px;
-  background: var(--paper);
-  border-left: 1px solid rgba(22,19,14,0.1); border-right: 1px solid rgba(22,19,14,0.1);
-}
-.hud-cell:first-child { border-left: none; }
-.hud-cell:last-child { border-right: none; }
+.hud-cell { position: relative; text-align: center; min-width: 0; padding: 8px 3px; }
 .hud-cell .lab {
   font-family: 'Anton', sans-serif; font-size: 8.5px; letter-spacing: 0.5px; text-transform: uppercase;
   color: var(--gris); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
