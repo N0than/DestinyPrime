@@ -78,10 +78,17 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .hud-wrap { margin: 0 0 16px; }
 .hud {
   display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px;
-  border-top: 3px solid var(--ink);
-  padding: 8px 4px; background: rgba(255,255,255,0.4);
+  border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink);
+  padding: 0; background: rgba(255,255,255,0.4);
+  align-items: stretch;
 }
-.hud-cell { position: relative; text-align: center; min-width: 0; padding: 0 3px; }
+.hud-cell {
+  position: relative; text-align: center; min-width: 0; padding: 8px 3px;
+  background: var(--paper);
+  border-left: 1px solid rgba(22,19,14,0.1); border-right: 1px solid rgba(22,19,14,0.1);
+}
+.hud-cell:first-child { border-left: none; }
+.hud-cell:last-child { border-right: none; }
 .hud-cell .lab {
   font-family: 'Anton', sans-serif; font-size: 8.5px; letter-spacing: 0.5px; text-transform: uppercase;
   color: var(--gris); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
@@ -98,7 +105,7 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 
 .hud-toggle {
   display: flex; align-items: center; gap: 4px;
-  width: 100%; box-sizing: border-box; padding: 9px 4px; margin: 0; border: none;
+  width: 100%; box-sizing: border-box; padding: 0; margin: 0; border: none;
   background: transparent; cursor: pointer;
 }
 .hud-toggle-line { flex: 1; height: 2px; background: var(--ink); }
@@ -158,8 +165,8 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .impact-badge.flat { color: var(--gris); border-color: var(--gris); }
 
 @media (max-width: 520px) {
-  .hud { gap: 3px; padding: 6px 2px; }
-  .hud-cell { padding: 0 1px; }
+  .hud { gap: 3px; }
+  .hud-cell { padding: 6px 1px; }
   .hud-cell .lab { font-size: 7.5px; gap: 2px; }
   .hud-cell .val { font-size: 20px; }
 }
