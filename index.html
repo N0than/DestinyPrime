@@ -75,13 +75,13 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .masthead .under { font-style: italic; font-size: 13px; margin-top: 2px; color: #4a443b; margin-bottom: 10px; }
 
 /* ---- HUD (5 INDICATEURS) ---- */
-.hud-wrap { position: relative; margin: 0 0 16px; }
+.hud-wrap { margin: 0 0 16px; }
 .hud {
-  position: relative;
-  display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px;
+  display: flex; align-items: stretch; gap: 6px;
   border-top: 3px solid var(--ink); border-bottom: 3px solid var(--ink);
-  padding: 8px 24px 8px 4px; background: rgba(255,255,255,0.4);
+  padding: 8px 4px; background: rgba(255,255,255,0.4);
 }
+.hud-cells { flex: 1; min-width: 0; display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
 .hud-cell { position: relative; text-align: center; min-width: 0; padding: 0 3px; }
 .hud-cell .lab {
   font-family: 'Anton', sans-serif; font-size: 8.5px; letter-spacing: 0.5px; text-transform: uppercase;
@@ -98,7 +98,7 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 @keyframes alertPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
 
 .hud-toggle {
-  position: absolute; top: 50%; right: 3px; transform: translateY(-50%);
+  flex-shrink: 0; align-self: center;
   width: 18px; height: 18px; border-radius: 50%; padding: 0;
   background: transparent; border: 1.5px solid var(--gris); color: var(--gris);
   display: flex; align-items: center; justify-content: center;
@@ -106,7 +106,7 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
   opacity: 0.55; transition: opacity 0.15s, border-color 0.15s, color 0.15s, transform 0.25s ease;
 }
 .hud-toggle:hover { opacity: 1; border-color: var(--ink); color: var(--ink); }
-.hud-toggle.open { opacity: 1; border-color: var(--ink); color: var(--ink); transform: translateY(-50%) rotate(45deg); }
+.hud-toggle.open { opacity: 1; border-color: var(--ink); color: var(--ink); transform: rotate(45deg); }
 
 .hud-details {
   max-height: 0; overflow: hidden; opacity: 0;
@@ -149,7 +149,8 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .impact-badge.flat { color: var(--gris); border-color: var(--gris); }
 
 @media (max-width: 520px) {
-  .hud { gap: 3px; padding: 6px 20px 6px 2px; }
+  .hud { gap: 3px; padding: 6px 2px; }
+  .hud-cells { gap: 3px; }
   .hud-cell { padding: 0 1px; }
   .hud-cell .lab { font-size: 7.5px; gap: 2px; }
   .hud-cell .val { font-size: 20px; }
@@ -1209,25 +1210,27 @@ function renderTicker() {
   return `
     <div class="hud-wrap">
       <div class="hud">
-        <div class="hud-cell hero${p.tresorerie < 0 ? ' alert' : ''}">
-          <div class="lab"><span class="ic">💰</span>Trésorerie</div>
-          <div class="val">${nf1(p.tresorerie)} M€</div>
-        </div>
-        <div class="hud-cell hero">
-          <div class="lab"><span class="ic">🎯</span>PDA Cible</div>
-          <div class="val">${nf1(pdaCible)}%</div>
-        </div>
-        <div class="hud-cell">
-          <div class="lab"><span class="ic">📋</span>Coût grille</div>
-          <div class="val">${nf1(p.coutGrilleCumul)} M€</div>
-        </div>
-        <div class="hud-cell">
-          <div class="lab"><span class="ic">📺</span>Revenus pub</div>
-          <div class="val">${nf1(p.revenusPubCumul)} M€</div>
-        </div>
-        <div class="hud-cell">
-          <div class="lab"><span class="ic">⭐</span>Popularité</div>
-          <div class="val">${Math.round(p.popularite)}%</div>
+        <div class="hud-cells">
+          <div class="hud-cell hero${p.tresorerie < 0 ? ' alert' : ''}">
+            <div class="lab"><span class="ic">💰</span>Trésorerie</div>
+            <div class="val">${nf1(p.tresorerie)} M€</div>
+          </div>
+          <div class="hud-cell hero">
+            <div class="lab"><span class="ic">🎯</span>PDA Cible</div>
+            <div class="val">${nf1(pdaCible)}%</div>
+          </div>
+          <div class="hud-cell">
+            <div class="lab"><span class="ic">📋</span>Coût grille</div>
+            <div class="val">${nf1(p.coutGrilleCumul)} M€</div>
+          </div>
+          <div class="hud-cell">
+            <div class="lab"><span class="ic">📺</span>Revenus pub</div>
+            <div class="val">${nf1(p.revenusPubCumul)} M€</div>
+          </div>
+          <div class="hud-cell">
+            <div class="lab"><span class="ic">⭐</span>Popularité</div>
+            <div class="val">${Math.round(p.popularite)}%</div>
+          </div>
         </div>
         <button class="hud-toggle${open ? ' open' : ''}" id="hud-toggle" aria-label="Détail des indicateurs" aria-expanded="${open}">+</button>
       </div>
