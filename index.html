@@ -507,7 +507,12 @@ function renderGlobalAudienceShare() {
   })).sort((a, b) => b.pda - a.pda);
   const max = Math.max(...standings.map(s => s.pda), 1);
 
-  const switcherHtml = AUDIENCE_TARGETS.map(t => `
+  const strategicKey = gameState.player.target;
+  const orderedTargets = [
+    ...AUDIENCE_TARGETS.filter(t => t.key === strategicKey),
+    ...AUDIENCE_TARGETS.filter(t => t.key !== strategicKey)
+  ];
+  const switcherHtml = orderedTargets.map(t => `
     <button class="ga-target-btn${t.key === activeTarget.key ? ' active' : ''}" data-audience-target="${t.key}">${t.short}</button>
   `).join('');
 
@@ -681,7 +686,7 @@ const AUDIENCE_TARGETS = [
   { key: 'j1524', short: '15-24', full: '15-24 ans' },
   { key: 'a2549', short: '25-49', full: '25-49 ans' },
   { key: 's50', short: '+50', full: '50 ans et +' },
-  { key: 'csp', short: 'Femmes RDA', full: 'Femmes RDA' }
+  { key: 'csp', short: 'CSP+', full: 'CSP+' }
 ];
 
 const FICTIONAL_CHANNEL_NAMES = ["FT1", "MonteCarloTV", "C/ACTUS", "TV9", "Banal+", "La Cinq", "FR3", "C14", "Energie 12", "I-Télé", "TPS+", "Virgini 17"];
