@@ -131,14 +131,13 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
   font-family: 'Anton', sans-serif; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;
   color: var(--ink); margin: 0 0 2px;
 }
-.eh-subtitle { font-size: 11px; font-style: italic; color: var(--gris); margin: 0 0 12px; }
-.eh-bar-block { margin-top: 16px; }
-.eh-bar-block:first-of-type { margin-top: 0; }
-.eh-bar-title {
-  display: flex; align-items: center; gap: 5px;
-  font-family: 'Anton', sans-serif; font-size: 11px; text-transform: uppercase; letter-spacing: 0.3px;
-  margin-bottom: 4px;
+.eh-subtitle { font-size: 11px; font-style: italic; color: var(--gris); margin: 0 0 10px; }
+.eh-legend { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 8px; }
+.eh-legend-item {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-family: 'Anton', sans-serif; font-size: 10px; text-transform: uppercase; letter-spacing: 0.3px;
 }
+.eh-legend-item i { display: inline-block; width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
 .eh-bar-svg { display: block; width: 100%; height: 100px; }
 .spark-empty { font-size: 12px; color: var(--gris); font-style: italic; margin-top: 3px; }
 
@@ -334,37 +333,37 @@ function renderEvolutionChart(points) {
   const baseline = h - 20;
   const chartH = baseline - padTop;
   const n = recentPoints.length;
-  const gap = 8;
-  const barW = (w - padSide * 2 - gap * (n - 1)) / n;
+  const groupGap = 10;
+  const barGap = 3;
+  const groupW = (w - padSide * 2 - groupGap * (n - 1)) / n;
+  const barW = (groupW - barGap) / 2;
+  const max = Math.max(...recentPoints.flatMap(pt => series.map(s => pt[s.key])), 1);
 
-  const barsHtml = series.map(s => {
-    const vals = recentPoints.map(pt => pt[s.key]);
-    const max = Math.max(...vals, 1);
-    const bars = recentPoints.map((pt, i) => {
+  const barsHtml = recentPoints.map((pt, i) => {
+    const groupX = padSide + i * (groupW + groupGap);
+    const groupBars = series.map((s, si) => {
       const v = pt[s.key];
-      const x = padSide + i * (barW + gap);
+      const x = groupX + si * (barW + barGap);
       const barH = Math.max((v / max) * chartH, 2);
       const y = baseline - barH;
       return `
-        <text x="${(x + barW / 2).toFixed(1)}" y="${(y - 4).toFixed(1)}" text-anchor="middle" font-family="'Anton', sans-serif" font-size="9" fill="var(--ink)">${nf1(v)}${s.suffix}</text>
+        <text x="${(x + barW / 2).toFixed(1)}" y="${(y - 3).toFixed(1)}" text-anchor="middle" font-family="'Anton', sans-serif" font-size="7.5" fill="var(--ink)">${nf1(v)}</text>
         <rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="${barH.toFixed(1)}" rx="2" fill="${s.color}">
           <title>Saison ${pt.season} — ${s.label} : ${nf1(v)}${s.suffix}</title>
         </rect>
-        <text x="${(x + barW / 2).toFixed(1)}" y="${(baseline + 12).toFixed(1)}" text-anchor="middle" font-size="9" font-style="italic" fill="var(--gris)">Saison ${pt.season}</text>
       `;
     }).join('');
-    return `
-      <div class="eh-bar-block">
-        <div class="eh-bar-title"><span class="ic">${s.icon}</span>${s.label}</div>
-        <svg class="eh-bar-svg" viewBox="0 0 ${w} ${h}" aria-hidden="true">${bars}</svg>
-      </div>
-    `;
+    const seasonLabel = `<text x="${(groupX + groupW / 2).toFixed(1)}" y="${(baseline + 12).toFixed(1)}" text-anchor="middle" font-size="9" font-style="italic" fill="var(--gris)">Saison ${pt.season}</text>`;
+    return groupBars + seasonLabel;
   }).join('');
 
   return `
     <div class="eh-title">Évolution de votre chaîne</div>
     <div class="eh-subtitle">Performance des principaux indicateurs sur les 5 dernières saisons</div>
-    ${barsHtml}
+    <div class="eh-legend">
+      ${series.map(s => `<span class="eh-legend-item"><i style="background:${s.color}"></i>${s.icon} ${s.label}</span>`).join('')}
+    </div>
+    <svg class="eh-bar-svg" viewBox="0 0 ${w} ${h}" aria-hidden="true">${barsHtml}</svg>
   `;
 }
 
