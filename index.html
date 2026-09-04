@@ -131,15 +131,15 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
   font-family: 'Anton', sans-serif; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;
   color: var(--ink); margin: 0 0 2px;
 }
-.eh-subtitle { font-size: 11px; font-style: italic; color: var(--gris); margin: 0 0 10px; }
-.eh-legend { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 8px; }
-.eh-legend-item {
-  display: inline-flex; align-items: center; gap: 5px;
-  font-family: 'Anton', sans-serif; font-size: 10px; text-transform: uppercase; letter-spacing: 0.3px;
+.eh-subtitle { font-size: 11px; font-style: italic; color: var(--gris); margin: 0 0 12px; }
+.eh-bar-block { margin-top: 16px; }
+.eh-bar-block:first-of-type { margin-top: 0; }
+.eh-bar-title {
+  display: flex; align-items: center; gap: 5px;
+  font-family: 'Anton', sans-serif; font-size: 11px; text-transform: uppercase; letter-spacing: 0.3px;
+  margin-bottom: 4px;
 }
-.eh-legend-item i { display: inline-block; width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
-.eh-svg { display: block; width: 100%; height: 110px; }
-.eh-axis { display: flex; justify-content: space-between; font-size: 9px; color: var(--gris); font-style: italic; margin-top: 4px; }
+.eh-bar-svg { display: block; width: 100%; height: 100px; }
 .spark-empty { font-size: 12px; color: var(--gris); font-style: italic; margin-top: 3px; }
 
 /* ---- ÉCRAN DE CONSÉQUENCES ---- */
@@ -321,7 +321,7 @@ function renderEvolutionChart(points) {
   if (points.length < 2) {
     return `
       <div class="eh-title">Évolution de votre chaîne</div>
-      <div class="eh-subtitle">Performance des principaux indicateurs depuis la Saison 1</div>
+      <div class="eh-subtitle">Performance des principaux indicateurs sur les 5 dernières saisons</div>
       <div class="spark-empty">Graphique disponible après la saison 1</div>
     `;
   }
@@ -329,72 +329,42 @@ function renderEvolutionChart(points) {
     { key: 'coutGrille', color: 'var(--gris)', icon: '📋', label: 'Coût de grille', suffix: ' M€' },
     { key: 'revenusPub', color: 'var(--vert)', icon: '📺', label: 'Revenus pub', suffix: ' M€' }
   ];
-  const w = 280, h = 110, pad = 6, baseline = h - pad;
-  const stepX = (w - pad * 2) / (points.length - 1);
+  const recentPoints = points.slice(-5);
+  const w = 280, h = 100, padTop = 16, padSide = 6;
+  const baseline = h - 20;
+  const chartH = baseline - padTop;
+  const n = recentPoints.length;
+  const gap = 8;
+  const barW = (w - padSide * 2 - gap * (n - 1)) / n;
 
-  const smoothPath = coords => {
-    let d = `M ${coords[0].x.toFixed(1)},${coords[0].y.toFixed(1)} `;
-    for (let i = 0; i < coords.length - 1; i++) {
-      const p0 = coords[i - 1] || coords[i];
-      const p1 = coords[i];
-      const p2 = coords[i + 1];
-      const p3 = coords[i + 2] || p2;
-      const cp1x = p1.x + (p2.x - p0.x) / 6;
-      const cp1y = p1.y + (p2.y - p0.y) / 6;
-      const cp2x = p2.x - (p3.x - p1.x) / 6;
-      const cp2y = p2.y - (p3.y - p1.y) / 6;
-      d += `C ${cp1x.toFixed(1)},${cp1y.toFixed(1)} ${cp2x.toFixed(1)},${cp2y.toFixed(1)} ${p2.x.toFixed(1)},${p2.y.toFixed(1)} `;
-    }
-    return d;
-  };
-
-  const seriesLines = series.map(s => {
-    const vals = points.map(pt => pt[s.key]);
-    const min = Math.min(...vals);
-    const max = Math.max(...vals);
-    const range = (max - min) || 1;
-    const coords = vals.map((v, i) => {
-      const x = pad + stepX * i;
-      const y = pad + (h - pad * 2) * (1 - (v - min) / range);
-      return { x, y, v, season: points[i].season };
-    });
-    const linePath = smoothPath(coords);
-    const first = coords[0], last = coords[coords.length - 1];
-    const areaPath = `${linePath}L ${last.x.toFixed(1)},${baseline.toFixed(1)} L ${first.x.toFixed(1)},${baseline.toFixed(1)} Z`;
-    const gradId = `eh-grad-${s.key}`;
-    const dots = coords.map((c, i) => {
-      const isLast = i === coords.length - 1;
+  const barsHtml = series.map(s => {
+    const vals = recentPoints.map(pt => pt[s.key]);
+    const max = Math.max(...vals, 1);
+    const bars = recentPoints.map((pt, i) => {
+      const v = pt[s.key];
+      const x = padSide + i * (barW + gap);
+      const barH = Math.max((v / max) * chartH, 2);
+      const y = baseline - barH;
       return `
-        <circle cx="${c.x.toFixed(1)}" cy="${c.y.toFixed(1)}" r="${isLast ? 4 : 2.2}" fill="${isLast ? s.color : 'var(--paper)'}" stroke="${s.color}" stroke-width="${isLast ? 1.6 : 1.3}">
-          <title>Saison ${c.season} — ${s.label} : ${nf1(c.v)}${s.suffix}</title>
-        </circle>
+        <text x="${(x + barW / 2).toFixed(1)}" y="${(y - 4).toFixed(1)}" text-anchor="middle" font-family="'Anton', sans-serif" font-size="9" fill="var(--ink)">${nf1(v)}${s.suffix}</text>
+        <rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="${barH.toFixed(1)}" rx="2" fill="${s.color}">
+          <title>Saison ${pt.season} — ${s.label} : ${nf1(v)}${s.suffix}</title>
+        </rect>
+        <text x="${(x + barW / 2).toFixed(1)}" y="${(baseline + 12).toFixed(1)}" text-anchor="middle" font-size="9" font-style="italic" fill="var(--gris)">Saison ${pt.season}</text>
       `;
     }).join('');
     return `
-      <defs>
-        <linearGradient id="${gradId}" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="${s.color}" stop-opacity="0.25" />
-          <stop offset="100%" stop-color="${s.color}" stop-opacity="0" />
-        </linearGradient>
-      </defs>
-      <path d="${areaPath}" fill="url(#${gradId})" stroke="none" />
-      <path d="${linePath}" fill="none" stroke="${s.color}" stroke-width="2" stroke-linecap="round" />
-      ${dots}
+      <div class="eh-bar-block">
+        <div class="eh-bar-title"><span class="ic">${s.icon}</span>${s.label}</div>
+        <svg class="eh-bar-svg" viewBox="0 0 ${w} ${h}" aria-hidden="true">${bars}</svg>
+      </div>
     `;
   }).join('');
 
-  const axisLabels = points.map(pt => `<span>Saison ${pt.season}</span>`).join('');
-
   return `
     <div class="eh-title">Évolution de votre chaîne</div>
-    <div class="eh-subtitle">Performance des principaux indicateurs depuis la Saison 1</div>
-    <div class="eh-legend">
-      ${series.map(s => `<span class="eh-legend-item"><i style="background:${s.color}"></i>${s.icon} ${s.label}</span>`).join('')}
-    </div>
-    <svg class="eh-svg" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-hidden="true">
-      ${seriesLines}
-    </svg>
-    <div class="eh-axis">${axisLabels}</div>
+    <div class="eh-subtitle">Performance des principaux indicateurs sur les 5 dernières saisons</div>
+    ${barsHtml}
   `;
 }
 
