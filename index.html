@@ -150,6 +150,23 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .eh-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(22,19,14,0.22); border: none; padding: 0; cursor: pointer; }
 .eh-dot.active { background: var(--ink); }
 
+.pg-header, .pg-row {
+  display: grid; grid-template-columns: 72px 1fr 46px; gap: 6px; align-items: center;
+}
+.pg-header {
+  font-family: 'Anton', sans-serif; font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px;
+  color: var(--gris); padding-bottom: 4px; border-bottom: 1px solid rgba(22,19,14,0.15); margin-bottom: 2px;
+}
+.pg-row { padding: 6px 0; border-bottom: 1px dashed rgba(22,19,14,0.12); font-size: 12px; }
+.pg-row:last-child { border-bottom: none; }
+.pg-slot {
+  display: flex; align-items: center; gap: 4px;
+  font-family: 'Anton', sans-serif; font-size: 10px; text-transform: uppercase; letter-spacing: 0.3px;
+}
+.pg-program { color: var(--ink); font-style: italic; }
+.pg-pda { text-align: right; font-family: 'Anton', sans-serif; font-size: 13px; color: var(--rouge); }
+.pg-header .pg-pda { font-size: 9px; color: var(--gris); }
+
 .eh-stars-block { text-align: center; padding: 14px 0 4px; }
 .eh-stars-label {
   font-family: 'Anton', sans-serif; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;
@@ -385,6 +402,27 @@ function renderEvolutionChart(points) {
   `;
 }
 
+function renderProgramGrid(type, pdaCible) {
+  const grid = PROGRAM_GRID[type];
+  const rows = TIME_SLOTS.map(slot => `
+    <div class="pg-row">
+      <div class="pg-slot"><span class="ic">${slot.icon}</span>${slot.label}</div>
+      <div class="pg-program">${grid[slot.key]}</div>
+      <div class="pg-pda">${nf1(pdaCible * slot.weight)}%</div>
+    </div>
+  `).join('');
+  return `
+    <div class="eh-title">Grille de la chaîne</div>
+    <div class="eh-subtitle">PDA cible par créneau horaire</div>
+    <div class="pg-header">
+      <div>Créneau</div>
+      <div>Programme</div>
+      <div class="pg-pda">PDA cible</div>
+    </div>
+    ${rows}
+  `;
+}
+
 function renderPopularityStars(popularite) {
   const filled = Math.round((popularite / 100) * 5);
   const starsHtml = Array.from({ length: 5 }, (_, i) => `<span class="${i < filled ? 'star-filled' : 'star-empty'}">★</span>`).join('');
@@ -452,6 +490,41 @@ const CHANNEL_TYPES = {
     faiblesses: "Dépendance à l'actualité et forte volatilité.",
     baseBudget: 25,
     pdaMods: { j1524: 5, a2549: 18, s50: 22, csp: 25 }
+  }
+};
+
+const TIME_SLOTS = [
+  { key: 'matin', icon: '🌅', label: 'Matin', weight: 0.7 },
+  { key: 'apresmidi', icon: '☀️', label: 'Après-midi', weight: 0.85 },
+  { key: 'access', icon: '🌇', label: 'Access', weight: 1.1 },
+  { key: 'prime', icon: '🌙', label: 'Prime', weight: 1.4 },
+  { key: 'nuit', icon: '🌃', label: 'Nuit', weight: 0.6 }
+];
+
+const PROGRAM_GRID = {
+  generaliste: {
+    matin: "Matinale info / magazine", apresmidi: "Magazine / témoignages", access: "Jeu quotidien",
+    prime: "Divertissement / compétition", nuit: "Série / fiction"
+  },
+  cinema: {
+    matin: "Séries", apresmidi: "Séries françaises", access: "Série courte",
+    prime: "Film / série événement", nuit: "Séries / films"
+  },
+  culture: {
+    matin: "Magazine", apresmidi: "Documentaire", access: "Magazine court",
+    prime: "Documentaire événement", nuit: "Documentaire"
+  },
+  jeunesse: {
+    matin: "Animation", apresmidi: "Jeux / animation", access: "Jeu familial",
+    prime: "Divertissement", nuit: "Séries"
+  },
+  sport: {
+    matin: "Débat / actualité", apresmidi: "Compétition / direct", access: "Magazine sportif",
+    prime: "Sport en direct", nuit: "Rediffusions / archives"
+  },
+  info: {
+    matin: "Actualité / débat", apresmidi: "Information continue", access: "Débat / analyse",
+    prime: "Débat / interview", nuit: "Information"
   }
 };
 
@@ -1305,6 +1378,7 @@ function renderTicker() {
   };
   const chartPoints = lastHistorySeason === gameState.season ? gameState.history : [...gameState.history, currentPoint];
 
+  const programGridHtml = renderProgramGrid(p.type, pdaCible);
   const evolutionChartHtml = renderEvolutionChart(chartPoints);
   const popularityStarsHtml = renderPopularityStars(p.popularite);
   const slide = gameState.hudSlide || 0;
@@ -1342,6 +1416,7 @@ function renderTicker() {
         <div class="hud-details-inner">
           <div class="eh-slider" id="eh-slider">
             <div class="eh-slider-track" id="eh-slider-track" style="transform: translateX(-${slide * 100}%);">
+              <div class="eh-slide">${programGridHtml}</div>
               <div class="eh-slide">${evolutionChartHtml}</div>
               <div class="eh-slide">${popularityStarsHtml}</div>
             </div>
@@ -1350,6 +1425,7 @@ function renderTicker() {
             <div class="eh-slider-dots" id="eh-slider-dots">
               <button class="eh-dot${slide === 0 ? ' active' : ''}" data-slide="0" aria-label="Écran 1"></button>
               <button class="eh-dot${slide === 1 ? ' active' : ''}" data-slide="1" aria-label="Écran 2"></button>
+              <button class="eh-dot${slide === 2 ? ' active' : ''}" data-slide="2" aria-label="Écran 3"></button>
             </div>
           </div>
         </div>
@@ -1758,7 +1834,7 @@ function render() {
       gameState.hudExpanded = isOpen;
     };
     const goToHudSlide = idx => {
-      const clamped = Math.max(0, Math.min(1, idx));
+      const clamped = Math.max(0, Math.min(2, idx));
       gameState.hudSlide = clamped;
       document.getElementById('eh-slider-track').style.transform = `translateX(-${clamped * 100}%)`;
       document.querySelectorAll('.eh-dot').forEach(d => d.classList.toggle('active', parseInt(d.dataset.slide, 10) === clamped));
