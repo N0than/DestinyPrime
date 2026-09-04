@@ -476,7 +476,7 @@ function starRowHtml(filled) {
   return Array.from({ length: 5 }, (_, i) => `<span class="${i < filled ? 'star-filled' : 'star-empty'}">★</span>`).join('');
 }
 
-function renderStatStars(player) {
+function renderStatStars(player, pdaCible) {
   const popFilled = Math.round((player.popularite / 100) * 5);
 
   const lower = 50;
@@ -485,6 +485,13 @@ function renderStatStars(player) {
   if (player.tresorerie <= lower) tresoFilled = 1;
   else if (player.tresorerie >= upper) tresoFilled = 5;
   else tresoFilled = 1 + Math.round(((player.tresorerie - lower) / (upper - lower)) * 4);
+
+  const perfLower = 0.05, perfUpper = 0.30;
+  const efficacite = pdaCible / Math.max(player.coutGrilleCumul, 0.01);
+  let perfFilled;
+  if (efficacite <= perfLower) perfFilled = 1;
+  else if (efficacite >= perfUpper) perfFilled = 5;
+  else perfFilled = 1 + Math.round(((efficacite - perfLower) / (perfUpper - perfLower)) * 4);
 
   return `
     <div class="eh-stars-block">
@@ -495,6 +502,10 @@ function renderStatStars(player) {
       <div class="eh-stars-item">
         <div class="eh-stars-label">Trésorerie</div>
         <div class="eh-stars-row">${starRowHtml(tresoFilled)}</div>
+      </div>
+      <div class="eh-stars-item">
+        <div class="eh-stars-label">Performance</div>
+        <div class="eh-stars-row">${starRowHtml(perfFilled)}</div>
       </div>
     </div>
   `;
@@ -1448,7 +1459,7 @@ function renderTicker() {
   const programGridHtml = renderProgramGrid(p.type, pdaCible);
   const globalAudienceShareHtml = renderGlobalAudienceShare();
   const evolutionChartHtml = renderEvolutionChart(chartPoints);
-  const statStarsHtml = renderStatStars(p);
+  const statStarsHtml = renderStatStars(p, pdaCible);
   const slide = gameState.hudSlide || 0;
 
   return `
