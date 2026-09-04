@@ -218,6 +218,15 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 
 /* ---- ONBOARDING & CARDS ---- */
 .kicker { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--rouge); margin-bottom: 6px; }
+.kicker-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.kicker-row .kicker { margin-bottom: 0; }
+.btn-dice {
+  background: transparent; border: 1.5px solid var(--ink); color: var(--ink);
+  font-family: 'Anton', sans-serif; text-transform: uppercase; letter-spacing: 0.5px;
+  font-size: 11px; padding: 4px 10px; cursor: pointer; white-space: nowrap; margin-bottom: 6px;
+  transition: transform 0.08s, background 0.08s, color 0.08s;
+}
+.btn-dice:hover { background: var(--ink); color: var(--paper); }
 .card {
   background: #f7f3e8; border: 1.5px solid var(--ink);
   box-shadow: 4px 4px 0 rgba(22,19,14,0.85);
@@ -1273,6 +1282,24 @@ function initCompetitors() {
   });
 }
 
+function finalizeChannelSetup() {
+  gameState.player.tresorerie = CHANNEL_TYPES[gameState.player.type].baseBudget;
+  gameState.player.coutGrilleCumul = 0.25 * gameState.player.tresorerie;
+  gameState.player.revenusPubCumul = 0;
+  gameState.player.popularite = 50;
+
+  initCompetitors();
+
+  const targetDemo = gameState.player.target;
+  const demoTotals = {};
+  ['j1524', 'a2549', 's50', 'csp'].forEach(d => {
+    demoTotals[d] = gameState.competitors.reduce((sum, c) => sum + Math.max(1, c.pda[d]), 0);
+  });
+
+  gameState.player.pda = { j1524: 0.2, a2549: 0.2, s50: 0.2, csp: 0.2 };
+  gameState.player.pda[targetDemo] = demoTotals[targetDemo] * 0.0101;
+}
+
 function getAllChannels() {
   return [gameState.player, ...gameState.competitors];
 }
@@ -1700,7 +1727,10 @@ function render() {
   if (gameState.step === 2) {
     app.innerHTML = `
       ${renderMasthead("Étape 1/4 : Type de Chaîne & Capital Initial", "Audience Masters")}
-      <div class="kicker">ÉTAPE 1 — FORMAT EDITORIAL</div>
+      <div class="kicker-row">
+        <div class="kicker">ÉTAPE 1 — FORMAT EDITORIAL</div>
+        <button class="btn-dice" id="btn-random-setup">🎲 Aléatoire</button>
+      </div>
       <div class="optgrid">
         ${Object.entries(CHANNEL_TYPES).map(([k, v]) => `
           <button class="opt ${gameState.player.type === k ? 'sel' : ''}" data-type="${k}">
@@ -1718,6 +1748,15 @@ function render() {
       };
     });
     document.getElementById('btn-next-2').onclick = () => { gameState.step = 3; render(); };
+    document.getElementById('btn-random-setup').onclick = () => {
+      gameState.player.type = pick(Object.keys(CHANNEL_TYPES));
+      gameState.player.target = pick(Object.keys(TARGET_STRATEGIES));
+      gameState.player.name = pick(GENERATED_NAMES[gameState.player.type]);
+      finalizeChannelSetup();
+      gameState.resumeStep = null;
+      gameState.step = 5;
+      render();
+    };
     app.querySelector('.masthead').onclick = goHome;
     return;
   }
@@ -1769,22 +1808,8 @@ function render() {
     document.getElementById('btn-next-4').onclick = () => {
       const val = document.getElementById('chain-name').value.trim();
       gameState.player.name = val || GENERATED_NAMES[gameState.player.type][0];
-      
-      gameState.player.tresorerie = CHANNEL_TYPES[gameState.player.type].baseBudget;
-      gameState.player.coutGrilleCumul = 0.25 * gameState.player.tresorerie;
-      gameState.player.revenusPubCumul = 0;
-      gameState.player.popularite = 50;
 
-      initCompetitors();
-      
-      const targetDemo = gameState.player.target;
-      const demoTotals = {};
-      ['j1524', 'a2549', 's50', 'csp'].forEach(d => {
-        demoTotals[d] = gameState.competitors.reduce((sum, c) => sum + Math.max(1, c.pda[d]), 0);
-      });
-      
-      gameState.player.pda = { j1524: 0.2, a2549: 0.2, s50: 0.2, csp: 0.2 };
-      gameState.player.pda[targetDemo] = demoTotals[targetDemo] * 0.0101;
+      finalizeChannelSetup();
 
       gameState.resumeStep = null;
       gameState.step = 5;
