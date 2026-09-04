@@ -1529,14 +1529,12 @@ function render() {
   if (gameState.step === 2) {
     app.innerHTML = `
       ${renderMasthead("Étape 1/4 : Type de Chaîne & Capital Initial", "Audience Masters")}
-      <div class="kicker">ÉTAPE 2 — FORMAT D'ANTENNE</div>
+      <div class="kicker">ÉTAPE 1 — FORMAT EDITORIAL</div>
       <div class="optgrid">
         ${Object.entries(CHANNEL_TYPES).map(([k, v]) => `
           <button class="opt ${gameState.player.type === k ? 'sel' : ''}" data-type="${k}">
             <span class="ol">${v.label}</span>
             <span class="od"><b>Objectif :</b> ${v.objectif}</span>
-            <span class="od" style="margin-top: 4px;"><b>Forces :</b> ${v.forces}</span>
-            <span class="od" style="margin-top: 4px;"><b>Faiblesses :</b> ${v.faiblesses}</span>
           </button>
         `).join('')}
       </div>
