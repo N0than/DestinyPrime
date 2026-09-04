@@ -141,6 +141,30 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .eh-bar-svg { display: block; width: 100%; height: 100px; }
 .spark-empty { font-size: 12px; color: var(--gris); font-style: italic; margin-top: 3px; }
 
+.eh-slider { overflow: hidden; }
+.eh-slider-track { display: flex; transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1); }
+.eh-slide { flex: 0 0 100%; min-width: 0; }
+.eh-slider-nav { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 10px; }
+.eh-nav-btn {
+  background: transparent; border: none; padding: 2px 6px; cursor: pointer;
+  font-family: 'Anton', sans-serif; font-size: 16px; line-height: 1; color: var(--ink); opacity: 0.5;
+  transition: opacity 0.15s ease;
+}
+.eh-nav-btn:hover { opacity: 1; }
+.eh-slider-dots { display: flex; gap: 6px; }
+.eh-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(22,19,14,0.22); border: none; padding: 0; cursor: pointer; }
+.eh-dot.active { background: var(--ink); }
+
+.eh-stars-block { text-align: center; padding: 14px 0 4px; }
+.eh-stars-label {
+  font-family: 'Anton', sans-serif; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;
+  color: var(--ink); margin-bottom: 10px;
+}
+.eh-stars-row { font-size: 26px; letter-spacing: 4px; }
+.eh-stars-row .star-filled { color: var(--gold); }
+.eh-stars-row .star-empty { color: rgba(22,19,14,0.2); }
+.eh-stars-value { margin-top: 8px; font-size: 12px; color: var(--gris); font-style: italic; }
+
 /* ---- ÉCRAN DE CONSÉQUENCES ---- */
 .impact-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
 .impact-badge {
@@ -364,6 +388,18 @@ function renderEvolutionChart(points) {
       ${series.map(s => `<span class="eh-legend-item"><i style="background:${s.color}"></i>${s.icon} ${s.label}</span>`).join('')}
     </div>
     <svg class="eh-bar-svg" viewBox="0 0 ${w} ${h}" aria-hidden="true">${barsHtml}</svg>
+  `;
+}
+
+function renderPopularityStars(popularite) {
+  const filled = Math.round((popularite / 100) * 5);
+  const starsHtml = Array.from({ length: 5 }, (_, i) => `<span class="${i < filled ? 'star-filled' : 'star-empty'}">★</span>`).join('');
+  return `
+    <div class="eh-stars-block">
+      <div class="eh-stars-label">Popularité</div>
+      <div class="eh-stars-row">${starsHtml}</div>
+      <div class="eh-stars-value">${Math.round(popularite)}%</div>
+    </div>
   `;
 }
 
@@ -1069,6 +1105,7 @@ let gameState = {
   lastConsequence: null,
   pendingNextStep: null,
   hudExpanded: false,
+  hudSlide: 0,
   history: []
 };
 
@@ -1245,6 +1282,7 @@ function resetGame() {
   gameState.lastConsequence = null;
   gameState.pendingNextStep = null;
   gameState.hudExpanded = false;
+  gameState.hudSlide = 0;
   gameState.history = [];
   render();
 }
@@ -1275,6 +1313,8 @@ function renderTicker() {
   const chartPoints = lastHistorySeason === gameState.season ? gameState.history : [...gameState.history, currentPoint];
 
   const evolutionChartHtml = renderEvolutionChart(chartPoints);
+  const popularityStarsHtml = renderPopularityStars(p.popularite);
+  const slide = gameState.hudSlide || 0;
 
   return `
     <div class="hud-wrap">
@@ -1307,7 +1347,20 @@ function renderTicker() {
       </button>
       <div class="hud-details${open ? ' open' : ''}" id="hud-details">
         <div class="hud-details-inner">
-          ${evolutionChartHtml}
+          <div class="eh-slider" id="eh-slider">
+            <div class="eh-slider-track" id="eh-slider-track" style="transform: translateX(-${slide * 100}%);">
+              <div class="eh-slide">${evolutionChartHtml}</div>
+              <div class="eh-slide">${popularityStarsHtml}</div>
+            </div>
+          </div>
+          <div class="eh-slider-nav">
+            <button class="eh-nav-btn" id="eh-nav-prev" aria-label="Écran précédent">‹</button>
+            <div class="eh-slider-dots" id="eh-slider-dots">
+              <button class="eh-dot${slide === 0 ? ' active' : ''}" data-slide="0" aria-label="Écran 1"></button>
+              <button class="eh-dot${slide === 1 ? ' active' : ''}" data-slide="1" aria-label="Écran 2"></button>
+            </div>
+            <button class="eh-nav-btn" id="eh-nav-next" aria-label="Écran suivant">›</button>
+          </div>
         </div>
       </div>
     </div>
@@ -1713,6 +1766,17 @@ function render() {
       document.getElementById('hud-toggle').classList.toggle('open', isOpen);
       gameState.hudExpanded = isOpen;
     };
+    const goToHudSlide = idx => {
+      const clamped = Math.max(0, Math.min(1, idx));
+      gameState.hudSlide = clamped;
+      document.getElementById('eh-slider-track').style.transform = `translateX(-${clamped * 100}%)`;
+      document.querySelectorAll('.eh-dot').forEach(d => d.classList.toggle('active', parseInt(d.dataset.slide, 10) === clamped));
+    };
+    document.getElementById('eh-nav-prev').onclick = () => goToHudSlide((gameState.hudSlide || 0) - 1);
+    document.getElementById('eh-nav-next').onclick = () => goToHudSlide((gameState.hudSlide || 0) + 1);
+    document.querySelectorAll('.eh-dot').forEach(dot => {
+      dot.onclick = () => goToHudSlide(parseInt(dot.dataset.slide, 10));
+    });
     app.querySelector('.masthead').onclick = goHome;
     return;
   }
