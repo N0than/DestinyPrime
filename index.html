@@ -400,40 +400,52 @@ function computeRevenusPub(pdaCiblePct, cible, popularite) {
 
 const CHANNEL_TYPES = {
   generaliste: {
-    label: "Généraliste",
-    desc: "Polyvalente. Capital de lancement : 50 M€.",
+    label: "📺 Généraliste",
+    objectif: "Toucher le plus grand nombre.",
+    forces: "Audience globale, événementiel.",
+    faiblesses: "Coûts élevés, concurrence forte.",
     baseBudget: 50,
     pdaMods: { j1524: 10, a2549: 15, s50: 20, csp: 12 }
   },
-  divertissement: {
-    label: "Divertissement",
-    desc: "Jeux & Primes. Capital de lancement : 40 M€.",
+  cinema: {
+    label: "🎬 Cinéma / Séries",
+    objectif: "Devenir la référence fiction.",
+    forces: "Fidélisation, catalogue.",
+    faiblesses: "Coûts des droits.",
     baseBudget: 40,
-    pdaMods: { j1524: 18, a2549: 22, s50: 15, csp: 5 }
+    pdaMods: { j1524: 12, a2549: 22, s50: 18, csp: 10 }
   },
-  digital: {
-    label: "Jeunesse & Web",
-    desc: "Formats courts & streaming. Capital de lancement : 25 M€.",
+  culture: {
+    label: "🧠 Culture / Documentaire",
+    objectif: "Construire une image qualitative.",
+    forces: "CSP+, fidélité.",
+    faiblesses: "Audience de masse plus difficile.",
     baseBudget: 25,
-    pdaMods: { j1524: 35, a2549: 12, s50: 2, csp: 10 }
+    pdaMods: { j1524: 5, a2549: 10, s50: 18, csp: 30 }
+  },
+  jeunesse: {
+    label: "👶 Jeunesse / Famille",
+    objectif: "Conquérir les familles et les jeunes.",
+    forces: "Fidélité, consommation régulière.",
+    faiblesses: "Cible plus spécifique.",
+    baseBudget: 25,
+    pdaMods: { j1524: 25, a2549: 18, s50: 5, csp: 8 }
   },
   sport: {
-    label: "Sport & Extrême",
-    desc: "Droits de diffusion. Capital de lancement : 25 M€.",
-    baseBudget: 25,
+    label: "⚽ Sport",
+    objectif: "Devenir la chaîne des grands événements.",
+    forces: "Pics d'audience, forte valeur publicitaire.",
+    faiblesses: "Droits extrêmement coûteux.",
+    baseBudget: 35,
     pdaMods: { j1524: 15, a2549: 25, s50: 12, csp: 18 }
   },
   info: {
-    label: "Info 24/7",
-    desc: "Direct & Débats. Capital de lancement : 25 M€.",
+    label: "📰 Information en continu",
+    objectif: "Devenir la chaîne réflexe d'information.",
+    forces: "Consommation quotidienne, actualité.",
+    faiblesses: "Dépendance à l'actualité et forte volatilité.",
     baseBudget: 25,
     pdaMods: { j1524: 5, a2549: 18, s50: 22, csp: 25 }
-  },
-  culture: {
-    label: "Culture & Savoir",
-    desc: "Documentaires & Débats. Capital de lancement : 25 M€.",
-    baseBudget: 25,
-    pdaMods: { j1524: 5, a2549: 10, s50: 18, csp: 30 }
   }
 };
 
@@ -449,10 +461,10 @@ const FICTIONAL_CHANNEL_NAMES = ["FT1", "MonteCarloTV", "C/ACTUS", "TV9", "Banal
 const GENERATED_NAMES = {
   generaliste: FICTIONAL_CHANNEL_NAMES,
   info: ["Info Direct", "N1 Info", "Actu 24", "Flash Média", "Présence Info"],
-  divertissement: ["Pulse TV", "Star Show", "Maxi Fun", "Zap Channel", "Mega Prime"],
+  cinema: ["Ciné+", "Star Show", "Fiction One", "Screen Prime", "Saga TV"],
   sport: ["Arena Sport", "Stade 24", "X-Sport", "Chrono TV", "Vitesse Max"],
   culture: ["Savoir+", "Odyssée TV", "Arthea", "Documenta", "Clio Channel"],
-  digital: ["Nova Flux", "Pixel TV", "Stream Nation", "Vibe Zone", "Trend Media"]
+  jeunesse: ["Nova Flux", "Pixel TV", "Family Zone", "Kido TV", "Trend Media"]
 };
 
 const DILEMMA_BANK = [
@@ -1522,7 +1534,9 @@ function render() {
         ${Object.entries(CHANNEL_TYPES).map(([k, v]) => `
           <button class="opt ${gameState.player.type === k ? 'sel' : ''}" data-type="${k}">
             <span class="ol">${v.label}</span>
-            <span class="od">${v.desc}</span>
+            <span class="od"><b>Objectif :</b> ${v.objectif}</span>
+            <span class="od" style="margin-top: 4px;"><b>Forces :</b> ${v.forces}</span>
+            <span class="od" style="margin-top: 4px;"><b>Faiblesses :</b> ${v.faiblesses}</span>
           </button>
         `).join('')}
       </div>
