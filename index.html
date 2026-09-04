@@ -167,6 +167,21 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .pg-pda { text-align: right; font-family: 'Anton', sans-serif; font-size: 13px; color: var(--rouge); }
 .pg-header .pg-pda { font-size: 9px; color: var(--gris); }
 
+.ga-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px dashed rgba(22,19,14,0.12); }
+.ga-row:last-child { border-bottom: none; }
+.ga-rank { font-family: 'Anton', sans-serif; font-size: 11px; color: var(--gris); width: 18px; flex-shrink: 0; }
+.ga-info { flex: 1; min-width: 0; }
+.ga-name {
+  font-family: 'Anton', sans-serif; font-size: 11px; text-transform: uppercase; letter-spacing: 0.3px;
+  margin-bottom: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.ga-bar-track { height: 5px; background: rgba(22,19,14,0.08); border-radius: 3px; overflow: hidden; }
+.ga-bar-fill { height: 100%; background: var(--gris); border-radius: 3px; }
+.ga-pct { font-family: 'Anton', sans-serif; font-size: 12px; width: 42px; text-align: right; flex-shrink: 0; }
+.ga-row.ga-player .ga-name { color: var(--rouge); }
+.ga-row.ga-player .ga-bar-fill { background: var(--rouge); }
+.ga-row.ga-player .ga-pct { color: var(--rouge); }
+
 .eh-stars-block { text-align: center; padding: 14px 0 4px; }
 .eh-stars-item { margin-bottom: 20px; }
 .eh-stars-item:last-child { margin-bottom: 0; }
@@ -421,6 +436,33 @@ function renderProgramGrid(type, pdaCible) {
       <div>Programme</div>
       <div class="pg-pda">PDA cible</div>
     </div>
+    ${rows}
+  `;
+}
+
+function renderGlobalAudienceShare() {
+  const calculated = getCalculatedPDAs();
+  const standings = calculated.map(item => ({
+    name: item.channel === gameState.player ? item.name + ' (Vous)' : item.name,
+    pda: item.globalPda,
+    isPlayer: item.channel === gameState.player
+  })).sort((a, b) => b.pda - a.pda);
+  const max = Math.max(...standings.map(s => s.pda), 1);
+
+  const rows = standings.map((s, idx) => `
+    <div class="ga-row${s.isPlayer ? ' ga-player' : ''}">
+      <div class="ga-rank">#${idx + 1}</div>
+      <div class="ga-info">
+        <div class="ga-name">${esc(s.name)}</div>
+        <div class="ga-bar-track"><div class="ga-bar-fill" style="width:${(s.pda / max * 100).toFixed(1)}%"></div></div>
+      </div>
+      <div class="ga-pct">${nf1(s.pda)}%</div>
+    </div>
+  `).join('');
+
+  return `
+    <div class="eh-title">Part d'audience globale</div>
+    <div class="eh-subtitle">Univers concurrentiel, saison en cours</div>
     ${rows}
   `;
 }
@@ -1398,6 +1440,7 @@ function renderTicker() {
   const chartPoints = lastHistorySeason === gameState.season ? gameState.history : [...gameState.history, currentPoint];
 
   const programGridHtml = renderProgramGrid(p.type, pdaCible);
+  const globalAudienceShareHtml = renderGlobalAudienceShare();
   const evolutionChartHtml = renderEvolutionChart(chartPoints);
   const statStarsHtml = renderStatStars(p);
   const slide = gameState.hudSlide || 0;
@@ -1436,6 +1479,7 @@ function renderTicker() {
           <div class="eh-slider" id="eh-slider">
             <div class="eh-slider-track" id="eh-slider-track" style="transform: translateX(-${slide * 100}%);">
               <div class="eh-slide">${programGridHtml}</div>
+              <div class="eh-slide">${globalAudienceShareHtml}</div>
               <div class="eh-slide">${evolutionChartHtml}</div>
               <div class="eh-slide">${statStarsHtml}</div>
             </div>
@@ -1445,6 +1489,7 @@ function renderTicker() {
               <button class="eh-dot${slide === 0 ? ' active' : ''}" data-slide="0" aria-label="Écran 1"></button>
               <button class="eh-dot${slide === 1 ? ' active' : ''}" data-slide="1" aria-label="Écran 2"></button>
               <button class="eh-dot${slide === 2 ? ' active' : ''}" data-slide="2" aria-label="Écran 3"></button>
+              <button class="eh-dot${slide === 3 ? ' active' : ''}" data-slide="3" aria-label="Écran 4"></button>
             </div>
           </div>
         </div>
@@ -1853,7 +1898,7 @@ function render() {
       gameState.hudExpanded = isOpen;
     };
     const goToHudSlide = idx => {
-      const clamped = Math.max(0, Math.min(2, idx));
+      const clamped = Math.max(0, Math.min(3, idx));
       gameState.hudSlide = clamped;
       document.getElementById('eh-slider-track').style.transform = `translateX(-${clamped * 100}%)`;
       document.querySelectorAll('.eh-dot').forEach(d => d.classList.toggle('active', parseInt(d.dataset.slide, 10) === clamped));
