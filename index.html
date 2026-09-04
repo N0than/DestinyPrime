@@ -1554,13 +1554,12 @@ function render() {
   if (gameState.step === 3) {
     app.innerHTML = `
       ${renderMasthead("Étape 2/4 : Choisissez votre Cible Prioritaire", "Audience Masters")}
-      <div class="kicker">ÉTAPE 3 — AUDIENCE CIBLÉE (1% AU DÉPART)</div>
+      <div class="kicker">ÉTAPE 2 — AUDIENCE CIBLÉE (1% AU DÉPART)</div>
       <div class="optgrid">
         ${Object.entries(TARGET_STRATEGIES).map(([k, v]) => `
           <button class="opt ${gameState.player.target === k ? 'sel' : ''}" data-target="${k}">
             <span class="ol">${v.nom}</span>
-            <span class="od"><b>Objectif :</b> ${v.objectif}</span>
-            <span class="od" style="margin-top: 4px;">${v.desc}</span>
+            <span class="od">${v.desc}</span>
           </button>
         `).join('')}
       </div>
