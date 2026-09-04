@@ -158,7 +158,6 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .eh-stars-row { font-size: 26px; letter-spacing: 4px; }
 .eh-stars-row .star-filled { color: var(--gold); }
 .eh-stars-row .star-empty { color: rgba(22,19,14,0.2); }
-.eh-stars-value { margin-top: 8px; font-size: 12px; color: var(--gris); font-style: italic; }
 
 /* ---- ÉCRAN DE CONSÉQUENCES ---- */
 .impact-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
@@ -393,7 +392,6 @@ function renderPopularityStars(popularite) {
     <div class="eh-stars-block">
       <div class="eh-stars-label">Popularité</div>
       <div class="eh-stars-row">${starsHtml}</div>
-      <div class="eh-stars-value">${Math.round(popularite)}%</div>
     </div>
   `;
 }
