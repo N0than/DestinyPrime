@@ -1242,7 +1242,8 @@ let gameState = {
 };
 
 function initCompetitors() {
-  const names = shuffle(FICTIONAL_CHANNEL_NAMES).slice(0, 6);
+  const availableNames = FICTIONAL_CHANNEL_NAMES.filter(n => n.toLowerCase() !== gameState.player.name.toLowerCase());
+  const names = shuffle(availableNames).slice(0, 5);
   const types = Object.keys(CHANNEL_TYPES);
   const targets = Object.keys(TARGET_STRATEGIES);
 
@@ -1800,7 +1801,7 @@ function render() {
         <ul style="margin: 8px 0 14px 18px; font-size: 14px;">
           <li><b>Capital de départ :</b> ${nf1(gameState.player.tresorerie)} M€</li>
           <li><b>Audience sur cible :</b> 1,0 % (Nouveau entrant)</li>
-          <li><b>Adversaires :</b> 6 chaînes établies avec de gros budgets.</li>
+          <li><b>Adversaires :</b> 5 chaînes établies avec de gros budgets.</li>
         </ul>
 
         <div class="badge">Objectif Année 1 : Passer le cap des 3% PDA</div>
