@@ -127,27 +127,19 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
   background: #f7f3e8; border: 1.5px solid var(--ink); box-shadow: 4px 4px 0 rgba(22,19,14,0.85);
   padding: 12px 14px; margin-top: 8px;
 }
-.hud-detail-subtitle {
-  font-family: 'Anton', sans-serif; font-size: 11px; letter-spacing: 1px; text-transform: uppercase;
-  color: var(--rouge); margin: 0 0 6px;
+.eh-title {
+  font-family: 'Anton', sans-serif; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;
+  color: var(--ink); margin: 0 0 2px;
 }
-
-.spark-list { display: flex; flex-direction: column; }
-.spark-block { padding: 12px 0; border-bottom: 1px dashed rgba(22,19,14,0.15); }
-.spark-block:last-child { border-bottom: none; padding-bottom: 2px; }
-.spark-title {
-  display: flex; align-items: center; gap: 5px;
-  font-family: 'Anton', sans-serif; font-size: 11px; text-transform: uppercase; letter-spacing: 0.3px;
-  margin-bottom: 8px;
+.eh-subtitle { font-size: 11px; font-style: italic; color: var(--gris); margin: 0 0 10px; }
+.eh-legend { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 8px; }
+.eh-legend-item {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-family: 'Anton', sans-serif; font-size: 10px; text-transform: uppercase; letter-spacing: 0.3px;
 }
-.spark-headrow { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 6px; }
-.spark-peak { text-align: right; }
-.spark-sublabel { font-family: 'Anton', sans-serif; font-size: 8.5px; letter-spacing: 1px; text-transform: uppercase; color: var(--gris); }
-.spark-cur-value { font-family: 'Anton', sans-serif; font-size: 21px; margin-top: 2px; }
-.spark-peak-value { font-family: 'Anton', sans-serif; font-size: 14px; color: var(--gold); margin-top: 2px; }
-.spark-peak-caption { font-size: 10px; color: var(--gris); font-style: italic; margin-top: 1px; }
-.spark-svg { display: block; width: 100%; height: 56px; }
-.spark-axis { display: flex; justify-content: space-between; font-size: 9px; color: var(--gris); font-style: italic; margin-top: 3px; }
+.eh-legend-item i { display: inline-block; width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+.eh-svg { display: block; width: 100%; height: 110px; }
+.eh-axis { display: flex; justify-content: space-between; font-size: 9px; color: var(--gris); font-style: italic; margin-top: 4px; }
 .spark-empty { font-size: 12px; color: var(--gris); font-style: italic; margin-top: 3px; }
 
 /* ---- ÉCRAN DE CONSÉQUENCES ---- */
@@ -325,68 +317,53 @@ function fmtDelta(val, decimals, suffix) {
   return `${sign}${formatted}${suffix}`;
 }
 
-function renderIndicatorSparkline(points, key, decimals, suffix, color, icon, label) {
+function renderEvolutionChart(points) {
   if (points.length < 2) {
     return `
-      <div class="spark-block">
-        <div class="spark-title"><span class="ic">${icon}</span>${label}</div>
-        <div class="spark-empty">Graphique disponible après la saison 1</div>
-      </div>
+      <div class="eh-title">Évolution de votre chaîne</div>
+      <div class="eh-subtitle">Performance des principaux indicateurs depuis la Saison 1</div>
+      <div class="spark-empty">Graphique disponible après la saison 1</div>
     `;
   }
-  const w = 280, h = 56, pad = 4, baseline = h - pad;
-  const vals = points.map(pt => pt[key]);
-  const min = Math.min(...vals);
-  const max = Math.max(...vals);
-  const range = (max - min) || 1;
+  const series = [
+    { key: 'pdaCible', color: 'var(--rouge)', icon: '🎯', label: 'PDA Cible', suffix: '%' },
+    { key: 'popularite', color: 'var(--gold)', icon: '⭐', label: 'Popularité', suffix: '%' },
+    { key: 'revenusPub', color: 'var(--vert)', icon: '📺', label: 'Revenus pub', suffix: ' M€' }
+  ];
+  const w = 280, h = 110, pad = 6;
   const stepX = (w - pad * 2) / (points.length - 1);
-  const coords = vals.map((v, i) => {
-    const x = pad + stepX * i;
-    const y = pad + (h - pad * 2) * (1 - (v - min) / range);
-    return { x, y, v, season: points[i].season };
-  });
-  const peakIdx = vals.indexOf(max);
-  const linePts = coords.map(c => `${c.x.toFixed(1)},${c.y.toFixed(1)}`).join(' ');
-  const areaPts = `${pad.toFixed(1)},${baseline.toFixed(1)} ${linePts} ${(w - pad).toFixed(1)},${baseline.toFixed(1)}`;
-  const gradId = `spark-grad-${key}`;
-  const dots = coords.map((c, i) => {
-    const isPeak = i === peakIdx;
-    return `
-      <circle cx="${c.x.toFixed(1)}" cy="${c.y.toFixed(1)}" r="${isPeak ? 3.5 : 2}" fill="${isPeak ? 'var(--gold)' : 'var(--paper)'}" stroke="${isPeak ? 'var(--gold)' : color}" stroke-width="1.3">
-        <title>Saison ${c.season} : ${nf1(c.v)}${suffix}</title>
+
+  const seriesLines = series.map(s => {
+    const vals = points.map(pt => pt[s.key]);
+    const min = Math.min(...vals);
+    const max = Math.max(...vals);
+    const range = (max - min) || 1;
+    const coords = vals.map((v, i) => {
+      const x = pad + stepX * i;
+      const y = pad + (h - pad * 2) * (1 - (v - min) / range);
+      return { x, y, v, season: points[i].season };
+    });
+    const linePts = coords.map(c => `${c.x.toFixed(1)},${c.y.toFixed(1)}`).join(' ');
+    const dots = coords.map(c => `
+      <circle cx="${c.x.toFixed(1)}" cy="${c.y.toFixed(1)}" r="2.2" fill="${s.color}">
+        <title>Saison ${c.season} — ${s.label} : ${nf1(c.v)}${s.suffix}</title>
       </circle>
-    `;
+    `).join('');
+    return `<polyline points="${linePts}" fill="none" stroke="${s.color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />${dots}`;
   }).join('');
-  const last = coords[coords.length - 1];
-  const peak = coords[peakIdx];
-  const peakCaption = peakIdx === coords.length - 1 ? 'en cours' : `Saison ${peak.season}`;
+
+  const axisLabels = points.map(pt => `<span>Saison ${pt.season}</span>`).join('');
+
   return `
-    <div class="spark-block">
-      <div class="spark-title"><span class="ic">${icon}</span>${label}</div>
-      <div class="spark-headrow">
-        <div class="spark-cur">
-          <div class="spark-sublabel">Valeur actuelle</div>
-          <div class="spark-cur-value">${nf1(last.v)}${suffix}</div>
-        </div>
-        <div class="spark-peak">
-          <div class="spark-sublabel">Sommet</div>
-          <div class="spark-peak-value">${nf1(peak.v)}${suffix}</div>
-          <div class="spark-peak-caption">${peakCaption}</div>
-        </div>
-      </div>
-      <svg class="spark-svg" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-hidden="true">
-        <defs>
-          <linearGradient id="${gradId}" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="${color}" stop-opacity="0.28" />
-            <stop offset="100%" stop-color="${color}" stop-opacity="0" />
-          </linearGradient>
-        </defs>
-        <polygon points="${areaPts}" fill="url(#${gradId})" />
-        <polyline points="${linePts}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
-        ${dots}
-      </svg>
-      <div class="spark-axis"><span>Saison ${coords[0].season}</span><span>Saison ${last.season}</span></div>
+    <div class="eh-title">Évolution de votre chaîne</div>
+    <div class="eh-subtitle">Performance des principaux indicateurs depuis la Saison 1</div>
+    <div class="eh-legend">
+      ${series.map(s => `<span class="eh-legend-item"><i style="background:${s.color}"></i>${s.icon} ${s.label}</span>`).join('')}
     </div>
+    <svg class="eh-svg" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-hidden="true">
+      ${seriesLines}
+    </svg>
+    <div class="eh-axis">${axisLabels}</div>
   `;
 }
 
@@ -1297,13 +1274,7 @@ function renderTicker() {
   };
   const chartPoints = lastHistorySeason === gameState.season ? gameState.history : [...gameState.history, currentPoint];
 
-  const sparklinesHtml = [
-    renderIndicatorSparkline(chartPoints, 'tresorerie', 1, ' M€', 'var(--bleu)', '💰', 'Trésorerie'),
-    renderIndicatorSparkline(chartPoints, 'pdaCible', 1, '%', 'var(--rouge)', '🎯', 'PDA Cible'),
-    renderIndicatorSparkline(chartPoints, 'coutGrille', 1, ' M€', 'var(--gris)', '📋', 'Coût de grille'),
-    renderIndicatorSparkline(chartPoints, 'revenusPub', 1, ' M€', 'var(--vert)', '📺', 'Revenus pub'),
-    renderIndicatorSparkline(chartPoints, 'popularite', 0, '%', 'var(--gold)', '⭐', 'Popularité')
-  ].join('');
+  const evolutionChartHtml = renderEvolutionChart(chartPoints);
 
   return `
     <div class="hud-wrap">
@@ -1336,8 +1307,7 @@ function renderTicker() {
       </button>
       <div class="hud-details${open ? ' open' : ''}" id="hud-details">
         <div class="hud-details-inner">
-          <div class="hud-detail-subtitle">Évolution par saison</div>
-          <div class="spark-list">${sparklinesHtml}</div>
+          ${evolutionChartHtml}
         </div>
       </div>
     </div>
