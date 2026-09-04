@@ -163,7 +163,12 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
   display: flex; align-items: center; gap: 4px;
   font-family: 'Anton', sans-serif; font-size: 10px; text-transform: uppercase; letter-spacing: 0.3px;
 }
-.pg-program { color: var(--ink); font-style: italic; }
+.pg-program {
+  display: inline-block; font-style: normal; font-family: 'Spectral', serif; font-size: 10.5px;
+  line-height: 1.2; color: var(--ink); background: var(--paper);
+  border: 1px solid rgba(22,19,14,0.3); border-left: 3px solid var(--rouge); border-radius: 3px;
+  padding: 3px 7px;
+}
 .pg-pda { text-align: right; font-family: 'Anton', sans-serif; font-size: 13px; color: var(--rouge); }
 .pg-header .pg-pda { font-size: 9px; color: var(--gris); }
 
