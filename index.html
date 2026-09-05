@@ -2092,10 +2092,12 @@ function render() {
   }
 
   if (gameState.step === 7) {
+    const targetKey = gameState.player.target;
+    const targetLabel = TARGET_STRATEGIES[targetKey].nom;
     const calculated = getCalculatedPDAs();
     const standings = calculated.map(item => ({
       name: item.channel === gameState.player ? item.name + " (Vous)" : item.name,
-      pda: item.globalPda.toFixed(1),
+      pda: item.pda[targetKey].toFixed(1),
       isPlayer: item.channel === gameState.player
     })).sort((a, b) => b.pda - a.pda);
 
@@ -2105,13 +2107,14 @@ function render() {
         <div class="tape"></div>
         <div class="kicker">BILAN DE LA SAISON ${gameState.season}</div>
         <h2>PART D'AUDIENCE GLOBALE</h2>
-        
+        <p style="margin: -4px 0 10px; font-style: italic; color: var(--gris); font-size: 13px;">Cible : ${esc(targetLabel)}</p>
+
         <table class="grid-table">
           <thead>
             <tr>
               <th>Rang</th>
               <th>Chaîne TV</th>
-              <th>PDA Totale</th>
+              <th>PDA Cible</th>
             </tr>
           </thead>
           <tbody>
