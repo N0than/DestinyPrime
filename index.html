@@ -171,6 +171,9 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 }
 .pg-pda { text-align: right; font-family: 'Anton', sans-serif; font-size: 13px; color: var(--rouge); }
 .pg-header .pg-pda { font-size: 9px; color: var(--gris); }
+.pg-row.pg-leader { background: rgba(212,175,55,0.12); }
+.pg-row.pg-leader .pg-pda { color: var(--gold); }
+.pg-crown { font-size: 10px; margin-left: 1px; }
 
 .ga-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .ga-header .eh-title { margin-bottom: 0; flex-shrink: 0; }
@@ -473,11 +476,16 @@ function renderEvolutionChart(points) {
 
 function renderProgramGrid(type, pdaCible) {
   const grid = PROGRAM_GRID[type];
+  const targetKey = gameState.player.target;
+  const calculated = getCalculatedPDAs();
+  const maxTargetPda = Math.max(...calculated.map(c => c.pda[targetKey]));
+  const isLeader = calculated.find(c => c.channel === gameState.player).pda[targetKey] >= maxTargetPda - 1e-9;
+
   const rows = TIME_SLOTS.map(slot => `
-    <div class="pg-row">
+    <div class="pg-row${isLeader ? ' pg-leader' : ''}">
       <div class="pg-slot"><span class="ic">${slot.icon}</span>${slot.label}</div>
       <div class="pg-program">${grid[slot.key]}</div>
-      <div class="pg-pda">${nf1(pdaCible * slot.weight)}%</div>
+      <div class="pg-pda">${nf1(pdaCible * slot.weight)}%${isLeader ? ' <span class="pg-crown" title="Leader sur cette cible">👑</span>' : ''}</div>
     </div>
   `).join('');
   return `
