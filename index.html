@@ -1,0 +1,2171 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AUDIENCE MASTERS V2 — Devenez le Roi de l'Audimat</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Spectral:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #16130e;
+  --paper: #efeade;
+  --paper-dark: #e4ddcc;
+  --rouge: #c8102e;
+  --bleu: #1f3a93;
+  --gris: #8a8378;
+  --vert: #2e6b3a;
+  --gold: #d4af37;
+  --danger: #c8102e;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  background: var(--paper);
+  background-image: repeating-linear-gradient(0deg, rgba(22, 19, 14, 0.025) 0 1px, transparent 1px 3px);
+  color: var(--ink);
+  font-family: 'Spectral', Georgia, serif;
+  font-size: 16px;
+  line-height: 1.5;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+#app {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 12px 14px 60px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+h1, h2, h3, .display {
+  font-family: 'Anton', Impact, sans-serif;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  line-height: 1.05;
+}
+
+button { font-family: inherit; cursor: pointer; }
+button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
+
+/* ---- MASTHEAD ---- */
+.masthead { text-align: center; padding: 10px 0 8px; margin-bottom: 14px; cursor: pointer; transition: opacity 0.15s; }
+.masthead:hover { opacity: 0.75; }
+.masthead .over { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--gris); }
+.header-brand { display: inline-flex; align-items: center; gap: 6px; vertical-align: middle; }
+.header-brand .dot {
+  flex-shrink: 0;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--danger);
+  box-shadow: 0 0 8px var(--danger);
+  animation: blink 2.2s ease-in-out infinite;
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.25; }
+}
+.masthead h1 { font-size: clamp(32px, 8vw, 50px); }
+.masthead .under { font-style: italic; font-size: 13px; margin-top: 2px; color: #4a443b; margin-bottom: 10px; }
+
+/* ---- HUD (5 INDICATEURS) ---- */
+.hud-wrap { margin: 0 0 16px; }
+.hud {
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px;
+  border-top: 2px solid var(--ink);
+  padding: 0; background: rgba(255,255,255,0.4);
+  align-items: stretch;
+}
+.hud-cell { position: relative; text-align: center; min-width: 0; padding: 8px 3px; }
+.hud-cell .lab {
+  font-family: 'Anton', sans-serif; font-size: 8.5px; letter-spacing: 0.5px; text-transform: uppercase;
+  color: var(--gris); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  display: flex; align-items: center; justify-content: center; gap: 3px;
+}
+.hud-cell .ic { font-size: 10px; }
+.hud-cell .val {
+  font-family: 'Anton', sans-serif; font-size: 15px; white-space: nowrap;
+  font-variant-numeric: tabular-nums; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
+}
+.hud-cell.alert .val { color: var(--rouge); }
+.hud-cell.alert { animation: alertPulse 1.4s ease-in-out infinite; }
+@keyframes alertPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
+
+.hud-toggle {
+  display: flex; align-items: flex-start; gap: 4px;
+  width: 100%; box-sizing: border-box; padding: 0; margin: 0; border: none;
+  background: transparent; cursor: pointer;
+}
+.hud-toggle-line { flex: 1; height: 2px; background: var(--ink); }
+.hud-toggle-chevron {
+  position: relative; flex-shrink: 0; width: 12px; height: 12px;
+  opacity: 0.4;
+  transition: opacity 0.15s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.hud-toggle-chevron::before,
+.hud-toggle-chevron::after {
+  content: ''; position: absolute; left: 50%; top: 1px; width: 6px; height: 6px;
+  border-right: 1.3px solid var(--ink); border-bottom: 1.3px solid var(--ink);
+  transform: translateX(-50%) rotate(45deg);
+}
+.hud-toggle-chevron::after { top: 5px; }
+.hud-toggle:hover .hud-toggle-chevron { opacity: 1; }
+.hud-toggle.open .hud-toggle-chevron { transform: rotate(180deg); }
+
+.hud-details {
+  max-height: 0; overflow: hidden; opacity: 0;
+  transition: max-height 0.32s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease;
+}
+.hud-details.open { max-height: 800px; opacity: 1; }
+.hud-details-inner {
+  background: #f7f3e8; border: 1.5px solid var(--ink); box-shadow: 4px 4px 0 rgba(22,19,14,0.85);
+  padding: 12px 14px; margin-top: 8px;
+}
+.eh-title {
+  font-family: 'Anton', sans-serif; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;
+  color: var(--ink); margin: 0 0 2px;
+}
+.eh-subtitle { font-size: 11px; font-style: italic; color: var(--gris); margin: 0 0 10px; }
+.eh-legend { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 8px; }
+.eh-legend-item {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-family: 'Anton', sans-serif; font-size: 10px; text-transform: uppercase; letter-spacing: 0.3px;
+}
+.eh-legend-item i { display: inline-block; width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+.eh-bar-svg { display: block; width: 100%; height: 178px; }
+.spark-empty { font-size: 12px; color: var(--gris); font-style: italic; margin-top: 3px; }
+
+.eh-slider { overflow: hidden; touch-action: pan-y; cursor: grab; user-select: none; }
+.eh-slider:active { cursor: grabbing; }
+.eh-slider-track { display: flex; transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1); }
+.eh-slide { flex: 0 0 100%; min-width: 0; }
+.eh-slider-nav { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 10px; }
+.eh-slider-dots { display: flex; gap: 6px; }
+.eh-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(22,19,14,0.22); border: none; padding: 0; cursor: pointer; }
+.eh-dot.active { background: var(--ink); }
+
+.pg-header, .pg-row {
+  display: grid; grid-template-columns: 72px 1fr 46px; gap: 6px; align-items: center;
+}
+.pg-header {
+  font-family: 'Anton', sans-serif; font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px;
+  color: var(--gris); padding-bottom: 4px; border-bottom: 1px solid rgba(22,19,14,0.15); margin-bottom: 2px;
+}
+.pg-row { padding: 6px 0; border-bottom: 1px dashed rgba(22,19,14,0.12); font-size: 12px; }
+.pg-row:last-child { border-bottom: none; }
+.pg-slot {
+  display: flex; align-items: center; gap: 4px;
+  font-family: 'Anton', sans-serif; font-size: 10px; text-transform: uppercase; letter-spacing: 0.3px;
+}
+.pg-program-cell { display: flex; align-items: center; gap: 5px; }
+.pg-program {
+  flex: 1 1 auto; min-width: 0; box-sizing: border-box;
+  font-style: normal; font-family: 'Spectral', serif; font-size: 10.5px;
+  line-height: 1.2; color: var(--ink); background: var(--paper);
+  border: 1px solid rgba(22,19,14,0.3); border-left: 3px solid var(--rouge); border-radius: 3px;
+  padding: 3px 7px;
+}
+.pg-pda { text-align: right; font-family: 'Anton', sans-serif; font-size: 13px; color: var(--rouge); }
+.pg-header .pg-pda { font-size: 9px; color: var(--gris); }
+.pg-row.pg-leader { background: rgba(212,175,55,0.12); }
+.pg-row.pg-leader .pg-pda { color: var(--gold); }
+.pg-crown { font-size: 11px; width: 14px; flex-shrink: 0; text-align: center; }
+.pg-crown-hidden { visibility: hidden; }
+
+.ga-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.ga-header .eh-title { margin-bottom: 0; flex-shrink: 0; }
+.ga-target-switcher {
+  display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none;
+  max-width: 60%;
+}
+.ga-target-switcher::-webkit-scrollbar { display: none; }
+.ga-target-btn {
+  flex-shrink: 0; background: transparent; border: 1px solid rgba(22,19,14,0.3); color: var(--gris);
+  font-family: 'Anton', sans-serif; font-size: 9px; text-transform: uppercase; letter-spacing: 0.3px;
+  padding: 4px 7px; border-radius: 3px; cursor: pointer; white-space: nowrap;
+  transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+}
+.ga-target-btn:hover { border-color: var(--ink); color: var(--ink); }
+.ga-target-btn.active { background: var(--rouge); border-color: var(--rouge); color: #fff; }
+.ga-headline { margin: 8px 0 10px; }
+.ga-headline-value { font-family: 'Anton', sans-serif; font-size: 26px; color: var(--ink); line-height: 1; }
+.ga-headline-label { font-size: 11px; color: var(--gris); font-style: italic; margin-top: 2px; }
+
+.ga-row { display: flex; align-items: center; gap: 6px; padding: 3.5px 0; border-bottom: 1px dashed rgba(22,19,14,0.12); }
+.ga-row:last-child { border-bottom: none; }
+.ga-rank { font-family: 'Anton', sans-serif; font-size: 10px; color: var(--gris); width: 16px; flex-shrink: 0; }
+.ga-info { flex: 1; min-width: 0; }
+.ga-name {
+  font-family: 'Anton', sans-serif; font-size: 10px; text-transform: uppercase; letter-spacing: 0.3px;
+  margin-bottom: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.ga-bar-track { height: 4px; background: rgba(22,19,14,0.08); border-radius: 2px; overflow: hidden; }
+.ga-bar-fill { height: 100%; background: var(--gris); border-radius: 2px; }
+.ga-pct { font-family: 'Anton', sans-serif; font-size: 11px; width: 38px; text-align: right; flex-shrink: 0; }
+.ga-row.ga-player .ga-name { color: var(--rouge); }
+.ga-row.ga-player .ga-bar-fill { background: var(--rouge); }
+.ga-row.ga-player .ga-pct { color: var(--rouge); }
+
+.eh-stars-block { text-align: center; padding: 14px 0 4px; }
+.eh-stars-item { margin-bottom: 20px; }
+.eh-stars-item:last-child { margin-bottom: 0; }
+.eh-stars-label {
+  font-family: 'Anton', sans-serif; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;
+  color: var(--ink); margin-bottom: 10px;
+}
+.eh-stars-row { font-size: 26px; letter-spacing: 4px; }
+.eh-stars-row .star-filled { color: var(--gold); }
+.eh-stars-row .star-empty { color: rgba(22,19,14,0.2); }
+
+/* ---- ÉCRAN DE CONSÉQUENCES ---- */
+.impact-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.impact-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-family: 'Anton', sans-serif; font-size: 11px; letter-spacing: 0.2px; white-space: nowrap;
+  padding: 3px 8px; border-radius: 3px; background: var(--paper); border: 1px solid var(--ink);
+}
+.impact-badge.up { color: var(--vert); border-color: var(--vert); }
+.impact-badge.down { color: var(--rouge); border-color: var(--rouge); }
+.impact-badge.flat { color: var(--gris); border-color: var(--gris); }
+
+@media (max-width: 520px) {
+  .hud { gap: 3px; }
+  .hud-cell { padding: 6px 1px; }
+  .hud-cell .lab { font-size: 7.5px; gap: 2px; }
+  .hud-cell .val { font-size: 20px; }
+}
+
+/* ---- ONBOARDING & CARDS ---- */
+.kicker { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--rouge); margin-bottom: 6px; }
+.kicker-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.kicker-row .kicker { margin-bottom: 0; }
+.btn-dice {
+  position: relative; display: inline-flex; align-items: center; gap: 6px;
+  cursor: pointer; overflow: hidden; white-space: nowrap; margin-bottom: 6px;
+  background: var(--ink); color: var(--paper);
+  font-family: 'Anton', sans-serif; text-transform: uppercase; letter-spacing: 0.5px; font-size: 11px;
+  padding: 7px 12px;
+  border: 2px solid var(--paper); outline: 2px solid var(--ink);
+  box-shadow: 3px 3px 0 var(--rouge);
+  transition: transform 0.1s ease-out, box-shadow 0.1s ease-out, background 0.1s, color 0.1s, border-color 0.1s;
+}
+.btn-dice::before {
+  content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.55), transparent);
+  opacity: 0;
+}
+.btn-dice:hover::before { opacity: 1; animation: btnDiceShine 1.3s infinite; }
+@keyframes btnDiceShine { 0% { left: -100%; } 100% { left: 100%; } }
+.btn-dice .dice-icon { display: inline-block; position: relative; z-index: 1; transition: transform 0.15s ease-out; }
+.btn-dice .dice-label { position: relative; z-index: 1; }
+.btn-dice:hover { transform: translate(-3px, -3px); box-shadow: 6px 6px 0 var(--ink); }
+.btn-dice:hover .dice-icon { transform: rotate(-14deg) scale(1.15); }
+.btn-dice:active {
+  transform: translate(3px, 3px); box-shadow: 0 0 0 var(--rouge);
+  background: var(--paper); color: var(--ink); border-color: var(--ink);
+}
+.btn-dice:active .dice-icon { transform: rotate(14deg) scale(0.9); }
+.card {
+  background: #f7f3e8; border: 1.5px solid var(--ink);
+  box-shadow: 4px 4px 0 rgba(22,19,14,0.85);
+  padding: 16px; margin-bottom: 16px; position: relative;
+}
+.tape { position: absolute; top: -10px; left: 50%; transform: translateX(-50%) rotate(-1.5deg); width: 80px; height: 20px; background: rgba(31,58,147,0.18); border: 1px dashed rgba(31,58,147,0.4); }
+
+.optgrid { display: grid; grid-template-columns: 1fr; gap: 10px; margin: 12px 0 20px; }
+@media(min-width: 520px) { .optgrid { grid-template-columns: 1fr 1fr; } }
+
+.opt {
+  text-align: left; background: #f7f3e8; border: 1.5px solid var(--ink); padding: 12px;
+  font-family: 'Spectral', serif; font-size: 14px; box-shadow: 3px 3px 0 var(--ink);
+  transition: transform 0.1s, background 0.1s;
+}
+.opt:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--ink); }
+.opt .ol { font-family: 'Anton', sans-serif; text-transform: uppercase; font-size: 16px; display: block; margin-bottom: 2px; color: var(--rouge); }
+.opt .od { font-style: italic; color: #5c564a; font-size: 13px; display: block; }
+.opt.sel { background: var(--ink); color: var(--paper); }
+.opt.sel .ol { color: #ffffff; }
+.opt.sel .od { color: #cfc8b6; }
+
+input[type=text] {
+  width: 100%; font-family: 'Anton', sans-serif; font-size: 20px; text-transform: uppercase;
+  padding: 10px; border: 2px solid var(--ink); background: #fff; letter-spacing: 1px;
+}
+label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; display: block; margin: 14px 0 6px; }
+
+.namebar { display: flex; gap: 8px; margin-bottom: 16px; }
+.namebar .btn { padding: 8px 14px; font-size: 13px; white-space: nowrap; }
+
+.btn {
+  display: inline-block; background: var(--ink); color: var(--paper); border: none;
+  font-family: 'Anton', sans-serif; text-transform: uppercase; letter-spacing: 1.5px;
+  font-size: 15px; padding: 12px 22px; box-shadow: 4px 4px 0 var(--rouge);
+  transition: transform 0.08s, box-shadow 0.08s;
+}
+.btn:hover { transform: translate(1px, 1px); box-shadow: 2px 2px 0 var(--rouge); }
+.btn.ghost { background: transparent; color: var(--ink); border: 2px solid var(--ink); box-shadow: none; }
+.btn.block { display: block; width: 100%; text-align: center; }
+
+/* ---- FULLSCREEN DILEMMA VIEW & ANIMATIONS ---- */
+.dilemma-container {
+  flex: 1; display: flex; flex-direction: column; gap: 14px;
+  will-change: transform, opacity;
+}
+
+.dilemma-container.slide-in {
+  animation: slideInRight 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.dilemma-container.slide-out {
+  animation: slideOutLeft 0.22s cubic-bezier(0.7, 0, 0.84, 0) forwards;
+  pointer-events: none;
+}
+
+@keyframes slideInRight {
+  0% { opacity: 0; transform: translateX(25px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideOutLeft {
+  0% { opacity: 1; transform: translateX(0); }
+  100% { opacity: 0; transform: translateX(-25px); }
+}
+
+.slide-out-up {
+  animation: slideOutUp 0.22s cubic-bezier(0.7, 0, 0.84, 0) forwards;
+  pointer-events: none;
+}
+.slide-in-up {
+  animation: slideInUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes slideOutUp {
+  0% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-30px); }
+}
+@keyframes slideInUp {
+  0% { opacity: 0; transform: translateY(30px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.dilemma-card {
+  background: #fdfbf7; border: 2px solid var(--ink); box-shadow: 6px 6px 0 var(--ink);
+  padding: 20px; position: relative; margin-bottom: 0;
+}
+.dilemma-card h2 { font-size: clamp(22px, 5.5vw, 30px); margin-bottom: 10px; color: var(--ink); }
+.dilemma-card p { font-size: 16px; line-height: 1.45; }
+
+.choices{display:flex;flex-direction:column;gap:10px}.choice{ text-align:left;background:var(--paper);border:1.5px solid var(--ink); padding:12px 14px;font-size:16px;font-family:'Spectral',serif; box-shadow:3px 3px 0 var(--ink);transition:transform .08s,box-shadow .08s;}.choice:nth-child(odd){transform:rotate(-.4deg)}.choice:nth-child(even){transform:rotate(.4deg)}.choice:hover{transform:translate(1px,1px) rotate(0);box-shadow:1px 1px 0 var(--ink);background:#fff}.choice .cl{font-family:'Anton',sans-serif;text-transform:uppercase;font-size:15px;letter-spacing:.5px;display:block;color:var(--ink)}
+
+.choice.selected {
+  background: var(--bleu);
+  color: #fff;
+  border-color: var(--ink);
+  transform: translate(2px, 2px);
+  box-shadow: 0px 0px 0 var(--ink);
+}
+.choice.selected .cl { color: #fff; }
+.choice.selected span { color: rgba(255,255,255,0.85) !important; }
+
+/* ---- TABLE & AUDIENCE RESULTS ---- */
+.grid-table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+.grid-table th, .grid-table td { border: 1px solid var(--ink); padding: 6px 8px; text-align: left; }
+.grid-table th { background: var(--paper-dark); font-family: 'Anton', sans-serif; text-transform: uppercase; letter-spacing: 0.5px; }
+.grid-table tr:nth-child(even) { background: rgba(255,255,255,0.5); }
+
+.badge { background: var(--gold); color: var(--ink); font-family: 'Anton', sans-serif; padding: 2px 8px; font-size: 12px; text-transform: uppercase; border: 1px solid var(--ink); }
+
+@media (prefers-reduced-motion: reduce) { 
+  * { transition: none !important; animation: none !important; } 
+  .dilemma-container.slide-in, .dilemma-container.slide-out,
+  .slide-in-up, .slide-out-up { animation: none !important; }
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+"use strict";
+
+const BARS = ["#EAEAEA", "#F2E33B", "#3EC6C6", "#4CBB4C", "#D648C8", "#E8392F", "#2C3BD6"];
+
+function renderMire(h = 8) {
+  return `
+    <div style="display: flex; height: ${h}px; border-radius: 2px; overflow: hidden;" aria-hidden="true">
+      ${BARS.map(b => `<div style="flex: 1; background: ${b};"></div>`).join('')}
+    </div>
+  `;
+}
+
+const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+const shuffle = arr => {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+};
+const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+const GRP_COST = { j1524: 0.8, a2549: 1.2, s50: 0.7, csp: 1.5 };
+const VOLUME_PUB = 0.5; // M€ par point de PDA capté, valeur à ajuster
+const TRESORERIE_CRITIQUE = -60; // seuil de mise sous tutelle (M€)
+
+const nf1 = n => n.toLocaleString('fr-FR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+
+function fmtDelta(val, decimals, suffix) {
+  const sign = val > 0 ? '+' : (val < 0 ? '' : '±');
+  const formatted = val.toLocaleString('fr-FR', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+  return `${sign}${formatted}${suffix}`;
+}
+
+function renderEvolutionChart(points) {
+  if (points.length < 2) {
+    return `
+      <div class="eh-title">Évolution de votre chaîne</div>
+      <div class="eh-subtitle">Performance des principaux indicateurs sur les 5 dernières saisons</div>
+      <div class="spark-empty">Graphique disponible après la saison 1</div>
+    `;
+  }
+  const series = [
+    { key: 'coutGrille', color: 'var(--gris)', icon: '📋', label: 'Coût de grille', suffix: ' M€' },
+    { key: 'revenusPub', color: 'var(--vert)', icon: '📺', label: 'Revenus pub', suffix: ' M€' }
+  ];
+  const recentPoints = points.slice(-5);
+  const w = 280, h = 178, padTop = 16, padSide = 6;
+  const baseline = h - 20;
+  const chartH = baseline - padTop;
+  const n = recentPoints.length;
+  const groupGap = 10;
+  const barGap = 3;
+  const groupW = (w - padSide * 2 - groupGap * (n - 1)) / n;
+  const barW = (groupW - barGap) / 2;
+  const max = Math.max(...recentPoints.flatMap(pt => series.map(s => pt[s.key])), 1);
+
+  const barsHtml = recentPoints.map((pt, i) => {
+    const groupX = padSide + i * (groupW + groupGap);
+    const groupBars = series.map((s, si) => {
+      const v = pt[s.key];
+      const x = groupX + si * (barW + barGap);
+      const barH = Math.max((v / max) * chartH, 2);
+      const y = baseline - barH;
+      return `
+        <text x="${(x + barW / 2).toFixed(1)}" y="${(y - 3).toFixed(1)}" text-anchor="middle" font-family="'Anton', sans-serif" font-size="7.5" fill="var(--ink)">${nf1(v)}</text>
+        <rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="${barH.toFixed(1)}" rx="2" fill="${s.color}">
+          <title>Saison ${pt.season} — ${s.label} : ${nf1(v)}${s.suffix}</title>
+        </rect>
+      `;
+    }).join('');
+    const seasonLabel = `<text x="${(groupX + groupW / 2).toFixed(1)}" y="${(baseline + 12).toFixed(1)}" text-anchor="middle" font-size="9" font-style="italic" fill="var(--gris)">Saison ${pt.season}</text>`;
+    return groupBars + seasonLabel;
+  }).join('');
+
+  return `
+    <div class="eh-title">Évolution de votre chaîne</div>
+    <div class="eh-subtitle">Performance des principaux indicateurs sur les 5 dernières saisons</div>
+    <div class="eh-legend">
+      ${series.map(s => `<span class="eh-legend-item"><i style="background:${s.color}"></i>${s.icon} ${s.label}</span>`).join('')}
+    </div>
+    <svg class="eh-bar-svg" viewBox="0 0 ${w} ${h}" aria-hidden="true">${barsHtml}</svg>
+  `;
+}
+
+function renderProgramGrid(type, pdaCible) {
+  const grid = PROGRAM_GRID[type];
+  const targetKey = gameState.player.target;
+  const calculated = getCalculatedPDAs();
+
+  const rows = TIME_SLOTS.map(slot => {
+    const slotValue = pdaCible * SLOT_AFFINITY[type][slot.key];
+    const isLeaderSlot = calculated.every(c => {
+      if (c.channel === gameState.player) return true;
+      const compValue = c.pda[targetKey] * SLOT_AFFINITY[c.channel.type][slot.key];
+      return slotValue >= compValue - 1e-9;
+    });
+    return `
+      <div class="pg-row${isLeaderSlot ? ' pg-leader' : ''}">
+        <div class="pg-slot"><span class="ic">${slot.icon}</span>${slot.label}</div>
+        <div class="pg-program-cell">
+          <div class="pg-program">${grid[slot.key]}</div>
+          <span class="pg-crown${isLeaderSlot ? '' : ' pg-crown-hidden'}" title="Leader sur ce créneau">👑</span>
+        </div>
+        <div class="pg-pda">${nf1(slotValue)}%</div>
+      </div>
+    `;
+  }).join('');
+  return `
+    <div class="eh-title">Grille de la chaîne</div>
+    <div class="eh-subtitle">PDA cible par créneau horaire</div>
+    <div class="pg-header">
+      <div>Créneau</div>
+      <div>Programme</div>
+      <div class="pg-pda">PDA cible</div>
+    </div>
+    ${rows}
+  `;
+}
+
+function renderGlobalAudienceShare() {
+  const activeKey = gameState.audienceShareTarget || gameState.player.target;
+  const activeTarget = AUDIENCE_TARGETS.find(t => t.key === activeKey) || AUDIENCE_TARGETS[0];
+
+  const calculated = getCalculatedPDAs();
+  const playerCalc = calculated.find(item => item.channel === gameState.player);
+  const playerValue = playerCalc.pda[activeTarget.key];
+
+  const standings = calculated.map(item => ({
+    name: item.channel === gameState.player ? item.name + ' (Vous)' : item.name,
+    pda: item.pda[activeTarget.key],
+    isPlayer: item.channel === gameState.player
+  })).sort((a, b) => b.pda - a.pda);
+  const max = Math.max(...standings.map(s => s.pda), 1);
+
+  const strategicKey = gameState.player.target;
+  const orderedTargets = [
+    ...AUDIENCE_TARGETS.filter(t => t.key === strategicKey),
+    ...AUDIENCE_TARGETS.filter(t => t.key !== strategicKey)
+  ];
+  const switcherHtml = orderedTargets.map(t => `
+    <button class="ga-target-btn${t.key === activeTarget.key ? ' active' : ''}" data-audience-target="${t.key}">${t.short}</button>
+  `).join('');
+
+  const rows = standings.map((s, idx) => `
+    <div class="ga-row${s.isPlayer ? ' ga-player' : ''}">
+      <div class="ga-rank">#${idx + 1}</div>
+      <div class="ga-info">
+        <div class="ga-name">${esc(s.name)}</div>
+        <div class="ga-bar-track"><div class="ga-bar-fill" style="width:${(s.pda / max * 100).toFixed(1)}%"></div></div>
+      </div>
+      <div class="ga-pct">${nf1(s.pda)}%</div>
+    </div>
+  `).join('');
+
+  return `
+    <div class="ga-panel" id="ga-panel">
+      <div class="ga-header">
+        <div class="eh-title">Part d'audience</div>
+        <div class="ga-target-switcher">${switcherHtml}</div>
+      </div>
+      <div class="ga-headline">
+        <div class="ga-headline-value">${nf1(playerValue)}%</div>
+        <div class="ga-headline-label">${activeTarget.full}</div>
+      </div>
+      ${rows}
+    </div>
+  `;
+}
+
+function starRowHtml(filled) {
+  return Array.from({ length: 5 }, (_, i) => `<span class="${i < filled ? 'star-filled' : 'star-empty'}">★</span>`).join('');
+}
+
+function renderStatStars(player, pdaCible) {
+  const popFilled = Math.round((player.popularite / 100) * 5);
+
+  const lower = 50;
+  const upper = Math.max(player.coutGrilleCumul * 5, lower + 1);
+  let tresoFilled;
+  if (player.tresorerie <= lower) tresoFilled = 1;
+  else if (player.tresorerie >= upper) tresoFilled = 5;
+  else tresoFilled = 1 + Math.round(((player.tresorerie - lower) / (upper - lower)) * 4);
+
+  const perfLower = 0.05, perfUpper = 0.30;
+  const efficacite = pdaCible / Math.max(player.coutGrilleCumul, 0.01);
+  let perfFilled;
+  if (efficacite <= perfLower) perfFilled = 1;
+  else if (efficacite >= perfUpper) perfFilled = 5;
+  else perfFilled = 1 + Math.round(((efficacite - perfLower) / (perfUpper - perfLower)) * 4);
+
+  return `
+    <div class="eh-stars-block">
+      <div class="eh-stars-item">
+        <div class="eh-stars-label">Popularité</div>
+        <div class="eh-stars-row">${starRowHtml(popFilled)}</div>
+      </div>
+      <div class="eh-stars-item">
+        <div class="eh-stars-label">Trésorerie</div>
+        <div class="eh-stars-row">${starRowHtml(tresoFilled)}</div>
+      </div>
+      <div class="eh-stars-item">
+        <div class="eh-stars-label">Performance</div>
+        <div class="eh-stars-row">${starRowHtml(perfFilled)}</div>
+      </div>
+    </div>
+  `;
+}
+
+function computeAttractivite(popularite) {
+  return 1 + (popularite - 50) / 200;
+}
+
+function computeRevenusPub(pdaCiblePct, cible, popularite) {
+  return pdaCiblePct * GRP_COST[cible] * VOLUME_PUB * computeAttractivite(popularite);
+}
+
+const CHANNEL_TYPES = {
+  generaliste: {
+    label: "📺 Généraliste",
+    objectif: "Toucher le plus grand nombre.",
+    forces: "Audience globale, événementiel.",
+    faiblesses: "Coûts élevés, concurrence forte.",
+    baseBudget: 50,
+    pdaMods: { j1524: 10, a2549: 15, s50: 20, csp: 12 }
+  },
+  cinema: {
+    label: "🎬 Cinéma / Séries",
+    objectif: "Devenir la référence fiction.",
+    forces: "Fidélisation, catalogue.",
+    faiblesses: "Coûts des droits.",
+    baseBudget: 40,
+    pdaMods: { j1524: 12, a2549: 22, s50: 18, csp: 10 }
+  },
+  culture: {
+    label: "🧠 Culture / Documentaire",
+    objectif: "Construire une image qualitative.",
+    forces: "CSP+, fidélité.",
+    faiblesses: "Audience de masse plus difficile.",
+    baseBudget: 25,
+    pdaMods: { j1524: 5, a2549: 10, s50: 18, csp: 30 }
+  },
+  jeunesse: {
+    label: "👶 Jeunesse / Famille",
+    objectif: "Conquérir les familles et les jeunes.",
+    forces: "Fidélité, consommation régulière.",
+    faiblesses: "Cible plus spécifique.",
+    baseBudget: 25,
+    pdaMods: { j1524: 25, a2549: 18, s50: 5, csp: 8 }
+  },
+  sport: {
+    label: "⚽ Sport",
+    objectif: "Devenir la chaîne des grands événements.",
+    forces: "Pics d'audience, forte valeur publicitaire.",
+    faiblesses: "Droits extrêmement coûteux.",
+    baseBudget: 35,
+    pdaMods: { j1524: 15, a2549: 25, s50: 12, csp: 18 }
+  },
+  info: {
+    label: "📰 Information en continu",
+    objectif: "Devenir la chaîne réflexe d'information.",
+    forces: "Consommation quotidienne, actualité.",
+    faiblesses: "Dépendance à l'actualité et forte volatilité.",
+    baseBudget: 25,
+    pdaMods: { j1524: 5, a2549: 18, s50: 22, csp: 25 }
+  }
+};
+
+const TIME_SLOTS = [
+  { key: 'matin', icon: '🌅', label: 'Matin' },
+  { key: 'apresmidi', icon: '☀️', label: 'Après-midi' },
+  { key: 'access', icon: '🌇', label: 'Access' },
+  { key: 'prime', icon: '🌙', label: 'Prime' },
+  { key: 'nuit', icon: '🌃', label: 'Nuit' }
+];
+
+const SLOT_AFFINITY = {
+  generaliste: { matin: 0.8, apresmidi: 0.9, access: 1.1, prime: 1.3, nuit: 0.7 },
+  cinema: { matin: 0.5, apresmidi: 0.8, access: 1.0, prime: 1.6, nuit: 0.9 },
+  culture: { matin: 0.6, apresmidi: 1.0, access: 1.1, prime: 0.9, nuit: 1.1 },
+  jeunesse: { matin: 1.4, apresmidi: 1.5, access: 1.2, prime: 0.5, nuit: 0.3 },
+  sport: { matin: 0.5, apresmidi: 0.9, access: 0.9, prime: 1.7, nuit: 0.6 },
+  info: { matin: 1.3, apresmidi: 1.0, access: 1.0, prime: 1.2, nuit: 0.8 }
+};
+
+const PROGRAM_GRID = {
+  generaliste: {
+    matin: "Matinale info / magazine", apresmidi: "Magazine / témoignages", access: "Jeu quotidien",
+    prime: "Divertissement / compétition", nuit: "Série / fiction"
+  },
+  cinema: {
+    matin: "Séries", apresmidi: "Séries françaises", access: "Série courte",
+    prime: "Film / série événement", nuit: "Séries / films"
+  },
+  culture: {
+    matin: "Magazine", apresmidi: "Documentaire", access: "Magazine court",
+    prime: "Documentaire événement", nuit: "Documentaire"
+  },
+  jeunesse: {
+    matin: "Animation", apresmidi: "Jeux / animation", access: "Jeu familial",
+    prime: "Divertissement", nuit: "Séries"
+  },
+  sport: {
+    matin: "Débat / actualité", apresmidi: "Compétition / direct", access: "Magazine sportif",
+    prime: "Sport en direct", nuit: "Rediffusions / archives"
+  },
+  info: {
+    matin: "Actualité / débat", apresmidi: "Information continue", access: "Débat / analyse",
+    prime: "Débat / interview", nuit: "Information"
+  }
+};
+
+const TARGET_STRATEGIES = {
+  j1524: { nom: "15-24 ans (Digital Natives)", desc: "Volatils, consommateurs de vidéo dynamique.", objectif: "Capturer la génération zappeuse." },
+  a2549: { nom: "25-49 ans (Actifs / Ménagères)", desc: "Cible reine des annonceurs publicitaires.", objectif: "Maximiser les rentrées pub du Prime." },
+  s50: { nom: "50+ ans (Seniors / Fidèles)", desc: "Audience très fidèle, consommatrice de JT.", objectif: "Assurer un socle d'audimat garanti." },
+  csp: { nom: "CSP+ (Décideurs / Urbains)", desc: "Public aisé recherchant de l'investigation.", objectif: "Dominer l'influence culturelle." }
+};
+
+const AUDIENCE_TARGETS = [
+  { key: 'j1524', short: '15-24', full: '15-24 ans' },
+  { key: 'a2549', short: '25-49', full: '25-49 ans' },
+  { key: 's50', short: '+50', full: '50 ans et +' },
+  { key: 'csp', short: 'CSP+', full: 'CSP+' }
+];
+
+const FICTIONAL_CHANNEL_NAMES = ["FT1", "MonteCarloTV", "C/ACTUS", "TV9", "Banal+", "La Cinq", "FR3", "C14", "Energie 12", "I-Télé", "TPS+", "Virgini 17"];
+
+const GENERATED_NAMES = {
+  generaliste: FICTIONAL_CHANNEL_NAMES,
+  info: ["Info Direct", "N1 Info", "Actu 24", "Flash Média", "Présence Info", "C/ACTUS"],
+  cinema: ["Ciné+", "Star Show", "Fiction One", "Screen Prime", "Saga TV"],
+  sport: ["Arena Sport", "Stade 24", "X-Sport", "Chrono TV", "Vitesse Max"],
+  culture: ["Savoir+", "Odyssée TV", "Arthea", "Documenta", "Clio Channel"],
+  jeunesse: ["Nova Flux", "Pixel TV", "Family Zone", "Kido TV", "Trend Media"]
+};
+
+const DILEMMA_BANK = [
+  {
+    id: 'd1', titre: "Le clash du plateau de 19h",
+    desc: "Un chroniqueur insulte ouvertement son invité en direct. L'audience s'enflamme sur les réseaux.",
+    c: [
+      { l: "Sanctionner et suspendre le chroniqueur", b: -2, pda: { j1524: -1, a2549: +1, s50: +2, csp: +3 }, r: "La presse salue votre dignité. Le public jeune s'ennuie.", pop: 2 },
+      { l: "Rejouer la séquence en boucle et créer le buzz", b: +6, pda: { j1524: +4, a2549: +2, s50: -2, csp: -3 }, r: "Audience en hausse ! Les annonceurs de luxe râlent.", pop: -2 }
+    ]
+  },
+  {
+    id: 'd2', titre: "Les Droits du Derby Football",
+    desc: "Les droits de diffusion du plus grand match de la saison sont aux enchères.",
+    c: [
+      { l: "Mettre le paquet et surenchérir", b: -18, pda: { j1524: +3, a2549: +6, s50: +3, csp: +2 }, r: "Gros investissement, mais une visibilité maximale ce week-end.", pop: 2 },
+      { l: "Laisser filer et programmer un film classique", b: +3, pda: { j1524: -2, a2549: -3, s50: +1, csp: 0 }, r: "Économies réalisées, mais déception chez les fans de sport.", pop: 0 }
+    ]
+  },
+  {
+    id: 'd3', titre: "Documentaire Choc ou Publicité ?",
+    desc: "Une enquête exclusive met en cause votre sponsor principal sur le travail des enfants.",
+    c: [
+      { l: "Diffuser l'enquête coûte que coûte", b: -10, pda: { j1524: +3, a2549: +2, s50: +1, csp: +5 }, r: "Le sponsor claque la porte. Vous remportez le Prix du Journalisme.", pop: 3 },
+      { l: "Censurer le reportage et garder le chèque", b: +12, pda: { j1524: -4, a2549: -2, s50: -1, csp: -5 }, r: "Trésorerie garnie, mais fuite de l'information sur le web.", pop: -3 }
+    ]
+  },
+  {
+    id: 'd4', titre: "L'Animateur Vedette sur le départ",
+    desc: "Votre star du JT exige un salaire doublé sous peine de partir chez le concurrent.",
+    c: [
+      { l: "Céder à toutes ses exigences", b: -9, pda: { j1524: 0, a2549: +3, s50: +4, csp: +1 }, r: "La vedette reste. L'équipe technique râle.", pop: 2 },
+      { l: "La remplacer par un jeune talent inconnu", b: +3, pda: { j1524: +4, a2549: -1, s50: -3, csp: +1 }, r: "Vent de fraîcheur ! Les seniors zappent la chaîne.", pop: -1 }
+    ]
+  },
+  {
+    id: 'd5', titre: "Télé-Réalité : La Limite franchie",
+    desc: "Des candidats d'une émission d'enfermement organisent un dérapage prémédité.",
+    c: [
+      { l: "Couper le flux et recadrer le jeu", b: -4, pda: { j1524: -3, a2549: 0, s50: +2, csp: +2 }, r: "Décision morale louée par l'Arcom.", pop: 2 },
+      { l: "Transformer ça en prime-time événement", b: +10, pda: { j1524: +6, a2549: +3, s50: -4, csp: -4 }, r: "Réseaux sociaux en ébullition. Les régies pub s'arrachent les spots.", pop: -4 }
+    ]
+  },
+  {
+    id: 'd6', titre: "Partenariat E-Sport & Twitch",
+    desc: "Opportunité de co-diffuser un tournoi mondial d'E-Sport sur votre antenne.",
+    c: [
+      { l: "Bousculer la grille et diffuser en direct", b: -5, pda: { j1524: +8, a2549: +1, s50: -5, csp: 0 }, r: "Audience jeune au rendez-vous !", pop: -2 },
+      { l: "Refuser et conserver les feuilletons", b: 0, pda: { j1524: -2, a2549: 0, s50: +3, csp: 0 }, r: "Statu quo payant auprès des seniors.", pop: 2 }
+    ]
+  },
+  {
+    id: 'd7', titre: "Sponsorisation de la Météo",
+    desc: "Un géant de la restauration rapide propose un contrat de parrainage massif pour le bulletin météo.",
+    c: [
+      { l: "Accepter le contrat publicitaire", b: +8, pda: { j1524: 0, a2549: -1, s50: -2, csp: -3 }, r: "Rentrées financières immédiates, mais l'image de marque prend un coup.", pop: -2 },
+      { l: "Refuser au nom de l'éthique éco-responsable", b: -2, pda: { j1524: +2, a2549: +1, s50: 0, csp: +4 }, r: "La décision est saluée par l'audience haut de gamme.", pop: 2 }
+    ]
+  },
+  {
+    id: 'd8', titre: "Série Événement internationale",
+    desc: "La nouvelle série américaine à succès est disponible sur le marché des droits.",
+    c: [
+      { l: "Surenchérir pour l'exclusivité", b: -15, pda: { j1524: +5, a2549: +5, s50: +1, csp: +2 }, r: "Carton d'audience sur les actifs et les jeunes.", pop: 2 },
+      { l: "Produire une fiction locale à budget moyen", b: -6, pda: { j1524: -1, a2549: +2, s50: +4, csp: +1 }, r: "Succès d'estime et très bon ancrage chez les seniors.", pop: 2 }
+    ]
+  },
+  {
+    id: 'd9', titre: "Grève des équipes techniques",
+    desc: "Un préavis de grève menace la diffusion du direct de grande écoute du samedi soir.",
+    c: [
+      { l: "Accorder la hausse de salaire demandée", b: -5, pda: { j1524: 0, a2549: 0, s50: +1, csp: +1 }, r: "Le direct est assuré sans interruption d'antenne.", pop: 1 },
+      { l: "Passer un bêtisier en rediffusion", b: +2, pda: { j1524: -3, a2549: -4, s50: -2, csp: -3 }, r: "Économie de production, mais l'audience s'effondre.", pop: -2 }
+    ]
+  },
+  {
+    id: 'd10', titre: "Grand Débat Politique",
+    desc: "Une personnalité politique très clivante exige une tribune en prime time.",
+    c: [
+      { l: "Donner carte blanche pour booster l'audience", b: +5, pda: { j1524: +2, a2549: +4, s50: +5, csp: -4 }, r: "Record d'audience absolu, mais vives critiques sur les réseaux.", pop: 0 },
+      { l: "Refuser pour maintenir la neutralité", b: 0, pda: { j1524: -1, a2549: -1, s50: -2, csp: +3 }, r: "L'antenne reste calme, mais l'occasion d'un coup d'éclat est manquée.", pop: 0 }
+    ]
+  },
+  {
+    id: 'd11', titre: "Présentateur Virtuel par IA",
+    desc: "Une startup propose de remplacer les présentateurs de nuit par une IA ultra-réaliste.",
+    c: [
+      { l: "Tenter l'expérience IA sur la tranche nocturne", b: -1, pda: { j1524: +5, a2549: 0, s50: -4, csp: +2 }, r: "Buzz technologique intense auprès des jeunes, mais rejet des seniors.", pop: -1 },
+      { l: "Garder une présence humaine à l'antenne", b: -3, pda: { j1524: -1, a2549: +1, s50: +3, csp: +1 }, r: "Facture plus élevée, mais crédibilité préservée.", pop: 2 }
+    ]
+  },
+  {
+    id: 'd12', titre: "Soupçon de votes truqués",
+    desc: "Des fuites accusent la production de votre télé-crochet phare d'avoir manipulé les SMS.",
+    c: [
+      { l: "Annuler la finale et rembourser le public", b: -8, pda: { j1524: -2, a2549: +1, s50: +3, csp: +4 }, r: "Perte financière directe, mais l'éthique de la chaîne est saluée.", pop: 4 },
+      { l: "Étouffer l'affaire et maintenir l'antenne", b: +4, pda: { j1524: +3, a2549: -2, s50: -3, csp: -5 }, r: "Excellentes recettes SMS, mais réputation entachée.", pop: -4 }
+    ]
+  },
+  {
+    id: 'd13', titre: "Délocalisation du JT en zone de crise",
+    desc: "Un événement international majeur éclate à l'étranger.",
+    c: [
+      { l: "Déployer le plateau et l'équipe phare sur place", b: -7, pda: { j1524: +1, a2549: +3, s50: +4, csp: +5 }, r: "Couverture saluée par la critique, image d'information de référence.", pop: 4 },
+      { l: "Traiter l'information depuis le studio central", b: -1, pda: { j1524: 0, a2549: -1, s50: -2, csp: -1 }, r: "Coûts maîtrisés, mais traitement jugé trop classique.", pop: -2 }
+    ]
+  },
+  {
+    id: 'd14', titre: "Droits des Jeux Olympiques",
+    desc: "Les paquets de diffusion des épreuves Olympiques sont mis aux enchères.",
+    c: [
+      { l: "Mettre le paquet pour décrocher les grandes finales", b: -22, pda: { j1524: +6, a2549: +7, s50: +6, csp: +4 }, r: "Raz-de-marée d'audience pendant 15 jours sur toute la population.", pop: 5 },
+      { l: "Produire un magazine d'analyse du soir sans images", b: -3, pda: { j1524: 0, a2549: +1, s50: +2, csp: +1 }, r: "Budget préservé, mais part de marché modeste pendant l'événement.", pop: 2 }
+    ]
+  },
+  {
+    id: 'd15', titre: "Série culte du concurrent",
+    desc: "La chaîne rivale lance son plus gros succès le jeudi soir.",
+    c: [
+      { l: "Contrer avec votre plus grand blockbuster ciné", b: -12, pda: { j1524: +4, a2549: +4, s50: -1, csp: +2 }, r: "Frontal épique, vous parvenez à diviser l'audience.", pop: 0 },
+      { l: "Céder la soirée et diffuser un docu à bas coût", b: +1, pda: { j1524: -3, a2549: -4, s50: +1, csp: +1 }, r: "Défaite d'audience prévisible, mais rentabilité préservée.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd16', titre: "La scène de la piscine",
+    desc: "Dans votre jeu d'enfermement, deux candidats ont un rapprochement très intime en direct.",
+    c: [
+      { l: "Diffuser la séquence torride lors du prime", b: +5, pda: { j1524: +6, a2549: +3, s50: -5, csp: -4 }, r: "Record d'audience historique sur la jeunesse, tollé chez les ligues de vertu.", pop: -4 },
+      { l: "Censurer la scène au montage final", b: -1, pda: { j1524: -3, a2549: 0, s50: +2, csp: +2 }, r: "L'Arcom félicite votre retenue, mais le web vous traite de puritains.", pop: 2 }
+    ]
+  },
+  {
+    id: 'd17', titre: "Coupure du signal box",
+    desc: "Un opérateur télécom refuse de vous payer pour diffuser votre signal et menace de vous couper.",
+    c: [
+      { l: "Céder et négocier un accord financier modéré", b: -10, pda: { j1524: 0, a2549: +2, s50: +3, csp: +1 }, r: "Votre chaîne reste disponible partout sans interruption.", pop: 2 },
+      { l: "Engager une campagne de pub contre l'opérateur", b: -2, pda: { j1524: +3, a2549: -1, s50: -3, csp: -2 }, r: "Conflit ouvert : des millions de foyers perdent votre signal.", pop: -2 }
+    ]
+  },
+  {
+    id: 'd18', titre: "La triche à la marotte",
+    desc: "L'animateur vedette d'un jeu est surpris en train d'indiquer discrètement la réponse à son équipe.",
+    c: [
+      { l: "Couvrir l'animateur et nier les faits", b: -3, pda: { j1524: -1, a2549: -2, s50: -3, csp: -4 }, r: "La presse sort l'affaire, crédibilité entachée.", pop: -4 },
+      { l: "Suspendre l'animateur et mettre le jeu en pause", b: +1, pda: { j1524: +1, a2549: 0, s50: -5, csp: +2 }, r: "Image d'honnêteté retrouvée, mais désarroi des seniors.", pop: -2 }
+    ]
+  },
+  {
+    id: 'd19', titre: "Menace de retrait de fréquence",
+    desc: "L'Arcom vous menace de non-renouvellement suite à des dérapages répétés en direct.",
+    c: [
+      { l: "Remplacer le chroniqueur problématique par un modéré", b: -4, pda: { j1524: -2, a2549: +1, s50: +3, csp: +3 }, r: "Fréquence sauvée, mais perte du sel de l'émission.", pop: 3 },
+      { l: "Crier au complot et faire une émission spéciale", b: +8, pda: { j1524: +5, a2549: +3, s50: -4, csp: -5 }, r: "Audience record de soutien, mais l'autorité hausse le ton.", pop: -4 }
+    ]
+  },
+  {
+    id: 'd20', titre: "Fiasco des droits du foot",
+    desc: "Le détenteur espagnol des droits n'honore plus ses paiements pour le championnat.",
+    c: [
+      { l: "Revendre les droits en urgence à un tiers", b: -25, pda: { j1524: -4, a2549: -5, s50: -3, csp: -3 }, r: "Grosses pertes financières, mais sauvetage de la grille.", pop: -3 },
+      { l: "Injecter des capitaux pour créer une chaîne dédiée", b: -35, pda: { j1524: +4, a2549: +6, s50: +2, csp: +3 }, r: "Pari industriel risqué mais contrôle total des abonnés.", pop: 2 }
+    ]
+  },
+  {
+    id: 'd21', titre: "Départ forcé du présentateur du 20h",
+    desc: "La star historique du journal télévisé refuse de céder sa place à la jeune garde.",
+    c: [
+      { l: "L'écarter brutalement et le remplacer", b: -5, pda: { j1524: +3, a2549: +1, s50: -6, csp: -2 }, r: "Rajeunissement réussi de l'antenne, mais colère des aînés.", pop: -4 },
+      { l: "Prolonger son contrat pour 3 saisons de plus", b: -8, pda: { j1524: -3, a2549: -1, s50: +5, csp: 0 }, r: "Le public senior reste fidèle, mais la chaîne vieillit.", pop: 2 }
+    ]
+  },
+  {
+    id: 'd22', titre: "Tricherie de nourriture en survie",
+    desc: "Des aventuriers de votre émission phare se font livrer des steaks en cachette.",
+    c: [
+      { l: "Annuler la finale et ne distribuer aucun gain", b: -6, pda: { j1524: -2, a2549: 0, s50: +3, csp: +4 }, r: "Respect absolu de l'équité sportive salué.", pop: 4 },
+      { l: "Masquer l'affaire et diffuser la finale normale", b: +4, pda: { j1524: +2, a2549: -1, s50: -3, csp: -4 }, r: "Prime rentable, mais scandale post-diffusion sur les réseaux.", pop: -4 }
+    ]
+  },
+  {
+    id: 'd23', titre: "Retour du château télé-crochet",
+    desc: "L'émission culte des années 2000 fait son grand retour.",
+    c: [
+      { l: "Rénover le château d'origine à grands frais", b: -14, pda: { j1524: +5, a2549: +5, s50: +2, csp: +1 }, r: "Nostalgie maximale, succès phénoménal sur TikTok.", pop: 2 },
+      { l: "Tourner dans un studio générique en banlieue", b: -3, pda: { j1524: -2, a2549: -2, s50: 0, csp: 0 }, r: "Économie importante, mais le show manque de magie.", pop: 0 }
+    ]
+  },
+  {
+    id: 'd24', titre: "Arrêt d'un jeu cinquantenaire",
+    desc: "Le célèbre jeu de vocabulaire et de chiffres voit son audience baisser.",
+    c: [
+      { l: "Supprimer le jeu et mettre un talk jeune", b: +2, pda: { j1524: +3, a2549: +1, s50: -8, csp: -1 }, r: "Départ massif des seniors, timide arrivée des jeunes.", pop: -4 },
+      { l: "Garder l'émission le week-end par respect", b: -4, pda: { j1524: -2, a2549: 0, s50: +4, csp: +1 }, r: "Coût de grille conservé, public âgé très reconnaissant.", pop: 2 }
+    ]
+  },
+  {
+    id: 'd25', titre: "Grand Marathon Caritatif",
+    desc: "Une association vous demande une soirée entière sans publicité pour la recherche.",
+    c: [
+      { l: "Offrir la soirée et mobiliser vos stars", b: -3, pda: { j1524: +2, a2549: +2, s50: +2, csp: +3 }, r: "Superbe image de marque et dons record enregistrés.", pop: 2 },
+      { l: "Refuser et maintenir la grille commerciale", b: +4, pda: { j1524: -2, a2549: -2, s50: -1, csp: -3 }, r: "Soirée rentable, mais critiques acerbes sur les réseaux.", pop: -2 }
+    ]
+  },
+  {
+    id: 'd26', titre: "Incidents en direct aux Césars",
+    desc: "Un acteur utilise son discours de remise de prix pour une charge politique violente.",
+    c: [
+      { l: "Couper le micro de l'artiste", b: -2, pda: { j1524: -3, a2549: 0, s50: +2, csp: -3 }, r: "Accusations de censure culturelle immédiates.", pop: 0 },
+      { l: "Laisser le discours se dérouler jusqu'au bout", b: 0, pda: { j1524: +4, a2549: +2, s50: -3, csp: +4 }, r: "Sequence virale assurée et buzz dans le milieu de l'art.", pop: 0 }
+    ]
+  },
+  {
+    id: 'd27', titre: "Marionnettes satiriques censurées",
+    desc: "Les propriétaires de la chaîne trouvent les marionnettes trop acides avec leurs amis.",
+    c: [
+      { l: "Protéger la rédaction et maintenir l'esprit satire", b: -5, pda: { j1524: +2, a2549: +3, s50: +1, csp: +5 }, r: "L'esprit canal historique demeure, fierté interne.", pop: 3 },
+      { l: "Lisser le contenu pour le rendre familial", b: +3, pda: { j1524: -4, a2549: -3, s50: -1, csp: -4 }, r: "Fin du mordant, effondrement progressif du programme.", pop: -2 }
+    ]
+  },
+  {
+    id: 'd28', titre: "Intrusion chez les grands groupes",
+    desc: "Votre émission d'investigation prépare un docu sur l'évasion fiscale d'une banque.",
+    c: [
+      { l: "Diffuser l'enquête malgré les menaces de procès", b: -6, pda: { j1524: +3, a2549: +2, s50: +1, csp: +6 }, r: "Succès d'audience critique, félicitations de la presse.", pop: 4 },
+      { l: "Proposer une version expurgée sans citer la banque", b: +5, pda: { j1524: -4, a2549: -2, s50: -1, csp: -5 }, r: "Financement préservé, mais fuite du reportage sur le web.", pop: -3 }
+    ]
+  },
+  {
+    id: 'd29', titre: "Disparition des tigres du Fort",
+    desc: "Pour des raisons de bien-être animal, il faut repenser les épreuves mythiques.",
+    c: [
+      { l: "Investir dans des modèles 3D et effets virtuels", b: -4, pda: { j1524: +3, a2549: +1, s50: -2, csp: +2 }, r: "Modernisation appréciée par la jeunesse écologiste.", pop: 0 },
+      { l: "Remplacer par de simples décors sans animaux", b: -1, pda: { j1524: -3, a2549: -1, s50: +2, csp: -3 }, r: "Coût minimal, mais le décor paraît un peu vide.", pop: 0 }
+    ]
+  },
+  {
+    id: 'd30', titre: "Photo dénudée d'une Miss",
+    desc: "Une favorite du concours de beauté voit de vieilles photos intimes fuiter sur le net.",
+    c: [
+      { l: "Appliquer le règlement et la disqualifier", b: -2, pda: { j1524: -4, a2549: -2, s50: +4, csp: +1 }, r: "Rigidité saluée par le comité, contestée sur TikTok.", pop: 2 },
+      { l: "Modifier les statuts en direct pour la maintenir", b: +6, pda: { j1524: +5, a2549: +3, s50: -4, csp: -2 }, r: "Plein de soutiens jeunes et buzz phénoménal au prime.", pop: -3 }
+    ]
+  },
+  {
+    id: 'd31', titre: "Clash en coulisse de danse",
+    desc: "Deux vedettes de votre concours de danse sur parquet s'insultent violemment en répétition.",
+    c: [
+      { l: "Garder le secret et imposer des excuses privées", b: -8, pda: { j1524: -3, a2549: -4, s50: +1, csp: +1 }, r: "Climat apaisé mais pas de retombées presse.", pop: 1 },
+      { l: "Utiliser la brouille dans le montage du Prime", b: +10, pda: { j1524: +7, a2549: +4, s50: -2, csp: -3 }, r: "Envolée des parts de marché auprès des ménagères.", pop: -2 }
+    ]
+  },
+  {
+    id: 'd32', titre: "Fin de la pub après 20h",
+    desc: "L'État décide de supprimer la publicité de soirée sur l'audiovisuel public.",
+    c: [
+      { l: "Accepter la suppression et avancer l'heure des primes", b: -15, pda: { j1524: +1, a2549: +2, s50: +5, csp: +4 }, r: "Plébiscite des téléspectateurs satisfaits de la ponctualité.", pop: 4 },
+      { l: "Gaver la tranche 19h-20h de spots de parrainage", b: +8, pda: { j1524: -1, a2549: -2, s50: -2, csp: -2 }, r: "Recettes sauvées, mais l'antenne devient illisible.", pop: -2 }
+    ]
+  },
+  {
+    id: 'd33', titre: "Montage orienté à la ferme",
+    desc: "Un agriculteur accuse le montage de le faire passer pour un goujat psychopathe.",
+    c: [
+      { l: "Assumer le drama pour booster les réseaux", b: +7, pda: { j1524: +4, a2549: +4, s50: -1, csp: -3 }, r: "Buzz assuré, mais méfiance des prochains candidats.", pop: -2 },
+      { l: "Remonter les épisodes de manière bienveillante", b: -3, pda: { j1524: -2, a2549: -1, s50: +3, csp: +3 }, r: "Rythme plus lent, mais image très chaleureuse.", pop: 3 }
+    ]
+  },
+  {
+    id: 'd34', titre: "Le méga-jeu en access",
+    desc: "Un extraterrestre virtuel et un animateur survolté cartonnent à 19h.",
+    c: [
+      { l: "Surenchérir en effets spéciaux et voitures à gagner", b: -16, pda: { j1524: +6, a2549: +5, s50: +1, csp: -2 }, r: "Carton d'audience auprès des enfants et ménagères.", pop: 0 },
+      { l: "Remplacer par un quiz télévisé traditionnel", b: -3, pda: { j1524: -4, a2549: -3, s50: +5, csp: +2 }, r: "Moins cher à produire, capture du public plus âgé.", pop: 4 }
+    ]
+  },
+  {
+    id: 'd35', titre: "Polémique sur la chanson des Enfoirés",
+    desc: "Le nouvel hymne d'un collectif d'artistes est jugé réac par une partie des jeunes.",
+    c: [
+      { l: "Réécrire le texte en urgence avant la diffusion", b: -3, pda: { j1524: +3, a2549: +1, s50: -2, csp: +1 }, r: "Polémique éteinte avant le grand concert annuel.", pop: 0 },
+      { l: "Maintenir la version originale écrite par le pilier", b: 0, pda: { j1524: -3, a2549: +1, s50: +4, csp: 0 }, r: "Guerre de tribunes, mais soutien du public traditionnel.", pop: 2 }
+    ]
+  },
+  {
+    id: 'd36', titre: "Violence dans les animés jeunesse",
+    desc: "Des associations de parents dénoncent les mangas japonais de votre émission matinale.",
+    c: [
+      { l: "Censurer massivement les scènes de combat", b: -4, pda: { j1524: -6, a2549: 0, s50: +4, csp: +2 }, r: "Perte de l'aura auprès des écoliers et collégiens.", pop: 3 },
+      { l: "Maintenir la programmation intacte", b: +5, pda: { j1524: +8, a2549: +2, s50: -5, csp: -3 }, r: "Audience jeunesse imbattable, sanctions Arcom en vue.", pop: -4 }
+    ]
+  },
+  {
+    id: 'd37', titre: "Cigarettes et alcool en plateau",
+    desc: "Votre animateur vedette du samedi soir fait boire ses invités en direct.",
+    c: [
+      { l: "Laisser faire pour garder l'ambiance authentique", b: +8, pda: { j1524: +4, a2549: +4, s50: -3, csp: +2 }, r: "Émission culte et provocante, buzz garanti.", pop: 0 },
+      { l: "Imposer un plateau 'sobre' et régulé", b: -2, pda: { j1524: -3, a2549: -2, s50: +2, csp: 0 }, r: "Disparition du grain de folie, soirée plus terne.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd38', titre: "Documentaire sans commentaire",
+    desc: "Une série documentaire filme la société française sans aucun commentaire explicatif.",
+    c: [
+      { l: "Conserver le format brut d'origine", b: -2, pda: { j1524: +2, a2549: +1, s50: -1, csp: +5 }, r: "Statut d'émission culte pour cinéphiles et CSP+.", pop: 2 },
+      { l: "Mettre une voix-off pédagogique et rassurante", b: -1, pda: { j1524: -2, a2549: 0, s50: +2, csp: -3 }, r: "Plus accessible mais perd tout son génie satirique.", pop: 0 }
+    ]
+  },
+  {
+    id: 'd39', titre: "Secret choc révélé dans la presse",
+    desc: "Le secret d'un candidat de réalité fuite dans la presse people avant le Prime.",
+    c: [
+      { l: "Exclure le candidat et monnayer l'exclusivité", b: +9, pda: { j1524: +6, a2549: +3, s50: -4, csp: -4 }, r: "Succès d'audience retentissant sur la cible jeune.", pop: -4 },
+      { l: "Traiter l'affaire avec retenue sans le virer", b: -4, pda: { j1524: -3, a2549: -1, s50: +2, csp: +2 }, r: "Calme à l'antenne, déception des amateurs de potins.", pop: 2 }
+    ]
+  },
+  {
+    id: 'd40', titre: "Sélection pour l'Eurovision",
+    desc: "Choix entre une chanson traditionnelle régionale et un titre pop anglophone.",
+    c: [
+      { l: "Choisir le groupe régional en langue locale", b: -4, pda: { j1524: -2, a2549: 0, s50: +4, csp: +3 }, r: "Soutien territorial fort, mais score modeste en Europe.", pop: 4 },
+      { l: "Parier sur la pop jeune taillée pour Tik Tok", b: -8, pda: { j1524: +4, a2549: +3, s50: -1, csp: -1 }, r: "Engouement de la jeunesse et classement honorable.", pop: -1 }
+    ]
+  },
+  {
+    id: 'd41', titre: "Grève prolongée de la rédaction",
+    desc: "Suite à l'arrivée d'un directeur controversé, la rédaction d'info refuse de travailler.",
+    c: [
+      { l: "Maintenir le directeur et diffuser des rediffusions", b: -12, pda: { j1524: -3, a2549: -4, s50: -2, csp: -6 }, r: "Grève historique d'un mois, dégâts d'image durables.", pop: -4 },
+      { l: "Reculer et négocier avec le syndicat", b: -3, pda: { j1524: +1, a2549: +2, s50: +2, csp: +4 }, r: "Fin de la grève, réputation de neutralité conservée.", pop: 3 }
+    ]
+  },
+  {
+    id: 'd42', titre: "Night sessions de tennis",
+    desc: "Les droits du grand tournoi de terre battue imposent de diffuser des matchs à 22h.",
+    c: [
+      { l: "Racheter les droits des sessions nocturnes", b: -12, pda: { j1524: +4, a2549: +4, s50: +1, csp: +3 }, r: "Carton d'audience sur les CSP+ et actifs en soirée.", pop: 2 },
+      { l: "Laisser ces matchs à la plateforme payante", b: -6, pda: { j1524: -1, a2549: 0, s50: +4, csp: +1 }, r: "Vous évitez les pertes, mais perdez un marqueur fort.", pop: 2 }
+    ]
+  },
+  {
+    id: 'd43', titre: "Pression en concours de cuisine",
+    desc: "Les jurés chefs cuisiniers trouvent que le concours devient trop axé sur la comédie.",
+    c: [
+      { l: "Accélérer le rythme pour privilégier le drama", b: +6, pda: { j1524: +3, a2549: +4, s50: 0, csp: -2 }, r: "Succès chez les ménagères, bouderie des chefs étoilés.", pop: -1 },
+      { l: "Se recentrer sur la haute gastronomie pure", b: -5, pda: { j1524: -2, a2549: +1, s50: +2, csp: +5 }, r: "Validation de la critique culinaire, émission prestigieuse.", pop: 4 }
+    ]
+  },
+  {
+    id: 'd44', titre: "Débat intellectuel de nuit",
+    desc: "Un talk-show philosophique de deuxième partie de soirée fait polémique sur ses invités.",
+    c: [
+      { l: "Donner la parole aux intellectuels dissidents", b: -2, pda: { j1524: +3, a2549: +1, s50: -1, csp: +6 }, r: "Création d'un rendez-vous culturel incontournable.", pop: 2 },
+      { l: "Inviter uniquement des universitaires consensus", b: 0, pda: { j1524: -2, a2549: 0, s50: +2, csp: +1 }, r: "Émission très calme, mais risque d'assoupissement.", pop: 2 }
+    ]
+  },
+  {
+    id: 'd45', titre: "Caméra cachée piège politique",
+    desc: "Vos équipes ont piégé un ministre disant le contraire de ses annonces officielles.",
+    c: [
+      { l: "Diffuser la séquence volée en grande pompe", b: -3, pda: { j1524: +5, a2549: +3, s50: -2, csp: +4 }, r: "Pico d'audience au JT, colère noire du gouvernement.", pop: 1 },
+      { l: "Ne pas diffuser pour préserver les accès presse", b: -1, pda: { j1524: -3, a2549: -1, s50: +1, csp: -2 }, r: "Relations cordiales gardées, mais fuite sur le web.", pop: 0 }
+    ]
+  },
+  {
+    id: 'd46', titre: "Flux 24h sur application mobile",
+    desc: "Votre téléréalité propose un abonnement web payant pour voir la maison la nuit.",
+    c: [
+      { l: "Lancer l'application payante non censurée", b: +11, pda: { j1524: +7, a2549: +2, s50: -5, csp: -4 }, r: "Manne financière colossale via le micro-paiement.", pop: -4 },
+      { l: "Couper le flux à minuit pour raison éthique", b: -3, pda: { j1524: -3, a2549: 0, s50: +2, csp: +2 }, r: "Tranquillité éditoriale assurée, mais manque à gagner.", pop: 2 }
+    ]
+  },
+  {
+    id: 'd47', titre: "Grand show du 31 décembre",
+    desc: "Il faut choisir le programme pour le réveillon du Nouvel An.",
+    c: [
+      { l: "Diffuser un bêtisier géant d'extraits d'archives", b: +6, pda: { j1524: +2, a2549: +2, s50: +2, csp: -2 }, r: "Ultra rentable, enregistre de très bons scores.", pop: 0 },
+      { l: "Tourner une grande soirée de variété au Château", b: -15, pda: { j1524: -1, a2549: +3, s50: +6, csp: +2 }, r: "Prestige immense, rassemblement familial garanti.", pop: 4 }
+    ]
+  },
+  {
+    id: 'd48', titre: "Enquête clandestine en milieu fermé",
+    desc: "Un journaliste s'est infiltré dans un EHPAD pour dénoncer des maltraitances.",
+    c: [
+      { l: "Diffuser le documentaire choc au Prime", b: +7, pda: { j1524: +3, a2549: +4, s50: +4, csp: -3 }, r: "Onde de choc nationale et débat parlementaire ouvert.", pop: 0 },
+      { l: "Reporter la diffusion sous pression juridique", b: -2, pda: { j1524: -2, a2549: -2, s50: -1, csp: +2 }, r: "Accusations de lâcheté de la part des confrères.", pop: 0 }
+    ]
+  },
+  {
+    id: 'd49', titre: "Animation du jeu d'enchères",
+    desc: "Le jeu de vente d'objets anciens en après-midi doit changer d'animateur.",
+    c: [
+      { l: "Engager un antiquaire charismatique et excentrique", b: -5, pda: { j1524: -1, a2549: +1, s50: +6, csp: +3 }, r: "Succès monumental sur la tranche 16h-18h.", pop: 4 },
+      { l: "Reprogrammer de vieilles fictions télé", b: +2, pda: { j1524: +1, a2549: +2, s50: 0, csp: -2 }, r: "Remplissage sans relief mais coûts réduits au minimum.", pop: -1 }
+    ]
+  },
+  {
+    id: 'd50', titre: "Projet de fusion entre diffuseurs",
+    desc: "Deux chaînes privées majeures veulent fusionner pour contrer les géants US.",
+    c: [
+      { l: "Injecter des millions en lobbying et frais d'avocat", b: -10, pda: { j1524: +2, a2549: +3, s50: +3, csp: +2 }, r: "Processus titanesque bloqué in extremis par l'Autorité.", pop: 2 },
+      { l: "Abandonner le projet et investir sur vos contenus", b: 0, pda: { j1524: -1, a2549: -1, s50: 0, csp: 0 }, r: "Autonomie préservée, recentrage sur la création.", pop: 0 }
+    ]
+  },
+  {
+    id: 'd51', titre: "Star sous le masque d'animal",
+    desc: "Un concept international d'enquête musicale costumée est sur le marché.",
+    c: [
+      { l: "Acheter le format et signer des stars mondiales", b: -12, pda: { j1524: +4, a2549: +5, s50: +2, csp: 0 }, r: "Audience familiale massive le vendredi soir.", pop: 1 },
+      { l: "Engager des célébrités de seconde zone", b: -3, pda: { j1524: +3, a2549: -2, s50: -3, csp: -2 }, r: "Le public se sent trompé sur l'identité des stars.", pop: -2 }
+    ]
+  },
+  {
+    id: 'd52', titre: "Marathon de dons en direct",
+    desc: "C'est le week-end du grand appel à la générosité pour la recherche médicale.",
+    c: [
+      { l: "Consacrer 30 heures d'antenne consécutives", b: 0, pda: { j1524: +1, a2549: +2, s50: +3, csp: +3 }, r: "Générosité saluée, grand moment de télé solidaire.", pop: 3 },
+      { l: "Vendre la tranche du samedi soir à du sport payant", b: +10, pda: { j1524: +3, a2549: +4, s50: -2, csp: 0 }, r: "Trésorerie boostée, mais image d'avarice tenace.", pop: -1 }
+    ]
+  },
+  {
+    id: 'd53', titre: "Modernisation du bulletin météo",
+    desc: "La star mythique de la météo prend sa retraite après 30 ans.",
+    c: [
+      { l: "Changer pour une jeune présentatrice issue du web", b: -2, pda: { j1524: +4, a2549: +1, s50: -6, csp: -1 }, r: "Coup de jeune réussi, mais les fidèles regrettent le ton d'antan.", pop: -4 },
+      { l: "Remplacer par un météorologue très technique", b: -4, pda: { j1524: -2, a2549: 0, s50: +5, csp: +1 }, r: "Rigueur scientifique louée par le public senior.", pop: 3 }
+    ]
+  },
+  {
+    id: 'd54', titre: "Débat d'Entre-Deux-Tours",
+    desc: "C'est l'événement politique le plus regardé de la décennie.",
+    c: [
+      { l: "Exiger vos propres journalistes sur le plateau", b: -5, pda: { j1524: +2, a2549: +4, s50: +5, csp: +5 }, r: "Prestige maximal pour votre rédaction d'information.", pop: 5 },
+      { l: "Prendre le flux commun de la chaîne publique", b: +3, pda: { j1524: -3, a2549: -2, s50: -2, csp: -2 }, r: "Audience partagée sans distinction de marque.", pop: -2 }
+    ]
+  },
+  {
+    id: 'd55', titre: "Plagiat de vannes d'un humoriste",
+    desc: "Un youtubeur prouve qu'une vedette de votre chaîne vole ses vannes aux Américains.",
+    c: [
+      { l: "Déprogrammer immédiatement ses spectacles", b: -6, pda: { j1524: -2, a2549: +1, s50: +2, csp: +4 }, r: "Gestion exemplaire saluée sur Internet.", pop: 3 },
+      { l: "Soutenir l'humoriste et parler de coïncidence", b: +3, pda: { j1524: +2, a2549: -2, s50: -3, csp: -4 }, r: "Bad buzz tenace, l'humoriste devient une cible.", pop: -4 }
+    ]
+  },
+  {
+    id: 'd56', titre: "Cuisine du terroir et traditions",
+    desc: "Proposer un show de cuisine du Sud-Ouest avec des produits riches.",
+    c: [
+      { l: "Mettre en scène des recettes traditionnelles sans filtre", b: -6, pda: { j1524: -2, a2549: +1, s50: +7, csp: +2 }, r: "Carton chez les seniors, culte dans les régions.", pop: 4 },
+      { l: "Remplacer par des recettes végétariennes express", b: -1, pda: { j1524: +3, a2549: +2, s50: -3, csp: -2 }, r: "Modernité affirmée, mais rejet des traditionalistes.", pop: -2 }
+    ]
+  },
+  {
+    id: 'd57', titre: "Le film adulte du samedi soir",
+    desc: "La tradition du film coquinnement célèbre de deuxième partie de soirée faiblit.",
+    c: [
+      { l: "Maintenir la case pour préserver l'ADN historique", b: +4, pda: { j1524: +3, a2549: +2, s50: -4, csp: -3 }, r: "Audience nocturne toujours fidèle au rendez-vous.", pop: -4 },
+      { l: "Remplacer par des séries d'action américaines", b: +1, pda: { j1524: -2, a2549: 0, s50: +2, csp: +3 }, r: "Normalisation de la grille de fin de semaine.", pop: 2 }
+    ]
+  },
+  {
+    id: 'd58', titre: "Saga d'été mystérieuse",
+    desc: "Grande tradition des fictions estivales à suspense sur la côte atlantique.",
+    c: [
+      { l: "Produire une saga à gros budget avec dolmens et meurtres", b: -13, pda: { j1524: +2, a2549: +6, s50: +5, csp: +1 }, r: "Le rendez-vous incontournable des vacances d'été !", pop: 3 },
+      { l: "Diffuser des séries policières allemandes", b: +2, pda: { j1524: -3, a2549: -4, s50: -1, csp: -2 }, r: "Grille d'été sans saveur mais très économe.", pop: -2 }
+    ]
+  },
+  {
+    id: 'd59', titre: "Reporter agressé sur le terrain",
+    desc: "Votre journaliste est bousculé en direct par des manifestants virulents.",
+    c: [
+      { l: "Tourner la séquence en boucle pour victimiser l'antenne", b: +5, pda: { j1524: +4, a2549: +3, s50: +1, csp: -3 }, r: "Pic d'audience immédiat, accusations de sensationnalisme.", pop: -1 },
+      { l: "Traiter l'événement calmement avec une plainte", b: -1, pda: { j1524: -1, a2549: +1, s50: +2, csp: +3 }, r: "Dignité professionnelle respectée par les observateurs.", pop: 2 }
+    ]
+  },
+  {
+    id: 'd60', titre: "Refonte du générique de l'info",
+    desc: "Le générique du journal n'a pas changé depuis plus de 15 ans.",
+    c: [
+      { l: "Commander un thème moderne à un DJ célèbre", b: -3, pda: { j1524: +3, a2549: +2, s50: -4, csp: +1 }, r: "Coup de jeune réussi sur l'image du JT.", pop: -2 },
+      { l: "Conserver la symphonie historique inchangée", b: 0, pda: { j1524: -2, a2549: 0, s50: +5, csp: +1 }, r: "Le public senior retrouve ses repères habituels.", pop: 3 }
+    ]
+  },
+  {
+    id: 'd61', titre: "Polar régional décliné",
+    desc: "Concept de fictions policières se déroulant chaque semaine dans une ville différente.",
+    c: [
+      { l: "Décliner le concept dans toutes les régions de France", b: -8, pda: { j1524: -3, a2549: +2, s50: +8, csp: +2 }, r: "Audience écrasante sur les 50 ans et plus le samedi.", pop: 5 },
+      { l: "Tenter un polar urbain sombre en métropole", b: -11, pda: { j1524: +4, a2549: +3, s50: -3, csp: +2 }, r: "Moins fédérateur mais salué par la critique spécialisée.", pop: 0 }
+    ]
+  },
+  {
+    id: 'd62', titre: "Le champion invaincu au quiz",
+    desc: "Un candidat du jeu du midi en est à sa 200e victoire consécutive.",
+    c: [
+      { l: "Conserver le champion indéfiniment pour créer l'attachement", b: -6, pda: { j1524: -1, a2549: +3, s50: +6, csp: 0 }, r: "Les téléspectateurs s'attachent, la cagnotte explose.", pop: 3 },
+      { l: "Durcir les règles pour provoquer sa chute", b: -2, pda: { j1524: +2, a2549: +1, s50: -2, csp: +3 }, r: "Départ émouvant, l'émission renouvelle son souffle.", pop: 0 }
+    ]
+  },
+  {
+    id: 'd63', titre: "Émission de relooking incisif",
+    desc: "Une styliste au fort accent prodigue des conseils très tranchants.",
+    c: [
+      { l: "Accentuer le ton moqueur pour amplifier le buzz", b: +5, pda: { j1524: +4, a2549: +3, s50: -2, csp: -3 }, r: "Expressions devenues cultes dans les cours de récré.", pop: -2 },
+      { l: "Adopter un coaching 100% bienveillant", b: -3, pda: { j1524: -1, a2549: 0, s50: +2, csp: +2 }, r: "Émission plus douce, mais perte de piquant.", pop: 2 }
+    ]
+  },
+  {
+    id: 'd64', titre: "Télé-achat le dimanche matin",
+    desc: "Financer la grille dominicale en vendant des poêles et des balais magiques.",
+    c: [
+      { l: "Louer 3 heures d'antenne aux télé-vendeurs", b: +8, pda: { j1524: -4, a2549: -3, s50: -1, csp: -4 }, r: "Rentrées financières faciles, mais antenne bradée.", pop: -2 },
+      { l: "Diffuser un magazine sur le monde animal", b: -4, pda: { j1524: +1, a2549: +1, s50: +3, csp: +2 }, r: "Programme familial et chaleureux très apprécié.", pop: 2 }
+    ]
+  },
+  {
+    id: 'd65', titre: "Rachat d'un club de foot par la chaîne",
+    desc: "Opportunité unique d'acheter le plus grand club de la capitale.",
+    c: [
+      { l: "Acheter le club pour en faire la vitrine de la chaîne", b: -30, pda: { j1524: +5, a2549: +5, s50: +2, csp: +1 }, r: "Sinergies énormes, mais gouffre financier imprévu.", pop: 2 },
+      { l: "Refuser et rester un simple diffuseur neutre", b: 0, pda: { j1524: 0, a2549: 0, s50: 0, csp: 0 }, r: "Aucun risque pris, trésorerie totalement préservée.", pop: 0 }
+    ]
+  },
+  {
+    id: 'd66', titre: "Événement physique d'un streamer",
+    desc: "Des influenceurs organisent une course automobile diffusée sur Twitch.",
+    c: [
+      { l: "Co-diffuser l'événement en direct sur votre chaîne", b: -8, pda: { j1524: +10, a2549: +2, s50: -8, csp: 0 }, r: "Carton d'audience historique sur les 15-24 ans !", pop: -4 },
+      { l: "Ignorer le phénomène et garder la grille habituelle", b: 0, pda: { j1524: -4, a2549: 0, s50: +3, csp: 0 }, r: "Le public jeune déserte totalement la télévision.", pop: 2 }
+    ]
+  },
+  {
+    id: 'd67', titre: "Documentaire enquête sur votre propre chaîne",
+    desc: "Des journalistes indépendants ont enquêté sur les méthodes de votre direction.",
+    c: [
+      { l: "Autoriser la diffusion sans censure sur votre antenne", b: -4, pda: { j1524: +2, a2549: +2, s50: +1, csp: +6 }, r: "Leçon de démocratie saluée par toute la profession.", pop: 4 },
+      { l: "Censurer le reportage et déprogrammer la soirée", b: +2, pda: { j1524: -3, a2549: -2, s50: -1, csp: -4 }, r: "Scandale de censure, démission de journalistes stars.", pop: -2 }
+    ]
+  },
+  {
+    id: 'd68', titre: "Jeu d'aventure en hélicoptère",
+    desc: "Un jeu mythique fait survoler les monuments français à des candidats.",
+    c: [
+      { l: "Financer la logistique lourde des hélicoptères", b: -12, pda: { j1524: +1, a2549: +3, s50: +5, csp: +3 }, r: "Images somptueuses du patrimoine français très louées.", pop: 4 },
+      { l: "Réduire les déplacements et faire des épreuves au sol", b: -3, pda: { j1524: -1, a2549: -1, s50: +1, csp: -1 }, r: "Le jeu perd son souffle et son originalité.", pop: 0 }
+    ]
+  },
+  {
+    id: 'd69', titre: "Dessin animé produit en France",
+    desc: "Co-produire une série animée sur une super-héroïne coccinelle à Paris.",
+    c: [
+      { l: "Investir massivement dans la création française", b: -7, pda: { j1524: +7, a2549: +2, s50: -2, csp: +2 }, r: "Succès mondial et produits dérivés très lucratifs !", pop: 0 },
+      { l: "Acheter des séries américaines déjà amorties", b: -1, pda: { j1524: -4, a2549: -2, s50: +1, csp: -1 }, r: "Solution économique mais sans création de valeur.", pop: 0 }
+    ]
+  },
+  {
+    id: 'd70', titre: "Retransmission d'un festival Rock/Metal",
+    desc: "Diffuser en direct le plus grand festival de musique extrême de France.",
+    c: [
+      { l: "Diffuser les grands concerts à partir de minuit", b: -3, pda: { j1524: +6, a2549: +1, s50: -4, csp: +1 }, r: "Public rock enthousiaste, excellente image alternative.", pop: -2 },
+      { l: "Programmer une rediffusion de variété française", b: -5, pda: { j1524: -3, a2549: 0, s50: +5, csp: +1 }, r: "Prudence éditoriale classique sans étincelle.", pop: 3 }
+    ]
+  },
+  {
+    id: 'd71', titre: "Drame sur un tournage de jeu",
+    desc: "Un accident tragique survient lors du tournage d'un jeu de télé-réalité.",
+    c: [
+      { l: "Annuler définitivement l'émission et soutenir les familles", b: -15, pda: { j1524: -2, a2549: +1, s50: +2, csp: +4 }, r: "Perte financière colossale, mais respect des victimes.", pop: 3 },
+      { l: "Diffuser les images pour amortir les coûts", b: +4, pda: { j1524: +1, a2549: -3, s50: -4, csp: -5 }, r: "Indignation nationale, l'image de la chaîne est détruite.", pop: -4 }
+    ]
+  },
+  {
+    id: 'd72', titre: "Matchs de qualification des Bleus",
+    desc: "Les matchs de l'Équipe de France de football sont mis aux enchères.",
+    c: [
+      { l: "Mettre un prix fou pour garder l'exclusivité des Bleus", b: -20, pda: { j1524: +5, a2549: +8, s50: +6, csp: +3 }, r: "Leader absolu des audiences les soirs de match !", pop: 4 },
+      { l: "Laisser les matchs à la chaîne publique", b: 0, pda: { j1524: -3, a2549: -4, s50: -3, csp: -1 }, r: "Économie majeure, mais perte de statut d'antenne majeure.", pop: -2 }
+    ]
+  },
+  {
+    id: 'd73', titre: "Films de Noël dès le mois de novembre",
+    desc: "Programmer des téléfilms romantiques enneigés chaque après-midi.",
+    c: [
+      { l: "Remplir les après-midis avec ces romances téléfilms", b: +4, pda: { j1524: +1, a2549: +4, s50: +3, csp: -2 }, r: "Audience très fidèle et recettes publicitaires confortables.", pop: 0 },
+      { l: "Garder les téléfilms policiers habituels", b: -2, pda: { j1524: 0, a2549: -1, s50: 0, csp: +1 }, r: "Stabilité sans créer l'événement saisonnier.", pop: 0 }
+    ]
+  },
+  {
+    id: 'd74', titre: "Témoignage voyeuriste dans un fait divers",
+    desc: "Un voisin donne des détails sordides sur une affaire criminelle en cours.",
+    c: [
+      { l: "Diffuser l'interview choc lors du JT de 13h", b: +5, pda: { j1524: +4, a2549: +2, s50: -2, csp: -4 }, r: "Pic d'audience, mais réprimande rapide des observateurs.", pop: -3 },
+      { l: "Refuser la diffusion pour respecter le secret de l'instruction", b: -1, pda: { j1524: -2, a2549: 0, s50: +1, csp: +3 }, r: "Traitement sobre et rigoureux félicité par les juges.", pop: 2 }
+    ]
+  },
+  {
+    id: 'd75', titre: "Passage à la 4K Ultra-HD sur la TNT",
+    desc: "L'État impose une bascule technique pour diffuser en ultra haute définition.",
+    c: [
+      { l: "Investir massivement dans la régie et les caméras 4K", b: -10, pda: { j1524: +3, a2549: +3, s50: +1, csp: +5 }, r: "Qualité d'image inégalée, vitrine technologique.", pop: 3 },
+      { l: "Attendre le dernier moment en restant en HD", b: 0, pda: { j1524: -1, a2549: -1, s50: 0, csp: -2 }, r: "Économies financières immédiates, retard d'image.", pop: -1 }
+    ]
+  }
+];
+
+let gameState = {
+  step: 1,
+  resumeStep: null,
+  player: {
+    name: "",
+    type: "generaliste",
+    target: "a2549",
+    tresorerie: 50,
+    coutGrilleCumul: 0,
+    revenusPubCumul: 0,
+    popularite: 50,
+    pda: { j1524: 0.3, a2549: 1.0, s50: 0.3, csp: 0.3 }
+  },
+  competitors: [],
+  season: 1,
+  currentDilemmaIndex: 0,
+  dilemmaQueue: [],
+  dilemmaPhase: 'choosing',
+  logs: [],
+  lastConsequence: null,
+  pendingNextStep: null,
+  hudExpanded: false,
+  hudSlide: 0,
+  audienceShareTarget: null,
+  history: []
+};
+
+function initCompetitors() {
+  const availableNames = FICTIONAL_CHANNEL_NAMES.filter(n => n.toLowerCase() !== gameState.player.name.toLowerCase());
+  const names = shuffle(availableNames).slice(0, 5);
+  const types = Object.keys(CHANNEL_TYPES);
+  const targets = Object.keys(TARGET_STRATEGIES);
+
+  gameState.competitors = names.map((name, i) => {
+    const cType = types[i % types.length];
+    let cTarget = (i < 2) ? gameState.player.target : targets[(i + 1) % targets.length];
+    const basePda = { ...CHANNEL_TYPES[cType].pdaMods };
+
+    return {
+      name,
+      type: cType,
+      target: cTarget,
+      budget: CHANNEL_TYPES[cType].baseBudget,
+      pda: basePda
+    };
+  });
+}
+
+function finalizeChannelSetup() {
+  gameState.player.tresorerie = CHANNEL_TYPES[gameState.player.type].baseBudget;
+  gameState.player.coutGrilleCumul = 0.25 * gameState.player.tresorerie;
+  gameState.player.revenusPubCumul = 0;
+  gameState.player.popularite = 50;
+
+  initCompetitors();
+
+  const targetDemo = gameState.player.target;
+  const demoTotals = {};
+  ['j1524', 'a2549', 's50', 'csp'].forEach(d => {
+    demoTotals[d] = gameState.competitors.reduce((sum, c) => sum + Math.max(1, c.pda[d]), 0);
+  });
+
+  gameState.player.pda = { j1524: 0.2, a2549: 0.2, s50: 0.2, csp: 0.2 };
+  gameState.player.pda[targetDemo] = demoTotals[targetDemo] * 0.0101;
+}
+
+function getAllChannels() {
+  return [gameState.player, ...gameState.competitors];
+}
+
+function getCalculatedPDAs() {
+  const channels = getAllChannels();
+  const demos = ['j1524', 'a2549', 's50', 'csp'];
+  
+  const demoTotals = {};
+  demos.forEach(d => {
+    demoTotals[d] = channels.reduce((sum, c) => sum + Math.max(0.1, c.pda[d]), 0);
+  });
+
+  return channels.map(c => {
+    const normPda = {};
+    let sumNorm = 0;
+    demos.forEach(d => {
+      normPda[d] = (Math.max(0.1, c.pda[d]) / demoTotals[d]) * 100;
+      sumNorm += normPda[d];
+    });
+    
+    return {
+      channel: c,
+      name: c.name,
+      pda: normPda,
+      globalPda: sumNorm / 4
+    };
+  });
+}
+
+function chooseDilemmaOption(choiceIndex) {
+  const dilemma = gameState.dilemmaQueue[gameState.currentDilemmaIndex];
+  const choice = dilemma.c[choiceIndex];
+  const player = gameState.player;
+  const popAvant = player.popularite;
+
+  const pdaCibleAvant = getCalculatedPDAs().find(item => item.channel === player).pda[player.target];
+
+  for (const t in choice.pda) {
+    let delta = choice.pda[t];
+    if (popAvant < 25 && delta < 0) delta *= 1.5;
+    if (popAvant > 75 && delta > 0) delta *= 1.25;
+    player.pda[t] = Math.max(0.1, player.pda[t] + delta);
+  }
+
+  gameState.competitors.forEach(comp => {
+    if (comp.target === player.target) {
+      comp.pda[comp.target] = Math.max(1, comp.pda[comp.target] + (choice.b > 0 ? -0.5 : 1));
+    } else {
+      comp.pda[comp.target] = Math.max(1, comp.pda[comp.target] + (Math.random() * 1.5 - 0.5));
+    }
+  });
+
+  player.tresorerie += choice.b;
+  const coutGrilleDelta = choice.b < 0 ? Math.abs(choice.b) : 0;
+  if (coutGrilleDelta > 0) {
+    player.coutGrilleCumul += coutGrilleDelta;
+  }
+  player.popularite = Math.max(0, Math.min(100, player.popularite + choice.pop));
+
+  const pdaCibleApres = getCalculatedPDAs().find(item => item.channel === player).pda[player.target];
+  const revenus = computeRevenusPub(pdaCibleApres, player.target, player.popularite);
+  player.tresorerie += revenus;
+  player.revenusPubCumul += revenus;
+
+  gameState.lastConsequence = {
+    titre: dilemma.titre,
+    choixLabel: choice.l,
+    resultat: choice.r,
+    deltas: {
+      tresorerie: choice.b + revenus,
+      pdaCible: pdaCibleApres - pdaCibleAvant,
+      coutGrille: coutGrilleDelta,
+      revenusPub: revenus,
+      popularite: choice.pop
+    }
+  };
+
+  gameState.logs.push({
+    title: dilemma.titre,
+    result: choice.r
+  });
+
+  gameState.currentDilemmaIndex++;
+
+  if (player.tresorerie < TRESORERIE_CRITIQUE) {
+    gameState.pendingNextStep = 8;
+  } else if (gameState.currentDilemmaIndex >= gameState.dilemmaQueue.length) {
+    gameState.pendingNextStep = 7;
+    gameState.history.push({
+      season: gameState.season,
+      tresorerie: player.tresorerie,
+      pdaCible: pdaCibleApres,
+      coutGrille: player.coutGrilleCumul,
+      revenusPub: player.revenusPubCumul,
+      popularite: player.popularite
+    });
+  } else {
+    gameState.pendingNextStep = 6;
+  }
+  gameState.dilemmaPhase = 'result';
+
+  render();
+}
+
+function continueAfterConsequence() {
+  gameState.step = gameState.pendingNextStep;
+  gameState.pendingNextStep = null;
+  gameState.dilemmaPhase = 'choosing';
+  render();
+}
+
+function startNewSeason() {
+  gameState.season++;
+  gameState.currentDilemmaIndex = 0;
+  gameState.dilemmaQueue = shuffle(DILEMMA_BANK).slice(0, 4);
+  gameState.dilemmaPhase = 'choosing';
+  // Le coût de grille de la saison écoulée est répercuté sur la nouvelle saison (pas de remise à zéro).
+  gameState.player.revenusPubCumul = 0;
+  gameState.step = 6;
+  render();
+}
+
+function goHome() {
+  if (gameState.step === 6 || gameState.step === 7) {
+    gameState.resumeStep = gameState.step;
+  }
+  gameState.step = 1;
+  render();
+}
+
+function resetGame() {
+  gameState.step = 1;
+  gameState.resumeStep = null;
+  gameState.player = {
+    name: "",
+    type: "generaliste",
+    target: "a2549",
+    tresorerie: 50,
+    coutGrilleCumul: 0,
+    revenusPubCumul: 0,
+    popularite: 50,
+    pda: { j1524: 0.3, a2549: 1.0, s50: 0.3, csp: 0.3 }
+  };
+  gameState.competitors = [];
+  gameState.season = 1;
+  gameState.currentDilemmaIndex = 0;
+  gameState.dilemmaQueue = [];
+  gameState.dilemmaPhase = 'choosing';
+  gameState.logs = [];
+  gameState.lastConsequence = null;
+  gameState.pendingNextStep = null;
+  gameState.hudExpanded = false;
+  gameState.hudSlide = 0;
+  gameState.audienceShareTarget = null;
+  gameState.history = [];
+  render();
+}
+
+function renderMasthead(sub, over) {
+  return `
+    <div class="masthead">
+      <div class="over"><span class="header-brand"><span class="dot"></span>${over || `Audience Masters V2 — Saison ${gameState.season}`}</span></div>
+      <h1>${gameState.player.name || "Bienvenue dans l'arène"}</h1>
+      <div class="under">${sub}</div>
+      ${renderMire(8)}
+    </div>
+  `;
+}
+
+function renderTicker() {
+  const p = gameState.player;
+  const calculated = getCalculatedPDAs();
+  const playerCalc = calculated.find(item => item.channel === p);
+  const pdaCible = playerCalc.pda[p.target];
+  const open = !!gameState.hudExpanded;
+
+  const lastHistorySeason = gameState.history.length ? gameState.history[gameState.history.length - 1].season : null;
+  const currentPoint = {
+    season: gameState.season, tresorerie: p.tresorerie, pdaCible, coutGrille: p.coutGrilleCumul,
+    revenusPub: p.revenusPubCumul, popularite: p.popularite
+  };
+  const chartPoints = lastHistorySeason === gameState.season ? gameState.history : [...gameState.history, currentPoint];
+
+  const programGridHtml = renderProgramGrid(p.type, pdaCible);
+  const globalAudienceShareHtml = renderGlobalAudienceShare();
+  const evolutionChartHtml = renderEvolutionChart(chartPoints);
+  const statStarsHtml = renderStatStars(p, pdaCible);
+  const slide = gameState.hudSlide || 0;
+
+  return `
+    <div class="hud-wrap">
+      <div class="hud">
+        <div class="hud-cell hero${p.tresorerie < 0 ? ' alert' : ''}">
+          <div class="lab"><span class="ic">💰</span>Trésorerie</div>
+          <div class="val">${nf1(p.tresorerie)} M€</div>
+        </div>
+        <div class="hud-cell hero">
+          <div class="lab"><span class="ic">🎯</span>PDA Cible</div>
+          <div class="val">${nf1(pdaCible)}%</div>
+        </div>
+        <div class="hud-cell">
+          <div class="lab"><span class="ic">📋</span>Coût grille</div>
+          <div class="val">${nf1(p.coutGrilleCumul)} M€</div>
+        </div>
+        <div class="hud-cell">
+          <div class="lab"><span class="ic">📺</span>Revenus pub</div>
+          <div class="val">${nf1(p.revenusPubCumul)} M€</div>
+        </div>
+        <div class="hud-cell">
+          <div class="lab"><span class="ic">⭐</span>Popularité</div>
+          <div class="val">${Math.round(p.popularite)}%</div>
+        </div>
+      </div>
+      <button class="hud-toggle${open ? ' open' : ''}" id="hud-toggle" aria-label="Détail des indicateurs" aria-expanded="${open}">
+        <span class="hud-toggle-line"></span>
+        <span class="hud-toggle-chevron"></span>
+        <span class="hud-toggle-line"></span>
+      </button>
+      <div class="hud-details${open ? ' open' : ''}" id="hud-details">
+        <div class="hud-details-inner">
+          <div class="eh-slider" id="eh-slider">
+            <div class="eh-slider-track" id="eh-slider-track" style="transform: translateX(-${slide * 100}%);">
+              <div class="eh-slide">${programGridHtml}</div>
+              <div class="eh-slide">${globalAudienceShareHtml}</div>
+              <div class="eh-slide">${evolutionChartHtml}</div>
+              <div class="eh-slide">${statStarsHtml}</div>
+            </div>
+          </div>
+          <div class="eh-slider-nav">
+            <div class="eh-slider-dots" id="eh-slider-dots">
+              <button class="eh-dot${slide === 0 ? ' active' : ''}" data-slide="0" aria-label="Écran 1"></button>
+              <button class="eh-dot${slide === 1 ? ' active' : ''}" data-slide="1" aria-label="Écran 2"></button>
+              <button class="eh-dot${slide === 2 ? ' active' : ''}" data-slide="2" aria-label="Écran 3"></button>
+              <button class="eh-dot${slide === 3 ? ' active' : ''}" data-slide="3" aria-label="Écran 4"></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function render() {
+  const app = document.getElementById('app');
+  window.scrollTo(0, 0);
+
+  if (gameState.step === 1) {
+    const canResume = !!gameState.resumeStep;
+    app.innerHTML = `
+      <div class="masthead">
+        <div class="over">Bienvenue dans</div>
+        <h1><span class="header-brand"><span class="dot"></span>AUDIENCE MASTERS</span></h1>
+        <div class="under">Chaque choix compte pour devenir le maître des audiences.</div>
+        ${renderMire(8)}
+      </div>
+      ${canResume ? `
+      <div class="card">
+        <div class="tape"></div>
+        <div class="kicker">PARTIE EN COURS</div>
+        <h2 style="color: var(--bleu);">${esc(gameState.player.name)}</h2>
+        <p style="margin: 8px 0 12px;">Saison ${gameState.season} — reprenez là où vous vous êtes arrêté.</p>
+        <button class="btn block" id="btn-resume" style="font-size: 16px; padding: 12px;">↩ Reprendre la partie →</button>
+      </div>
+      ` : ''}
+      <div class="card center">
+        <div class="tape"></div>
+        <div style="width: 100%; height: 200px; margin: 0 0 14px;">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="94 214 612 372" width="100%" height="100%" preserveAspectRatio="none" shape-rendering="crispEdges" style="display: block;">
+            <rect x="0" y="0" width="800" height="800" fill="#FAFAFA"/>
+            <rect x="94" y="214" width="612" height="372" fill="#000000"/>
+            <rect x="100" y="220" width="75" height="360" fill="#FFFFFF"/>
+            <rect x="175" y="220" width="75" height="360" fill="#FFFF00"/>
+            <rect x="250" y="220" width="75" height="360" fill="#00FFFF"/>
+            <rect x="325" y="220" width="75" height="360" fill="#00FF00"/>
+            <rect x="400" y="220" width="75" height="360" fill="#FF00FF"/>
+            <rect x="475" y="220" width="75" height="360" fill="#FF0000"/>
+            <rect x="550" y="220" width="75" height="360" fill="#0000FF"/>
+            <rect x="625" y="220" width="75" height="360" fill="#000000"/>
+            <rect x="115" y="355" width="570" height="90" fill="#000000"/>
+            <rect x="196" y="372" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="228" y="372" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="196" y="380" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="204" y="380" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="228" y="380" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="196" y="388" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="212" y="388" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="228" y="388" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="196" y="396" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="212" y="396" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="228" y="396" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="196" y="404" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="220" y="404" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="228" y="404" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="196" y="412" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="228" y="412" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="196" y="420" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="228" y="420" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="252" y="372" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="260" y="372" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="268" y="372" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="244" y="380" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="276" y="380" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="244" y="388" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="276" y="388" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="244" y="396" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="276" y="396" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="244" y="404" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="276" y="404" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="244" y="412" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="276" y="412" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="252" y="420" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="260" y="420" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="268" y="420" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="332" y="372" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="340" y="372" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="348" y="372" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="356" y="372" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="324" y="380" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="324" y="388" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="332" y="396" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="340" y="396" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="348" y="396" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="356" y="404" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="356" y="412" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="324" y="420" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="332" y="420" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="340" y="420" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="348" y="420" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="372" y="372" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="380" y="372" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="388" y="372" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="396" y="372" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="404" y="372" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="388" y="380" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="388" y="388" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="388" y="396" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="388" y="404" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="388" y="412" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="372" y="420" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="380" y="420" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="388" y="420" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="396" y="420" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="404" y="420" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="428" y="372" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="436" y="372" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="444" y="372" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="420" y="380" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="452" y="380" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="420" y="388" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="420" y="396" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="436" y="396" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="444" y="396" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="452" y="396" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="420" y="404" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="452" y="404" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="420" y="412" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="452" y="412" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="428" y="420" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="436" y="420" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="444" y="420" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="452" y="420" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="468" y="372" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="500" y="372" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="468" y="380" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="476" y="380" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="500" y="380" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="468" y="388" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="484" y="388" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="500" y="388" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="468" y="396" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="484" y="396" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="500" y="396" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="468" y="404" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="492" y="404" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="500" y="404" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="468" y="412" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="500" y="412" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="468" y="420" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="500" y="420" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="524" y="372" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="532" y="372" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="540" y="372" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="516" y="380" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="548" y="380" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="516" y="388" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="548" y="388" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="516" y="396" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="524" y="396" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="532" y="396" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="540" y="396" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="548" y="396" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="516" y="404" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="548" y="404" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="516" y="412" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="548" y="412" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="516" y="420" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="548" y="420" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="564" y="372" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="564" y="380" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="564" y="388" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="564" y="396" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="564" y="404" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="564" y="412" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="564" y="420" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="572" y="420" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="580" y="420" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="588" y="420" width="8" height="8" fill="#FFFFFF"/>
+            <rect x="596" y="420" width="8" height="8" fill="#FFFFFF"/>
+          </svg>
+        </div>
+        <h2>LA GUERRE DES CHAÎNES COMMENCE MAINTENANT.</h2>
+        <p style="margin: 12px 0;">Partez de zéro. Faites les bons choix. Grimpez jusqu'au sommet.</p>
+        <p style="margin: 0 0 12px;">Votre mission : détrôner les chaînes historiques et devenir le maître des audiences.</p>
+        <button class="btn block" id="btn-start" style="font-size: 18px; padding: 14px;">Lancer ma chaîne →</button>
+      </div>
+    `;
+    document.getElementById('btn-start').onclick = () => { gameState.step = 2; render(); };
+    if (canResume) {
+      document.getElementById('btn-resume').onclick = () => { gameState.step = gameState.resumeStep; render(); };
+    }
+    app.querySelector('.masthead').onclick = goHome;
+    return;
+  }
+
+  if (gameState.step === 2) {
+    app.innerHTML = `
+      ${renderMasthead("Étape 1/4 : Type de Chaîne & Capital Initial", "Audience Masters")}
+      <div class="kicker-row">
+        <div class="kicker">ÉTAPE 1 — FORMAT EDITORIAL</div>
+        <button class="btn-dice" id="btn-random-setup"><span class="dice-icon">🎲</span><span class="dice-label">Aléatoire</span></button>
+      </div>
+      <div class="optgrid">
+        ${Object.entries(CHANNEL_TYPES).map(([k, v]) => `
+          <button class="opt ${gameState.player.type === k ? 'sel' : ''}" data-type="${k}">
+            <span class="ol">${v.label}</span>
+            <span class="od"><b>Objectif :</b> ${v.objectif}</span>
+          </button>
+        `).join('')}
+      </div>
+      <button class="btn block" id="btn-next-2">Étape suivante : Définir la cible →</button>
+    `;
+    app.querySelectorAll('.opt').forEach(b => {
+      b.onclick = () => {
+        gameState.player.type = b.dataset.type;
+        render();
+      };
+    });
+    document.getElementById('btn-next-2').onclick = () => { gameState.step = 3; render(); };
+    document.getElementById('btn-random-setup').onclick = () => {
+      gameState.player.type = pick(Object.keys(CHANNEL_TYPES));
+      gameState.player.target = pick(Object.keys(TARGET_STRATEGIES));
+      gameState.player.name = pick(GENERATED_NAMES[gameState.player.type]);
+      finalizeChannelSetup();
+      gameState.resumeStep = null;
+      gameState.step = 5;
+      render();
+    };
+    app.querySelector('.masthead').onclick = goHome;
+    return;
+  }
+
+  if (gameState.step === 3) {
+    app.innerHTML = `
+      ${renderMasthead("Étape 2/4 : Choisissez votre Cible Prioritaire", "Audience Masters")}
+      <div class="kicker">ÉTAPE 2 — AUDIENCE CIBLÉE (1% AU DÉPART)</div>
+      <div class="optgrid">
+        ${Object.entries(TARGET_STRATEGIES).map(([k, v]) => `
+          <button class="opt ${gameState.player.target === k ? 'sel' : ''}" data-target="${k}">
+            <span class="ol">${v.nom}</span>
+            <span class="od">${v.desc}</span>
+          </button>
+        `).join('')}
+      </div>
+      <button class="btn block" id="btn-next-3">Étape suivante : Nommer la chaîne →</button>
+    `;
+    app.querySelectorAll('.opt').forEach(b => {
+      b.onclick = () => {
+        gameState.player.target = b.dataset.target;
+        render();
+      };
+    });
+    document.getElementById('btn-next-3').onclick = () => { gameState.step = 4; render(); };
+    app.querySelector('.masthead').onclick = goHome;
+    return;
+  }
+
+  if (gameState.step === 4) {
+    const currentDefaultName = gameState.player.name || GENERATED_NAMES[gameState.player.type][0];
+    app.innerHTML = `
+      ${renderMasthead("Étape 3/4 : Nom du nouveau entrant", "Audience Masters")}
+      <div class="card">
+        <div class="tape"></div>
+        <div class="kicker">ÉTAPE 3 — LANCEMENT OFFICIEL</div>
+        <label for="chain-name">Nom de la chaîne TV</label>
+        <div class="namebar">
+          <input type="text" id="chain-name" value="${esc(currentDefaultName)}" maxlength="24">
+          <button class="btn ghost" id="btn-rand">🎲 Idée</button>
+        </div>
+      </div>
+      <button class="btn block" id="btn-next-4">Voir le Récapitulatif →</button>
+    `;
+    document.getElementById('btn-rand').onclick = () => {
+      const randomName = pick(GENERATED_NAMES[gameState.player.type]);
+      document.getElementById('chain-name').value = randomName;
+    };
+    document.getElementById('btn-next-4').onclick = () => {
+      const val = document.getElementById('chain-name').value.trim();
+      gameState.player.name = val || GENERATED_NAMES[gameState.player.type][0];
+
+      finalizeChannelSetup();
+
+      gameState.resumeStep = null;
+      gameState.step = 5;
+      render();
+    };
+    app.querySelector('.masthead').onclick = goHome;
+    return;
+  }
+
+  if (gameState.step === 5) {
+    const typeObj = CHANNEL_TYPES[gameState.player.type];
+    const targetObj = TARGET_STRATEGIES[gameState.player.target];
+
+    app.innerHTML = `
+      ${renderMasthead("Étape 4/4 : Fiche Nouveau Entrant", "Audience Masters")}
+      <div class="card">
+        <div class="tape"></div>
+        <div class="kicker">ÉTAPE 5 — PARAMÈTRES ANNÉE 1</div>
+        <h2 style="color: var(--bleu);">${esc(gameState.player.name)}</h2>
+        <p><b>Format :</b> ${typeObj.label} | <b>Cible prioritaire :</b> ${targetObj.nom}</p>
+        
+        <hr style="margin: 10px 0; border: none; border-top: 1px dashed var(--ink);">
+        
+        <h3>CONDITIONS DE DÉPART</h3>
+        <ul style="margin: 8px 0 14px 18px; font-size: 14px;">
+          <li><b>Capital de départ :</b> ${nf1(gameState.player.tresorerie)} M€</li>
+          <li><b>Audience sur cible :</b> 1,0 % (Nouveau entrant)</li>
+          <li><b>Adversaires :</b> 5 chaînes établies avec de gros budgets.</li>
+        </ul>
+
+        <div class="badge">Objectif Année 1 : Passer le cap des 3% PDA</div>
+      </div>
+      <button class="btn block" id="btn-launch" style="font-size: 17px; padding: 14px;">🚀 DÉMARRER LA SAISON 1</button>
+    `;
+    document.getElementById('btn-launch').onclick = () => {
+      gameState.dilemmaQueue = shuffle(DILEMMA_BANK).slice(0, 4);
+      gameState.currentDilemmaIndex = 0;
+      gameState.step = 6;
+      render();
+    };
+    app.querySelector('.masthead').onclick = goHome;
+    return;
+  }
+
+  if (gameState.step === 6) {
+    const phase = gameState.dilemmaPhase;
+    // En phase "résultat", le dilemme vient d'être résolu : l'index a déjà avancé,
+    // on réaffiche donc celui qui vient d'être répondu, pas le suivant.
+    const dilemmaIndex = phase === 'result' ? gameState.currentDilemmaIndex - 1 : gameState.currentDilemmaIndex;
+    const dilemma = gameState.dilemmaQueue[dilemmaIndex];
+
+    let zoneHtml;
+    if (phase === 'result') {
+      const cq = gameState.lastConsequence;
+      const d = cq.deltas;
+      const rows = [
+        { icon: '💰', label: 'Trésorerie', val: d.tresorerie, decimals: 1, suffix: ' M€', invert: false },
+        { icon: '🎯', label: 'PDA Cible', val: d.pdaCible, decimals: 1, suffix: ' pts', invert: false },
+        { icon: '📋', label: 'Coût de grille', val: d.coutGrille, decimals: 1, suffix: ' M€', invert: true },
+        { icon: '📺', label: 'Revenus pub', val: d.revenusPub, decimals: 1, suffix: ' M€', invert: false },
+        { icon: '⭐', label: 'Popularité', val: d.popularite, decimals: 0, suffix: ' pts', invert: false }
+      ];
+      const badgesHtml = rows.map(r => {
+        const signal = r.invert ? -r.val : r.val;
+        const cls = signal > 0.05 ? 'up' : signal < -0.05 ? 'down' : 'flat';
+        return `<span class="impact-badge ${cls}"><span class="ic">${r.icon}</span>${r.label} ${fmtDelta(r.val, r.decimals, r.suffix)}</span>`;
+      }).join('');
+
+      zoneHtml = `
+        <div class="slide-in-up">
+          <div class="dilemma-card">
+            <p>${esc(cq.resultat)}</p>
+            <div class="impact-badges">${badgesHtml}</div>
+          </div>
+          <button class="btn block" id="btn-continue" style="font-size: 17px; padding: 14px; margin-top: 14px;">Continuer →</button>
+        </div>
+      `;
+    } else {
+      zoneHtml = `
+        <div class="choices">
+          ${dilemma.c.map((choice, i) => `
+            <button class="choice" data-idx="${i}">
+              <span class="cl">${choice.l}</span>
+              <span style="font-size: 12px; color: var(--gris);">Impact estimé : Budget ${choice.b >= 0 ? '+' : ''}${choice.b} M€</span>
+            </button>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    app.innerHTML = `
+      ${renderMasthead("Saison " + gameState.season, "Audience Masters")}
+      ${renderTicker()}
+      <div class="dilemma-container${phase === 'choosing' ? ' slide-in' : ''}">
+        <div class="dilemma-card">
+          <div class="kicker">SAISON ${gameState.season}</div>
+          <h2>${dilemma.titre}</h2>
+          <p>${dilemma.desc}</p>
+        </div>
+        <div id="choice-zone">${zoneHtml}</div>
+      </div>
+    `;
+
+    if (phase === 'choosing') {
+      app.querySelectorAll('.choice').forEach(btn => {
+        btn.onclick = () => {
+          const choicesEl = document.querySelector('#choice-zone .choices');
+          btn.classList.add('selected');
+
+          if (choicesEl) {
+            choicesEl.classList.add('slide-out-up');
+          }
+
+          const choiceIdx = parseInt(btn.dataset.idx, 10);
+          setTimeout(() => {
+            chooseDilemmaOption(choiceIdx);
+          }, 220);
+        };
+      });
+    } else {
+      document.getElementById('btn-continue').onclick = () => {
+        continueAfterConsequence();
+      };
+    }
+    document.getElementById('hud-toggle').onclick = () => {
+      const isOpen = document.getElementById('hud-details').classList.toggle('open');
+      document.getElementById('hud-toggle').classList.toggle('open', isOpen);
+      gameState.hudExpanded = isOpen;
+    };
+    const goToHudSlide = idx => {
+      const clamped = Math.max(0, Math.min(3, idx));
+      gameState.hudSlide = clamped;
+      document.getElementById('eh-slider-track').style.transform = `translateX(-${clamped * 100}%)`;
+      document.querySelectorAll('.eh-dot').forEach(d => d.classList.toggle('active', parseInt(d.dataset.slide, 10) === clamped));
+    };
+    document.querySelectorAll('.eh-dot').forEach(dot => {
+      dot.onclick = () => goToHudSlide(parseInt(dot.dataset.slide, 10));
+    });
+    const ehSlider = document.getElementById('eh-slider');
+    const ehTrack = document.getElementById('eh-slider-track');
+    let dragStartX = 0;
+    let dragDeltaX = 0;
+    let isDragging = false;
+    ehSlider.addEventListener('pointerdown', e => {
+      if (e.target.closest('.ga-target-btn')) return;
+      isDragging = true;
+      dragStartX = e.clientX;
+      dragDeltaX = 0;
+      ehTrack.style.transition = 'none';
+      ehSlider.setPointerCapture(e.pointerId);
+    });
+    ehSlider.addEventListener('click', e => {
+      const btn = e.target.closest('.ga-target-btn');
+      if (!btn) return;
+      gameState.audienceShareTarget = btn.dataset.audienceTarget;
+      const panel = document.getElementById('ga-panel');
+      if (panel) panel.outerHTML = renderGlobalAudienceShare();
+    });
+    ehSlider.addEventListener('pointermove', e => {
+      if (!isDragging) return;
+      dragDeltaX = e.clientX - dragStartX;
+      const deltaPercent = (dragDeltaX / ehSlider.clientWidth) * 100;
+      const base = -(gameState.hudSlide || 0) * 100;
+      ehTrack.style.transform = `translateX(${base + deltaPercent}%)`;
+    });
+    const endDrag = () => {
+      if (!isDragging) return;
+      isDragging = false;
+      ehTrack.style.transition = '';
+      const threshold = ehSlider.clientWidth * 0.15;
+      let target = gameState.hudSlide || 0;
+      if (dragDeltaX > threshold) target -= 1;
+      else if (dragDeltaX < -threshold) target += 1;
+      goToHudSlide(target);
+    };
+    ehSlider.addEventListener('pointerup', endDrag);
+    ehSlider.addEventListener('pointercancel', endDrag);
+    ehSlider.addEventListener('pointerleave', endDrag);
+    app.querySelector('.masthead').onclick = goHome;
+    return;
+  }
+
+  if (gameState.step === 7) {
+    const targetKey = gameState.player.target;
+    const targetLabel = TARGET_STRATEGIES[targetKey].nom;
+    const calculated = getCalculatedPDAs();
+    const standings = calculated.map(item => ({
+      name: item.channel === gameState.player ? item.name + " (Vous)" : item.name,
+      pda: item.pda[targetKey].toFixed(1),
+      isPlayer: item.channel === gameState.player
+    })).sort((a, b) => b.pda - a.pda);
+
+    app.innerHTML = `
+      ${renderMasthead("CLASSEMENT MÉDIAMÉTRIE")}
+      <div class="card">
+        <div class="tape"></div>
+        <div class="kicker">BILAN DE LA SAISON ${gameState.season} / ${esc(targetLabel)}</div>
+        <h2>PART D'AUDIENCE GLOBALE</h2>
+
+        <table class="grid-table">
+          <thead>
+            <tr>
+              <th>Rang</th>
+              <th>Chaîne TV</th>
+              <th>PDA Cible</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${standings.map((st, idx) => `
+              <tr style="${st.isPlayer ? 'font-weight: bold; background: rgba(31,58,147,0.1);' : ''}">
+                <td>#${idx + 1}</td>
+                <td>${esc(st.name)}</td>
+                <td>${st.pda}%</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+
+        <h3>DERNIÈRES DÉCISIONS</h3>
+        <ul style="margin: 6px 0 12px 18px; font-size: 13px;">
+          ${gameState.logs.slice(-4).map(l => `<li><b>${esc(l.title)} :</b> ${esc(l.result)}</li>`).join('')}
+        </ul>
+      </div>
+
+      <button class="btn block" id="btn-next-season">Lancer la Saison ${gameState.season + 1} →</button>
+    `;
+
+    document.getElementById('btn-next-season').onclick = () => {
+      startNewSeason();
+    };
+    app.querySelector('.masthead').onclick = goHome;
+    return;
+  }
+
+  if (gameState.step === 8) {
+    app.innerHTML = `
+      ${renderMasthead("Fin de partie", "Audience Masters")}
+      <div class="card">
+        <div class="tape"></div>
+        <div class="kicker" style="color: var(--rouge);">MISE SOUS TUTELLE</div>
+        <h2 style="color: var(--rouge);">${esc(gameState.player.name)} dépose le bilan</h2>
+        <p style="margin: 12px 0;">La trésorerie de la chaîne est tombée à ${nf1(gameState.player.tresorerie)} M€, sous le seuil critique de ${nf1(TRESORERIE_CRITIQUE)} M€. L'Arcom place la chaîne sous tutelle administrative.</p>
+        <ul style="margin: 8px 0 14px 18px; font-size: 14px;">
+          <li><b>Saison atteinte :</b> ${gameState.season}</li>
+          <li><b>Popularité finale :</b> ${Math.round(gameState.player.popularite)} / 100</li>
+        </ul>
+      </div>
+      <button class="btn block" id="btn-restart" style="font-size: 17px; padding: 14px;">Recommencer une chaîne →</button>
+    `;
+    document.getElementById('btn-restart').onclick = () => {
+      resetGame();
+    };
+    return;
+  }
+}
+
+render();
+</script>
+</body>
+</html>
