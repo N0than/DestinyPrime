@@ -163,8 +163,9 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
   display: flex; align-items: center; gap: 4px;
   font-family: 'Anton', sans-serif; font-size: 10px; text-transform: uppercase; letter-spacing: 0.3px;
 }
+.pg-program-cell { display: flex; align-items: center; gap: 5px; min-width: 0; }
 .pg-program {
-  display: inline-block; font-style: normal; font-family: 'Spectral', serif; font-size: 10.5px;
+  display: inline-block; min-width: 0; font-style: normal; font-family: 'Spectral', serif; font-size: 10.5px;
   line-height: 1.2; color: var(--ink); background: var(--paper);
   border: 1px solid rgba(22,19,14,0.3); border-left: 3px solid var(--rouge); border-radius: 3px;
   padding: 3px 7px;
@@ -173,7 +174,7 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .pg-header .pg-pda { font-size: 9px; color: var(--gris); }
 .pg-row.pg-leader { background: rgba(212,175,55,0.12); }
 .pg-row.pg-leader .pg-pda { color: var(--gold); }
-.pg-crown { font-size: 10px; margin-left: 1px; }
+.pg-crown { font-size: 11px; flex-shrink: 0; }
 
 .ga-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .ga-header .eh-title { margin-bottom: 0; flex-shrink: 0; }
@@ -484,8 +485,11 @@ function renderProgramGrid(type, pdaCible) {
   const rows = TIME_SLOTS.map(slot => `
     <div class="pg-row${isLeader ? ' pg-leader' : ''}">
       <div class="pg-slot"><span class="ic">${slot.icon}</span>${slot.label}</div>
-      <div class="pg-program">${grid[slot.key]}</div>
-      <div class="pg-pda">${nf1(pdaCible * slot.weight)}%${isLeader ? ' <span class="pg-crown" title="Leader sur cette cible">👑</span>' : ''}</div>
+      <div class="pg-program-cell">
+        <div class="pg-program">${grid[slot.key]}</div>
+        ${isLeader ? '<span class="pg-crown" title="Leader sur cette cible">👑</span>' : ''}
+      </div>
+      <div class="pg-pda">${nf1(pdaCible * slot.weight)}%</div>
     </div>
   `).join('');
   return `
