@@ -1356,8 +1356,22 @@ let gameState = {
   hudExpanded: false,
   hudSlide: 0,
   audienceShareTarget: null,
+  seenDilemmaIds: [],
   history: []
 };
+
+function pickDilemmaQueue() {
+  const available = DILEMMA_BANK.filter(d => !gameState.seenDilemmaIds.includes(d.id));
+  let queue = shuffle(available).slice(0, 4);
+  if (queue.length < 4) {
+    gameState.seenDilemmaIds = [];
+    const usedIds = new Set(queue.map(d => d.id));
+    const remainingPool = DILEMMA_BANK.filter(d => !usedIds.has(d.id));
+    queue = queue.concat(shuffle(remainingPool).slice(0, 4 - queue.length));
+  }
+  gameState.seenDilemmaIds.push(...queue.map(d => d.id));
+  return queue;
+}
 
 function initCompetitors() {
   const availableNames = FICTIONAL_CHANNEL_NAMES.filter(n => n.toLowerCase() !== gameState.player.name.toLowerCase());
@@ -1513,7 +1527,7 @@ function continueAfterConsequence() {
 function startNewSeason() {
   gameState.season++;
   gameState.currentDilemmaIndex = 0;
-  gameState.dilemmaQueue = shuffle(DILEMMA_BANK).slice(0, 4);
+  gameState.dilemmaQueue = pickDilemmaQueue();
   gameState.dilemmaPhase = 'choosing';
   // Le coût de grille de la saison écoulée est répercuté sur la nouvelle saison (pas de remise à zéro).
   gameState.player.revenusPubCumul = 0;
@@ -1553,6 +1567,7 @@ function resetGame() {
   gameState.hudExpanded = false;
   gameState.hudSlide = 0;
   gameState.audienceShareTarget = null;
+  gameState.seenDilemmaIds = [];
   gameState.history = [];
   render();
 }
@@ -1944,7 +1959,7 @@ function render() {
       <button class="btn block" id="btn-launch" style="font-size: 17px; padding: 14px;">🚀 DÉMARRER LA SAISON 1</button>
     `;
     document.getElementById('btn-launch').onclick = () => {
-      gameState.dilemmaQueue = shuffle(DILEMMA_BANK).slice(0, 4);
+      gameState.dilemmaQueue = pickDilemmaQueue();
       gameState.currentDilemmaIndex = 0;
       gameState.step = 6;
       render();
