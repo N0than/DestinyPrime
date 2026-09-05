@@ -2105,9 +2105,8 @@ function render() {
       ${renderMasthead("CLASSEMENT MÉDIAMÉTRIE")}
       <div class="card">
         <div class="tape"></div>
-        <div class="kicker">BILAN DE LA SAISON ${gameState.season}</div>
+        <div class="kicker">BILAN DE LA SAISON ${gameState.season} / ${esc(targetLabel)}</div>
         <h2>PART D'AUDIENCE GLOBALE</h2>
-        <p style="margin: -4px 0 10px; font-style: italic; color: var(--gris); font-size: 13px;">Cible : ${esc(targetLabel)}</p>
 
         <table class="grid-table">
           <thead>
