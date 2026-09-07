@@ -280,7 +280,11 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
   padding: 8px; border-radius: 3px; cursor: pointer;
 }
 .arcom-view-btn:hover { background: var(--ink); color: var(--paper); }
-.arcom-badge-bilan { margin: 8px 0 12px; }
+.bilan-title-row {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 10px; flex-wrap: wrap; margin-bottom: 4px;
+}
+.bilan-title-row h2 { margin: 0; }
 
 /* ---- ÉCRAN DE CONSÉQUENCES ---- */
 .impact-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
@@ -2569,8 +2573,10 @@ function render() {
       <div class="card">
         <div class="tape"></div>
         <div class="kicker">BILAN DE LA SAISON ${gameState.season} / ${esc(targetLabel)}</div>
-        <div class="arcom-status-pill arcom-badge-bilan arcom-status-${compliance.status.key}">${compliance.status.emoji} ARCOM ${compliance.status.label} — ${compliance.arcomScore}/100</div>
-        <h2>PART D'AUDIENCE GLOBALE</h2>
+        <div class="bilan-title-row">
+          <h2>PART D'AUDIENCE GLOBALE</h2>
+          <div class="arcom-status-pill arcom-status-${compliance.status.key}">${compliance.status.emoji} ARCOM ${compliance.status.label} — ${compliance.arcomScore}/100</div>
+        </div>
 
         <table class="grid-table">
           <thead>
