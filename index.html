@@ -2649,18 +2649,6 @@ function render() {
     const nextEcheance = (Math.floor(gameState.season / CONVENTION_DURATION) + 1) * CONVENTION_DURATION;
     const renewal = computeRenewalScore();
     const renewalOutcome = getRenewalOutcome(renewal.renewalScore);
-    const recentViolations = player.arcomViolations.slice(-8).reverse();
-    const historyBars = player.arcomHistory.slice(-8).map(h => {
-      const meta = getArcomStatusMeta(h.score);
-      return `
-        <div class="arcom-hist-bar-wrap">
-          <div class="arcom-hist-bar arcom-hist-${meta.key}" style="height:${Math.max(h.score, 4)}%">
-            <span class="arcom-hist-val">${h.score}</span>
-          </div>
-          <div class="arcom-hist-season">S${h.season}</div>
-        </div>
-      `;
-    }).join('');
 
     app.innerHTML = `
       ${renderMasthead("CONVENTION ARCOM")}
@@ -2692,29 +2680,13 @@ function render() {
 
       <div class="card">
         <div class="tape"></div>
-        <h3>2. MANQUEMENTS</h3>
-        ${recentViolations.length ? `
-          <ul class="arcom-violations-list">
-            ${recentViolations.map(v => `<li><b>Saison ${v.season} :</b> ${esc(v.label)} — <span class="arcom-severity-${v.severity}">${v.severity}</span></li>`).join('')}
-          </ul>
-        ` : `<p style="font-size: 13px; color: var(--gris); font-style: italic;">Aucun manquement enregistré.</p>`}
-      </div>
-
-      <div class="card">
-        <div class="tape"></div>
-        <h3>3. SANCTIONS</h3>
+        <h3>2. SANCTIONS</h3>
         <p style="font-size: 14px;">Sanctions financières cumulées : <b>${player.arcomSanctionsCount}</b></p>
       </div>
 
       <div class="card">
         <div class="tape"></div>
-        <h3>4. HISTORIQUE</h3>
-        ${player.arcomHistory.length ? `<div class="arcom-hist-chart">${historyBars}</div>` : `<p style="font-size: 13px; color: var(--gris); font-style: italic;">Historique disponible après la saison 1.</p>`}
-      </div>
-
-      <div class="card">
-        <div class="tape"></div>
-        <h3>5. RENOUVELLEMENT</h3>
+        <h3>3. RENOUVELLEMENT</h3>
         <p style="font-size: 14px;">Prochaine échéance : <b>Saison ${nextEcheance}</b></p>
         <div class="arcom-status-pill arcom-status-${renewalOutcome.key === 'refused' ? 'nonconforme' : (renewalOutcome.key === 'renewed' ? 'excellent' : 'vigilance')}" style="margin-top: 8px;">${renewalOutcome.emoji} ${renewalOutcome.key === 'renewed' ? 'RENOUVELLEMENT FAVORABLE' : renewalOutcome.title}</div>
       </div>
