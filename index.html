@@ -177,6 +177,11 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .pg-row.pg-leader .pg-pda { color: var(--gold); }
 .pg-crown { font-size: 11px; width: 14px; flex-shrink: 0; text-align: center; }
 .pg-crown-hidden { visibility: hidden; }
+.pg-rank {
+  font-family: 'Anton', sans-serif; font-size: 10px; color: var(--gris);
+  flex-shrink: 0; width: 18px; text-align: center;
+}
+.pg-rank-leader { color: var(--gold); }
 
 .ga-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .ga-header .eh-title { margin-bottom: 0; flex-shrink: 0; }
@@ -484,16 +489,17 @@ function renderProgramGrid(type, pdaCible) {
 
   const rows = TIME_SLOTS.map(slot => {
     const slotValue = pdaCible * SLOT_AFFINITY[type][slot.key];
-    const isLeaderSlot = calculated.every(c => {
-      if (c.channel === gameState.player) return true;
-      const compValue = c.pda[targetKey] * SLOT_AFFINITY[c.channel.type][slot.key];
-      return slotValue >= compValue - 1e-9;
-    });
+    const competitorValues = calculated
+      .filter(c => c.channel !== gameState.player)
+      .map(c => c.pda[targetKey] * SLOT_AFFINITY[c.channel.type][slot.key]);
+    const rank = 1 + competitorValues.filter(v => v > slotValue + 1e-9).length;
+    const isLeaderSlot = rank === 1;
     return `
       <div class="pg-row${isLeaderSlot ? ' pg-leader' : ''}">
         <div class="pg-slot"><span class="ic">${slot.icon}</span>${slot.label}</div>
         <div class="pg-program-cell">
           <div class="pg-program">${grid[slot.key]}</div>
+          <span class="pg-rank${isLeaderSlot ? ' pg-rank-leader' : ''}">#${rank}</span>
           <span class="pg-crown${isLeaderSlot ? '' : ' pg-crown-hidden'}" title="Leader sur ce créneau">👑</span>
         </div>
         <div class="pg-pda">${nf1(slotValue)}%</div>
