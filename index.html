@@ -151,7 +151,7 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .eh-dot.active { background: var(--ink); }
 
 .pg-header, .pg-row {
-  display: grid; grid-template-columns: 72px 1fr 46px; gap: 6px; align-items: center;
+  display: grid; grid-template-columns: 72px 1fr 42px 46px; gap: 6px; align-items: center;
 }
 .pg-header {
   font-family: 'Anton', sans-serif; font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px;
@@ -177,11 +177,9 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .pg-row.pg-leader .pg-pda { color: var(--gold); }
 .pg-crown { font-size: 11px; width: 14px; flex-shrink: 0; text-align: center; }
 .pg-crown-hidden { visibility: hidden; }
-.pg-rank {
-  font-family: 'Anton', sans-serif; font-size: 10px; color: var(--gris);
-  flex-shrink: 0; width: 18px; text-align: center;
-}
-.pg-rank-leader { color: var(--gold); }
+.pg-rank-col { text-align: center; font-family: 'Anton', sans-serif; font-size: 11px; color: var(--gris); }
+.pg-header .pg-rank-col { font-size: 9px; color: var(--gris); }
+.pg-rank-col.pg-rank-leader { color: var(--gold); }
 
 .ga-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .ga-header .eh-title { margin-bottom: 0; flex-shrink: 0; }
@@ -499,9 +497,9 @@ function renderProgramGrid(type, pdaCible) {
         <div class="pg-slot"><span class="ic">${slot.icon}</span>${slot.label}</div>
         <div class="pg-program-cell">
           <div class="pg-program">${grid[slot.key]}</div>
-          <span class="pg-rank${isLeaderSlot ? ' pg-rank-leader' : ''}">#${rank}</span>
           <span class="pg-crown${isLeaderSlot ? '' : ' pg-crown-hidden'}" title="Leader sur ce créneau">👑</span>
         </div>
+        <div class="pg-rank-col${isLeaderSlot ? ' pg-rank-leader' : ''}">#${rank}</div>
         <div class="pg-pda">${nf1(slotValue)}%</div>
       </div>
     `;
@@ -512,6 +510,7 @@ function renderProgramGrid(type, pdaCible) {
     <div class="pg-header">
       <div>Créneau</div>
       <div>Programme</div>
+      <div class="pg-rank-col">Ranking</div>
       <div class="pg-pda">PDA cible</div>
     </div>
     ${rows}
