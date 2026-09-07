@@ -836,61 +836,61 @@ const ARCOM_CONVENTIONS = {
   generaliste: {
     label: "Généraliste",
     obligations: [
-      { id: 'information', label: 'Information', minimum: 100, unit: '%', weight: 10, severity: 'medium', calc: { cat: 'info' } },
-      { id: 'fiction', label: 'Fiction', minimum: 100, unit: '%', weight: 10, severity: 'medium', calc: { cat: 'fiction' } },
-      { id: 'culture', label: 'Culture / connaissance', minimum: 100, unit: '%', weight: 8, severity: 'medium', calc: { cat: 'culture' } },
-      { id: 'prodFrancaise', label: 'Production française', minimum: 100, unit: '%', weight: 10, severity: 'high', calc: { cat: 'prodFR' } },
-      { id: 'prodEuropeenne', label: 'Production européenne', minimum: 100, unit: '%', weight: 8, severity: 'medium', calc: { cat: 'prodEU' } }
+      { id: 'information', label: 'Information', minimum: 15, unit: '%', weight: 10, severity: 'medium', calc: { cat: 'info' } },
+      { id: 'fiction', label: 'Fiction', minimum: 25, unit: '%', weight: 10, severity: 'medium', calc: { cat: 'fiction' } },
+      { id: 'culture', label: 'Culture / connaissance', minimum: 10, unit: '%', weight: 8, severity: 'medium', calc: { cat: 'culture' } },
+      { id: 'prodFrancaise', label: 'Production française', minimum: 30, unit: '%', weight: 10, severity: 'high', calc: { cat: 'prodFR' } },
+      { id: 'prodEuropeenne', label: 'Production européenne', minimum: 20, unit: '%', weight: 8, severity: 'medium', calc: { cat: 'prodEU' } }
     ]
   },
   cinema: {
     label: "Cinéma / Séries",
     obligations: [
-      { id: 'fiction', label: 'Fiction', minimum: 100, unit: '%', weight: 10, severity: 'high', calc: { cat: 'fiction' } },
-      { id: 'fictionFrancaise', label: 'Fiction française', minimum: 100, unit: '%', weight: 8, severity: 'medium', calc: { composite: ['fiction', 'prodFR'] } },
-      { id: 'fictionEuropeenne', label: 'Fiction européenne', minimum: 100, unit: '%', weight: 8, severity: 'medium', calc: { composite: ['fiction', 'prodEU'] } },
-      { id: 'creationOriginale', label: 'Création originale', minimum: 100, unit: '%', weight: 6, severity: 'low', calc: { cat: 'creation' } },
-      { id: 'investissementCreation', label: 'Investissement création', minimum: 100, unit: '%', weight: 8, severity: 'medium', calc: { special: 'investCreation' } }
+      { id: 'fiction', label: 'Fiction', minimum: 40, unit: '%', weight: 10, severity: 'high', calc: { cat: 'fiction' } },
+      { id: 'fictionFrancaise', label: 'Fiction française', minimum: 15, unit: '%', weight: 8, severity: 'medium', calc: { composite: ['fiction', 'prodFR'] } },
+      { id: 'fictionEuropeenne', label: 'Fiction européenne', minimum: 20, unit: '%', weight: 8, severity: 'medium', calc: { composite: ['fiction', 'prodEU'] } },
+      { id: 'creationOriginale', label: 'Création originale', minimum: 10, unit: '%', weight: 6, severity: 'low', calc: { cat: 'creation' } },
+      { id: 'investissementCreation', label: 'Investissement création', minimum: 15, unit: '%', weight: 8, severity: 'medium', calc: { special: 'investCreation' } }
     ]
   },
   culture: {
     label: "Culture / Documentaire",
     obligations: [
-      { id: 'documentaire', label: 'Documentaire', minimum: 100, unit: '%', weight: 10, severity: 'high', calc: { cat: 'culture' } },
-      { id: 'creationFrancaise', label: 'Création française', minimum: 100, unit: '%', weight: 10, severity: 'high', calc: { cat: 'prodFR' } },
-      { id: 'culturePatrimoine', label: 'Culture / patrimoine', minimum: 100, unit: '%', weight: 8, severity: 'medium', calc: { cat: 'culture' } },
-      { id: 'debatSociete', label: 'Débat / société', minimum: 100, unit: '%', weight: 6, severity: 'low', calc: { cat: 'debat' } },
-      { id: 'inedits', label: 'Programmes inédits', minimum: 100, unit: '%', weight: 6, severity: 'low', calc: { cat: 'inedit' } }
+      { id: 'documentaire', label: 'Documentaire', minimum: 30, unit: '%', weight: 10, severity: 'high', calc: { cat: 'culture' } },
+      { id: 'creationFrancaise', label: 'Création française', minimum: 25, unit: '%', weight: 10, severity: 'high', calc: { cat: 'prodFR' } },
+      { id: 'culturePatrimoine', label: 'Culture / patrimoine', minimum: 15, unit: '%', weight: 8, severity: 'medium', calc: { cat: 'culture' } },
+      { id: 'debatSociete', label: 'Débat / société', minimum: 15, unit: '%', weight: 6, severity: 'low', calc: { cat: 'debat' } },
+      { id: 'inedits', label: 'Programmes inédits', minimum: 15, unit: '%', weight: 6, severity: 'low', calc: { cat: 'inedit' } }
     ]
   },
   jeunesse: {
     label: "Jeunesse / Famille",
     obligations: [
-      { id: 'progJeunesse', label: 'Programmes jeunesse', minimum: 100, unit: '%', weight: 10, severity: 'high', calc: { cat: 'jeunesse' } },
-      { id: 'protectionMineurs', label: 'Protection des mineurs', minimum: 100, unit: '%', weight: 10, severity: 'high', calc: { cat: 'protection' } },
-      { id: 'animation', label: 'Animation', minimum: 100, unit: '%', weight: 8, severity: 'medium', calc: { cat: 'jeunesse', factor: 0.65 } },
-      { id: 'prodFrancaise', label: 'Production française', minimum: 100, unit: '%', weight: 8, severity: 'medium', calc: { cat: 'prodFR' } },
-      { id: 'prodEuropeenne', label: 'Production européenne', minimum: 100, unit: '%', weight: 8, severity: 'medium', calc: { cat: 'prodEU' } }
+      { id: 'progJeunesse', label: 'Programmes jeunesse', minimum: 30, unit: '%', weight: 10, severity: 'high', calc: { cat: 'jeunesse' } },
+      { id: 'protectionMineurs', label: 'Protection des mineurs', minimum: 25, unit: '%', weight: 10, severity: 'high', calc: { cat: 'protection' } },
+      { id: 'animation', label: 'Animation', minimum: 20, unit: '%', weight: 8, severity: 'medium', calc: { cat: 'jeunesse', factor: 0.65 } },
+      { id: 'prodFrancaise', label: 'Production française', minimum: 15, unit: '%', weight: 8, severity: 'medium', calc: { cat: 'prodFR' } },
+      { id: 'prodEuropeenne', label: 'Production européenne', minimum: 10, unit: '%', weight: 8, severity: 'medium', calc: { cat: 'prodEU' } }
     ]
   },
   sport: {
     label: "Sport",
     obligations: [
-      { id: 'sport', label: 'Sport', minimum: 100, unit: '%', weight: 10, severity: 'high', calc: { cat: 'sport' } },
-      { id: 'sportDirect', label: 'Sport en direct', minimum: 100, unit: '%', weight: 8, severity: 'medium', calc: { cat: 'direct' } },
+      { id: 'sport', label: 'Sport', minimum: 50, unit: '%', weight: 10, severity: 'high', calc: { cat: 'sport' } },
+      { id: 'sportDirect', label: 'Sport en direct', minimum: 25, unit: '%', weight: 8, severity: 'medium', calc: { cat: 'direct' } },
       { id: 'diversiteSportive', label: 'Diversité sportive', minimum: 3, unit: 'disciplines', weight: 6, severity: 'medium', calc: { special: 'sportDisciplines' } },
-      { id: 'sportFrancais', label: 'Sport français', minimum: 100, unit: '%', weight: 6, severity: 'low', calc: { cat: 'prodFR' } },
-      { id: 'sportFeminin', label: 'Sport féminin', minimum: 100, unit: '%', weight: 5, severity: 'low', calc: { cat: 'sport', factor: 0.25 } }
+      { id: 'sportFrancais', label: 'Sport français', minimum: 15, unit: '%', weight: 6, severity: 'low', calc: { cat: 'prodFR' } },
+      { id: 'sportFeminin', label: 'Sport féminin', minimum: 10, unit: '%', weight: 5, severity: 'low', calc: { cat: 'sport', factor: 0.25 } }
     ]
   },
   info: {
     label: "Information en continu",
     obligations: [
-      { id: 'information', label: 'Information', minimum: 100, unit: '%', weight: 10, severity: 'high', calc: { cat: 'info' } },
-      { id: 'pluralisme', label: 'Pluralisme', minimum: 100, unit: '%', weight: 8, severity: 'high', calc: { cat: 'pluralisme' } },
-      { id: 'direct', label: 'Direct', minimum: 100, unit: '%', weight: 8, severity: 'medium', calc: { cat: 'direct' } },
-      { id: 'interviews', label: 'Interviews / débats', minimum: 100, unit: '%', weight: 6, severity: 'low', calc: { cat: 'debat' } },
-      { id: 'actualiteFrancaise', label: 'Actualité française', minimum: 100, unit: '%', weight: 6, severity: 'low', calc: { cat: 'prodFR' } }
+      { id: 'information', label: 'Information', minimum: 35, unit: '%', weight: 10, severity: 'high', calc: { cat: 'info' } },
+      { id: 'pluralisme', label: 'Pluralisme', minimum: 25, unit: '%', weight: 8, severity: 'high', calc: { cat: 'pluralisme' } },
+      { id: 'direct', label: 'Direct', minimum: 20, unit: '%', weight: 8, severity: 'medium', calc: { cat: 'direct' } },
+      { id: 'interviews', label: 'Interviews / débats', minimum: 10, unit: '%', weight: 6, severity: 'low', calc: { cat: 'debat' } },
+      { id: 'actualiteFrancaise', label: 'Actualité française', minimum: 10, unit: '%', weight: 6, severity: 'low', calc: { cat: 'prodFR' } }
     ]
   }
 };
@@ -2651,7 +2651,7 @@ function render() {
     const renewalOutcome = getRenewalOutcome(renewal.renewalScore);
 
     app.innerHTML = `
-      ${renderMasthead("CONVENTION ARCOM")}
+      ${renderMasthead("Détails de votre convention", "Audience Masters")}
       <div class="card">
         <div class="tape"></div>
         <div class="kicker">CONVENTION — ${esc(convention.label).toUpperCase()}</div>
