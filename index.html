@@ -1783,9 +1783,14 @@ function computeArcomCompliance() {
   const player = gameState.player;
   const convention = ARCOM_CONVENTIONS[player.type];
   const editoMix = player.editoMix;
+
+  const rawValues = convention.obligations.map(ob => computeObligationActual(ob, editoMix, player));
+  const pctRawSum = convention.obligations.reduce((sum, ob, i) => ob.unit === '%' ? sum + rawValues[i] : sum, 0);
+  const pctScale = pctRawSum > 0 ? 100 / pctRawSum : 1;
+
   let weightedSum = 0, weightTotal = 0;
-  const obligations = convention.obligations.map(ob => {
-    const actualValue = computeObligationActual(ob, editoMix, player);
+  const obligations = convention.obligations.map((ob, i) => {
+    const actualValue = ob.unit === '%' ? rawValues[i] * pctScale : rawValues[i];
     const rate = ob.minimum > 0 ? actualValue / ob.minimum : 1;
     const score = obligationScoreFromRate(rate);
     weightedSum += score * ob.weight;
