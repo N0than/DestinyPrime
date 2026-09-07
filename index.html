@@ -286,6 +286,35 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 }
 .bilan-title-row h2 { margin: 0; }
 
+/* ---- BILAN ÉCONOMIQUE DE SAISON ---- */
+.eco-bilan-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px;
+  margin: 10px 0 14px;
+}
+.eco-bilan-item { display: flex; flex-direction: column; gap: 2px; }
+.eco-bilan-label {
+  display: flex; align-items: center; gap: 5px;
+  font-family: 'Anton', sans-serif; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.3px;
+  color: var(--gris);
+}
+.eco-bilan-value { font-family: 'Anton', sans-serif; font-size: 16px; color: var(--ink); }
+.eco-bilan-result {
+  border-top: 1.5px solid var(--ink); padding-top: 10px; margin-top: 4px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.eco-result-row {
+  display: flex; align-items: center; justify-content: space-between;
+  font-family: 'Anton', sans-serif; font-size: 12px; text-transform: uppercase; letter-spacing: 0.3px;
+}
+.eco-result-row.highlight { font-size: 16px; }
+.eco-pos { color: var(--vert); }
+.eco-neg { color: var(--rouge); }
+.eco-bilan-stats {
+  display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 12px;
+  font-size: 12px; color: var(--gris); font-style: italic;
+}
+.eco-bilan-stats b { color: var(--ink); font-style: normal; }
+
 /* ---- ÉCRAN DE CONSÉQUENCES ---- */
 .impact-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
 .impact-badge {
@@ -478,7 +507,7 @@ const shuffle = arr => {
 const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
 const GRP_COST = { j1524: 0.8, a2549: 1.2, s50: 0.7, csp: 1.5 };
-const VOLUME_PUB = 0.5; // M€ par point de PDA capté, valeur à ajuster
+const VOLUME_PUB = 8; // M€ par point de PDA moyenne de saison (base annuelle, calibrée sur un cycle de 4 décisions)
 const TRESORERIE_CRITIQUE = -60; // seuil de mise sous tutelle (M€)
 
 const nf1 = n => n.toLocaleString('fr-FR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
@@ -702,12 +731,61 @@ function renderArcomSlide(compliance, convention) {
   `;
 }
 
+function renderEcoBilanCard(player) {
+  const nextBudget = computeNextBudgetGrille(player);
+  const items = [
+    { icon: '💰', label: 'Trésorerie début', value: `${nf1(player.tresorerieDebutSaison)} M€` },
+    { icon: '📋', label: 'Coût de grille', value: `-${nf1(player.coutGrilleEngageSaison)} M€` },
+    { icon: '📺', label: 'Revenus publicitaires', value: `+${nf1(player.revenusPubFinals)} M€` },
+    { icon: '🎯', label: 'PDA moyenne', value: `${nf1(player.pdaMoyenneSaison)}%` },
+    { icon: '🏁', label: 'PDA finale', value: `${nf1(player.pdaFinSaison)}%` },
+    { icon: '⭐', label: 'Popularité', value: `${Math.round(player.popularite)}` }
+  ];
+  return `
+    <div class="card">
+      <div class="tape"></div>
+      <div class="kicker">BILAN ÉCONOMIQUE — SAISON ${gameState.season}</div>
+      <div class="eco-bilan-grid">
+        ${items.map(it => `
+          <div class="eco-bilan-item">
+            <div class="eco-bilan-label"><span class="ic">${it.icon}</span>${it.label}</div>
+            <div class="eco-bilan-value">${it.value}</div>
+          </div>
+        `).join('')}
+      </div>
+      <div class="eco-bilan-result">
+        <div class="eco-result-row">
+          <span>Résultat de saison</span>
+          <span class="${player.resultatSaison >= 0 ? 'eco-pos' : 'eco-neg'}">${fmtDelta(player.resultatSaison, 1, ' M€')}</span>
+        </div>
+        <div class="eco-result-row highlight">
+          <span>Trésorerie fin de saison</span>
+          <span>${nf1(player.tresorerie)} M€</span>
+        </div>
+      </div>
+      <div class="eco-bilan-stats">
+        <span>Rentabilité grille : <b>${nf1(player.rentabiliteGrille)}%</b></span>
+        <span>Coût / point de PDA : <b>${nf1(player.coutParPointPDA)} M€</b></span>
+        <span>Budget saison suivante : <b>${nf1(nextBudget)} M€</b></span>
+      </div>
+    </div>
+  `;
+}
+
 function computeAttractivite(popularite) {
   return 1 + (popularite - 50) / 200;
 }
 
-function computeRevenusPub(pdaCiblePct, cible, popularite) {
-  return pdaCiblePct * GRP_COST[cible] * VOLUME_PUB * computeAttractivite(popularite);
+function computeRevenusPubSaison(pdaMoyenneSaison, cible, popularite, puissanceCommerciale) {
+  return pdaMoyenneSaison * GRP_COST[cible] * VOLUME_PUB * computeAttractivite(popularite) * puissanceCommerciale;
+}
+
+function computeNextBudgetGrille(player) {
+  const base = CHANNEL_TYPES[player.type].baseBudget;
+  const bonusTresorerie = Math.max(0, (player.tresorerie - base) * 0.12);
+  const bonusPerformance = Math.max(0, (player.rentabiliteGrille - 100) * 0.08);
+  const raw = base + bonusTresorerie + bonusPerformance;
+  return Math.max(base * 0.5, Math.min(raw, base * 2.5));
 }
 
 const CHANNEL_TYPES = {
@@ -1606,8 +1684,20 @@ let gameState = {
     arcomHistory: [],
     arcomViolations: [],
     arcomSanctionsCount: 0,
-    lastArcomResult: null
-  },
+    lastArcomResult: null,
+    budgetGrilleAnnuel: 0,
+    coutGrilleEngageSaison: 0,
+    revenusPubPrevisionnels: 0,
+    revenusPubFinals: 0,
+    pdaMoyenneSaison: 0,
+    pdaFinSaison: 0,
+    pdaHistorySeason: [],
+    puissanceCommerciale: 1,
+    tresorerieDebutSaison: 50,
+    resultatSaison: 0,
+    rentabiliteGrille: 100,
+    coutParPointPDA: 0
+},
   competitors: [],
   season: 1,
   currentDilemmaIndex: 0,
@@ -1684,6 +1774,21 @@ function finalizeChannelSetup() {
   gameState.renewalDue = false;
   gameState.gameOverReason = null;
   resetSeasonEditoMix();
+
+  const player = gameState.player;
+  player.puissanceCommerciale = 1;
+  player.budgetGrilleAnnuel = CHANNEL_TYPES[player.type].baseBudget;
+  player.coutGrilleEngageSaison = player.coutGrilleCumul;
+  player.revenusPubPrevisionnels = 0;
+  player.revenusPubFinals = 0;
+  player.resultatSaison = 0;
+  player.rentabiliteGrille = 100;
+  player.coutParPointPDA = 0;
+  player.tresorerieDebutSaison = player.tresorerie;
+  const seedPdaCible = getCalculatedPDAs().find(item => item.channel === player).pda[targetDemo];
+  player.pdaHistorySeason = [seedPdaCible];
+  player.pdaMoyenneSaison = seedPdaCible;
+  player.pdaFinSaison = seedPdaCible;
 }
 
 function getAllChannels() {
@@ -1895,23 +2000,31 @@ function chooseDilemmaOption(choiceIndex) {
   const coutGrilleDelta = choice.b < 0 ? Math.abs(choice.b) : 0;
   if (coutGrilleDelta > 0) {
     player.coutGrilleCumul += coutGrilleDelta;
+    player.coutGrilleEngageSaison += coutGrilleDelta;
   }
   player.popularite = Math.max(0, Math.min(100, player.popularite + choice.pop));
 
   const pdaCibleApres = getCalculatedPDAs().find(item => item.channel === player).pda[player.target];
-  const revenus = computeRevenusPub(pdaCibleApres, player.target, player.popularite);
-  player.tresorerie += revenus;
-  player.revenusPubCumul += revenus;
+  player.pdaHistorySeason.push(pdaCibleApres);
+  player.pdaMoyenneSaison = player.pdaHistorySeason.reduce((s, v) => s + v, 0) / player.pdaHistorySeason.length;
+  player.pdaFinSaison = pdaCibleApres;
+
+  // Les revenus publicitaires ne sont que prévisionnels pendant la saison : ils ne sont
+  // crédités à la trésorerie qu'au bilan de fin de saison (cf. finalisation ci-dessous).
+  const revenusPubAvant = player.revenusPubPrevisionnels;
+  player.revenusPubPrevisionnels = computeRevenusPubSaison(player.pdaMoyenneSaison, player.target, player.popularite, player.puissanceCommerciale);
+  player.revenusPubCumul = player.revenusPubPrevisionnels;
+  const revenusPubDelta = player.revenusPubPrevisionnels - revenusPubAvant;
 
   gameState.lastConsequence = {
     titre: dilemma.titre,
     choixLabel: choice.l,
     resultat: choice.r,
     deltas: {
-      tresorerie: choice.b + revenus,
+      tresorerie: choice.b,
       pdaCible: pdaCibleApres - pdaCibleAvant,
       coutGrille: coutGrilleDelta,
-      revenusPub: revenus,
+      revenusPub: revenusPubDelta,
       popularite: choice.pop
     }
   };
@@ -1927,13 +2040,37 @@ function chooseDilemmaOption(choiceIndex) {
     gameState.pendingNextStep = 8;
     gameState.gameOverReason = 'tresorerie';
   } else if (gameState.currentDilemmaIndex >= gameState.dilemmaQueue.length) {
+    // Finalisation économique de la saison : les revenus pub définitifs (calculés sur la
+    // PDA moyenne de la saison) ne sont crédités qu'ici, une seule fois.
+    player.revenusPubFinals = computeRevenusPubSaison(player.pdaMoyenneSaison, player.target, player.popularite, player.puissanceCommerciale);
+    player.tresorerie += player.revenusPubFinals;
+    player.revenusPubCumul = player.revenusPubFinals;
+    player.resultatSaison = player.revenusPubFinals - player.coutGrilleEngageSaison;
+    player.rentabiliteGrille = player.coutGrilleEngageSaison > 0 ? (player.revenusPubFinals / player.coutGrilleEngageSaison) * 100 : 100;
+    player.coutParPointPDA = player.pdaMoyenneSaison > 0 ? player.coutGrilleEngageSaison / player.pdaMoyenneSaison : 0;
+
+    if (player.pdaFinSaison > player.pdaMoyenneSaison && player.popularite >= 60) {
+      player.puissanceCommerciale = Math.min(1.15, player.puissanceCommerciale + 0.01);
+    } else if (player.pdaFinSaison < player.pdaMoyenneSaison * 0.9 || player.popularite < 40) {
+      player.puissanceCommerciale = Math.max(0.85, player.puissanceCommerciale - 0.01);
+    }
+
     gameState.history.push({
       season: gameState.season,
       tresorerie: player.tresorerie,
       pdaCible: pdaCibleApres,
       coutGrille: player.coutGrilleCumul,
       revenusPub: player.revenusPubCumul,
-      popularite: player.popularite
+      popularite: player.popularite,
+      tresorerieDebut: player.tresorerieDebutSaison,
+      budgetGrille: player.budgetGrilleAnnuel,
+      coutGrilleSaison: player.coutGrilleEngageSaison,
+      pdaMoyenne: player.pdaMoyenneSaison,
+      pdaFin: player.pdaFinSaison,
+      revenusPubSaison: player.revenusPubFinals,
+      resultatSaison: player.resultatSaison,
+      tresorerieFin: player.tresorerie,
+      rentabiliteGrille: player.rentabiliteGrille
     });
     pushArcomSeasonResult();
     gameState.renewalDue = gameState.season % CONVENTION_DURATION === 0;
@@ -1959,13 +2096,26 @@ function continueAfterConsequence() {
 }
 
 function startNewSeason() {
+  const player = gameState.player;
   gameState.season++;
   gameState.currentDilemmaIndex = 0;
   gameState.dilemmaQueue = pickDilemmaQueue();
   gameState.dilemmaPhase = 'choosing';
   gameState.renewalDue = false;
-  // Le coût de grille de la saison écoulée est répercuté sur la nouvelle saison (pas de remise à zéro).
-  gameState.player.revenusPubCumul = 0;
+
+  player.budgetGrilleAnnuel = computeNextBudgetGrille(player);
+  player.tresorerieDebutSaison = player.tresorerie;
+  player.coutGrilleEngageSaison = 0;
+  player.revenusPubPrevisionnels = 0;
+  player.revenusPubFinals = 0;
+  player.resultatSaison = 0;
+  const seedPdaCible = getCalculatedPDAs().find(item => item.channel === player).pda[player.target];
+  player.pdaHistorySeason = [seedPdaCible];
+  player.pdaMoyenneSaison = seedPdaCible;
+  player.pdaFinSaison = seedPdaCible;
+  // Le coût de grille cumulé (historique) de la saison écoulée est répercuté sur la
+  // nouvelle saison (pas de remise à zéro) ; seul le coût engagé de la saison repart à 0.
+  player.revenusPubCumul = 0;
   resetSeasonEditoMix();
   gameState.step = 6;
   render();
@@ -1998,8 +2148,20 @@ function resetGame() {
     arcomHistory: [],
     arcomViolations: [],
     arcomSanctionsCount: 0,
-    lastArcomResult: null
-  };
+    lastArcomResult: null,
+    budgetGrilleAnnuel: 0,
+    coutGrilleEngageSaison: 0,
+    revenusPubPrevisionnels: 0,
+    revenusPubFinals: 0,
+    pdaMoyenneSaison: 0,
+    pdaFinSaison: 0,
+    pdaHistorySeason: [],
+    puissanceCommerciale: 1,
+    tresorerieDebutSaison: 50,
+    resultatSaison: 0,
+    rentabiliteGrille: 100,
+    coutParPointPDA: 0
+};
   gameState.competitors = [];
   gameState.season = 1;
   gameState.currentDilemmaIndex = 0;
@@ -2607,6 +2769,8 @@ function render() {
           ${gameState.logs.slice(-4).map(l => `<li><b>${esc(l.title)} :</b> ${esc(l.result)}</li>`).join('')}
         </ul>
       </div>
+
+      ${renderEcoBilanCard(gameState.player)}
 
       <button class="btn block" id="btn-next-season">${gameState.renewalDue ? 'Voir le renouvellement de convention →' : `Lancer la Saison ${gameState.season + 1} →`}</button>
     `;
