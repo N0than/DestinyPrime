@@ -2569,7 +2569,7 @@ function render() {
     const compliance = gameState.player.lastArcomResult || computeArcomCompliance();
 
     app.innerHTML = `
-      ${renderMasthead("Fin de saison")}
+      ${renderMasthead("Fin de saison", "Audience Masters")}
       <div class="card">
         <div class="tape"></div>
         <div class="kicker">BILAN DE LA SAISON ${gameState.season} / ${esc(targetLabel)}</div>
