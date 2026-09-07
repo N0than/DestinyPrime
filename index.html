@@ -273,6 +273,14 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .arcom-hist-excellent, .arcom-hist-conforme { background: var(--vert); }
 .arcom-hist-vigilance { background: var(--gold); }
 .arcom-hist-manquements, .arcom-hist-nonconforme { background: var(--rouge); }
+.arcom-view-btn {
+  display: block; width: 100%; box-sizing: border-box; text-align: center; margin-top: 10px;
+  background: transparent; border: 1.5px solid var(--ink); color: var(--ink);
+  font-family: 'Anton', sans-serif; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.5px;
+  padding: 8px; border-radius: 3px; cursor: pointer;
+}
+.arcom-view-btn:hover { background: var(--ink); color: var(--paper); }
+.arcom-badge-bilan { margin: 8px 0 12px; }
 
 /* ---- ÉCRAN DE CONSÉQUENCES ---- */
 .impact-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
@@ -670,6 +678,26 @@ function renderStatStars(player, pdaCible, compliance) {
   `;
 }
 
+function renderArcomSlide(compliance, convention) {
+  const rows = compliance.obligations.map(ob => `
+    <div class="arcom-mini-row">
+      <span class="arcom-mini-dot ${ob.rate >= 1 ? 'ok' : (ob.rate >= 0.75 ? 'warn' : 'bad')}"></span>
+      <span class="arcom-mini-label">${esc(ob.label)}</span>
+      <span class="arcom-mini-value">${nf1(ob.actualValue)}${ob.unit === '%' ? '%' : ' ' + ob.unit} / ${ob.minimum}${ob.unit === '%' ? '%' : ' ' + ob.unit}</span>
+    </div>
+  `).join('');
+  return `
+    <div class="eh-title">Convention ARCOM</div>
+    <div class="eh-subtitle">${esc(convention.label)} — obligations éditoriales</div>
+    <div class="arcom-score-row">
+      <div class="arcom-score-value">${compliance.arcomScore} / 100</div>
+      <div class="arcom-status-pill arcom-status-${compliance.status.key}">${compliance.status.emoji} ${compliance.status.label}</div>
+    </div>
+    <div class="arcom-obligations-mini">${rows}</div>
+    <button class="arcom-view-btn" type="button">Voir la convention complète →</button>
+  `;
+}
+
 function computeAttractivite(popularite) {
   return 1 + (popularite - 50) / 200;
 }
@@ -806,12 +834,9 @@ const ARCOM_CONVENTIONS = {
     obligations: [
       { id: 'information', label: 'Information', minimum: 12, unit: '%', weight: 10, severity: 'medium', calc: { cat: 'info' } },
       { id: 'fiction', label: 'Fiction', minimum: 20, unit: '%', weight: 10, severity: 'medium', calc: { cat: 'fiction' } },
-      { id: 'divertissement', label: 'Divertissement', minimum: 15, unit: '%', weight: 6, severity: 'low', calc: { cat: 'diverti' } },
       { id: 'culture', label: 'Culture / connaissance', minimum: 8, unit: '%', weight: 8, severity: 'medium', calc: { cat: 'culture' } },
-      { id: 'jeunesse', label: 'Jeunesse / famille', minimum: 5, unit: '%', weight: 5, severity: 'low', calc: { cat: 'jeunesse' } },
       { id: 'prodFrancaise', label: 'Production française', minimum: 60, unit: '%', weight: 10, severity: 'high', calc: { cat: 'prodFR' } },
-      { id: 'prodEuropeenne', label: 'Production européenne', minimum: 70, unit: '%', weight: 8, severity: 'medium', calc: { cat: 'prodEU' } },
-      { id: 'renouveles', label: 'Programmes renouvelés', minimum: 20, unit: '%', weight: 5, severity: 'low', calc: { cat: 'renouveles' } }
+      { id: 'prodEuropeenne', label: 'Production européenne', minimum: 70, unit: '%', weight: 8, severity: 'medium', calc: { cat: 'prodEU' } }
     ]
   },
   cinema: {
@@ -820,10 +845,7 @@ const ARCOM_CONVENTIONS = {
       { id: 'fiction', label: 'Fiction', minimum: 50, unit: '%', weight: 10, severity: 'high', calc: { cat: 'fiction' } },
       { id: 'fictionFrancaise', label: 'Fiction française', minimum: 20, unit: '%', weight: 8, severity: 'medium', calc: { composite: ['fiction', 'prodFR'] } },
       { id: 'fictionEuropeenne', label: 'Fiction européenne', minimum: 40, unit: '%', weight: 8, severity: 'medium', calc: { composite: ['fiction', 'prodEU'] } },
-      { id: 'cinema', label: 'Cinéma', minimum: 10, unit: '%', weight: 6, severity: 'low', calc: { cat: 'fiction' } },
-      { id: 'inedits', label: 'Programmes inédits', minimum: 15, unit: '%', weight: 6, severity: 'low', calc: { cat: 'inedit' } },
       { id: 'creationOriginale', label: 'Création originale', minimum: 10, unit: '%', weight: 6, severity: 'low', calc: { cat: 'creation' } },
-      { id: 'fictionFamiliale', label: 'Fiction familiale', minimum: 5, unit: '%', weight: 4, severity: 'low', calc: { cat: 'jeunesse' } },
       { id: 'investissementCreation', label: 'Investissement création', minimum: 25, unit: '%', weight: 8, severity: 'medium', calc: { special: 'investCreation' } }
     ]
   },
@@ -831,28 +853,20 @@ const ARCOM_CONVENTIONS = {
     label: "Culture / Documentaire",
     obligations: [
       { id: 'documentaire', label: 'Documentaire', minimum: 30, unit: '%', weight: 10, severity: 'high', calc: { cat: 'culture' } },
-      { id: 'culturePatrimoine', label: 'Culture / patrimoine', minimum: 15, unit: '%', weight: 8, severity: 'medium', calc: { cat: 'culture' } },
-      { id: 'sciences', label: 'Sciences / connaissance', minimum: 10, unit: '%', weight: 6, severity: 'low', calc: { cat: 'culture', factor: 0.5 } },
-      { id: 'ouvertureInternationale', label: 'Ouverture internationale', minimum: 5, unit: '%', weight: 4, severity: 'low', calc: { cat: 'debat', factor: 0.6 } },
-      { id: 'arts', label: 'Arts', minimum: 5, unit: '%', weight: 4, severity: 'low', calc: { cat: 'culture', factor: 0.35 } },
-      { id: 'debatSociete', label: 'Débat / société', minimum: 10, unit: '%', weight: 6, severity: 'low', calc: { cat: 'debat' } },
       { id: 'creationFrancaise', label: 'Création française', minimum: 50, unit: '%', weight: 10, severity: 'high', calc: { cat: 'prodFR' } },
-      { id: 'inedits', label: 'Programmes inédits', minimum: 15, unit: '%', weight: 6, severity: 'low', calc: { cat: 'inedit' } },
-      { id: 'educatifs', label: 'Programmes éducatifs', minimum: 5, unit: '%', weight: 4, severity: 'low', calc: { cat: 'jeunesse', factor: 0.7 } }
+      { id: 'culturePatrimoine', label: 'Culture / patrimoine', minimum: 15, unit: '%', weight: 8, severity: 'medium', calc: { cat: 'culture' } },
+      { id: 'debatSociete', label: 'Débat / société', minimum: 10, unit: '%', weight: 6, severity: 'low', calc: { cat: 'debat' } },
+      { id: 'inedits', label: 'Programmes inédits', minimum: 15, unit: '%', weight: 6, severity: 'low', calc: { cat: 'inedit' } }
     ]
   },
   jeunesse: {
     label: "Jeunesse / Famille",
     obligations: [
       { id: 'progJeunesse', label: 'Programmes jeunesse', minimum: 45, unit: '%', weight: 10, severity: 'high', calc: { cat: 'jeunesse' } },
-      { id: 'animation', label: 'Animation', minimum: 25, unit: '%', weight: 8, severity: 'medium', calc: { cat: 'jeunesse', factor: 0.65 } },
-      { id: 'educatifDecouverte', label: 'Éducatif / découverte', minimum: 6, unit: '%', weight: 6, severity: 'low', calc: { cat: 'culture', factor: 0.7 } },
-      { id: 'progFamiliaux', label: 'Programmes familiaux', minimum: 15, unit: '%', weight: 6, severity: 'low', calc: { cat: 'jeunesse', factor: 0.45 } },
-      { id: 'prodFrancaise', label: 'Production française', minimum: 40, unit: '%', weight: 8, severity: 'medium', calc: { cat: 'prodFR' } },
-      { id: 'prodEuropeenne', label: 'Production européenne', minimum: 60, unit: '%', weight: 8, severity: 'medium', calc: { cat: 'prodEU' } },
-      { id: 'inedits', label: 'Programmes inédits', minimum: 15, unit: '%', weight: 5, severity: 'low', calc: { cat: 'inedit' } },
       { id: 'protectionMineurs', label: 'Protection des mineurs', minimum: 85, unit: '%', weight: 10, severity: 'high', calc: { cat: 'protection' } },
-      { id: 'accessibilite', label: 'Accessibilité', minimum: 70, unit: '%', weight: 6, severity: 'medium', calc: { cat: 'protection', factor: 0.85 } }
+      { id: 'animation', label: 'Animation', minimum: 25, unit: '%', weight: 8, severity: 'medium', calc: { cat: 'jeunesse', factor: 0.65 } },
+      { id: 'prodFrancaise', label: 'Production française', minimum: 40, unit: '%', weight: 8, severity: 'medium', calc: { cat: 'prodFR' } },
+      { id: 'prodEuropeenne', label: 'Production européenne', minimum: 60, unit: '%', weight: 8, severity: 'medium', calc: { cat: 'prodEU' } }
     ]
   },
   sport: {
@@ -862,26 +876,17 @@ const ARCOM_CONVENTIONS = {
       { id: 'sportDirect', label: 'Sport en direct', minimum: 25, unit: '%', weight: 8, severity: 'medium', calc: { cat: 'direct' } },
       { id: 'diversiteSportive', label: 'Diversité sportive', minimum: 3, unit: 'disciplines', weight: 6, severity: 'medium', calc: { special: 'sportDisciplines' } },
       { id: 'sportFrancais', label: 'Sport français', minimum: 20, unit: '%', weight: 6, severity: 'low', calc: { cat: 'prodFR' } },
-      { id: 'sportFeminin', label: 'Sport féminin', minimum: 10, unit: '%', weight: 5, severity: 'low', calc: { cat: 'sport', factor: 0.25 } },
-      { id: 'sportAmateur', label: 'Sport amateur / jeunes', minimum: 5, unit: '%', weight: 4, severity: 'low', calc: { cat: 'jeunesse', factor: 0.8 } },
-      { id: 'informationSportive', label: 'Information sportive', minimum: 10, unit: '%', weight: 5, severity: 'low', calc: { cat: 'info' } },
-      { id: 'magazinesSportifs', label: 'Magazines sportifs', minimum: 10, unit: '%', weight: 4, severity: 'low', calc: { cat: 'sport', factor: 0.25 } },
-      { id: 'nouveauxSports', label: 'Nouveaux sports', minimum: 3, unit: 'disciplines', weight: 3, severity: 'low', calc: { special: 'sportDisciplines' } },
-      { id: 'handisport', label: 'Handisport', minimum: 3, unit: '%', weight: 4, severity: 'medium', calc: { cat: 'sport', factor: 0.1 } }
+      { id: 'sportFeminin', label: 'Sport féminin', minimum: 10, unit: '%', weight: 5, severity: 'low', calc: { cat: 'sport', factor: 0.25 } }
     ]
   },
   info: {
     label: "Information en continu",
     obligations: [
       { id: 'information', label: 'Information', minimum: 60, unit: '%', weight: 10, severity: 'high', calc: { cat: 'info' } },
-      { id: 'direct', label: 'Direct', minimum: 25, unit: '%', weight: 8, severity: 'medium', calc: { cat: 'direct' } },
-      { id: 'politique', label: 'Politique / institutions', minimum: 10, unit: '%', weight: 5, severity: 'low', calc: { cat: 'debat', factor: 0.6 } },
-      { id: 'international', label: 'International', minimum: 10, unit: '%', weight: 5, severity: 'low', calc: { cat: 'info', factor: 0.3 } },
-      { id: 'actualiteFrancaise', label: 'Actualité française', minimum: 20, unit: '%', weight: 6, severity: 'low', calc: { cat: 'prodFR' } },
-      { id: 'interviews', label: 'Interviews / débats', minimum: 15, unit: '%', weight: 6, severity: 'low', calc: { cat: 'debat' } },
-      { id: 'decryptage', label: 'Décryptage', minimum: 10, unit: '%', weight: 5, severity: 'low', calc: { composite: ['culture', 'debat'] } },
       { id: 'pluralisme', label: 'Pluralisme', minimum: 70, unit: '%', weight: 8, severity: 'high', calc: { cat: 'pluralisme' } },
-      { id: 'factchecking', label: 'Fact-checking', minimum: 5, unit: '%', weight: 4, severity: 'low', calc: { cat: 'info', factor: 0.2 } }
+      { id: 'direct', label: 'Direct', minimum: 25, unit: '%', weight: 8, severity: 'medium', calc: { cat: 'direct' } },
+      { id: 'interviews', label: 'Interviews / débats', minimum: 15, unit: '%', weight: 6, severity: 'low', calc: { cat: 'debat' } },
+      { id: 'actualiteFrancaise', label: 'Actualité française', minimum: 20, unit: '%', weight: 6, severity: 'low', calc: { cat: 'prodFR' } }
     ]
   }
 };
@@ -2034,6 +2039,7 @@ function renderTicker() {
   const evolutionChartHtml = renderEvolutionChart(chartPoints);
   const compliance = p.lastArcomResult || computeArcomCompliance();
   const statStarsHtml = renderStatStars(p, pdaCible, compliance);
+  const arcomSlideHtml = renderArcomSlide(compliance, ARCOM_CONVENTIONS[p.type]);
   const slide = gameState.hudSlide || 0;
 
   return `
@@ -2073,6 +2079,7 @@ function renderTicker() {
               <div class="eh-slide">${globalAudienceShareHtml}</div>
               <div class="eh-slide">${evolutionChartHtml}</div>
               <div class="eh-slide">${statStarsHtml}</div>
+              <div class="eh-slide">${arcomSlideHtml}</div>
             </div>
           </div>
           <div class="eh-slider-nav">
@@ -2081,6 +2088,7 @@ function renderTicker() {
               <button class="eh-dot${slide === 1 ? ' active' : ''}" data-slide="1" aria-label="Écran 2"></button>
               <button class="eh-dot${slide === 2 ? ' active' : ''}" data-slide="2" aria-label="Écran 3"></button>
               <button class="eh-dot${slide === 3 ? ' active' : ''}" data-slide="3" aria-label="Écran 4"></button>
+              <button class="eh-dot${slide === 4 ? ' active' : ''}" data-slide="4" aria-label="Écran 5"></button>
             </div>
           </div>
         </div>
@@ -2487,7 +2495,7 @@ function render() {
       gameState.hudExpanded = isOpen;
     };
     const goToHudSlide = idx => {
-      const clamped = Math.max(0, Math.min(3, idx));
+      const clamped = Math.max(0, Math.min(4, idx));
       gameState.hudSlide = clamped;
       document.getElementById('eh-slider-track').style.transform = `translateX(-${clamped * 100}%)`;
       document.querySelectorAll('.eh-dot').forEach(d => d.classList.toggle('active', parseInt(d.dataset.slide, 10) === clamped));
@@ -2501,7 +2509,7 @@ function render() {
     let dragDeltaX = 0;
     let isDragging = false;
     ehSlider.addEventListener('pointerdown', e => {
-      if (e.target.closest('.ga-target-btn')) return;
+      if (e.target.closest('.ga-target-btn') || e.target.closest('.arcom-view-btn')) return;
       isDragging = true;
       dragStartX = e.clientX;
       dragDeltaX = 0;
@@ -2509,6 +2517,12 @@ function render() {
       ehSlider.setPointerCapture(e.pointerId);
     });
     ehSlider.addEventListener('click', e => {
+      const arcomBtn = e.target.closest('.arcom-view-btn');
+      if (arcomBtn) {
+        gameState.step = 9;
+        render();
+        return;
+      }
       const btn = e.target.closest('.ga-target-btn');
       if (!btn) return;
       gameState.audienceShareTarget = btn.dataset.audienceTarget;
@@ -2555,6 +2569,7 @@ function render() {
       <div class="card">
         <div class="tape"></div>
         <div class="kicker">BILAN DE LA SAISON ${gameState.season} / ${esc(targetLabel)}</div>
+        <div class="arcom-status-pill arcom-badge-bilan arcom-status-${compliance.status.key}">${compliance.status.emoji} ARCOM ${compliance.status.label} — ${compliance.arcomScore}/100</div>
         <h2>PART D'AUDIENCE GLOBALE</h2>
 
         <table class="grid-table">
@@ -2582,25 +2597,6 @@ function render() {
         </ul>
       </div>
 
-      <div class="card">
-        <div class="tape"></div>
-        <div class="kicker">⚖️ CONVENTION ARCOM</div>
-        <div class="arcom-score-row">
-          <div class="arcom-score-value">${compliance.arcomScore} / 100</div>
-          <div class="arcom-status-pill arcom-status-${compliance.status.key}">${compliance.status.emoji} ${compliance.status.label}</div>
-        </div>
-        <div class="arcom-obligations-mini">
-          ${compliance.obligations.map(ob => `
-            <div class="arcom-mini-row">
-              <span class="arcom-mini-dot ${ob.rate >= 1 ? 'ok' : (ob.rate >= 0.75 ? 'warn' : 'bad')}"></span>
-              <span class="arcom-mini-label">${esc(ob.label)}</span>
-              <span class="arcom-mini-value">${nf1(ob.actualValue)}${ob.unit === '%' ? '%' : ' ' + ob.unit} / ${ob.minimum}${ob.unit === '%' ? '%' : ' ' + ob.unit}</span>
-            </div>
-          `).join('')}
-        </div>
-        <button class="btn ghost block" id="btn-view-arcom" style="margin-top: 10px;">VOIR LA CONVENTION →</button>
-      </div>
-
       <button class="btn block" id="btn-next-season">${gameState.renewalDue ? 'Voir le renouvellement de convention →' : `Lancer la Saison ${gameState.season + 1} →`}</button>
     `;
 
@@ -2611,10 +2607,6 @@ function render() {
       } else {
         startNewSeason();
       }
-    };
-    document.getElementById('btn-view-arcom').onclick = () => {
-      gameState.step = 9;
-      render();
     };
     app.querySelector('.masthead').onclick = goHome;
     return;
@@ -2724,7 +2716,7 @@ function render() {
       <button class="btn ghost block" id="btn-arcom-back">← Retour</button>
     `;
     document.getElementById('btn-arcom-back').onclick = () => {
-      gameState.step = 7;
+      gameState.step = 6;
       render();
     };
     app.querySelector('.masthead').onclick = () => { gameState.step = 1; render(); };
