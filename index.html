@@ -215,16 +215,64 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .ga-row.ga-player .ga-bar-fill { background: var(--rouge); }
 .ga-row.ga-player .ga-pct { color: var(--rouge); }
 
-.eh-stars-block { text-align: center; padding: 14px 0 4px; }
-.eh-stars-item { margin-bottom: 20px; }
-.eh-stars-item:last-child { margin-bottom: 0; }
-.eh-stars-label {
-  font-family: 'Anton', sans-serif; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;
-  color: var(--ink); margin-bottom: 10px;
+.stat-list { display: flex; flex-direction: column; }
+.stat-row { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px dashed rgba(22,19,14,0.12); }
+.stat-row:last-child { border-bottom: none; }
+.stat-row-label {
+  display: flex; align-items: center; gap: 5px; flex: 0 0 100px; min-width: 0;
+  font-family: 'Anton', sans-serif; font-size: 10px; text-transform: uppercase; letter-spacing: 0.3px; color: var(--ink);
 }
-.eh-stars-row { font-size: 26px; letter-spacing: 4px; }
-.eh-stars-row .star-filled { color: var(--gold); }
-.eh-stars-row .star-empty { color: rgba(22,19,14,0.2); }
+.stat-row-stars { flex: 1; font-size: 16px; letter-spacing: 1.5px; }
+.stat-row-stars .star-filled { color: var(--gold); }
+.stat-row-stars .star-empty { color: rgba(22,19,14,0.2); }
+.stat-row-value { font-family: 'Anton', sans-serif; font-size: 10.5px; flex-shrink: 0; width: 56px; text-align: right; color: var(--gris); }
+.stat-row-value.good { color: var(--vert); }
+.stat-row-value.warn { color: #8a6d1a; }
+.stat-row-value.bad { color: var(--rouge); }
+
+/* ---- CONVENTION ARCOM ---- */
+.arcom-score-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 8px 0 12px; flex-wrap: wrap; }
+.arcom-score-value { font-family: 'Anton', sans-serif; font-size: 28px; color: var(--ink); line-height: 1; }
+.arcom-status-pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-family: 'Anton', sans-serif; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.4px;
+  padding: 5px 10px; border-radius: 3px; border: 1.5px solid var(--ink);
+}
+.arcom-status-excellent, .arcom-status-conforme { background: rgba(46,107,58,0.12); color: var(--vert); border-color: var(--vert); }
+.arcom-status-vigilance { background: rgba(212,175,55,0.16); color: #8a6d1a; border-color: var(--gold); }
+.arcom-status-manquements, .arcom-status-nonconforme { background: rgba(200,16,46,0.1); color: var(--rouge); border-color: var(--rouge); }
+.arcom-obligations-mini { margin-top: 4px; }
+.arcom-mini-row { display: flex; align-items: center; gap: 6px; padding: 4px 0; font-size: 12px; border-bottom: 1px dashed rgba(22,19,14,0.1); }
+.arcom-mini-row:last-child { border-bottom: none; }
+.arcom-mini-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.arcom-mini-dot.ok { background: var(--vert); }
+.arcom-mini-dot.warn { background: var(--gold); }
+.arcom-mini-dot.bad { background: var(--rouge); }
+.arcom-mini-label { flex: 1; min-width: 0; font-family: 'Spectral', serif; }
+.arcom-mini-value { font-family: 'Anton', sans-serif; font-size: 10.5px; color: var(--gris); white-space: nowrap; }
+.arcom-obligations-list { display: flex; flex-direction: column; gap: 9px; margin-top: 8px; }
+.arcom-oblig-row { display: flex; align-items: center; gap: 8px; }
+.arcom-oblig-info { flex: 1; min-width: 0; }
+.arcom-oblig-label { font-size: 12.5px; margin-bottom: 3px; }
+.arcom-oblig-bar-track { height: 5px; background: rgba(22,19,14,0.08); border-radius: 3px; overflow: hidden; }
+.arcom-oblig-bar-fill { height: 100%; border-radius: 3px; }
+.arcom-oblig-bar-fill.ok { background: var(--vert); }
+.arcom-oblig-bar-fill.warn { background: var(--gold); }
+.arcom-oblig-bar-fill.bad { background: var(--rouge); }
+.arcom-oblig-value { font-family: 'Anton', sans-serif; font-size: 10.5px; color: var(--gris); white-space: nowrap; flex-shrink: 0; }
+.arcom-violations-list { margin: 6px 0 0 0; padding-left: 18px; font-size: 13px; }
+.arcom-violations-list li { margin-bottom: 4px; }
+.arcom-severity-leger { color: #8a6d1a; font-weight: bold; }
+.arcom-severity-significatif { color: #c07a1f; font-weight: bold; }
+.arcom-severity-grave { color: var(--rouge); font-weight: bold; }
+.arcom-hist-chart { display: flex; align-items: flex-end; gap: 8px; height: 130px; margin-top: 12px; padding-top: 18px; }
+.arcom-hist-bar-wrap { flex: 1; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; }
+.arcom-hist-bar { width: 100%; max-width: 30px; border-radius: 3px 3px 0 0; position: relative; }
+.arcom-hist-val { font-family: 'Anton', sans-serif; font-size: 9px; color: var(--ink); position: absolute; top: -14px; left: 50%; transform: translateX(-50%); white-space: nowrap; }
+.arcom-hist-season { font-size: 9px; font-style: italic; color: var(--gris); margin-top: 4px; }
+.arcom-hist-excellent, .arcom-hist-conforme { background: var(--vert); }
+.arcom-hist-vigilance { background: var(--gold); }
+.arcom-hist-manquements, .arcom-hist-nonconforme { background: var(--rouge); }
 
 /* ---- ÉCRAN DE CONSÉQUENCES ---- */
 .impact-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
@@ -571,8 +619,9 @@ function starRowHtml(filled) {
   return Array.from({ length: 5 }, (_, i) => `<span class="${i < filled ? 'star-filled' : 'star-empty'}">★</span>`).join('');
 }
 
-function renderStatStars(player, pdaCible) {
+function renderStatStars(player, pdaCible, compliance) {
   const popFilled = Math.round((player.popularite / 100) * 5);
+  const popClass = player.popularite >= 60 ? 'good' : (player.popularite >= 40 ? 'warn' : 'bad');
 
   const lower = 50;
   const upper = Math.max(player.coutGrilleCumul * 5, lower + 1);
@@ -580,6 +629,7 @@ function renderStatStars(player, pdaCible) {
   if (player.tresorerie <= lower) tresoFilled = 1;
   else if (player.tresorerie >= upper) tresoFilled = 5;
   else tresoFilled = 1 + Math.round(((player.tresorerie - lower) / (upper - lower)) * 4);
+  const tresoClass = player.tresorerie < 0 ? 'bad' : (tresoFilled >= 4 ? 'good' : 'warn');
 
   const perfLower = 0.05, perfUpper = 0.30;
   const efficacite = pdaCible / Math.max(player.coutGrilleCumul, 0.01);
@@ -587,20 +637,34 @@ function renderStatStars(player, pdaCible) {
   if (efficacite <= perfLower) perfFilled = 1;
   else if (efficacite >= perfUpper) perfFilled = 5;
   else perfFilled = 1 + Math.round(((efficacite - perfLower) / (perfUpper - perfLower)) * 4);
+  const perfClass = perfFilled >= 4 ? 'good' : (perfFilled >= 2 ? 'warn' : 'bad');
+
+  const arcomFilled = Math.round((compliance.arcomScore / 100) * 5);
+  const arcomClass = compliance.arcomScore >= 75 ? 'good' : (compliance.arcomScore >= 60 ? 'warn' : 'bad');
 
   return `
-    <div class="eh-stars-block">
-      <div class="eh-stars-item">
-        <div class="eh-stars-label">Popularité</div>
-        <div class="eh-stars-row">${starRowHtml(popFilled)}</div>
+    <div class="eh-title">Indicateurs de performance</div>
+    <div class="eh-subtitle">Popularité, trésorerie, efficacité et conformité éditoriale</div>
+    <div class="stat-list">
+      <div class="stat-row">
+        <div class="stat-row-label"><span class="ic">⭐</span>Popularité</div>
+        <div class="stat-row-stars">${starRowHtml(popFilled)}</div>
+        <div class="stat-row-value ${popClass}">${Math.round(player.popularite)}%</div>
       </div>
-      <div class="eh-stars-item">
-        <div class="eh-stars-label">Trésorerie</div>
-        <div class="eh-stars-row">${starRowHtml(tresoFilled)}</div>
+      <div class="stat-row">
+        <div class="stat-row-label"><span class="ic">💰</span>Trésorerie</div>
+        <div class="stat-row-stars">${starRowHtml(tresoFilled)}</div>
+        <div class="stat-row-value ${tresoClass}">${nf1(player.tresorerie)} M€</div>
       </div>
-      <div class="eh-stars-item">
-        <div class="eh-stars-label">Performance</div>
-        <div class="eh-stars-row">${starRowHtml(perfFilled)}</div>
+      <div class="stat-row">
+        <div class="stat-row-label"><span class="ic">📈</span>Performance</div>
+        <div class="stat-row-stars">${starRowHtml(perfFilled)}</div>
+        <div class="stat-row-value ${perfClass}">${Math.round(efficacite * 100)}%</div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-row-label"><span class="ic">⚖️</span>Conformité</div>
+        <div class="stat-row-stars">${starRowHtml(arcomFilled)}</div>
+        <div class="stat-row-value ${arcomClass}">${compliance.arcomScore}/100</div>
       </div>
     </div>
   `;
@@ -722,6 +786,105 @@ const AUDIENCE_TARGETS = [
   { key: 's50', short: '+50', full: '50 ans et +' },
   { key: 'csp', short: 'CSP+', full: 'CSP+' }
 ];
+
+const CONVENTION_DURATION = 4;
+
+const EDITO_CATEGORIES = ['info', 'fiction', 'diverti', 'culture', 'jeunesse', 'sport', 'prodFR', 'prodEU', 'inedit', 'direct', 'debat', 'pluralisme', 'protection', 'creation', 'renouveles'];
+
+const EDITO_BASE = {
+  generaliste: { info: 14, fiction: 22, diverti: 18, culture: 9, jeunesse: 6, sport: 5, prodFR: 58, prodEU: 68, inedit: 15, direct: 10, debat: 10, pluralisme: 70, protection: 82, creation: 10, renouveles: 18 },
+  cinema: { info: 5, fiction: 48, diverti: 15, culture: 8, jeunesse: 5, sport: 5, prodFR: 35, prodEU: 55, inedit: 14, direct: 5, debat: 5, pluralisme: 70, protection: 80, creation: 9, renouveles: 15 },
+  culture: { info: 10, fiction: 10, diverti: 8, culture: 26, jeunesse: 8, sport: 5, prodFR: 45, prodEU: 50, inedit: 14, direct: 5, debat: 9, pluralisme: 70, protection: 80, creation: 10, renouveles: 15 },
+  jeunesse: { info: 5, fiction: 10, diverti: 10, culture: 8, jeunesse: 40, sport: 5, prodFR: 35, prodEU: 55, inedit: 14, direct: 5, debat: 5, pluralisme: 70, protection: 76, creation: 8, renouveles: 15 },
+  sport: { info: 8, fiction: 5, diverti: 10, culture: 5, jeunesse: 5, sport: 55, prodFR: 18, prodEU: 20, inedit: 10, direct: 22, debat: 8, pluralisme: 70, protection: 80, creation: 8, renouveles: 15 },
+  info: { info: 55, fiction: 5, diverti: 5, culture: 8, jeunesse: 5, sport: 5, prodFR: 18, prodEU: 20, inedit: 10, direct: 22, debat: 13, pluralisme: 66, protection: 80, creation: 5, renouveles: 15 }
+};
+
+const ARCOM_CONVENTIONS = {
+  generaliste: {
+    label: "Généraliste",
+    obligations: [
+      { id: 'information', label: 'Information', minimum: 12, unit: '%', weight: 10, severity: 'medium', calc: { cat: 'info' } },
+      { id: 'fiction', label: 'Fiction', minimum: 20, unit: '%', weight: 10, severity: 'medium', calc: { cat: 'fiction' } },
+      { id: 'divertissement', label: 'Divertissement', minimum: 15, unit: '%', weight: 6, severity: 'low', calc: { cat: 'diverti' } },
+      { id: 'culture', label: 'Culture / connaissance', minimum: 8, unit: '%', weight: 8, severity: 'medium', calc: { cat: 'culture' } },
+      { id: 'jeunesse', label: 'Jeunesse / famille', minimum: 5, unit: '%', weight: 5, severity: 'low', calc: { cat: 'jeunesse' } },
+      { id: 'prodFrancaise', label: 'Production française', minimum: 60, unit: '%', weight: 10, severity: 'high', calc: { cat: 'prodFR' } },
+      { id: 'prodEuropeenne', label: 'Production européenne', minimum: 70, unit: '%', weight: 8, severity: 'medium', calc: { cat: 'prodEU' } },
+      { id: 'renouveles', label: 'Programmes renouvelés', minimum: 20, unit: '%', weight: 5, severity: 'low', calc: { cat: 'renouveles' } }
+    ]
+  },
+  cinema: {
+    label: "Cinéma / Séries",
+    obligations: [
+      { id: 'fiction', label: 'Fiction', minimum: 50, unit: '%', weight: 10, severity: 'high', calc: { cat: 'fiction' } },
+      { id: 'fictionFrancaise', label: 'Fiction française', minimum: 20, unit: '%', weight: 8, severity: 'medium', calc: { composite: ['fiction', 'prodFR'] } },
+      { id: 'fictionEuropeenne', label: 'Fiction européenne', minimum: 40, unit: '%', weight: 8, severity: 'medium', calc: { composite: ['fiction', 'prodEU'] } },
+      { id: 'cinema', label: 'Cinéma', minimum: 10, unit: '%', weight: 6, severity: 'low', calc: { cat: 'fiction' } },
+      { id: 'inedits', label: 'Programmes inédits', minimum: 15, unit: '%', weight: 6, severity: 'low', calc: { cat: 'inedit' } },
+      { id: 'creationOriginale', label: 'Création originale', minimum: 10, unit: '%', weight: 6, severity: 'low', calc: { cat: 'creation' } },
+      { id: 'fictionFamiliale', label: 'Fiction familiale', minimum: 5, unit: '%', weight: 4, severity: 'low', calc: { cat: 'jeunesse' } },
+      { id: 'investissementCreation', label: 'Investissement création', minimum: 25, unit: '%', weight: 8, severity: 'medium', calc: { special: 'investCreation' } }
+    ]
+  },
+  culture: {
+    label: "Culture / Documentaire",
+    obligations: [
+      { id: 'documentaire', label: 'Documentaire', minimum: 30, unit: '%', weight: 10, severity: 'high', calc: { cat: 'culture' } },
+      { id: 'culturePatrimoine', label: 'Culture / patrimoine', minimum: 15, unit: '%', weight: 8, severity: 'medium', calc: { cat: 'culture' } },
+      { id: 'sciences', label: 'Sciences / connaissance', minimum: 10, unit: '%', weight: 6, severity: 'low', calc: { cat: 'culture', factor: 0.5 } },
+      { id: 'ouvertureInternationale', label: 'Ouverture internationale', minimum: 5, unit: '%', weight: 4, severity: 'low', calc: { cat: 'debat', factor: 0.6 } },
+      { id: 'arts', label: 'Arts', minimum: 5, unit: '%', weight: 4, severity: 'low', calc: { cat: 'culture', factor: 0.35 } },
+      { id: 'debatSociete', label: 'Débat / société', minimum: 10, unit: '%', weight: 6, severity: 'low', calc: { cat: 'debat' } },
+      { id: 'creationFrancaise', label: 'Création française', minimum: 50, unit: '%', weight: 10, severity: 'high', calc: { cat: 'prodFR' } },
+      { id: 'inedits', label: 'Programmes inédits', minimum: 15, unit: '%', weight: 6, severity: 'low', calc: { cat: 'inedit' } },
+      { id: 'educatifs', label: 'Programmes éducatifs', minimum: 5, unit: '%', weight: 4, severity: 'low', calc: { cat: 'jeunesse', factor: 0.7 } }
+    ]
+  },
+  jeunesse: {
+    label: "Jeunesse / Famille",
+    obligations: [
+      { id: 'progJeunesse', label: 'Programmes jeunesse', minimum: 45, unit: '%', weight: 10, severity: 'high', calc: { cat: 'jeunesse' } },
+      { id: 'animation', label: 'Animation', minimum: 25, unit: '%', weight: 8, severity: 'medium', calc: { cat: 'jeunesse', factor: 0.65 } },
+      { id: 'educatifDecouverte', label: 'Éducatif / découverte', minimum: 6, unit: '%', weight: 6, severity: 'low', calc: { cat: 'culture', factor: 0.7 } },
+      { id: 'progFamiliaux', label: 'Programmes familiaux', minimum: 15, unit: '%', weight: 6, severity: 'low', calc: { cat: 'jeunesse', factor: 0.45 } },
+      { id: 'prodFrancaise', label: 'Production française', minimum: 40, unit: '%', weight: 8, severity: 'medium', calc: { cat: 'prodFR' } },
+      { id: 'prodEuropeenne', label: 'Production européenne', minimum: 60, unit: '%', weight: 8, severity: 'medium', calc: { cat: 'prodEU' } },
+      { id: 'inedits', label: 'Programmes inédits', minimum: 15, unit: '%', weight: 5, severity: 'low', calc: { cat: 'inedit' } },
+      { id: 'protectionMineurs', label: 'Protection des mineurs', minimum: 85, unit: '%', weight: 10, severity: 'high', calc: { cat: 'protection' } },
+      { id: 'accessibilite', label: 'Accessibilité', minimum: 70, unit: '%', weight: 6, severity: 'medium', calc: { cat: 'protection', factor: 0.85 } }
+    ]
+  },
+  sport: {
+    label: "Sport",
+    obligations: [
+      { id: 'sport', label: 'Sport', minimum: 60, unit: '%', weight: 10, severity: 'high', calc: { cat: 'sport' } },
+      { id: 'sportDirect', label: 'Sport en direct', minimum: 25, unit: '%', weight: 8, severity: 'medium', calc: { cat: 'direct' } },
+      { id: 'diversiteSportive', label: 'Diversité sportive', minimum: 3, unit: 'disciplines', weight: 6, severity: 'medium', calc: { special: 'sportDisciplines' } },
+      { id: 'sportFrancais', label: 'Sport français', minimum: 20, unit: '%', weight: 6, severity: 'low', calc: { cat: 'prodFR' } },
+      { id: 'sportFeminin', label: 'Sport féminin', minimum: 10, unit: '%', weight: 5, severity: 'low', calc: { cat: 'sport', factor: 0.25 } },
+      { id: 'sportAmateur', label: 'Sport amateur / jeunes', minimum: 5, unit: '%', weight: 4, severity: 'low', calc: { cat: 'jeunesse', factor: 0.8 } },
+      { id: 'informationSportive', label: 'Information sportive', minimum: 10, unit: '%', weight: 5, severity: 'low', calc: { cat: 'info' } },
+      { id: 'magazinesSportifs', label: 'Magazines sportifs', minimum: 10, unit: '%', weight: 4, severity: 'low', calc: { cat: 'sport', factor: 0.25 } },
+      { id: 'nouveauxSports', label: 'Nouveaux sports', minimum: 3, unit: 'disciplines', weight: 3, severity: 'low', calc: { special: 'sportDisciplines' } },
+      { id: 'handisport', label: 'Handisport', minimum: 3, unit: '%', weight: 4, severity: 'medium', calc: { cat: 'sport', factor: 0.1 } }
+    ]
+  },
+  info: {
+    label: "Information en continu",
+    obligations: [
+      { id: 'information', label: 'Information', minimum: 60, unit: '%', weight: 10, severity: 'high', calc: { cat: 'info' } },
+      { id: 'direct', label: 'Direct', minimum: 25, unit: '%', weight: 8, severity: 'medium', calc: { cat: 'direct' } },
+      { id: 'politique', label: 'Politique / institutions', minimum: 10, unit: '%', weight: 5, severity: 'low', calc: { cat: 'debat', factor: 0.6 } },
+      { id: 'international', label: 'International', minimum: 10, unit: '%', weight: 5, severity: 'low', calc: { cat: 'info', factor: 0.3 } },
+      { id: 'actualiteFrancaise', label: 'Actualité française', minimum: 20, unit: '%', weight: 6, severity: 'low', calc: { cat: 'prodFR' } },
+      { id: 'interviews', label: 'Interviews / débats', minimum: 15, unit: '%', weight: 6, severity: 'low', calc: { cat: 'debat' } },
+      { id: 'decryptage', label: 'Décryptage', minimum: 10, unit: '%', weight: 5, severity: 'low', calc: { composite: ['culture', 'debat'] } },
+      { id: 'pluralisme', label: 'Pluralisme', minimum: 70, unit: '%', weight: 8, severity: 'high', calc: { cat: 'pluralisme' } },
+      { id: 'factchecking', label: 'Fact-checking', minimum: 5, unit: '%', weight: 4, severity: 'low', calc: { cat: 'info', factor: 0.2 } }
+    ]
+  }
+};
 
 const FICTIONAL_CHANNEL_NAMES = ["FT1", "MonteCarloTV", "C/ACTUS", "TV9", "Banal+", "La Cinq", "FR3", "C14", "Energie 12", "I-Télé", "TPS+", "Virgini 17"];
 
@@ -1337,6 +1500,84 @@ const DILEMMA_BANK = [
   }
 ];
 
+const DILEMMA_FLAVOR = {
+  d1: [{ culture: 4, diverti: -4 }, { diverti: 6, culture: -6 }],
+  d2: [{ sport: 6, direct: 4, discipline: 'football' }, { sport: -4, fiction: 4 }],
+  d3: [{ culture: 4, info: 4, debat: 2 }, { culture: -4, info: -4 }],
+  d4: [{ info: 4, inedit: -2 }, { inedit: 4, info: -4 }],
+  d5: [{ culture: 4, diverti: -4 }, { diverti: 6, culture: -6 }],
+  d6: [{ sport: 4, inedit: 2, discipline: 'esport' }, { sport: -2, fiction: 4 }],
+  d7: [{ creation: -4 }, { culture: 4 }],
+  d8: [{ fiction: 6, prodEU: -4, inedit: 4 }, { fiction: 4, prodFR: 6, creation: 4 }],
+  d9: [{ direct: 4 }, { inedit: -4, direct: -4 }],
+  d10: [{ debat: 4, pluralisme: -4 }, { pluralisme: 4, debat: -2 }],
+  d11: [{ inedit: 4, creation: -2 }, { creation: 4, prodFR: 2 }],
+  d12: [{ culture: 4, diverti: -4 }, { diverti: 4, culture: -4, pluralisme: -4 }],
+  d13: [{ info: 4, debat: 2, direct: 4 }, { info: -2 }],
+  d14: [{ sport: 6, direct: 4, discipline: 'jo' }, { sport: -4, debat: 4 }],
+  d15: [{ fiction: 4 }, { fiction: -4, culture: 4 }],
+  d16: [{ diverti: 6, protection: -6 }, { protection: 4, diverti: -4 }],
+  d17: [{ direct: 2 }, { creation: -2 }],
+  d18: [{ pluralisme: -4, culture: -2 }, { culture: 4, protection: 2 }],
+  d19: [{ pluralisme: 4, culture: 2 }, { pluralisme: -6, diverti: 4 }],
+  d20: [{ sport: -4 }, { sport: 6, creation: 4, discipline: 'football' }],
+  d21: [{ inedit: 4, info: -2 }, { info: 4, inedit: -4 }],
+  d22: [{ culture: 4, diverti: -2 }, { diverti: 4, culture: -4 }],
+  d23: [{ diverti: 4, creation: 2, inedit: -2 }, { diverti: -4, creation: -2 }],
+  d24: [{ inedit: 4, renouveles: -4 }, { renouveles: 4, inedit: -2 }],
+  d25: [{ culture: 4, debat: 2 }, { diverti: 4, culture: -4 }],
+  d26: [{ pluralisme: -4, culture: -2 }, { pluralisme: 4, culture: 4, debat: 2 }],
+  d27: [{ pluralisme: 4, culture: 4 }, { pluralisme: -4, culture: -4 }],
+  d28: [{ info: 4, culture: 2, debat: 2 }, { info: -4, culture: -4 }],
+  d29: [{ creation: 4, inedit: 2 }, { creation: -2 }],
+  d30: [{ culture: 2 }, { diverti: 4, culture: -4 }],
+  d31: [{ culture: 2 }, { diverti: 6, culture: -4 }],
+  d32: [{ culture: 2, renouveles: 2 }, { diverti: 4, culture: -4 }],
+  d33: [{ diverti: 4, culture: -4 }, { culture: 4, diverti: -4 }],
+  d34: [{ diverti: 4, creation: -2 }, { culture: 2, renouveles: 2 }],
+  d35: [{ pluralisme: 2 }, { pluralisme: -2, renouveles: 2 }],
+  d36: [{ protection: 4, jeunesse: -2 }, { jeunesse: 4, protection: -6 }],
+  d37: [{ diverti: 4, protection: -4 }, { protection: 4, diverti: -4 }],
+  d38: [{ culture: 4, inedit: 2 }, { culture: -2 }],
+  d39: [{ diverti: 4, pluralisme: -2 }, { culture: 2, pluralisme: 2 }],
+  d40: [{ prodFR: 4, culture: 2 }, { prodEU: -2, diverti: 4 }],
+  d41: [{ info: -4, pluralisme: -4 }, { info: 4, pluralisme: 4 }],
+  d42: [{ sport: 4, direct: 4, discipline: 'tennis' }, { sport: -2 }],
+  d43: [{ diverti: 4, culture: -4 }, { culture: 4, creation: 2 }],
+  d44: [{ debat: 4, pluralisme: 4, culture: 2 }, { debat: -2, pluralisme: -2 }],
+  d45: [{ info: 4, debat: 2, pluralisme: 2 }, { info: -2, pluralisme: -2 }],
+  d46: [{ diverti: 4, protection: -4 }, { protection: 4, diverti: -4 }],
+  d47: [{ diverti: 4, inedit: -2 }, { culture: 4, prodFR: 4, creation: 2 }],
+  d48: [{ info: 4, culture: 2, debat: 2 }, { info: -4, culture: -2 }],
+  d49: [{ culture: 2, renouveles: 2 }, { fiction: 2, renouveles: -2 }],
+  d50: [{ creation: -2 }, { creation: 4, prodFR: 2 }],
+  d51: [{ diverti: 4, prodEU: -2, inedit: 2 }, { diverti: -2, prodFR: 2 }],
+  d52: [{ culture: 2, debat: 2 }, { sport: 2, culture: -2 }],
+  d53: [{ inedit: 2, renouveles: -2 }, { culture: 2, renouveles: 2 }],
+  d54: [{ pluralisme: 4, debat: 2, info: 2 }, { pluralisme: -4, info: -2 }],
+  d55: [{ culture: 2 }, { diverti: 4, culture: -2 }],
+  d56: [{ culture: 2, prodFR: 2 }, { renouveles: -2, diverti: 2 }],
+  d57: [{ diverti: 4, protection: -4 }, { prodEU: -2, protection: 4 }],
+  d58: [{ fiction: 4, prodFR: 4, creation: 2 }, { fiction: 2, prodEU: 2 }],
+  d59: [{ info: 2, diverti: 2, culture: -2 }, { info: 2, culture: 2 }],
+  d60: [{ inedit: 2, renouveles: -2 }, { renouveles: 2, inedit: -2 }],
+  d61: [{ fiction: 4, prodFR: 4, renouveles: 2 }, { fiction: 4, inedit: 2 }],
+  d62: [{ renouveles: 4, culture: 2 }, { inedit: 2, renouveles: -2 }],
+  d63: [{ diverti: 4, culture: -4 }, { culture: 4, diverti: -4 }],
+  d64: [{ diverti: -2, culture: -2, creation: -2 }, { culture: 4, jeunesse: 2 }],
+  d65: [{ sport: 4, creation: 4, discipline: 'football' }, { sport: -2 }],
+  d66: [{ sport: 2, inedit: 2, diverti: 2, discipline: 'esport' }, { renouveles: 2, diverti: -2 }],
+  d67: [{ culture: 4, pluralisme: 4, info: 2 }, { culture: -4, pluralisme: -4 }],
+  d68: [{ culture: 4, creation: 2 }, { creation: -2, culture: -2 }],
+  d69: [{ jeunesse: 4, prodFR: 4, creation: 2 }, { jeunesse: -2, prodEU: -2 }],
+  d70: [{ culture: 2, diverti: 2 }, { renouveles: 2, culture: -2 }],
+  d71: [{ culture: 4, protection: 4 }, { diverti: 2, protection: -4 }],
+  d72: [{ sport: 6, direct: 4, prodFR: 2, discipline: 'football' }, { sport: -4 }],
+  d73: [{ diverti: 4, fiction: 2 }, { renouveles: 2, fiction: 2 }],
+  d74: [{ info: 2, diverti: 2, culture: -2 }, { info: 2, culture: 2, pluralisme: 2 }],
+  d75: [{ creation: 4, culture: 2 }, { creation: -2, renouveles: 2 }]
+};
+
 let gameState = {
   step: 1,
   resumeStep: null,
@@ -1348,7 +1589,15 @@ let gameState = {
     coutGrilleCumul: 0,
     revenusPubCumul: 0,
     popularite: 50,
-    pda: { j1524: 0.3, a2549: 1.0, s50: 0.3, csp: 0.3 }
+    pda: { j1524: 0.3, a2549: 1.0, s50: 0.3, csp: 0.3 },
+    editoMix: {},
+    seasonCreationSpend: 0,
+    seasonTotalSpend: 0,
+    sportDisciplinesSeen: [],
+    arcomHistory: [],
+    arcomViolations: [],
+    arcomSanctionsCount: 0,
+    lastArcomResult: null
   },
   competitors: [],
   season: 1,
@@ -1362,7 +1611,9 @@ let gameState = {
   hudSlide: 0,
   audienceShareTarget: null,
   seenDilemmaIds: [],
-  history: []
+  history: [],
+  renewalDue: false,
+  gameOverReason: null
 };
 
 function pickDilemmaQueue() {
@@ -1415,6 +1666,15 @@ function finalizeChannelSetup() {
 
   gameState.player.pda = { j1524: 0.2, a2549: 0.2, s50: 0.2, csp: 0.2 };
   gameState.player.pda[targetDemo] = demoTotals[targetDemo] * 0.0101;
+
+  gameState.player.arcomHistory = [];
+  gameState.player.arcomViolations = [];
+  gameState.player.arcomSanctionsCount = 0;
+  gameState.player.sportDisciplinesSeen = [];
+  gameState.player.lastArcomResult = null;
+  gameState.renewalDue = false;
+  gameState.gameOverReason = null;
+  resetSeasonEditoMix();
 }
 
 function getAllChannels() {
@@ -1447,11 +1707,158 @@ function getCalculatedPDAs() {
   });
 }
 
+function resetSeasonEditoMix() {
+  const base = EDITO_BASE[gameState.player.type];
+  gameState.player.editoMix = { ...base };
+  gameState.player.seasonCreationSpend = 0;
+  gameState.player.seasonTotalSpend = 0;
+}
+
+function applyDilemmaEditoImpact(dilemma, choiceIndex, choice) {
+  const player = gameState.player;
+  const tags = DILEMMA_FLAVOR[dilemma.id];
+  const impact = tags ? tags[choiceIndex] : null;
+  if (impact) {
+    EDITO_CATEGORIES.forEach(cat => {
+      if (impact[cat]) {
+        player.editoMix[cat] = Math.max(0, Math.min(100, player.editoMix[cat] + impact[cat]));
+      }
+    });
+    if (impact.discipline && !player.sportDisciplinesSeen.includes(impact.discipline)) {
+      player.sportDisciplinesSeen.push(impact.discipline);
+    }
+  }
+  if (choice.b < 0) {
+    player.seasonTotalSpend += Math.abs(choice.b);
+    if (impact && impact.creation > 0) {
+      player.seasonCreationSpend += Math.abs(choice.b);
+    }
+  }
+}
+
+function computeObligationActual(ob, editoMix, player) {
+  const calc = ob.calc;
+  if (calc.cat) {
+    const val = editoMix[calc.cat] || 0;
+    return calc.factor ? val * calc.factor : val;
+  }
+  if (calc.composite) {
+    const sum = calc.composite.reduce((s, c) => s + (editoMix[c] || 0), 0);
+    return sum / calc.composite.length;
+  }
+  if (calc.special === 'investCreation') {
+    return player.seasonTotalSpend > 0 ? (player.seasonCreationSpend / player.seasonTotalSpend) * 100 : 0;
+  }
+  if (calc.special === 'sportDisciplines') {
+    return player.sportDisciplinesSeen.length;
+  }
+  return 0;
+}
+
+function obligationScoreFromRate(rate) {
+  if (rate >= 1) return 100;
+  if (rate >= 0.9) return 80 + (rate - 0.9) / 0.1 * 20;
+  if (rate >= 0.75) return 50 + (rate - 0.75) / 0.15 * 30;
+  return Math.max(0, rate / 0.75 * 50);
+}
+
+function getArcomStatusMeta(score) {
+  if (score >= 90) return { key: 'excellent', label: 'EXCELLENT', emoji: '🟢' };
+  if (score >= 75) return { key: 'conforme', label: 'CONFORME', emoji: '🟢' };
+  if (score >= 60) return { key: 'vigilance', label: 'VIGILANCE', emoji: '🟠' };
+  if (score >= 40) return { key: 'manquements', label: 'MANQUEMENTS', emoji: '🔴' };
+  return { key: 'nonconforme', label: 'NON-CONFORME', emoji: '⛔' };
+}
+
+function computeArcomCompliance() {
+  const player = gameState.player;
+  const convention = ARCOM_CONVENTIONS[player.type];
+  const editoMix = player.editoMix;
+  let weightedSum = 0, weightTotal = 0;
+  const obligations = convention.obligations.map(ob => {
+    const actualValue = computeObligationActual(ob, editoMix, player);
+    const rate = ob.minimum > 0 ? actualValue / ob.minimum : 1;
+    const score = obligationScoreFromRate(rate);
+    weightedSum += score * ob.weight;
+    weightTotal += ob.weight;
+    return { ...ob, actualValue, rate, score, compliant: rate >= 1 };
+  });
+  const arcomScore = Math.round(weightTotal > 0 ? weightedSum / weightTotal : 100);
+  return { obligations, arcomScore, status: getArcomStatusMeta(arcomScore) };
+}
+
+function pushArcomSeasonResult() {
+  const player = gameState.player;
+  const compliance = computeArcomCompliance();
+  player.arcomHistory.push({
+    season: gameState.season,
+    score: compliance.arcomScore,
+    status: compliance.status.key,
+    violations: compliance.obligations.filter(o => o.rate < 1).length
+  });
+  compliance.obligations.forEach(ob => {
+    if (ob.rate < 0.75) {
+      player.arcomViolations.push({ season: gameState.season, obligation: ob.id, label: ob.label, severity: 'grave', penalty: 6, weight: ob.weight });
+    } else if (ob.rate < 0.9) {
+      player.arcomViolations.push({ season: gameState.season, obligation: ob.id, label: ob.label, severity: 'significatif', penalty: 3, weight: ob.weight });
+    } else if (ob.rate < 1) {
+      player.arcomViolations.push({ season: gameState.season, obligation: ob.id, label: ob.label, severity: 'leger', penalty: 1, weight: ob.weight });
+    }
+  });
+  const tier = compliance.status.key;
+  if (tier === 'excellent') {
+    player.popularite = Math.min(100, player.popularite + 1);
+    player.tresorerie += 1;
+  } else if (tier === 'manquements') {
+    player.tresorerie -= 3;
+    player.popularite = Math.max(0, player.popularite - 2);
+    player.arcomSanctionsCount++;
+  } else if (tier === 'nonconforme') {
+    player.tresorerie -= 8;
+    player.popularite = Math.max(0, player.popularite - 5);
+    player.arcomSanctionsCount++;
+  }
+  player.lastArcomResult = compliance;
+  return compliance;
+}
+
+function computeRenewalScore() {
+  const player = gameState.player;
+  const recent = player.arcomHistory.slice(-CONVENTION_DURATION);
+  const complianceAverage = recent.length ? recent.reduce((s, h) => s + h.score, 0) / recent.length : 100;
+  const graveWeightSum = player.arcomViolations
+    .filter(v => v.severity === 'grave' && v.season > gameState.season - CONVENTION_DURATION)
+    .reduce((sum, v) => sum + (v.weight || 5), 0);
+  const graveWeightPerSeason = graveWeightSum / Math.max(1, recent.length);
+  const violationScore = Math.max(0, 100 - graveWeightPerSeason * 8);
+  const obligationsNow = player.lastArcomResult ? player.lastArcomResult.obligations : [];
+  const diversityScore = obligationsNow.length ? Math.round(obligationsNow.reduce((s, o) => s + o.score, 0) / obligationsNow.length) : 100;
+  const creationInvestmentScore = Math.min(100, Math.round((player.editoMix.creation || 0) / 12 * 100));
+  const sanctionHistoryScore = Math.max(0, 100 - player.arcomSanctionsCount * 15);
+  const renewalScore = Math.round(
+    complianceAverage * 0.40 +
+    violationScore * 0.25 +
+    diversityScore * 0.15 +
+    creationInvestmentScore * 0.10 +
+    sanctionHistoryScore * 0.10
+  );
+  return { renewalScore, complianceAverage, violationScore, diversityScore, creationInvestmentScore, sanctionHistoryScore };
+}
+
+function getRenewalOutcome(score) {
+  if (score >= 80) return { key: 'renewed', emoji: '🟢', title: 'CONVENTION RENOUVELÉE', message: "Votre chaîne respecte durablement les engagements de sa convention. L'autorisation est renouvelée." };
+  if (score >= 65) return { key: 'conditional', emoji: '🟠', title: 'CONVENTION RENOUVELÉE SOUS CONDITIONS', message: "L'ARCOM renouvelle votre convention sous réserve d'un plan de redressement." };
+  if (score >= 50) return { key: 'watch', emoji: '🟠', title: 'RENOUVELLEMENT SOUS SURVEILLANCE', message: "La chaîne conserve son autorisation mais fait l'objet d'un contrôle renforcé." };
+  return { key: 'refused', emoji: '⛔', title: 'RENOUVELLEMENT REFUSÉ', message: "L'ARCOM refuse de renouveler votre autorisation d'émettre." };
+}
+
 function chooseDilemmaOption(choiceIndex) {
   const dilemma = gameState.dilemmaQueue[gameState.currentDilemmaIndex];
   const choice = dilemma.c[choiceIndex];
   const player = gameState.player;
   const popAvant = player.popularite;
+
+  applyDilemmaEditoImpact(dilemma, choiceIndex, choice);
 
   const pdaCibleAvant = getCalculatedPDAs().find(item => item.channel === player).pda[player.target];
 
@@ -1504,8 +1911,8 @@ function chooseDilemmaOption(choiceIndex) {
 
   if (player.tresorerie < TRESORERIE_CRITIQUE) {
     gameState.pendingNextStep = 8;
+    gameState.gameOverReason = 'tresorerie';
   } else if (gameState.currentDilemmaIndex >= gameState.dilemmaQueue.length) {
-    gameState.pendingNextStep = 7;
     gameState.history.push({
       season: gameState.season,
       tresorerie: player.tresorerie,
@@ -1514,6 +1921,14 @@ function chooseDilemmaOption(choiceIndex) {
       revenusPub: player.revenusPubCumul,
       popularite: player.popularite
     });
+    pushArcomSeasonResult();
+    gameState.renewalDue = gameState.season % CONVENTION_DURATION === 0;
+    if (player.tresorerie < TRESORERIE_CRITIQUE) {
+      gameState.pendingNextStep = 8;
+      gameState.gameOverReason = 'tresorerie';
+    } else {
+      gameState.pendingNextStep = 7;
+    }
   } else {
     gameState.pendingNextStep = 6;
   }
@@ -1534,8 +1949,10 @@ function startNewSeason() {
   gameState.currentDilemmaIndex = 0;
   gameState.dilemmaQueue = pickDilemmaQueue();
   gameState.dilemmaPhase = 'choosing';
+  gameState.renewalDue = false;
   // Le coût de grille de la saison écoulée est répercuté sur la nouvelle saison (pas de remise à zéro).
   gameState.player.revenusPubCumul = 0;
+  resetSeasonEditoMix();
   gameState.step = 6;
   render();
 }
@@ -1559,7 +1976,15 @@ function resetGame() {
     coutGrilleCumul: 0,
     revenusPubCumul: 0,
     popularite: 50,
-    pda: { j1524: 0.3, a2549: 1.0, s50: 0.3, csp: 0.3 }
+    pda: { j1524: 0.3, a2549: 1.0, s50: 0.3, csp: 0.3 },
+    editoMix: {},
+    seasonCreationSpend: 0,
+    seasonTotalSpend: 0,
+    sportDisciplinesSeen: [],
+    arcomHistory: [],
+    arcomViolations: [],
+    arcomSanctionsCount: 0,
+    lastArcomResult: null
   };
   gameState.competitors = [];
   gameState.season = 1;
@@ -1574,6 +1999,8 @@ function resetGame() {
   gameState.audienceShareTarget = null;
   gameState.seenDilemmaIds = [];
   gameState.history = [];
+  gameState.renewalDue = false;
+  gameState.gameOverReason = null;
   render();
 }
 
@@ -1605,7 +2032,8 @@ function renderTicker() {
   const programGridHtml = renderProgramGrid(p.type, pdaCible);
   const globalAudienceShareHtml = renderGlobalAudienceShare();
   const evolutionChartHtml = renderEvolutionChart(chartPoints);
-  const statStarsHtml = renderStatStars(p, pdaCible);
+  const compliance = p.lastArcomResult || computeArcomCompliance();
+  const statStarsHtml = renderStatStars(p, pdaCible, compliance);
   const slide = gameState.hudSlide || 0;
 
   return `
@@ -2120,6 +2548,7 @@ function render() {
       pda: item.pda[targetKey].toFixed(1),
       isPlayer: item.channel === gameState.player
     })).sort((a, b) => b.pda - a.pda);
+    const compliance = gameState.player.lastArcomResult || computeArcomCompliance();
 
     app.innerHTML = `
       ${renderMasthead("CLASSEMENT MÉDIAMÉTRIE")}
@@ -2153,24 +2582,55 @@ function render() {
         </ul>
       </div>
 
-      <button class="btn block" id="btn-next-season">Lancer la Saison ${gameState.season + 1} →</button>
+      <div class="card">
+        <div class="tape"></div>
+        <div class="kicker">⚖️ CONVENTION ARCOM</div>
+        <div class="arcom-score-row">
+          <div class="arcom-score-value">${compliance.arcomScore} / 100</div>
+          <div class="arcom-status-pill arcom-status-${compliance.status.key}">${compliance.status.emoji} ${compliance.status.label}</div>
+        </div>
+        <div class="arcom-obligations-mini">
+          ${compliance.obligations.map(ob => `
+            <div class="arcom-mini-row">
+              <span class="arcom-mini-dot ${ob.rate >= 1 ? 'ok' : (ob.rate >= 0.75 ? 'warn' : 'bad')}"></span>
+              <span class="arcom-mini-label">${esc(ob.label)}</span>
+              <span class="arcom-mini-value">${nf1(ob.actualValue)}${ob.unit === '%' ? '%' : ' ' + ob.unit} / ${ob.minimum}${ob.unit === '%' ? '%' : ' ' + ob.unit}</span>
+            </div>
+          `).join('')}
+        </div>
+        <button class="btn ghost block" id="btn-view-arcom" style="margin-top: 10px;">VOIR LA CONVENTION →</button>
+      </div>
+
+      <button class="btn block" id="btn-next-season">${gameState.renewalDue ? 'Voir le renouvellement de convention →' : `Lancer la Saison ${gameState.season + 1} →`}</button>
     `;
 
     document.getElementById('btn-next-season').onclick = () => {
-      startNewSeason();
+      if (gameState.renewalDue) {
+        gameState.step = 10;
+        render();
+      } else {
+        startNewSeason();
+      }
+    };
+    document.getElementById('btn-view-arcom').onclick = () => {
+      gameState.step = 9;
+      render();
     };
     app.querySelector('.masthead').onclick = goHome;
     return;
   }
 
   if (gameState.step === 8) {
+    const isArcom = gameState.gameOverReason === 'arcom';
     app.innerHTML = `
       ${renderMasthead("Fin de partie", "Audience Masters")}
       <div class="card">
         <div class="tape"></div>
-        <div class="kicker" style="color: var(--rouge);">MISE SOUS TUTELLE</div>
-        <h2 style="color: var(--rouge);">${esc(gameState.player.name)} dépose le bilan</h2>
-        <p style="margin: 12px 0;">La trésorerie de la chaîne est tombée à ${nf1(gameState.player.tresorerie)} M€, sous le seuil critique de ${nf1(TRESORERIE_CRITIQUE)} M€. L'Arcom place la chaîne sous tutelle administrative.</p>
+        <div class="kicker" style="color: var(--rouge);">${isArcom ? 'AUTORISATION RETIRÉE' : 'MISE SOUS TUTELLE'}</div>
+        <h2 style="color: var(--rouge);">${isArcom ? esc(gameState.player.name) + " perd son autorisation d'émettre" : esc(gameState.player.name) + " dépose le bilan"}</h2>
+        <p style="margin: 12px 0;">${isArcom
+          ? "L'ARCOM a refusé le renouvellement de votre convention : les manquements répétés à vos obligations éditoriales ont eu raison de votre autorisation d'émettre."
+          : `La trésorerie de la chaîne est tombée à ${nf1(gameState.player.tresorerie)} M€, sous le seuil critique de ${nf1(TRESORERIE_CRITIQUE)} M€. L'Arcom place la chaîne sous tutelle administrative.`}</p>
         <ul style="margin: 8px 0 14px 18px; font-size: 14px;">
           <li><b>Saison atteinte :</b> ${gameState.season}</li>
           <li><b>Popularité finale :</b> ${Math.round(gameState.player.popularite)} / 100</li>
@@ -2180,6 +2640,132 @@ function render() {
     `;
     document.getElementById('btn-restart').onclick = () => {
       resetGame();
+    };
+    return;
+  }
+
+  if (gameState.step === 9) {
+    const player = gameState.player;
+    const compliance = player.lastArcomResult || computeArcomCompliance();
+    const convention = ARCOM_CONVENTIONS[player.type];
+    const nextEcheance = (Math.floor(gameState.season / CONVENTION_DURATION) + 1) * CONVENTION_DURATION;
+    const renewal = computeRenewalScore();
+    const renewalOutcome = getRenewalOutcome(renewal.renewalScore);
+    const recentViolations = player.arcomViolations.slice(-8).reverse();
+    const historyBars = player.arcomHistory.slice(-8).map(h => {
+      const meta = getArcomStatusMeta(h.score);
+      return `
+        <div class="arcom-hist-bar-wrap">
+          <div class="arcom-hist-bar arcom-hist-${meta.key}" style="height:${Math.max(h.score, 4)}%">
+            <span class="arcom-hist-val">${h.score}</span>
+          </div>
+          <div class="arcom-hist-season">S${h.season}</div>
+        </div>
+      `;
+    }).join('');
+
+    app.innerHTML = `
+      ${renderMasthead("CONVENTION ARCOM")}
+      <div class="card">
+        <div class="tape"></div>
+        <div class="kicker">CONVENTION — ${esc(convention.label).toUpperCase()}</div>
+        <div class="arcom-score-row">
+          <div class="arcom-score-value">${compliance.arcomScore} / 100</div>
+          <div class="arcom-status-pill arcom-status-${compliance.status.key}">${compliance.status.emoji} ${compliance.status.label}</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="tape"></div>
+        <h3>1. OBLIGATIONS ÉDITORIALES</h3>
+        <div class="arcom-obligations-list">
+          ${compliance.obligations.map(ob => `
+            <div class="arcom-oblig-row">
+              <span class="arcom-mini-dot ${ob.rate >= 1 ? 'ok' : (ob.rate >= 0.75 ? 'warn' : 'bad')}"></span>
+              <div class="arcom-oblig-info">
+                <div class="arcom-oblig-label">${esc(ob.label)}</div>
+                <div class="arcom-oblig-bar-track"><div class="arcom-oblig-bar-fill ${ob.rate >= 1 ? 'ok' : (ob.rate >= 0.75 ? 'warn' : 'bad')}" style="width:${Math.min(100, ob.rate * 100).toFixed(0)}%"></div></div>
+              </div>
+              <div class="arcom-oblig-value">${nf1(ob.actualValue)}${ob.unit === '%' ? '%' : ''} / ${ob.minimum}${ob.unit === '%' ? '%' : ' ' + ob.unit}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="tape"></div>
+        <h3>2. MANQUEMENTS</h3>
+        ${recentViolations.length ? `
+          <ul class="arcom-violations-list">
+            ${recentViolations.map(v => `<li><b>Saison ${v.season} :</b> ${esc(v.label)} — <span class="arcom-severity-${v.severity}">${v.severity}</span></li>`).join('')}
+          </ul>
+        ` : `<p style="font-size: 13px; color: var(--gris); font-style: italic;">Aucun manquement enregistré.</p>`}
+      </div>
+
+      <div class="card">
+        <div class="tape"></div>
+        <h3>3. SANCTIONS</h3>
+        <p style="font-size: 14px;">Sanctions financières cumulées : <b>${player.arcomSanctionsCount}</b></p>
+      </div>
+
+      <div class="card">
+        <div class="tape"></div>
+        <h3>4. HISTORIQUE</h3>
+        ${player.arcomHistory.length ? `<div class="arcom-hist-chart">${historyBars}</div>` : `<p style="font-size: 13px; color: var(--gris); font-style: italic;">Historique disponible après la saison 1.</p>`}
+      </div>
+
+      <div class="card">
+        <div class="tape"></div>
+        <h3>5. RENOUVELLEMENT</h3>
+        <p style="font-size: 14px;">Prochaine échéance : <b>Saison ${nextEcheance}</b></p>
+        <div class="arcom-status-pill arcom-status-${renewalOutcome.key === 'refused' ? 'nonconforme' : (renewalOutcome.key === 'renewed' ? 'excellent' : 'vigilance')}" style="margin-top: 8px;">${renewalOutcome.emoji} ${renewalOutcome.key === 'renewed' ? 'RENOUVELLEMENT FAVORABLE' : renewalOutcome.title}</div>
+      </div>
+
+      <button class="btn ghost block" id="btn-arcom-back">← Retour</button>
+    `;
+    document.getElementById('btn-arcom-back').onclick = () => {
+      gameState.step = 7;
+      render();
+    };
+    app.querySelector('.masthead').onclick = () => { gameState.step = 1; render(); };
+    return;
+  }
+
+  if (gameState.step === 10) {
+    const player = gameState.player;
+    const renewal = computeRenewalScore();
+    const outcome = getRenewalOutcome(renewal.renewalScore);
+    const calculated = getCalculatedPDAs();
+    const playerCalc = calculated.find(c => c.channel === player);
+    const pdaMoyenne = playerCalc.globalPda;
+    const gravesRecents = player.arcomViolations.filter(v => v.severity === 'grave' && v.season > gameState.season - CONVENTION_DURATION).length;
+
+    app.innerHTML = `
+      ${renderMasthead("Renouvellement de convention", "Audience Masters")}
+      <div class="card">
+        <div class="tape"></div>
+        <div class="kicker">⚖️ RENOUVELLEMENT DE VOTRE CONVENTION</div>
+        <h2>${esc(outcome.title)}</h2>
+        <p style="margin: 10px 0;">${esc(outcome.message)}</p>
+        <div class="arcom-status-pill arcom-status-${outcome.key === 'refused' ? 'nonconforme' : (outcome.key === 'renewed' ? 'excellent' : 'vigilance')}">${outcome.emoji} Score de renouvellement : ${renewal.renewalScore} / 100</div>
+        <ul style="margin: 14px 0 4px 18px; font-size: 13px;">
+          <li>PDA moyenne : ${nf1(pdaMoyenne)}%</li>
+          <li>Revenus cumulés : ${nf1(player.revenusPubCumul)} M€</li>
+          <li>Score ARCOM moyen (période) : ${nf1(renewal.complianceAverage)} / 100</li>
+          <li>Manquements graves récents : ${gravesRecents}</li>
+          <li>Sanctions cumulées : ${player.arcomSanctionsCount}</li>
+        </ul>
+      </div>
+      <button class="btn block" id="btn-renewal-continue" style="font-size: 17px; padding: 14px;">${outcome.key === 'refused' ? 'Voir le bilan final →' : 'Continuer →'}</button>
+    `;
+    document.getElementById('btn-renewal-continue').onclick = () => {
+      if (outcome.key === 'refused') {
+        gameState.gameOverReason = 'arcom';
+        gameState.step = 8;
+        render();
+      } else {
+        startNewSeason();
+      }
     };
     return;
   }
