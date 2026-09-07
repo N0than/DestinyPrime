@@ -925,14 +925,14 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd3', titre: "Documentaire Choc ou Publicité ?",
-    desc: "Une enquête exclusive met en cause votre sponsor principal sur le travail des enfants.",
+    desc: "Une enquête exclusive met en cause le sponsor principal de votre émission d'investigation.",
     c: [
-      { l: "Diffuser l'enquête coûte que coûte", b: -10, pda: { j1524: +3, a2549: +2, s50: +1, csp: +5 }, r: "Le sponsor claque la porte. Vous remportez le Prix du Journalisme.", pop: 3 },
+      { l: "Diffuser l'enquête coûte que coûte", b: -10, pda: { j1524: +3, a2549: +2, s50: +1, csp: +5 }, r: "Le sponsor claque la porte. Vous remportez le Prix Albert Londres", pop: 3 },
       { l: "Censurer le reportage et garder le chèque", b: +12, pda: { j1524: -4, a2549: -2, s50: -1, csp: -5 }, r: "Trésorerie garnie, mais fuite de l'information sur le web.", pop: -3 }
     ]
   },
   {
-    id: 'd4', titre: "L'Animateur Vedette sur le départ",
+    id: 'd4', titre: "Une star sur le départ…",
     desc: "Votre star du JT exige un salaire doublé sous peine de partir chez le concurrent.",
     c: [
       { l: "Céder à toutes ses exigences", b: -9, pda: { j1524: 0, a2549: +3, s50: +4, csp: +1 }, r: "La vedette reste. L'équipe technique râle.", pop: 2 },
@@ -1020,8 +1020,8 @@ const DILEMMA_BANK = [
     ]
   },
   {
-    id: 'd15', titre: "Série culte du concurrent",
-    desc: "La chaîne rivale lance son plus gros succès le jeudi soir.",
+    id: 'd15', titre: "Serie à haut potentiel !",
+    desc: "La chaîne rivale lance la nouvelle saison de son plus gros succès le jeudi soir.",
     c: [
       { l: "Contrer avec votre plus grand blockbuster ciné", b: -12, pda: { j1524: +4, a2549: +4, s50: -1, csp: +2 }, r: "Frontal épique, vous parvenez à diviser l'audience.", pop: 0 },
       { l: "Céder la soirée et diffuser un docu à bas coût", b: +1, pda: { j1524: -3, a2549: -4, s50: +1, csp: +1 }, r: "Défaite d'audience prévisible, mais rentabilité préservée.", pop: 1 }
@@ -1044,8 +1044,8 @@ const DILEMMA_BANK = [
     ]
   },
   {
-    id: 'd18', titre: "La triche à la marotte",
-    desc: "L'animateur vedette d'un jeu est surpris en train d'indiquer discrètement la réponse à son équipe.",
+    id: 'd18', titre: "Pris en flag !",
+    desc: "L'animateur vedette d'un jeu est surpris en train d'indiquer discrètement la réponse à un candidat.",
     c: [
       { l: "Couvrir l'animateur et nier les faits", b: -3, pda: { j1524: -1, a2549: -2, s50: -3, csp: -4 }, r: "La presse sort l'affaire, crédibilité entachée.", pop: -4 },
       { l: "Suspendre l'animateur et mettre le jeu en pause", b: +1, pda: { j1524: +1, a2549: 0, s50: -5, csp: +2 }, r: "Image d'honnêteté retrouvée, mais désarroi des seniors.", pop: -2 }
@@ -1076,8 +1076,8 @@ const DILEMMA_BANK = [
     ]
   },
   {
-    id: 'd22', titre: "Tricherie de nourriture en survie",
-    desc: "Des aventuriers de votre émission phare se font livrer des steaks en cachette.",
+    id: 'd22', titre: "Tricherie, la sentence est irrévocable",
+    desc: "Des aventuriers de votre émission phare se font livrer des repas en cachette.",
     c: [
       { l: "Annuler la finale et ne distribuer aucun gain", b: -6, pda: { j1524: -2, a2549: 0, s50: +3, csp: +4 }, r: "Respect absolu de l'équité sportive salué.", pop: 4 },
       { l: "Masquer l'affaire et diffuser la finale normale", b: +4, pda: { j1524: +2, a2549: -1, s50: -3, csp: -4 }, r: "Prime rentable, mais scandale post-diffusion sur les réseaux.", pop: -4 }
@@ -1092,19 +1092,19 @@ const DILEMMA_BANK = [
     ]
   },
   {
-    id: 'd24', titre: "Arrêt d'un jeu cinquantenaire",
-    desc: "Le célèbre jeu de vocabulaire et de chiffres voit son audience baisser.",
+    id: 'd24', titre: "Arrêt d'un jeu légendaire",
+    desc: "Le célèbre jeu de lettres et de chiffres voit son audience s'effondrer.",
     c: [
-      { l: "Supprimer le jeu et mettre un talk jeune", b: +2, pda: { j1524: +3, a2549: +1, s50: -8, csp: -1 }, r: "Départ massif des seniors, timide arrivée des jeunes.", pop: -4 },
-      { l: "Garder l'émission le week-end par respect", b: -4, pda: { j1524: -2, a2549: 0, s50: +4, csp: +1 }, r: "Coût de grille conservé, public âgé très reconnaissant.", pop: 2 }
+      { l: "Supprimer le jeu et mettre une émission de télé-réalité", b: +2, pda: { j1524: +3, a2549: +1, s50: -8, csp: -1 }, r: "Départ massif des seniors, timide arrivée des jeunes.", pop: -4 },
+      { l: "Garder l'émission le week-end", b: -4, pda: { j1524: -2, a2549: 0, s50: +4, csp: +1 }, r: "Coût de grille conservé, public âgé très reconnaissant.", pop: 2 }
     ]
   },
   {
     id: 'd25', titre: "Grand Marathon Caritatif",
     desc: "Une association vous demande une soirée entière sans publicité pour la recherche.",
     c: [
-      { l: "Offrir la soirée et mobiliser vos stars", b: -3, pda: { j1524: +2, a2549: +2, s50: +2, csp: +3 }, r: "Superbe image de marque et dons record enregistrés.", pop: 2 },
-      { l: "Refuser et maintenir la grille commerciale", b: +4, pda: { j1524: -2, a2549: -2, s50: -1, csp: -3 }, r: "Soirée rentable, mais critiques acerbes sur les réseaux.", pop: -2 }
+      { l: "Offrir la soirée et mobiliser vos animateurs", b: -3, pda: { j1524: +2, a2549: +2, s50: +2, csp: +3 }, r: "Superbe image de marque et dons record enregistrés.", pop: 2 },
+      { l: "Refuser et maintenir la grille intiale", b: +4, pda: { j1524: -2, a2549: -2, s50: -1, csp: -3 }, r: "Soirée rentable, mais critiques acerbes sur les réseaux.", pop: -2 }
     ]
   },
   {
@@ -1119,23 +1119,23 @@ const DILEMMA_BANK = [
     id: 'd27', titre: "Marionnettes satiriques censurées",
     desc: "Les propriétaires de la chaîne trouvent les marionnettes trop acides avec leurs amis.",
     c: [
-      { l: "Protéger la rédaction et maintenir l'esprit satire", b: -5, pda: { j1524: +2, a2549: +3, s50: +1, csp: +5 }, r: "L'esprit canal historique demeure, fierté interne.", pop: 3 },
+      { l: "Protéger la rédaction et maintenir l'esprit satire", b: -5, pda: { j1524: +2, a2549: +3, s50: +1, csp: +5 }, r: "L'esprit de la chaine demeure, fierté en interne.", pop: 3 },
       { l: "Lisser le contenu pour le rendre familial", b: +3, pda: { j1524: -4, a2549: -3, s50: -1, csp: -4 }, r: "Fin du mordant, effondrement progressif du programme.", pop: -2 }
     ]
   },
   {
-    id: 'd28', titre: "Intrusion chez les grands groupes",
-    desc: "Votre émission d'investigation prépare un docu sur l'évasion fiscale d'une banque.",
+    id: 'd28', titre: "Évasion fiscale… ou des annonceurs",
+    desc: "Votre émission d'investigation prépare un docu sur l'évasion fiscale de l'un de vos plus gros annonceur.",
     c: [
-      { l: "Diffuser l'enquête malgré les menaces de procès", b: -6, pda: { j1524: +3, a2549: +2, s50: +1, csp: +6 }, r: "Succès d'audience critique, félicitations de la presse.", pop: 4 },
-      { l: "Proposer une version expurgée sans citer la banque", b: +5, pda: { j1524: -4, a2549: -2, s50: -1, csp: -5 }, r: "Financement préservé, mais fuite du reportage sur le web.", pop: -3 }
+      { l: "Diffuser l'enquête malgré les menaces de procès", b: -6, pda: { j1524: +3, a2549: +2, s50: +1, csp: +6 }, r: "Succès d'audience et une indépendance préservée", pop: 4 },
+      { l: "Proposer une version expurgée sans citer la marque", b: +5, pda: { j1524: -4, a2549: -2, s50: -1, csp: -5 }, r: "Financement préservé, mais fuite du reportage sur le web.", pop: -3 }
     ]
   },
   {
     id: 'd29', titre: "Disparition des tigres du Fort",
-    desc: "Pour des raisons de bien-être animal, il faut repenser les épreuves mythiques.",
+    desc: "Pour des raisons de bien-être animal, il faut repenser les épreuves de votre jeu mythique.",
     c: [
-      { l: "Investir dans des modèles 3D et effets virtuels", b: -4, pda: { j1524: +3, a2549: +1, s50: -2, csp: +2 }, r: "Modernisation appréciée par la jeunesse écologiste.", pop: 0 },
+      { l: "Miser sur des effets visuels 3D de nouvelle génération", b: -4, pda: { j1524: +3, a2549: +1, s50: -2, csp: +2 }, r: "Modernisation appréciée par le public.", pop: 0 },
       { l: "Remplacer par de simples décors sans animaux", b: -1, pda: { j1524: -3, a2549: -1, s50: +2, csp: -3 }, r: "Coût minimal, mais le décor paraît un peu vide.", pop: 0 }
     ]
   },
@@ -1148,10 +1148,10 @@ const DILEMMA_BANK = [
     ]
   },
   {
-    id: 'd31', titre: "Clash en coulisse de danse",
-    desc: "Deux vedettes de votre concours de danse sur parquet s'insultent violemment en répétition.",
+    id: 'd31', titre: "Clash en coulisse",
+    desc: "Deux vedettes de votre concours de danse s'insultent violemment en répétition.",
     c: [
-      { l: "Garder le secret et imposer des excuses privées", b: -8, pda: { j1524: -3, a2549: -4, s50: +1, csp: +1 }, r: "Climat apaisé mais pas de retombées presse.", pop: 1 },
+      { l: "Garder le secret et imposer des excuses en privé", b: -8, pda: { j1524: -3, a2549: -4, s50: +1, csp: +1 }, r: "Climat apaisé mais pas de retombées presse.", pop: 1 },
       { l: "Utiliser la brouille dans le montage du Prime", b: +10, pda: { j1524: +7, a2549: +4, s50: -2, csp: -3 }, r: "Envolée des parts de marché auprès des ménagères.", pop: -2 }
     ]
   },
@@ -1172,7 +1172,7 @@ const DILEMMA_BANK = [
     ]
   },
   {
-    id: 'd34', titre: "Le méga-jeu en access",
+    id: 'd34', titre: "Un succes intergalactique en access",
     desc: "Un extraterrestre virtuel et un animateur survolté cartonnent à 19h.",
     c: [
       { l: "Surenchérir en effets spéciaux et voitures à gagner", b: -16, pda: { j1524: +6, a2549: +5, s50: +1, csp: -2 }, r: "Carton d'audience auprès des enfants et ménagères.", pop: 0 },
@@ -1360,7 +1360,7 @@ const DILEMMA_BANK = [
     desc: "La tradition du célèbre film de deuxième partie de soirée faiblit.",
     c: [
       { l: "Maintenir la case pour préserver l'ADN historique", b: +4, pda: { j1524: +3, a2549: +2, s50: -4, csp: -3 }, r: "Audience nocturne toujours fidèle au rendez-vous.", pop: -4 },
-      { l: "Remplacer par un magazine d'enquêtes ", b: +1, pda: { j1524: -2, a2549: 0, s50: +2, csp: +3 }, r: "Normalisation de la grille de fin de semaine.", pop: 2 }
+      { l: "Remplacer par un magazine d'enquêtes", b: +1, pda: { j1524: -2, a2549: 0, s50: +2, csp: +3 }, r: "Normalisation de la grille de fin de semaine.", pop: 2 }
     ]
   },
   {
