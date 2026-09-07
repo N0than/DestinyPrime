@@ -731,7 +731,7 @@ function renderArcomSlide(compliance, convention) {
   `;
 }
 
-function renderEcoBilanCard(player) {
+function renderEcoBilanSlide(player) {
   const nextBudget = computeNextBudgetGrille(player);
   const items = [
     { icon: '💰', label: 'Trésorerie début', value: `${nf1(player.tresorerieDebutSaison)} M€` },
@@ -742,32 +742,30 @@ function renderEcoBilanCard(player) {
     { icon: '⭐', label: 'Popularité', value: `${Math.round(player.popularite)}` }
   ];
   return `
-    <div class="card">
-      <div class="tape"></div>
-      <div class="kicker">BILAN ÉCONOMIQUE — SAISON ${gameState.season}</div>
-      <div class="eco-bilan-grid">
-        ${items.map(it => `
-          <div class="eco-bilan-item">
-            <div class="eco-bilan-label"><span class="ic">${it.icon}</span>${it.label}</div>
-            <div class="eco-bilan-value">${it.value}</div>
-          </div>
-        `).join('')}
-      </div>
-      <div class="eco-bilan-result">
-        <div class="eco-result-row">
-          <span>Résultat de saison</span>
-          <span class="${player.resultatSaison >= 0 ? 'eco-pos' : 'eco-neg'}">${fmtDelta(player.resultatSaison, 1, ' M€')}</span>
+    <div class="eh-title">Bilan économique</div>
+    <div class="eh-subtitle">Saison ${gameState.season} — résultat et rentabilité</div>
+    <div class="eco-bilan-grid">
+      ${items.map(it => `
+        <div class="eco-bilan-item">
+          <div class="eco-bilan-label"><span class="ic">${it.icon}</span>${it.label}</div>
+          <div class="eco-bilan-value">${it.value}</div>
         </div>
-        <div class="eco-result-row highlight">
-          <span>Trésorerie fin de saison</span>
-          <span>${nf1(player.tresorerie)} M€</span>
-        </div>
+      `).join('')}
+    </div>
+    <div class="eco-bilan-result">
+      <div class="eco-result-row">
+        <span>Résultat de saison</span>
+        <span class="${player.resultatSaison >= 0 ? 'eco-pos' : 'eco-neg'}">${fmtDelta(player.resultatSaison, 1, ' M€')}</span>
       </div>
-      <div class="eco-bilan-stats">
-        <span>Rentabilité grille : <b>${nf1(player.rentabiliteGrille)}%</b></span>
-        <span>Coût / point de PDA : <b>${nf1(player.coutParPointPDA)} M€</b></span>
-        <span>Budget saison suivante : <b>${nf1(nextBudget)} M€</b></span>
+      <div class="eco-result-row highlight">
+        <span>Trésorerie fin de saison</span>
+        <span>${nf1(player.tresorerie)} M€</span>
       </div>
+    </div>
+    <div class="eco-bilan-stats">
+      <span>Rentabilité grille : <b>${nf1(player.rentabiliteGrille)}%</b></span>
+      <span>Coût / point de PDA : <b>${nf1(player.coutParPointPDA)} M€</b></span>
+      <span>Budget saison suivante : <b>${nf1(nextBudget)} M€</b></span>
     </div>
   `;
 }
@@ -2211,6 +2209,7 @@ function renderTicker() {
   const compliance = p.lastArcomResult || computeArcomCompliance();
   const statStarsHtml = renderStatStars(p, pdaCible, compliance);
   const arcomSlideHtml = renderArcomSlide(compliance, ARCOM_CONVENTIONS[p.type]);
+  const ecoBilanSlideHtml = renderEcoBilanSlide(p);
   const slide = gameState.hudSlide || 0;
 
   return `
@@ -2251,6 +2250,7 @@ function renderTicker() {
               <div class="eh-slide">${evolutionChartHtml}</div>
               <div class="eh-slide">${statStarsHtml}</div>
               <div class="eh-slide">${arcomSlideHtml}</div>
+              <div class="eh-slide">${ecoBilanSlideHtml}</div>
             </div>
           </div>
           <div class="eh-slider-nav">
@@ -2260,6 +2260,7 @@ function renderTicker() {
               <button class="eh-dot${slide === 2 ? ' active' : ''}" data-slide="2" aria-label="Écran 3"></button>
               <button class="eh-dot${slide === 3 ? ' active' : ''}" data-slide="3" aria-label="Écran 4"></button>
               <button class="eh-dot${slide === 4 ? ' active' : ''}" data-slide="4" aria-label="Écran 5"></button>
+              <button class="eh-dot${slide === 5 ? ' active' : ''}" data-slide="5" aria-label="Écran 6"></button>
             </div>
           </div>
         </div>
@@ -2666,7 +2667,7 @@ function render() {
       gameState.hudExpanded = isOpen;
     };
     const goToHudSlide = idx => {
-      const clamped = Math.max(0, Math.min(4, idx));
+      const clamped = Math.max(0, Math.min(5, idx));
       gameState.hudSlide = clamped;
       document.getElementById('eh-slider-track').style.transform = `translateX(-${clamped * 100}%)`;
       document.querySelectorAll('.eh-dot').forEach(d => d.classList.toggle('active', parseInt(d.dataset.slide, 10) === clamped));
@@ -2769,8 +2770,6 @@ function render() {
           ${gameState.logs.slice(-4).map(l => `<li><b>${esc(l.title)} :</b> ${esc(l.result)}</li>`).join('')}
         </ul>
       </div>
-
-      ${renderEcoBilanCard(gameState.player)}
 
       <button class="btn block" id="btn-next-season">${gameState.renewalDue ? 'Voir le renouvellement de convention →' : `Lancer la Saison ${gameState.season + 1} →`}</button>
     `;
