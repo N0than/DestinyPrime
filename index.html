@@ -305,9 +305,10 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
   font-family: 'Anton', sans-serif; font-size: 10px; text-transform: uppercase; letter-spacing: 0.3px;
   color: var(--ink);
 }
-.eco-flow-bar-track { flex: 1; height: 10px; background: rgba(22,19,14,0.08); border-radius: 5px; overflow: hidden; }
-.eco-flow-bar-fill { height: 100%; border-radius: 5px; transition: width 0.3s ease; }
-.eco-flow-bar-fill.eco-flow-depense { background: var(--rouge); }
+.eco-flow-bar-track { flex: 1; display: flex; height: 10px; background: rgba(22,19,14,0.08); border-radius: 5px; overflow: hidden; }
+.eco-flow-bar-fill { height: 100%; transition: width 0.3s ease; }
+.eco-flow-bar-fill.eco-flow-programmes { background: var(--rouge); }
+.eco-flow-bar-fill.eco-flow-talents { background: var(--bleu); }
 .eco-flow-bar-fill.eco-flow-revenu { background: var(--vert); }
 .eco-flow-value {
   flex: 0 0 74px; text-align: right;
@@ -743,6 +744,8 @@ function renderArcomSlide(compliance, convention) {
 
 function renderEcoBilanSlide(player) {
   const depenses = player.coutGrilleEngageSaison;
+  const coutTalents = player.coutTalentsSaison;
+  const coutProgrammes = Math.max(0, depenses - coutTalents);
   const revenus = player.revenusPubPrevisionnels;
   const maxFlow = Math.max(depenses, revenus, 1);
   const rentabPos = player.rentabiliteGrille >= 0;
@@ -765,13 +768,21 @@ function renderEcoBilanSlide(player) {
     <div class="eco-flow">
       <div class="eco-flow-row">
         <div class="eco-flow-label"><span class="ic">📋</span>Dépenses</div>
-        <div class="eco-flow-bar-track"><div class="eco-flow-bar-fill eco-flow-depense" style="width:${(depenses / maxFlow * 100).toFixed(1)}%"></div></div>
+        <div class="eco-flow-bar-track">
+          <div class="eco-flow-bar-fill eco-flow-programmes" style="width:${(coutProgrammes / maxFlow * 100).toFixed(1)}%"></div>
+          <div class="eco-flow-bar-fill eco-flow-talents" style="width:${(coutTalents / maxFlow * 100).toFixed(1)}%"></div>
+        </div>
         <div class="eco-flow-value eco-neg">-${nf1(depenses)} M€</div>
       </div>
       <div class="eco-flow-row">
         <div class="eco-flow-label"><span class="ic">📺</span>Revenus pub</div>
         <div class="eco-flow-bar-track"><div class="eco-flow-bar-fill eco-flow-revenu" style="width:${(revenus / maxFlow * 100).toFixed(1)}%"></div></div>
         <div class="eco-flow-value eco-pos">+${nf1(revenus)} M€</div>
+      </div>
+      <div class="eh-legend" style="margin: 0;">
+        <span class="eh-legend-item"><i style="background:var(--rouge)"></i>Programmes</span>
+        <span class="eh-legend-item"><i style="background:var(--bleu)"></i>Talents</span>
+        <span class="eh-legend-item"><i style="background:var(--vert)"></i>Revenus pub</span>
       </div>
     </div>
 
