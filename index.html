@@ -507,7 +507,7 @@ const shuffle = arr => {
 const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
 const GRP_COST = { j1524: 0.8, a2549: 1.2, s50: 0.7, csp: 1.5 };
-const VOLUME_PUB = 8; // M€ par point de PDA moyenne de saison (base annuelle, calibrée sur un cycle de 4 décisions)
+const VOLUME_PUB = 2; // M€ par point de PDA moyenne de saison (base annuelle, calibrée pour que les revenus restent proportionnés au budget de grille)
 const TRESORERIE_CRITIQUE = -60; // seuil de mise sous tutelle (M€)
 
 const nf1 = n => n.toLocaleString('fr-FR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
