@@ -757,7 +757,14 @@ function renderEcoBilanSlide(player) {
   ];
 
   return `
-    <div class="eh-title">Bilan économique</div>
+    <div class="ga-header">
+      <div class="eh-title">Bilan économique</div>
+      <div class="eh-legend" style="margin: 0; gap: 8px;">
+        <span class="eh-legend-item"><i style="background:var(--rouge)"></i>Progr.</span>
+        <span class="eh-legend-item"><i style="background:var(--bleu)"></i>Talents</span>
+        <span class="eh-legend-item"><i style="background:var(--vert)"></i>Revenus</span>
+      </div>
+    </div>
     <div class="eh-subtitle">Saison ${gameState.season} — flux financiers en temps réel</div>
 
     <div class="eco-hero">
@@ -778,11 +785,6 @@ function renderEcoBilanSlide(player) {
         <div class="eco-flow-label"><span class="ic">📺</span>Revenus pub</div>
         <div class="eco-flow-bar-track"><div class="eco-flow-bar-fill eco-flow-revenu" style="width:${(revenus / maxFlow * 100).toFixed(1)}%"></div></div>
         <div class="eco-flow-value eco-pos">+${nf1(revenus)} M€</div>
-      </div>
-      <div class="eh-legend" style="margin: 0;">
-        <span class="eh-legend-item"><i style="background:var(--rouge)"></i>Programmes</span>
-        <span class="eh-legend-item"><i style="background:var(--bleu)"></i>Talents</span>
-        <span class="eh-legend-item"><i style="background:var(--vert)"></i>Revenus pub</span>
       </div>
     </div>
 
