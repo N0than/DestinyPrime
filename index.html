@@ -1797,8 +1797,8 @@ function initCompetitors() {
 
 function finalizeChannelSetup() {
   gameState.player.tresorerie = CHANNEL_TYPES[gameState.player.type].baseBudget;
-  // Le coût de grille annuel de la saison 1 revient dès le départ, comme pour les saisons suivantes.
-  gameState.player.coutGrilleCumul = CHANNEL_TYPES[gameState.player.type].baseBudget;
+  // Le coût de grille de départ représente 30% de la trésorerie disponible en début de partie.
+  gameState.player.coutGrilleCumul = 0.30 * gameState.player.tresorerie;
   gameState.player.revenusPubCumul = 0;
   gameState.player.popularite = 50;
 
@@ -1824,7 +1824,7 @@ function finalizeChannelSetup() {
 
   const player = gameState.player;
   player.puissanceCommerciale = 1;
-  player.budgetGrilleAnnuel = CHANNEL_TYPES[player.type].baseBudget;
+  player.budgetGrilleAnnuel = 0.30 * player.tresorerie;
   player.coutGrilleEngageSaison = player.budgetGrilleAnnuel;
   player.revenusPubPrevisionnels = 0;
   player.revenusPubFinals = 0;
