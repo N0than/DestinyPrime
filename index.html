@@ -287,33 +287,43 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .bilan-title-row h2 { margin: 0; }
 
 /* ---- BILAN ÉCONOMIQUE DE SAISON ---- */
-.eco-bilan-grid {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px;
-  margin: 10px 0 14px;
-}
-.eco-bilan-item { display: flex; flex-direction: column; gap: 2px; }
-.eco-bilan-label {
-  display: flex; align-items: center; gap: 5px;
-  font-family: 'Anton', sans-serif; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.3px;
-  color: var(--gris);
-}
-.eco-bilan-value { font-family: 'Anton', sans-serif; font-size: 16px; color: var(--ink); }
-.eco-bilan-result {
-  border-top: 1.5px solid var(--ink); padding-top: 10px; margin-top: 4px;
-  display: flex; flex-direction: column; gap: 6px;
-}
-.eco-result-row {
-  display: flex; align-items: center; justify-content: space-between;
-  font-family: 'Anton', sans-serif; font-size: 12px; text-transform: uppercase; letter-spacing: 0.3px;
-}
-.eco-result-row.highlight { font-size: 16px; }
 .eco-pos { color: var(--vert); }
 .eco-neg { color: var(--rouge); }
-.eco-bilan-stats {
-  display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 12px;
-  font-size: 12px; color: var(--gris); font-style: italic;
+.eco-hero {
+  text-align: center; padding: 14px 0 18px; margin-bottom: 4px;
+  border-bottom: 1px dashed rgba(22,19,14,0.15);
 }
-.eco-bilan-stats b { color: var(--ink); font-style: normal; }
+.eco-hero-value { font-family: 'Anton', sans-serif; font-size: 42px; line-height: 1; }
+.eco-hero-label {
+  font-size: 11px; font-style: italic; color: var(--gris); margin-top: 4px;
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+.eco-flow { display: flex; flex-direction: column; gap: 14px; margin: 18px 0; }
+.eco-flow-row { display: flex; align-items: center; gap: 10px; }
+.eco-flow-label {
+  flex: 0 0 96px; display: flex; align-items: center; gap: 5px;
+  font-family: 'Anton', sans-serif; font-size: 10px; text-transform: uppercase; letter-spacing: 0.3px;
+  color: var(--ink);
+}
+.eco-flow-bar-track { flex: 1; height: 10px; background: rgba(22,19,14,0.08); border-radius: 5px; overflow: hidden; }
+.eco-flow-bar-fill { height: 100%; border-radius: 5px; transition: width 0.3s ease; }
+.eco-flow-bar-fill.eco-flow-depense { background: var(--rouge); }
+.eco-flow-bar-fill.eco-flow-revenu { background: var(--vert); }
+.eco-flow-value {
+  flex: 0 0 74px; text-align: right;
+  font-family: 'Anton', sans-serif; font-size: 13px;
+}
+.eco-bilan-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px 12px;
+  margin-top: 18px; padding-top: 16px; border-top: 1px dashed rgba(22,19,14,0.15);
+}
+.eco-bilan-item { display: flex; flex-direction: column; gap: 3px; text-align: center; }
+.eco-bilan-label {
+  display: flex; align-items: center; justify-content: center; gap: 4px;
+  font-family: 'Anton', sans-serif; font-size: 9px; text-transform: uppercase; letter-spacing: 0.3px;
+  color: var(--gris);
+}
+.eco-bilan-value { font-family: 'Anton', sans-serif; font-size: 15px; color: var(--ink); }
 
 /* ---- ÉCRAN DE CONSÉQUENCES ---- */
 .impact-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
@@ -732,19 +742,41 @@ function renderArcomSlide(compliance, convention) {
 }
 
 function renderEcoBilanSlide(player) {
-  const items = [
+  const depenses = player.coutGrilleEngageSaison;
+  const revenus = player.revenusPubPrevisionnels;
+  const maxFlow = Math.max(depenses, revenus, 1);
+  const rentabPos = player.rentabiliteGrille >= 0;
+
+  const secondaryItems = [
     { icon: '💰', label: 'Trésorerie début', value: `${nf1(player.tresorerieDebutSaison)} M€` },
-    { icon: '📋', label: 'Coût de grille', value: `-${nf1(player.coutGrilleEngageSaison)} M€` },
     { icon: '🎤', label: 'Coût des talents', value: `-${nf1(player.coutTalentsSaison)} M€` },
-    { icon: '📺', label: 'Revenus publicitaires', value: `+${nf1(player.revenusPubPrevisionnels)} M€` },
-    { icon: '📈', label: 'Rentabilité grille', value: `${nf1(player.rentabiliteGrille)}%` },
-    { icon: '📊', label: 'Coût / point de PDA', value: `${nf1(player.coutParPointPDA)} M€` }
+    { icon: '📊', label: 'Coût / pt PDA', value: `${nf1(player.coutParPointPDA)} M€` }
   ];
+
   return `
     <div class="eh-title">Bilan économique</div>
-    <div class="eh-subtitle">Saison ${gameState.season} — résultat et rentabilité</div>
+    <div class="eh-subtitle">Saison ${gameState.season} — flux financiers en temps réel</div>
+
+    <div class="eco-hero">
+      <div class="eco-hero-value ${rentabPos ? 'eco-pos' : 'eco-neg'}">${fmtDelta(player.rentabiliteGrille, 1, '%')}</div>
+      <div class="eco-hero-label">Rentabilité de la grille</div>
+    </div>
+
+    <div class="eco-flow">
+      <div class="eco-flow-row">
+        <div class="eco-flow-label"><span class="ic">📋</span>Dépenses</div>
+        <div class="eco-flow-bar-track"><div class="eco-flow-bar-fill eco-flow-depense" style="width:${(depenses / maxFlow * 100).toFixed(1)}%"></div></div>
+        <div class="eco-flow-value eco-neg">-${nf1(depenses)} M€</div>
+      </div>
+      <div class="eco-flow-row">
+        <div class="eco-flow-label"><span class="ic">📺</span>Revenus pub</div>
+        <div class="eco-flow-bar-track"><div class="eco-flow-bar-fill eco-flow-revenu" style="width:${(revenus / maxFlow * 100).toFixed(1)}%"></div></div>
+        <div class="eco-flow-value eco-pos">+${nf1(revenus)} M€</div>
+      </div>
+    </div>
+
     <div class="eco-bilan-grid">
-      ${items.map(it => `
+      ${secondaryItems.map(it => `
         <div class="eco-bilan-item">
           <div class="eco-bilan-label"><span class="ic">${it.icon}</span>${it.label}</div>
           <div class="eco-bilan-value">${it.value}</div>
