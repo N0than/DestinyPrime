@@ -736,10 +736,10 @@ function renderEcoBilanSlide(player) {
   const items = [
     { icon: '💰', label: 'Trésorerie début', value: `${nf1(player.tresorerieDebutSaison)} M€` },
     { icon: '📋', label: 'Coût de grille', value: `-${nf1(player.coutGrilleEngageSaison)} M€` },
+    { icon: '🎤', label: 'Coût des talents', value: `-${nf1(player.coutTalentsSaison)} M€` },
     { icon: '📺', label: 'Revenus publicitaires', value: `+${nf1(player.revenusPubFinals)} M€` },
-    { icon: '🎯', label: 'PDA moyenne', value: `${nf1(player.pdaMoyenneSaison)}%` },
-    { icon: '🏁', label: 'PDA finale', value: `${nf1(player.pdaFinSaison)}%` },
-    { icon: '⭐', label: 'Popularité', value: `${Math.round(player.popularite)}` }
+    { icon: '📈', label: 'Rentabilité grille', value: `${nf1(player.rentabiliteGrille)}%` },
+    { icon: '📊', label: 'Coût / point de PDA', value: `${nf1(player.coutParPointPDA)} M€` }
   ];
   return `
     <div class="eh-title">Bilan économique</div>
@@ -763,8 +763,6 @@ function renderEcoBilanSlide(player) {
       </div>
     </div>
     <div class="eco-bilan-stats">
-      <span>Rentabilité grille : <b>${nf1(player.rentabiliteGrille)}%</b></span>
-      <span>Coût / point de PDA : <b>${nf1(player.coutParPointPDA)} M€</b></span>
       <span>Budget saison suivante : <b>${nf1(nextBudget)} M€</b></span>
     </div>
   `;
@@ -1663,6 +1661,24 @@ const DILEMMA_FLAVOR = {
   d75: [{ creation: 4, culture: 2 }, { creation: -2, renouveles: 2 }]
 };
 
+// Portion du coût (M€) de chaque choix attribuable à des talents (journalistes,
+// animateurs, présentateurs, chroniqueurs...) plutôt qu'à la production ou aux droits.
+// N'apparaît que pour les dilemmes concernés ; 0 = pas de composante talent.
+const DILEMMA_TALENT_COST = {
+  d1: [2, 0],
+  d4: [9, 0],
+  d11: [0, 3],
+  d13: [7, 0],
+  d21: [5, 8],
+  d41: [0, 3],
+  d49: [5, 0],
+  d51: [12, 3],
+  d53: [2, 4],
+  d54: [5, 0],
+  d55: [6, 0],
+  d60: [3, 0]
+};
+
 let gameState = {
   step: 1,
   resumeStep: null,
@@ -1694,7 +1710,8 @@ let gameState = {
     tresorerieDebutSaison: 50,
     resultatSaison: 0,
     rentabiliteGrille: 100,
-    coutParPointPDA: 0
+    coutParPointPDA: 0,
+    coutTalentsSaison: 0
 },
   competitors: [],
   season: 1,
@@ -1782,6 +1799,7 @@ function finalizeChannelSetup() {
   player.resultatSaison = 0;
   player.rentabiliteGrille = 100;
   player.coutParPointPDA = 0;
+  player.coutTalentsSaison = 0;
   player.tresorerieDebutSaison = player.tresorerie;
   const seedPdaCible = getCalculatedPDAs().find(item => item.channel === player).pda[targetDemo];
   player.pdaHistorySeason = [seedPdaCible];
@@ -2000,6 +2018,10 @@ function chooseDilemmaOption(choiceIndex) {
     player.coutGrilleCumul += coutGrilleDelta;
     player.coutGrilleEngageSaison += coutGrilleDelta;
   }
+  const talentCost = DILEMMA_TALENT_COST[dilemma.id];
+  if (talentCost) {
+    player.coutTalentsSaison += talentCost[choiceIndex];
+  }
   player.popularite = Math.max(0, Math.min(100, player.popularite + choice.pop));
 
   const pdaCibleApres = getCalculatedPDAs().find(item => item.channel === player).pda[player.target];
@@ -2107,6 +2129,7 @@ function startNewSeason() {
   player.revenusPubPrevisionnels = 0;
   player.revenusPubFinals = 0;
   player.resultatSaison = 0;
+  player.coutTalentsSaison = 0;
   const seedPdaCible = getCalculatedPDAs().find(item => item.channel === player).pda[player.target];
   player.pdaHistorySeason = [seedPdaCible];
   player.pdaMoyenneSaison = seedPdaCible;
@@ -2158,7 +2181,8 @@ function resetGame() {
     tresorerieDebutSaison: 50,
     resultatSaison: 0,
     rentabiliteGrille: 100,
-    coutParPointPDA: 0
+    coutParPointPDA: 0,
+    coutTalentsSaison: 0
 };
   gameState.competitors = [];
   gameState.season = 1;
@@ -2246,11 +2270,11 @@ function renderTicker() {
           <div class="eh-slider" id="eh-slider">
             <div class="eh-slider-track" id="eh-slider-track" style="transform: translateX(-${slide * 100}%);">
               <div class="eh-slide">${programGridHtml}</div>
+              <div class="eh-slide">${ecoBilanSlideHtml}</div>
               <div class="eh-slide">${globalAudienceShareHtml}</div>
               <div class="eh-slide">${evolutionChartHtml}</div>
               <div class="eh-slide">${statStarsHtml}</div>
               <div class="eh-slide">${arcomSlideHtml}</div>
-              <div class="eh-slide">${ecoBilanSlideHtml}</div>
             </div>
           </div>
           <div class="eh-slider-nav">
