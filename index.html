@@ -732,12 +732,11 @@ function renderArcomSlide(compliance, convention) {
 }
 
 function renderEcoBilanSlide(player) {
-  const nextBudget = computeNextBudgetGrille(player);
   const items = [
     { icon: '💰', label: 'Trésorerie début', value: `${nf1(player.tresorerieDebutSaison)} M€` },
     { icon: '📋', label: 'Coût de grille', value: `-${nf1(player.coutGrilleEngageSaison)} M€` },
     { icon: '🎤', label: 'Coût des talents', value: `-${nf1(player.coutTalentsSaison)} M€` },
-    { icon: '📺', label: 'Revenus publicitaires', value: `+${nf1(player.revenusPubFinals)} M€` },
+    { icon: '📺', label: 'Revenus publicitaires', value: `+${nf1(player.revenusPubPrevisionnels)} M€` },
     { icon: '📈', label: 'Rentabilité grille', value: `${nf1(player.rentabiliteGrille)}%` },
     { icon: '📊', label: 'Coût / point de PDA', value: `${nf1(player.coutParPointPDA)} M€` }
   ];
@@ -751,19 +750,6 @@ function renderEcoBilanSlide(player) {
           <div class="eco-bilan-value">${it.value}</div>
         </div>
       `).join('')}
-    </div>
-    <div class="eco-bilan-result">
-      <div class="eco-result-row">
-        <span>Résultat de saison</span>
-        <span class="${player.resultatSaison >= 0 ? 'eco-pos' : 'eco-neg'}">${fmtDelta(player.resultatSaison, 1, ' M€')}</span>
-      </div>
-      <div class="eco-result-row highlight">
-        <span>Trésorerie fin de saison</span>
-        <span>${nf1(player.tresorerie)} M€</span>
-      </div>
-    </div>
-    <div class="eco-bilan-stats">
-      <span>Budget saison suivante : <b>${nf1(nextBudget)} M€</b></span>
     </div>
   `;
 }
