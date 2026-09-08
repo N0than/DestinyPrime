@@ -779,7 +779,7 @@ function computeRevenusPubSaison(pdaMoyenneSaison, cible, popularite, puissanceC
 function computeNextBudgetGrille(player) {
   const base = CHANNEL_TYPES[player.type].baseBudget;
   const bonusTresorerie = Math.max(0, (player.tresorerie - base) * 0.12);
-  const bonusPerformance = Math.max(0, (player.rentabiliteGrille - 100) * 0.08);
+  const bonusPerformance = Math.max(0, player.rentabiliteGrille * 0.08);
   const raw = base + bonusTresorerie + bonusPerformance;
   return Math.max(base * 0.5, Math.min(raw, base * 2.5));
 }
@@ -1709,7 +1709,7 @@ let gameState = {
     puissanceCommerciale: 1,
     tresorerieDebutSaison: 50,
     resultatSaison: 0,
-    rentabiliteGrille: 100,
+    rentabiliteGrille: 0,
     coutParPointPDA: 0,
     coutTalentsSaison: 0
 },
@@ -1797,7 +1797,7 @@ function finalizeChannelSetup() {
   player.revenusPubPrevisionnels = 0;
   player.revenusPubFinals = 0;
   player.resultatSaison = 0;
-  player.rentabiliteGrille = 100;
+  player.rentabiliteGrille = 0;
   player.coutParPointPDA = 0;
   player.coutTalentsSaison = 0;
   player.tresorerieDebutSaison = player.tresorerie;
@@ -2036,6 +2036,11 @@ function chooseDilemmaOption(choiceIndex) {
   player.revenusPubCumul = player.revenusPubPrevisionnels;
   const revenusPubDelta = player.revenusPubPrevisionnels - revenusPubAvant;
 
+  // Rentabilité grille et coût/PDA sont recalculés en temps réel à chaque dilemme,
+  // à partir des valeurs courantes de la saison (pas seulement au bilan de fin de saison).
+  player.rentabiliteGrille = player.coutGrilleEngageSaison > 0 ? (player.revenusPubPrevisionnels / player.coutGrilleEngageSaison - 1) * 100 : 0;
+  player.coutParPointPDA = player.pdaMoyenneSaison > 0 ? player.coutGrilleEngageSaison / player.pdaMoyenneSaison : 0;
+
   gameState.lastConsequence = {
     titre: dilemma.titre,
     choixLabel: choice.l,
@@ -2066,7 +2071,7 @@ function chooseDilemmaOption(choiceIndex) {
     player.tresorerie += player.revenusPubFinals;
     player.revenusPubCumul = player.revenusPubFinals;
     player.resultatSaison = player.revenusPubFinals - player.coutGrilleEngageSaison;
-    player.rentabiliteGrille = player.coutGrilleEngageSaison > 0 ? (player.revenusPubFinals / player.coutGrilleEngageSaison) * 100 : 100;
+    player.rentabiliteGrille = player.coutGrilleEngageSaison > 0 ? (player.revenusPubFinals / player.coutGrilleEngageSaison - 1) * 100 : 0;
     player.coutParPointPDA = player.pdaMoyenneSaison > 0 ? player.coutGrilleEngageSaison / player.pdaMoyenneSaison : 0;
 
     if (player.pdaFinSaison > player.pdaMoyenneSaison && player.popularite >= 60) {
@@ -2180,7 +2185,7 @@ function resetGame() {
     puissanceCommerciale: 1,
     tresorerieDebutSaison: 50,
     resultatSaison: 0,
-    rentabiliteGrille: 100,
+    rentabiliteGrille: 0,
     coutParPointPDA: 0,
     coutTalentsSaison: 0
 };
