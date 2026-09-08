@@ -2265,6 +2265,11 @@ function renderTicker() {
   const pdaCible = playerCalc.pda[p.target];
   const open = !!gameState.hudExpanded;
 
+  // Trésorerie affichée au HUD : projection en temps réel (trésorerie de début de saison +
+  // résultat prévisionnel courant), même si le règlement réel ne tombe qu'au bilan de fin de
+  // saison. Se comporte ainsi comme "Revenus pub", déjà affiché en prévisionnel live.
+  const tresorerieLive = p.tresorerieDebutSaison + (p.revenusPubPrevisionnels - p.coutGrilleEngageSaison);
+
   const lastHistorySeason = gameState.history.length ? gameState.history[gameState.history.length - 1].season : null;
   const currentPoint = {
     season: gameState.season, tresorerie: p.tresorerie, pdaCible, coutGrille: p.coutGrilleCumul,
@@ -2284,9 +2289,9 @@ function renderTicker() {
   return `
     <div class="hud-wrap">
       <div class="hud">
-        <div class="hud-cell hero${p.tresorerie < 0 ? ' alert' : ''}">
+        <div class="hud-cell hero${tresorerieLive < 0 ? ' alert' : ''}">
           <div class="lab"><span class="ic">💰</span>Trésorerie</div>
-          <div class="val">${nf1(p.tresorerie)} M€</div>
+          <div class="val">${nf1(tresorerieLive)} M€</div>
         </div>
         <div class="hud-cell hero">
           <div class="lab"><span class="ic">🎯</span>PDA Cible</div>
