@@ -1612,6 +1612,1807 @@ const DILEMMA_BANK = [
       { l: "Attendre le dernier moment en restant en HD", b: 0, pda: { j1524: -1, a2549: -1, s50: 0, csp: -2 }, r: "Économies financières immédiates, retard d'image.", pop: -1 }
     ]
   }
+,
+  {
+    id: 'd76', titre: "Ligue 1 : le coup de poker",
+    desc: "9h02, salle des enchères. Le concurrent pose un chiffre qui fait tousser ton directeur financier. Tu as trente secondes pour lever la main.",
+    types: ['sport'],
+    c: [
+      { l: "Tout rafler, quitte à saigner le budget", b: -35, pda: { j1524: +8, a2549: +10, s50: +6, csp: +5 }, r: "Les scores explosent sur toutes les cibles : investissement lourd pour la grille. Les réseaux sociaux s'enflamment positivement.", pop: 3 },
+      { l: "Ne prendre que les affiches qui comptent vraiment", b: -12, pda: { j1524: +4, a2549: +5, s50: +3, csp: +3 }, r: "Les courbes d'audience grimpent : effort budgétaire conséquent. Bon retour côté opinion publique.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd77', titre: "Ligue des Champions : le mardi soir t'appelle",
+    desc: "L'Europe se joue à 21h et le marché sait ce que tu es prêt à payer. Ton programmateur rêve de plusieurs matchs en parallèle. Le CFO, lui, ne rêve plus du tout.",
+    types: ['sport'],
+    c: [
+      { l: "Verrouiller plusieurs créneaux, être partout", b: -28, pda: { j1524: +8, a2549: +9, s50: +6, csp: +6 }, r: "Chèque massif signé sans trembler, les scores explosent sur toutes les cibles. L'image de la chaîne y gagne beaucoup.", pop: 3 },
+      { l: "Se concentrer sur les clubs français", b: -10, pda: { j1524: +5, a2549: +6, s50: +4, csp: +4 }, r: "Effort budgétaire conséquent, l'audience progresse nettement. L'accueil est positif.", pop: 2 }
+    ]
+  },
+  {
+    id: 'd78', titre: "Les Bleus jouent, tu suis ou tu regardes ?",
+    desc: "L'équipe de France entre en scène. Ton dispositif peut sentir la pelouse ou sentir la moquette du studio.",
+    types: ['sport'],
+    c: [
+      { l: "Délocaliser toute l'antenne sur place", b: -5, pda: { j1524: +5, a2549: +6, s50: +5, csp: +5 }, r: "Le public suit en nombre : budget maîtrisé. La confiance du public progresse.", pop: 2 },
+      { l: "Commenter depuis le studio, au chaud", b: -1, pda: { j1524: +2, a2549: +3, s50: +3, csp: +3 }, r: "L'audience progresse doucement : budget maîtrisé. Bon retour côté opinion publique.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd79', titre: "Finale de Coupe : le show ou la sobriété",
+    desc: "Une finale, une seule soirée, et une production qui peut virer au spectacle. Ton réalisateur te tend un devis avec beaucoup de zéros.",
+    types: ['sport'],
+    c: [
+      { l: "Produire un show XXL, plein écran", b: -7, pda: { j1524: +7, a2549: +8, s50: +5, csp: +5 }, r: "Dépense raisonnable, le public répond présent en masse. L'accueil est positif.", pop: 2 },
+      { l: "Production légère, l'essentiel suffit", b: -2, pda: { j1524: +3, a2549: +4, s50: +4, csp: +4 }, r: "Les courbes d'audience grimpent : effort financier contenu. L'accueil est positif.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd80', titre: "Mercato : la machine à rumeurs",
+    desc: "Les rumeurs tombent toutes les vingt minutes et ton public ne dort plus. Reste à savoir si tu ouvres l'antenne tous les soirs ou une fois par semaine.",
+    types: ['sport'],
+    c: [
+      { l: "Lancer une émission quotidienne mercato", b: -6, pda: { j1524: +10, a2549: +8, s50: +4, csp: +5 }, r: "Les scores explosent sur toutes les cibles : dépense raisonnable. L'image de la chaîne y gagne beaucoup.", pop: 3 },
+      { l: "Un grand rendez-vous hebdomadaire", b: -2, pda: { j1524: +5, a2549: +5, s50: +4, csp: +4 }, r: "Les courbes d'audience grimpent : dépense raisonnable. L'accueil est positif.", pop: 2 }
+    ]
+  },
+  {
+    id: 'd81', titre: "Le derby que tout le monde attend",
+    desc: "Deux villes, une haine recuite, un stade en fusion. Ton service marketing te demande si on en fait un événement ou un match de plus.",
+    types: ['sport'],
+    c: [
+      { l: "Créer une soirée spéciale autour du derby", b: -4, pda: { j1524: +9, a2549: +8, s50: +6, csp: +5 }, r: "Dépense raisonnable, l'audience s'envole. Les réseaux sociaux s'enflamment positivement.", pop: 3 },
+      { l: "Rester sur le format habituel", b: -1, pda: { j1524: +4, a2549: +5, s50: +4, csp: +4 }, r: "L'audience progresse nettement : dépense raisonnable. La confiance du public progresse.", pop: 2 }
+    ]
+  },
+  {
+    id: 'd82', titre: "VAR : l'écran qui divise la France",
+    desc: "Décision litigieuse, stade en furie, réseaux en ébullition. Ton consultant arbitrage est prêt à décortiquer l'action image par image.",
+    types: ['sport'],
+    c: [
+      { l: "Décrypter l'action en direct, à chaud", b: -2, pda: { j1524: +8, a2549: +7, s50: +3, csp: +5 }, r: "L'audience progresse nettement : dépense raisonnable. L'accueil est positif.", pop: 2 },
+      { l: "Passer vite à la suite, le match continue", b: 0, pda: { j1524: +3, a2549: +4, s50: +4, csp: +4 }, r: "Dépense raisonnable, l'audience progresse nettement. La confiance du public progresse.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd83', titre: "Data : les chiffres derrière le jeu",
+    desc: "Les xG et les courses sans ballon fascinent une partie de ton public et endorment l'autre. Il faut trancher.",
+    types: ['sport'],
+    c: [
+      { l: "Installer une vraie cellule data", b: -5, pda: { j1524: +8, a2549: +6, s50: +2, csp: +6 }, r: "Les courbes d'audience grimpent : budget maîtrisé. La confiance du public progresse.", pop: 2 },
+      { l: "Rester sur les statistiques classiques", b: -1, pda: { j1524: +3, a2549: +3, s50: +3, csp: +4 }, r: "L'audience progresse nettement : budget maîtrisé. Bon retour côté opinion publique.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd84', titre: "Le transfert du siècle est à vendre",
+    desc: "Un intermédiaire propose l'annonce en exclusivité, chronomètre en main. Le prix est indécent, l'audience potentielle aussi.",
+    types: ['sport'],
+    c: [
+      { l: "Payer très cher l'exclusivité", b: -7, pda: { j1524: +9, a2549: +8, s50: +4, csp: +6 }, r: "Budget maîtrisé, les scores explosent sur toutes les cibles. Le public est conquis.", pop: 3 },
+      { l: "Partager l'info, la jouer collectif", b: -1, pda: { j1524: +4, a2549: +5, s50: +4, csp: +5 }, r: "L'audience progresse nettement : budget maîtrisé. La confiance du public progresse.", pop: 2 }
+    ]
+  },
+  {
+    id: 'd85', titre: "U21 : les stars de demain",
+    desc: "Un championnat de jeunes, plein de futurs cracks que personne ne connaît encore. Investir tôt, c'est parier sur dans cinq ans.",
+    types: ['sport'],
+    c: [
+      { l: "Acheter tous les droits, dès maintenant", b: -6, pda: { j1524: +7, a2549: +7, s50: +4, csp: +5 }, r: "Dépense raisonnable, l'audience progresse nettement. L'accueil est positif.", pop: 2 },
+      { l: "Ne prendre que les phases finales", b: -2, pda: { j1524: +4, a2549: +5, s50: +3, csp: +4 }, r: "Effort financier contenu, le public suit en nombre. Bon retour côté opinion publique.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd86', titre: "Top 14 : devenir la maison du rugby",
+    desc: "Le championnat cherche un diffuseur principal. Tu peux planter ton drapeau ou partager la table.",
+    types: ['sport'],
+    c: [
+      { l: "Devenir diffuseur principal du Top 14", b: -16, pda: { j1524: +3, a2549: +5, s50: +6, csp: +4 }, r: "Effort budgétaire conséquent, le public suit en nombre. L'accueil est positif.", pop: 2 },
+      { l: "Partager les droits avec un concurrent", b: -7, pda: { j1524: +2, a2549: +3, s50: +4, csp: +3 }, r: "Effort financier contenu, le public suit en nombre. Bon retour côté opinion publique.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd87', titre: "XV de France : l'avant-match qui compte",
+    desc: "Le Stade de France est plein deux heures avant le coup d'envoi. Ton antenne peut y être, ou pas.",
+    types: ['sport'],
+    c: [
+      { l: "Investir dans un avant-match XXL", b: -5, pda: { j1524: +3, a2549: +5, s50: +5, csp: +4 }, r: "Budget maîtrisé, les courbes d'audience grimpent. Bon retour côté opinion publique.", pop: 1 },
+      { l: "Dispositif classique, sans excès", b: -1, pda: { j1524: +2, a2549: +3, s50: +4, csp: +2 }, r: "Un frémissement positif se confirme : effort financier contenu. L'accueil est positif.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd88', titre: "Rugby féminin : la vague monte",
+    desc: "Les audiences grimpent, les fédérations démarchent. Personne n'a encore posé de case fixe à l'antenne.",
+    types: ['sport'],
+    c: [
+      { l: "Créer une case dédiée toute l'année", b: -5, pda: { j1524: +5, a2549: +6, s50: +6, csp: +5 }, r: "L'audience progresse nettement : effort financier contenu. Le public est conquis.", pop: 4 },
+      { l: "Diffuser ponctuellement, sans engagement", b: -2, pda: { j1524: +2, a2549: +3, s50: +4, csp: +3 }, r: "Le public suit en nombre : dépense raisonnable. Ni éclat ni polémique à signaler.", pop: 0 }
+    ]
+  },
+  {
+    id: 'd89', titre: "Roland-Garros : la terre battue au complet",
+    desc: "Les finales sont chères, les courts annexes le sont moins et racontent souvent les plus belles histoires.",
+    types: ['sport'],
+    c: [
+      { l: "Acheter aussi les courts annexes", b: -14, pda: { j1524: +5, a2549: +6, s50: +4, csp: +5 }, r: "Le public suit en nombre : enveloppe généreuse débloquée. L'accueil est positif.", pop: 2 },
+      { l: "Se concentrer sur les finales", b: -7, pda: { j1524: +3, a2549: +4, s50: +3, csp: +4 }, r: "Effort financier contenu, les courbes d'audience grimpent. L'accueil est positif.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd90', titre: "Tennis de nuit : minuit sur le central",
+    desc: "Les sessions nocturnes finissent tard et cartonnent chez les jeunes. Le marché le sait et fait monter les prix.",
+    types: ['sport'],
+    c: [
+      { l: "Surenchérir pour les matchs de nuit", b: -12, pda: { j1524: +7, a2549: +7, s50: +3, csp: +5 }, r: "Les courbes d'audience grimpent : effort budgétaire conséquent. Bon retour côté opinion publique.", pop: 2 },
+      { l: "Conserver les matchs de journée", b: -5, pda: { j1524: +3, a2549: +4, s50: +4, csp: +4 }, r: "Les courbes d'audience grimpent : budget maîtrisé. L'accueil est positif.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd91', titre: "Circuit féminin : le package sur la table",
+    desc: "Une offre premium arrive avec toute la saison dedans. Ou tu picores les grands tournois.",
+    types: ['sport'],
+    c: [
+      { l: "Acheter le package premium complet", b: -10, pda: { j1524: +5, a2549: +6, s50: +5, csp: +6 }, r: "Effort budgétaire conséquent, les courbes d'audience grimpent. Bon retour côté opinion publique.", pop: 2 },
+      { l: "Sélectionner uniquement les grands tournois", b: -4, pda: { j1524: +3, a2549: +4, s50: +3, csp: +4 }, r: "L'audience progresse nettement : dépense raisonnable. L'accueil est positif.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd92', titre: "Formule 1 : vingt-quatre dimanches",
+    desc: "La F1 se vend en bloc et coûte le prix d'une saison entière de football. Ton public, lui, ne rate jamais un départ.",
+    types: ['sport'],
+    c: [
+      { l: "Acheter les droits complets de la saison", b: -32, pda: { j1524: +9, a2549: +8, s50: +4, csp: +5 }, r: "Les scores explosent sur toutes les cibles : chèque massif signé sans trembler. Les réseaux sociaux s'enflamment positivement.", pop: 3 },
+      { l: "Prendre les Grands Prix les plus populaires", b: -14, pda: { j1524: +6, a2549: +5, s50: +3, csp: +4 }, r: "Mise conséquente sur la table, le public suit en nombre. La confiance du public progresse.", pop: 2 }
+    ]
+  },
+  {
+    id: 'd93', titre: "MotoGP : le paddock t'ouvre les portes",
+    desc: "La moto a un public fidèle et bruyant, mais un dispositif complet coûte cher toute l'année.",
+    types: ['sport'],
+    c: [
+      { l: "Développer un vrai dispositif moto", b: -12, pda: { j1524: +8, a2549: +7, s50: +3, csp: +4 }, r: "Effort budgétaire conséquent, les courbes d'audience grimpent. La confiance du public progresse.", pop: 2 },
+      { l: "Rester sur les grands rendez-vous", b: -5, pda: { j1524: +4, a2549: +4, s50: +2, csp: +3 }, r: "L'audience progresse nettement : budget maîtrisé. La confiance du public progresse.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd94', titre: "Grand Tour : trois semaines de vélo",
+    desc: "Une course par étapes, c'est un feuilleton quotidien. Ou juste quelques journées françaises bien placées.",
+    types: ['sport'],
+    c: [
+      { l: "Acheter la course en intégralité", b: -15, pda: { j1524: +3, a2549: +6, s50: +7, csp: +5 }, r: "L'audience progresse nettement : enveloppe généreuse débloquée. La confiance du public progresse.", pop: 2 },
+      { l: "Se concentrer sur les étapes françaises", b: -7, pda: { j1524: +2, a2549: +4, s50: +6, csp: +4 }, r: "Budget maîtrisé, les courbes d'audience grimpent. L'accueil est positif.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd95', titre: "Athlétisme : la piste toute l'année",
+    desc: "Entre les meetings et les championnats, la saison est longue et inégale. Ton programmateur veut de la régularité.",
+    types: ['sport'],
+    c: [
+      { l: "Acheter toute la saison de meetings", b: -9, pda: { j1524: +5, a2549: +6, s50: +6, csp: +6 }, r: "L'audience progresse nettement : effort budgétaire conséquent. L'accueil est positif.", pop: 2 },
+      { l: "Sélectionner les grands rendez-vous", b: -4, pda: { j1524: +3, a2549: +4, s50: +5, csp: +5 }, r: "Effort financier contenu, les courbes d'audience grimpent. Bon retour côté opinion publique.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd96', titre: "NBA : la nuit américaine",
+    desc: "Les matchs commencent quand la France dort. Tu peux ouvrir la nuit ou raconter la NBA le lendemain matin.",
+    types: ['sport'],
+    c: [
+      { l: "Acheter un package nocturne en direct", b: -18, pda: { j1524: +10, a2549: +7, s50: +2, csp: +5 }, r: "Mise conséquente sur la table, les scores explosent sur toutes les cibles. L'accueil est positif.", pop: 2 },
+      { l: "Produire un magazine NBA quotidien", b: -6, pda: { j1524: +6, a2549: +5, s50: +2, csp: +4 }, r: "L'audience progresse nettement : dépense raisonnable. L'accueil est positif.", pop: 2 }
+    ]
+  },
+  {
+    id: 'd97', titre: "Basket français : le parquet national",
+    desc: "Le championnat cherche une vitrine. Tu peux la lui offrir en entier ou par morceaux.",
+    types: ['sport'],
+    c: [
+      { l: "Devenir diffuseur principal du championnat", b: -11, pda: { j1524: +5, a2549: +6, s50: +4, csp: +5 }, r: "Effort budgétaire conséquent, l'audience progresse nettement. La confiance du public progresse.", pop: 2 },
+      { l: "Se partager les affiches", b: -5, pda: { j1524: +3, a2549: +4, s50: +3, csp: +4 }, r: "Budget maîtrisé, les courbes d'audience grimpent. Bon retour côté opinion publique.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd98', titre: "Handball : les Bleus encore en finale",
+    desc: "L'équipe de France gagne tout et le public suit. Le package complet inclut beaucoup de matchs sans enjeu.",
+    types: ['sport'],
+    c: [
+      { l: "Acheter tout le package des Bleus", b: -9, pda: { j1524: +5, a2549: +6, s50: +5, csp: +4 }, r: "L'audience progresse nettement : mise conséquente sur la table. Bon retour côté opinion publique.", pop: 2 },
+      { l: "N'acheter que les phases finales", b: -3, pda: { j1524: +3, a2549: +4, s50: +4, csp: +3 }, r: "Dépense raisonnable, le public suit en nombre. L'accueil est positif.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd99', titre: "Volley : la Ligue des nations",
+    desc: "Le volley français brille à l'international mais reste discret en grille. Combien de matchs peux-tu vraiment porter ?",
+    types: ['sport'],
+    c: [
+      { l: "Investir sur les équipes nationales", b: -6, pda: { j1524: +4, a2549: +5, s50: +5, csp: +4 }, r: "Effort financier contenu, le public suit en nombre. L'accueil est positif.", pop: 2 },
+      { l: "Limiter le nombre de matchs diffusés", b: -2, pda: { j1524: +2, a2549: +3, s50: +4, csp: +3 }, r: "Le public suit en nombre : dépense raisonnable. L'accueil est positif.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd100', titre: "Ski : l'hiver en direct",
+    desc: "La Coupe du monde s'étale de novembre à mars, souvent à 10h du matin. Les finales, elles, font toujours du monde.",
+    types: ['sport'],
+    c: [
+      { l: "Acheter toute la saison de ski", b: -10, pda: { j1524: +4, a2549: +5, s50: +8, csp: +6 }, r: "Enveloppe généreuse débloquée, les courbes d'audience grimpent. Bon retour côté opinion publique.", pop: 2 },
+      { l: "Se concentrer sur les finales", b: -4, pda: { j1524: +2, a2549: +3, s50: +5, csp: +5 }, r: "Effort financier contenu, l'audience progresse nettement. Bon retour côté opinion publique.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd101', titre: "Golf : un majeur à l'américaine",
+    desc: "Quatre jours, un public CSP+ très courtisé par les annonceurs, et un droit premium.",
+    types: ['sport'],
+    c: [
+      { l: "Acheter les droits premium du tournoi", b: -15, pda: { j1524: +2, a2549: +5, s50: +7, csp: +9 }, r: "Les courbes d'audience grimpent : mise conséquente sur la table. La confiance du public progresse.", pop: 2 },
+      { l: "Ne prendre que les deux derniers tours", b: -5, pda: { j1524: +1, a2549: +3, s50: +5, csp: +7 }, r: "Effort financier contenu, l'audience progresse nettement. Bon retour côté opinion publique.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd102', titre: "Voile : trois mois de solitude",
+    desc: "Une course autour du monde, c'est un récit long et une équipe mobilisée des semaines. Le récit est magnifique, la logistique moins.",
+    types: ['sport'],
+    c: [
+      { l: "Suivre la course avec une équipe dédiée", b: -8, pda: { j1524: +5, a2549: +6, s50: +6, csp: +5 }, r: "L'audience progresse nettement : mise conséquente sur la table. La confiance du public progresse.", pop: 2 },
+      { l: "Produire uniquement des résumés", b: -2, pda: { j1524: +2, a2549: +3, s50: +5, csp: +4 }, r: "Les courbes d'audience grimpent : budget maîtrisé. L'accueil est positif.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd103', titre: "Surf : le circuit et la vague parfaite",
+    desc: "Les compétitions démarrent quand la houle décide, jamais quand ta grille le voudrait.",
+    types: ['sport'],
+    c: [
+      { l: "Acheter le circuit international", b: -6, pda: { j1524: +9, a2549: +6, s50: +2, csp: +4 }, r: "Les courbes d'audience grimpent : budget maîtrisé. L'accueil est positif.", pop: 2 },
+      { l: "Créer un magazine hebdomadaire surf", b: -2, pda: { j1524: +5, a2549: +4, s50: +1, csp: +3 }, r: "L'audience progresse nettement : effort financier contenu. L'accueil est positif.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd104', titre: "Boxe : le combat que tout le monde attend",
+    desc: "Le promoteur veut une exclusivité et fixe son prix. La soirée peut devenir un événement national ou une ligne de plus au budget.",
+    types: ['sport'],
+    c: [
+      { l: "Signer l'exclusivité du combat", b: -12, pda: { j1524: +9, a2549: +8, s50: +3, csp: +4 }, r: "L'audience s'envole : enveloppe généreuse débloquée. Bon retour côté opinion publique.", pop: 2 },
+      { l: "Ne diffuser que les grands combats", b: -4, pda: { j1524: +5, a2549: +5, s50: +2, csp: +3 }, r: "Budget maîtrisé, l'audience progresse nettement. L'accueil est positif.", pop: 2 }
+    ]
+  },
+  {
+    id: 'd105', titre: "MMA : la cage ou la tradition",
+    desc: "Le MMA explose chez les moins de 25 ans et fait grincer une partie de ta rédaction. La décision remonte jusqu'à toi.",
+    types: ['sport'],
+    c: [
+      { l: "Lancer une grande soirée combat", b: -9, pda: { j1524: +10, a2549: +7, s50: 0, csp: +3 }, r: "L'audience progresse nettement : mise conséquente sur la table. Bon retour côté opinion publique.", pop: 1 },
+      { l: "Rester sur les sports traditionnels", b: -2, pda: { j1524: +4, a2549: +4, s50: +1, csp: +2 }, r: "Effort financier contenu, l'audience progresse doucement. L'accueil est positif.", pop: 2 }
+    ]
+  },
+  {
+    id: 'd106', titre: "E-sport : l'audience qui ne regarde pas la TV",
+    desc: "Des millions de spectateurs, tous sur Twitch, aucun sur ton antenne. Les droits sont encore abordables.",
+    types: ['sport'],
+    c: [
+      { l: "Acheter les droits de la compétition", b: -8, pda: { j1524: +11, a2549: +6, s50: -4, csp: +3 }, r: "L'audience progresse nettement : enveloppe généreuse débloquée. L'accueil est positif.", pop: 2 },
+      { l: "Créer un magazine e-sport", b: -3, pda: { j1524: +5, a2549: +4, s50: +1, csp: +2 }, r: "Dépense raisonnable, le public suit en nombre. Bon retour côté opinion publique.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd107', titre: "Padel : arriver avant tout le monde",
+    desc: "Le sport pousse vite, les droits sont bon marché, mais personne ne sait s'il tiendra la distance.",
+    types: ['sport'],
+    c: [
+      { l: "Devenir le pionnier du padel à l'antenne", b: -7, pda: { j1524: +8, a2549: +6, s50: +1, csp: +3 }, r: "Budget maîtrisé, les courbes d'audience grimpent. L'accueil est positif.", pop: 2 },
+      { l: "Attendre que le marché mûrisse", b: -2, pda: { j1524: +3, a2549: +3, s50: +2, csp: +2 }, r: "Dépense raisonnable, un frémissement positif se confirme. Bon retour côté opinion publique.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd108', titre: "Skate : le sport qui ne te ressemble pas",
+    desc: "Une compétition de skate, un public jeune, une esthétique qui ne colle pas à ta grille actuelle. C'est justement l'intérêt.",
+    types: ['sport'],
+    c: [
+      { l: "Créer un rendez-vous jeune à l'année", b: -4, pda: { j1524: +10, a2549: +6, s50: +1, csp: +3 }, r: "Budget maîtrisé, les courbes d'audience grimpent. L'accueil est positif.", pop: 2 },
+      { l: "Ne couvrir que les grands événements", b: -1, pda: { j1524: +4, a2549: +4, s50: +1, csp: +2 }, r: "Dépense raisonnable, quelques points d'audience s'ajoutent. Bon retour côté opinion publique.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd109', titre: "Handisport : la case que personne ne prend",
+    desc: "Une grande compétition handisport cherche un diffuseur. Le sujet est fort, l'audience incertaine.",
+    types: ['sport'],
+    c: [
+      { l: "Investir dans une vraie couverture", b: -8, pda: { j1524: +5, a2549: +6, s50: +8, csp: +7 }, r: "Les scores explosent sur toutes les cibles : mise conséquente sur la table. L'image de la chaîne y gagne beaucoup.", pop: 5 },
+      { l: "Couverture minimale, format court", b: -2, pda: { j1524: +2, a2549: +3, s50: +5, csp: +5 }, r: "Le public suit en nombre : budget maîtrisé. L'opinion publique se crispe.", pop: -1 }
+    ]
+  },
+  {
+    id: 'd110', titre: "Sports urbains : ton propre festival",
+    desc: "Le street, le 3x3, la glisse : tout un monde qui vit sans toi. Tu peux le regarder ou l'organiser.",
+    types: ['sport'],
+    c: [
+      { l: "Créer ton propre événement urbain", b: -8, pda: { j1524: +11, a2549: +7, s50: 0, csp: +3 }, r: "Le public suit en nombre : effort budgétaire conséquent. L'accueil est positif.", pop: 2 },
+      { l: "Rester sur les compétitions classiques", b: -2, pda: { j1524: +5, a2549: +6, s50: +3, csp: +4 }, r: "Le public suit en nombre : dépense raisonnable. Bon retour côté opinion publique.", pop: 2 }
+    ]
+  },
+  {
+    id: 'd111', titre: "La grande finale américaine",
+    desc: "Le match démarre à minuit heure française et fait vivre le sport business pendant deux semaines. Les droits ne sont pas donnés.",
+    types: ['sport'],
+    c: [
+      { l: "Acheter les droits de la finale", b: -12, pda: { j1524: +10, a2549: +6, s50: +1, csp: +4 }, r: "Mise conséquente sur la table, l'audience progresse nettement. Bon retour côté opinion publique.", pop: 2 },
+      { l: "Produire un magazine dédié", b: -2, pda: { j1524: +4, a2549: +4, s50: +2, csp: +3 }, r: "Effort financier contenu, le public suit en nombre. L'accueil est positif.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd112', titre: "Finales NBA : le sommet de juin",
+    desc: "Sept matchs possibles, tous en pleine nuit, tous avec un vrai public en France.",
+    types: ['sport'],
+    c: [
+      { l: "Acheter l'exclusivité des finales", b: -14, pda: { j1524: +10, a2549: +7, s50: +2, csp: +5 }, r: "Les scores explosent sur toutes les cibles : enveloppe généreuse débloquée. L'accueil est positif.", pop: 2 },
+      { l: "Se contenter d'un package limité", b: -6, pda: { j1524: +5, a2549: +5, s50: +2, csp: +4 }, r: "Le public suit en nombre : budget maîtrisé. Bon retour côté opinion publique.", pop: 2 }
+    ]
+  },
+  {
+    id: 'd113', titre: "Hockey : la glace en prime",
+    desc: "Un championnat rapide et spectaculaire, mais peu installé dans les habitudes françaises.",
+    types: ['sport'],
+    c: [
+      { l: "Acheter le championnat complet", b: -9, pda: { j1524: +6, a2549: +6, s50: +5, csp: +5 }, r: "Les courbes d'audience grimpent : enveloppe généreuse débloquée. Bon retour côté opinion publique.", pop: 2 },
+      { l: "Sélectionner quelques affiches", b: -3, pda: { j1524: +3, a2549: +4, s50: +4, csp: +4 }, r: "Budget maîtrisé, le public suit en nombre. La confiance du public progresse.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd114', titre: "World Series : le baseball à 2h du matin",
+    desc: "Une culture immense, un public français minuscule, un droit raisonnable.",
+    types: ['sport'],
+    c: [
+      { l: "Acheter la finale en direct", b: -7, pda: { j1524: +8, a2549: +5, s50: +1, csp: +4 }, r: "Dépense raisonnable, l'audience progresse nettement. Bon retour côté opinion publique.", pop: 2 },
+      { l: "Créer un magazine hebdomadaire", b: -2, pda: { j1524: +3, a2549: +3, s50: +2, csp: +3 }, r: "Quelques points d'audience s'ajoutent : budget maîtrisé. La confiance du public progresse.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd115', titre: "Triathlon : l'endurance à l'antenne",
+    desc: "Le triathlon attire un public sportif et fidèle, mais les courses durent des heures.",
+    types: ['sport'],
+    c: [
+      { l: "Lancer un magazine dédié à l'année", b: -4, pda: { j1524: +4, a2549: +5, s50: +5, csp: +5 }, r: "Le public suit en nombre : budget maîtrisé. La confiance du public progresse.", pop: 2 },
+      { l: "Couverture événementielle uniquement", b: -1, pda: { j1524: +2, a2549: +3, s50: +4, csp: +3 }, r: "Les courbes d'audience grimpent : dépense raisonnable. L'accueil est positif.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd116', titre: "Marathon : la ville se met à courir",
+    desc: "Les grands marathons se vendent séparément et se ressemblent tous. Un seul, bien travaillé, peut devenir ta signature.",
+    types: ['sport'],
+    c: [
+      { l: "Acheter plusieurs marathons dans l'année", b: -6, pda: { j1524: +4, a2549: +5, s50: +6, csp: +4 }, r: "Budget maîtrisé, les courbes d'audience grimpent. Bon retour côté opinion publique.", pop: 2 },
+      { l: "Ne garder qu'une seule course phare", b: -2, pda: { j1524: +2, a2549: +3, s50: +4, csp: +3 }, r: "Budget maîtrisé, l'audience progresse nettement. L'accueil est positif.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd117', titre: "Le duo qui portera tes soirées",
+    desc: "Ton commentateur historique part à la retraite. Deux stars du micro sont libres, et ton académie interne a des jeunes qui piaffent.",
+    types: ['sport'],
+    c: [
+      { l: "Signer deux stars du commentaire", b: -8, pda: { j1524: +6, a2549: +7, s50: +5, csp: +5 }, r: "Les courbes d'audience grimpent : mise conséquente sur la table. L'accueil est positif.", pop: 2 },
+      { l: "Former en interne la nouvelle génération", b: -2, pda: { j1524: +4, a2549: +4, s50: +3, csp: +4 }, r: "Le public suit en nombre : budget maîtrisé. La confiance du public progresse.", pop: 2 }
+    ]
+  },
+  {
+    id: 'd118', titre: "Une légende veut passer de l'autre côté",
+    desc: "Un ancien champion propose ses services comme consultant. Il a le nom, pas encore le débit. Un jeune expert, lui, a l'inverse.",
+    types: ['sport'],
+    c: [
+      { l: "Recruter la légende et son aura", b: -5, pda: { j1524: +4, a2549: +6, s50: +7, csp: +5 }, r: "Les courbes d'audience grimpent : dépense raisonnable. La confiance du public progresse.", pop: 2 },
+      { l: "Promouvoir le jeune expert qui monte", b: -1, pda: { j1524: +3, a2549: +4, s50: +5, csp: +3 }, r: "Dépense raisonnable, les courbes d'audience grimpent. Bon retour côté opinion publique.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd119', titre: "Ton consultant met le feu",
+    desc: "Il tape sur les entraîneurs, les arbitres et parfois sur ta chaîne. Les extraits tournent partout, les fédérations appellent.",
+    types: ['sport'],
+    c: [
+      { l: "Le laisser provoquer, le buzz paye", b: +4, pda: { j1524: +8, a2549: +5, s50: -3, csp: 0 }, r: "Un frémissement positif se confirme : solution économe qui rassure le CFO. L'opinion publique se crispe.", pop: -2 },
+      { l: "Encadrer strictement ses interventions", b: -2, pda: { j1524: +2, a2549: +3, s50: +4, csp: +4 }, r: "Les courbes d'audience grimpent : budget maîtrisé. Le public est conquis.", pop: 3 }
+    ]
+  },
+  {
+    id: 'd120', titre: "Ta journaliste vedette veut plus",
+    desc: "Elle a l'agenda, les sources et une offre du concurrent dans son sac. Tu peux lui offrir une vitrine ou parier sur la relève.",
+    types: ['sport'],
+    c: [
+      { l: "Lui offrir une exclusivité à son nom", b: -6, pda: { j1524: +5, a2549: +7, s50: +6, csp: +5 }, r: "Dépense raisonnable, l'audience progresse nettement. Bon retour côté opinion publique.", pop: 2 },
+      { l: "Miser sur une nouvelle génération", b: -1, pda: { j1524: +3, a2549: +4, s50: +3, csp: +4 }, r: "Dépense raisonnable, l'audience progresse nettement. L'accueil est positif.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd121', titre: "Le présentateur historique arrive en fin de contrat",
+    desc: "Vingt ans d'antenne, un public qui l'adore, une audience qui vieillit avec lui.",
+    types: ['sport'],
+    c: [
+      { l: "Renouveler son contrat, la fidélité paye", b: -7, pda: { j1524: +4, a2549: +6, s50: +6, csp: +5 }, r: "Budget maîtrisé, les courbes d'audience grimpent. Bon retour côté opinion publique.", pop: 2 },
+      { l: "Préparer sa succession dès maintenant", b: -1, pda: { j1524: +3, a2549: +4, s50: +3, csp: +4 }, r: "Effort financier contenu, les courbes d'audience grimpent. L'opinion publique reste neutre.", pop: 0 }
+    ]
+  },
+  {
+    id: 'd122', titre: "Le jeune au micro, maintenant ou plus tard",
+    desc: "Il est prêt, ou presque. La grande affiche de samedi peut le lancer ou le brûler.",
+    types: ['sport'],
+    c: [
+      { l: "Le lancer direct sur la grande affiche", b: -2, pda: { j1524: +7, a2549: +6, s50: +2, csp: +5 }, r: "Les courbes d'audience grimpent : budget maîtrisé. L'accueil est positif.", pop: 2 },
+      { l: "Le tester progressivement sur des petits matchs", b: -1, pda: { j1524: +3, a2549: +4, s50: +3, csp: +4 }, r: "Effort financier contenu, le public suit en nombre. Bon retour côté opinion publique.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd123', titre: "L'analyse tactique mérite-t-elle une case ?",
+    desc: "Ton public expert réclame du fond, ton public grand public décroche au bout de deux minutes.",
+    types: ['sport'],
+    c: [
+      { l: "Créer une émission tactique et data", b: -3, pda: { j1524: +7, a2549: +7, s50: +3, csp: +8 }, r: "Budget maîtrisé, l'audience s'envole. Bon retour côté opinion publique.", pop: 2 },
+      { l: "Une chronique courte dans le magazine", b: -1, pda: { j1524: +3, a2549: +4, s50: +3, csp: +5 }, r: "Dépense raisonnable, l'audience progresse nettement. La confiance du public progresse.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd124', titre: "L'arbitrage, sujet permanent",
+    desc: "Chaque week-end, une polémique. Chaque semaine, la même question sans réponse à l'antenne.",
+    types: ['sport'],
+    c: [
+      { l: "Créer une chronique arbitrage régulière", b: -2, pda: { j1524: +5, a2549: +6, s50: +4, csp: +7 }, r: "Dépense raisonnable, le public suit en nombre. Bon retour côté opinion publique.", pop: 2 },
+      { l: "Inviter un arbitre quand ça chauffe", b: 0, pda: { j1524: +2, a2549: +3, s50: +4, csp: +5 }, r: "Effort financier contenu, le public suit en nombre. La confiance du public progresse.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd125', titre: "Grand match à l'étranger : qui part ?",
+    desc: "L'avion, l'hôtel, la régie sur place. Ou une équipe locale qui connaît déjà le stade.",
+    types: ['sport'],
+    c: [
+      { l: "Envoyer une grosse équipe française", b: -5, pda: { j1524: +7, a2549: +7, s50: +5, csp: +6 }, r: "Le public répond présent en masse : dépense raisonnable. L'accueil est positif.", pop: 2 },
+      { l: "Travailler avec une équipe locale", b: -1, pda: { j1524: +3, a2549: +4, s50: +4, csp: +5 }, r: "Budget maîtrisé, les courbes d'audience grimpent. Bon retour côté opinion publique.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd126', titre: "Avant-match : trente minutes à remplir",
+    desc: "Le coup d'envoi est à 21h. Ce que tu fais avant décide de qui sera encore là après.",
+    types: ['sport'],
+    c: [
+      { l: "Créer un grand show d'avant-match", b: -5, pda: { j1524: +7, a2549: +7, s50: +4, csp: +5 }, r: "Les courbes d'audience grimpent : effort financier contenu. L'accueil est positif.", pop: 2 },
+      { l: "Format court, on entre vite dans le match", b: -1, pda: { j1524: +3, a2549: +4, s50: +3, csp: +4 }, r: "Budget maîtrisé, les courbes d'audience grimpent. L'accueil est positif.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd127', titre: "Après-match : jusqu'où prolonger ?",
+    desc: "Le match est fini, le public reste. Ton équipe est debout depuis 6h.",
+    types: ['sport'],
+    c: [
+      { l: "Débriefer jusqu'à minuit", b: -4, pda: { j1524: +8, a2549: +7, s50: +2, csp: +4 }, r: "Les courbes d'audience grimpent : effort financier contenu. Bon retour côté opinion publique.", pop: 2 },
+      { l: "Conclure vite et rendre l'antenne", b: 0, pda: { j1524: +3, a2549: +4, s50: +3, csp: +3 }, r: "Effort financier contenu, l'audience progresse nettement. L'accueil est positif.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd128', titre: "Le talk du lundi soir",
+    desc: "Deux consultants qui se détestent, un plateau, et une productrice qui te demande jusqu'où elle peut les laisser aller.",
+    types: ['sport'],
+    c: [
+      { l: "Autoriser la confrontation frontale", b: +3, pda: { j1524: +9, a2549: +7, s50: +2, csp: +3 }, r: "Les courbes d'audience grimpent : opération qui préserve les comptes. L'accueil est positif.", pop: 1 },
+      { l: "Modérer fortement les échanges", b: -1, pda: { j1524: +3, a2549: +4, s50: +4, csp: +6 }, r: "Les courbes d'audience grimpent : effort financier contenu. La confiance du public progresse.", pop: 2 }
+    ]
+  },
+  {
+    id: 'd129', titre: "L'interview que tout le monde veut",
+    desc: "Un agent te propose l'entretien exclusif contre un chèque. La presse écrite attend au portillon.",
+    types: ['sport'],
+    c: [
+      { l: "Payer pour l'exclusivité", b: -5, pda: { j1524: +7, a2549: +7, s50: +5, csp: +6 }, r: "Effort financier contenu, le public répond présent en masse. La confiance du public progresse.", pop: 2 },
+      { l: "Partager l'interview avec la presse", b: -1, pda: { j1524: +3, a2549: +4, s50: +4, csp: +5 }, r: "Dépense raisonnable, les courbes d'audience grimpent. La confiance du public progresse.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd130', titre: "Un documentaire sur une légende",
+    desc: "Sa famille ouvre ses archives. Tu peux en faire une série premium ou un magazine du dimanche.",
+    types: ['sport'],
+    c: [
+      { l: "Produire une série documentaire premium", b: -9, pda: { j1524: +5, a2549: +7, s50: +7, csp: +7 }, r: "L'audience s'envole : mise conséquente sur la table. Bon retour côté opinion publique.", pop: 2 },
+      { l: "Faire un magazine hommage low-cost", b: -2, pda: { j1524: +2, a2549: +4, s50: +5, csp: +5 }, r: "Budget maîtrisé, le public suit en nombre. L'accueil est positif.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd131', titre: "Un club t'ouvre son vestiaire",
+    desc: "Accès total pendant six mois, à condition d'y mettre les moyens. Ou accès limité, sans risque.",
+    types: ['sport'],
+    c: [
+      { l: "Produire un inside complet de la saison", b: -5, pda: { j1524: +7, a2549: +7, s50: +5, csp: +5 }, r: "Effort financier contenu, les scores explosent sur toutes les cibles. Bon retour côté opinion publique.", pop: 2 },
+      { l: "Se contenter d'un accès limité", b: -1, pda: { j1524: +3, a2549: +4, s50: +3, csp: +4 }, r: "Dépense raisonnable, l'audience progresse nettement. La confiance du public progresse.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd132', titre: "Les coulisses des Bleus",
+    desc: "Clairefontaine entrouvre la porte. Le récit peut être immense, la fédération peut tout couper.",
+    types: ['sport'],
+    c: [
+      { l: "Investir dans un inside chez les Bleus", b: -7, pda: { j1524: +8, a2549: +8, s50: +6, csp: +5 }, r: "Le public répond présent en masse : budget maîtrisé. L'image de la chaîne y gagne beaucoup.", pop: 3 },
+      { l: "Se concentrer uniquement sur les matchs", b: -1, pda: { j1524: +3, a2549: +4, s50: +4, csp: +4 }, r: "Budget maîtrisé, les courbes d'audience grimpent. La confiance du public progresse.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd133', titre: "Grand Prix : envoyer ou recevoir",
+    desc: "Le signal international est propre, gratuit et impersonnel. Ta propre équipe dans le paddock, c'est autre chose.",
+    types: ['sport'],
+    c: [
+      { l: "Envoyer une équipe dédiée dans le paddock", b: -5, pda: { j1524: +9, a2549: +7, s50: +3, csp: +5 }, r: "Effort financier contenu, l'audience s'envole. L'accueil est positif.", pop: 2 },
+      { l: "Se contenter du signal international", b: -1, pda: { j1524: +4, a2549: +4, s50: +2, csp: +3 }, r: "Les courbes d'audience grimpent : dépense raisonnable. Bon retour côté opinion publique.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd134', titre: "Un jeune champion à suivre",
+    desc: "Il a 19 ans et il va exploser. Tu peux le filmer sur trois saisons ou faire un beau portrait tout de suite.",
+    types: ['sport'],
+    c: [
+      { l: "Financer une série au long cours", b: -4, pda: { j1524: +8, a2549: +6, s50: +2, csp: +4 }, r: "Les courbes d'audience grimpent : dépense raisonnable. L'accueil est positif.", pop: 2 },
+      { l: "Faire un documentaire unique", b: -1, pda: { j1524: +4, a2549: +4, s50: +2, csp: +3 }, r: "Dépense raisonnable, l'audience progresse nettement. L'accueil est positif.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd135', titre: "Polémique arbitrale : à chaud ou à froid",
+    desc: "L'action tourne en boucle sur les réseaux. Ton plateau est encore debout, tes nerfs aussi.",
+    types: ['sport'],
+    c: [
+      { l: "Analyser à chaud, tout de suite", b: -1, pda: { j1524: +7, a2549: +6, s50: +3, csp: +4 }, r: "Budget maîtrisé, les courbes d'audience grimpent. L'accueil est positif.", pop: 2 },
+      { l: "Attendre le lendemain et les faits", b: 0, pda: { j1524: +2, a2549: +3, s50: +4, csp: +4 }, r: "Budget maîtrisé, l'audience progresse nettement. La confiance du public progresse.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd136', titre: "Panne technique en plein direct",
+    desc: "Écran noir à la 62e minute. La régie de secours est prête mais coûte cher à activer.",
+    types: ['sport'],
+    c: [
+      { l: "Basculer sur le dispositif de secours", b: -3, pda: { j1524: +3, a2549: +4, s50: +3, csp: +3 }, r: "Effort financier contenu, le public suit en nombre. L'accueil est positif.", pop: 2 },
+      { l: "Lancer une rediffusion le temps de réparer", b: -1, pda: { j1524: +1, a2549: +2, s50: +2, csp: +2 }, r: "Budget maîtrisé, quelques points d'audience s'ajoutent. Les critiques fusent sur les réseaux.", pop: -1 }
+    ]
+  },
+  {
+    id: 'd137', titre: "Coupure pendant une finale",
+    desc: "Le signal a sauté trois secondes sur le but décisif. Les réseaux ne parlent que de ça.",
+    types: ['sport'],
+    c: [
+      { l: "Investir dans une vraie redondance", b: -6, pda: { j1524: +4, a2549: +5, s50: +4, csp: +4 }, r: "Les courbes d'audience grimpent : budget maîtrisé. Le public est conquis.", pop: 3 },
+      { l: "Limiter les investissements techniques", b: -1, pda: { j1524: +1, a2549: +2, s50: +2, csp: +2 }, r: "Budget maîtrisé, un frémissement positif se confirme. Une grogne se fait sentir côté public.", pop: -1 }
+    ]
+  },
+  {
+    id: 'd138', titre: "Les techniciens débraient",
+    desc: "Le préavis tombe la veille d'un week-end chargé. Les prestataires extérieurs, eux, sont disponibles.",
+    types: ['sport'],
+    c: [
+      { l: "Négocier une hausse des salaires", b: -6, pda: { j1524: +3, a2549: +4, s50: +5, csp: +3 }, r: "Le public suit en nombre : budget maîtrisé. La confiance du public progresse.", pop: 2 },
+      { l: "Recourir à des prestataires extérieurs", b: -3, pda: { j1524: +1, a2549: +2, s50: +2, csp: +2 }, r: "Budget maîtrisé, l'audience progresse doucement. L'opinion publique se crispe.", pop: -1 }
+    ]
+  },
+  {
+    id: 'd139', titre: "Deux matchs, une seule régie",
+    desc: "Même horaire, même intérêt, moyens limités. Ton directeur des opérations attend un arbitrage.",
+    types: ['sport'],
+    c: [
+      { l: "Doubler les équipes de production", b: -4, pda: { j1524: +6, a2549: +7, s50: +4, csp: +4 }, r: "Le public suit en nombre : budget maîtrisé. L'accueil est positif.", pop: 2 },
+      { l: "Prioriser l'affiche principale", b: -1, pda: { j1524: +3, a2549: +4, s50: +3, csp: +3 }, r: "Budget maîtrisé, le public suit en nombre. L'accueil est positif.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd140', titre: "Dimanche après-midi : multiplex ou affiche",
+    desc: "Six matchs à 15h. Tu peux tout suivre en même temps ou tout miser sur un seul.",
+    types: ['sport'],
+    c: [
+      { l: "Créer un multiplex sur tous les terrains", b: -3, pda: { j1524: +6, a2549: +8, s50: +6, csp: +5 }, r: "L'audience s'envole : effort financier contenu. La confiance du public progresse.", pop: 2 },
+      { l: "Une seule grande affiche, bien produite", b: -1, pda: { j1524: +4, a2549: +5, s50: +4, csp: +4 }, r: "Les courbes d'audience grimpent : effort financier contenu. La confiance du public progresse.", pop: 2 }
+    ]
+  },
+  {
+    id: 'd141', titre: "Samedi soir : la case reine",
+    desc: "La meilleure case de la semaine est libre. Le match premium coûte cher, le magazine coûte peu.",
+    types: ['sport'],
+    c: [
+      { l: "Programmer le match premium", b: -5, pda: { j1524: +8, a2549: +8, s50: +4, csp: +5 }, r: "Les scores explosent sur toutes les cibles : effort financier contenu. L'accueil est positif.", pop: 2 },
+      { l: "Produire un magazine maison", b: -2, pda: { j1524: +4, a2549: +5, s50: +4, csp: +4 }, r: "Le public suit en nombre : effort financier contenu. Bon retour côté opinion publique.", pop: 2 }
+    ]
+  },
+  {
+    id: 'd142', titre: "6h du matin : la matinale sportive",
+    desc: "Personne ne fait de vraie matinale sport en France. Il y a peut-être une raison. Ou une opportunité.",
+    types: ['sport'],
+    c: [
+      { l: "Lancer une vraie matinale en direct", b: -5, pda: { j1524: +6, a2549: +6, s50: +3, csp: +5 }, r: "Le public suit en nombre : effort financier contenu. Bon retour côté opinion publique.", pop: 2 },
+      { l: "Continuer avec des rediffusions", b: -1, pda: { j1524: +2, a2549: +3, s50: +3, csp: +4 }, r: "L'audience progresse nettement : effort financier contenu. Bon retour côté opinion publique.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd143', titre: "La nuit t'appartient",
+    desc: "Entre minuit et 6h, ton antenne tourne à vide. La NBA, elle, joue en direct.",
+    types: ['sport'],
+    c: [
+      { l: "Diffuser la NBA en direct chaque nuit", b: -4, pda: { j1524: +10, a2549: +7, s50: +1, csp: +5 }, r: "Effort financier contenu, l'audience progresse nettement. La confiance du public progresse.", pop: 2 },
+      { l: "Rediffuser les grands matchs de la veille", b: -1, pda: { j1524: +5, a2549: +4, s50: +2, csp: +3 }, r: "Le public suit en nombre : effort financier contenu. Bon retour côté opinion publique.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd144', titre: "Vacances scolaires : qui regarde ?",
+    desc: "Les ados sont devant, les habitués sont partis. Ta grille peut s'adapter ou tenir bon.",
+    types: ['sport'],
+    c: [
+      { l: "Programmer davantage de sports jeunes", b: -2, pda: { j1524: +7, a2549: +5, s50: +2, csp: +3 }, r: "Budget maîtrisé, le public suit en nombre. L'accueil est positif.", pop: 2 },
+      { l: "Garder les compétitions historiques", b: -1, pda: { j1524: +3, a2549: +3, s50: +3, csp: +3 }, r: "Les courbes d'audience grimpent : budget maîtrisé. Bon retour côté opinion publique.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd145', titre: "Les Jeux Olympiques arrivent",
+    desc: "Quinze jours qui peuvent redéfinir ta chaîne, ou l'endetter pour trois ans. Le package complet est sur la table.",
+    types: ['sport'],
+    c: [
+      { l: "Acheter un gros package olympique", b: -35, pda: { j1524: +10, a2549: +9, s50: +8, csp: +7 }, r: "Investissement lourd pour la grille, les scores explosent sur toutes les cibles. Les réseaux sociaux s'enflamment positivement.", pop: 3 },
+      { l: "Se concentrer sur les finales françaises", b: -15, pda: { j1524: +6, a2549: +7, s50: +6, csp: +5 }, r: "Enveloppe généreuse débloquée, le public répond présent en masse. La confiance du public progresse.", pop: 2 }
+    ]
+  },
+  {
+    id: 'd146', titre: "Paralympiques : la case du sens",
+    desc: "Les images sont fortes, l'audience imprévisible, l'image de marque garantie.",
+    types: ['sport'],
+    c: [
+      { l: "Investir dans une couverture ambitieuse", b: -8, pda: { j1524: +5, a2549: +6, s50: +7, csp: +6 }, r: "Mise conséquente sur la table, les scores explosent sur toutes les cibles. L'image de la chaîne y gagne beaucoup.", pop: 5 },
+      { l: "Couverture minimale, moments forts", b: -2, pda: { j1524: +2, a2549: +3, s50: +4, csp: +3 }, r: "Dépense raisonnable, les courbes d'audience grimpent. L'opinion publique se crispe.", pop: -1 }
+    ]
+  },
+  {
+    id: 'd147', titre: "Euro féminin : le tournoi qui monte",
+    desc: "Les stades se remplissent, les records d'audience tombent ailleurs en Europe. Tu peux tout prendre ou attendre les demies.",
+    types: ['sport'],
+    c: [
+      { l: "Acheter tous les matchs du tournoi", b: -10, pda: { j1524: +7, a2549: +8, s50: +5, csp: +6 }, r: "Effort budgétaire conséquent, les scores explosent sur toutes les cibles. Les réseaux sociaux s'enflamment positivement.", pop: 4 },
+      { l: "N'acheter que les phases finales", b: -4, pda: { j1524: +4, a2549: +5, s50: +4, csp: +4 }, r: "Les courbes d'audience grimpent : dépense raisonnable. L'accueil est positif.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd148', titre: "Mondial féminin : combien tu crois au foot féminin ?",
+    desc: "Le tournoi se joue à l'autre bout du monde, souvent à des horaires impossibles. Les droits complets sont proposés maintenant.",
+    types: ['sport'],
+    c: [
+      { l: "Acheter les droits complets", b: -12, pda: { j1524: +8, a2549: +8, s50: +5, csp: +6 }, r: "L'audience s'envole : enveloppe généreuse débloquée. Le public est conquis.", pop: 5 },
+      { l: "Sélectionner les matchs de l'équipe de France", b: -5, pda: { j1524: +5, a2549: +6, s50: +4, csp: +4 }, r: "L'audience progresse nettement : effort financier contenu. La confiance du public progresse.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd149', titre: "Le sport universitaire, terrain vierge",
+    desc: "Aux États-Unis c'est une industrie, en France c'est un désert médiatique. Tu peux créer la compétition qui manque.",
+    types: ['sport'],
+    c: [
+      { l: "Créer ta propre compétition universitaire", b: -4, pda: { j1524: +7, a2549: +5, s50: +3, csp: +4 }, r: "Effort financier contenu, le public suit en nombre. La confiance du public progresse.", pop: 2 },
+      { l: "Diffuser ponctuellement quelques finales", b: -1, pda: { j1524: +2, a2549: +3, s50: +2, csp: +3 }, r: "Quelques points d'audience s'ajoutent : budget maîtrisé. Bon retour côté opinion publique.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd150', titre: "Le sport amateur du dimanche",
+    desc: "Des milliers de clubs, des millions de licenciés, zéro exposition. Et une audience qui ne se déplace pas forcément.",
+    types: ['sport'],
+    c: [
+      { l: "Créer une case dédiée au sport amateur", b: -3, pda: { j1524: +4, a2549: +5, s50: +6, csp: +3 }, r: "Dépense raisonnable, les courbes d'audience grimpent. Le public est conquis.", pop: 4 },
+      { l: "Rester concentré sur l'élite", b: 0, pda: { j1524: +1, a2549: +2, s50: +3, csp: +2 }, r: "Effort financier contenu, l'audience progresse doucement. Ni éclat ni polémique à signaler.", pop: 0 }
+    ]
+  },
+  {
+    id: 'd151', titre: "Un club historique s'effondre",
+    desc: "Relégation, dettes, supporters en colère. C'est un feuilleton, mais un feuilleton triste.",
+    types: ['sport'],
+    c: [
+      { l: "Renforcer la couverture du club en crise", b: -2, pda: { j1524: +5, a2549: +6, s50: +6, csp: +4 }, r: "Dépense raisonnable, les courbes d'audience grimpent. Les réseaux sociaux s'enflamment positivement.", pop: 3 },
+      { l: "Réduire son exposition à l'antenne", b: 0, pda: { j1524: +2, a2549: +3, s50: +3, csp: +3 }, r: "L'audience progresse doucement : budget maîtrisé. Ni éclat ni polémique à signaler.", pop: 0 }
+    ]
+  },
+  {
+    id: 'd152', titre: "La star se blesse",
+    desc: "Sortie sur civière à la 20e minute. Ton antenne bascule ou continue comme si de rien n'était.",
+    types: ['sport'],
+    c: [
+      { l: "Transformer la soirée en émission spéciale", b: -2, pda: { j1524: +6, a2549: +6, s50: +4, csp: +4 }, r: "Budget maîtrisé, les courbes d'audience grimpent. Les réseaux sociaux s'enflamment positivement.", pop: 3 },
+      { l: "Maintenir la grille prévue", b: 0, pda: { j1524: +2, a2549: +3, s50: +3, csp: +3 }, r: "Dépense raisonnable, l'audience progresse doucement. Bon retour côté opinion publique.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd153', titre: "Forfait avant la finale",
+    desc: "L'affiche du siècle perd sa tête d'affiche à 48h du coup d'envoi. Les annonceurs appellent déjà.",
+    types: ['sport'],
+    c: [
+      { l: "Transformer la soirée en grand débat", b: -2, pda: { j1524: +6, a2549: +6, s50: +4, csp: +4 }, r: "Le public suit en nombre : effort financier contenu. L'accueil est positif.", pop: 2 },
+      { l: "Maintenir le programme tel quel", b: 0, pda: { j1524: +1, a2549: +2, s50: +2, csp: +3 }, r: "Quelques points d'audience s'ajoutent : effort financier contenu. Bon retour côté opinion publique.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd154', titre: "Soupçon de dopage",
+    desc: "Une source solide, un athlète très aimé, un service juridique très inquiet.",
+    types: ['sport'],
+    c: [
+      { l: "Lancer une enquête et la mener au bout", b: -4, pda: { j1524: +5, a2549: +6, s50: +6, csp: +7 }, r: "Dépense raisonnable, le public répond présent en masse. L'image de la chaîne y gagne beaucoup.", pop: 4 },
+      { l: "Attendre les conclusions officielles", b: -1, pda: { j1524: +2, a2549: +3, s50: +4, csp: +4 }, r: "Les courbes d'audience grimpent : effort financier contenu. L'opinion publique reste neutre.", pop: 0 }
+    ]
+  },
+  {
+    id: 'd155', titre: "Violences en tribunes",
+    desc: "Les images existent, tes caméras les ont. Les diffuser informe, ou nourrit ce que tu filmes.",
+    types: ['sport'],
+    c: [
+      { l: "Diffuser les images et documenter", b: -1, pda: { j1524: +8, a2549: +6, s50: +3, csp: +2 }, r: "Budget maîtrisé, le public suit en nombre. La confiance du public progresse.", pop: 1 },
+      { l: "Limiter la diffusion des images", b: 0, pda: { j1524: +2, a2549: +3, s50: +4, csp: +4 }, r: "Le public suit en nombre : effort financier contenu. La confiance du public progresse.", pop: 2 }
+    ]
+  },
+  {
+    id: 'd156', titre: "Envahissement de terrain",
+    desc: "Des centaines de personnes sur la pelouse, le direct continue. Ta réalisatrice attend l'ordre.",
+    types: ['sport'],
+    c: [
+      { l: "Continuer le direct, montrer ce qui se passe", b: -1, pda: { j1524: +6, a2549: +6, s50: +3, csp: +3 }, r: "Effort financier contenu, le public suit en nombre. La confiance du public progresse.", pop: 1 },
+      { l: "Couper les images et rester en plateau", b: -1, pda: { j1524: +2, a2549: +3, s50: +4, csp: +3 }, r: "Dépense raisonnable, le public suit en nombre. La confiance du public progresse.", pop: 2 }
+    ]
+  },
+  {
+    id: 'd157', titre: "Une insulte part en direct",
+    desc: "Micro ouvert, mot de trop. L'extrait a déjà deux millions de vues.",
+    types: ['sport'],
+    c: [
+      { l: "Sanctionner immédiatement le consultant", b: -2, pda: { j1524: +3, a2549: +5, s50: +5, csp: +6 }, r: "Les courbes d'audience grimpent : effort financier contenu. L'image de la chaîne y gagne beaucoup.", pop: 4 },
+      { l: "Laisser vivre le buzz et l'exploiter", b: +4, pda: { j1524: +8, a2549: +6, s50: -2, csp: +1 }, r: "Solution économe qui rassure le CFO, le public suit en nombre. Une grogne se fait sentir côté public.", pop: -1 }
+    ]
+  },
+  {
+    id: 'd158', titre: "Ton présentateur dérape",
+    desc: "Une phrase de trop en fin d'émission. Les communiqués tombent, les annonceurs s'inquiètent.",
+    types: ['sport'],
+    c: [
+      { l: "Le suspendre immédiatement", b: -4, pda: { j1524: +3, a2549: +5, s50: +6, csp: +6 }, r: "Effort financier contenu, l'audience progresse nettement. Le public est conquis.", pop: 3 },
+      { l: "Le soutenir publiquement et assumer", b: +3, pda: { j1524: +8, a2549: +6, s50: -3, csp: +1 }, r: "Opération qui préserve les comptes, le public suit en nombre. L'opinion publique se crispe.", pop: -1 }
+    ]
+  },
+  {
+    id: 'd159', titre: "Une athlète accuse sa fédération",
+    desc: "L'entretien est enregistré, les accusations sont graves, les avocats sont réveillés.",
+    types: ['sport'],
+    c: [
+      { l: "Diffuser l'entretien sans attendre", b: -2, pda: { j1524: +5, a2549: +6, s50: +5, csp: +7 }, r: "Les courbes d'audience grimpent : dépense raisonnable. Le public est conquis.", pop: 4 },
+      { l: "Reporter l'interview le temps de vérifier", b: 0, pda: { j1524: +2, a2549: +3, s50: +4, csp: +4 }, r: "Les courbes d'audience grimpent : effort financier contenu. Peu d'écho dans le débat public.", pop: 0 }
+    ]
+  },
+  {
+    id: 'd160', titre: "Un club ferme la porte à tes caméras",
+    desc: "Le président t'accuse de parti pris et interdit l'accès. Tes équipes attendent devant le portail.",
+    types: ['sport'],
+    c: [
+      { l: "Accepter le bras de fer publiquement", b: -1, pda: { j1524: +4, a2549: +5, s50: +4, csp: +4 }, r: "L'audience progresse nettement : effort financier contenu. Bon retour côté opinion publique.", pop: 1 },
+      { l: "Négocier discrètement en coulisses", b: 0, pda: { j1524: +2, a2549: +3, s50: +3, csp: +3 }, r: "Dépense raisonnable, quelques points d'audience s'ajoutent. Bon retour côté opinion publique.", pop: 2 }
+    ]
+  },
+  {
+    id: 'd161', titre: "Un scoop mercato à 23h47",
+    desc: "Une seule source, une info énorme, un concurrent qui creuse le même sujet.",
+    types: ['sport'],
+    c: [
+      { l: "Diffuser immédiatement et prendre le risque", b: -2, pda: { j1524: +8, a2549: +7, s50: +3, csp: +4 }, r: "Budget maîtrisé, le public suit en nombre. Ni éclat ni polémique à signaler.", pop: 0 },
+      { l: "Attendre une deuxième source", b: +1, pda: { j1524: +4, a2549: +5, s50: +4, csp: +6 }, r: "Opération qui préserve les comptes, l'audience progresse nettement. Le public est conquis.", pop: 4 }
+    ]
+  },
+  {
+    id: 'd162', titre: "La finale que personne n'avait prévue",
+    desc: "Deux outsiders en finale, aucune star, un dispositif à décider en 72h.",
+    types: ['sport'],
+    c: [
+      { l: "Créer un dispositif exceptionnel quand même", b: -5, pda: { j1524: +8, a2549: +8, s50: +6, csp: +6 }, r: "Les scores explosent sur toutes les cibles : effort financier contenu. Le public est conquis.", pop: 3 },
+      { l: "Rester sur une production standard", b: -1, pda: { j1524: +3, a2549: +4, s50: +4, csp: +5 }, r: "Effort financier contenu, le public suit en nombre. Bon retour côté opinion publique.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd163', titre: "Exploit français en pleine nuit",
+    desc: "Une médaille inattendue tombe alors que ton antenne diffuse une rediffusion.",
+    types: ['sport'],
+    c: [
+      { l: "Déprogrammer tout et basculer en direct", b: -1, pda: { j1524: +7, a2549: +7, s50: +6, csp: +5 }, r: "Dépense raisonnable, le public répond présent en masse. Les réseaux sociaux s'enflamment positivement.", pop: 4 },
+      { l: "Garder la grille et traiter demain", b: 0, pda: { j1524: +2, a2549: +3, s50: +4, csp: +4 }, r: "L'audience progresse nettement : budget maîtrisé. Les critiques fusent sur les réseaux.", pop: -1 }
+    ]
+  },
+  {
+    id: 'd164', titre: "La défaite que personne n'attendait",
+    desc: "Élimination surprise, plateau sonné, public en colère. Il reste 40 minutes d'antenne.",
+    types: ['sport'],
+    c: [
+      { l: "Prolonger le débrief et tout analyser", b: -2, pda: { j1524: +7, a2549: +7, s50: +5, csp: +5 }, r: "Dépense raisonnable, les scores explosent sur toutes les cibles. La confiance du public progresse.", pop: 2 },
+      { l: "Passer rapidement à la suite", b: 0, pda: { j1524: +3, a2549: +4, s50: +4, csp: +4 }, r: "L'audience progresse nettement : effort financier contenu. L'accueil est positif.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd165', titre: "Une star mondiale passe à Paris",
+    desc: "Son agent demande une somme pour vingt minutes d'interview. À côté, un champion français est disponible gratuitement.",
+    types: ['sport'],
+    c: [
+      { l: "Payer pour l'interview de la star", b: -4, pda: { j1524: +8, a2549: +7, s50: +4, csp: +6 }, r: "L'audience s'envole : budget maîtrisé. L'accueil est positif.", pop: 2 },
+      { l: "Inviter le champion français", b: -1, pda: { j1524: +4, a2549: +5, s50: +4, csp: +5 }, r: "Budget maîtrisé, l'audience progresse nettement. La confiance du public progresse.", pop: 2 }
+    ]
+  },
+  {
+    id: 'd166', titre: "Un club français en finale européenne",
+    desc: "Toute la France va regarder. Ta rédaction spéciale coûte cher mais fera la différence à l'écran.",
+    types: ['sport'],
+    c: [
+      { l: "Envoyer une rédaction spéciale sur place", b: -5, pda: { j1524: +9, a2549: +9, s50: +6, csp: +6 }, r: "L'audience s'envole : effort financier contenu. Le public est conquis.", pop: 3 },
+      { l: "Y aller avec l'équipe habituelle", b: -1, pda: { j1524: +4, a2549: +5, s50: +4, csp: +5 }, r: "Les courbes d'audience grimpent : dépense raisonnable. L'accueil est positif.", pop: 2 }
+    ]
+  },
+  {
+    id: 'd167', titre: "L'outsider français y croit",
+    desc: "Une équipe qu'on n'attendait pas avance de tour en tour. Tu peux embarquer le pays ou rester neutre.",
+    types: ['sport'],
+    c: [
+      { l: "Créer une campagne autour de l'équipe", b: -3, pda: { j1524: +8, a2549: +7, s50: +5, csp: +4 }, r: "Effort financier contenu, l'audience s'envole. Le public est conquis.", pop: 4 },
+      { l: "Rester factuel et neutre", b: +1, pda: { j1524: +4, a2549: +5, s50: +4, csp: +5 }, r: "Opération qui préserve les comptes, l'audience progresse nettement. La confiance du public progresse.", pop: 2 }
+    ]
+  },
+  {
+    id: 'd168', titre: "Finale 100% française",
+    desc: "Deux clubs français, une soirée historique, une production à décider.",
+    types: ['sport'],
+    c: [
+      { l: "Construire un grand show autour de la finale", b: -4, pda: { j1524: +9, a2549: +9, s50: +7, csp: +6 }, r: "Dépense raisonnable, les scores explosent sur toutes les cibles. Les réseaux sociaux s'enflamment positivement.", pop: 3 },
+      { l: "Traitement classique, le match suffit", b: -1, pda: { j1524: +4, a2549: +5, s50: +4, csp: +5 }, r: "L'audience progresse nettement : dépense raisonnable. L'accueil est positif.", pop: 2 }
+    ]
+  },
+  {
+    id: 'd169', titre: "Un match sans enjeu à programmer",
+    desc: "34e journée, rien à jouer, une case à remplir. Le direct coûte, le magazine aussi mais moins.",
+    types: ['sport'],
+    c: [
+      { l: "Diffuser quand même en direct", b: -2, pda: { j1524: +4, a2549: +5, s50: +4, csp: +4 }, r: "Budget maîtrisé, l'audience progresse nettement. La confiance du public progresse.", pop: 2 },
+      { l: "Faire un magazine de synthèse", b: -1, pda: { j1524: +3, a2549: +4, s50: +4, csp: +4 }, r: "Les courbes d'audience grimpent : dépense raisonnable. L'accueil est positif.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd170', titre: "Un match historique dort dans les archives",
+    desc: "Les droits d'archives sont détenus ailleurs et se négocient. La rediffusion brute, elle, ne coûte rien.",
+    types: ['sport'],
+    c: [
+      { l: "Acheter les droits d'archives et documenter", b: -3, pda: { j1524: +6, a2549: +6, s50: +7, csp: +6 }, r: "Le public répond présent en masse : dépense raisonnable. Bon retour côté opinion publique.", pop: 2 },
+      { l: "Simple rediffusion sans habillage", b: -1, pda: { j1524: +3, a2549: +4, s50: +5, csp: +5 }, r: "Le public suit en nombre : effort financier contenu. La confiance du public progresse.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd171', titre: "Le favori tombe",
+    desc: "Élimination du grand favori en huitièmes. Ta soirée entière était construite autour de lui.",
+    types: ['sport'],
+    c: [
+      { l: "Reconstruire toute la soirée en urgence", b: -2, pda: { j1524: +6, a2549: +7, s50: +5, csp: +5 }, r: "Le public suit en nombre : dépense raisonnable. Les réseaux sociaux s'enflamment positivement.", pop: 4 },
+      { l: "Maintenir le programme prévu", b: 0, pda: { j1524: +2, a2549: +3, s50: +4, csp: +4 }, r: "Le public suit en nombre : effort financier contenu. L'opinion publique reste neutre.", pop: 0 }
+    ]
+  },
+  {
+    id: 'd172', titre: "Deux champions se détestent",
+    desc: "La rivalité est réelle et vend des audiences. Ton rédacteur en chef n'est pas à l'aise.",
+    types: ['sport'],
+    c: [
+      { l: "Exploiter le duel et le mettre en scène", b: +4, pda: { j1524: +9, a2549: +8, s50: +4, csp: +4 }, r: "Les scores explosent sur toutes les cibles : opération qui préserve les comptes. Le public est conquis.", pop: 3 },
+      { l: "Rester factuel, sans dramatisation", b: 0, pda: { j1524: +3, a2549: +4, s50: +4, csp: +5 }, r: "L'audience progresse nettement : budget maîtrisé. Bon retour côté opinion publique.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd173', titre: "Le rematch se négocie",
+    desc: "Le promoteur a compris ce que valait la revanche. Il te fait payer le premier combat deux fois.",
+    types: ['sport'],
+    c: [
+      { l: "Acheter l'exclusivité du rematch", b: -7, pda: { j1524: +9, a2549: +8, s50: +5, csp: +5 }, r: "Dépense raisonnable, l'audience s'envole. L'image de la chaîne y gagne beaucoup.", pop: 3 },
+      { l: "Se contenter d'un résumé", b: -1, pda: { j1524: +3, a2549: +4, s50: +4, csp: +5 }, r: "Effort financier contenu, les courbes d'audience grimpent. L'accueil est positif.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd174', titre: "La pesée, veille de combat",
+    desc: "Face-à-face, insultes, caméras. Ça peut faire un prime ou trois vidéos verticales.",
+    types: ['sport'],
+    c: [
+      { l: "Créer un prime autour de la pesée", b: -2, pda: { j1524: +9, a2549: +7, s50: +2, csp: +4 }, r: "L'audience progresse nettement : effort financier contenu. L'accueil est positif.", pop: 2 },
+      { l: "En faire du contenu digital uniquement", b: -1, pda: { j1524: +3, a2549: +4, s50: +2, csp: +3 }, r: "Effort financier contenu, les courbes d'audience grimpent. L'accueil est positif.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd175', titre: "Les coulisses d'un combat",
+    desc: "Le camp d'entraînement s'ouvre contre un droit d'accès. Sinon, il reste les images officielles du promoteur.",
+    types: ['sport'],
+    c: [
+      { l: "Obtenir un accès exclusif au camp", b: -3, pda: { j1524: +10, a2549: +7, s50: +1, csp: +3 }, r: "Dépense raisonnable, le public suit en nombre. Bon retour côté opinion publique.", pop: 2 },
+      { l: "Utiliser les images officielles", b: -1, pda: { j1524: +3, a2549: +4, s50: +2, csp: +3 }, r: "Budget maîtrisé, l'audience progresse nettement. La confiance du public progresse.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd176', titre: "Une championne française domine",
+    desc: "Elle gagne tout et personne ne connaît son histoire. Tu peux la raconter en profondeur ou l'inviter vingt minutes.",
+    types: ['sport'],
+    c: [
+      { l: "Créer une série documentaire sur elle", b: -4, pda: { j1524: +7, a2549: +7, s50: +5, csp: +6 }, r: "Budget maîtrisé, le public répond présent en masse. Le public est conquis.", pop: 4 },
+      { l: "Une simple interview en plateau", b: -1, pda: { j1524: +3, a2549: +4, s50: +4, csp: +5 }, r: "Budget maîtrisé, le public suit en nombre. L'opinion publique reste neutre.", pop: 0 }
+    ]
+  },
+  {
+    id: 'd177', titre: "Une équipe féminine à suivre de l'intérieur",
+    desc: "Le vestiaire est prêt à s'ouvrir. Le budget inside n'est pas prévu.",
+    types: ['sport'],
+    c: [
+      { l: "Produire un inside complet", b: -4, pda: { j1524: +7, a2549: +8, s50: +5, csp: +6 }, r: "Les scores explosent sur toutes les cibles : budget maîtrisé. Les réseaux sociaux s'enflamment positivement.", pop: 4 },
+      { l: "Couverture classique des matchs", b: -1, pda: { j1524: +3, a2549: +4, s50: +4, csp: +5 }, r: "Budget maîtrisé, le public suit en nombre. Peu d'écho dans le débat public.", pop: 0 }
+    ]
+  },
+  {
+    id: 'd178', titre: "Une légende s'en va",
+    desc: "Fin de carrière annoncée. Le pays veut un moment, ta grille veut une case.",
+    types: ['sport'],
+    c: [
+      { l: "Programmer un prime hommage", b: -4, pda: { j1524: +4, a2549: +6, s50: +8, csp: +6 }, r: "Le public répond présent en masse : effort financier contenu. La confiance du public progresse.", pop: 2 },
+      { l: "Une interview courte en fin de journal", b: -1, pda: { j1524: +2, a2549: +3, s50: +5, csp: +5 }, r: "L'audience progresse nettement : budget maîtrisé. Bon retour côté opinion publique.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd179', titre: "Les 100 moments qui ont marqué le sport",
+    desc: "Un projet d'archives ambitieux. En prime, c'est un événement. En digital, c'est un feuilleton.",
+    types: ['sport'],
+    c: [
+      { l: "Produire un grand prime événementiel", b: -5, pda: { j1524: +9, a2549: +7, s50: +6, csp: +5 }, r: "Effort financier contenu, les scores explosent sur toutes les cibles. L'image de la chaîne y gagne beaucoup.", pop: 3 },
+      { l: "En faire une série digitale", b: -1, pda: { j1524: +4, a2549: +5, s50: +4, csp: +5 }, r: "L'audience progresse nettement : budget maîtrisé. La confiance du public progresse.", pop: 2 }
+    ]
+  },
+  {
+    id: 'd180', titre: "Le best-of du week-end",
+    desc: "Tous les résumés au même endroit, chaque dimanche soir. À l'antenne ou en ligne.",
+    types: ['sport'],
+    c: [
+      { l: "Créer une vraie émission best-of", b: -3, pda: { j1524: +7, a2549: +6, s50: +6, csp: +4 }, r: "Effort financier contenu, les courbes d'audience grimpent. Bon retour côté opinion publique.", pop: 2 },
+      { l: "Une compilation digitale uniquement", b: -1, pda: { j1524: +3, a2549: +4, s50: +4, csp: +3 }, r: "Le public suit en nombre : effort financier contenu. L'accueil est positif.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd181', titre: "Replay intégral : tout ou une partie",
+    desc: "Rendre tous les matchs disponibles coûte en stockage et en droits, mais fidélise.",
+    types: ['sport'],
+    c: [
+      { l: "Tout rendre disponible en replay", b: -3, pda: { j1524: +8, a2549: +7, s50: +4, csp: +5 }, r: "Effort financier contenu, l'audience s'envole. Les réseaux sociaux s'enflamment positivement.", pop: 4 },
+      { l: "Limiter le replay à quelques matchs", b: +1, pda: { j1524: +3, a2549: +4, s50: +3, csp: +4 }, r: "Les courbes d'audience grimpent : solution économe qui rassure le CFO. Peu d'écho dans le débat public.", pop: 0 }
+    ]
+  },
+  {
+    id: 'd182', titre: "La VOD sportive",
+    desc: "Une bibliothèque à construire, des droits à renégocier, un usage encore incertain.",
+    types: ['sport'],
+    c: [
+      { l: "Lancer une vraie bibliothèque VOD", b: -5, pda: { j1524: +7, a2549: +6, s50: +5, csp: +6 }, r: "Les scores explosent sur toutes les cibles : effort financier contenu. Les réseaux sociaux s'enflamment positivement.", pop: 3 },
+      { l: "Ne pas investir pour l'instant", b: 0, pda: { j1524: +2, a2549: +3, s50: +4, csp: +5 }, r: "Le public suit en nombre : budget maîtrisé. L'opinion publique reste neutre.", pop: 0 }
+    ]
+  },
+  {
+    id: 'd183', titre: "Les archives prennent la poussière",
+    desc: "Cinquante ans de bandes dans un sous-sol. La numérisation coûte cher et ne rapporte rien tout de suite.",
+    types: ['sport'],
+    c: [
+      { l: "Numériser tout le catalogue", b: -6, pda: { j1524: +4, a2549: +5, s50: +8, csp: +6 }, r: "Le public suit en nombre : budget maîtrisé. Le public est conquis.", pop: 4 },
+      { l: "Ne garder que les événements récents", b: 0, pda: { j1524: +2, a2549: +3, s50: +5, csp: +4 }, r: "Budget maîtrisé, le public suit en nombre. Peu d'écho dans le débat public.", pop: 0 }
+    ]
+  },
+  {
+    id: 'd184', titre: "Payant ou gratuit, il faut choisir",
+    desc: "Ton modèle économique arrive à un carrefour. L'abonnement rassure, la gratuité fait du volume.",
+    types: ['sport'],
+    c: [
+      { l: "Lancer une offre premium payante", b: -10, pda: { j1524: +10, a2549: +6, s50: 0, csp: +5 }, r: "L'audience progresse nettement : enveloppe généreuse débloquée. Peu d'écho dans le débat public.", pop: 0 },
+      { l: "Tout garder gratuit et vivre de la pub", b: +8, pda: { j1524: +5, a2549: +5, s50: +4, csp: +4 }, r: "Les courbes d'audience grimpent : opération qui préserve les comptes. L'image de la chaîne y gagne beaucoup.", pop: 5 }
+    ]
+  },
+  {
+    id: 'd185', titre: "Le match premium derrière le paywall ?",
+    desc: "L'affiche de l'année peut ouvrir grand les portes ou remplir la caisse.",
+    types: ['sport'],
+    c: [
+      { l: "Le rendre gratuit pour tout le monde", b: -3, pda: { j1524: +9, a2549: +7, s50: +4, csp: +4 }, r: "Le public répond présent en masse : effort financier contenu. L'image de la chaîne y gagne beaucoup.", pop: 5 },
+      { l: "Le réserver aux abonnés", b: +10, pda: { j1524: +3, a2549: +4, s50: +3, csp: +5 }, r: "Opération qui préserve les comptes, le public suit en nombre. L'opinion publique se crispe.", pop: -1 }
+    ]
+  },
+  {
+    id: 'd186', titre: "Pass saison ou match à l'unité",
+    desc: "L'abonnement annuel sécurise les revenus. Le paiement au match attire les occasionnels.",
+    types: ['sport'],
+    c: [
+      { l: "Créer un pass saison annuel", b: -5, pda: { j1524: +7, a2549: +6, s50: +3, csp: +5 }, r: "L'audience progresse nettement : dépense raisonnable. La confiance du public progresse.", pop: 2 },
+      { l: "Proposer le paiement au match", b: +6, pda: { j1524: +4, a2549: +4, s50: +3, csp: +5 }, r: "Le public suit en nombre : solution économe qui rassure le CFO. La confiance du public progresse.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd187', titre: "L'application rame",
+    desc: "Les notes du store sont mauvaises, les plaintes s'accumulent les soirs de gros match.",
+    types: ['sport'],
+    c: [
+      { l: "Investir fortement dans une refonte", b: -8, pda: { j1524: +10, a2549: +7, s50: +2, csp: +5 }, r: "Mise conséquente sur la table, l'audience s'envole. Le public est conquis.", pop: 3 },
+      { l: "Faire le minimum de corrections", b: -1, pda: { j1524: +4, a2549: +4, s50: +3, csp: +4 }, r: "L'audience progresse nettement : budget maîtrisé. Les critiques fusent sur les réseaux.", pop: -1 }
+    ]
+  },
+  {
+    id: 'd188', titre: "Les alertes live",
+    desc: "Chaque but poussé sur les téléphones ramène du trafic, et lasse une partie des utilisateurs.",
+    types: ['sport'],
+    c: [
+      { l: "Développer des alertes temps réel", b: -2, pda: { j1524: +9, a2549: +7, s50: +2, csp: +4 }, r: "Budget maîtrisé, les courbes d'audience grimpent. La confiance du public progresse.", pop: 2 },
+      { l: "Limiter fortement les notifications", b: 0, pda: { j1524: +3, a2549: +4, s50: +3, csp: +4 }, r: "L'audience progresse nettement : effort financier contenu. L'accueil est positif.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd189', titre: "Les extraits, avant ou après ?",
+    desc: "Publier les buts immédiatement fait exploser le digital et vide un peu l'antenne.",
+    types: ['sport'],
+    c: [
+      { l: "Publier les extraits immédiatement", b: -1, pda: { j1524: +10, a2549: +8, s50: +2, csp: +4 }, r: "Les scores explosent sur toutes les cibles : budget maîtrisé. Le public est conquis.", pop: 4 },
+      { l: "Attendre la fin de la diffusion TV", b: +2, pda: { j1524: +3, a2549: +4, s50: +3, csp: +4 }, r: "L'audience progresse nettement : solution économe qui rassure le CFO. Bon retour côté opinion publique.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd190', titre: "TikTok : une newsroom verticale",
+    desc: "Le format vertical demande une équipe dédiée qui pense mobile. Ou tu recycles ce qui existe déjà.",
+    types: ['sport'],
+    c: [
+      { l: "Créer une newsroom TikTok dédiée", b: -4, pda: { j1524: +11, a2549: +6, s50: 0, csp: +3 }, r: "Effort financier contenu, l'audience progresse nettement. L'accueil est positif.", pop: 2 },
+      { l: "Réutiliser les contenus TV existants", b: -1, pda: { j1524: +5, a2549: +4, s50: +1, csp: +2 }, r: "L'audience progresse nettement : dépense raisonnable. L'accueil est positif.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd191', titre: "YouTube : chaîne premium ou vitrine",
+    desc: "Tu peux y construire une vraie offre ou t'en servir comme bande-annonce de l'antenne.",
+    types: ['sport'],
+    c: [
+      { l: "Lancer une chaîne YouTube premium", b: -5, pda: { j1524: +9, a2549: +6, s50: +1, csp: +4 }, r: "Budget maîtrisé, les courbes d'audience grimpent. Les réseaux sociaux s'enflamment positivement.", pop: 3 },
+      { l: "Publier seulement des extraits", b: +1, pda: { j1524: +4, a2549: +4, s50: +2, csp: +3 }, r: "L'audience progresse nettement : solution économe qui rassure le CFO. L'accueil est positif.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd192', titre: "Twitch : entrer dans la maison des jeunes",
+    desc: "Les coulisses en direct y marchent fort, mais ton public historique n'y mettra jamais les pieds.",
+    types: ['sport'],
+    c: [
+      { l: "Diffuser les coulisses sur Twitch", b: -3, pda: { j1524: +11, a2549: +5, s50: -2, csp: +3 }, r: "L'audience progresse nettement : budget maîtrisé. Bon retour côté opinion publique.", pop: 2 },
+      { l: "Rester sur les plateformes classiques", b: 0, pda: { j1524: +3, a2549: +3, s50: +1, csp: +2 }, r: "Un frémissement positif se confirme : effort financier contenu. La confiance du public progresse.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd193', titre: "Le podcast sportif",
+    desc: "Quotidien, il installe un rendez-vous. Hebdomadaire, il coûte quatre fois moins.",
+    types: ['sport'],
+    c: [
+      { l: "Lancer un podcast quotidien", b: -3, pda: { j1524: +7, a2549: +6, s50: +3, csp: +5 }, r: "L'audience progresse nettement : budget maîtrisé. La confiance du public progresse.", pop: 2 },
+      { l: "Un podcast hebdomadaire suffit", b: -1, pda: { j1524: +3, a2549: +4, s50: +3, csp: +4 }, r: "Budget maîtrisé, l'audience progresse nettement. L'accueil est positif.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd194', titre: "Le second écran",
+    desc: "La moitié de ton public regarde le match avec son téléphone dans la main. Autant leur donner quelque chose.",
+    types: ['sport'],
+    c: [
+      { l: "Créer une expérience data interactive", b: -5, pda: { j1524: +9, a2549: +7, s50: +2, csp: +5 }, r: "Le public suit en nombre : dépense raisonnable. L'accueil est positif.", pop: 2 },
+      { l: "Rester sur la TV classique", b: 0, pda: { j1524: +3, a2549: +4, s50: +3, csp: +4 }, r: "Dépense raisonnable, le public suit en nombre. L'accueil est positif.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd195', titre: "Fantasy league : ton jeu ou celui des autres",
+    desc: "Créer le tien coûte cher mais garde les utilisateurs chez toi. Le partenariat rapporte tout de suite.",
+    types: ['sport'],
+    c: [
+      { l: "Créer ton propre jeu fantasy", b: -4, pda: { j1524: +10, a2549: +7, s50: +2, csp: +5 }, r: "Le public répond présent en masse : effort financier contenu. L'accueil est positif.", pop: 2 },
+      { l: "Signer un partenariat externe", b: +4, pda: { j1524: +4, a2549: +5, s50: +3, csp: +4 }, r: "Solution économe qui rassure le CFO, les courbes d'audience grimpent. L'accueil est positif.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd196', titre: "Les pronostics : jeu gratuit ou partenariat",
+    desc: "Ton public adore parier son avis. Un partenaire est prêt à payer cher pour être là.",
+    types: ['sport'],
+    c: [
+      { l: "Lancer un jeu de pronostics gratuit", b: -2, pda: { j1524: +9, a2549: +7, s50: +2, csp: +4 }, r: "Le public suit en nombre : budget maîtrisé. Les réseaux sociaux s'enflamment positivement.", pop: 3 },
+      { l: "Monétiser via un partenaire spécialisé", b: +6, pda: { j1524: +6, a2549: +5, s50: +2, csp: +3 }, r: "Solution économe qui rassure le CFO, les courbes d'audience grimpent. L'opinion publique reste neutre.", pop: 0 }
+    ]
+  },
+  {
+    id: 'd197', titre: "Une IA veut commenter tes matchs",
+    desc: "La démo est bluffante sur les matchs de bas de tableau. Ta rédaction, elle, est glacée.",
+    types: ['sport'],
+    c: [
+      { l: "Tester le commentaire automatisé", b: -2, pda: { j1524: +8, a2549: +5, s50: 0, csp: +5 }, r: "L'audience progresse nettement : effort financier contenu. L'opinion publique se crispe.", pop: -1 },
+      { l: "Rester 100% humain au micro", b: 0, pda: { j1524: +3, a2549: +4, s50: +4, csp: +4 }, r: "Le public suit en nombre : dépense raisonnable. Les réseaux sociaux s'enflamment positivement.", pop: 3 }
+    ]
+  },
+  {
+    id: 'd198', titre: "Statistiques automatisées",
+    desc: "L'IA sort en trois secondes ce que ton analyste met deux heures à produire. Sans le regard.",
+    types: ['sport'],
+    c: [
+      { l: "Automatiser la production de statistiques", b: -3, pda: { j1524: +8, a2549: +6, s50: +1, csp: +6 }, r: "Dépense raisonnable, l'audience progresse nettement. Peu d'écho dans le débat public.", pop: 0 },
+      { l: "Garder une analyse humaine", b: 0, pda: { j1524: +3, a2549: +4, s50: +3, csp: +5 }, r: "L'audience progresse nettement : effort financier contenu. La confiance du public progresse.", pop: 2 }
+    ]
+  },
+  {
+    id: 'd199', titre: "La réalité augmentée sur le terrain",
+    desc: "Trajectoires, hors-jeu, vitesse de course affichés en direct. Beau, cher, et parfois envahissant.",
+    types: ['sport'],
+    c: [
+      { l: "Enrichir l'image en réalité augmentée", b: -6, pda: { j1524: +9, a2549: +6, s50: +1, csp: +5 }, r: "Les courbes d'audience grimpent : effort financier contenu. La confiance du public progresse.", pop: 2 },
+      { l: "Garder le signal classique", b: 0, pda: { j1524: +3, a2549: +4, s50: +3, csp: +4 }, r: "L'audience progresse nettement : budget maîtrisé. L'accueil est positif.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd200', titre: "La VR, encore une fois",
+    desc: "Chaque cycle promet la révolution. Les casques restent dans les tiroirs.",
+    types: ['sport'],
+    c: [
+      { l: "Proposer une expérience VR immersive", b: -7, pda: { j1524: +10, a2549: +5, s50: 0, csp: +4 }, r: "Les courbes d'audience grimpent : dépense raisonnable. La confiance du public progresse.", pop: 2 },
+      { l: "Rester sur la diffusion classique", b: 0, pda: { j1524: +2, a2549: +3, s50: +2, csp: +3 }, r: "Dépense raisonnable, quelques points d'audience s'ajoutent. La confiance du public progresse.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd201', titre: "Les probabilités en direct",
+    desc: "Afficher les chances de victoire minute par minute fascine les uns et gâche le suspense des autres.",
+    types: ['sport'],
+    c: [
+      { l: "Afficher les probabilités en direct", b: -2, pda: { j1524: +9, a2549: +6, s50: +1, csp: +6 }, r: "Budget maîtrisé, le public suit en nombre. L'accueil est positif.", pop: 1 },
+      { l: "Limiter les statistiques à l'écran", b: 0, pda: { j1524: +3, a2549: +4, s50: +3, csp: +5 }, r: "L'audience progresse nettement : effort financier contenu. Bon retour côté opinion publique.", pop: 2 }
+    ]
+  },
+  {
+    id: 'd202', titre: "Une version internationale de ta chaîne",
+    desc: "Le marché anglophone est immense et déjà saturé. L'investissement est lourd et long.",
+    types: ['sport'],
+    c: [
+      { l: "Lancer une version anglaise", b: -12, pda: { j1524: +6, a2549: +5, s50: +2, csp: +5 }, r: "L'audience progresse nettement : effort budgétaire conséquent. La confiance du public progresse.", pop: 2 },
+      { l: "Rester concentré sur la France", b: 0, pda: { j1524: +3, a2549: +4, s50: +3, csp: +4 }, r: "L'audience progresse nettement : effort financier contenu. Bon retour côté opinion publique.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd203', titre: "Vendre ou exporter",
+    desc: "Un distributeur veut ton catalogue et paie cash. Ou tu construis toi-même ton offre à l'étranger.",
+    types: ['sport'],
+    c: [
+      { l: "Vendre le catalogue à un distributeur", b: +15, pda: { j1524: +2, a2549: +3, s50: +2, csp: +4 }, r: "Opération qui préserve les comptes, quelques points d'audience s'ajoutent. L'opinion publique reste neutre.", pop: 0 },
+      { l: "Développer ta propre offre internationale", b: -8, pda: { j1524: +5, a2549: +5, s50: +2, csp: +5 }, r: "Les courbes d'audience grimpent : mise conséquente sur la table. L'image de la chaîne y gagne beaucoup.", pop: 3 }
+    ]
+  },
+  {
+    id: 'd204', titre: "Une plateforme de streaming frappe à la porte",
+    desc: "Elle veut une exclusivité et met un gros chèque sur la table. En échange, elle prend ton meilleur contenu.",
+    types: ['sport'],
+    c: [
+      { l: "Céder une exclusivité à la plateforme", b: -12, pda: { j1524: +7, a2549: +6, s50: +2, csp: +4 }, r: "Le public suit en nombre : enveloppe généreuse débloquée. Peu d'écho dans le débat public.", pop: 0 },
+      { l: "Partager les contenus sans exclusivité", b: +7, pda: { j1524: +4, a2549: +5, s50: +3, csp: +4 }, r: "Opération qui préserve les comptes, l'audience progresse nettement. L'accueil est positif.", pop: 2 }
+    ]
+  },
+  {
+    id: 'd205', titre: "Lancer une chaîne FAST",
+    desc: "Gratuite, financée par la pub, distribuée partout. Elle peut aussi cannibaliser ton offre principale.",
+    types: ['sport'],
+    c: [
+      { l: "Lancer une chaîne FAST gratuite", b: -8, pda: { j1524: +7, a2549: +6, s50: +4, csp: +4 }, r: "Les courbes d'audience grimpent : enveloppe généreuse débloquée. L'image de la chaîne y gagne beaucoup.", pop: 4 },
+      { l: "Conserver l'offre actuelle telle quelle", b: +2, pda: { j1524: +3, a2549: +4, s50: +4, csp: +4 }, r: "Les courbes d'audience grimpent : choix rentable pour la trésorerie. Bon retour côté opinion publique.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd206', titre: "Une chaîne 100% archives",
+    desc: "Ton catalogue peut vivre seul sur un canal dédié, ou remplir les trous de l'antenne principale.",
+    types: ['sport'],
+    c: [
+      { l: "Créer une chaîne archives dédiée", b: -5, pda: { j1524: +3, a2549: +4, s50: +7, csp: +4 }, r: "Dépense raisonnable, les courbes d'audience grimpent. L'accueil est positif.", pop: 2 },
+      { l: "Utiliser les archives sur l'antenne principale", b: +1, pda: { j1524: +2, a2549: +3, s50: +5, csp: +4 }, r: "Les courbes d'audience grimpent : solution économe qui rassure le CFO. La confiance du public progresse.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd207', titre: "Les droits audio",
+    desc: "Personne ne pense à la radio et au podcast live. Les droits sont peu chers, l'usage réel est en voiture.",
+    types: ['sport'],
+    c: [
+      { l: "Créer une offre audio en direct", b: -2, pda: { j1524: +5, a2549: +5, s50: +3, csp: +5 }, r: "Le public suit en nombre : budget maîtrisé. L'accueil est positif.", pop: 2 },
+      { l: "Laisser les droits audio de côté", b: +1, pda: { j1524: +2, a2549: +3, s50: +3, csp: +4 }, r: "Opération qui préserve les comptes, l'audience progresse nettement. La confiance du public progresse.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd208', titre: "La newsletter",
+    desc: "Quotidienne, elle installe un réflexe. Hebdomadaire, elle demande une personne à temps partiel.",
+    types: ['sport'],
+    c: [
+      { l: "Lancer une newsletter quotidienne", b: -1, pda: { j1524: +6, a2549: +6, s50: +4, csp: +6 }, r: "Le public suit en nombre : dépense raisonnable. Bon retour côté opinion publique.", pop: 2 },
+      { l: "Une newsletter hebdomadaire suffit", b: +1, pda: { j1524: +3, a2549: +4, s50: +3, csp: +5 }, r: "Le public suit en nombre : solution économe qui rassure le CFO. L'accueil est positif.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd209', titre: "Les alertes mercato, gratuites ou premium",
+    desc: "L'info transfert avant tout le monde, c'est ce que ton public veut le plus. Et ce qu'il est prêt à payer.",
+    types: ['sport'],
+    c: [
+      { l: "En faire un service premium payant", b: -1, pda: { j1524: +10, a2549: +8, s50: +2, csp: +4 }, r: "L'audience s'envole : budget maîtrisé. Bon retour côté opinion publique.", pop: 1 },
+      { l: "Garder le service gratuit pour tous", b: +4, pda: { j1524: +5, a2549: +6, s50: +3, csp: +4 }, r: "Solution économe qui rassure le CFO, l'audience progresse nettement. L'image de la chaîne y gagne beaucoup.", pop: 4 }
+    ]
+  },
+  {
+    id: 'd210', titre: "Coproduire l'appli d'un club",
+    desc: "Le club offre son audience et sa marque. En échange, il aura un droit de regard sur les contenus.",
+    types: ['sport'],
+    c: [
+      { l: "Coproduire l'application avec le club", b: -4, pda: { j1524: +7, a2549: +7, s50: +5, csp: +4 }, r: "Budget maîtrisé, les courbes d'audience grimpent. L'accueil est positif.", pop: 2 },
+      { l: "Rester indépendant éditorialement", b: +3, pda: { j1524: +3, a2549: +4, s50: +4, csp: +5 }, r: "L'audience progresse nettement : choix rentable pour la trésorerie. L'accueil est positif.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd211', titre: "Vendre des billets",
+    desc: "Un partenaire billetterie propose une commission confortable. Tu deviendrais un peu plus qu'un média.",
+    types: ['sport'],
+    c: [
+      { l: "Vendre des packages billets premium", b: -2, pda: { j1524: +7, a2549: +6, s50: +4, csp: +3 }, r: "Dépense raisonnable, les courbes d'audience grimpent. La confiance du public progresse.", pop: 1 },
+      { l: "Rester un média, uniquement", b: +5, pda: { j1524: +2, a2549: +3, s50: +4, csp: +3 }, r: "Solution économe qui rassure le CFO, l'audience progresse nettement. Bon retour côté opinion publique.", pop: 2 }
+    ]
+  },
+  {
+    id: 'd212', titre: "Le merchandising de la chaîne",
+    desc: "Écharpes, maillots, mugs. Ça rapporte peu et ça crée une communauté.",
+    types: ['sport'],
+    c: [
+      { l: "Ouvrir une boutique officielle", b: -3, pda: { j1524: +8, a2549: +6, s50: +3, csp: +4 }, r: "Effort financier contenu, l'audience progresse nettement. Les réseaux sociaux s'enflamment positivement.", pop: 3 },
+      { l: "Ne pas vendre de produits dérivés", b: +2, pda: { j1524: +2, a2549: +3, s50: +3, csp: +4 }, r: "Opération qui préserve les comptes, les courbes d'audience grimpent. L'accueil est positif.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd213', titre: "Un programme pour les fidèles",
+    desc: "Un club de membres avec avantages, avant-premières et accès. Il faut le construire et l'animer.",
+    types: ['sport'],
+    c: [
+      { l: "Créer un programme membres", b: -4, pda: { j1524: +9, a2549: +7, s50: +3, csp: +5 }, r: "Dépense raisonnable, les scores explosent sur toutes les cibles. L'image de la chaîne y gagne beaucoup.", pop: 4 },
+      { l: "Pas de programme de fidélité", b: +3, pda: { j1524: +3, a2549: +4, s50: +3, csp: +5 }, r: "Choix rentable pour la trésorerie, le public suit en nombre. L'opinion publique reste neutre.", pop: 0 }
+    ]
+  },
+  {
+    id: 'd214', titre: "Une convention de supporters",
+    desc: "Trois jours, un palais des congrès, tes consultants en dédicace. Le lien direct avec ton public.",
+    types: ['sport'],
+    c: [
+      { l: "Organiser l'événement toi-même", b: -4, pda: { j1524: +9, a2549: +7, s50: +4, csp: +3 }, r: "Budget maîtrisé, l'audience progresse nettement. Le public est conquis.", pop: 4 },
+      { l: "Rester uniquement à l'antenne", b: 0, pda: { j1524: +2, a2549: +3, s50: +3, csp: +4 }, r: "L'audience progresse nettement : effort financier contenu. Ni éclat ni polémique à signaler.", pop: 0 }
+    ]
+  },
+  {
+    id: 'd215', titre: "Le salon du sport",
+    desc: "Tu peux créer le tien ou y venir en simple média accrédité.",
+    types: ['sport'],
+    c: [
+      { l: "Créer ton propre salon du sport", b: -7, pda: { j1524: +7, a2549: +6, s50: +5, csp: +6 }, r: "Effort financier contenu, les scores explosent sur toutes les cibles. La confiance du public progresse.", pop: 2 },
+      { l: "Y participer comme média", b: -2, pda: { j1524: +3, a2549: +4, s50: +4, csp: +5 }, r: "Le public suit en nombre : effort financier contenu. La confiance du public progresse.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd216', titre: "Un festival à ton nom",
+    desc: "Un rendez-vous annuel, physique, qui existe hors de l'écran. Le pari est lourd.",
+    types: ['sport'],
+    c: [
+      { l: "Créer un festival sportif annuel", b: -10, pda: { j1524: +10, a2549: +7, s50: +5, csp: +4 }, r: "Mise conséquente sur la table, les scores explosent sur toutes les cibles. Le public est conquis.", pop: 5 },
+      { l: "Se contenter d'en assurer la couverture", b: -3, pda: { j1524: +3, a2549: +4, s50: +4, csp: +5 }, r: "L'audience progresse nettement : dépense raisonnable. Peu d'écho dans le débat public.", pop: 0 }
+    ]
+  },
+  {
+    id: 'd217', titre: "La tournée d'été",
+    desc: "Ton antenne peut aller à la rencontre des clubs pendant la préparation, ou tout faire depuis Paris.",
+    types: ['sport'],
+    c: [
+      { l: "Partir en tournée dans les clubs", b: -6, pda: { j1524: +8, a2549: +7, s50: +6, csp: +4 }, r: "Budget maîtrisé, le public répond présent en masse. La confiance du public progresse.", pop: 2 },
+      { l: "Tout produire depuis le studio central", b: -1, pda: { j1524: +3, a2549: +4, s50: +4, csp: +4 }, r: "Budget maîtrisé, l'audience progresse nettement. Bon retour côté opinion publique.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd218', titre: "Un village itinérant",
+    desc: "Un dispositif mobile qui s'installe dans les villes, à côté des grands événements.",
+    types: ['sport'],
+    c: [
+      { l: "Créer un village itinérant", b: -5, pda: { j1524: +8, a2549: +7, s50: +6, csp: +3 }, r: "Les scores explosent sur toutes les cibles : budget maîtrisé. L'image de la chaîne y gagne beaucoup.", pop: 4 },
+      { l: "Rester sur une antenne classique", b: 0, pda: { j1524: +2, a2549: +3, s50: +4, csp: +3 }, r: "Effort financier contenu, l'audience progresse nettement. L'accueil est positif.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd219', titre: "Créer ta propre compétition",
+    desc: "Posséder l'événement, c'est ne plus jamais payer de droits. C'est aussi tout risquer sur son succès.",
+    types: ['sport'],
+    c: [
+      { l: "Créer ton propre tournoi de A à Z", b: -15, pda: { j1524: +9, a2549: +8, s50: +4, csp: +5 }, r: "Le public répond présent en masse : effort budgétaire conséquent. Les réseaux sociaux s'enflamment positivement.", pop: 4 },
+      { l: "Racheter un tournoi existant", b: -8, pda: { j1524: +5, a2549: +6, s50: +4, csp: +5 }, r: "Mise conséquente sur la table, le public suit en nombre. Bon retour côté opinion publique.", pop: 2 }
+    ]
+  },
+  {
+    id: 'd220', titre: "Un match exhibition maison",
+    desc: "Un événement fabriqué pour ton antenne, avec des stars payées pour venir jouer.",
+    types: ['sport'],
+    c: [
+      { l: "Organiser ton propre événement", b: -10, pda: { j1524: +8, a2549: +7, s50: +4, csp: +4 }, r: "L'audience progresse nettement : effort budgétaire conséquent. Le public est conquis.", pop: 3 },
+      { l: "Diffuser un match déjà existant", b: -2, pda: { j1524: +3, a2549: +4, s50: +3, csp: +3 }, r: "Dépense raisonnable, les courbes d'audience grimpent. La confiance du public progresse.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd221', titre: "Un All-Star Game à la française",
+    desc: "Le concept marche outre-Atlantique. En France, personne n'a réussi. Personne n'a vraiment essayé non plus.",
+    types: ['sport'],
+    c: [
+      { l: "Créer ton propre All-Star Game", b: -12, pda: { j1524: +10, a2549: +7, s50: +3, csp: +5 }, r: "Le public répond présent en masse : enveloppe généreuse débloquée. Le public est conquis.", pop: 4 },
+      { l: "Ne pas investir sur ce format", b: 0, pda: { j1524: +3, a2549: +4, s50: +3, csp: +4 }, r: "L'audience progresse nettement : dépense raisonnable. L'accueil est positif.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd222', titre: "Les trophées de la chaîne",
+    desc: "Une cérémonie annuelle qui rassemble tout le sport français. Ou une remise de prix en fin d'émission.",
+    types: ['sport'],
+    c: [
+      { l: "Créer une grande cérémonie annuelle", b: -6, pda: { j1524: +6, a2549: +6, s50: +6, csp: +6 }, r: "Budget maîtrisé, le public répond présent en masse. Le public est conquis.", pop: 3 },
+      { l: "Une simple remise de prix à l'antenne", b: -2, pda: { j1524: +3, a2549: +4, s50: +5, csp: +5 }, r: "Le public suit en nombre : effort financier contenu. Bon retour côté opinion publique.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd223', titre: "La fan zone",
+    desc: "Écran géant, public, ambiance. Ça se voit à l'écran et ça coûte une fortune en sécurité.",
+    types: ['sport'],
+    c: [
+      { l: "Installer une grande fan zone", b: -4, pda: { j1524: +8, a2549: +7, s50: +5, csp: +3 }, r: "Dépense raisonnable, l'audience progresse nettement. L'image de la chaîne y gagne beaucoup.", pop: 4 },
+      { l: "Rester uniquement à l'antenne", b: 0, pda: { j1524: +3, a2549: +4, s50: +4, csp: +4 }, r: "Les courbes d'audience grimpent : dépense raisonnable. Peu d'écho dans le débat public.", pop: 0 }
+    ]
+  },
+  {
+    id: 'd224', titre: "Une finale en plein air",
+    desc: "Délocaliser toute l'antenne dehors, avec le public derrière le plateau. Météo comprise.",
+    types: ['sport'],
+    c: [
+      { l: "Délocaliser l'antenne en plein air", b: -5, pda: { j1524: +8, a2549: +7, s50: +5, csp: +4 }, r: "Le public répond présent en masse : budget maîtrisé. La confiance du public progresse.", pop: 2 },
+      { l: "Rester au studio, en sécurité", b: -1, pda: { j1524: +3, a2549: +4, s50: +4, csp: +4 }, r: "Le public suit en nombre : effort financier contenu. Bon retour côté opinion publique.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd225', titre: "Un plateau dans le stade",
+    desc: "Construire un dispositif mobile qui suit les grands rendez-vous, plutôt qu'un studio fixe.",
+    types: ['sport'],
+    c: [
+      { l: "Construire un plateau mobile", b: -6, pda: { j1524: +8, a2549: +8, s50: +6, csp: +6 }, r: "L'audience s'envole : budget maîtrisé. Les réseaux sociaux s'enflamment positivement.", pop: 3 },
+      { l: "Garder le studio fixe", b: -2, pda: { j1524: +3, a2549: +4, s50: +4, csp: +5 }, r: "Le public suit en nombre : budget maîtrisé. L'accueil est positif.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd226', titre: "Des supporters sur le plateau",
+    desc: "Ils apportent l'émotion et la spontanéité. Et le risque d'un dérapage en direct.",
+    types: ['sport'],
+    c: [
+      { l: "Faire participer les supporters", b: -2, pda: { j1524: +10, a2549: +7, s50: +4, csp: +3 }, r: "Budget maîtrisé, l'audience s'envole. Les réseaux sociaux s'enflamment positivement.", pop: 5 },
+      { l: "Garder un plateau d'experts uniquement", b: 0, pda: { j1524: +3, a2549: +4, s50: +4, csp: +5 }, r: "Budget maîtrisé, l'audience progresse nettement. Peu d'écho dans le débat public.", pop: 0 }
+    ]
+  },
+  {
+    id: 'd227', titre: "Laisser le public choisir l'affiche",
+    desc: "Un vote en ligne pour désigner le match du dimanche. La démocratie ne choisit pas toujours bien.",
+    types: ['sport'],
+    c: [
+      { l: "Faire voter le public pour l'affiche", b: -1, pda: { j1524: +8, a2549: +6, s50: +3, csp: +4 }, r: "Les courbes d'audience grimpent : budget maîtrisé. Le public est conquis.", pop: 4 },
+      { l: "Garder la programmation en interne", b: 0, pda: { j1524: +3, a2549: +4, s50: +3, csp: +4 }, r: "Les courbes d'audience grimpent : dépense raisonnable. Ni éclat ni polémique à signaler.", pop: 0 }
+    ]
+  },
+  {
+    id: 'd228', titre: "Qui désigne l'homme du match ?",
+    desc: "Le public vote avec le cœur, les consultants avec l'œil.",
+    types: ['sport'],
+    c: [
+      { l: "Laisser le public voter", b: -1, pda: { j1524: +10, a2549: +7, s50: +3, csp: +4 }, r: "Effort financier contenu, les scores explosent sur toutes les cibles. Le public est conquis.", pop: 5 },
+      { l: "Laisser les consultants trancher", b: 0, pda: { j1524: +4, a2549: +4, s50: +3, csp: +4 }, r: "Le public suit en nombre : effort financier contenu. Peu d'écho dans le débat public.", pop: 0 }
+    ]
+  },
+  {
+    id: 'd229', titre: "Une charte d'indépendance éditoriale",
+    desc: "Un sponsor demande gentiment qu'on parle moins d'un sujet. Tu peux graver ton indépendance dans le marbre, ou faire une exception.",
+    types: ['sport'],
+    c: [
+      { l: "Refuser toute pression commerciale", b: -4, pda: { j1524: +4, a2549: +6, s50: +6, csp: +8 }, r: "Budget maîtrisé, le public répond présent en masse. Les réseaux sociaux s'enflamment positivement.", pop: 5 },
+      { l: "Accepter la demande du sponsor", b: +7, pda: { j1524: +6, a2549: +4, s50: -1, csp: -2 }, r: "Un frémissement positif se confirme : opération qui préserve les comptes. Une grogne se fait sentir côté public.", pop: -3 }
+    ]
+  },
+  {
+    id: 'd230', titre: "Le chèque des paris sportifs",
+    desc: "Un opérateur de paris propose le plus gros contrat de sponsoring de ton histoire. Ta rédaction est partagée, ton CFO ne l'est pas.",
+    types: ['sport'],
+    c: [
+      { l: "Refuser le contrat", b: -3, pda: { j1524: +2, a2549: +3, s50: +4, csp: +5 }, r: "Dépense raisonnable, l'audience progresse nettement. Le public est conquis.", pop: 4 },
+      { l: "Accepter le gros chèque", b: +15, pda: { j1524: +8, a2549: +7, s50: -2, csp: -1 }, r: "Le public suit en nombre : solution économe qui rassure le CFO. L'opinion publique se crispe.", pop: -2 }
+    ]
+  },
+  {
+    id: 'd231', titre: "Un équipementier veut l'exclusivité",
+    desc: "Une marque unique paie plus. Plusieurs marques rapportent moins mais te laissent libre.",
+    types: ['sport'],
+    c: [
+      { l: "Signer une exclusivité équipementier", b: +7, pda: { j1524: +5, a2549: +6, s50: +4, csp: +5 }, r: "L'audience progresse nettement : choix rentable pour la trésorerie. L'accueil est positif.", pop: 1 },
+      { l: "Ouvrir à plusieurs marques", b: +2, pda: { j1524: +3, a2549: +4, s50: +4, csp: +5 }, r: "Solution économe qui rassure le CFO, les courbes d'audience grimpent. Bon retour côté opinion publique.", pop: 2 }
+    ]
+  },
+  {
+    id: 'd232', titre: "Un constructeur veut son nom sur une émission",
+    desc: "Le naming rapporte gros et colle une marque sur ton programme phare.",
+    types: ['sport'],
+    c: [
+      { l: "Accepter le naming de l'émission", b: +9, pda: { j1524: +5, a2549: +6, s50: +4, csp: +7 }, r: "L'audience progresse nettement : solution économe qui rassure le CFO. La confiance du public progresse.", pop: 1 },
+      { l: "Se limiter à une présence classique", b: +2, pda: { j1524: +3, a2549: +4, s50: +4, csp: +5 }, r: "Les courbes d'audience grimpent : choix rentable pour la trésorerie. L'accueil est positif.", pop: 2 }
+    ]
+  },
+  {
+    id: 'd233', titre: "Une banque veut être partout",
+    desc: "Naming du magazine, habillage, encarts. L'argent est là, la visibilité éditoriale en pâtit.",
+    types: ['sport'],
+    c: [
+      { l: "Accepter le naming", b: +8, pda: { j1524: +3, a2549: +5, s50: +5, csp: +7 }, r: "Solution économe qui rassure le CFO, les courbes d'audience grimpent. Bon retour côté opinion publique.", pop: 1 },
+      { l: "Se limiter à une présence classique", b: +1, pda: { j1524: +2, a2549: +3, s50: +4, csp: +5 }, r: "Le public suit en nombre : solution économe qui rassure le CFO. La confiance du public progresse.", pop: 2 }
+    ]
+  },
+  {
+    id: 'd234', titre: "Un annonceur veut toute la soirée",
+    desc: "Une marque unique sur l'intégralité d'un prime. Simple, rentable, un peu étouffant.",
+    types: ['sport'],
+    c: [
+      { l: "Vendre la soirée entière à un annonceur", b: +12, pda: { j1524: +4, a2549: +5, s50: +4, csp: +7 }, r: "Solution économe qui rassure le CFO, l'audience progresse nettement. La confiance du public progresse.", pop: 1 },
+      { l: "Répartir les spots entre annonceurs", b: +1, pda: { j1524: +3, a2549: +4, s50: +4, csp: +5 }, r: "Opération qui préserve les comptes, le public suit en nombre. Bon retour côté opinion publique.", pop: 2 }
+    ]
+  },
+  {
+    id: 'd235', titre: "La pub autour de la finale",
+    desc: "Les tarifs explosent, la demande aussi. Chaque coupure supplémentaire éloigne un peu le spectateur.",
+    types: ['sport'],
+    c: [
+      { l: "Maximiser le remplissage publicitaire", b: +10, pda: { j1524: +1, a2549: +2, s50: +1, csp: +1 }, r: "Quelques points d'audience s'ajoutent : opération qui préserve les comptes. L'opinion publique se crispe.", pop: -3 },
+      { l: "Limiter les coupures pour le confort", b: -5, pda: { j1524: +5, a2549: +6, s50: +4, csp: +6 }, r: "Budget maîtrisé, les courbes d'audience grimpent. Les réseaux sociaux s'enflamment positivement.", pop: 4 }
+    ]
+  },
+  {
+    id: 'd236', titre: "La demande publicitaire s'emballe",
+    desc: "Tout le monde veut ton antenne cette saison. Tu peux faire flamber les tarifs ou installer la hausse dans la durée.",
+    types: ['sport'],
+    c: [
+      { l: "Augmenter fortement les tarifs, maintenant", b: +10, pda: { j1524: 0, a2549: -1, s50: -1, csp: 0 }, r: "Quelques téléspectateurs décrochent : solution économe qui rassure le CFO. Les critiques fusent sur les réseaux.", pop: -1 },
+      { l: "Une hausse progressive et durable", b: +4, pda: { j1524: +3, a2549: +4, s50: +3, csp: +4 }, r: "Solution économe qui rassure le CFO, les courbes d'audience grimpent. L'accueil est positif.", pop: 2 }
+    ]
+  },
+  {
+    id: 'd237', titre: "Les écrans ne se remplissent plus",
+    desc: "Le marché se contracte, tes espaces restent vides. Baisser les prix remplit vite et abîme la valeur.",
+    types: ['sport'],
+    c: [
+      { l: "Baisser les prix pour remplir", b: +6, pda: { j1524: +1, a2549: +2, s50: +1, csp: +1 }, r: "Quelques points d'audience s'ajoutent : solution économe qui rassure le CFO. Bon retour côté opinion publique.", pop: 1 },
+      { l: "Tenir les tarifs et attendre", b: -2, pda: { j1524: +3, a2549: +3, s50: +2, csp: +4 }, r: "Les courbes d'audience grimpent : dépense raisonnable. Bon retour côté opinion publique.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd238', titre: "Un annonceur veut être seul",
+    desc: "Exclusivité sectorielle sur toute la saison, contre un chèque majoré. Tes autres clients ne vont pas aimer.",
+    types: ['sport'],
+    c: [
+      { l: "Vendre l'exclusivité sectorielle", b: +8, pda: { j1524: +3, a2549: +4, s50: +2, csp: +5 }, r: "Solution économe qui rassure le CFO, le public suit en nombre. Ni éclat ni polémique à signaler.", pop: 0 },
+      { l: "Diversifier le portefeuille annonceurs", b: +2, pda: { j1524: +2, a2549: +3, s50: +3, csp: +4 }, r: "L'audience progresse nettement : opération qui préserve les comptes. L'accueil est positif.", pop: 2 }
+    ]
+  },
+  {
+    id: 'd239', titre: "La pub digitale, jusqu'où ?",
+    desc: "Chaque pré-roll rapporte. Chaque pré-roll fait fuir quelques utilisateurs.",
+    types: ['sport'],
+    c: [
+      { l: "Vendre davantage de pré-rolls", b: +7, pda: { j1524: +1, a2549: +2, s50: -1, csp: +3 }, r: "L'audience progresse doucement : solution économe qui rassure le CFO. Les critiques fusent sur les réseaux.", pop: -2 },
+      { l: "Limiter la pression publicitaire", b: -2, pda: { j1524: +5, a2549: +5, s50: +2, csp: +5 }, r: "Effort financier contenu, le public suit en nombre. L'image de la chaîne y gagne beaucoup.", pop: 4 }
+    ]
+  },
+  {
+    id: 'd240', titre: "Un sponsor devient encombrant",
+    desc: "Une enquête sort sur ton partenaire. Le contrat court encore deux ans.",
+    types: ['sport'],
+    c: [
+      { l: "Rompre le contrat immédiatement", b: -8, pda: { j1524: +5, a2549: +6, s50: +6, csp: +8 }, r: "Effort budgétaire conséquent, les scores explosent sur toutes les cibles. Le public est conquis.", pop: 5 },
+      { l: "Maintenir le partenariat jusqu'au terme", b: +10, pda: { j1524: +7, a2549: +5, s50: -2, csp: -3 }, r: "L'audience progresse doucement : solution économe qui rassure le CFO. L'opinion publique se crispe.", pop: -3 }
+    ]
+  },
+  {
+    id: 'd241', titre: "Le budget baisse",
+    desc: "La direction demande des économies avant l'été. Il faut couper quelque part.",
+    types: ['sport'],
+    c: [
+      { l: "Réduire le portefeuille de droits", b: +12, pda: { j1524: -5, a2549: -5, s50: -3, csp: -4 }, r: "Choix rentable pour la trésorerie, l'audience recule légèrement. L'opinion publique se crispe.", pop: -5 },
+      { l: "Protéger les compétitions phares et couper ailleurs", b: -5, pda: { j1524: +4, a2549: +5, s50: +3, csp: +4 }, r: "Effort financier contenu, l'audience progresse nettement. Bon retour côté opinion publique.", pop: 2 }
+    ]
+  },
+  {
+    id: 'd242', titre: "Objectif audience relevé",
+    desc: "On te demande plus de PDA avec les mêmes équipes. Deux chemins possibles, un seul budget.",
+    types: ['sport'],
+    c: [
+      { l: "Investir massivement dans de nouveaux droits", b: -20, pda: { j1524: +9, a2549: +9, s50: +6, csp: +6 }, r: "Le public répond présent en masse : facture salée mais assumée. L'image de la chaîne y gagne beaucoup.", pop: 3 },
+      { l: "Optimiser la grille et les programmes existants", b: -4, pda: { j1524: +4, a2549: +5, s50: +4, csp: +4 }, r: "Les courbes d'audience grimpent : budget maîtrisé. Bon retour côté opinion publique.", pop: 2 }
+    ]
+  },
+  {
+    id: 'd243', titre: "La trésorerie tire la langue",
+    desc: "Les échéances arrivent, la banque appelle. Certains droits peuvent être revendus vite.",
+    types: ['sport'],
+    c: [
+      { l: "Revendre une partie des droits", b: -15, pda: { j1524: -4, a2549: -5, s50: -3, csp: -3 }, r: "Quelques téléspectateurs décrochent : effort budgétaire conséquent. L'opinion publique se crispe.", pop: -4 },
+      { l: "Conserver le portefeuille et serrer les dents", b: -3, pda: { j1524: +5, a2549: +5, s50: +3, csp: +4 }, r: "Budget maîtrisé, le public suit en nombre. Les réseaux sociaux s'enflamment positivement.", pop: 3 }
+    ]
+  },
+  {
+    id: 'd244', titre: "Les droits ont doublé",
+    desc: "La compétition que tu diffuses depuis dix ans coûte désormais le prix de deux. Partir, c'est perdre une identité.",
+    types: ['sport'],
+    c: [
+      { l: "Se retirer et redéployer le budget", b: -2, pda: { j1524: -3, a2549: -3, s50: -2, csp: -2 }, r: "Effort financier contenu, l'audience recule légèrement. Les critiques fusent sur les réseaux.", pop: -4 },
+      { l: "Surenchérir pour conserver la compétition", b: -25, pda: { j1524: +8, a2549: +9, s50: +5, csp: +5 }, r: "L'audience s'envole : chèque massif signé sans trembler. Les réseaux sociaux s'enflamment positivement.", pop: 5 }
+    ]
+  },
+  {
+    id: 'd245', titre: "Le concurrent surenchérit",
+    desc: "Il met un prix qui n'a plus de rapport avec la réalité économique. Tu peux suivre ou le laisser s'y brûler.",
+    types: ['sport'],
+    c: [
+      { l: "Abandonner et le laisser payer", b: -1, pda: { j1524: -4, a2549: -4, s50: -2, csp: -2 }, r: "Budget maîtrisé, quelques téléspectateurs décrochent. Une grogne se fait sentir côté public.", pop: -3 },
+      { l: "Suivre et aller au bout", b: -20, pda: { j1524: +6, a2549: +7, s50: +4, csp: +4 }, r: "Facture salée mais assumée, le public suit en nombre. Les réseaux sociaux s'enflamment positivement.", pop: 4 }
+    ]
+  },
+  {
+    id: 'd246', titre: "Un package indivisible",
+    desc: "Le lot complet contient une pépite et beaucoup de remplissage. Le vendeur refuse de découper.",
+    types: ['sport'],
+    c: [
+      { l: "Acheter le lot entier", b: -28, pda: { j1524: +8, a2549: +9, s50: +6, csp: +6 }, r: "Le public répond présent en masse : chèque massif signé sans trembler. Les réseaux sociaux s'enflamment positivement.", pop: 3 },
+      { l: "Négocier pour ne prendre que l'essentiel", b: -12, pda: { j1524: +5, a2549: +6, s50: +4, csp: +5 }, r: "Les courbes d'audience grimpent : effort budgétaire conséquent. La confiance du public progresse.", pop: 2 }
+    ]
+  },
+  {
+    id: 'd247', titre: "Partage ou exclusivité",
+    desc: "Le détenteur propose un partage confortable. L'exclusivité, elle, se paie trois fois plus cher.",
+    types: ['sport'],
+    c: [
+      { l: "Accepter le partage des droits", b: -4, pda: { j1524: +3, a2549: +4, s50: +3, csp: +3 }, r: "Effort financier contenu, le public suit en nombre. La confiance du public progresse.", pop: 1 },
+      { l: "Exiger et payer l'exclusivité", b: -12, pda: { j1524: +7, a2549: +8, s50: +5, csp: +5 }, r: "Le public répond présent en masse : mise conséquente sur la table. Les réseaux sociaux s'enflamment positivement.", pop: 3 }
+    ]
+  },
+  {
+    id: 'd248', titre: "La fenêtre de diffusion",
+    desc: "Diffuser en premier coûte cher. Diffuser en différé coûte peu et vaut moins.",
+    types: ['sport'],
+    c: [
+      { l: "Payer pour la primeur de diffusion", b: -9, pda: { j1524: +7, a2549: +8, s50: +5, csp: +5 }, r: "Le public répond présent en masse : enveloppe généreuse débloquée. L'image de la chaîne y gagne beaucoup.", pop: 3 },
+      { l: "Accepter une diffusion décalée", b: -3, pda: { j1524: +3, a2549: +4, s50: +3, csp: +4 }, r: "L'audience progresse nettement : dépense raisonnable. L'opinion publique reste neutre.", pop: 0 }
+    ]
+  },
+  {
+    id: 'd249', titre: "Un match en clair",
+    desc: "Ouvrir l'affiche à tout le monde fait grimper la notoriété et frustre tes abonnés.",
+    types: ['sport'],
+    c: [
+      { l: "Diffuser gratuitement en clair", b: -2, pda: { j1524: +8, a2549: +8, s50: +6, csp: +5 }, r: "Budget maîtrisé, l'audience s'envole. L'image de la chaîne y gagne beaucoup.", pop: 5 },
+      { l: "Réserver le match aux abonnés", b: +5, pda: { j1524: +5, a2549: +6, s50: +4, csp: +5 }, r: "Les courbes d'audience grimpent : choix rentable pour la trésorerie. Peu d'écho dans le débat public.", pop: 0 }
+    ]
+  },
+  {
+    id: 'd250', titre: "La grande affiche en accès libre",
+    desc: "Le match de l'année peut recruter en masse, ou récompenser ceux qui paient déjà.",
+    types: ['sport'],
+    c: [
+      { l: "Offrir le match à tout le public", b: -5, pda: { j1524: +9, a2549: +8, s50: +5, csp: +6 }, r: "Effort financier contenu, le public répond présent en masse. L'image de la chaîne y gagne beaucoup.", pop: 5 },
+      { l: "Le réserver au streaming payant", b: +6, pda: { j1524: +4, a2549: +5, s50: +3, csp: +5 }, r: "Solution économe qui rassure le CFO, les courbes d'audience grimpent. Ni éclat ni polémique à signaler.", pop: 0 }
+    ]
+  },
+  {
+    id: 'd251', titre: "Le churn s'envole",
+    desc: "Les résiliations montent en fin de saison, comme chaque année, mais plus fort.",
+    types: ['sport'],
+    c: [
+      { l: "Offrir un mois gratuit aux partants", b: -5, pda: { j1524: +7, a2549: +6, s50: +3, csp: +4 }, r: "L'audience progresse nettement : budget maîtrisé. Les réseaux sociaux s'enflamment positivement.", pop: 4 },
+      { l: "Ne rien changer et assumer le cycle", b: +1, pda: { j1524: +1, a2549: +2, s50: +2, csp: +3 }, r: "L'audience progresse doucement : opération qui préserve les comptes. L'opinion publique se crispe.", pop: -1 }
+    ]
+  },
+  {
+    id: 'd252', titre: "Une offre famille",
+    desc: "Plusieurs écrans, un seul foyer, un tarif adapté. Ça élargit la base et rogne le revenu par abonné.",
+    types: ['sport'],
+    c: [
+      { l: "Créer un tarif famille multi-écrans", b: -3, pda: { j1524: +4, a2549: +6, s50: +6, csp: +5 }, r: "L'audience progresse nettement : dépense raisonnable. Le public est conquis.", pop: 4 },
+      { l: "Rester sur une offre individuelle", b: +2, pda: { j1524: +2, a2549: +4, s50: +3, csp: +4 }, r: "Le public suit en nombre : choix rentable pour la trésorerie. L'opinion publique reste neutre.", pop: 0 }
+    ]
+  },
+  {
+    id: 'd253', titre: "Une offre étudiante",
+    desc: "Les 15-24 ne paieront jamais le plein tarif. À moitié prix, peut-être.",
+    types: ['sport'],
+    c: [
+      { l: "Créer un tarif jeune réduit", b: -3, pda: { j1524: +10, a2549: +7, s50: +1, csp: +4 }, r: "L'audience progresse nettement : dépense raisonnable. Le public est conquis.", pop: 4 },
+      { l: "Maintenir un tarif unique", b: +2, pda: { j1524: +4, a2549: +5, s50: +2, csp: +3 }, r: "Le public suit en nombre : choix rentable pour la trésorerie. Peu d'écho dans le débat public.", pop: 0 }
+    ]
+  },
+  {
+    id: 'd254', titre: "L'offre premium",
+    desc: "Des contenus exclusifs pour le haut de gamme. Ou une offre simple que tout le monde comprend.",
+    types: ['sport'],
+    c: [
+      { l: "Ajouter des contenus exclusifs premium", b: -4, pda: { j1524: +7, a2549: +6, s50: +2, csp: +6 }, r: "Budget maîtrisé, les courbes d'audience grimpent. L'accueil est positif.", pop: 2 },
+      { l: "Garder une offre simple et lisible", b: +5, pda: { j1524: +3, a2549: +4, s50: +3, csp: +5 }, r: "Opération qui préserve les comptes, l'audience progresse nettement. Bon retour côté opinion publique.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd255', titre: "Le replay, sept ou trente jours",
+    desc: "Trente jours, c'est du confort et du stockage. Sept jours, c'est de l'urgence et de l'audience en direct.",
+    types: ['sport'],
+    c: [
+      { l: "Offrir trente jours de replay", b: -1, pda: { j1524: +7, a2549: +6, s50: +3, csp: +5 }, r: "Dépense raisonnable, les courbes d'audience grimpent. Le public est conquis.", pop: 4 },
+      { l: "S'en tenir à sept jours", b: +1, pda: { j1524: +3, a2549: +4, s50: +3, csp: +4 }, r: "Choix rentable pour la trésorerie, les courbes d'audience grimpent. Ni éclat ni polémique à signaler.", pop: 0 }
+    ]
+  },
+  {
+    id: 'd256', titre: "La pub sur le streaming",
+    desc: "Chaque coupure supplémentaire rapporte et rappelle à l'abonné qu'il paie déjà.",
+    types: ['sport'],
+    c: [
+      { l: "Maximiser la monétisation publicitaire", b: +8, pda: { j1524: +1, a2549: +2, s50: -1, csp: +3 }, r: "Choix rentable pour la trésorerie, quelques points d'audience s'ajoutent. L'opinion publique se crispe.", pop: -3 },
+      { l: "Limiter la publicité pour les abonnés", b: -2, pda: { j1524: +5, a2549: +6, s50: +3, csp: +5 }, r: "Effort financier contenu, le public suit en nombre. L'image de la chaîne y gagne beaucoup.", pop: 4 }
+    ]
+  },
+  {
+    id: 'd257', titre: "Un opérateur télécom propose un bundle",
+    desc: "Il distribue ton offre à des millions de foyers et garde la relation client. Et une part du revenu.",
+    types: ['sport'],
+    c: [
+      { l: "Signer le gros accord de distribution", b: -4, pda: { j1524: +6, a2549: +6, s50: +3, csp: +5 }, r: "Effort financier contenu, l'audience progresse nettement. La confiance du public progresse.", pop: 2 },
+      { l: "Vendre en direct et garder le client", b: +10, pda: { j1524: +3, a2549: +4, s50: +3, csp: +6 }, r: "L'audience progresse nettement : opération qui préserve les comptes. Bon retour côté opinion publique.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd258', titre: "L'application Smart TV",
+    desc: "Le salon reste le premier écran du sport. Ton app y est mauvaise.",
+    types: ['sport'],
+    c: [
+      { l: "Développer une application native complète", b: -3, pda: { j1524: +8, a2549: +7, s50: +2, csp: +5 }, r: "Budget maîtrisé, l'audience progresse nettement. La confiance du public progresse.", pop: 2 },
+      { l: "Se contenter d'une version limitée", b: +1, pda: { j1524: +3, a2549: +4, s50: +3, csp: +5 }, r: "L'audience progresse nettement : solution économe qui rassure le CFO. L'accueil est positif.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd259', titre: "La TV connectée",
+    desc: "Statistiques, caméras alternatives, multi-flux. Une expérience à construire pour un public qui ne l'a pas demandée.",
+    types: ['sport'],
+    c: [
+      { l: "Créer une expérience interactive", b: -5, pda: { j1524: +9, a2549: +7, s50: +2, csp: +6 }, r: "Budget maîtrisé, l'audience s'envole. Bon retour côté opinion publique.", pop: 2 },
+      { l: "Garder le signal TV classique", b: 0, pda: { j1524: +3, a2549: +4, s50: +3, csp: +5 }, r: "Dépense raisonnable, l'audience progresse nettement. Bon retour côté opinion publique.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd260', titre: "La publicité interactive",
+    desc: "Des formats cliquables depuis la télécommande. Innovant, incertain, rémunérateur si ça prend.",
+    types: ['sport'],
+    c: [
+      { l: "Créer des formats publicitaires cliquables", b: -2, pda: { j1524: +7, a2549: +6, s50: +2, csp: +5 }, r: "Dépense raisonnable, l'audience progresse nettement. Bon retour côté opinion publique.", pop: 2 },
+      { l: "Rester sur les formats classiques", b: +4, pda: { j1524: +3, a2549: +4, s50: +3, csp: +5 }, r: "Choix rentable pour la trésorerie, l'audience progresse nettement. L'accueil est positif.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd261', titre: "Un sponsor veut jouer avec le public",
+    desc: "Une marque propose un jeu intégré à l'antenne, à son nom. C'est du parrainage augmenté.",
+    types: ['sport'],
+    c: [
+      { l: "Intégrer le jeu de marque à l'antenne", b: +5, pda: { j1524: +8, a2549: +6, s50: +2, csp: +4 }, r: "Le public suit en nombre : solution économe qui rassure le CFO. La confiance du public progresse.", pop: 2 },
+      { l: "S'en tenir à un parrainage classique", b: +2, pda: { j1524: +3, a2549: +4, s50: +3, csp: +5 }, r: "Choix rentable pour la trésorerie, le public suit en nombre. Bon retour côté opinion publique.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd262', titre: "Le sport business à l'antenne",
+    desc: "Transferts, salaires, fonds d'investissement. Un magazine économique du sport, ça n'existe pas encore vraiment.",
+    types: ['sport'],
+    c: [
+      { l: "Créer un magazine sport business", b: -3, pda: { j1524: +2, a2549: +5, s50: +5, csp: +9 }, r: "Effort financier contenu, le public suit en nombre. Les réseaux sociaux s'enflamment positivement.", pop: 3 },
+      { l: "Rester centré sur la compétition", b: -1, pda: { j1524: +5, a2549: +6, s50: +3, csp: +7 }, r: "Dépense raisonnable, les courbes d'audience grimpent. L'accueil est positif.", pop: 2 }
+    ]
+  },
+  {
+    id: 'd263', titre: "Sport et technologie",
+    desc: "Matériel, capteurs, performance : un sujet qui parle aux CSP+ et à personne d'autre.",
+    types: ['sport'],
+    c: [
+      { l: "Créer une émission innovation", b: -3, pda: { j1524: +8, a2549: +6, s50: +2, csp: +8 }, r: "Le public répond présent en masse : budget maîtrisé. L'image de la chaîne y gagne beaucoup.", pop: 3 },
+      { l: "Rester sur un format classique", b: +1, pda: { j1524: +3, a2549: +4, s50: +3, csp: +6 }, r: "Choix rentable pour la trésorerie, le public suit en nombre. La confiance du public progresse.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd264', titre: "Sport et société",
+    desc: "Racisme, homophobie, argent, santé mentale. Les sujets existent, l'audience recule souvent.",
+    types: ['sport'],
+    c: [
+      { l: "Développer une émission sociétale", b: -3, pda: { j1524: +4, a2549: +6, s50: +6, csp: +8 }, r: "Effort financier contenu, le public répond présent en masse. Les réseaux sociaux s'enflamment positivement.", pop: 4 },
+      { l: "Rester sur du sport pur", b: 0, pda: { j1524: +2, a2549: +3, s50: +4, csp: +6 }, r: "L'audience progresse nettement : budget maîtrisé. Peu d'écho dans le débat public.", pop: 0 }
+    ]
+  },
+  {
+    id: 'd265', titre: "L'empreinte du sport",
+    desc: "Calendriers surchargés, déplacements en avion, stades climatisés. Le sujet fâche les fédérations.",
+    types: ['sport'],
+    c: [
+      { l: "Produire un documentaire sur le sujet", b: -4, pda: { j1524: +3, a2549: +5, s50: +6, csp: +8 }, r: "Le public suit en nombre : dépense raisonnable. L'image de la chaîne y gagne beaucoup.", pop: 4 },
+      { l: "Ne pas traiter le sujet", b: 0, pda: { j1524: +1, a2549: +2, s50: +3, csp: +4 }, r: "Un frémissement positif se confirme : effort financier contenu. L'opinion publique se crispe.", pop: -1 }
+    ]
+  },
+  {
+    id: 'd266', titre: "Le bilan carbone de tes propres dispositifs",
+    desc: "Tes cars-régies et tes vols sont aussi dans l'équation. Un dispositif vert coûte plus cher à l'installation.",
+    types: ['sport'],
+    c: [
+      { l: "Investir dans un dispositif de production vert", b: -5, pda: { j1524: +4, a2549: +6, s50: +7, csp: +8 }, r: "Budget maîtrisé, les scores explosent sur toutes les cibles. Les réseaux sociaux s'enflamment positivement.", pop: 4 },
+      { l: "Ne rien changer aux méthodes actuelles", b: 0, pda: { j1524: +2, a2549: +3, s50: +4, csp: +5 }, r: "Le public suit en nombre : dépense raisonnable. Ni éclat ni polémique à signaler.", pop: 0 }
+    ]
+  },
+  {
+    id: 'd267', titre: "Train ou avion pour tes équipes",
+    desc: "Le train prend du temps et fatigue les équipes. L'avion fait gagner des heures et coûte à l'image.",
+    types: ['sport'],
+    c: [
+      { l: "Privilégier le train systématiquement", b: -2, pda: { j1524: +3, a2549: +5, s50: +6, csp: +7 }, r: "Les courbes d'audience grimpent : effort financier contenu. L'image de la chaîne y gagne beaucoup.", pop: 4 },
+      { l: "Garder l'avion pour la souplesse", b: +1, pda: { j1524: +1, a2549: +2, s50: +3, csp: +3 }, r: "Opération qui préserve les comptes, quelques points d'audience s'ajoutent. Peu d'écho dans le débat public.", pop: 0 }
+    ]
+  },
+  {
+    id: 'd268', titre: "Un stade éco-responsable",
+    desc: "Un club a construit un stade exemplaire. Tu peux en faire un sujet ou passer ton chemin.",
+    types: ['sport'],
+    c: [
+      { l: "Mettre le dispositif en avant à l'antenne", b: -1, pda: { j1524: +4, a2549: +6, s50: +7, csp: +7 }, r: "Budget maîtrisé, le public répond présent en masse. L'image de la chaîne y gagne beaucoup.", pop: 3 },
+      { l: "Ne pas communiquer dessus", b: +1, pda: { j1524: +2, a2549: +3, s50: +4, csp: +4 }, r: "Le public suit en nombre : solution économe qui rassure le CFO. La confiance du public progresse.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd269', titre: "L'inclusion dans le sport",
+    desc: "Un rendez-vous dédié, ou des sujets glissés dans le flux quotidien.",
+    types: ['sport'],
+    c: [
+      { l: "Créer une émission dédiée", b: -3, pda: { j1524: +5, a2549: +6, s50: +7, csp: +8 }, r: "Le public répond présent en masse : dépense raisonnable. Le public est conquis.", pop: 4 },
+      { l: "Intégrer les sujets au flux existant", b: 0, pda: { j1524: +2, a2549: +3, s50: +4, csp: +6 }, r: "Effort financier contenu, l'audience progresse nettement. La confiance du public progresse.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd270', titre: "Le casting de tes consultants",
+    desc: "Ton plateau ressemble à celui d'il y a quinze ans. Le public, lui, a changé.",
+    types: ['sport'],
+    c: [
+      { l: "Renouveler et diversifier le casting", b: -3, pda: { j1524: +6, a2549: +7, s50: +6, csp: +7 }, r: "Budget maîtrisé, le public répond présent en masse. L'image de la chaîne y gagne beaucoup.", pop: 4 },
+      { l: "Garder l'équipe historique", b: 0, pda: { j1524: +2, a2549: +3, s50: +4, csp: +5 }, r: "Dépense raisonnable, le public suit en nombre. Peu d'écho dans le débat public.", pop: 0 }
+    ]
+  },
+  {
+    id: 'd271', titre: "Une académie de commentateurs",
+    desc: "Former les talents de demain prend trois ans. Recruter des stars prend un chèque.",
+    types: ['sport'],
+    c: [
+      { l: "Créer une académie interne", b: -3, pda: { j1524: +8, a2549: +6, s50: +3, csp: +6 }, r: "Dépense raisonnable, le public suit en nombre. Les réseaux sociaux s'enflamment positivement.", pop: 4 },
+      { l: "Recruter uniquement des noms établis", b: -4, pda: { j1524: +5, a2549: +6, s50: +4, csp: +6 }, r: "Les courbes d'audience grimpent : budget maîtrisé. Bon retour côté opinion publique.", pop: 1 }
+    ]
+  },
+  {
+    id: 'd272', titre: "Une cellule investigation",
+    desc: "Le sport regorge de sujets que personne ne traite. Une cellule dédiée fâchera tous tes partenaires.",
+    types: ['sport'],
+    c: [
+      { l: "Créer une cellule investigation permanente", b: -6, pda: { j1524: +3, a2549: +6, s50: +7, csp: +9 }, r: "L'audience s'envole : budget maîtrisé. Le public est conquis.", pop: 5 },
+      { l: "Rester sur le journalisme quotidien", b: -1, pda: { j1524: +2, a2549: +3, s50: +4, csp: +6 }, r: "Dépense raisonnable, les courbes d'audience grimpent. Peu d'écho dans le débat public.", pop: 0 }
+    ]
+  },
+  {
+    id: 'd273', titre: "Une enquête sur un club",
+    desc: "Le dossier est solide, le club est un partenaire, les avocats sont prêts.",
+    types: ['sport'],
+    c: [
+      { l: "Diffuser l'enquête", b: -4, pda: { j1524: +5, a2549: +6, s50: +6, csp: +8 }, r: "Effort financier contenu, le public répond présent en masse. Le public est conquis.", pop: 5 },
+      { l: "Reporter la diffusion", b: -1, pda: { j1524: +2, a2549: +3, s50: +4, csp: +5 }, r: "L'audience progresse nettement : dépense raisonnable. Les critiques fusent sur les réseaux.", pop: -1 }
+    ]
+  },
+  {
+    id: 'd274', titre: "Une enquête sur une fédération",
+    desc: "La fédération détient les droits que tu diffuses. Le sujet est d'intérêt public.",
+    types: ['sport'],
+    c: [
+      { l: "Diffuser l'enquête", b: -4, pda: { j1524: +5, a2549: +6, s50: +6, csp: +8 }, r: "Effort financier contenu, les scores explosent sur toutes les cibles. Le public est conquis.", pop: 5 },
+      { l: "Reporter la diffusion", b: -1, pda: { j1524: +2, a2549: +3, s50: +4, csp: +5 }, r: "Effort financier contenu, les courbes d'audience grimpent. L'opinion publique se crispe.", pop: -1 }
+    ]
+  },
+  {
+    id: 'd275', titre: "Une enquête sur les agents",
+    desc: "Commissions, mineurs, réseaux. Le sujet est vaste, et personne ne veut te parler devant une caméra.",
+    types: ['sport'],
+    c: [
+      { l: "Produire un documentaire complet", b: -5, pda: { j1524: +5, a2549: +6, s50: +5, csp: +9 }, r: "L'audience s'envole : budget maîtrisé. Les réseaux sociaux s'enflamment positivement.", pop: 5 },
+      { l: "Se contenter d'un sujet court", b: -1, pda: { j1524: +2, a2549: +3, s50: +4, csp: +5 }, r: "L'audience progresse nettement : dépense raisonnable. L'opinion publique se crispe.", pop: -1 }
+    ]
+  }
 ];
 
 const DILEMMA_FLAVOR = {
@@ -1689,7 +3490,207 @@ const DILEMMA_FLAVOR = {
   d72: [{ sport: 6, direct: 4, prodFR: 2, discipline: 'football' }, { sport: -4 }],
   d73: [{ diverti: 4, fiction: 2 }, { renouveles: 2, fiction: 2 }],
   d74: [{ info: 2, diverti: 2, culture: -2 }, { info: 2, culture: 2, pluralisme: 2 }],
-  d75: [{ creation: 4, culture: 2 }, { creation: -2, renouveles: 2 }]
+  d75: [{ creation: 4, culture: 2 }, { creation: -2, renouveles: 2 }],
+  d76: [{ sport: +4, direct: +3, discipline: 'football' }, { sport: +2, direct: +3, discipline: 'football' }],
+  d77: [{ sport: +4, direct: +3, prodFR: +3, discipline: 'football' }, { sport: +3, direct: +3, prodFR: +3, discipline: 'football' }],
+  d78: [{ sport: +3, direct: +1, prodFR: +3, discipline: 'football' }, { sport: +2, direct: +1, prodFR: +3, discipline: 'football' }],
+  d79: [{ sport: +4, direct: +3, discipline: 'football' }, { sport: +2, direct: +3, discipline: 'football' }],
+  d80: [{ sport: +4, direct: +1, discipline: 'football' }, { sport: +3, direct: +1, discipline: 'football' }],
+  d81: [{ sport: +4, direct: +3, discipline: 'football' }, { sport: +3, direct: +3, discipline: 'football' }],
+  d82: [{ sport: +3, direct: +3, prodFR: +3, discipline: 'football' }, { sport: +2, direct: +3, prodFR: +3, discipline: 'football' }],
+  d83: [{ sport: +3, direct: +1, discipline: 'football' }, { sport: +2, direct: +1, discipline: 'football' }],
+  d84: [{ sport: +4, direct: +1, discipline: 'football' }, { sport: +3, direct: +1, discipline: 'football' }],
+  d85: [{ sport: +3, direct: +3, discipline: 'football' }, { sport: +2, direct: +3, discipline: 'football' }],
+  d86: [{ sport: +3, direct: +1, discipline: 'rugby' }, { sport: +2, direct: +1, discipline: 'rugby' }],
+  d87: [{ sport: +3, direct: +3, prodFR: +3, discipline: 'rugby' }, { sport: +2, direct: +3, prodFR: +3, discipline: 'rugby' }],
+  d88: [{ sport: +3, direct: +1, discipline: 'rugby' }, { sport: +2, direct: +1, discipline: 'rugby' }],
+  d89: [{ sport: +3, direct: +3, discipline: 'tennis' }, { sport: +2, direct: +3, discipline: 'tennis' }],
+  d90: [{ sport: +3, direct: +3, discipline: 'tennis' }, { sport: +2, direct: +3, discipline: 'tennis' }],
+  d91: [{ sport: +3, direct: +1, discipline: 'tennis' }, { sport: +2, direct: +1, discipline: 'tennis' }],
+  d92: [{ sport: +4, direct: +3, discipline: 'f1' }, { sport: +3, direct: +3, discipline: 'f1' }],
+  d93: [{ sport: +3, direct: +1, discipline: 'motogp' }, { sport: +2, direct: +1, discipline: 'motogp' }],
+  d94: [{ sport: +3, direct: +1, prodFR: +3, discipline: 'cyclisme' }, { sport: +2, direct: +1, prodFR: +3, discipline: 'cyclisme' }],
+  d95: [{ sport: +3, direct: +1, discipline: 'athletisme' }, { sport: +3, direct: +1, discipline: 'athletisme' }],
+  d96: [{ sport: +4, direct: +3, prodFR: +3, discipline: 'basket' }, { sport: +3, direct: +3, prodFR: +3, discipline: 'basket' }],
+  d97: [{ sport: +3, direct: +1, prodFR: +3, discipline: 'basket' }, { sport: +2, direct: +1, prodFR: +3, discipline: 'basket' }],
+  d98: [{ sport: +3, direct: +3, prodFR: +3, discipline: 'handball' }, { sport: +2, direct: +3, prodFR: +3, discipline: 'handball' }],
+  d99: [{ sport: +3, direct: +3, prodFR: +3, discipline: 'volley' }, { sport: +2, direct: +3, prodFR: +3, discipline: 'volley' }],
+  d100: [{ sport: +3, direct: +3, discipline: 'ski' }, { sport: +2, direct: +3, discipline: 'ski' }],
+  d101: [{ sport: +3, direct: +1, discipline: 'golf' }, { sport: +2, direct: +1, discipline: 'golf' }],
+  d102: [{ sport: +3, direct: +1, discipline: 'voile' }, { sport: +2, direct: +1, discipline: 'voile' }],
+  d103: [{ sport: +3, direct: +1, discipline: 'surf' }, { sport: +2, direct: +1, discipline: 'surf' }],
+  d104: [{ sport: +4, direct: +3, discipline: 'boxe' }, { sport: +2, direct: +3, discipline: 'boxe' }],
+  d105: [{ sport: +3, direct: +3, discipline: 'mma' }, { sport: +2, direct: +3, discipline: 'mma' }],
+  d106: [{ sport: +2, direct: +1, discipline: 'esport' }, { sport: +2, direct: +1, discipline: 'esport' }],
+  d107: [{ sport: +3, direct: +1, discipline: 'padel' }, { sport: +2, direct: +1, discipline: 'padel' }],
+  d108: [{ sport: +3, direct: +1, discipline: 'skate' }, { sport: +2, direct: +1, discipline: 'skate' }],
+  d109: [{ sport: +4, direct: +1, discipline: 'handisport' }, { sport: +2, direct: +1, discipline: 'handisport' }],
+  d110: [{ sport: +3, direct: +1, discipline: 'urbain' }, { sport: +3, direct: +1, discipline: 'urbain' }],
+  d111: [{ sport: +3, direct: +3, prodFR: +3, discipline: 'footus' }, { sport: +2, direct: +3, prodFR: +3, discipline: 'footus' }],
+  d112: [{ sport: +4, direct: +3, prodFR: +3, discipline: 'basket' }, { sport: +2, direct: +3, prodFR: +3, discipline: 'basket' }],
+  d113: [{ sport: +3, direct: +1, prodFR: +3, discipline: 'hockey' }, { sport: +2, direct: +1, prodFR: +3, discipline: 'hockey' }],
+  d114: [{ sport: +3, direct: +3, prodFR: +3, discipline: 'baseball' }, { sport: +2, direct: +3, prodFR: +3, discipline: 'baseball' }],
+  d115: [{ sport: +3, direct: +1, discipline: 'triathlon' }, { sport: +2, direct: +1, discipline: 'triathlon' }],
+  d116: [{ sport: +3, direct: +1, discipline: 'marathon' }, { sport: +2, direct: +1, discipline: 'marathon' }],
+  d117: [{ sport: +3, direct: +1 }, { sport: +2, direct: +1 }],
+  d118: [{ sport: +3, direct: +1 }, { sport: +2, direct: +1 }],
+  d119: [{ sport: +2, direct: +1 }, { sport: +2, direct: +1 }],
+  d120: [{ sport: +3, direct: +1 }, { sport: +2, direct: +1 }],
+  d121: [{ sport: +3, direct: +1 }, { sport: +2, direct: +1 }],
+  d122: [{ sport: +3, direct: +3 }, { sport: +2, direct: +3 }],
+  d123: [{ sport: +4, direct: +1 }, { sport: +2, direct: +1 }],
+  d124: [{ sport: +3, direct: +1 }, { sport: +2, direct: +1 }],
+  d125: [{ sport: +4, direct: +3, prodFR: +3 }, { sport: +2, direct: +3, prodFR: +3 }],
+  d126: [{ sport: +3, direct: +3 }, { sport: +2, direct: +3 }],
+  d127: [{ sport: +3, direct: +3 }, { sport: +2, direct: +3 }],
+  d128: [{ sport: +3, direct: +3 }, { sport: +3, direct: +3 }],
+  d129: [{ sport: +4, direct: +1 }, { sport: +2, direct: +1 }],
+  d130: [{ sport: +4, direct: +3 }, { sport: +2, direct: +3 }],
+  d131: [{ sport: +4, direct: +1 }, { sport: +2, direct: +1 }],
+  d132: [{ sport: +4, direct: +3, prodFR: +3, discipline: 'football' }, { sport: +2, direct: +3, prodFR: +3, discipline: 'football' }],
+  d133: [{ sport: +4, direct: +1, discipline: 'f1' }, { sport: +2, direct: +1, discipline: 'f1' }],
+  d134: [{ sport: +3, direct: +1 }, { sport: +2, direct: +1 }],
+  d135: [{ sport: +3, direct: +3 }, { sport: +2, direct: +3 }],
+  d136: [{ sport: +2, direct: +3 }, { sport: +2, direct: +3 }],
+  d137: [{ sport: +3, direct: +3 }, { sport: +2, direct: +3 }],
+  d138: [{ sport: +2, direct: +1 }, { sport: +2, direct: +1 }],
+  d139: [{ sport: +3, direct: +3 }, { sport: +2, direct: +3 }],
+  d140: [{ sport: +4, direct: +3 }, { sport: +3, direct: +3 }],
+  d141: [{ sport: +4, direct: +3 }, { sport: +3, direct: +3 }],
+  d142: [{ sport: +3, direct: +3, prodFR: +3 }, { sport: +2, direct: +3, prodFR: +3 }],
+  d143: [{ sport: +3, direct: +3 }, { sport: +2, direct: +3 }],
+  d144: [{ sport: +3, direct: +1 }, { sport: +2, direct: +1 }],
+  d145: [{ sport: +5, direct: +3, prodFR: +3, discipline: 'multisport' }, { sport: +4, direct: +3, prodFR: +3, discipline: 'multisport' }],
+  d146: [{ sport: +4, direct: +1, discipline: 'handisport' }, { sport: +2, direct: +1, discipline: 'handisport' }],
+  d147: [{ sport: +4, direct: +3, discipline: 'football' }, { sport: +3, direct: +3, discipline: 'football' }],
+  d148: [{ sport: +4, direct: +3, prodFR: +3, discipline: 'football' }, { sport: +3, direct: +3, prodFR: +3, discipline: 'football' }],
+  d149: [{ sport: +3, direct: +3, prodFR: +3 }, { sport: +2, direct: +3, prodFR: +3 }],
+  d150: [{ sport: +3, direct: +3 }, { sport: +2, direct: +3 }],
+  d151: [{ sport: +3, direct: +1 }, { sport: +2, direct: +1 }],
+  d152: [{ sport: +3, direct: +1 }, { sport: +2, direct: +1 }],
+  d153: [{ sport: +3, direct: +3 }, { sport: +2, direct: +3 }],
+  d154: [{ sport: +4, direct: +1 }, { sport: +2, direct: +1 }],
+  d155: [{ sport: +3, direct: +1 }, { sport: +2, direct: +1 }],
+  d156: [{ sport: +3, direct: +3 }, { sport: +2, direct: +3 }],
+  d157: [{ sport: +3, direct: +3 }, { sport: +2, direct: +3 }],
+  d158: [{ sport: +3, direct: +1 }, { sport: +2, direct: +1 }],
+  d159: [{ sport: +3, direct: +1 }, { sport: +2, direct: +1 }],
+  d160: [{ sport: +3, direct: +1 }, { sport: +2, direct: +1 }],
+  d161: [{ sport: +3, direct: +1 }, { sport: +3, direct: +1 }],
+  d162: [{ sport: +4, direct: +3 }, { sport: +2, direct: +3 }],
+  d163: [{ sport: +4, direct: +3, prodFR: +3 }, { sport: +2, direct: +3, prodFR: +3 }],
+  d164: [{ sport: +4, direct: +3 }, { sport: +2, direct: +3 }],
+  d165: [{ sport: +4, direct: +1, prodFR: +3 }, { sport: +3, direct: +1, prodFR: +3 }],
+  d166: [{ sport: +4, direct: +3, prodFR: +3 }, { sport: +3, direct: +3, prodFR: +3 }],
+  d167: [{ sport: +4, direct: +1, prodFR: +3 }, { sport: +3, direct: +1, prodFR: +3 }],
+  d168: [{ sport: +5, direct: +3, prodFR: +3 }, { sport: +3, direct: +3, prodFR: +3 }],
+  d169: [{ sport: +3, direct: +3 }, { sport: +2, direct: +3 }],
+  d170: [{ sport: +4, direct: +3 }, { sport: +3, direct: +3 }],
+  d171: [{ sport: +3, direct: +1 }, { sport: +2, direct: +1 }],
+  d172: [{ sport: +4, direct: +1 }, { sport: +2, direct: +1 }],
+  d173: [{ sport: +4, direct: +3 }, { sport: +2, direct: +3 }],
+  d174: [{ sport: +3, direct: +3 }, { sport: +2, direct: +3 }],
+  d175: [{ sport: +3, direct: +3 }, { sport: +2, direct: +3 }],
+  d176: [{ sport: +4, direct: +3, prodFR: +3 }, { sport: +2, direct: +3, prodFR: +3 }],
+  d177: [{ sport: +4, direct: +3 }, { sport: +2, direct: +3 }],
+  d178: [{ sport: +4, direct: +1 }, { sport: +2, direct: +1 }],
+  d179: [{ sport: +4, direct: +1 }, { sport: +3, direct: +1 }],
+  d180: [{ sport: +3, direct: +3 }, { sport: +2, direct: +3 }],
+  d181: [{ sport: +4, direct: +3 }, { sport: +2, direct: +3 }],
+  d182: [{ sport: +4, direct: +1 }, { sport: +2, direct: +1 }],
+  d183: [{ sport: +3, direct: +1 }, { sport: +2, direct: +1 }],
+  d184: [{ sport: +3, direct: +1 }, { sport: +3, direct: +1 }],
+  d185: [{ sport: +4, direct: +3 }, { sport: +2, direct: +3 }],
+  d186: [{ sport: +3, direct: +3 }, { sport: +2, direct: +3 }],
+  d187: [{ sport: +4, direct: +3 }, { sport: +2, direct: +3 }],
+  d188: [{ sport: +3, direct: +3 }, { sport: +2, direct: +3 }],
+  d189: [{ sport: +4, direct: +1 }, { sport: +2, direct: +1 }],
+  d190: [{ sport: +3, direct: +1 }, { sport: +2, direct: +1 }],
+  d191: [{ sport: +3, direct: +1 }, { sport: +2, direct: +1 }],
+  d192: [{ sport: +3, direct: +3 }, { sport: +2, direct: +3 }],
+  d193: [{ sport: +3, direct: +1 }, { sport: +2, direct: +1 }],
+  d194: [{ sport: +3, direct: +3 }, { sport: +2, direct: +3 }],
+  d195: [{ sport: +4, direct: +1 }, { sport: +2, direct: +1 }],
+  d196: [{ sport: +3, direct: +1 }, { sport: +2, direct: +1 }],
+  d197: [{ sport: +3, direct: +3 }, { sport: +2, direct: +3 }],
+  d198: [{ sport: +3, direct: +1 }, { sport: +2, direct: +1 }],
+  d199: [{ sport: +3, direct: +3 }, { sport: +2, direct: +3 }],
+  d200: [{ sport: +3, direct: +1 }, { sport: +2, direct: +1 }],
+  d201: [{ sport: +3, direct: +3 }, { sport: +2, direct: +3 }],
+  d202: [{ sport: +3, direct: +1, prodFR: +3 }, { sport: +2, direct: +1, prodFR: +3 }],
+  d203: [{ sport: +2, direct: +1 }, { sport: +3, direct: +1 }],
+  d204: [{ sport: +3, direct: +1 }, { sport: +2, direct: +1 }],
+  d205: [{ sport: +3, direct: +1 }, { sport: +2, direct: +1 }],
+  d206: [{ sport: +3, direct: +1 }, { sport: +2, direct: +1 }],
+  d207: [{ sport: +3, direct: +3 }, { sport: +2, direct: +3 }],
+  d208: [{ sport: +3, direct: +1 }, { sport: +2, direct: +1 }],
+  d209: [{ sport: +4, direct: +1 }, { sport: +3, direct: +1 }],
+  d210: [{ sport: +3, direct: +1 }, { sport: +2, direct: +1 }],
+  d211: [{ sport: +3, direct: +1 }, { sport: +2, direct: +1 }],
+  d212: [{ sport: +3, direct: +1 }, { sport: +2, direct: +1 }],
+  d213: [{ sport: +4, direct: +1 }, { sport: +2, direct: +1 }],
+  d214: [{ sport: +3, direct: +3 }, { sport: +2, direct: +3 }],
+  d215: [{ sport: +4, direct: +1 }, { sport: +2, direct: +1 }],
+  d216: [{ sport: +4, direct: +1 }, { sport: +2, direct: +1 }],
+  d217: [{ sport: +4, direct: +1 }, { sport: +2, direct: +1 }],
+  d218: [{ sport: +4, direct: +1 }, { sport: +2, direct: +1 }],
+  d219: [{ sport: +4, direct: +1 }, { sport: +3, direct: +1 }],
+  d220: [{ sport: +3, direct: +3 }, { sport: +2, direct: +3 }],
+  d221: [{ sport: +4, direct: +1, prodFR: +3 }, { sport: +2, direct: +1, prodFR: +3 }],
+  d222: [{ sport: +4, direct: +1, prodFR: +3 }, { sport: +3, direct: +1, prodFR: +3 }],
+  d223: [{ sport: +3, direct: +1 }, { sport: +2, direct: +1 }],
+  d224: [{ sport: +4, direct: +3 }, { sport: +2, direct: +3 }],
+  d225: [{ sport: +4, direct: +3 }, { sport: +2, direct: +3 }],
+  d226: [{ sport: +4, direct: +3 }, { sport: +2, direct: +3 }],
+  d227: [{ sport: +3, direct: +3 }, { sport: +2, direct: +3 }],
+  d228: [{ sport: +4, direct: +3 }, { sport: +2, direct: +3 }],
+  d229: [{ sport: +4, direct: +1 }, { sport: +2, direct: +1 }],
+  d230: [{ sport: +2, direct: +1 }, { sport: +2, direct: +1 }],
+  d231: [{ sport: +3, direct: +1 }, { sport: +2, direct: +1 }],
+  d232: [{ sport: +3, direct: +1 }, { sport: +2, direct: +1 }],
+  d233: [{ sport: +3, direct: +1 }, { sport: +2, direct: +1 }],
+  d234: [{ sport: +3, direct: +1 }, { sport: +2, direct: +1 }],
+  d235: [{ sport: +2, direct: +3 }, { sport: +3, direct: +3 }],
+  d236: [{ sport: +2, direct: +1 }, { sport: +2, direct: +1 }],
+  d237: [{ sport: +2, direct: +1 }, { sport: +2, direct: +1 }],
+  d238: [{ sport: +2, direct: +1 }, { sport: +2, direct: +1 }],
+  d239: [{ sport: +2, direct: +1 }, { sport: +3, direct: +1 }],
+  d240: [{ sport: +4, direct: +1 }, { sport: +2, direct: +1 }],
+  d241: [{ sport: +2, direct: +3 }, { sport: +2, direct: +3 }],
+  d242: [{ sport: +4, direct: +1 }, { sport: +3, direct: +1 }],
+  d243: [{ sport: +2, direct: +1 }, { sport: +3, direct: +1 }],
+  d244: [{ sport: +2, direct: +1 }, { sport: +4, direct: +1 }],
+  d245: [{ sport: +2, direct: +1 }, { sport: +3, direct: +1 }],
+  d246: [{ sport: +4, direct: +1 }, { sport: +3, direct: +1 }],
+  d247: [{ sport: +2, direct: +1 }, { sport: +4, direct: +1 }],
+  d248: [{ sport: +4, direct: +1 }, { sport: +2, direct: +1 }],
+  d249: [{ sport: +4, direct: +3 }, { sport: +3, direct: +3 }],
+  d250: [{ sport: +4, direct: +3 }, { sport: +3, direct: +3 }],
+  d251: [{ sport: +3, direct: +1 }, { sport: +2, direct: +1 }],
+  d252: [{ sport: +3, direct: +1 }, { sport: +2, direct: +1 }],
+  d253: [{ sport: +3, direct: +1 }, { sport: +2, direct: +1 }],
+  d254: [{ sport: +3, direct: +1 }, { sport: +2, direct: +1 }],
+  d255: [{ sport: +3, direct: +3 }, { sport: +2, direct: +3 }],
+  d256: [{ sport: +2, direct: +1 }, { sport: +3, direct: +1 }],
+  d257: [{ sport: +3, direct: +3 }, { sport: +2, direct: +3 }],
+  d258: [{ sport: +3, direct: +1 }, { sport: +2, direct: +1 }],
+  d259: [{ sport: +4, direct: +1 }, { sport: +2, direct: +1 }],
+  d260: [{ sport: +3, direct: +1 }, { sport: +2, direct: +1 }],
+  d261: [{ sport: +3, direct: +1 }, { sport: +2, direct: +1 }],
+  d262: [{ sport: +3, direct: +1 }, { sport: +3, direct: +1 }],
+  d263: [{ sport: +4, direct: +1 }, { sport: +2, direct: +1 }],
+  d264: [{ sport: +4, direct: +1 }, { sport: +2, direct: +1 }],
+  d265: [{ sport: +3, direct: +1 }, { sport: +2, direct: +1 }],
+  d266: [{ sport: +4, direct: +1 }, { sport: +2, direct: +1 }],
+  d267: [{ sport: +3, direct: +1 }, { sport: +2, direct: +1 }],
+  d268: [{ sport: +4, direct: +1 }, { sport: +2, direct: +1 }],
+  d269: [{ sport: +4, direct: +1 }, { sport: +2, direct: +1 }],
+  d270: [{ sport: +4, direct: +3 }, { sport: +2, direct: +3 }],
+  d271: [{ sport: +3, direct: +1 }, { sport: +3, direct: +1 }],
+  d272: [{ sport: +4, direct: +1 }, { sport: +2, direct: +1 }],
+  d273: [{ sport: +4, direct: +1 }, { sport: +2, direct: +1 }],
+  d274: [{ sport: +4, direct: +1 }, { sport: +2, direct: +1 }],
+  d275: [{ sport: +4, direct: +1 }, { sport: +2, direct: +1 }]
 };
 
 // Portion du coût (M€) de chaque choix attribuable à des talents (journalistes,
@@ -1707,7 +3708,18 @@ const DILEMMA_TALENT_COST = {
   d53: [2, 4],
   d54: [5, 0],
   d55: [6, 0],
-  d60: [3, 0]
+  d60: [3, 0],
+  d117: [8, 2],
+  d118: [5, 1],
+  d119: [0, 2],
+  d120: [6, 1],
+  d121: [7, 1],
+  d122: [2, 1],
+  d123: [3, 1],
+  d124: [2, 0],
+  d125: [5, 1],
+  d128: [0, 1],
+  d272: [6, 1]
 };
 
 let gameState = {
@@ -1761,13 +3773,19 @@ let gameState = {
   gameOverReason: null
 };
 
+function getEligibleDilemmas() {
+  const type = gameState.player.type;
+  return DILEMMA_BANK.filter(d => !d.types || d.types.includes(type));
+}
+
 function pickDilemmaQueue() {
-  const available = DILEMMA_BANK.filter(d => !gameState.seenDilemmaIds.includes(d.id));
+  const pool = getEligibleDilemmas();
+  const available = pool.filter(d => !gameState.seenDilemmaIds.includes(d.id));
   let queue = shuffle(available).slice(0, 4);
   if (queue.length < 4) {
     gameState.seenDilemmaIds = [];
     const usedIds = new Set(queue.map(d => d.id));
-    const remainingPool = DILEMMA_BANK.filter(d => !usedIds.has(d.id));
+    const remainingPool = pool.filter(d => !usedIds.has(d.id));
     queue = queue.concat(shuffle(remainingPool).slice(0, 4 - queue.length));
   }
   gameState.seenDilemmaIds.push(...queue.map(d => d.id));
