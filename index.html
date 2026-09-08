@@ -1797,7 +1797,8 @@ function initCompetitors() {
 
 function finalizeChannelSetup() {
   gameState.player.tresorerie = CHANNEL_TYPES[gameState.player.type].baseBudget;
-  gameState.player.coutGrilleCumul = 0.25 * gameState.player.tresorerie;
+  // Le coût de grille annuel de la saison 1 revient dès le départ, comme pour les saisons suivantes.
+  gameState.player.coutGrilleCumul = CHANNEL_TYPES[gameState.player.type].baseBudget;
   gameState.player.revenusPubCumul = 0;
   gameState.player.popularite = 50;
 
@@ -1824,7 +1825,7 @@ function finalizeChannelSetup() {
   const player = gameState.player;
   player.puissanceCommerciale = 1;
   player.budgetGrilleAnnuel = CHANNEL_TYPES[player.type].baseBudget;
-  player.coutGrilleEngageSaison = player.coutGrilleCumul;
+  player.coutGrilleEngageSaison = player.budgetGrilleAnnuel;
   player.revenusPubPrevisionnels = 0;
   player.revenusPubFinals = 0;
   player.resultatSaison = 0;
@@ -2043,12 +2044,16 @@ function chooseDilemmaOption(choiceIndex) {
     }
   });
 
-  player.tresorerie += choice.b;
+  // Le coût de grille est un budget annuel qui revient chaque saison (cf. startNewSeason /
+  // finalizeChannelSetup) : les choix de dilemme ne débitent plus la trésorerie au fil de l'eau,
+  // ils font évoluer ce budget engagé (à la hausse pour un coût, à la baisse pour une économie).
+  // Comme les revenus pub, le coût de grille n'est réglé sur la trésorerie qu'au bilan de fin
+  // de saison (cf. finalisation ci-dessous).
   const coutGrilleDelta = choice.b < 0 ? Math.abs(choice.b) : 0;
   if (coutGrilleDelta > 0) {
     player.coutGrilleCumul += coutGrilleDelta;
-    player.coutGrilleEngageSaison += coutGrilleDelta;
   }
+  player.coutGrilleEngageSaison = Math.max(0, player.coutGrilleEngageSaison - choice.b);
   const talentCost = DILEMMA_TALENT_COST[dilemma.id];
   if (talentCost) {
     player.coutTalentsSaison += talentCost[choiceIndex];
@@ -2099,9 +2104,10 @@ function chooseDilemmaOption(choiceIndex) {
     // Finalisation économique de la saison : les revenus pub définitifs (calculés sur la
     // PDA moyenne de la saison) ne sont crédités qu'ici, une seule fois.
     player.revenusPubFinals = computeRevenusPubSaison(player.pdaMoyenneSaison, player.target, player.popularite, player.puissanceCommerciale);
-    player.tresorerie += player.revenusPubFinals;
     player.revenusPubCumul = player.revenusPubFinals;
     player.resultatSaison = player.revenusPubFinals - player.coutGrilleEngageSaison;
+    // Règlement unique de fin de saison : revenus pub crédités et coût de grille débité en même temps.
+    player.tresorerie += player.resultatSaison;
     player.rentabiliteGrille = player.coutGrilleEngageSaison > 0 ? (player.revenusPubFinals / player.coutGrilleEngageSaison - 1) * 100 : 0;
     player.coutParPointPDA = player.pdaMoyenneSaison > 0 ? player.coutGrilleEngageSaison / player.pdaMoyenneSaison : 0;
 
@@ -2161,7 +2167,10 @@ function startNewSeason() {
 
   player.budgetGrilleAnnuel = computeNextBudgetGrille(player);
   player.tresorerieDebutSaison = player.tresorerie;
-  player.coutGrilleEngageSaison = 0;
+  // Le budget de grille est annuel : il revient chaque saison comme coût fixe de départ,
+  // que les dilemmes de la saison viendront ensuite ajuster à la hausse ou à la baisse.
+  player.coutGrilleCumul += player.budgetGrilleAnnuel;
+  player.coutGrilleEngageSaison = player.budgetGrilleAnnuel;
   player.revenusPubPrevisionnels = 0;
   player.revenusPubFinals = 0;
   player.resultatSaison = 0;
