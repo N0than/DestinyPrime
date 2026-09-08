@@ -2268,7 +2268,11 @@ function renderTicker() {
   // Trésorerie affichée au HUD : projection en temps réel (trésorerie de début de saison +
   // résultat prévisionnel courant), même si le règlement réel ne tombe qu'au bilan de fin de
   // saison. Se comporte ainsi comme "Revenus pub", déjà affiché en prévisionnel live.
-  const tresorerieLive = p.tresorerieDebutSaison + (p.revenusPubPrevisionnels - p.coutGrilleEngageSaison);
+  // Le budget de grille annuel (déjà intégré à coutGrilleEngageSaison dès le début de saison)
+  // n'est pas déduit ici : seuls les ajustements des dilemmes le sont, pour que la trésorerie
+  // affichée en tout début de saison corresponde exactement au capital de départ annoncé.
+  const coutDilemmesSeulement = p.coutGrilleEngageSaison - p.budgetGrilleAnnuel;
+  const tresorerieLive = p.tresorerieDebutSaison + (p.revenusPubPrevisionnels - coutDilemmesSeulement);
 
   const lastHistorySeason = gameState.history.length ? gameState.history[gameState.history.length - 1].season : null;
   const currentPoint = {
