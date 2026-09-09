@@ -3773,9 +3773,19 @@ let gameState = {
   gameOverReason: null
 };
 
+// Dilemmes universels (sans restriction de types) mais dont le thème ne concerne que le sport :
+// pour une chaîne Sport, seuls ceux-ci sont piochés parmi les dilemmes universels, en plus des
+// dilemmes réservés au type 'sport'. Les autres types de chaîne continuent de voir tous les
+// dilemmes universels comme avant.
+const SPORT_RELATED_UNIVERSAL_IDS = ['d2', 'd6', 'd14', 'd20', 'd42', 'd65', 'd66', 'd72'];
+
 function getEligibleDilemmas() {
   const type = gameState.player.type;
-  return DILEMMA_BANK.filter(d => !d.types || d.types.includes(type));
+  return DILEMMA_BANK.filter(d => {
+    if (d.types) return d.types.includes(type);
+    if (type === 'sport') return SPORT_RELATED_UNIVERSAL_IDS.includes(d.id);
+    return true;
+  });
 }
 
 function pickDilemmaQueue() {
