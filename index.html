@@ -4093,12 +4093,14 @@ function chooseDilemmaOption(choiceIndex) {
   player.pdaMoyenneSaison = player.pdaHistorySeason.reduce((s, v) => s + v, 0) / player.pdaHistorySeason.length;
   player.pdaFinSaison = pdaCibleApres;
 
-  // Les revenus publicitaires ne sont que prévisionnels pendant la saison : ils ne sont
-  // crédités à la trésorerie qu'au bilan de fin de saison (cf. finalisation ci-dessous).
+  // Les revenus publicitaires sont réestimés à chaque dilemme à partir de la PDA moyenne de la
+  // saison, et l'écart avec l'estimation précédente est immédiatement crédité à la trésorerie :
+  // pas d'attente du bilan de fin de saison, l'ajustement est en temps réel.
   const revenusPubAvant = player.revenusPubPrevisionnels;
   player.revenusPubPrevisionnels = computeRevenusPubSaison(player.pdaMoyenneSaison, player.target, player.popularite, player.puissanceCommerciale);
   player.revenusPubCumul = player.revenusPubPrevisionnels;
   const revenusPubDelta = player.revenusPubPrevisionnels - revenusPubAvant;
+  player.tresorerie += revenusPubDelta;
 
   // Rentabilité grille et coût/PDA sont recalculés en temps réel à chaque dilemme,
   // à partir des valeurs courantes de la saison (pas seulement au bilan de fin de saison).
@@ -4129,13 +4131,13 @@ function chooseDilemmaOption(choiceIndex) {
     gameState.pendingNextStep = 8;
     gameState.gameOverReason = 'tresorerie';
   } else if (gameState.currentDilemmaIndex >= gameState.dilemmaQueue.length) {
-    // Finalisation économique de la saison : les revenus pub définitifs (calculés sur la
-    // PDA moyenne de la saison) ne sont crédités qu'ici, une seule fois.
-    player.revenusPubFinals = computeRevenusPubSaison(player.pdaMoyenneSaison, player.target, player.popularite, player.puissanceCommerciale);
+    // Finalisation économique de la saison : les revenus pub ont déjà été crédités en temps réel
+    // à chaque dilemme (cf. ci-dessus) ; on fige seulement la valeur finale ici. Seul le coût de
+    // grille engagé (budget annuel + ajustements) est débité en une fois, en fin de saison.
+    player.revenusPubFinals = player.revenusPubPrevisionnels;
     player.revenusPubCumul = player.revenusPubFinals;
     player.resultatSaison = player.revenusPubFinals - player.coutGrilleEngageSaison;
-    // Règlement unique de fin de saison : revenus pub crédités et coût de grille débité en même temps.
-    player.tresorerie += player.resultatSaison;
+    player.tresorerie -= player.coutGrilleEngageSaison;
     player.rentabiliteGrille = player.coutGrilleEngageSaison > 0 ? (player.revenusPubFinals / player.coutGrilleEngageSaison - 1) * 100 : 0;
     player.coutParPointPDA = player.pdaMoyenneSaison > 0 ? player.coutGrilleEngageSaison / player.pdaMoyenneSaison : 0;
 
@@ -4293,14 +4295,11 @@ function renderTicker() {
   const pdaCible = playerCalc.pda[p.target];
   const open = !!gameState.hudExpanded;
 
-  // Trésorerie affichée au HUD : projection en temps réel (trésorerie de début de saison +
-  // résultat prévisionnel courant), même si le règlement réel ne tombe qu'au bilan de fin de
-  // saison. Se comporte ainsi comme "Revenus pub", déjà affiché en prévisionnel live.
-  // Le budget de grille annuel (déjà intégré à coutGrilleEngageSaison dès le début de saison)
-  // n'est pas déduit ici : seuls les ajustements des dilemmes le sont, pour que la trésorerie
-  // affichée en tout début de saison corresponde exactement au capital de départ annoncé.
-  const coutDilemmesSeulement = p.coutGrilleEngageSaison - p.budgetGrilleAnnuel;
-  const tresorerieLive = p.tresorerieDebutSaison + (p.revenusPubPrevisionnels - coutDilemmesSeulement);
+  // La trésorerie du HUD est désormais directement p.tresorerie : les revenus pub y sont
+  // crédités en temps réel à chaque dilemme (cf. chooseDilemmaOption), et le coût de grille
+  // annuel n'est débité qu'au bilan de fin de saison — la valeur affichée en tout début de
+  // saison correspond donc naturellement au capital de départ annoncé.
+  const tresorerieLive = p.tresorerie;
 
   const lastHistorySeason = gameState.history.length ? gameState.history[gameState.history.length - 1].season : null;
   const currentPoint = {
