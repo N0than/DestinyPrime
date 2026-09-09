@@ -751,7 +751,7 @@ function renderEcoBilanSlide(player) {
   const rentabPos = player.rentabiliteGrille >= 0;
 
   const secondaryItems = [
-    { icon: '💰', label: 'Trésorerie début', value: `${nf1(player.tresorerieDebutSaison)} M€` },
+    { icon: '💰', label: 'Trésorerie', value: `${nf1(player.tresorerie)} M€` },
     { icon: '🎤', label: 'Coût des talents', value: `-${nf1(player.coutTalentsSaison)} M€` },
     { icon: '📊', label: 'Coût / pt PDA', value: `${nf1(player.coutParPointPDA)} M€` }
   ];
