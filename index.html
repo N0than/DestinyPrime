@@ -684,7 +684,7 @@ function renderStatStars(player, pdaCible, compliance) {
   const tresoClass = player.tresorerie < 0 ? 'bad' : (tresoFilled >= 4 ? 'good' : 'warn');
 
   const perfLower = 0.05, perfUpper = 0.30;
-  const efficacite = pdaCible / Math.max(player.coutGrilleCumul, 0.01);
+  const efficacite = pdaCible / Math.max(player.coutGrilleEngageSaison, 0.01);
   let perfFilled;
   if (efficacite <= perfLower) perfFilled = 1;
   else if (efficacite >= perfUpper) perfFilled = 5;
@@ -808,8 +808,12 @@ function computeRevenusPubSaison(pdaMoyenneSaison, cible, popularite, puissanceC
 }
 
 function computeNextBudgetGrille(player) {
-  const base = CHANNEL_TYPES[player.type].baseBudget;
-  const bonusTresorerie = Math.max(0, (player.tresorerie - base) * 0.12);
+  // baseBudget est le capital de départ de la chaîne. La grille de départ est
+  // calibrée à 30 % de ce capital : conserver ce même socle évite un saut de
+  // 15 M€ à 50 M€ entre les saisons 1 et 2.
+  const capitalInitial = CHANNEL_TYPES[player.type].baseBudget;
+  const base = capitalInitial * 0.30;
+  const bonusTresorerie = Math.max(0, (player.tresorerie - capitalInitial) * 0.12);
   const bonusPerformance = Math.max(0, player.rentabiliteGrille * 0.08);
   const raw = base + bonusTresorerie + bonusPerformance;
   return Math.max(base * 0.5, Math.min(raw, base * 2.5));
@@ -3826,7 +3830,9 @@ function initCompetitors() {
 function finalizeChannelSetup() {
   gameState.player.tresorerie = CHANNEL_TYPES[gameState.player.type].baseBudget;
   // Le coût de grille de départ représente 30% de la trésorerie disponible en début de partie.
-  gameState.player.coutGrilleCumul = 0.30 * gameState.player.tresorerie;
+  // Le cumul ne contient que les coûts réellement arrêtés. Le coût de la saison en
+  // cours est suivi séparément dans coutGrilleEngageSaison.
+  gameState.player.coutGrilleCumul = 0;
   gameState.player.revenusPubCumul = 0;
   gameState.player.popularite = 50;
 
@@ -4072,16 +4078,15 @@ function chooseDilemmaOption(choiceIndex) {
     }
   });
 
-  // Le coût de grille est un budget annuel qui revient chaque saison (cf. startNewSeason /
-  // finalizeChannelSetup) : les choix de dilemme ne débitent plus la trésorerie au fil de l'eau,
-  // ils font évoluer ce budget engagé (à la hausse pour un coût, à la baisse pour une économie).
-  // Comme les revenus pub, le coût de grille n'est réglé sur la trésorerie qu'au bilan de fin
-  // de saison (cf. finalisation ci-dessous).
-  const coutGrilleDelta = choice.b < 0 ? Math.abs(choice.b) : 0;
-  if (coutGrilleDelta > 0) {
-    player.coutGrilleCumul += coutGrilleDelta;
-  }
-  player.coutGrilleEngageSaison = Math.max(0, player.coutGrilleEngageSaison - choice.b);
+  // À partir de la saison 2, la grille est provisionnée à l'ouverture. Les choix
+  // ajustent ensuite immédiatement la trésorerie ; en saison 1, seul le surcoût
+  // ou l'économie lié au choix affecte le capital de lancement.
+  // `b` représente une économie quand il est positif et une dépense quand il est
+  // négatif. Une économie ne peut toutefois pas rembourser plus que le coût de
+  // grille encore engagé ; le delta réel est donc calculé après plafonnement à 0.
+  const coutGrilleAvant = player.coutGrilleEngageSaison;
+  player.coutGrilleEngageSaison = Math.max(0, coutGrilleAvant - choice.b);
+  const coutGrilleDelta = player.coutGrilleEngageSaison - coutGrilleAvant;
   const talentCost = DILEMMA_TALENT_COST[dilemma.id];
   if (talentCost) {
     player.coutTalentsSaison += talentCost[choiceIndex];
@@ -4098,9 +4103,12 @@ function chooseDilemmaOption(choiceIndex) {
   // pas d'attente du bilan de fin de saison, l'ajustement est en temps réel.
   const revenusPubAvant = player.revenusPubPrevisionnels;
   player.revenusPubPrevisionnels = computeRevenusPubSaison(player.pdaMoyenneSaison, player.target, player.popularite, player.puissanceCommerciale);
-  player.revenusPubCumul = player.revenusPubPrevisionnels;
   const revenusPubDelta = player.revenusPubPrevisionnels - revenusPubAvant;
-  player.tresorerie += revenusPubDelta;
+  // Le flux net de trésorerie est bien la recette publicitaire moins la variation
+  // de coût de grille : un surcoût (delta positif) réduit le solde, une économie
+  // (delta négatif) l'augmente.
+  const tresorerieDelta = revenusPubDelta - coutGrilleDelta;
+  player.tresorerie += tresorerieDelta;
 
   // Rentabilité grille et coût/PDA sont recalculés en temps réel à chaque dilemme,
   // à partir des valeurs courantes de la saison (pas seulement au bilan de fin de saison).
@@ -4112,7 +4120,7 @@ function chooseDilemmaOption(choiceIndex) {
     choixLabel: choice.l,
     resultat: choice.r,
     deltas: {
-      tresorerie: choice.b,
+      tresorerie: tresorerieDelta,
       pdaCible: pdaCibleApres - pdaCibleAvant,
       coutGrille: coutGrilleDelta,
       revenusPub: revenusPubDelta,
@@ -4131,13 +4139,14 @@ function chooseDilemmaOption(choiceIndex) {
     gameState.pendingNextStep = 8;
     gameState.gameOverReason = 'tresorerie';
   } else if (gameState.currentDilemmaIndex >= gameState.dilemmaQueue.length) {
-    // Finalisation économique de la saison : les revenus pub ont déjà été crédités en temps réel
-    // à chaque dilemme (cf. ci-dessus) ; on fige seulement la valeur finale ici. Seul le coût de
-    // grille engagé (budget annuel + ajustements) est débité en une fois, en fin de saison.
+    // Finalisation économique de la saison : les revenus pub et les ajustements de
+    // grille ont déjà été comptabilisés en temps réel ; on fige les montants ici.
     player.revenusPubFinals = player.revenusPubPrevisionnels;
-    player.revenusPubCumul = player.revenusPubFinals;
+    // Les recettes sont déjà encaissées au fil des réestimations ; ce compteur
+    // conserve en revanche le total historique des saisons clôturées.
+    player.revenusPubCumul += player.revenusPubFinals;
     player.resultatSaison = player.revenusPubFinals - player.coutGrilleEngageSaison;
-    player.tresorerie -= player.coutGrilleEngageSaison;
+    player.coutGrilleCumul += player.coutGrilleEngageSaison;
     player.rentabiliteGrille = player.coutGrilleEngageSaison > 0 ? (player.revenusPubFinals / player.coutGrilleEngageSaison - 1) * 100 : 0;
     player.coutParPointPDA = player.pdaMoyenneSaison > 0 ? player.coutGrilleEngageSaison / player.pdaMoyenneSaison : 0;
 
@@ -4151,8 +4160,8 @@ function chooseDilemmaOption(choiceIndex) {
       season: gameState.season,
       tresorerie: player.tresorerie,
       pdaCible: pdaCibleApres,
-      coutGrille: player.coutGrilleCumul,
-      revenusPub: player.revenusPubCumul,
+      coutGrille: player.coutGrilleEngageSaison,
+      revenusPub: player.revenusPubFinals,
       popularite: player.popularite,
       tresorerieDebut: player.tresorerieDebutSaison,
       budgetGrille: player.budgetGrilleAnnuel,
@@ -4165,6 +4174,10 @@ function chooseDilemmaOption(choiceIndex) {
       rentabiliteGrille: player.rentabiliteGrille
     });
     pushArcomSeasonResult();
+    // Les bonus/malus ARCOM sont des flux de clôture : l'historique doit refléter
+    // le solde final après leur application.
+    gameState.history[gameState.history.length - 1].tresorerie = player.tresorerie;
+    gameState.history[gameState.history.length - 1].tresorerieFin = player.tresorerie;
     gameState.renewalDue = gameState.season % CONVENTION_DURATION === 0;
     if (player.tresorerie < TRESORERIE_CRITIQUE) {
       gameState.pendingNextStep = 8;
@@ -4195,12 +4208,15 @@ function startNewSeason() {
   gameState.dilemmaPhase = 'choosing';
   gameState.renewalDue = false;
 
-  player.budgetGrilleAnnuel = computeNextBudgetGrille(player);
+  // La nouvelle saison repart du coût de grille réellement arrêté à la fin de la
+  // précédente ; il n'est donc pas recalculé ni remis à un budget théorique.
+  player.budgetGrilleAnnuel = player.coutGrilleEngageSaison;
   player.tresorerieDebutSaison = player.tresorerie;
   // Le budget de grille est annuel : il revient chaque saison comme coût fixe de départ,
   // que les dilemmes de la saison viendront ensuite ajuster à la hausse ou à la baisse.
-  player.coutGrilleCumul += player.budgetGrilleAnnuel;
+  // Il n'alimente le cumul qu'une fois la saison effectivement clôturée.
   player.coutGrilleEngageSaison = player.budgetGrilleAnnuel;
+  player.tresorerie -= player.coutGrilleEngageSaison;
   player.revenusPubPrevisionnels = 0;
   player.revenusPubFinals = 0;
   player.resultatSaison = 0;
@@ -4209,9 +4225,8 @@ function startNewSeason() {
   player.pdaHistorySeason = [seedPdaCible];
   player.pdaMoyenneSaison = seedPdaCible;
   player.pdaFinSaison = seedPdaCible;
-  // Le coût de grille cumulé (historique) de la saison écoulée est répercuté sur la
-  // nouvelle saison (pas de remise à zéro) ; seul le coût engagé de la saison repart à 0.
-  player.revenusPubCumul = 0;
+  // Les cumuls historiques ne sont jamais remis à zéro ; seuls les prévisionnels
+  // de la nouvelle saison repartent de zéro.
   resetSeasonEditoMix();
   gameState.step = 6;
   render();
@@ -4295,16 +4310,16 @@ function renderTicker() {
   const pdaCible = playerCalc.pda[p.target];
   const open = !!gameState.hudExpanded;
 
-  // La trésorerie du HUD est désormais directement p.tresorerie : les revenus pub y sont
-  // crédités en temps réel à chaque dilemme (cf. chooseDilemmaOption), et le coût de grille
-  // annuel n'est débité qu'au bilan de fin de saison — la valeur affichée en tout début de
-  // saison correspond donc naturellement au capital de départ annoncé.
+  // La trésorerie du HUD reflète le cash réellement disponible : à partir de la
+  // saison 2, la grille est provisionnée à l'ouverture ; les ajustements et
+  // revenus pub sont comptabilisés au fil des dilemmes.
   const tresorerieLive = p.tresorerie;
 
   const lastHistorySeason = gameState.history.length ? gameState.history[gameState.history.length - 1].season : null;
   const currentPoint = {
-    season: gameState.season, tresorerie: p.tresorerie, pdaCible, coutGrille: p.coutGrilleCumul,
-    revenusPub: p.revenusPubCumul, popularite: p.popularite
+    season: gameState.season, tresorerie: p.tresorerie, pdaCible,
+    coutGrille: p.coutGrilleEngageSaison, revenusPub: p.revenusPubPrevisionnels,
+    popularite: p.popularite
   };
   const chartPoints = lastHistorySeason === gameState.season ? gameState.history : [...gameState.history, currentPoint];
 
@@ -4329,12 +4344,12 @@ function renderTicker() {
           <div class="val">${nf1(pdaCible)}%</div>
         </div>
         <div class="hud-cell">
-          <div class="lab"><span class="ic">📋</span>Coût grille</div>
-          <div class="val">${nf1(p.coutGrilleCumul)} M€</div>
+          <div class="lab"><span class="ic">📋</span>Coût grille (saison)</div>
+          <div class="val">${nf1(p.coutGrilleEngageSaison)} M€</div>
         </div>
         <div class="hud-cell">
-          <div class="lab"><span class="ic">📺</span>Revenus pub</div>
-          <div class="val">${nf1(p.revenusPubCumul)} M€</div>
+          <div class="lab"><span class="ic">📺</span>Revenus pub (prév.)</div>
+          <div class="val">${nf1(p.revenusPubPrevisionnels)} M€</div>
         </div>
         <div class="hud-cell">
           <div class="lab"><span class="ic">⭐</span>Popularité</div>
@@ -4679,6 +4694,8 @@ function render() {
     document.getElementById('btn-launch').onclick = () => {
       gameState.dilemmaQueue = pickDilemmaQueue();
       gameState.currentDilemmaIndex = 0;
+      // La première saison sert de lancement : son coût de grille est un apport
+      // initial déjà couvert par le capital de départ, sans débit de trésorerie.
       gameState.step = 6;
       render();
     };
@@ -4700,7 +4717,11 @@ function render() {
       const rows = [
         { icon: '💰', label: 'Trésorerie', val: d.tresorerie, decimals: 1, suffix: ' M€', invert: false },
         { icon: '🎯', label: 'PDA Cible', val: d.pdaCible, decimals: 1, suffix: ' pts', invert: false },
-        { icon: '📋', label: 'Coût de grille', val: d.coutGrille, decimals: 1, suffix: ' M€', invert: true },
+        d.coutGrille > 0
+          ? { icon: '📋', label: 'Coût additionnel', val: d.coutGrille, decimals: 1, suffix: ' M€', invert: true }
+          : d.coutGrille < 0
+            ? { icon: '📋', label: 'Économie de grille', val: Math.abs(d.coutGrille), decimals: 1, suffix: ' M€', invert: false }
+            : { icon: '📋', label: 'Coût de grille', val: 0, decimals: 1, suffix: ' M€', invert: true },
         { icon: '📺', label: 'Revenus pub', val: d.revenusPub, decimals: 1, suffix: ' M€', invert: false },
         { icon: '⭐', label: 'Popularité', val: d.popularite, decimals: 0, suffix: ' pts', invert: false }
       ];
@@ -4725,7 +4746,7 @@ function render() {
           ${dilemma.c.map((choice, i) => `
             <button class="choice" data-idx="${i}">
               <span class="cl">${choice.l}</span>
-              <span style="font-size: 12px; color: var(--gris);">Impact estimé : Budget ${choice.b >= 0 ? '+' : ''}${choice.b} M€</span>
+              <span style="font-size: 12px; color: var(--gris);">Impact estimé : ${choice.b < 0 ? `Coût additionnel +${Math.abs(choice.b)}` : (choice.b > 0 ? `Économie de grille +${choice.b}` : 'Aucun impact de grille')} M€</span>
             </button>
           `).join('')}
         </div>
