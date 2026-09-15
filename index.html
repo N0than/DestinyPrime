@@ -4852,8 +4852,6 @@ function render() {
           ${dilemma.c.map((choice, i) => {
             const accent = i % 2 === 0 ? 'accent' : 'neutral';
             const icon = i % 2 === 0 ? '✨' : '🛡️';
-            const badgeCls = choice.b < 0 ? 'cost' : choice.b > 0 ? 'save' : 'neutral';
-            const badgeText = choice.b < 0 ? `+${Math.abs(choice.b)} M€` : choice.b > 0 ? `-${choice.b} M€` : '—';
             const captionText = choice.b < 0 ? `Coût additionnel +${Math.abs(choice.b)} M€` : (choice.b > 0 ? `Économie de grille +${choice.b} M€` : 'Aucun impact de grille');
             return `
             <button class="choice" data-idx="${i}">
@@ -4862,7 +4860,6 @@ function render() {
                 <div class="choice-content">
                   <div class="choice-eyebrow-row">
                     <span class="choice-eyebrow ${accent}">Option ${i + 1}</span>
-                    <span class="choice-pill ${badgeCls}">${badgeText}</span>
                   </div>
                   <span class="cl">${choice.l}</span>
                   <span class="choice-caption">${captionText}</span>
@@ -4880,7 +4877,7 @@ function render() {
       <div class="dilemma-container${phase === 'choosing' ? ' slide-in' : ''}">
         <div class="dilemma-card">
           <div class="dc-head">
-            <span class="dc-live-pill"><span class="dc-live-dot"></span>Événement Direct</span>
+            <span class="dc-live-pill"><span class="dc-live-dot"></span>Événement</span>
             <span class="dc-season-pill">Saison ${gameState.season}</span>
           </div>
           <div class="dc-body">
