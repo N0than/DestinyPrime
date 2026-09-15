@@ -510,6 +510,8 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
   border-top: none; border-top-left-radius: 0; border-top-right-radius: 0;
 }
 .dilemma-card-joined { border-bottom-left-radius: 0; border-bottom-right-radius: 0; border-bottom: none; }
+.dilemma-card-joined::after { display: none; }
+.dilemma-card-joined .dc-divider, .dilemma-card-joined .dc-body > p { display: none; }
 .dc-head {
   display: flex; align-items: center; justify-content: space-between; gap: 8px;
   padding: 10px 16px; background: rgba(239,236,230,0.5); border-bottom: 1px solid var(--paper-dark);
