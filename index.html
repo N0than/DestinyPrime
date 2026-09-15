@@ -496,28 +496,80 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 }
 
 .dilemma-card {
-  background: var(--paper-card); border: 2px solid var(--ink); box-shadow: 6px 6px 0 var(--ink);
+  background: var(--paper-card); border: 1px solid var(--border);
+  box-shadow: 0 4px 20px -2px rgba(24,24,27,0.05), 0 2px 6px -1px rgba(24,24,27,0.04), inset 0 0 0 1px rgba(0,0,0,0.02);
   border-radius: 20px;
-  padding: 20px; position: relative; margin-bottom: 0; overflow: hidden;
+  padding: 0; position: relative; margin-bottom: 0; overflow: hidden;
 }
 .dilemma-card::after {
   content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 4px;
-  background: linear-gradient(90deg, var(--rouge), var(--ink) 50%, var(--gold));
+  background: linear-gradient(90deg, var(--rouge), #d6d3d1 50%, var(--gold));
 }
-.dilemma-card h2 { font-size: clamp(22px, 5.5vw, 30px); margin-bottom: 10px; color: var(--ink); }
-.dilemma-card p { font-size: 16px; line-height: 1.45; }
+.dc-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 10px 16px; background: rgba(239,236,230,0.5); border-bottom: 1px solid var(--paper-dark);
+}
+.dc-live-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 10px; text-transform: uppercase; letter-spacing: 0.4px;
+  color: var(--rouge); background: rgba(225,29,72,0.1); border: 1px solid rgba(225,29,72,0.2);
+  padding: 3px 9px; border-radius: 999px;
+}
+.dc-live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--rouge); flex-shrink: 0; animation: blink 1.4s ease-in-out infinite; }
+.dc-season-pill {
+  font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 10px; text-transform: uppercase; letter-spacing: 0.4px;
+  color: var(--gris); background: var(--paper-dark); border: 1px solid var(--border);
+  padding: 3px 9px; border-radius: 8px; white-space: nowrap;
+}
+.dc-body { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.dc-divider { height: 1px; background: var(--paper-dark); }
+.dilemma-card h2 { font-size: clamp(20px, 5.5vw, 28px); color: var(--ink); }
+.dilemma-card p { font-size: 15px; line-height: 1.45; color: #44403c; }
 
-.choices{display:flex;flex-direction:column;gap:10px}.choice{ text-align:left;background:var(--paper-card);border:1.5px solid var(--ink); border-radius:12px; padding:12px 14px;font-size:16px;font-family:'Plus Jakarta Sans',sans-serif; box-shadow:3px 3px 0 var(--ink);transition:transform .08s,box-shadow .08s;}.choice:nth-child(odd){transform:rotate(-.4deg)}.choice:nth-child(even){transform:rotate(.4deg)}.choice:hover{transform:translate(1px,1px) rotate(0);box-shadow:1px 1px 0 var(--ink);background:#fff}.choice:active{transform:translate(3px,3px) rotate(0);box-shadow:0 0 0 var(--ink)}.choice .cl{font-family:'Anton',sans-serif;text-transform:uppercase;font-size:15px;letter-spacing:.5px;display:block;color:var(--ink)}
+.choices { display: flex; flex-direction: column; gap: 10px; }
+.choice {
+  text-align: left; background: var(--paper-card); border: 1px solid var(--border);
+  border-radius: 14px; padding: 12px 14px;
+  box-shadow: 0 4px 20px -2px rgba(24,24,27,0.05), 0 2px 6px -1px rgba(24,24,27,0.04), inset 0 0 0 1px rgba(0,0,0,0.02);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease, background 0.12s ease;
+}
+.choice:hover { border-color: #c9c4b8; background: #fff; }
+.choice:active { transform: scale(0.98); }
+.choice-row { display: flex; align-items: flex-start; gap: 12px; }
+.choice-icon {
+  width: 32px; height: 32px; border-radius: 10px; flex-shrink: 0; font-size: 15px;
+  display: flex; align-items: center; justify-content: center;
+}
+.choice-icon.accent { background: rgba(225,29,72,0.08); border: 1px solid rgba(225,29,72,0.18); }
+.choice-icon.neutral { background: var(--paper-dark); border: 1px solid var(--border); }
+.choice-content { flex: 1; min-width: 0; }
+.choice-eyebrow-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 3px; }
+.choice-eyebrow {
+  font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px;
+}
+.choice-eyebrow.accent { color: var(--rouge); }
+.choice-eyebrow.neutral { color: var(--gris); }
+.choice-pill {
+  font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 10px;
+  padding: 1px 7px; border-radius: 999px; border: 1px solid var(--border); white-space: nowrap; flex-shrink: 0;
+}
+.choice-pill.save { color: var(--vert); background: rgba(5,150,105,0.08); border-color: rgba(5,150,105,0.2); }
+.choice-pill.cost { color: var(--rouge); background: rgba(225,29,72,0.08); border-color: rgba(225,29,72,0.2); }
+.choice-pill.neutral { color: var(--gris); background: var(--paper-dark); }
+.choice .cl { font-family: 'Anton', sans-serif; text-transform: uppercase; font-size: 14px; letter-spacing: 0.3px; display: block; color: var(--ink); line-height: 1.25; }
+.choice-caption { display: block; margin-top: 3px; font-size: 11px; color: var(--gris); }
 
 .choice.selected {
   background: var(--bleu);
-  color: #fff;
-  border-color: var(--ink);
-  transform: translate(2px, 2px);
-  box-shadow: 0px 0px 0 var(--ink);
+  border-color: var(--bleu);
+  box-shadow: none;
 }
-.choice.selected .cl { color: #fff; }
-.choice.selected span { color: rgba(255,255,255,0.85) !important; }
+.choice.selected .cl,
+.choice.selected .choice-caption,
+.choice.selected .choice-eyebrow,
+.choice.selected .choice-pill { color: #fff; }
+.choice.selected .choice-icon { background: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.3); }
+.choice.selected .choice-pill { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.3); }
 
 /* ---- TABLE & AUDIENCE RESULTS ---- */
 .grid-table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
@@ -4782,8 +4834,14 @@ function render() {
       zoneHtml = `
         <div class="slide-in-up">
           <div class="dilemma-card">
-            <p>${esc(cq.resultat)}</p>
-            <div class="impact-badges">${badgesHtml}</div>
+            <div class="dc-head">
+              <span class="dc-live-pill"><span class="dc-live-dot"></span>Conséquence</span>
+              <span class="dc-season-pill">Saison ${gameState.season}</span>
+            </div>
+            <div class="dc-body">
+              <p>${esc(cq.resultat)}</p>
+              <div class="impact-badges">${badgesHtml}</div>
+            </div>
           </div>
           <button class="btn block" id="btn-continue" style="font-size: 17px; padding: 14px; margin-top: 14px;">Continuer →</button>
         </div>
@@ -4791,12 +4849,27 @@ function render() {
     } else {
       zoneHtml = `
         <div class="choices">
-          ${dilemma.c.map((choice, i) => `
+          ${dilemma.c.map((choice, i) => {
+            const accent = i % 2 === 0 ? 'accent' : 'neutral';
+            const icon = i % 2 === 0 ? '✨' : '🛡️';
+            const badgeCls = choice.b < 0 ? 'cost' : choice.b > 0 ? 'save' : 'neutral';
+            const badgeText = choice.b < 0 ? `+${Math.abs(choice.b)} M€` : choice.b > 0 ? `-${choice.b} M€` : '—';
+            const captionText = choice.b < 0 ? `Coût additionnel +${Math.abs(choice.b)} M€` : (choice.b > 0 ? `Économie de grille +${choice.b} M€` : 'Aucun impact de grille');
+            return `
             <button class="choice" data-idx="${i}">
-              <span class="cl">${choice.l}</span>
-              <span style="font-size: 12px; color: var(--gris);">Impact estimé : ${choice.b < 0 ? `Coût additionnel +${Math.abs(choice.b)}` : (choice.b > 0 ? `Économie de grille +${choice.b}` : 'Aucun impact de grille')} M€</span>
+              <div class="choice-row">
+                <span class="choice-icon ${accent}">${icon}</span>
+                <div class="choice-content">
+                  <div class="choice-eyebrow-row">
+                    <span class="choice-eyebrow ${accent}">Option ${i + 1}</span>
+                    <span class="choice-pill ${badgeCls}">${badgeText}</span>
+                  </div>
+                  <span class="cl">${choice.l}</span>
+                  <span class="choice-caption">${captionText}</span>
+                </div>
+              </div>
             </button>
-          `).join('')}
+          `; }).join('')}
         </div>
       `;
     }
@@ -4806,9 +4879,15 @@ function render() {
       ${renderTicker()}
       <div class="dilemma-container${phase === 'choosing' ? ' slide-in' : ''}">
         <div class="dilemma-card">
-          <div class="kicker">SAISON ${gameState.season}</div>
-          <h2>${dilemma.titre}</h2>
-          <p>${dilemma.desc}</p>
+          <div class="dc-head">
+            <span class="dc-live-pill"><span class="dc-live-dot"></span>Événement Direct</span>
+            <span class="dc-season-pill">Saison ${gameState.season}</span>
+          </div>
+          <div class="dc-body">
+            <h2>${dilemma.titre}</h2>
+            <div class="dc-divider"></div>
+            <p>${dilemma.desc}</p>
+          </div>
         </div>
         <div id="choice-zone">${zoneHtml}</div>
       </div>
