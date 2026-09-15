@@ -81,21 +81,44 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 
 /* ---- HUD (5 INDICATEURS) ---- */
 .hud-wrap { margin: 0 0 16px; }
+.hud-panel {
+  background: rgba(255,255,255,0.9); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  border: 1px solid var(--border); border-radius: 18px; padding: 10px;
+  box-shadow: 0 4px 0 0 rgba(18,19,22,0.08), 0 8px 24px -4px rgba(18,19,22,0.06);
+}
+.hud-panel-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding-bottom: 6px; margin-bottom: 6px; border-bottom: 1px solid var(--paper-dark);
+}
+.hud-panel-head-label {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 10px;
+  text-transform: uppercase; letter-spacing: 0.6px; color: var(--gris);
+}
+.hud-live-dot {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--vert); flex-shrink: 0;
+  animation: hudLiveDotPulse 1.6s ease-in-out infinite;
+}
+@keyframes hudLiveDotPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
 .hud {
-  display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px;
-  border-top: 2px solid var(--ink);
-  padding: 0; background: rgba(255,255,255,0.4);
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 2px;
   align-items: stretch;
 }
-.hud-cell { position: relative; text-align: center; min-width: 0; padding: 8px 3px; }
+.hud-cell {
+  position: relative; text-align: center; min-width: 0; padding: 3px 2px;
+  display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 2px;
+}
+.hud-cell:not(:first-child)::before {
+  content: ''; position: absolute; left: 0; top: 12%; bottom: 12%; width: 1px; background: var(--paper-dark);
+}
 .hud-cell .lab {
-  font-family: 'Anton', sans-serif; font-size: 8.5px; letter-spacing: 0.5px; text-transform: uppercase;
-  color: var(--gris); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  display: flex; align-items: center; justify-content: center; gap: 3px;
+  font-family: 'Space Grotesk', sans-serif; font-size: 7.5px; letter-spacing: 0.4px; text-transform: uppercase;
+  color: var(--gris); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
+  display: flex; flex-direction: column; align-items: center; gap: 3px; font-weight: 700;
 }
 .hud-cell .ic {
-  font-size: 10px; display: inline-flex; align-items: center; justify-content: center;
-  width: 15px; height: 15px; border-radius: 5px; flex-shrink: 0;
+  font-size: 12px; display: inline-flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px; border-radius: 7px; flex-shrink: 0;
 }
 .hud-cell:nth-child(1) .ic { background: rgba(217,119,6,0.14); }
 .hud-cell:nth-child(2) .ic { background: rgba(225,29,72,0.12); }
@@ -103,7 +126,7 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .hud-cell:nth-child(4) .ic { background: rgba(37,99,235,0.12); }
 .hud-cell:nth-child(5) .ic { background: rgba(217,119,6,0.16); }
 .hud-cell .val {
-  font-family: 'Anton', sans-serif; font-size: 15px; white-space: nowrap;
+  font-family: 'Anton', sans-serif; font-size: 14px; white-space: nowrap;
   font-variant-numeric: tabular-nums; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
 }
 .hud-cell.alert .val { color: var(--rouge); }
@@ -111,24 +134,19 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 @keyframes alertPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
 
 .hud-toggle {
-  display: flex; align-items: flex-start; gap: 4px;
-  width: 100%; box-sizing: border-box; padding: 0; margin: 0; border: none;
-  background: transparent; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0;
+  background: var(--paper-dark); color: var(--ink); border: 1px solid var(--border);
+  border-radius: 999px; padding: 4px 9px; margin: 0; box-sizing: border-box;
+  font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 10px; letter-spacing: 0.2px;
+  cursor: pointer; transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
 }
-.hud-toggle-line { flex: 1; height: 2px; background: var(--ink); }
+.hud-toggle:hover { border-color: var(--ink); }
+.hud-toggle:active { transform: scale(0.95); }
+.hud-toggle.open { background: var(--ink); color: #fff; border-color: var(--ink); }
 .hud-toggle-chevron {
-  position: relative; flex-shrink: 0; width: 12px; height: 12px;
-  opacity: 0.4;
-  transition: opacity 0.15s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  width: 11px; height: 11px; flex-shrink: 0;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.hud-toggle-chevron::before,
-.hud-toggle-chevron::after {
-  content: ''; position: absolute; left: 50%; top: 1px; width: 6px; height: 6px;
-  border-right: 1.3px solid var(--ink); border-bottom: 1.3px solid var(--ink);
-  transform: translateX(-50%) rotate(45deg);
-}
-.hud-toggle-chevron::after { top: 5px; }
-.hud-toggle:hover .hud-toggle-chevron { opacity: 1; }
 .hud-toggle.open .hud-toggle-chevron { transform: rotate(180deg); }
 
 .hud-details {
@@ -137,7 +155,8 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 }
 .hud-details.open { max-height: 800px; opacity: 1; }
 .hud-details-inner {
-  background: var(--paper-card); border: 1.5px solid var(--ink); box-shadow: 4px 4px 0 rgba(18,19,22,0.85);
+  background: var(--paper-card); border: 1px solid var(--border);
+  box-shadow: 0 4px 0 0 rgba(18,19,22,0.08), 0 8px 24px -4px rgba(18,19,22,0.06);
   border-radius: 16px; padding: 12px 14px; margin-top: 8px;
 }
 .eh-title {
@@ -351,10 +370,11 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .impact-badge.flat { color: var(--gris); border-color: var(--gris); }
 
 @media (max-width: 520px) {
-  .hud { gap: 3px; }
-  .hud-cell { padding: 6px 1px; }
-  .hud-cell .lab { font-size: 7.5px; gap: 2px; }
-  .hud-cell .val { font-size: 20px; }
+  .hud { gap: 1px; }
+  .hud-cell { padding: 3px 1px; }
+  .hud-cell .lab { font-size: 6.5px; gap: 2px; }
+  .hud-cell .ic { width: 19px; height: 19px; }
+  .hud-cell .val { font-size: 12px; }
 }
 
 /* ---- ONBOARDING & CARDS ---- */
@@ -4356,33 +4376,37 @@ function renderTicker() {
 
   return `
     <div class="hud-wrap">
-      <div class="hud">
-        <div class="hud-cell hero${tresorerieLive < 0 ? ' alert' : ''}">
-          <div class="lab"><span class="ic">💰</span>Trésorerie</div>
-          <div class="val">${nf1(tresorerieLive)} M€</div>
+      <div class="hud-panel">
+        <div class="hud-panel-head">
+          <span class="hud-panel-head-label"><span class="hud-live-dot"></span>Tableau de bord</span>
+          <button class="hud-toggle${open ? ' open' : ''}" id="hud-toggle" aria-label="Détail des indicateurs" aria-expanded="${open}">
+            <span id="hud-toggle-label">${open ? 'Replier' : 'Détails'}</span>
+            <svg class="hud-toggle-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </button>
         </div>
-        <div class="hud-cell hero">
-          <div class="lab"><span class="ic">🎯</span>PDA Cible</div>
-          <div class="val">${nf1(pdaCible)}%</div>
-        </div>
-        <div class="hud-cell">
-          <div class="lab"><span class="ic">📋</span>Coût grille</div>
-          <div class="val">${nf1(p.coutGrilleEngageSaison)} M€</div>
-        </div>
-        <div class="hud-cell">
-          <div class="lab"><span class="ic">📺</span>Revenus pub</div>
-          <div class="val">${nf1(p.revenusPubPrevisionnels)} M€</div>
-        </div>
-        <div class="hud-cell">
-          <div class="lab"><span class="ic">⭐</span>Popularité</div>
-          <div class="val">${Math.round(p.popularite)}%</div>
+        <div class="hud">
+          <div class="hud-cell hero${tresorerieLive < 0 ? ' alert' : ''}">
+            <div class="lab"><span class="ic">💰</span>Trésorerie</div>
+            <div class="val">${nf1(tresorerieLive)} M€</div>
+          </div>
+          <div class="hud-cell hero">
+            <div class="lab"><span class="ic">🎯</span>PDA Cible</div>
+            <div class="val">${nf1(pdaCible)}%</div>
+          </div>
+          <div class="hud-cell">
+            <div class="lab"><span class="ic">📋</span>Coût grille</div>
+            <div class="val">${nf1(p.coutGrilleEngageSaison)} M€</div>
+          </div>
+          <div class="hud-cell">
+            <div class="lab"><span class="ic">📺</span>Revenus pub</div>
+            <div class="val">${nf1(p.revenusPubPrevisionnels)} M€</div>
+          </div>
+          <div class="hud-cell">
+            <div class="lab"><span class="ic">⭐</span>Popularité</div>
+            <div class="val">${Math.round(p.popularite)}%</div>
+          </div>
         </div>
       </div>
-      <button class="hud-toggle${open ? ' open' : ''}" id="hud-toggle" aria-label="Détail des indicateurs" aria-expanded="${open}">
-        <span class="hud-toggle-line"></span>
-        <span class="hud-toggle-chevron"></span>
-        <span class="hud-toggle-line"></span>
-      </button>
       <div class="hud-details${open ? ' open' : ''}" id="hud-details">
         <div class="hud-details-inner">
           <div class="eh-slider" id="eh-slider">
@@ -4812,6 +4836,9 @@ function render() {
     document.getElementById('hud-toggle').onclick = () => {
       const isOpen = document.getElementById('hud-details').classList.toggle('open');
       document.getElementById('hud-toggle').classList.toggle('open', isOpen);
+      document.getElementById('hud-toggle').setAttribute('aria-expanded', isOpen);
+      const toggleLabel = document.getElementById('hud-toggle-label');
+      if (toggleLabel) toggleLabel.textContent = isOpen ? 'Replier' : 'Détails';
       gameState.hudExpanded = isOpen;
     };
     const goToHudSlide = idx => {
