@@ -535,7 +535,7 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 }
 .choice:hover { border-color: #c9c4b8; background: #fff; }
 .choice:active { transform: scale(0.98); }
-.choice-row { display: flex; align-items: flex-start; gap: 12px; }
+.choice-row { display: flex; align-items: center; gap: 12px; }
 .choice-icon {
   width: 32px; height: 32px; border-radius: 10px; flex-shrink: 0; font-size: 15px;
   display: flex; align-items: center; justify-content: center;
@@ -550,8 +550,8 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .choice-eyebrow.accent { color: var(--rouge); }
 .choice-eyebrow.neutral { color: var(--gris); }
 .choice-pill {
-  font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 10px;
-  padding: 1px 7px; border-radius: 999px; border: 1px solid var(--border); white-space: nowrap; flex-shrink: 0;
+  font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 11px;
+  padding: 4px 10px; border-radius: 999px; border: 1px solid var(--border); white-space: nowrap; flex-shrink: 0;
 }
 .choice-pill.save { color: var(--vert); background: rgba(5,150,105,0.08); border-color: rgba(5,150,105,0.2); }
 .choice-pill.cost { color: var(--rouge); background: rgba(225,29,72,0.08); border-color: rgba(225,29,72,0.2); }
@@ -4852,7 +4852,8 @@ function render() {
           ${dilemma.c.map((choice, i) => {
             const accent = i % 2 === 0 ? 'accent' : 'neutral';
             const icon = i % 2 === 0 ? '✨' : '🛡️';
-            const captionText = choice.b < 0 ? `Coût additionnel +${Math.abs(choice.b)} M€` : (choice.b > 0 ? `Économie de grille +${choice.b} M€` : 'Aucun impact de grille');
+            const badgeCls = choice.b < 0 ? 'cost' : choice.b > 0 ? 'save' : 'neutral';
+            const badgeText = choice.b < 0 ? `+${Math.abs(choice.b)} M€` : choice.b > 0 ? `-${choice.b} M€` : '—';
             return `
             <button class="choice" data-idx="${i}">
               <div class="choice-row">
@@ -4862,8 +4863,8 @@ function render() {
                     <span class="choice-eyebrow ${accent}">Option ${i + 1}</span>
                   </div>
                   <span class="cl">${choice.l}</span>
-                  <span class="choice-caption">${captionText}</span>
                 </div>
+                <span class="choice-pill ${badgeCls}">${badgeText}</span>
               </div>
             </button>
           `; }).join('')}
