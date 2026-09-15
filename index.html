@@ -184,43 +184,36 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .eh-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(22,19,14,0.22); border: none; padding: 0; cursor: pointer; }
 .eh-dot.active { background: var(--ink); }
 
-.pg-slide { display: flex; flex-direction: column; }
-.pg-head { flex-shrink: 0; }
-.pg-rows { display: flex; flex-direction: column; gap: 8px; }
-.pg-row {
-  display: flex; align-items: center; gap: 10px;
-  background: var(--paper-card); border: 1px solid var(--border); border-radius: 14px;
-  padding: 8px 12px;
-  box-shadow: 0 4px 20px -2px rgba(24,24,27,0.05), 0 2px 6px -1px rgba(24,24,27,0.04);
+.pg-header, .pg-row {
+  display: grid; grid-template-columns: 72px 1fr 42px 46px; gap: 6px; align-items: center;
 }
-.pg-row.pg-leader { border-color: rgba(217,119,6,0.35); background: rgba(217,119,6,0.07); }
-.pg-row-icon {
-  width: 34px; height: 34px; border-radius: 10px; flex-shrink: 0; font-size: 15px;
-  display: flex; align-items: center; justify-content: center;
+.pg-header {
+  font-family: 'Anton', sans-serif; font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px;
+  color: var(--gris); padding-bottom: 4px; border-bottom: 1px solid rgba(22,19,14,0.15); margin-bottom: 2px;
 }
-.pg-row:nth-child(1) .pg-row-icon { background: rgba(217,119,6,0.14); }
-.pg-row:nth-child(2) .pg-row-icon { background: rgba(37,99,235,0.12); }
-.pg-row:nth-child(3) .pg-row-icon { background: rgba(225,29,72,0.12); }
-.pg-row:nth-child(4) .pg-row-icon { background: rgba(5,150,105,0.12); }
-.pg-row:nth-child(5) .pg-row-icon { background: rgba(217,119,6,0.16); }
-.pg-row-info { flex: 1; min-width: 0; }
-.pg-row-slot {
-  font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 9px; text-transform: uppercase;
-  letter-spacing: 0.4px; color: var(--gris); margin-bottom: 2px;
+.pg-row { padding: 6px 0; border-bottom: 1px dashed rgba(22,19,14,0.12); font-size: 12px; }
+.pg-row:last-child { border-bottom: none; }
+.pg-slot {
+  display: flex; align-items: center; gap: 4px;
+  font-family: 'Anton', sans-serif; font-size: 10px; text-transform: uppercase; letter-spacing: 0.3px;
 }
-.pg-row-program {
-  font-family: 'Plus Jakarta Sans', sans-serif; font-size: 12.5px; font-weight: 600; color: var(--ink);
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+.pg-program-cell { display: flex; align-items: center; gap: 5px; }
+.pg-program {
+  flex: 1 1 auto; min-width: 0; box-sizing: border-box;
+  font-style: normal; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10.5px;
+  line-height: 1.2; color: var(--ink); background: var(--paper);
+  border: 1px solid rgba(22,19,14,0.3); border-left: 3px solid var(--rouge); border-radius: 3px;
+  padding: 3px 7px;
 }
-.pg-row-stats { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; flex-shrink: 0; }
-.pg-row-rank {
-  font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 9.5px;
-  padding: 2px 7px; border-radius: 999px; background: var(--paper-dark); color: var(--gris);
-  white-space: nowrap;
-}
-.pg-row-rank.leader { background: rgba(217,119,6,0.16); color: #92530a; }
-.pg-row-pda { font-family: 'Anton', sans-serif; font-size: 15px; color: var(--rouge); }
-.pg-row.pg-leader .pg-row-pda { color: var(--gold); }
+.pg-pda { text-align: right; font-family: 'Anton', sans-serif; font-size: 13px; color: var(--rouge); }
+.pg-header .pg-pda { font-size: 9px; color: var(--gris); }
+.pg-row.pg-leader { background: rgba(212,175,55,0.12); }
+.pg-row.pg-leader .pg-pda { color: var(--gold); }
+.pg-crown { font-size: 11px; width: 14px; flex-shrink: 0; text-align: center; }
+.pg-crown-hidden { visibility: hidden; }
+.pg-rank-col { text-align: center; font-family: 'Anton', sans-serif; font-size: 11px; color: var(--gris); }
+.pg-header .pg-rank-col { font-size: 9px; color: var(--gris); }
+.pg-rank-col.pg-rank-leader { color: var(--gold); }
 
 .ga-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .ga-header .eh-title { margin-bottom: 0; flex-shrink: 0; }
@@ -704,26 +697,26 @@ function renderProgramGrid(type, pdaCible) {
     const isLeaderSlot = rank === 1;
     return `
       <div class="pg-row${isLeaderSlot ? ' pg-leader' : ''}">
-        <span class="pg-row-icon">${slot.icon}</span>
-        <div class="pg-row-info">
-          <div class="pg-row-slot">${slot.label}</div>
-          <div class="pg-row-program">${grid[slot.key]}</div>
+        <div class="pg-slot"><span class="ic">${slot.icon}</span>${slot.label}</div>
+        <div class="pg-program-cell">
+          <div class="pg-program">${grid[slot.key]}</div>
+          <span class="pg-crown${isLeaderSlot ? '' : ' pg-crown-hidden'}" title="Leader sur ce créneau">👑</span>
         </div>
-        <div class="pg-row-stats">
-          <span class="pg-row-rank${isLeaderSlot ? ' leader' : ''}">${isLeaderSlot ? '👑 Leader' : `#${rank}`}</span>
-          <span class="pg-row-pda">${nf1(slotValue)}%</span>
-        </div>
+        <div class="pg-rank-col${isLeaderSlot ? ' pg-rank-leader' : ''}">#${rank}</div>
+        <div class="pg-pda">${nf1(slotValue)}%</div>
       </div>
     `;
   }).join('');
   return `
-    <div class="pg-slide">
-      <div class="pg-head">
-        <div class="eh-title">Grille de la chaîne</div>
-        <div class="eh-subtitle">PDA cible par créneau horaire</div>
-      </div>
-      <div class="pg-rows">${rows}</div>
+    <div class="eh-title">Grille de la chaîne</div>
+    <div class="eh-subtitle">PDA cible par créneau horaire</div>
+    <div class="pg-header">
+      <div>Créneau</div>
+      <div>Programme</div>
+      <div class="pg-rank-col">Ranking</div>
+      <div class="pg-pda">PDA cible</div>
     </div>
+    ${rows}
   `;
 }
 
