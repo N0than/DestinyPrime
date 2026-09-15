@@ -6,27 +6,32 @@
 <title>AUDIENCE MASTERS V2 — Devenez le Roi de l'Audimat</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Anton&family=Spectral:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@500;600;700&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
 <style>
 :root {
-  --ink: #16130e;
-  --paper: #efeade;
-  --paper-dark: #e4ddcc;
-  --rouge: #c8102e;
-  --bleu: #1f3a93;
-  --gris: #8a8378;
-  --vert: #2e6b3a;
-  --gold: #d4af37;
-  --danger: #c8102e;
+  --ink: #121316;
+  --paper: #f7f5f0;
+  --paper-dark: #efece6;
+  --paper-card: #ffffff;
+  --rouge: #e11d48;
+  --bleu: #2563eb;
+  --gris: #6b7280;
+  --vert: #059669;
+  --gold: #d97706;
+  --danger: #e11d48;
+  --border: #e2dfd7;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html { -webkit-text-size-adjust: 100%; }
 body {
-  background: var(--paper);
-  background-image: repeating-linear-gradient(0deg, rgba(22, 19, 14, 0.025) 0 1px, transparent 1px 3px);
+  background-color: var(--paper);
+  background-image:
+    radial-gradient(#d8d3c8 0.65px, transparent 0.65px),
+    linear-gradient(to bottom, rgba(247, 245, 240, 0.96), rgba(239, 236, 230, 0.98));
+  background-size: 16px 16px, 100% 100%;
   color: var(--ink);
-  font-family: 'Spectral', Georgia, serif;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 16px;
   line-height: 1.5;
   min-height: 100vh;
@@ -56,7 +61,7 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 /* ---- MASTHEAD ---- */
 .masthead { text-align: center; padding: 10px 0 8px; margin-bottom: 14px; cursor: pointer; transition: opacity 0.15s; }
 .masthead:hover { opacity: 0.75; }
-.masthead .over { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--gris); }
+.masthead .over { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--gris); }
 .header-brand { display: inline-flex; align-items: center; gap: 6px; vertical-align: middle; }
 .header-brand .dot {
   flex-shrink: 0;
@@ -88,7 +93,15 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
   color: var(--gris); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   display: flex; align-items: center; justify-content: center; gap: 3px;
 }
-.hud-cell .ic { font-size: 10px; }
+.hud-cell .ic {
+  font-size: 10px; display: inline-flex; align-items: center; justify-content: center;
+  width: 15px; height: 15px; border-radius: 5px; flex-shrink: 0;
+}
+.hud-cell:nth-child(1) .ic { background: rgba(217,119,6,0.14); }
+.hud-cell:nth-child(2) .ic { background: rgba(225,29,72,0.12); }
+.hud-cell:nth-child(3) .ic { background: rgba(217,119,6,0.14); }
+.hud-cell:nth-child(4) .ic { background: rgba(37,99,235,0.12); }
+.hud-cell:nth-child(5) .ic { background: rgba(217,119,6,0.16); }
 .hud-cell .val {
   font-family: 'Anton', sans-serif; font-size: 15px; white-space: nowrap;
   font-variant-numeric: tabular-nums; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
@@ -124,8 +137,8 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 }
 .hud-details.open { max-height: 800px; opacity: 1; }
 .hud-details-inner {
-  background: #f7f3e8; border: 1.5px solid var(--ink); box-shadow: 4px 4px 0 rgba(22,19,14,0.85);
-  padding: 12px 14px; margin-top: 8px;
+  background: var(--paper-card); border: 1.5px solid var(--ink); box-shadow: 4px 4px 0 rgba(18,19,22,0.85);
+  border-radius: 16px; padding: 12px 14px; margin-top: 8px;
 }
 .eh-title {
   font-family: 'Anton', sans-serif; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;
@@ -166,7 +179,7 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .pg-program-cell { display: flex; align-items: center; gap: 5px; }
 .pg-program {
   flex: 1 1 auto; min-width: 0; box-sizing: border-box;
-  font-style: normal; font-family: 'Spectral', serif; font-size: 10.5px;
+  font-style: normal; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10.5px;
   line-height: 1.2; color: var(--ink); background: var(--paper);
   border: 1px solid rgba(22,19,14,0.3); border-left: 3px solid var(--rouge); border-radius: 3px;
   padding: 3px 7px;
@@ -191,7 +204,7 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .ga-target-btn {
   flex-shrink: 0; background: transparent; border: 1px solid rgba(22,19,14,0.3); color: var(--gris);
   font-family: 'Anton', sans-serif; font-size: 9px; text-transform: uppercase; letter-spacing: 0.3px;
-  padding: 4px 7px; border-radius: 3px; cursor: pointer; white-space: nowrap;
+  padding: 4px 7px; border-radius: 999px; cursor: pointer; white-space: nowrap;
   transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
 }
 .ga-target-btn:hover { border-color: var(--ink); color: var(--ink); }
@@ -236,7 +249,7 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .arcom-status-pill {
   display: inline-flex; align-items: center; gap: 5px;
   font-family: 'Anton', sans-serif; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.4px;
-  padding: 5px 10px; border-radius: 3px; border: 1.5px solid var(--ink);
+  padding: 5px 10px; border-radius: 999px; border: 1.5px solid var(--ink);
 }
 .arcom-status-excellent, .arcom-status-conforme { background: rgba(46,107,58,0.12); color: var(--vert); border-color: var(--vert); }
 .arcom-status-vigilance { background: rgba(212,175,55,0.16); color: #8a6d1a; border-color: var(--gold); }
@@ -248,7 +261,7 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .arcom-mini-dot.ok { background: var(--vert); }
 .arcom-mini-dot.warn { background: var(--gold); }
 .arcom-mini-dot.bad { background: var(--rouge); }
-.arcom-mini-label { flex: 1; min-width: 0; font-family: 'Spectral', serif; }
+.arcom-mini-label { flex: 1; min-width: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
 .arcom-mini-value { font-family: 'Anton', sans-serif; font-size: 10.5px; color: var(--gris); white-space: nowrap; }
 .arcom-obligations-list { display: flex; flex-direction: column; gap: 9px; margin-top: 8px; }
 .arcom-oblig-row { display: flex; align-items: center; gap: 8px; }
@@ -277,7 +290,7 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
   display: block; width: 100%; box-sizing: border-box; text-align: center; margin-top: 10px;
   background: transparent; border: 1.5px solid var(--ink); color: var(--ink);
   font-family: 'Anton', sans-serif; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.5px;
-  padding: 8px; border-radius: 3px; cursor: pointer;
+  padding: 8px; border-radius: 10px; cursor: pointer;
 }
 .arcom-view-btn:hover { background: var(--ink); color: var(--paper); }
 .bilan-title-row {
@@ -331,7 +344,7 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .impact-badge {
   display: inline-flex; align-items: center; gap: 4px;
   font-family: 'Anton', sans-serif; font-size: 11px; letter-spacing: 0.2px; white-space: nowrap;
-  padding: 3px 8px; border-radius: 3px; background: var(--paper); border: 1px solid var(--ink);
+  padding: 3px 8px; border-radius: 999px; background: var(--paper); border: 1px solid var(--ink);
 }
 .impact-badge.up { color: var(--vert); border-color: var(--vert); }
 .impact-badge.down { color: var(--rouge); border-color: var(--rouge); }
@@ -352,6 +365,7 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
   position: relative; display: inline-flex; align-items: center; gap: 6px;
   cursor: pointer; overflow: hidden; white-space: nowrap; margin-bottom: 6px;
   background: var(--ink); color: var(--paper);
+  border-radius: 9px;
   font-family: 'Anton', sans-serif; text-transform: uppercase; letter-spacing: 0.5px; font-size: 11px;
   padding: 7px 12px;
   border: 2px solid var(--paper); outline: 2px solid var(--ink);
@@ -375,8 +389,9 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 }
 .btn-dice:active .dice-icon { transform: rotate(14deg) scale(0.9); }
 .card {
-  background: #f7f3e8; border: 1.5px solid var(--ink);
-  box-shadow: 4px 4px 0 rgba(22,19,14,0.85);
+  background: var(--paper-card); border: 1.5px solid var(--ink);
+  box-shadow: 4px 4px 0 rgba(18,19,22,0.85);
+  border-radius: 16px;
   padding: 16px; margin-bottom: 16px; position: relative;
 }
 .tape { position: absolute; top: -10px; left: 50%; transform: translateX(-50%) rotate(-1.5deg); width: 80px; height: 20px; background: rgba(31,58,147,0.18); border: 1px dashed rgba(31,58,147,0.4); }
@@ -385,8 +400,9 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 @media(min-width: 520px) { .optgrid { grid-template-columns: 1fr 1fr; } }
 
 .opt {
-  text-align: left; background: #f7f3e8; border: 1.5px solid var(--ink); padding: 12px;
-  font-family: 'Spectral', serif; font-size: 14px; box-shadow: 3px 3px 0 var(--ink);
+  text-align: left; background: var(--paper-card); border: 1.5px solid var(--ink); padding: 12px;
+  border-radius: 12px;
+  font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; box-shadow: 3px 3px 0 var(--ink);
   transition: transform 0.1s, background 0.1s;
 }
 .opt:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--ink); }
@@ -398,7 +414,7 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 
 input[type=text] {
   width: 100%; font-family: 'Anton', sans-serif; font-size: 20px; text-transform: uppercase;
-  padding: 10px; border: 2px solid var(--ink); background: #fff; letter-spacing: 1px;
+  padding: 10px; border: 2px solid var(--ink); border-radius: 8px; background: #fff; letter-spacing: 1px;
 }
 label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; display: block; margin: 14px 0 6px; }
 
@@ -407,6 +423,7 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 
 .btn {
   display: inline-block; background: var(--ink); color: var(--paper); border: none;
+  border-radius: 10px;
   font-family: 'Anton', sans-serif; text-transform: uppercase; letter-spacing: 1.5px;
   font-size: 15px; padding: 12px 22px; box-shadow: 4px 4px 0 var(--rouge);
   transition: transform 0.08s, box-shadow 0.08s;
@@ -457,13 +474,18 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 }
 
 .dilemma-card {
-  background: #fdfbf7; border: 2px solid var(--ink); box-shadow: 6px 6px 0 var(--ink);
-  padding: 20px; position: relative; margin-bottom: 0;
+  background: var(--paper-card); border: 2px solid var(--ink); box-shadow: 6px 6px 0 var(--ink);
+  border-radius: 20px;
+  padding: 20px; position: relative; margin-bottom: 0; overflow: hidden;
+}
+.dilemma-card::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 4px;
+  background: linear-gradient(90deg, var(--rouge), var(--ink) 50%, var(--gold));
 }
 .dilemma-card h2 { font-size: clamp(22px, 5.5vw, 30px); margin-bottom: 10px; color: var(--ink); }
 .dilemma-card p { font-size: 16px; line-height: 1.45; }
 
-.choices{display:flex;flex-direction:column;gap:10px}.choice{ text-align:left;background:var(--paper);border:1.5px solid var(--ink); padding:12px 14px;font-size:16px;font-family:'Spectral',serif; box-shadow:3px 3px 0 var(--ink);transition:transform .08s,box-shadow .08s;}.choice:nth-child(odd){transform:rotate(-.4deg)}.choice:nth-child(even){transform:rotate(.4deg)}.choice:hover{transform:translate(1px,1px) rotate(0);box-shadow:1px 1px 0 var(--ink);background:#fff}.choice .cl{font-family:'Anton',sans-serif;text-transform:uppercase;font-size:15px;letter-spacing:.5px;display:block;color:var(--ink)}
+.choices{display:flex;flex-direction:column;gap:10px}.choice{ text-align:left;background:var(--paper-card);border:1.5px solid var(--ink); border-radius:12px; padding:12px 14px;font-size:16px;font-family:'Plus Jakarta Sans',sans-serif; box-shadow:3px 3px 0 var(--ink);transition:transform .08s,box-shadow .08s;}.choice:nth-child(odd){transform:rotate(-.4deg)}.choice:nth-child(even){transform:rotate(.4deg)}.choice:hover{transform:translate(1px,1px) rotate(0);box-shadow:1px 1px 0 var(--ink);background:#fff}.choice:active{transform:translate(3px,3px) rotate(0);box-shadow:0 0 0 var(--ink)}.choice .cl{font-family:'Anton',sans-serif;text-transform:uppercase;font-size:15px;letter-spacing:.5px;display:block;color:var(--ink)}
 
 .choice.selected {
   background: var(--bleu);
@@ -481,7 +503,7 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .grid-table th { background: var(--paper-dark); font-family: 'Anton', sans-serif; text-transform: uppercase; letter-spacing: 0.5px; }
 .grid-table tr:nth-child(even) { background: rgba(255,255,255,0.5); }
 
-.badge { background: var(--gold); color: var(--ink); font-family: 'Anton', sans-serif; padding: 2px 8px; font-size: 12px; text-transform: uppercase; border: 1px solid var(--ink); }
+.badge { background: var(--gold); color: var(--ink); font-family: 'Anton', sans-serif; padding: 2px 8px; font-size: 12px; text-transform: uppercase; border: 1px solid var(--ink); border-radius: 999px; }
 
 @media (prefers-reduced-motion: reduce) { 
   * { transition: none !important; animation: none !important; } 
