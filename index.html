@@ -505,6 +505,10 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
   content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 4px;
   background: linear-gradient(90deg, var(--rouge), #d6d3d1 50%, var(--gold));
 }
+#choice-zone > .slide-in-up { margin-top: -14px; }
+.dilemma-card-attached {
+  border-top: none; border-top-left-radius: 0; border-top-right-radius: 0;
+}
 .dc-head {
   display: flex; align-items: center; justify-content: space-between; gap: 8px;
   padding: 10px 16px; background: rgba(239,236,230,0.5); border-bottom: 1px solid var(--paper-dark);
@@ -4833,11 +4837,7 @@ function render() {
 
       zoneHtml = `
         <div class="slide-in-up">
-          <div class="dilemma-card">
-            <div class="dc-head">
-              <span class="dc-live-pill"><span class="dc-live-dot"></span>Conséquence</span>
-              <span class="dc-season-pill">Saison ${gameState.season}</span>
-            </div>
+          <div class="dilemma-card dilemma-card-attached">
             <div class="dc-body">
               <p>${esc(cq.resultat)}</p>
               <div class="impact-badges">${badgesHtml}</div>
