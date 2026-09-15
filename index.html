@@ -184,6 +184,10 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .eh-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(22,19,14,0.22); border: none; padding: 0; cursor: pointer; }
 .eh-dot.active { background: var(--ink); }
 
+.pg-slide { display: flex; flex-direction: column; height: 100%; }
+.pg-head { flex-shrink: 0; }
+.pg-rows { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+.pg-rows .pg-row { flex: 1; }
 .pg-header, .pg-row {
   display: grid; grid-template-columns: 72px 1fr 42px 46px; gap: 6px; align-items: center;
 }
@@ -708,15 +712,19 @@ function renderProgramGrid(type, pdaCible) {
     `;
   }).join('');
   return `
-    <div class="eh-title">Grille de la chaîne</div>
-    <div class="eh-subtitle">PDA cible par créneau horaire</div>
-    <div class="pg-header">
-      <div>Créneau</div>
-      <div>Programme</div>
-      <div class="pg-rank-col">Ranking</div>
-      <div class="pg-pda">PDA cible</div>
+    <div class="pg-slide">
+      <div class="pg-head">
+        <div class="eh-title">Grille de la chaîne</div>
+        <div class="eh-subtitle">PDA cible par créneau horaire</div>
+        <div class="pg-header">
+          <div>Créneau</div>
+          <div>Programme</div>
+          <div class="pg-rank-col">Ranking</div>
+          <div class="pg-pda">PDA cible</div>
+        </div>
+      </div>
+      <div class="pg-rows">${rows}</div>
     </div>
-    ${rows}
   `;
 }
 
