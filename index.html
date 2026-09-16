@@ -215,6 +215,8 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .pg-row.pg-leader .pg-pda { color: var(--gold); }
 .pg-crown { font-size: 11px; width: 14px; flex-shrink: 0; text-align: center; }
 .pg-crown-hidden { visibility: hidden; }
+.pg-program-updated { border-left-color: var(--vert); background: rgba(5,150,105,0.06); }
+.pg-updated-badge { font-size: 10px; width: 14px; flex-shrink: 0; text-align: center; }
 .pg-rank-col { text-align: center; font-family: 'Anton', sans-serif; font-size: 11px; color: var(--gris); }
 .pg-header .pg-rank-col { font-size: 9px; color: var(--gris); }
 .pg-rank-col.pg-rank-leader { color: var(--gold); }
@@ -690,7 +692,7 @@ function renderEvolutionChart(points) {
   `;
 }
 
-function renderProgramGrid(type, pdaCible) {
+function renderProgramGrid(type, pdaCible, overrides) {
   const grid = PROGRAM_GRID[type];
   const targetKey = gameState.player.target;
   const calculated = getCalculatedPDAs();
@@ -702,11 +704,14 @@ function renderProgramGrid(type, pdaCible) {
       .map(c => c.pda[targetKey] * SLOT_AFFINITY[c.channel.type][slot.key]);
     const rank = 1 + competitorValues.filter(v => v > slotValue + 1e-9).length;
     const isLeaderSlot = rank === 1;
+    const isUpdated = !!(overrides && overrides[slot.key]);
+    const programme = isUpdated ? overrides[slot.key] : grid[slot.key];
     return `
       <div class="pg-row${isLeaderSlot ? ' pg-leader' : ''}">
         <div class="pg-slot"><span class="ic">${slot.icon}</span>${slot.label}</div>
         <div class="pg-program-cell">
-          <div class="pg-program">${grid[slot.key]}</div>
+          <div class="pg-program${isUpdated ? ' pg-program-updated' : ''}">${programme}</div>
+          <span class="pg-updated-badge${isUpdated ? '' : ' pg-crown-hidden'}" title="Programme modifié par vos choix éditoriaux">🆕</span>
           <span class="pg-crown${isLeaderSlot ? '' : ' pg-crown-hidden'}" title="Leader sur ce créneau">👑</span>
         </div>
         <div class="pg-rank-col${isLeaderSlot ? ' pg-rank-leader' : ''}">#${rank}</div>
@@ -3530,6 +3535,60 @@ const DILEMMA_BANK = [
       { l: "Produire un documentaire complet", b: -5, pda: { j1524: +5, a2549: +6, s50: +5, csp: +9 }, r: "L'audience s'envole : budget maîtrisé. Les réseaux sociaux s'enflamment positivement.", pop: 5 },
       { l: "Se contenter d'un sujet court", b: -1, pda: { j1524: +2, a2549: +3, s50: +4, csp: +5 }, r: "L'audience progresse nettement : dépense raisonnable. L'opinion publique se crispe.", pop: -1 }
     ]
+  },
+  {
+    id: 'd276', titre: "Refonte du grand divertissement du samedi soir",
+    desc: "Le format historique du prime du samedi soir s'essouffle face à la concurrence. Il est temps de trancher sur la nouvelle programmation.",
+    types: ['generaliste'],
+    c: [
+      { l: "Lancer un télé-crochet inédit à gros budget", b: -14, pda: { j1524: +5, a2549: +4, s50: +1, csp: 0 }, r: "Un lancement événement qui relance la machine du samedi soir.", pop: 3, grille: { slot: 'prime', programme: "Nouveau télé-crochet" } },
+      { l: "Reformater un jeu familial existant, moins cher", b: -4, pda: { j1524: -1, a2549: +2, s50: +5, csp: +1 }, r: "Un format rassurant qui fidélise le socle familial.", pop: 1, grille: { slot: 'prime', programme: "Grand jeu familial" } }
+    ]
+  },
+  {
+    id: 'd277', titre: "La bataille des séries événement",
+    desc: "Deux propositions s'affrontent pour occuper le prime phare de la semaine : une superproduction américaine ou une création française ambitieuse.",
+    types: ['cinema'],
+    c: [
+      { l: "Acquérir la série américaine à gros budget", b: -16, pda: { j1524: +6, a2549: +5, s50: 0, csp: +2 }, r: "Un carton d'audience immédiat, mais un droit d'auteur onéreux.", pop: 2, grille: { slot: 'prime', programme: "Série événement US" } },
+      { l: "Produire une création française originale", b: -9, pda: { j1524: +1, a2549: +3, s50: +3, csp: +5 }, r: "Un pari qualitatif salué par la critique.", pop: 3, grille: { slot: 'prime', programme: "Création française inédite" } }
+    ]
+  },
+  {
+    id: 'd278', titre: "Le nouveau rendez-vous du soir",
+    desc: "Le créneau de fin de soirée peine à trouver son identité. Deux pistes s'offrent à la rédaction.",
+    types: ['culture'],
+    c: [
+      { l: "Lancer un cycle de grands documentaires d'investigation", b: -6, pda: { j1524: 0, a2549: +2, s50: +3, csp: +7 }, r: "Une ligne éditoriale forte, plébiscitée par les CSP+.", pop: 2, grille: { slot: 'nuit', programme: "Grand documentaire d'investigation" } },
+      { l: "Programmer un talk littéraire plus léger", b: -2, pda: { j1524: +1, a2549: +1, s50: +2, csp: +3 }, r: "Un format accessible qui élargit doucement l'audience.", pop: 1, grille: { slot: 'nuit', programme: "Talk littéraire" } }
+    ]
+  },
+  {
+    id: 'd279', titre: "Le bloc de l'après-midi fait débat",
+    desc: "Faut-il miser sur une licence d'animation internationale coûteuse ou sur une production locale plus modeste ?",
+    types: ['jeunesse'],
+    c: [
+      { l: "Acquérir une grosse licence d'animation internationale", b: -11, pda: { j1524: +6, a2549: +2, s50: -1, csp: 0 }, r: "Les enfants sont conquis, les parents un peu moins.", pop: 2, grille: { slot: 'apresmidi', programme: "Licence animation internationale" } },
+      { l: "Produire un jeu familial local à petit budget", b: -3, pda: { j1524: +2, a2549: +3, s50: +2, csp: +1 }, r: "Un succès raisonnable qui rassemble toute la famille.", pop: 1, grille: { slot: 'apresmidi', programme: "Jeu familial en clair" } }
+    ]
+  },
+  {
+    id: 'd280', titre: "Quel évènement pour le prime du week-end ?",
+    desc: "Deux droits sportifs sont disponibles pour occuper le prime du week-end : un multiplex très coûteux ou un sport plus confidentiel mais exclusif.",
+    types: ['sport'],
+    c: [
+      { l: "Surenchérir pour le multiplex Ligue 1", b: -20, pda: { j1524: +4, a2549: +7, s50: +3, csp: 0 }, r: "L'audience explose, la facture aussi.", pop: 3, grille: { slot: 'prime', programme: "Multiplex Ligue 1" } },
+      { l: "Négocier l'exclusivité d'un sport de niche en pleine ascension", b: -8, pda: { j1524: +3, a2549: +2, s50: 0, csp: +4 }, r: "Un pari maîtrisé qui différencie la chaîne.", pop: 2, grille: { slot: 'prime', programme: "Championnat exclusif" } }
+    ]
+  },
+  {
+    id: 'd281', titre: "Refonte de la tranche matinale",
+    desc: "L'audience de la matinale s'érode. La rédaction propose deux pistes de refonte pour relancer le rendez-vous.",
+    types: ['info'],
+    c: [
+      { l: "Miser sur un JT enrichi avec duplex terrain permanents", b: -5, pda: { j1524: 0, a2549: +3, s50: +4, csp: +2 }, r: "Une matinale plus incarnée qui regagne en crédibilité.", pop: 2, grille: { slot: 'matin', programme: "JT enrichi et duplex terrain" } },
+      { l: "Créer un format de débat citoyen participatif", b: -3, pda: { j1524: +3, a2549: +1, s50: 0, csp: +4 }, r: "Un format qui plaît à l'audience jeune et engagée.", pop: 1, grille: { slot: 'matin', programme: "Débat citoyen participatif" } }
+    ]
   }
 ];
 
@@ -3808,7 +3867,13 @@ const DILEMMA_FLAVOR = {
   d272: [{ sport: +4, direct: +1 }, { sport: +2, direct: +1 }],
   d273: [{ sport: +4, direct: +1 }, { sport: +2, direct: +1 }],
   d274: [{ sport: +4, direct: +1 }, { sport: +2, direct: +1 }],
-  d275: [{ sport: +4, direct: +1 }, { sport: +2, direct: +1 }]
+  d275: [{ sport: +4, direct: +1 }, { sport: +2, direct: +1 }],
+  d276: [{ diverti: 6, inedit: 4 }, { diverti: 4, prodFR: 2 }],
+  d277: [{ fiction: 6, prodEU: -2, inedit: 4 }, { fiction: 6, prodFR: 8, creation: 6 }],
+  d278: [{ culture: 6, debat: 2 }, { culture: 4 }],
+  d279: [{ jeunesse: 6, prodEU: -2 }, { jeunesse: 4, prodFR: 4, creation: 2 }],
+  d280: [{ sport: 8, direct: 6, discipline: 'football' }, { sport: 6, direct: 4 }],
+  d281: [{ info: 6, direct: 4 }, { info: 4, debat: 6, pluralisme: 2 }]
 };
 
 // Portion du coût (M€) de chaque choix attribuable à des talents (journalistes,
@@ -3853,6 +3918,7 @@ let gameState = {
     popularite: 50,
     pda: { j1524: 0.3, a2549: 1.0, s50: 0.3, csp: 0.3 },
     editoMix: {},
+    grilleOverrides: {},
     seasonCreationSpend: 0,
     seasonTotalSpend: 0,
     sportDisciplinesSeen: [],
@@ -4175,6 +4241,10 @@ function chooseDilemmaOption(choiceIndex) {
 
   applyDilemmaEditoImpact(dilemma, choiceIndex, choice);
 
+  if (choice.grille) {
+    player.grilleOverrides[choice.grille.slot] = choice.grille.programme;
+  }
+
   const pdaCibleAvant = getCalculatedPDAs().find(item => item.channel === player).pda[player.target];
 
   for (const t in choice.pda) {
@@ -4367,6 +4437,7 @@ function resetGame() {
     popularite: 50,
     pda: { j1524: 0.3, a2549: 1.0, s50: 0.3, csp: 0.3 },
     editoMix: {},
+    grilleOverrides: {},
     seasonCreationSpend: 0,
     seasonTotalSpend: 0,
     sportDisciplinesSeen: [],
@@ -4437,7 +4508,7 @@ function renderTicker() {
   };
   const chartPoints = lastHistorySeason === gameState.season ? gameState.history : [...gameState.history, currentPoint];
 
-  const programGridHtml = renderProgramGrid(p.type, pdaCible);
+  const programGridHtml = renderProgramGrid(p.type, pdaCible, p.grilleOverrides);
   const globalAudienceShareHtml = renderGlobalAudienceShare();
   const evolutionChartHtml = renderEvolutionChart(chartPoints);
   const compliance = p.lastArcomResult || computeArcomCompliance();
