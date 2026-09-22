@@ -296,6 +296,8 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .stat-row-value.bad { color: var(--rouge); }
 
 /* ---- CONVENTION ARCOM ---- */
+.arcom-slide-wrap { display: flex; overflow: visible; }
+.arcom-slide { flex: 1; height: auto; display: flex; flex-direction: column; }
 .arcom-score-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 8px 0 12px; flex-wrap: wrap; }
 .arcom-score-value { font-family: 'Anton', sans-serif; font-size: 28px; color: var(--ink); line-height: 1; }
 .arcom-status-pill {
@@ -306,7 +308,7 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .arcom-status-excellent, .arcom-status-conforme { background: rgba(46,107,58,0.12); color: var(--vert); border-color: var(--vert); }
 .arcom-status-vigilance { background: rgba(212,175,55,0.16); color: #8a6d1a; border-color: var(--gold); }
 .arcom-status-manquements, .arcom-status-nonconforme { background: rgba(200,16,46,0.1); color: var(--rouge); border-color: var(--rouge); }
-.arcom-obligations-mini { margin-top: 4px; }
+.arcom-obligations-mini { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: space-evenly; margin-top: 4px; }
 .arcom-mini-row { display: flex; align-items: center; gap: 6px; padding: 4px 0; font-size: 12px; border-bottom: 1px dashed rgba(22,19,14,0.1); }
 .arcom-mini-row:last-child { border-bottom: none; }
 .arcom-mini-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
@@ -996,14 +998,16 @@ function renderArcomSlide(compliance, convention) {
     </div>
   `).join('');
   return `
-    <div class="eh-title">Convention ARCOM</div>
-    <div class="eh-subtitle">${esc(convention.label)} — obligations éditoriales</div>
-    <div class="arcom-score-row">
-      <div class="arcom-score-value">${compliance.arcomScore} / 100</div>
-      <div class="arcom-status-pill arcom-status-${compliance.status.key}">${compliance.status.emoji} ${compliance.status.label}</div>
+    <div class="arcom-slide">
+      <div class="eh-title">Convention ARCOM</div>
+      <div class="eh-subtitle">${esc(convention.label)} — obligations éditoriales</div>
+      <div class="arcom-score-row">
+        <div class="arcom-score-value">${compliance.arcomScore} / 100</div>
+        <div class="arcom-status-pill arcom-status-${compliance.status.key}">${compliance.status.emoji} ${compliance.status.label}</div>
+      </div>
+      <div class="arcom-obligations-mini">${rows}</div>
+      <button class="arcom-view-btn" type="button">Voir la convention complète →</button>
     </div>
-    <div class="arcom-obligations-mini">${rows}</div>
-    <button class="arcom-view-btn" type="button">Voir la convention complète →</button>
   `;
 }
 
@@ -4746,7 +4750,7 @@ function renderTicker() {
               <div class="eh-slide">${globalAudienceShareHtml}</div>
               <div class="eh-slide">${evolutionChartHtml}</div>
               <div class="eh-slide">${statStarsHtml}</div>
-              <div class="eh-slide">${arcomSlideHtml}</div>
+              <div class="eh-slide arcom-slide-wrap">${arcomSlideHtml}</div>
             </div>
           </div>
           <div class="eh-slider-nav">
