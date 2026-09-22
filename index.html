@@ -627,7 +627,6 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .program-manager select { display:block; width:100%; max-width:100%; margin:6px 0 10px; padding:10px; font:inherit; background:var(--paper); color:var(--ink); border:1px solid var(--ink); }
 .program-manager label { display:block; }
 .program-manager label.program-manager-field { display:flex; flex-direction:column; gap:2px; margin:0; }
-.program-manager-label { display:block; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:9.5px; text-transform:uppercase; letter-spacing:.4px; color:var(--gris); margin-bottom:6px; }
 .program-manager-contract, .program-manager-note { font-size:10px; line-height:1.35; color:var(--gris); margin-bottom:5px; }
 .program-manager-row { display:flex; flex-direction:column; align-items:stretch; gap:5px; width:100%; }
 .program-manager-fields { width:100%; min-width:0; display:flex; flex-direction:column; gap:5px; }
@@ -690,7 +689,6 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
   .pg-rank { font-size:9.5px; }
   .pg-pda-badge { font-size:9.5px; padding:3px 7px; }
   .pg-slot-editor .program-manager { padding:2px 4px 8px; }
-  .program-manager-label { font-size:9px; margin-bottom:4px; }
   .program-manager-contract, .program-manager-note { font-size:9px; margin-bottom:4px; }
   .program-manager-row, .program-manager-fields { gap:4px; }
   .program-manager-field { padding:0; font-size:9px; }
@@ -5551,7 +5549,6 @@ function renderProgramManager(slot) {
   return `<section class="program-manager" aria-label="Modifier la programmation">
     ${c?`<p class="program-manager-contract">${esc(c.name)} · ${esc(c.talent)} · ${nf1(c.annual)} M€/an · jusqu’à la saison ${c.end}.</p>`:''}
     ${editable?`
-    <span class="program-manager-label">Modifier le programme diffusé :</span>
     ${c?`<p class="program-manager-note">Remplacement : indemnité de ${nf1(c.annual*(c.end-gameState.season+1))} M€ couvrant les saisons restantes, saison actuelle comprise. Le coût annuel actuel est remplacé ; les droits déjà achetés ne sont pas remboursés.</p>`:''}
     <div class="program-manager-row" data-program-editor="${slot}">
       <label class="program-manager-field programme"><span class="program-manager-field-label">Programme</span><select id="program-${slot}">${PROGRAM_CATALOG.map(x=>`<option value="${x.id}" ${c?.id===x.id?'selected':''}>${x.name} — ${nf1(x.annual)} M€/an + ${nf1(x.rights)} M€ droits, ${x.years} saison(s)</option>`).join('')}</select></label>
