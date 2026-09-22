@@ -1,4 +1,6 @@
+
 <!DOCTYPE html>
+<!-- Version principale d’Audience Masters. -->
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -189,7 +191,7 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .pg-rows { flex: 1; display: flex; flex-direction: column; min-height: 0; }
 .pg-rows .pg-row { flex: 1; }
 .pg-header, .pg-row {
-  display: grid; grid-template-columns: 72px 1fr 42px 46px; gap: 6px; align-items: center;
+  display: grid; grid-template-columns: 72px minmax(0, 1fr) 22px 42px 46px; gap: 6px; align-items: center;
 }
 .pg-header {
   font-family: 'Anton', sans-serif; font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px;
@@ -209,11 +211,18 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
   border: 1px solid rgba(22,19,14,0.3); border-left: 3px solid var(--rouge); border-radius: 3px;
   padding: 3px 7px;
 }
+.pg-edit {
+  display: flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px; box-sizing: border-box;
+  color: var(--ink); background: transparent; border: 1px solid rgba(22,19,14,0.25);
+  border-radius: 50%; font-size: 12px; line-height: 1; cursor:pointer;
+}
+.pg-slot-editor > summary:hover .pg-edit,
+.pg-slot-editor[open] > summary .pg-edit { background: var(--ink); color: var(--paper); border-color: var(--ink); }
 .pg-pda { text-align: right; font-family: 'Anton', sans-serif; font-size: 13px; color: var(--rouge); }
 .pg-header .pg-pda { font-size: 9px; color: var(--gris); }
 .pg-row.pg-leader { background: rgba(212,175,55,0.12); }
 .pg-row.pg-leader .pg-pda { color: var(--gold); }
-.pg-crown { font-size: 11px; width: 14px; flex-shrink: 0; text-align: center; }
 .pg-crown-hidden { visibility: hidden; }
 .pg-program-updated { border-left-color: var(--vert); background: rgba(5,150,105,0.06); }
 .pg-updated-badge { font-size: 10px; width: 14px; flex-shrink: 0; text-align: center; }
@@ -600,6 +609,73 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
   .dilemma-container.slide-in, .dilemma-container.slide-out,
   .slide-in-up, .slide-out-up { animation: none !important; }
 }
+.card select { width:100%; max-width:100%; margin:6px 0 10px; padding:10px; font:inherit; background:var(--paper); color:var(--ink); border:1px solid var(--ink); }
+.program-manager { margin-top:18px; padding-top:14px; border-top:1px dashed var(--ink); font-size:12px; user-select:text; }
+.program-manager select { display:block; width:100%; max-width:100%; margin:6px 0 10px; padding:10px; font:inherit; background:var(--paper); color:var(--ink); border:1px solid var(--ink); }
+.program-manager label { display:block; }
+.program-manager-row { display:flex; flex-direction:column; align-items:stretch; gap:8px; width:100%; }
+.program-manager-fields { width:100%; min-width:0; display:flex; align-items:stretch; gap:8px; }
+.program-manager-field {
+  min-width:0; box-sizing:border-box; padding:7px 10px;
+  color:var(--gris); background:var(--paper); border:1px solid var(--border); border-radius:12px;
+  font-family:'Plus Jakarta Sans',sans-serif; font-weight:700; font-size:10px;
+  text-transform:uppercase; letter-spacing:.35px;
+  transition:background .12s ease, border-color .12s ease, box-shadow .12s ease;
+}
+.program-manager-field:hover { background:#fff; border-color:#c9c4b8; }
+.program-manager-field:focus-within {
+  color:var(--vert); background:rgba(5,150,105,.05); border-color:rgba(5,150,105,.32);
+  box-shadow:inset 0 0 0 1px rgba(5,150,105,.08);
+}
+.program-manager-field.programme { flex:2 1 0; }
+.program-manager-field.talent { flex:1 1 0; }
+.program-manager-field select {
+  margin:4px 0 0; padding:3px 22px 3px 0; min-width:0;
+  color:var(--ink); background:transparent; border:0; border-radius:0;
+  font-family:'Plus Jakarta Sans',sans-serif; font-weight:700; font-size:11px;
+  text-transform:none; letter-spacing:0; outline:0;
+}
+.program-manager-actions { width:100%; display:flex; align-items:center; justify-content:flex-end; gap:5px; }
+.program-manager-box {
+  flex:1 1 50%; min-width:0; display:inline-flex; align-items:center; justify-content:center; gap:5px; height:30px;
+  padding:4px 10px; border:1px solid var(--border); border-radius:999px; cursor:pointer;
+  font-family:'Plus Jakarta Sans',sans-serif; font-weight:700; font-size:11px; line-height:1; white-space:nowrap;
+  transition:transform .12s ease, background .12s ease, border-color .12s ease;
+}
+.program-manager-box.confirm { color:var(--vert); background:rgba(5,150,105,.08); border-color:rgba(5,150,105,.24); }
+.program-manager-box.cancel { color:var(--rouge); background:rgba(225,29,72,.08); border-color:rgba(225,29,72,.24); }
+.program-manager-box.confirm:hover { background:rgba(5,150,105,.16); border-color:var(--vert); }
+.program-manager-box.cancel:hover { background:rgba(225,29,72,.16); border-color:var(--rouge); }
+.program-manager-box:active { transform:scale(.97); }
+.program-manager-box:focus-visible { outline:2px solid var(--bleu); outline-offset:2px; }
+.program-manager-feedback { display:block; min-height:16px; margin-top:6px; color:var(--rouge); font-size:10px; }
+.programming-slide { display:flex; overflow:visible; padding-right:6px; }
+.programming-slide .pg-slide { flex:1; height:auto; }
+.pg-slot-editor { flex:1 0 auto; display:flex; flex-direction:column; border-bottom:1px solid rgba(22,19,14,.15); }
+.pg-slot-editor > summary { cursor:default; list-style:none; width:100%; }
+.pg-slot-editor:not([open]) > summary { flex:1; }
+.pg-slot-editor > summary::-webkit-details-marker { display:none; }
+.pg-slot-editor > summary:hover, .pg-slot-editor[open] > summary { background:rgba(5,150,105,.07); }
+.pg-slot-editor > summary:focus-visible { outline:2px solid var(--bleu); outline-offset:-2px; }
+.pg-slot-editor .program-manager { margin:0; padding:12px; border-top:0; }
+.pg-slot-editor[open] .program-manager { animation:pg-pushdown .24s cubic-bezier(.16,1,.3,1); transform-origin:top; }
+@keyframes pg-pushdown {
+  from { opacity:0; transform:translateY(-8px) scaleY(.96); }
+  to { opacity:1; transform:translateY(0) scaleY(1); }
+}
+.card summary { cursor:pointer; padding:12px 0; font-weight:700; }
+.choice-pill { white-space:normal; max-width:160px; text-align:center; }
+@media (max-width:540px) { .choice-row { flex-wrap:wrap; } .choice-pill { max-width:100%; } }
+@media (max-width:540px) {
+  .programming-slide { padding-right:2px; }
+  .pg-header, .pg-row { grid-template-columns:62px minmax(0,1fr) 20px 34px 42px; gap:4px; }
+  .pg-edit { width:20px; height:20px; }
+  .program-manager-row, .program-manager-fields { gap:4px; }
+  .program-manager-field { padding:6px 7px; font-size:9px; }
+  .program-manager-field select { padding:3px 16px 2px 0; font-size:9px; }
+  .program-manager-actions { gap:3px; }
+  .program-manager-box { height:28px; padding:3px 7px; font-size:9px; }
+}
 </style>
 </head>
 <body>
@@ -622,7 +698,7 @@ const pick = arr => arr[Math.floor(Math.random() * arr.length)];
 const shuffle = arr => {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
+    const j = Math.floor(seededRandom() * (i + 1));
     [a[i], a[j]] = [a[j], a[i]];
   }
   return a;
@@ -707,26 +783,30 @@ function renderProgramGrid(type, pdaCible, overrides) {
     const isUpdated = !!(overrides && overrides[slot.key]);
     const programme = isUpdated ? overrides[slot.key] : grid[slot.key];
     return `
-      <div class="pg-row${isLeaderSlot ? ' pg-leader' : ''}">
+      <details class="pg-slot-editor" data-slot-editor="${slot.key}">
+      <summary class="pg-row${isLeaderSlot ? ' pg-leader' : ''}" aria-label="Modifier le créneau ${slot.label}">
         <div class="pg-slot"><span class="ic">${slot.icon}</span>${slot.label}</div>
         <div class="pg-program-cell">
-          <div class="pg-program${isUpdated ? ' pg-program-updated' : ''}">${programme}</div>
+          <div class="pg-program${isUpdated ? ' pg-program-updated' : ''}">${esc(programme)}</div>
           <span class="pg-updated-badge${isUpdated ? '' : ' pg-crown-hidden'}" title="Programme modifié par vos choix éditoriaux">🆕</span>
-          <span class="pg-crown${isLeaderSlot ? '' : ' pg-crown-hidden'}" title="Leader sur ce créneau">👑</span>
         </div>
-        <div class="pg-rank-col${isLeaderSlot ? ' pg-rank-leader' : ''}">#${rank}</div>
+        <span class="pg-edit" aria-hidden="true" title="Modifier ce créneau">✎</span>
+        <div class="pg-rank-col${isLeaderSlot ? ' pg-rank-leader' : ''}"${isLeaderSlot ? ' title="Leader sur ce créneau"' : ''}>${isLeaderSlot ? '👑' : `#${rank}`}</div>
         <div class="pg-pda">${nf1(slotValue)}%</div>
-      </div>
+      </summary>
+      ${renderProgramManager(slot.key)}
+      </details>
     `;
   }).join('');
   return `
     <div class="pg-slide">
       <div class="pg-head">
         <div class="eh-title">Grille de la chaîne</div>
-        <div class="eh-subtitle">PDA cible par créneau horaire</div>
+        <div class="eh-subtitle">Cliquez sur un créneau pour choisir son programme et son talent.</div>
         <div class="pg-header">
           <div>Créneau</div>
           <div>Programme</div>
+          <div aria-hidden="true"></div>
           <div class="pg-rank-col">Ranking</div>
           <div class="pg-pda">PDA cible</div>
         </div>
@@ -795,7 +875,7 @@ function renderStatStars(player, pdaCible, compliance) {
   const popClass = player.popularite >= 60 ? 'good' : (player.popularite >= 40 ? 'warn' : 'bad');
 
   const lower = 50;
-  const upper = Math.max(player.coutGrilleCumul * 5, lower + 1);
+  const upper = Math.max(player.coutGrilleEngageSaison * 5, lower + 1);
   let tresoFilled;
   if (player.tresorerie <= lower) tresoFilled = 1;
   else if (player.tresorerie >= upper) tresoFilled = 5;
@@ -862,16 +942,15 @@ function renderArcomSlide(compliance, convention) {
 }
 
 function renderEcoBilanSlide(player) {
-  const depenses = player.coutGrilleEngageSaison;
-  const coutTalents = player.coutTalentsSaison;
+  const depenses = player.coutGrilleEngageSaison + player.achatsSaison;
+  const coutTalents = Math.min(depenses, player.coutTalentsSaison);
   const coutProgrammes = Math.max(0, depenses - coutTalents);
-  const revenus = player.revenusPubPrevisionnels;
-  const maxFlow = Math.max(depenses, revenus, 1);
-  const rentabPos = player.rentabiliteGrille >= 0;
-
-  const secondaryItems = [
+  const revenusPublicitaires = player.revenusPubPrevisionnels;
+  const maxFlow = Math.max(depenses, revenusPublicitaires, 1);
+  const rentabilitePositive = player.rentabiliteGrille >= 0;
+  const indicators = [
     { icon: '💰', label: 'Trésorerie', value: `${nf1(player.tresorerie)} M€` },
-    { icon: '🎤', label: 'Coût des talents', value: `-${nf1(player.coutTalentsSaison)} M€` },
+    { icon: '🎤', label: 'Coût des talents', value: `${nf1(player.coutTalentsSaison)} M€` },
     { icon: '📊', label: 'Coût / pt PDA', value: `${nf1(player.coutParPointPDA)} M€` }
   ];
 
@@ -879,15 +958,15 @@ function renderEcoBilanSlide(player) {
     <div class="ga-header">
       <div class="eh-title">Bilan économique</div>
       <div class="eh-legend" style="margin: 0; gap: 8px;">
-        <span class="eh-legend-item"><i style="background:var(--rouge)"></i>Progr.</span>
+        <span class="eh-legend-item"><i style="background:var(--rouge)"></i>Programmes</span>
         <span class="eh-legend-item"><i style="background:var(--bleu)"></i>Talents</span>
         <span class="eh-legend-item"><i style="background:var(--vert)"></i>Revenus</span>
       </div>
     </div>
-    <div class="eh-subtitle">Saison ${gameState.season} — flux financiers en temps réel</div>
+    <div class="eh-subtitle">Flux financiers en temps réel.</div>
 
     <div class="eco-hero">
-      <div class="eco-hero-value ${rentabPos ? 'eco-pos' : 'eco-neg'}">${fmtDelta(player.rentabiliteGrille, 1, '%')}</div>
+      <div class="eco-hero-value ${rentabilitePositive ? 'eco-pos' : 'eco-neg'}">${fmtDelta(player.rentabiliteGrille, 1, '%')}</div>
       <div class="eco-hero-label">Rentabilité de la grille</div>
     </div>
 
@@ -901,14 +980,16 @@ function renderEcoBilanSlide(player) {
         <div class="eco-flow-value eco-neg">-${nf1(depenses)} M€</div>
       </div>
       <div class="eco-flow-row">
-        <div class="eco-flow-label"><span class="ic">📺</span>Revenus pub</div>
-        <div class="eco-flow-bar-track"><div class="eco-flow-bar-fill eco-flow-revenu" style="width:${(revenus / maxFlow * 100).toFixed(1)}%"></div></div>
-        <div class="eco-flow-value eco-pos">+${nf1(revenus)} M€</div>
+        <div class="eco-flow-label"><span class="ic">📺</span>Recettes pub.</div>
+        <div class="eco-flow-bar-track">
+          <div class="eco-flow-bar-fill eco-flow-revenu" style="width:${(revenusPublicitaires / maxFlow * 100).toFixed(1)}%"></div>
+        </div>
+        <div class="eco-flow-value eco-pos">+${nf1(revenusPublicitaires)} M€</div>
       </div>
     </div>
 
     <div class="eco-bilan-grid">
-      ${secondaryItems.map(it => `
+      ${indicators.map(it => `
         <div class="eco-bilan-item">
           <div class="eco-bilan-label"><span class="ic">${it.icon}</span>${it.label}</div>
           <div class="eco-bilan-value">${it.value}</div>
@@ -3983,6 +4064,9 @@ function pickDilemmaQueue() {
     queue = queue.concat(shuffle(remainingPool).slice(0, 4 - queue.length));
   }
   gameState.seenDilemmaIds.push(...queue.map(d => d.id));
+  ensureCampaign();
+  const event = STORY_EVENTS.find(e=>e.eligible(gameState.player)&&!gameState.player.eventsSeen.includes(e.id));
+  if(event) { queue[queue.length-1]=event; gameState.player.eventsSeen.push(event.id); }
   return queue;
 }
 
@@ -4063,14 +4147,14 @@ function getCalculatedPDAs() {
   
   const demoTotals = {};
   demos.forEach(d => {
-    demoTotals[d] = channels.reduce((sum, c) => sum + Math.max(0.1, c.pda[d]), 0);
+    demoTotals[d] = channels.reduce((sum, c) => sum + Math.max(0.1, c.pda[d] + contractBoost(c,d)), 0);
   });
 
   return channels.map(c => {
     const normPda = {};
     let sumNorm = 0;
     demos.forEach(d => {
-      normPda[d] = (Math.max(0.1, c.pda[d]) / demoTotals[d]) * 100;
+      normPda[d] = (Math.max(0.1, c.pda[d] + contractBoost(c,d)) / demoTotals[d]) * 100;
       sumNorm += normPda[d];
     });
     
@@ -4104,10 +4188,11 @@ function applyDilemmaEditoImpact(dilemma, choiceIndex, choice) {
       player.sportDisciplinesSeen.push(impact.discipline);
     }
   }
-  if (choice.b < 0) {
-    player.seasonTotalSpend += Math.abs(choice.b);
+  const spend = choice.finance.purchase + Math.max(0, choice.finance.recurring);
+  if (spend > 0) {
+    player.seasonTotalSpend += spend;
     if (impact && impact.creation > 0) {
-      player.seasonCreationSpend += Math.abs(choice.b);
+      player.seasonCreationSpend += spend;
     }
   }
 }
@@ -4152,12 +4237,11 @@ function computeArcomCompliance() {
   const editoMix = player.editoMix;
 
   const rawValues = convention.obligations.map(ob => computeObligationActual(ob, editoMix, player));
-  const pctRawSum = convention.obligations.reduce((sum, ob, i) => ob.unit === '%' ? sum + rawValues[i] : sum, 0);
-  const pctScale = pctRawSum > 0 ? 100 / pctRawSum : 1;
 
   let weightedSum = 0, weightTotal = 0;
   const obligations = convention.obligations.map((ob, i) => {
-    const actualValue = ob.unit === '%' ? rawValues[i] * pctScale : rawValues[i];
+    // Chaque obligation a son propre dénominateur (antenne, création, etc.).
+    const actualValue = rawValues[i];
     const rate = ob.minimum > 0 ? actualValue / ob.minimum : 1;
     const score = obligationScoreFromRate(rate);
     weightedSum += score * ob.weight;
@@ -4170,6 +4254,7 @@ function computeArcomCompliance() {
 
 function pushArcomSeasonResult() {
   const player = gameState.player;
+  const soldeAvant = player.tresorerie;
   const compliance = computeArcomCompliance();
   player.arcomHistory.push({
     season: gameState.season,
@@ -4199,6 +4284,7 @@ function pushArcomSeasonResult() {
     player.popularite = Math.max(0, player.popularite - 5);
     player.arcomSanctionsCount++;
   }
+  player.fluxArcomSaison = player.tresorerie - soldeAvant;
   player.lastArcomResult = compliance;
   return compliance;
 }
@@ -4234,8 +4320,11 @@ function getRenewalOutcome(score) {
 }
 
 function chooseDilemmaOption(choiceIndex) {
+  if (gameState.step !== 6 || gameState.dilemmaPhase !== 'choosing') return;
   const dilemma = gameState.dilemmaQueue[gameState.currentDilemmaIndex];
+  if (!dilemma || !Number.isInteger(choiceIndex) || !dilemma.c[choiceIndex]) return;
   const choice = dilemma.c[choiceIndex];
+  ensureCampaign();
   const player = gameState.player;
   const popAvant = player.popularite;
 
@@ -4254,13 +4343,7 @@ function chooseDilemmaOption(choiceIndex) {
     player.pda[t] = Math.max(0.1, player.pda[t] + delta);
   }
 
-  gameState.competitors.forEach(comp => {
-    if (comp.target === player.target) {
-      comp.pda[comp.target] = Math.max(1, comp.pda[comp.target] + (choice.b > 0 ? -0.5 : 1));
-    } else {
-      comp.pda[comp.target] = Math.max(1, comp.pda[comp.target] + (Math.random() * 1.5 - 0.5));
-    }
-  });
+  strategicCompetitors();
 
   // À partir de la saison 2, la grille est provisionnée à l'ouverture. Les choix
   // ajustent ensuite immédiatement la trésorerie ; en saison 1, seul le surcoût
@@ -4268,9 +4351,8 @@ function chooseDilemmaOption(choiceIndex) {
   // `b` représente une économie quand il est positif et une dépense quand il est
   // négatif. Une économie ne peut toutefois pas rembourser plus que le coût de
   // grille encore engagé ; le delta réel est donc calculé après plafonnement à 0.
-  const coutGrilleAvant = player.coutGrilleEngageSaison;
-  player.coutGrilleEngageSaison = Math.max(0, coutGrilleAvant - choice.b);
-  const coutGrilleDelta = player.coutGrilleEngageSaison - coutGrilleAvant;
+  const coutGrilleDelta = applyFinance(choice.finance);
+  player.decisionHistory.push({id:dilemma.id, choice:choiceIndex, season:gameState.season, ...choice.finance});
   const talentCost = DILEMMA_TALENT_COST[dilemma.id];
   if (talentCost) {
     player.coutTalentsSaison += talentCost[choiceIndex];
@@ -4291,13 +4373,14 @@ function chooseDilemmaOption(choiceIndex) {
   // Le flux net de trésorerie est bien la recette publicitaire moins la variation
   // de coût de grille : un surcoût (delta positif) réduit le solde, une économie
   // (delta négatif) l'augmente.
-  const tresorerieDelta = revenusPubDelta - coutGrilleDelta;
-  player.tresorerie += tresorerieDelta;
+  const tresorerieDelta = revenusPubDelta - coutGrilleDelta - choice.finance.purchase + choice.finance.commercial;
+  player.tresorerie += revenusPubDelta;
 
   // Rentabilité grille et coût/PDA sont recalculés en temps réel à chaque dilemme,
   // à partir des valeurs courantes de la saison (pas seulement au bilan de fin de saison).
   player.rentabiliteGrille = player.coutGrilleEngageSaison > 0 ? (player.revenusPubPrevisionnels / player.coutGrilleEngageSaison - 1) * 100 : 0;
   player.coutParPointPDA = player.pdaMoyenneSaison > 0 ? player.coutGrilleEngageSaison / player.pdaMoyenneSaison : 0;
+  refreshEconomy();
 
   gameState.lastConsequence = {
     titre: dilemma.titre,
@@ -4307,8 +4390,10 @@ function chooseDilemmaOption(choiceIndex) {
       tresorerie: tresorerieDelta,
       pdaCible: pdaCibleApres - pdaCibleAvant,
       coutGrille: coutGrilleDelta,
+      achats: choice.finance.purchase,
+      commercial: choice.finance.commercial,
       revenusPub: revenusPubDelta,
-      popularite: choice.pop
+      popularite: player.popularite - popAvant
     }
   };
 
@@ -4334,6 +4419,7 @@ function chooseDilemmaOption(choiceIndex) {
     player.rentabiliteGrille = player.coutGrilleEngageSaison > 0 ? (player.revenusPubFinals / player.coutGrilleEngageSaison - 1) * 100 : 0;
     player.coutParPointPDA = player.pdaMoyenneSaison > 0 ? player.coutGrilleEngageSaison / player.pdaMoyenneSaison : 0;
 
+    refreshEconomy();
     if (player.pdaFinSaison > player.pdaMoyenneSaison && player.popularite >= 60) {
       player.puissanceCommerciale = Math.min(1.15, player.puissanceCommerciale + 0.01);
     } else if (player.pdaFinSaison < player.pdaMoyenneSaison * 0.9 || player.popularite < 40) {
@@ -4362,6 +4448,11 @@ function chooseDilemmaOption(choiceIndex) {
     // le solde final après leur application.
     gameState.history[gameState.history.length - 1].tresorerie = player.tresorerie;
     gameState.history[gameState.history.length - 1].tresorerieFin = player.tresorerie;
+    gameState.history[gameState.history.length - 1].fluxArcom = player.fluxArcomSaison;
+    gameState.history[gameState.history.length - 1].popularite = player.popularite;
+    gameState.lastConsequence.deltas.tresorerie += player.fluxArcomSaison;
+    gameState.lastConsequence.deltas.popularite = player.popularite - popAvant;
+    closeCampaignSeason();
     gameState.renewalDue = gameState.season % CONVENTION_DURATION === 0;
     if (player.tresorerie < TRESORERIE_CRITIQUE) {
       gameState.pendingNextStep = 8;
@@ -4378,6 +4469,7 @@ function chooseDilemmaOption(choiceIndex) {
 }
 
 function continueAfterConsequence() {
+  if (gameState.dilemmaPhase !== 'result' || gameState.pendingNextStep === null) return;
   gameState.step = gameState.pendingNextStep;
   gameState.pendingNextStep = null;
   gameState.dilemmaPhase = 'choosing';
@@ -4385,8 +4477,10 @@ function continueAfterConsequence() {
 }
 
 function startNewSeason() {
+  if (!gameState.history.some(h => h.season === gameState.season)) return;
   const player = gameState.player;
   gameState.season++;
+  expireContracts();
   gameState.currentDilemmaIndex = 0;
   gameState.dilemmaQueue = pickDilemmaQueue();
   gameState.dilemmaPhase = 'choosing';
@@ -4405,6 +4499,12 @@ function startNewSeason() {
   player.revenusPubFinals = 0;
   player.resultatSaison = 0;
   player.coutTalentsSaison = 0;
+  player.fluxArcomSaison = 0;
+  player.commercialSaison = 0;
+  player.achatsSaison = 0;
+  player.coutTalentsSaison = Object.values(player.contracts).reduce((sum,c)=>sum+c.talentAnnual,0);
+  player.lastArcomResult = null;
+  player.rentabiliteGrille = player.coutGrilleEngageSaison > 0 ? -100 : 0;
   const seedPdaCible = getCalculatedPDAs().find(item => item.channel === player).pda[player.target];
   player.pdaHistorySeason = [seedPdaCible];
   player.pdaMoyenneSaison = seedPdaCible;
@@ -4412,7 +4512,9 @@ function startNewSeason() {
   // Les cumuls historiques ne sont jamais remis à zéro ; seuls les prévisionnels
   // de la nouvelle saison repartent de zéro.
   resetSeasonEditoMix();
-  gameState.step = 6;
+  player.coutParPointPDA = seedPdaCible > 0 ? player.coutGrilleEngageSaison / seedPdaCible : 0;
+  gameState.step = player.tresorerie < TRESORERIE_CRITIQUE ? 8 : 6;
+  if (gameState.step === 8) gameState.gameOverReason = 'tresorerie';
   render();
 }
 
@@ -4425,6 +4527,8 @@ function goHome() {
 }
 
 function resetGame() {
+  delete gameState.campaign;
+  delete gameState.expiredPrograms;
   gameState.step = 1;
   gameState.resumeStep = null;
   gameState.player = {
@@ -4481,7 +4585,7 @@ function renderMasthead(sub, over) {
   return `
     <div class="masthead">
       <div class="over"><span class="header-brand"><span class="dot"></span>${over || `Audience Masters V2 — Saison ${gameState.season}`}</span></div>
-      <h1>${gameState.player.name || "Bienvenue dans l'arène"}</h1>
+      <h1>${esc(gameState.player.name || "Bienvenue dans l'arène")}</h1>
       <div class="under">${sub}</div>
       ${renderMire(8)}
     </div>
@@ -4511,7 +4615,7 @@ function renderTicker() {
   const programGridHtml = renderProgramGrid(p.type, pdaCible, p.grilleOverrides);
   const globalAudienceShareHtml = renderGlobalAudienceShare();
   const evolutionChartHtml = renderEvolutionChart(chartPoints);
-  const compliance = p.lastArcomResult || computeArcomCompliance();
+  const compliance = computeArcomCompliance();
   const statStarsHtml = renderStatStars(p, pdaCible, compliance);
   const arcomSlideHtml = renderArcomSlide(compliance, ARCOM_CONVENTIONS[p.type]);
   const ecoBilanSlideHtml = renderEcoBilanSlide(p);
@@ -4553,7 +4657,7 @@ function renderTicker() {
         <div class="hud-details-inner">
           <div class="eh-slider" id="eh-slider">
             <div class="eh-slider-track" id="eh-slider-track" style="transform: translateX(-${slide * 100}%);">
-              <div class="eh-slide">${programGridHtml}</div>
+              <div class="eh-slide programming-slide">${programGridHtml}</div>
               <div class="eh-slide">${ecoBilanSlideHtml}</div>
               <div class="eh-slide">${globalAudienceShareHtml}</div>
               <div class="eh-slide">${evolutionChartHtml}</div>
@@ -4578,6 +4682,7 @@ function renderTicker() {
 }
 
 function render() {
+  if (gameState.step >= 5) refreshEconomy();
   const app = document.getElementById('app');
   window.scrollTo(0, 0);
 
@@ -4903,6 +5008,8 @@ function render() {
       const cq = gameState.lastConsequence;
       const d = cq.deltas;
       const rows = [
+        { icon: '🛒', label: 'Achat ponctuel', val: d.achats, decimals: 1, suffix: ' M€', invert: true },
+        { icon: '🤝', label: 'Recette commerciale', val: d.commercial, decimals: 1, suffix: ' M€', invert: false },
         { icon: '💰', label: 'Trésorerie', val: d.tresorerie, decimals: 1, suffix: ' M€', invert: false },
         { icon: '🎯', label: 'PDA Cible', val: d.pdaCible, decimals: 1, suffix: ' pts', invert: false },
         d.coutGrille > 0
@@ -4936,8 +5043,8 @@ function render() {
           ${dilemma.c.map((choice, i) => {
             const accent = i % 2 === 0 ? 'accent' : 'neutral';
             const icon = i % 2 === 0 ? '✨' : '🛡️';
-            const badgeCls = choice.b < 0 ? 'cost' : choice.b > 0 ? 'save' : 'neutral';
-            const badgeText = choice.b < 0 ? `+${Math.abs(choice.b)} M€` : choice.b > 0 ? `-${choice.b} M€` : '—';
+            const badgeCls = choice.finance.purchase || choice.finance.recurring > 0 ? 'cost' : 'save';
+            const badgeText = financeLabel(choice);
             return `
             <button class="choice" data-idx="${i}">
               <div class="choice-row">
@@ -4959,6 +5066,7 @@ function render() {
     app.innerHTML = `
       ${renderMasthead("Saison " + gameState.season, "Audience Masters")}
       ${renderTicker()}
+      ${renderCampaignPanel()}
       <div class="dilemma-container${phase === 'choosing' ? ' slide-in' : ''}">
         <div class="dilemma-card${phase === 'result' ? ' dilemma-card-joined' : ''}">
           <div class="dc-head">
@@ -4975,6 +5083,7 @@ function render() {
       </div>
     `;
 
+    bindCampaignPanel(app);
     if (phase === 'choosing') {
       app.querySelectorAll('.choice').forEach(btn => {
         btn.onclick = () => {
@@ -5011,13 +5120,18 @@ function render() {
     document.querySelectorAll('.eh-dot').forEach(dot => {
       dot.onclick = () => goToHudSlide(parseInt(dot.dataset.slide, 10));
     });
+    document.querySelectorAll('.pg-slot-editor > summary').forEach(summary => {
+      summary.addEventListener('click', event => {
+        if (event.detail > 0 && !event.target.closest('.pg-edit')) event.preventDefault();
+      });
+    });
     const ehSlider = document.getElementById('eh-slider');
     const ehTrack = document.getElementById('eh-slider-track');
     let dragStartX = 0;
     let dragDeltaX = 0;
     let isDragging = false;
     ehSlider.addEventListener('pointerdown', e => {
-      if (e.target.closest('.ga-target-btn') || e.target.closest('.arcom-view-btn')) return;
+      if (e.target.closest('button, select, input, label, summary, .program-manager')) return;
       isDragging = true;
       dragStartX = e.clientX;
       dragDeltaX = 0;
@@ -5107,6 +5221,7 @@ function render() {
         </ul>
       </div>
 
+      ${renderCampaignPanel()}
       <button class="btn block" id="btn-next-season">${gameState.renewalDue ? 'Voir le renouvellement de convention →' : `Lancer la Saison ${gameState.season + 1} →`}</button>
     `;
 
@@ -5245,7 +5360,222 @@ function render() {
   }
 }
 
-render();
 </script>
+<script>
+/* Audience Masters : moteur de campagne et catalogue financier versionné. */
+// P achat ponctuel ; R coût récurrent ; C recette commerciale ; E économie
+// récurrente ; N neutre. Chaque paire est une décision éditoriale explicite.
+const FINANCE_REVIEW = `
+1 PC;2 PE;3 PC;4 RE;5 PC;6 PN;7 CP;8 PP;9 RE;10 CN;
+11 RR;12 PC;13 PP;14 PP;15 PE;16 CP;17 NP;18 PE;19 PC;20 PN;
+21 PR;22 PC;23 PP;24 ER;25 PC;26 PN;27 RC;28 PC;29 PP;30 PC;
+31 PC;32 PC;33 CP;34 RR;35 PN;36 PC;37 CP;38 PP;39 CP;40 PP;
+41 PP;42 PP;43 CR;44 PN;45 PP;46 CP;47 CP;48 CP;49 RE;50 PN;
+51 PP;52 NC;53 RR;54 PE;55 PC;56 RR;57 CE;58 PE;59 CP;60 PN;
+61 PP;62 RR;63 CR;64 CR;65 PN;66 PN;67 PE;68 RR;69 PP;70 PP;
+71 PC;72 PN;73 CR;74 CP;75 PN;76 PP;77 PP;78 PP;79 PP;80 RR;
+81 PP;82 PN;83 RN;84 PP;85 PP;86 PP;87 PP;88 RP;89 PP;90 PP;
+91 PP;92 PP;93 RP;94 PP;95 PP;96 PR;97 PP;98 PP;99 PP;100 PP;
+101 PP;102 PP;103 PR;104 PP;105 PP;106 PR;107 PN;108 RP;109 RP;110 PP;
+111 PP;112 PP;113 PP;114 PR;115 RP;116 PP;117 RR;118 RR;119 CP;120 RR;
+121 RR;122 PP;123 RR;124 RN;125 PP;126 RR;127 RN;128 CP;129 PP;130 PP;
+131 PP;132 PP;133 RP;134 PP;135 PN;136 PP;137 PP;138 RR;139 RR;140 RR;
+141 PR;142 RR;143 RR;144 RR;145 PP;146 PP;147 PP;148 PP;149 PP;150 RN;
+151 PN;152 PN;153 PN;154 PP;155 PN;156 PP;157 PC;158 PC;159 PN;160 PN;
+161 PN;162 PP;163 PN;164 PN;165 PP;166 PP;167 PN;168 PP;169 PP;170 PP;
+171 PN;172 CN;173 PP;174 PP;175 PP;176 PP;177 PP;178 PP;179 PP;180 RR;
+181 PE;182 PN;183 PN;184 PC;185 PC;186 PC;187 PP;188 PN;189 PC;190 RR;
+191 PC;192 PN;193 RR;194 PN;195 PC;196 PC;197 PN;198 PN;199 PN;200 PN;
+201 PN;202 RN;203 CP;204 CC;205 PC;206 PC;207 PN;208 RR;209 PC;210 PN;
+211 PN;212 PN;213 PN;214 PN;215 PP;216 RP;217 PP;218 PN;219 PP;220 PP;
+221 PN;222 RP;223 PN;224 PP;225 PP;226 PN;227 PN;228 PN;229 PC;230 PC;
+231 CC;232 CC;233 CC;234 CC;235 CP;236 CC;237 CP;238 CC;239 CP;240 PC;
+241 EE;242 PP;243 CP;244 PP;245 PP;246 PP;247 PP;248 PP;249 PC;250 PC;
+251 PN;252 PC;253 PC;254 PC;255 PE;256 CP;257 CC;258 PN;259 PN;260 PC;
+261 CC;262 RR;263 RN;264 RN;265 PN;266 PN;267 RN;268 PN;269 RN;270 RN;
+271 RR;272 RR;273 PP;274 PP;275 PP;276 RR;277 PP;278 RR;279 PR;280 PP;281 RR
+`;
+const FINANCE_CODES = Object.fromEntries(FINANCE_REVIEW.trim().split(';').map(row => {
+  const [id, codes] = row.trim().split(/\s+/); return ['d' + id, codes];
+}));
+function reviewedFinance(d, i) {
+  const code = FINANCE_CODES[d.id]?.[i];
+  if (!code) throw Error('Effet financier non revu : ' + d.id + '/' + i);
+  const amount = Math.abs(d.c[i].b);
+  return { recurring: code === 'R' ? amount : code === 'E' ? -amount : 0,
+    purchase: code === 'P' ? amount : 0, commercial: code === 'C' ? amount : 0,
+    category: code };
+}
+DILEMMA_BANK.forEach(d => d.c.forEach((c, i) => { c.finance = reviewedFinance(d, i); }));
+// Ces trois libellés décrivent une cession / un accord rémunérateur, malgré le
+// signe négatif du champ historique b. Les recettes sont désormais explicites.
+const FINANCE_LABELS = { R: 'Coût annuel', P: 'Achat ponctuel', C: 'Recette commerciale', E: 'Économie annuelle', N: 'Sans flux financier' };
+function financeLabel(choice) {
+  const f = choice.finance;
+  return FINANCE_LABELS[f.category] + (f.category === 'N' ? '' : ' : ' + nf1(Math.abs(f.recurring) + f.purchase + f.commercial) + ' M€');
+}
+function ensureCampaign() {
+  const p = gameState.player;
+  p.commercialSaison ??= 0; p.achatsSaison ??= 0;
+  p.contracts ??= {}; p.decisionHistory ??= []; p.eventsSeen ??= [];
+  gameState.campaign ??= { deadline: 5, status: 'active', seed: 12345 };
+}
+function seededRandom() {
+  ensureCampaign();
+  let x = gameState.campaign.seed >>> 0;
+  x ^= x << 13; x ^= x >>> 17; x ^= x << 5;
+  gameState.campaign.seed = x >>> 0;
+  return (x >>> 0) / 4294967296;
+}
+const PROGRAM_CATALOG = [
+  {id:'magazine', name:'Magazine maison', annual:1.5, rights:0, years:2, target:'csp', power:1.5},
+  {id:'fiction', name:'Série française', annual:2, rights:4, years:2, target:'a2549', power:3},
+  {id:'animation', name:'Licence animation', annual:1, rights:3, years:2, target:'j1524', power:3},
+  {id:'sport', name:'Compétition exclusive', annual:3, rights:6, years:1, target:'a2549', power:4},
+  {id:'documentaire', name:'Collection documentaire', annual:1, rights:2, years:3, target:'s50', power:2}
+];
+const TALENT_CATALOG = [
+  {id:'interne', name:'Équipe interne', annual:0, bonus:0},
+  {id:'espoir', name:'Nouveau talent', annual:0.5, bonus:0.7},
+  {id:'vedette', name:'Vedette', annual:2, bonus:1.8}
+];
+function contractBoost(p, target) {
+  return Object.values(p.contracts || {}).reduce((sum,c) => sum + (c.target === target ? c.power : c.power * 0.2), 0);
+}
+function refreshEconomy() {
+  const p=gameState.player; ensureCampaign();
+  const cost=p.coutGrilleEngageSaison+p.achatsSaison;
+  const revenue=p.revenusPubPrevisionnels+p.commercialSaison;
+  p.resultatSaison=revenue-cost;
+  p.rentabiliteGrille=cost>0?(revenue/cost-1)*100:0;
+  p.coutParPointPDA=p.pdaMoyenneSaison>0?cost/p.pdaMoyenneSaison:0;
+}
+function applyFinance(f) {
+  ensureCampaign(); const p=gameState.player;
+  const before=p.coutGrilleEngageSaison;
+  // Les contrats signés ne sont pas résiliables par une économie générique.
+  const floor=Object.values(p.contracts).reduce((s,c)=>s+c.annual,0);
+  p.coutGrilleEngageSaison=Math.max(floor,before+f.recurring);
+  const recurring=p.coutGrilleEngageSaison-before;
+  p.achatsSaison+=f.purchase; p.commercialSaison+=f.commercial;
+  p.tresorerie+=f.commercial-f.purchase-recurring;
+  return recurring;
+}
+function signProgram(slot, programId, talentId) {
+  ensureCampaign(); const p=gameState.player;
+  if(gameState.step!==6 || gameState.dilemmaPhase!=='choosing' || gameState.currentDilemmaIndex!==0) return false;
+  const program=PROGRAM_CATALOG.find(x=>x.id===programId), talent=TALENT_CATALOG.find(x=>x.id===talentId);
+  if(!program || !talent || !TIME_SLOTS.some(x=>x.key===slot)) return false;
+  const annual=program.annual+talent.annual;
+  const previous=p.contracts[slot];
+  if(previous && previous.id===programId && previous.talent===talent.name) return false;
+  const termination=previous ? previous.annual*(previous.end-gameState.season+1) : 0;
+  const recurring=annual-(previous?.annual||0);
+  if(p.tresorerie-recurring-program.rights-termination<TRESORERIE_CRITIQUE) return false;
+  delete p.contracts[slot];
+  applyFinance({recurring,purchase:program.rights+termination,commercial:0});
+  p.contracts[slot]={...program, annual, talent:talent.name, talentAnnual:talent.annual, power:(program.power+talent.bonus)*SLOT_AFFINITY[p.type][slot], end:gameState.season+program.years-1};
+  p.coutTalentsSaison+=talent.annual-(previous?.talentAnnual||0);
+  p.grilleOverrides[slot]=program.name+' — '+talent.name;
+  const audience=getCalculatedPDAs().find(c=>c.channel===p).pda[p.target];
+  p.pdaHistorySeason=[audience]; p.pdaMoyenneSaison=audience; p.pdaFinSaison=audience;
+  refreshEconomy(); render(); return true;
+}
+function expireContracts() {
+  ensureCampaign(); const p=gameState.player;
+  gameState.expiredPrograms=[];
+  for(const [slot,c] of Object.entries(p.contracts)) if(c.end<gameState.season) {
+    p.coutGrilleEngageSaison=Math.max(0,p.coutGrilleEngageSaison-c.annual);
+    delete p.contracts[slot]; delete p.grilleOverrides[slot];
+    gameState.expiredPrograms.push(c.name);
+  }
+}
+function strategicCompetitors() {
+  gameState.competitors.forEach((c,i)=>{
+    c.strategy ??= ['premium','specialiste','prudent'][i%3];
+    const player=gameState.player;
+    const pressure=player.pda[c.target]>c.pda[c.target] ? 1.3 : 1;
+    const invest=Math.min(c.budget, c.strategy==='premium'?2.5:c.strategy==='specialiste'?1.5:0.6);
+    c.budget-=invest;
+    c.pda[c.target]=Math.max(1,c.pda[c.target]+invest*pressure*(0.35+seededRandom()*0.25));
+    c.lastAction=c.strategy==='premium'?'Investit dans les exclusivités':c.strategy==='specialiste'?'Renforce sa cible':'Préserve sa trésorerie';
+  });
+}
+const STORY_EVENTS = [
+ {id:'story_sponsor',titre:'Le sponsor demande un droit de regard',desc:'Votre précédent contrat commercial attire de nouvelles exigences éditoriales.',eligible:p=>p.decisionHistory.some(x=>x.commercial>0),c:[
+  {l:'Refuser et indemniser le partenaire',b:-2,pop:3,pda:{csp:2},r:'Votre indépendance est préservée.',finance:{recurring:0,purchase:2,commercial:0,category:'P'}},
+  {l:'Accepter une opération sponsorisée',b:4,pop:-4,pda:{a2549:1},r:'La marque paie cette opération ponctuelle.',finance:{recurring:0,purchase:0,commercial:4,category:'C'}}]},
+ {id:'story_talent',titre:'Votre vedette reçoit une offre concurrente',desc:'Le recrutement d’une vedette a attiré l’attention des autres chaînes.',eligible:p=>Object.values(p.contracts).some(c=>c.talent==='Vedette'),c:[
+  {l:'Financer une campagne autour de la vedette',b:-2,pop:2,pda:{a2549:2},r:'La campagne renforce le rendez-vous.',finance:{recurring:0,purchase:2,commercial:0,category:'P'}},
+  {l:'S’en tenir au contrat signé',b:0,pop:-1,pda:{a2549:-1},r:'Le contrat reste en vigueur, mais la concurrence brouille votre communication.',finance:{recurring:0,purchase:0,commercial:0,category:'N'}}]}
+];
+function campaignProgress() {
+  ensureCampaign(); const p=gameState.player;
+  const audience=getCalculatedPDAs().find(c=>c.channel===p).pda[p.target];
+  const profitable=gameState.history.filter(h=>h.resultatSaison>=0).length;
+  return [
+    {name:'Atteindre 15 % de PDA sur cible', done:audience>=15, value:nf1(audience)+' %'},
+    {name:'Clôturer deux saisons rentables',done:profitable>=2,value:profitable+'/2'},
+    {name:'Conformité ≥ 75 et trésorerie positive',done:computeArcomCompliance().arcomScore>=75&&p.tresorerie>=0,value:computeArcomCompliance().arcomScore+'/100'}
+  ];
+}
+function closeCampaignSeason() {
+  refreshEconomy(); const p=gameState.player, h=gameState.history.at(-1);
+  h.resultatSaison=p.resultatSaison; h.commercial=p.commercialSaison; h.achats=p.achatsSaison;
+  h.rentabiliteGrille=p.rentabiliteGrille;
+  h.contracts=JSON.parse(JSON.stringify(p.contracts));
+  gameState.competitors.forEach(c=>{c.budget+=Math.max(1,c.pda[c.target]*0.4);});
+  if(gameState.campaign.status==='active' && gameState.season>=gameState.campaign.deadline) {
+    const authorized=getRenewalOutcome(computeRenewalScore().renewalScore).key!=='refused';
+    gameState.campaign.status=campaignProgress().filter(x=>x.done).length>=2 && authorized && p.tresorerie>=TRESORERIE_CRITIQUE?'won':'lost';
+  }
+}
+function renderProgramManager(slot) {
+  ensureCampaign(); const p=gameState.player;
+  const editable=gameState.step===6&&gameState.dilemmaPhase==='choosing'&&gameState.currentDilemmaIndex===0;
+  const c=p.contracts[slot];
+  return `<section class="program-manager" aria-label="Modifier la programmation">
+    ${c?`<p>${esc(c.name)} · ${esc(c.talent)} · ${nf1(c.annual)} M€/an · jusqu’à la saison ${c.end}.</p>`:''}
+    ${editable?`
+    ${c?`<p>Remplacement : indemnité de ${nf1(c.annual*(c.end-gameState.season+1))} M€ couvrant les saisons restantes, saison actuelle comprise. Le coût annuel actuel est remplacé ; les droits déjà achetés ne sont pas remboursés.</p>`:''}
+    <div class="program-manager-row" data-program-editor="${slot}">
+      <div class="program-manager-fields">
+        <label class="program-manager-field programme">Programme <select id="program-${slot}">${PROGRAM_CATALOG.map(x=>`<option value="${x.id}" ${c?.id===x.id?'selected':''}>${x.name} — ${nf1(x.annual)} M€/an + ${nf1(x.rights)} M€ droits, ${x.years} saison(s)</option>`).join('')}</select></label>
+        <label class="program-manager-field talent">Talent <select id="talent-${slot}">${TALENT_CATALOG.map(x=>`<option value="${x.id}" ${c?.talent===x.name?'selected':''}>${x.name} — ${nf1(x.annual)} M€/an</option>`).join('')}</select></label>
+      </div>
+      <div class="program-manager-actions" aria-label="Valider ou annuler">
+        <button type="button" class="program-manager-box confirm" data-program-confirm title="Valider la combinaison programme et talent">✓ Valider</button>
+        <button type="button" class="program-manager-box cancel" data-program-cancel title="Annuler">× Annuler</button>
+      </div>
+    </div>
+    <span class="program-manager-feedback" aria-live="polite"></span>`:'<p>Modifications disponibles au début de la prochaine saison, avant le premier dilemme.</p>'}
+    </section>`;
+}
+function renderCampaignPanel() {
+  return '';
+}
+function bindCampaignPanel(app) {
+  app.querySelectorAll('[data-program-editor]').forEach(editor=>{
+    const slot=editor.dataset.programEditor;
+    const manager=editor.closest('.program-manager');
+    const feedback=manager.querySelector('.program-manager-feedback');
+    editor.querySelectorAll('select').forEach(select=>select.onchange=()=>{
+      feedback.textContent='';
+    });
+    editor.querySelector('[data-program-confirm]').onclick=()=>{
+      feedback.textContent='';
+      if(!signProgram(slot,document.getElementById('program-'+slot).value,document.getElementById('talent-'+slot).value)) {
+        feedback.textContent='Validation impossible : budget insuffisant ou contrat inchangé.';
+      }
+    };
+    editor.querySelector('[data-program-cancel]').onclick=()=>{
+      feedback.textContent='';
+      const details=editor.closest('.pg-slot-editor');
+      if(details) details.open=false;
+    };
+  });
+}
+</script>
+<script>render();</script>
 </body>
 </html>
