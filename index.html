@@ -189,45 +189,53 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .pg-head { flex-shrink: 0; }
 .pg-rows { flex: 1; display: flex; flex-direction: column; min-height: 0; }
 .pg-rows .pg-row { flex: 1; }
-.pg-header, .pg-row {
-  display: grid; grid-template-columns: 72px minmax(0, 1fr) 22px 42px 46px; gap: 6px; align-items: center;
+
+.pg-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 6px; border-bottom: 1px solid rgba(22,19,14,0.08);
+  cursor: pointer; border-radius: 10px; transition: background 0.15s ease;
 }
-.pg-header {
-  font-family: 'Anton', sans-serif; font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px;
-  color: var(--gris); padding-bottom: 4px; border-bottom: 1px solid rgba(22,19,14,0.15); margin-bottom: 2px;
-}
-.pg-row { padding: 6px 0; border-bottom: 1px dashed rgba(22,19,14,0.12); font-size: 12px; }
 .pg-row:last-child { border-bottom: none; }
-.pg-slot {
-  display: flex; align-items: center; gap: 4px;
-  font-family: 'Anton', sans-serif; font-size: 10px; text-transform: uppercase; letter-spacing: 0.3px;
+.pg-row:hover { background: rgba(22,19,14,0.03); }
+.pg-row-key { background: rgba(225,29,72,0.05); border-radius: 12px; border-bottom-color: transparent; }
+.pg-row-key:hover { background: rgba(225,29,72,0.08); }
+
+.pg-time-pill {
+  flex-shrink: 0; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 9.5px;
+  letter-spacing: 0.2px; color: var(--gris); background: var(--paper-dark);
+  border: 1px solid var(--border); border-radius: 999px; padding: 4px 8px; white-space: nowrap;
 }
-.pg-program-cell { display: flex; align-items: center; gap: 5px; }
-.pg-program {
-  flex: 1 1 auto; min-width: 0; box-sizing: border-box;
-  font-style: normal; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10.5px;
-  line-height: 1.2; color: var(--ink); background: var(--paper);
-  border: 1px solid rgba(22,19,14,0.3); border-left: 3px solid var(--rouge); border-radius: 3px;
-  padding: 3px 7px;
+.pg-row-key .pg-time-pill { background: var(--rouge); border-color: var(--rouge); color: #fff; }
+
+.pg-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.pg-info-title {
+  display: flex; align-items: center; gap: 5px;
+  font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 12.5px; color: var(--ink);
 }
-.pg-edit {
-  display: flex; align-items: center; justify-content: center;
-  width: 22px; height: 22px; box-sizing: border-box;
-  color: var(--ink); background: transparent; border: 1px solid rgba(22,19,14,0.25);
-  border-radius: 50%; font-size: 12px; line-height: 1; cursor:pointer;
+.pg-key-tag {
+  font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 8px; letter-spacing: 0.4px;
+  color: var(--rouge); background: rgba(225,29,72,0.12); border: 1px solid rgba(225,29,72,0.25);
+  border-radius: 5px; padding: 1px 5px; text-transform: uppercase;
 }
-.pg-slot-editor > summary:hover .pg-edit,
-.pg-slot-editor[open] > summary .pg-edit { background: var(--ink); color: var(--paper); border-color: var(--ink); }
-.pg-pda { text-align: right; font-family: 'Anton', sans-serif; font-size: 13px; color: var(--rouge); }
-.pg-header .pg-pda { font-size: 9px; color: var(--gris); }
-.pg-row.pg-leader { background: rgba(212,175,55,0.12); }
-.pg-row.pg-leader .pg-pda { color: var(--gold); }
-.pg-crown-hidden { visibility: hidden; }
-.pg-program-updated { border-left-color: var(--vert); background: rgba(5,150,105,0.06); }
-.pg-updated-badge { font-size: 10px; width: 14px; flex-shrink: 0; text-align: center; }
-.pg-rank-col { text-align: center; font-family: 'Anton', sans-serif; font-size: 11px; color: var(--gris); }
-.pg-header .pg-rank-col { font-size: 9px; color: var(--gris); }
-.pg-rank-col.pg-rank-leader { color: var(--gold); }
+.pg-info-program {
+  font-family: 'Plus Jakarta Sans', sans-serif; font-size: 11px; color: var(--gris);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.pg-info-program.pg-program-updated { color: var(--vert); font-weight: 700; }
+.pg-updated-badge { font-size: 9px; margin-left: 2px; }
+
+.pg-pda-badge {
+  flex-shrink: 0; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 10.5px;
+  padding: 4px 9px; border-radius: 999px; white-space: nowrap;
+}
+.pg-badge-vert { color: var(--vert); background: rgba(5,150,105,0.12); }
+.pg-badge-bleu { color: var(--bleu); background: rgba(37,99,235,0.12); }
+.pg-badge-gold { color: var(--gold); background: rgba(217,119,6,0.14); }
+.pg-badge-rouge { color: var(--rouge); background: rgba(225,29,72,0.12); }
+.pg-badge-gris { color: var(--gris); background: rgba(107,114,128,0.14); }
+
+.pg-chevron { flex-shrink: 0; width: 14px; height: 14px; color: var(--gris); transition: transform 0.25s cubic-bezier(0.16,1,0.3,1); }
+.pg-slot-editor[open] .pg-chevron { color: var(--ink); transform: rotate(180deg); }
 
 .ga-panel { display: flex; flex-direction: column; height: 100%; }
 .ga-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-shrink: 0; }
@@ -609,52 +617,44 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
   .slide-in-up, .slide-out-up { animation: none !important; }
 }
 .card select { width:100%; max-width:100%; margin:6px 0 10px; padding:10px; font:inherit; background:var(--paper); color:var(--ink); border:1px solid var(--ink); }
-.program-manager { margin-top:18px; padding-top:14px; border-top:1px dashed var(--ink); font-size:12px; user-select:text; }
+.program-manager { margin-top:0; padding-top:0; border-top:0; font-size:12px; user-select:text; }
 .program-manager select { display:block; width:100%; max-width:100%; margin:6px 0 10px; padding:10px; font:inherit; background:var(--paper); color:var(--ink); border:1px solid var(--ink); }
 .program-manager label { display:block; }
-.program-manager-row { display:flex; flex-direction:column; align-items:stretch; gap:8px; width:100%; }
-.program-manager-fields { width:100%; min-width:0; display:flex; align-items:stretch; gap:8px; }
-.program-manager-field {
-  min-width:0; box-sizing:border-box; padding:7px 10px;
-  color:var(--gris); background:var(--paper); border:1px solid var(--border); border-radius:12px;
-  font-family:'Plus Jakarta Sans',sans-serif; font-weight:700; font-size:10px;
-  text-transform:uppercase; letter-spacing:.35px;
-  transition:background .12s ease, border-color .12s ease, box-shadow .12s ease;
+.program-manager-label { display:block; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:10px; text-transform:uppercase; letter-spacing:.4px; color:var(--gris); margin-bottom:8px; }
+.program-manager-row { display:flex; flex-direction:column; align-items:stretch; gap:10px; width:100%; }
+.program-manager-fields { width:100%; min-width:0; display:flex; flex-direction:column; gap:8px; }
+.program-manager-field { min-width:0; box-sizing:border-box; display:flex; flex-direction:column; gap:3px; }
+.program-manager-field-label {
+  font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:8.5px;
+  text-transform:uppercase; letter-spacing:.4px; color:var(--gris);
 }
-.program-manager-field:hover { background:#fff; border-color:#c9c4b8; }
-.program-manager-field:focus-within {
-  color:var(--vert); background:rgba(5,150,105,.05); border-color:rgba(5,150,105,.32);
-  box-shadow:inset 0 0 0 1px rgba(5,150,105,.08);
-}
-.program-manager-field.programme { flex:2 1 0; }
-.program-manager-field.talent { flex:1 1 0; }
 .program-manager-field select {
-  margin:4px 0 0; padding:3px 22px 3px 0; min-width:0;
-  color:var(--ink); background:transparent; border:0; border-radius:0;
-  font-family:'Plus Jakarta Sans',sans-serif; font-weight:700; font-size:11px;
-  text-transform:none; letter-spacing:0; outline:0;
+  width:100%; box-sizing:border-box; margin:0; padding:9px 12px; min-width:0;
+  color:var(--ink); background:#fff; border:1px solid var(--border); border-radius:12px;
+  font-family:'Plus Jakarta Sans',sans-serif; font-weight:600; font-size:11.5px; outline:0;
+  transition:border-color .12s ease, box-shadow .12s ease;
 }
-.program-manager-actions { width:100%; display:flex; align-items:center; justify-content:flex-end; gap:5px; }
+.program-manager-field select:focus { border-color:var(--bleu); box-shadow:0 0 0 2px rgba(37,99,235,.15); }
+.program-manager-actions { width:100%; display:flex; align-items:center; justify-content:flex-end; gap:12px; margin-top:2px; }
 .program-manager-box {
-  flex:1 1 50%; min-width:0; display:inline-flex; align-items:center; justify-content:center; gap:5px; height:30px;
-  padding:4px 10px; border:1px solid var(--border); border-radius:999px; cursor:pointer;
-  font-family:'Plus Jakarta Sans',sans-serif; font-weight:700; font-size:11px; line-height:1; white-space:nowrap;
-  transition:transform .12s ease, background .12s ease, border-color .12s ease;
+  display:inline-flex; align-items:center; justify-content:center; gap:5px; height:34px;
+  padding:0 18px; border-radius:999px; cursor:pointer; border:none;
+  font-family:'Plus Jakarta Sans',sans-serif; font-weight:700; font-size:11.5px; line-height:1; white-space:nowrap;
+  transition:transform .12s ease, background .12s ease, color .12s ease;
 }
-.program-manager-box.confirm { color:var(--vert); background:rgba(5,150,105,.08); border-color:rgba(5,150,105,.24); }
-.program-manager-box.cancel { color:var(--rouge); background:rgba(225,29,72,.08); border-color:rgba(225,29,72,.24); }
-.program-manager-box.confirm:hover { background:rgba(5,150,105,.16); border-color:var(--vert); }
-.program-manager-box.cancel:hover { background:rgba(225,29,72,.16); border-color:var(--rouge); }
+.program-manager-box.confirm { color:#fff; background:var(--ink); }
+.program-manager-box.confirm:hover { background:#000; }
+.program-manager-box.cancel { color:var(--gris); background:transparent; padding:0 6px; }
+.program-manager-box.cancel:hover { color:var(--ink); }
 .program-manager-box:active { transform:scale(.97); }
 .program-manager-box:focus-visible { outline:2px solid var(--bleu); outline-offset:2px; }
 .program-manager-feedback { display:block; min-height:16px; margin-top:6px; color:var(--rouge); font-size:10px; }
 .programming-slide { display:flex; overflow:visible; padding-right:6px; }
 .programming-slide .pg-slide { flex:1; height:auto; }
-.pg-slot-editor { flex:1 0 auto; display:flex; flex-direction:column; border-bottom:1px solid rgba(22,19,14,.15); }
-.pg-slot-editor > summary { cursor:default; list-style:none; width:100%; }
+.pg-slot-editor { flex:1 0 auto; display:flex; flex-direction:column; }
+.pg-slot-editor > summary { cursor:pointer; list-style:none; width:100%; }
 .pg-slot-editor:not([open]) > summary { flex:1; }
 .pg-slot-editor > summary::-webkit-details-marker { display:none; }
-.pg-slot-editor > summary:hover, .pg-slot-editor[open] > summary { background:rgba(5,150,105,.07); }
 .pg-slot-editor > summary:focus-visible { outline:2px solid var(--bleu); outline-offset:-2px; }
 .pg-slot-editor .program-manager { margin:0; padding:12px; border-top:0; }
 .pg-slot-editor[open] .program-manager { animation:pg-pushdown .24s cubic-bezier(.16,1,.3,1); transform-origin:top; }
@@ -667,8 +667,10 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 @media (max-width:540px) { .choice-row { flex-wrap:wrap; } .choice-pill { max-width:100%; } }
 @media (max-width:540px) {
   .programming-slide { padding-right:2px; }
-  .pg-header, .pg-row { grid-template-columns:62px minmax(0,1fr) 20px 34px 42px; gap:4px; }
-  .pg-edit { width:20px; height:20px; }
+  .pg-row { padding:8px 4px; gap:7px; }
+  .pg-info-title { font-size:11.5px; }
+  .pg-info-program { font-size:10px; }
+  .pg-pda-badge { font-size:9.5px; padding:3px 7px; }
   .program-manager-row, .program-manager-fields { gap:4px; }
   .program-manager-field { padding:6px 7px; font-size:9px; }
   .program-manager-field select { padding:3px 16px 2px 0; font-size:9px; }
@@ -779,19 +781,19 @@ function renderProgramGrid(type, pdaCible, overrides) {
       .map(c => c.pda[targetKey] * SLOT_AFFINITY[c.channel.type][slot.key]);
     const rank = 1 + competitorValues.filter(v => v > slotValue + 1e-9).length;
     const isLeaderSlot = rank === 1;
+    const isKeySlot = slot.key === 'prime';
     const isUpdated = !!(overrides && overrides[slot.key]);
     const programme = isUpdated ? overrides[slot.key] : grid[slot.key];
     return `
       <details class="pg-slot-editor" data-slot-editor="${slot.key}">
-      <summary class="pg-row${isLeaderSlot ? ' pg-leader' : ''}" aria-label="Modifier le créneau ${slot.label}">
-        <div class="pg-slot"><span class="ic">${slot.icon}</span>${slot.label}</div>
-        <div class="pg-program-cell">
-          <div class="pg-program${isUpdated ? ' pg-program-updated' : ''}">${esc(programme)}</div>
-          <span class="pg-updated-badge${isUpdated ? '' : ' pg-crown-hidden'}" title="Programme modifié par vos choix éditoriaux">🆕</span>
-        </div>
-        <span class="pg-edit" aria-hidden="true" title="Modifier ce créneau">✎</span>
-        <div class="pg-rank-col${isLeaderSlot ? ' pg-rank-leader' : ''}"${isLeaderSlot ? ' title="Leader sur ce créneau"' : ''}>${isLeaderSlot ? '👑' : `#${rank}`}</div>
-        <div class="pg-pda">${nf1(slotValue)}%</div>
+      <summary class="pg-row${isKeySlot ? ' pg-row-key' : ''}" aria-label="Modifier le créneau ${slot.label}">
+        <span class="pg-time-pill">${slot.range}</span>
+        <span class="pg-info">
+          <span class="pg-info-title">${slot.label}${isKeySlot ? '<span class="pg-key-tag">Clé</span>' : ''}</span>
+          <span class="pg-info-program${isUpdated ? ' pg-program-updated' : ''}">${esc(programme)}${isUpdated ? ' <span class="pg-updated-badge" title="Programme modifié par vos choix éditoriaux">🆕</span>' : ''}</span>
+        </span>
+        <span class="pg-pda-badge pg-badge-${slot.accent}"${isLeaderSlot ? ' title="Leader sur ce créneau"' : ''}>${nf1(slotValue)}% PDA${isLeaderSlot ? ' 👑' : ''}</span>
+        <svg class="pg-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
       </summary>
       ${renderProgramManager(slot.key)}
       </details>
@@ -802,13 +804,6 @@ function renderProgramGrid(type, pdaCible, overrides) {
       <div class="pg-head">
         <div class="eh-title">Grille de la chaîne</div>
         <div class="eh-subtitle">Cliquez sur un créneau pour choisir son programme et son talent.</div>
-        <div class="pg-header">
-          <div>Créneau</div>
-          <div>Programme</div>
-          <div aria-hidden="true"></div>
-          <div class="pg-rank-col">Ranking</div>
-          <div class="pg-pda">PDA cible</div>
-        </div>
       </div>
       <div class="pg-rows">${rows}</div>
     </div>
@@ -1070,11 +1065,11 @@ const CHANNEL_TYPES = {
 };
 
 const TIME_SLOTS = [
-  { key: 'matin', icon: '🌅', label: 'Matin' },
-  { key: 'apresmidi', icon: '☀️', label: 'Après-midi' },
-  { key: 'access', icon: '🌇', label: 'Access' },
-  { key: 'prime', icon: '🌙', label: 'Prime' },
-  { key: 'nuit', icon: '🌃', label: 'Nuit' }
+  { key: 'matin', icon: '🌅', label: 'Matin', range: '06h-12h', accent: 'vert' },
+  { key: 'apresmidi', icon: '☀️', label: 'Après-midi', range: '12h-18h', accent: 'bleu' },
+  { key: 'access', icon: '🌇', label: 'Access', range: '18h-21h', accent: 'gold' },
+  { key: 'prime', icon: '🌙', label: 'Prime', range: '21h-23h', accent: 'rouge' },
+  { key: 'nuit', icon: '🌃', label: 'Nuit', range: '23h-06h', accent: 'gris' }
 ];
 
 const SLOT_AFFINITY = {
@@ -5119,11 +5114,6 @@ function render() {
     document.querySelectorAll('.eh-dot').forEach(dot => {
       dot.onclick = () => goToHudSlide(parseInt(dot.dataset.slide, 10));
     });
-    document.querySelectorAll('.pg-slot-editor > summary').forEach(summary => {
-      summary.addEventListener('click', event => {
-        if (event.detail > 0 && !event.target.closest('.pg-edit')) event.preventDefault();
-      });
-    });
     const ehSlider = document.getElementById('eh-slider');
     const ehTrack = document.getElementById('eh-slider-track');
     let dragStartX = 0;
@@ -5536,15 +5526,16 @@ function renderProgramManager(slot) {
   return `<section class="program-manager" aria-label="Modifier la programmation">
     ${c?`<p>${esc(c.name)} · ${esc(c.talent)} · ${nf1(c.annual)} M€/an · jusqu’à la saison ${c.end}.</p>`:''}
     ${editable?`
+    <span class="program-manager-label">Modifier le programme diffusé :</span>
     ${c?`<p>Remplacement : indemnité de ${nf1(c.annual*(c.end-gameState.season+1))} M€ couvrant les saisons restantes, saison actuelle comprise. Le coût annuel actuel est remplacé ; les droits déjà achetés ne sont pas remboursés.</p>`:''}
     <div class="program-manager-row" data-program-editor="${slot}">
       <div class="program-manager-fields">
-        <label class="program-manager-field programme">Programme <select id="program-${slot}">${PROGRAM_CATALOG.map(x=>`<option value="${x.id}" ${c?.id===x.id?'selected':''}>${x.name} — ${nf1(x.annual)} M€/an + ${nf1(x.rights)} M€ droits, ${x.years} saison(s)</option>`).join('')}</select></label>
-        <label class="program-manager-field talent">Talent <select id="talent-${slot}">${TALENT_CATALOG.map(x=>`<option value="${x.id}" ${c?.talent===x.name?'selected':''}>${x.name} — ${nf1(x.annual)} M€/an</option>`).join('')}</select></label>
+        <label class="program-manager-field programme"><span class="program-manager-field-label">Programme</span><select id="program-${slot}">${PROGRAM_CATALOG.map(x=>`<option value="${x.id}" ${c?.id===x.id?'selected':''}>${x.name} — ${nf1(x.annual)} M€/an + ${nf1(x.rights)} M€ droits, ${x.years} saison(s)</option>`).join('')}</select></label>
+        <label class="program-manager-field talent"><span class="program-manager-field-label">Talent</span><select id="talent-${slot}">${TALENT_CATALOG.map(x=>`<option value="${x.id}" ${c?.talent===x.name?'selected':''}>${x.name} — ${nf1(x.annual)} M€/an</option>`).join('')}</select></label>
       </div>
       <div class="program-manager-actions" aria-label="Valider ou annuler">
-        <button type="button" class="program-manager-box confirm" data-program-confirm title="Valider la combinaison programme et talent">✓ Valider</button>
-        <button type="button" class="program-manager-box cancel" data-program-cancel title="Annuler">× Annuler</button>
+        <button type="button" class="program-manager-box cancel" data-program-cancel>Annuler</button>
+        <button type="button" class="program-manager-box confirm" data-program-confirm title="Valider la combinaison programme et talent">Valider</button>
       </div>
     </div>
     <span class="program-manager-feedback" aria-live="polite"></span>`:'<p>Modifications disponibles au début de la prochaine saison, avant le premier dilemme.</p>'}
