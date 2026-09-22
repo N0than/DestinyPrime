@@ -626,6 +626,7 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .program-manager { margin-top:0; padding-top:0; border-top:0; font-size:12px; user-select:text; }
 .program-manager select { display:block; width:100%; max-width:100%; margin:6px 0 10px; padding:10px; font:inherit; background:var(--paper); color:var(--ink); border:1px solid var(--ink); }
 .program-manager label { display:block; }
+.program-manager label.program-manager-field { display:flex; flex-direction:column; gap:2px; margin:0; }
 .program-manager-label { display:block; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:9.5px; text-transform:uppercase; letter-spacing:.4px; color:var(--gris); margin-bottom:6px; }
 .program-manager-contract, .program-manager-note { font-size:10px; line-height:1.35; color:var(--gris); margin-bottom:5px; }
 .program-manager-row { display:flex; flex-direction:column; align-items:stretch; gap:5px; width:100%; }
@@ -646,9 +647,11 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
   transition:border-color .12s ease, box-shadow .12s ease, background .12s ease;
 }
 .program-manager-field select:focus { border-color:var(--bleu); box-shadow:0 0 0 2px rgba(37,99,235,.15); background-color:#fff; }
-.program-manager-combo { display:flex; align-items:center; gap:6px; }
+.program-manager-combo { display:flex; align-items:flex-start; gap:6px; }
 .program-manager-combo .program-manager-field { flex:1; min-width:0; }
-.program-manager-actions { flex-shrink:0; display:flex; align-items:center; gap:6px; }
+.program-manager-actions { flex-shrink:0; display:flex; flex-direction:column; gap:2px; }
+.program-manager-actions-spacer { visibility:hidden; }
+.program-manager-actions-buttons { display:flex; align-items:center; gap:6px; height:34px; }
 .program-manager-box {
   display:inline-flex; align-items:center; justify-content:center; gap:5px; height:34px;
   padding:0 16px; border-radius:999px; cursor:pointer; border:none;
@@ -693,7 +696,8 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
   .program-manager-field { padding:0; font-size:9px; }
   .program-manager-field select { height:30px; padding:0 22px 0 8px; font-size:9px; background-size:12px, 100%; background-position:right 7px center, 0 0; }
   .program-manager-combo { gap:5px; }
-  .program-manager-actions { gap:4px; }
+  .program-manager-actions { gap:2px; }
+  .program-manager-actions-buttons { height:30px; gap:4px; }
   .program-manager-box { height:30px; padding:0 11px; font-size:9px; }
   .program-manager-box.cancel { padding:0 2px; }
 }
@@ -5554,8 +5558,11 @@ function renderProgramManager(slot) {
       <div class="program-manager-combo">
         <label class="program-manager-field talent"><span class="program-manager-field-label">Talent</span><select id="talent-${slot}">${TALENT_CATALOG.map(x=>`<option value="${x.id}" ${c?.talent===x.name?'selected':''}>${x.name} — ${nf1(x.annual)} M€/an</option>`).join('')}</select></label>
         <div class="program-manager-actions" aria-label="Valider ou annuler">
-          <button type="button" class="program-manager-box cancel" data-program-cancel>Annuler</button>
-          <button type="button" class="program-manager-box confirm" data-program-confirm title="Valider la combinaison programme et talent">Valider</button>
+          <span class="program-manager-field-label program-manager-actions-spacer" aria-hidden="true">&nbsp;</span>
+          <div class="program-manager-actions-buttons">
+            <button type="button" class="program-manager-box cancel" data-program-cancel>Annuler</button>
+            <button type="button" class="program-manager-box confirm" data-program-confirm title="Valider la combinaison programme et talent">Valider</button>
+          </div>
         </div>
       </div>
     </div>
