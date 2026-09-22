@@ -296,8 +296,6 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .stat-row-value.bad { color: var(--rouge); }
 
 /* ---- CONVENTION ARCOM ---- */
-.arcom-slide-wrap { display: flex; overflow: visible; }
-.arcom-slide { flex: 1; height: auto; display: flex; flex-direction: column; }
 .arcom-score-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 8px 0 12px; flex-wrap: wrap; }
 .arcom-score-value { font-family: 'Anton', sans-serif; font-size: 28px; color: var(--ink); line-height: 1; }
 .arcom-status-pill {
@@ -308,7 +306,7 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .arcom-status-excellent, .arcom-status-conforme { background: rgba(46,107,58,0.12); color: var(--vert); border-color: var(--vert); }
 .arcom-status-vigilance { background: rgba(212,175,55,0.16); color: #8a6d1a; border-color: var(--gold); }
 .arcom-status-manquements, .arcom-status-nonconforme { background: rgba(200,16,46,0.1); color: var(--rouge); border-color: var(--rouge); }
-.arcom-obligations-mini { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: space-evenly; margin-top: 4px; }
+.arcom-obligations-mini { margin-top: 4px; }
 .arcom-mini-row { display: flex; align-items: center; gap: 6px; padding: 4px 0; font-size: 12px; border-bottom: 1px dashed rgba(22,19,14,0.1); }
 .arcom-mini-row:last-child { border-bottom: none; }
 .arcom-mini-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
@@ -848,10 +846,10 @@ function renderProgramGrid(type, pdaCible, overrides) {
   const calculated = getCalculatedPDAs();
 
   const rows = TIME_SLOTS.map(slot => {
-    const slotValue = pdaCible * SLOT_AFFINITY[type][slot.key];
+    const slotValue = calculated.find(c => c.channel === gameState.player).slots[slot.key][targetKey];
     const competitorValues = calculated
       .filter(c => c.channel !== gameState.player)
-      .map(c => c.pda[targetKey] * SLOT_AFFINITY[c.channel.type][slot.key]);
+      .map(c => c.slots[slot.key][targetKey]);
     const rank = 1 + competitorValues.filter(v => v > slotValue + 1e-9).length;
     const isLeaderSlot = rank === 1;
     const isKeySlot = slot.key === 'prime';
@@ -998,16 +996,14 @@ function renderArcomSlide(compliance, convention) {
     </div>
   `).join('');
   return `
-    <div class="arcom-slide">
-      <div class="eh-title">Convention ARCOM</div>
-      <div class="eh-subtitle">${esc(convention.label)} — obligations éditoriales</div>
-      <div class="arcom-score-row">
-        <div class="arcom-score-value">${compliance.arcomScore} / 100</div>
-        <div class="arcom-status-pill arcom-status-${compliance.status.key}">${compliance.status.emoji} ${compliance.status.label}</div>
-      </div>
-      <div class="arcom-obligations-mini">${rows}</div>
-      <button class="arcom-view-btn" type="button">Voir la convention complète →</button>
+    <div class="eh-title">Convention ARCOM</div>
+    <div class="eh-subtitle">${esc(convention.label)} — obligations éditoriales</div>
+    <div class="arcom-score-row">
+      <div class="arcom-score-value">${compliance.arcomScore} / 100</div>
+      <div class="arcom-status-pill arcom-status-${compliance.status.key}">${compliance.status.emoji} ${compliance.status.label}</div>
     </div>
+    <div class="arcom-obligations-mini">${rows}</div>
+    <button class="arcom-view-btn" type="button">Voir la convention complète →</button>
   `;
 }
 
@@ -1156,6 +1152,10 @@ const SLOT_AFFINITY = {
   sport: { matin: 0.5, apresmidi: 0.9, access: 0.9, prime: 1.7, nuit: 0.6 },
   info: { matin: 1.3, apresmidi: 1.0, access: 1.0, prime: 1.2, nuit: 0.8 }
 };
+
+// Poids d'audience du jeu (volume de téléspectateurs), distincts du temps d'antenne ARCOM.
+const SLOT_AUDIENCE_WEIGHTS = { matin: 0.15, apresmidi: 0.20, access: 0.20, prime: 0.35, nuit: 0.10 };
+const SLOT_HOURS = { matin: 6, apresmidi: 6, access: 3, prime: 2, nuit: 7 };
 
 const PROGRAM_GRID = {
   generaliste: {
@@ -4214,27 +4214,28 @@ function getAllChannels() {
 function getCalculatedPDAs() {
   const channels = getAllChannels();
   const demos = ['j1524', 'a2549', 's50', 'csp'];
-  
-  const demoTotals = {};
-  demos.forEach(d => {
-    demoTotals[d] = channels.reduce((sum, c) => sum + Math.max(0.1, c.pda[d] + contractBoost(c,d)), 0);
-  });
-
-  return channels.map(c => {
-    const normPda = {};
-    let sumNorm = 0;
-    demos.forEach(d => {
-      normPda[d] = (Math.max(0.1, c.pda[d] + contractBoost(c,d)) / demoTotals[d]) * 100;
-      sumNorm += normPda[d];
+  const results = channels.map(channel => ({channel, name:channel.name, pda:{}, slots:{}, globalPda:0}));
+  for (const {key:slot} of TIME_SLOTS) {
+    results.forEach(r => { r.slots[slot] = {}; });
+    demos.forEach(target => {
+      const powers = channels.map(c => {
+        const contract = activeContract(c, slot);
+        const boost = contract?.audienceDeltas
+          ? (contract.audienceDeltas[target] || 0)
+          : contract ? contract.power * (contract.target === target ? 1 : 0.2) : 0;
+        return Math.max(0.1, c.pda[target] * SLOT_AFFINITY[c.type][slot] + boost);
+      });
+      const total = powers.reduce((sum,v) => sum+v,0);
+      results.forEach((r,i) => { r.slots[slot][target] = powers[i]/total*100; });
     });
-    
-    return {
-      channel: c,
-      name: c.name,
-      pda: normPda,
-      globalPda: sumNorm / 4
-    };
+  }
+  results.forEach(r => {
+    demos.forEach(target => {
+      r.pda[target] = TIME_SLOTS.reduce((sum,{key}) => sum+r.slots[key][target]*SLOT_AUDIENCE_WEIGHTS[key],0);
+    });
+    r.globalPda = demos.reduce((sum,d) => sum+r.pda[d],0)/demos.length;
   });
+  return results;
 }
 
 function resetSeasonEditoMix() {
@@ -4250,16 +4251,17 @@ function applyDilemmaEditoImpact(dilemma, choiceIndex, choice) {
   const impact = tags ? tags[choiceIndex] : null;
   if (impact) {
     EDITO_CATEGORIES.forEach(cat => {
+      if (choice.grille && cat !== 'pluralisme' && cat !== 'protection') return;
       if (impact[cat]) {
         player.editoMix[cat] = Math.max(0, Math.min(100, player.editoMix[cat] + impact[cat]));
       }
     });
-    if (impact.discipline && !player.sportDisciplinesSeen.includes(impact.discipline)) {
+    if (!choice.grille && impact.discipline && !player.sportDisciplinesSeen.includes(impact.discipline)) {
       player.sportDisciplinesSeen.push(impact.discipline);
     }
   }
   const spend = choice.finance.purchase + Math.max(0, choice.finance.recurring);
-  if (spend > 0) {
+  if (spend > 0 && !choice.grille) {
     player.seasonTotalSpend += spend;
     if (impact && impact.creation > 0) {
       player.seasonCreationSpend += spend;
@@ -4274,14 +4276,15 @@ function computeObligationActual(ob, editoMix, player) {
     return calc.factor ? val * calc.factor : val;
   }
   if (calc.composite) {
-    const sum = calc.composite.reduce((s, c) => s + (editoMix[c] || 0), 0);
-    return sum / calc.composite.length;
+    return editoMix[calc.composite.join('_')] ?? 0;
   }
   if (calc.special === 'investCreation') {
-    return player.seasonTotalSpend > 0 ? (player.seasonCreationSpend / player.seasonTotalSpend) * 100 : 0;
+    const investment = gridCreationInvestment(player);
+    return investment.total > 0 ? 100*investment.creation/investment.total : 0;
   }
   if (calc.special === 'sportDisciplines') {
-    return player.sportDisciplinesSeen.length;
+    return new Set([...(player.sportDisciplinesSeen || []), ...TIME_SLOTS.flatMap(({key}) =>
+      activeContract(player,key)?.editorial?.disciplines || [])]).size;
   }
   return 0;
 }
@@ -4304,7 +4307,7 @@ function getArcomStatusMeta(score) {
 function computeArcomCompliance() {
   const player = gameState.player;
   const convention = ARCOM_CONVENTIONS[player.type];
-  const editoMix = player.editoMix;
+  const editoMix = gridEditorialMix(player);
 
   const rawValues = convention.obligations.map(ob => computeObligationActual(ob, editoMix, player));
 
@@ -4370,7 +4373,7 @@ function computeRenewalScore() {
   const violationScore = Math.max(0, 100 - graveWeightPerSeason * 8);
   const obligationsNow = player.lastArcomResult ? player.lastArcomResult.obligations : [];
   const diversityScore = obligationsNow.length ? Math.round(obligationsNow.reduce((s, o) => s + o.score, 0) / obligationsNow.length) : 100;
-  const creationInvestmentScore = Math.min(100, Math.round((player.editoMix.creation || 0) / 12 * 100));
+  const creationInvestmentScore = Math.min(100, Math.round((gridEditorialMix(player).creation || 0) / 12 * 100));
   const sanctionHistoryScore = Math.max(0, 100 - player.arcomSanctionsCount * 15);
   const renewalScore = Math.round(
     complianceAverage * 0.40 +
@@ -4404,11 +4407,13 @@ function chooseDilemmaOption(choiceIndex) {
 
   const pdaCibleAvant = getCalculatedPDAs().find(item => item.channel === player).pda[player.target];
 
+  const slotDeltas = {};
   for (const t in choice.pda) {
     let delta = choice.pda[t];
     if (popAvant < 25 && delta < 0) delta *= 1.5;
     if (popAvant > 75 && delta > 0) delta *= 1.25;
-    player.pda[t] = Math.max(0.1, player.pda[t] + delta);
+    if (choice.grille) slotDeltas[t] = delta;
+    else player.pda[t] = Math.max(0.1, player.pda[t] + delta);
   }
 
   strategicCompetitors();
@@ -4425,7 +4430,9 @@ function chooseDilemmaOption(choiceIndex) {
     const annual=Math.max(0,choice.finance.recurring);
     player.contracts[slot]={id:'editorial-'+dilemma.id+'-'+choiceIndex, name:choice.grille.programme,
       annual, talent:'Équipe du programme', talentAnnual:0, power:0,
-      target:player.target, end:gameState.season, source:'dilemma'};
+      target:player.target, end:gameState.season, source:'dilemma', slot,
+      audienceDeltas:slotDeltas,
+      editorial:programEditorialProfile({name:choice.grille.programme, channelType:player.type, slot})};
     player.coutTalentsSaison=Math.max(0,player.coutTalentsSaison-decisionQuote.replacedTalent);
     player.grilleOverrides[slot]=choice.grille.programme;
   }
@@ -4739,7 +4746,7 @@ function renderTicker() {
               <div class="eh-slide">${globalAudienceShareHtml}</div>
               <div class="eh-slide">${evolutionChartHtml}</div>
               <div class="eh-slide">${statStarsHtml}</div>
-              <div class="eh-slide arcom-slide-wrap">${arcomSlideHtml}</div>
+              <div class="eh-slide">${arcomSlideHtml}</div>
             </div>
           </div>
           <div class="eh-slider-nav">
@@ -5521,8 +5528,102 @@ function seededRandom() {
 }
 const PROGRAM_CATALOG_DATA = [["p001","generaliste","matin","magazine","Matinale info","csp",7,0,2,2.33],["p002","generaliste","matin","magazine","Magazine conso","csp",1.5,0,2,1.36],["p003","generaliste","matin","magazine","Cuisine & recettes","csp",1.5,0,2,1.36],["p004","generaliste","matin","magazine","Santé & bien-être","csp",2,0,2,1.5],["p005","generaliste","matin","magazine","Témoignages & société","csp",1.5,0,2,1.36],["p006","generaliste","matin","magazine","Maison & décoration","csp",3,0,2,1.73],["p007","generaliste","matin","magazine","Emploi & vie pratique","csp",1.5,0,2,1.36],["p008","generaliste","matin","magazine","Magazine parentalité","csp",1.5,0,2,1.36],["p009","generaliste","matin","jeu","Motus","s50",5,0,2,2.07],["p010","generaliste","matin","jeu","Les Z'amours","s50",10,0,2,2.47],["p011","generaliste","matin","magazine","Téléshopping","s50",3,0,2,1.73],["p012","generaliste","apresmidi","magazine","Jeu télévisé quotidien","a2549",15,0,2,2.2],["p013","generaliste","apresmidi","magazine","Feuilleton français quotidien","a2549",35,0,2,2.47],["p014","generaliste","apresmidi","magazine","Magazine témoignage","a2549",5,0,2,1.5],["p015","generaliste","apresmidi","magazine","Dating quotidien","a2549",5,0,2,1.5],["p016","generaliste","apresmidi","magazine","Les experts","a2549",3,0,2,1.25],["p017","generaliste","apresmidi","magazine","Magazine conso & enquête","a2549",1.5,0,2,0.98],["p018","generaliste","apresmidi","magazine","Docu-réalité","a2549",9,0,2,1.84],["p019","generaliste","apresmidi","divertissement","Les lettres et les chiffres","a2549",4,0,2,1.39],["p020","generaliste","access","magazine","C à moi","a2549",40,0,2,2.82],["p021","generaliste","access","magazine","Jeu de culture générale","a2549",12,0,2,1.85],["p022","generaliste","access","divertissement","TV Réalité","a2549",25,0,2,2.39],["p023","generaliste","access","magazine","Magazine lifestyle","a2549",15,0,2,2],["p024","generaliste","access","divertissement","Mokshû Patamû","a2549",10,0,2,1.74],["p025","generaliste","access","magazine","Panini Quiz","a2549",35,0,2,2.69],["p026","generaliste","access","magazine","Magazine people","a2549",15,0,2,2],["p027","generaliste","access","magazine","Docu-réalité","a2549",12,0,2,1.85],["p028","generaliste","prime","fiction","Fiction française","a2549",25,4,2,3.59],["p029","generaliste","prime","fiction","Série policière","a2549",30,4,2,3.82],["p030","generaliste","prime","divertissement","Destination Express","a2549",15,4,2,3],["p031","generaliste","prime","divertissement","Talent show","a2549",15,4,2,3],["p032","generaliste","prime","divertissement","Concours culinaire","a2549",15,4,2,3],["p033","generaliste","prime","divertissement","Dating événementiel","a2549",15,4,2,3],["p034","generaliste","prime","divertissement","Koh Menta","a2549",25,4,2,3.59],["p035","generaliste","prime","fiction","Magazine société & témoignages","a2549",5,4,2,2.04],["p036","generaliste","prime","divertissement","Chanteurs masqués","a2549",25,4,2,3.59],["p037","generaliste","prime","fiction","Cinéma Français","a2549",20,4,2,3.32],["p038","generaliste","prime","fiction","Théatre en live","a2549",4,4,2,1.95],["p039","generaliste","nuit","magazine","After-show","csp",5,0,2,2.29],["p040","generaliste","nuit","magazine","Late-night talk-show","csp",10,0,2,2.47],["p041","generaliste","nuit","magazine","Documentaire société","csp",1.5,0,2,1.5],["p042","generaliste","nuit","magazine","Débat d'actualité","csp",1.5,0,2,1.5],["p043","generaliste","nuit","magazine","Libre antenne","csp",1.5,0,2,1.5],["p044","generaliste","nuit","magazine","Magazine culturel","csp",1.5,0,2,1.5],["p045","generaliste","nuit","magazine","Enquête & faits divers","csp",1.5,0,2,1.5],["p046","generaliste","nuit","magazine","Rediffusion premium","csp",1.5,0,2,1.5],["p047","cinema","matin","fiction","Séries patrimoniales","a2549",2,4,2,2],["p048","cinema","matin","fiction","Sitcoms classiques","a2549",2,4,2,2],["p049","cinema","matin","fiction","Making-of cinéma","a2549",2,4,2,2],["p050","cinema","matin","fiction","Coulisses de tournage","a2549",2,4,2,2],["p051","cinema","matin","fiction","Portraits d'acteurs","a2549",2,4,2,2],["p052","cinema","matin","fiction","Séries familiales","a2549",2,4,2,2],["p053","cinema","matin","fiction","Courts métrages","a2549",2,4,2,2],["p054","cinema","matin","fiction","Magazine cinéma","a2549",2,4,2,2],["p055","cinema","apresmidi","fiction","Marathon de séries","a2549",2,4,2,2.5],["p056","cinema","apresmidi","fiction","Téléfilm","a2549",2,4,2,2.5],["p057","cinema","apresmidi","fiction","Saga policière","a2549",2,4,2,2.5],["p058","cinema","apresmidi","fiction","Série procédurale","a2549",2,4,2,2.5],["p059","cinema","apresmidi","fiction","Comédie","a2549",2,4,2,2.5],["p060","cinema","apresmidi","fiction","Série fantastique","a2549",2,4,2,2.5],["p061","cinema","apresmidi","fiction","Film catalogue","a2549",2,4,2,2.5],["p062","cinema","apresmidi","fiction","Mini-série","a2549",2,4,2,2.5],["p063","cinema","access","fiction","Sitcom","a2549",2,4,2,2.5],["p064","cinema","access","fiction","Série courte","a2549",2,4,2,2.5],["p065","cinema","access","fiction","Magazine du 7e art","a2549",2,4,2,2.5],["p066","cinema","access","fiction","Actualité séries & plateformes","a2549",2,4,2,2.5],["p067","cinema","access","fiction","Quiz cinéma","a2549",2,4,2,2.5],["p068","cinema","access","fiction","Making-of","a2549",2,4,2,2.5],["p069","cinema","access","fiction","Série culte","a2549",2,4,2,2.5],["p070","cinema","access","fiction","Interview cinéma","a2549",2,4,2,2.5],["p071","cinema","prime","fiction","Film blockbuster","a2549",2,4,2,3.5],["p072","cinema","prime","fiction","Saga cinéma","a2549",2,4,2,3.5],["p073","cinema","prime","fiction","Série premium","a2549",2,4,2,3.5],["p074","cinema","prime","fiction","Mini-série événement","a2549",2,4,2,3.5],["p075","cinema","prime","fiction","Franchise policière","a2549",2,4,2,3.5],["p076","cinema","prime","fiction","Film français récent","a2549",2,4,2,3.5],["p077","cinema","prime","fiction","Film de super-héros","a2549",2,4,2,3.5],["p078","cinema","prime","fiction","Thriller événement","a2549",2,4,2,3.5],["p079","cinema","prime","fiction","Comédie populaire","a2549",2,4,2,3.5],["p080","cinema","nuit","fiction","Thriller","a2549",2,4,2,2],["p081","cinema","nuit","fiction","Film d'horreur","a2549",2,4,2,2],["p082","cinema","nuit","fiction","Science-fiction","a2549",2,4,2,2],["p083","cinema","nuit","fiction","Cinéma d'auteur","a2549",2,4,2,2],["p084","cinema","nuit","fiction","Film culte","a2549",2,4,2,2],["p085","cinema","nuit","fiction","Série adulte","a2549",2,4,2,2],["p086","cinema","nuit","fiction","Cinéma international","a2549",2,4,2,2],["p087","cinema","nuit","fiction","Film indépendant","a2549",2,4,2,2],["p088","culture","matin","documentaire","Spectacle vivant","s50",1,2,3,1.5],["p089","culture","matin","documentaire","Musique classique","s50",1,2,3,1.5],["p090","culture","matin","documentaire","Découverte artistique","s50",1,2,3,1.5],["p091","culture","matin","documentaire","Patrimoine","s50",1,2,3,1.5],["p092","culture","matin","documentaire","Masterclass","s50",1,2,3,1.5],["p093","culture","matin","documentaire","Danse & ballet","s50",1,2,3,1.5],["p094","culture","matin","documentaire","Architecture","s50",1,2,3,1.5],["p095","culture","matin","documentaire","Archives culturelles","s50",1,2,3,1.5],["p096","culture","apresmidi","documentaire","Documentaire Histoire","s50",1,2,3,2],["p097","culture","apresmidi","documentaire","Archéologie","s50",1,2,3,2],["p098","culture","apresmidi","documentaire","Sciences","s50",1,2,3,2],["p099","culture","apresmidi","documentaire","Voyages & civilisations","s50",1,2,3,2],["p100","culture","apresmidi","documentaire","Beaux-Arts","s50",1,2,3,2],["p101","culture","apresmidi","documentaire","Portrait de personnalité","s50",1,2,3,2],["p102","culture","apresmidi","documentaire","Nature & environnement","s50",1,2,3,2],["p103","culture","apresmidi","documentaire","Patrimoine mondial","s50",1,2,3,2],["p104","culture","access","magazine","Quiz culturel","csp",1.5,0,2,1.8],["p105","culture","access","magazine","Magazine littérature","csp",1.5,0,2,1.8],["p106","culture","access","magazine","Magazine cinéma","csp",1.5,0,2,1.8],["p107","culture","access","magazine","Débat culturel","csp",1.5,0,2,1.8],["p108","culture","access","magazine","Découverte du patrimoine","csp",1.5,0,2,1.8],["p109","culture","access","magazine","Actualité artistique","csp",1.5,0,2,1.8],["p110","culture","access","magazine","Interview d'auteur","csp",1.5,0,2,1.8],["p111","culture","access","magazine","Magazine histoire","csp",1.5,0,2,1.8],["p112","culture","prime","documentaire","Grand documentaire historique","s50",1,2,3,2.5],["p113","culture","prime","documentaire","Investigation culturelle","s50",1,2,3,2.5],["p114","culture","prime","documentaire","Biopic documentaire","s50",1,2,3,2.5],["p115","culture","prime","documentaire","Captation événementielle","s50",1,2,3,2.5],["p116","culture","prime","documentaire","Documentaire + débat","s50",1,2,3,2.5],["p117","culture","prime","documentaire","Grande soirée sciences","s50",1,2,3,2.5],["p118","culture","prime","documentaire","Documentaire géopolitique","s50",1,2,3,2.5],["p119","culture","prime","documentaire","Soirée patrimoine","s50",1,2,3,2.5],["p120","culture","nuit","documentaire","Concert d'archives","s50",1,2,3,1.5],["p121","culture","nuit","documentaire","Festival live","s50",1,2,3,1.5],["p122","culture","nuit","documentaire","Opéra","s50",1,2,3,1.5],["p123","culture","nuit","documentaire","Cinéma patrimonial","s50",1,2,3,1.5],["p124","culture","nuit","documentaire","Jazz & musiques du monde","s50",1,2,3,1.5],["p125","culture","nuit","documentaire","Archives TV","s50",1,2,3,1.5],["p126","culture","nuit","documentaire","Théâtre","s50",1,2,3,1.5],["p127","culture","nuit","documentaire","Documentaire musical","s50",1,2,3,1.5],["p128","jeunesse","matin","animation","Animation préscolaire","j1524",1,3,2,3],["p129","jeunesse","matin","animation","Ludo-éducatif","j1524",1,3,2,3],["p130","jeunesse","matin","animation","Animation musicale","j1524",1,3,2,3],["p131","jeunesse","matin","animation","Éveil & découverte","j1524",1,3,2,3],["p132","jeunesse","matin","animation","Comptines","j1524",1,3,2,3],["p133","jeunesse","matin","animation","Aventures 3-5 ans","j1524",1,3,2,3],["p134","jeunesse","matin","animation","Animaux & nature","j1524",1,3,2,3],["p135","jeunesse","matin","animation","Apprentissage ludique","j1524",1,3,2,3],["p136","jeunesse","apresmidi","animation","Animation aventure","j1524",1,3,2,3],["p137","jeunesse","apresmidi","animation","Comédie animée","j1524",1,3,2,3],["p138","jeunesse","apresmidi","animation","Super-héros","j1524",1,3,2,3],["p139","jeunesse","apresmidi","animation","Fantasy","j1524",1,3,2,3],["p140","jeunesse","apresmidi","animation","Kids Quiz","j1524",1,3,2,3],["p141","jeunesse","apresmidi","animation","Animation sportive","j1524",1,3,2,3],["p142","jeunesse","apresmidi","animation","Série éducative","j1524",1,3,2,3],["p143","jeunesse","apresmidi","animation","Animation familiale","j1524",1,3,2,3],["p144","jeunesse","access","animation","Teen series","j1524",1,3,2,2.5],["p145","jeunesse","access","animation","Gaming","j1524",1,3,2,2.5],["p146","jeunesse","access","animation","Manga","j1524",1,3,2,2.5],["p147","jeunesse","access","animation","Créateurs & influence","j1524",1,3,2,2.5],["p148","jeunesse","access","animation","Compétition e-sport","j1524",1,3,2,2.5],["p149","jeunesse","access","animation","Animation Young Adult","j1524",1,3,2,2.5],["p150","jeunesse","access","animation","Magazine pop culture","j1524",1,3,2,2.5],["p151","jeunesse","access","animation","Série musicale","j1524",1,3,2,2.5],["p152","jeunesse","prime","animation","Grand film d'animation","j1524",1,3,2,3.5],["p153","jeunesse","prime","animation","Film familial","j1524",1,3,2,3.5],["p154","jeunesse","prime","animation","Spécial franchise","j1524",1,3,2,3.5],["p155","jeunesse","prime","animation","Grand jeu familial","j1524",1,3,2,3.5],["p156","jeunesse","prime","animation","Événement jeunesse","j1524",1,3,2,3.5],["p157","jeunesse","prime","animation","Comédie familiale","j1524",1,3,2,3.5],["p158","jeunesse","prime","animation","Téléfilm jeunesse","j1524",1,3,2,3.5],["p159","jeunesse","prime","animation","Soirée super-héros","j1524",1,3,2,3.5],["p160","jeunesse","nuit","animation","Anime japonais","j1524",1,3,2,2],["p161","jeunesse","nuit","animation","Animation adulte","j1524",1,3,2,2],["p162","jeunesse","nuit","animation","Manga culte","j1524",1,3,2,2],["p163","jeunesse","nuit","animation","Gaming & e-sport","j1524",1,3,2,2],["p164","jeunesse","nuit","animation","Série animée satirique","j1524",1,3,2,2],["p165","jeunesse","nuit","animation","Anime fantastique","j1524",1,3,2,2],["p166","jeunesse","nuit","animation","Anime action","j1524",1,3,2,2],["p167","jeunesse","nuit","animation","Pop culture japonaise","j1524",1,3,2,2],["p168","sport","matin","sport","Journal des sports","a2549",3,6,1,2.5],["p169","sport","matin","sport","Résumés & highlights","a2549",3,6,1,2.5],["p170","sport","matin","sport","Fitness","a2549",3,6,1,2.5],["p171","sport","matin","sport","Portraits de sportifs","a2549",3,6,1,2.5],["p172","sport","matin","sport","Matinale 100% Sport","a2549",3,6,1,2.5],["p173","sport","matin","sport","Actualité mercato","a2549",3,6,1,2.5],["p174","sport","matin","sport","Sport santé","a2549",3,6,1,2.5],["p175","sport","matin","sport","Archives sportives","a2549",3,6,1,2.5],["p176","sport","apresmidi","sport","Biathlon","a2549",3,6,1,3],["p177","sport","apresmidi","sport","Sports émergents","a2549",3,6,1,3],["p178","sport","apresmidi","sport","Matchs de légendes","a2549",3,6,1,3],["p179","sport","apresmidi","sport","Documentaires sportifs","a2549",3,6,1,3],["p180","sport","apresmidi","sport","Multisports","a2549",3,6,1,3],["p181","sport","apresmidi","sport","Sports mécaniques","a2549",3,6,1,3],["p182","sport","apresmidi","sport","Cyclisme","a2549",3,6,1,3],["p183","sport","apresmidi","sport","Surf","a2549",3,6,1,3],["p184","sport","access","sport","Telefoot","a2549",3,6,1,3.5],["p185","sport","access","sport","100% Data","a2549",3,6,1,3.5],["p186","sport","access","sport","100% Mercato","a2549",3,6,1,3.5],["p187","sport","access","sport","Débat sportif","a2549",3,6,1,3.5],["p188","sport","access","sport","Le débrief","a2549",3,6,1,3.5],["p189","sport","access","sport","Légendes du football","a2549",3,6,1,3.5],["p190","sport","access","sport","Interview champion","a2549",3,6,1,3.5],["p191","sport","access","sport","Quiz sport","a2549",3,6,1,3.5],["p192","sport","prime","sport","Football total","a2549",3,6,1,4.5],["p193","sport","prime","sport","Rugby Européen","a2549",3,6,1,4.5],["p194","sport","prime","sport","Sports de combat","a2549",3,6,1,4.5],["p195","sport","prime","sport","Coupe Davis","a2549",3,6,1,4.5],["p196","sport","prime","sport","Basket Français","a2549",3,6,1,4.5],["p197","sport","prime","sport","Coupe d'Europe de Handball","a2549",3,6,1,4.5],["p198","sport","prime","sport","Grand prix F1","a2549",3,6,1,4.5],["p199","sport","prime","sport","Multiplex européen","a2549",3,6,1,4.5],["p200","sport","nuit","sport","Sports US en direct","a2549",3,6,1,2],["p201","sport","nuit","sport","Sports de combat en direct","a2549",3,6,1,2],["p202","sport","nuit","sport","Caisses à savon","a2549",3,6,1,2],["p203","sport","nuit","sport","Après-match","a2549",3,6,1,2],["p204","sport","nuit","sport","Highlights","a2549",3,6,1,2],["p205","sport","nuit","sport","Débrief","a2549",3,6,1,2],["p206","sport","nuit","sport","Basket US","a2549",3,6,1,2],["p207","sport","nuit","sport","Sports mécaniques nocturnes","a2549",3,6,1,2],["p208","info","matin","magazine","Matinale info","csp",1.5,0,2,2.5],["p209","info","matin","magazine","Tranche économie","csp",1.5,0,2,2.5],["p210","info","matin","magazine","Politique & interviews","csp",1.5,0,2,2.5],["p211","info","matin","magazine","Météo & trafic","csp",1.5,0,2,2.5],["p212","info","matin","magazine","Revue de presse","csp",1.5,0,2,2.5],["p213","info","matin","magazine","International","csp",1.5,0,2,2.5],["p214","info","matin","magazine","Chronique conso","csp",1.5,0,2,2.5],["p215","info","matin","magazine","Interview éco","csp",1.5,0,2,2.5],["p216","info","apresmidi","magazine","Fil d'actualité continu","csp",1.5,0,2,2],["p217","info","apresmidi","magazine","Breaking news","csp",1.5,0,2,2],["p218","info","apresmidi","magazine","Directs terrain","csp",1.5,0,2,2],["p219","info","apresmidi","magazine","Reportages","csp",1.5,0,2,2],["p220","info","apresmidi","magazine","Interviews","csp",1.5,0,2,2],["p221","info","apresmidi","magazine","Économie en direct","csp",1.5,0,2,2],["p222","info","apresmidi","magazine","International en continu","csp",1.5,0,2,2],["p223","info","apresmidi","magazine","Décryptage factuel","csp",1.5,0,2,2],["p224","info","access","magazine","Grand entretien","csp",1.5,0,2,3],["p225","info","access","magazine","Débat politique","csp",1.5,0,2,3],["p226","info","access","magazine","Décryptage","csp",1.5,0,2,3],["p227","info","access","magazine","Le Grand journal","csp",1.5,0,2,3],["p228","info","access","magazine","Ça se dispute","csp",1.5,0,2,3],["p229","info","access","magazine","Face à l'info","csp",1.5,0,2,3],["p230","info","access","magazine","Merci pour l'info","csp",1.5,0,2,3],["p231","info","access","magazine","Édition du soir","csp",1.5,0,2,3],["p232","info","prime","documentaire","Investigation","csp",1,2,3,2.5],["p233","info","prime","documentaire","Grand reportage","csp",1,2,3,2.5],["p234","info","prime","documentaire","Géopolitique","csp",1,2,3,2.5],["p235","info","prime","documentaire","Société","csp",1,2,3,2.5],["p236","info","prime","documentaire","Économie","csp",1,2,3,2.5],["p237","info","prime","documentaire","Documentaire d'actualité","csp",1,2,3,2.5],["p238","info","prime","documentaire","Enquête & faits divers","csp",1,2,3,2.5],["p239","info","prime","documentaire","Portrait politique & historique","csp",1,2,3,2.5],["p240","info","nuit","magazine","Journal de la nuit","csp",1.5,0,2,1.5],["p241","info","nuit","magazine","Débrief de l'actualité","csp",1.5,0,2,1.5],["p242","info","nuit","magazine","Débat politique","csp",1.5,0,2,1.5],["p243","info","nuit","magazine","Revue de presse","csp",1.5,0,2,1.5],["p244","info","nuit","magazine","Rediffusion grands entretiens","csp",1.5,0,2,1.5],["p245","info","nuit","magazine","Boucle d'information","csp",1.5,0,2,1.5],["p246","info","nuit","magazine","Archives du jour","csp",1.5,0,2,1.5],["p247","info","nuit","magazine","Édition internationale","csp",1.5,0,2,1.5]];
 const PROGRAM_CATALOG = PROGRAM_CATALOG_DATA.map(([id,channelType,slot,format,name,target,annual,rights,years,power]) => ({
-  id, channelType, slot, format, name, target, annual, rights, years, power
+  id, channelType, slot, format, name, target, annual, rights, years, power,
+  preferredSlot:slot, editorial:programEditorialProfile({name,channelType,slot,format})
 }));
+
+function activeContract(channel, slot) {
+  const contract = channel.contracts?.[slot];
+  return contract && contract.end >= gameState.season ? contract : null;
+}
+
+// Métadonnées de simulation : les titres génériques ont une origine non précisée.
+// Une acquisition de catalogue ne constitue pas un investissement de création.
+function programEditorialProfile(program) {
+  const name = program.name.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+  const type = program.channelType;
+  let genre = ({fiction:'fiction',documentaire:'culture',animation:'jeunesse',sport:'sport',
+    divertissement:'diverti',jeu:'diverti',magazine:'diverti'})[program.format]
+    || ({cinema:'fiction',culture:'culture',jeunesse:'jeunesse',sport:'sport',info:'info'})[type] || 'diverti';
+  if (/serie|film|fiction|sitcom|feuilleton|thriller|comedie|saga/.test(name)) genre='fiction';
+  if (/documentaire|patrimoine|theatre|opera|concert|ballet|archeologie|sciences|beaux-arts|musique classique/.test(name)) genre='culture';
+  if (/magazine|making-of|coulisses|portrait|interview|debat|entretien/.test(name)) genre=type==='cinema'||type==='culture'?'culture':type==='sport'?'sport':'info';
+  if (/jeu|quiz|dating|realite|show|concours/.test(name)) genre='diverti';
+  if (type==='info' || /matinale info|journal|actualite|reportage|enquete/.test(name)) genre='info';
+  if (type==='jeunesse' && !/adulte|satirique/.test(name)) genre='jeunesse';
+  if (type==='sport') genre='sport';
+  const archive = /archives|catalogue|rediffusion|classique|culte|patrimoni|legende|boucle/.test(name);
+  const foreign = /japon|manga|anime|\bus\b|international|blockbuster|super-heros|les experts/.test(name);
+  const french = !foreign && (/francais/.test(name) ||
+    ((genre==='info'||genre==='diverti') && !archive));
+  const origin = foreign?'international':french?'FR':/europe/.test(name)?'EU':'non_precisee';
+  const original = !archive && (genre==='fiction'||genre==='jeunesse'||genre==='culture') && origin==='FR';
+  const live = !archive && (/direct|live|matinale|journal|breaking|fil d.actualite/.test(name) ||
+    (type==='sport' && program.slot==='prime'));
+  const disciplines = [];
+  if(type==='sport') for(const [pattern,discipline] of [
+    [/football|telefoot|mercato/,'football'],[/rugby/,'rugby'],[/basket/,'basket'],
+    [/handball/,'handball'],[/davis|tennis/,'tennis'],[/biathlon/,'biathlon'],
+    [/cyclisme/,'cyclisme'],[/surf/,'surf'],[/combat/,'combat'],[/f1|mecanique/,'automobile']
+  ]) if(pattern.test(name)) disciplines.push(discipline);
+  const mix = Object.fromEntries(EDITO_CATEGORIES.map(key=>[key,0]));
+  mix[genre]=100;
+  mix.prodFR=origin==='FR'?100:0;
+  mix.prodEU=origin==='FR'||origin==='EU'?100:0;
+  mix.creation=original?100:0;
+  mix.inedit=archive?0:100;
+  mix.direct=live?100:0;
+  mix.debat=/debat|entretien|interview|dispute/.test(name)?100:0;
+  // Un achat ne prouve ni le pluralisme ni la protection : conserver le socle.
+  mix.pluralisme=EDITO_BASE[type].pluralisme;
+  mix.protection=EDITO_BASE[type].protection;
+  return {genre,origin,original,creationShare:original?1:0,disciplines,mix};
+}
+
+function gridEditorialMix(player) {
+  const base=EDITO_BASE[player.type];
+  const mix={...base};
+  for(const origin of ['prodFR','prodEU']) mix['fiction_'+origin]=base.fiction*base[origin]/100;
+  for(const {key:slot} of TIME_SLOTS) {
+    const profile=activeContract(player,slot)?.editorial;
+    if(!profile) continue;
+    const weight=SLOT_HOURS[slot]/24;
+    for(const key of EDITO_CATEGORIES) mix[key]+=weight*(profile.mix[key]-base[key]);
+    for(const origin of ['prodFR','prodEU']) {
+      mix['fiction_'+origin]+=weight*(profile.mix.fiction*profile.mix[origin]/100-base.fiction*base[origin]/100);
+    }
+  }
+  // Les effets des dilemmes restent distincts des contrats, sans cumul à la signature.
+  for(const key of EDITO_CATEGORIES) mix[key]=Math.max(0,Math.min(100,mix[key]+(player.editoMix?.[key]??base[key])-base[key]));
+  for(const origin of ['prodFR','prodEU']) {
+    const editorialDelta=(player.editoMix?.fiction??base.fiction)*(player.editoMix?.[origin]??base[origin])/100-base.fiction*base[origin]/100;
+    mix['fiction_'+origin]=Math.max(0,Math.min(mix.fiction,mix[origin],mix['fiction_'+origin]+editorialDelta));
+  }
+  return mix;
+}
+
+function gridCreationInvestment(player) {
+  let programTotal=0, creation=player.seasonCreationSpend||0, annualTotal=0;
+  for(const {key} of TIME_SLOTS) {
+    const c=activeContract(player,key);
+    if(!c) continue;
+    annualTotal+=c.annual;
+    const spend=Math.max(0,c.annual-(c.talentAnnual||0))+(c.rights||0)/Math.max(1,c.years||1);
+    programTotal+=spend;
+    creation+=spend*(c.editorial?.creationShare||0);
+  }
+  const baseBudget=Math.max(0,(player.coutGrilleEngageSaison||0)-annualTotal);
+  const total=baseBudget+programTotal+(player.seasonTotalSpend||0);
+  return {creation:Math.min(total,creation),total};
+}
+
+function programAdvice(program, player, slot) {
+  if(program.target!==player.target) return 'Public différent de votre cible';
+  if(program.editorial.creationShare>0) return 'Soutient la création française';
+  const identity={cinema:'fiction',culture:'culture',jeunesse:'jeunesse',sport:'sport',info:'info'}[player.type];
+  if(identity===program.editorial.genre) return 'Renforce votre identité';
+  return 'Adapté au '+TIME_SLOTS.find(s=>s.key===slot).label.toLowerCase();
+}
 function availablePrograms(type, slot) {
   return PROGRAM_CATALOG.filter(program => program.channelType === type && program.slot === slot);
 }
@@ -5531,9 +5632,6 @@ const TALENT_CATALOG = [
   {id:'espoir', name:'Nouveau talent', annual:0.5, bonus:0.7},
   {id:'vedette', name:'Vedette', annual:2, bonus:1.8}
 ];
-function contractBoost(p, target) {
-  return Object.values(p.contracts || {}).reduce((sum,c) => sum + (c.target === target ? c.power : c.power * 0.2), 0);
-}
 function refreshEconomy() {
   const p=gameState.player; ensureCampaign();
   const cost=p.coutGrilleEngageSaison+p.achatsSaison;
@@ -5663,7 +5761,7 @@ function renderProgramManager(slot) {
   const c=p.contracts[slot];
   const programOpts=availablePrograms(p.type,slot).map(x=>({
     id:x.id,
-    label:`${x.name} — ${nf1(x.annual)} M€/an + ${nf1(x.rights)} M€ droits · ${nf1(x.power)} pts PDA · ${x.years} saison(s)`,
+    label:`${x.name} — ${nf1(x.annual)} M€/an + ${nf1(x.rights)} M€ droits · potentiel ${nf1(x.power)} · ${x.years} saison(s)`,
     selected:c?.id===x.id
   }));
   const talentOpts=TALENT_CATALOG.map(x=>({id:x.id,label:`${x.name} — ${nf1(x.annual)} M€/an`,selected:c?.talent===x.name}));
@@ -5684,6 +5782,7 @@ function renderProgramManager(slot) {
           <svg class="pg-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
         </button>
       </label>
+      <p class="program-manager-note" data-program-advice aria-live="polite"></p>
       <div class="program-manager-combo">
         <label class="program-manager-field talent">
           <span class="program-manager-field-label">Talent</span>
@@ -5775,6 +5874,8 @@ function bindCampaignPanel(app) {
       const q=quoteProgram(slot,document.getElementById('program-'+slot).value,document.getElementById('talent-'+slot).value);
       const confirm=editor.querySelector('[data-program-confirm]');
       confirm.disabled=!q?.allowed;
+      const advice=editor.querySelector('[data-program-advice]');
+      if(advice) advice.textContent=q?programAdvice(q.program,gameState.player,slot):'';
       const penalty=manager.querySelector('[data-program-penalty]');
       const replacing=!!q && !q.unchanged && !!gameState.player.contracts[slot];
       if(penalty) {
