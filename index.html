@@ -626,31 +626,38 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .program-manager { margin-top:0; padding-top:0; border-top:0; font-size:12px; user-select:text; }
 .program-manager select { display:block; width:100%; max-width:100%; margin:6px 0 10px; padding:10px; font:inherit; background:var(--paper); color:var(--ink); border:1px solid var(--ink); }
 .program-manager label { display:block; }
-.program-manager-label { display:block; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:10px; text-transform:uppercase; letter-spacing:.4px; color:var(--gris); margin-bottom:8px; }
-.program-manager-row { display:flex; flex-direction:column; align-items:stretch; gap:10px; width:100%; }
+.program-manager-label { display:block; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:10px; text-transform:uppercase; letter-spacing:.4px; color:var(--gris); margin-bottom:10px; }
+.program-manager-contract, .program-manager-note { font-size:10.5px; line-height:1.4; color:var(--gris); margin-bottom:8px; }
+.program-manager-row { display:flex; flex-direction:column; align-items:stretch; gap:8px; width:100%; }
 .program-manager-fields { width:100%; min-width:0; display:flex; flex-direction:column; gap:8px; }
-.program-manager-field { min-width:0; box-sizing:border-box; display:flex; flex-direction:column; gap:3px; }
+.program-manager-field { min-width:0; box-sizing:border-box; display:flex; flex-direction:column; gap:4px; }
 .program-manager-field-label {
   font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:8.5px;
   text-transform:uppercase; letter-spacing:.4px; color:var(--gris);
 }
 .program-manager-field select {
-  width:100%; box-sizing:border-box; margin:0; padding:9px 12px; min-width:0;
+  width:100%; box-sizing:border-box; height:38px; margin:0; padding:0 30px 0 12px; min-width:0;
   color:var(--ink); background:#fff; border:1px solid var(--border); border-radius:12px;
   font-family:'Plus Jakarta Sans',sans-serif; font-weight:600; font-size:11.5px; outline:0;
+  appearance:none; -webkit-appearance:none; -moz-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 10px center; background-size:14px;
+  text-overflow:ellipsis; white-space:nowrap; overflow:hidden;
   transition:border-color .12s ease, box-shadow .12s ease;
 }
 .program-manager-field select:focus { border-color:var(--bleu); box-shadow:0 0 0 2px rgba(37,99,235,.15); }
-.program-manager-actions { width:100%; display:flex; align-items:center; justify-content:flex-end; gap:12px; margin-top:2px; }
+.program-manager-combo { display:flex; align-items:flex-end; gap:8px; }
+.program-manager-combo .program-manager-field { flex:1; min-width:0; }
+.program-manager-actions { flex-shrink:0; display:flex; align-items:center; gap:8px; }
 .program-manager-box {
-  display:inline-flex; align-items:center; justify-content:center; gap:5px; height:34px;
+  display:inline-flex; align-items:center; justify-content:center; gap:5px; height:38px;
   padding:0 18px; border-radius:999px; cursor:pointer; border:none;
   font-family:'Plus Jakarta Sans',sans-serif; font-weight:700; font-size:11.5px; line-height:1; white-space:nowrap;
   transition:transform .12s ease, background .12s ease, color .12s ease;
 }
 .program-manager-box.confirm { color:#fff; background:var(--ink); }
 .program-manager-box.confirm:hover { background:#000; }
-.program-manager-box.cancel { color:var(--gris); background:transparent; padding:0 6px; }
+.program-manager-box.cancel { color:var(--gris); background:transparent; padding:0 4px; height:auto; }
 .program-manager-box.cancel:hover { color:var(--ink); }
 .program-manager-box:active { transform:scale(.97); }
 .program-manager-box:focus-visible { outline:2px solid var(--bleu); outline-offset:2px; }
@@ -678,11 +685,13 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
   .pg-info-program { font-size:10px; }
   .pg-rank { font-size:9.5px; }
   .pg-pda-badge { font-size:9.5px; padding:3px 7px; }
-  .program-manager-row, .program-manager-fields { gap:4px; }
-  .program-manager-field { padding:6px 7px; font-size:9px; }
-  .program-manager-field select { padding:3px 16px 2px 0; font-size:9px; }
-  .program-manager-actions { gap:3px; }
-  .program-manager-box { height:28px; padding:3px 7px; font-size:9px; }
+  .program-manager-row, .program-manager-fields { gap:6px; }
+  .program-manager-field { padding:0; font-size:9px; }
+  .program-manager-field select { height:32px; padding:0 24px 0 9px; font-size:9px; background-size:12px; background-position:right 8px center; }
+  .program-manager-combo { gap:6px; }
+  .program-manager-actions { gap:4px; }
+  .program-manager-box { height:32px; padding:0 12px; font-size:9px; }
+  .program-manager-box.cancel { padding:0 2px; }
 }
 </style>
 </head>
@@ -5532,21 +5541,21 @@ function renderProgramManager(slot) {
   const editable=gameState.step===6&&gameState.dilemmaPhase==='choosing'&&gameState.currentDilemmaIndex===0;
   const c=p.contracts[slot];
   return `<section class="program-manager" aria-label="Modifier la programmation">
-    ${c?`<p>${esc(c.name)} · ${esc(c.talent)} · ${nf1(c.annual)} M€/an · jusqu’à la saison ${c.end}.</p>`:''}
+    ${c?`<p class="program-manager-contract">${esc(c.name)} · ${esc(c.talent)} · ${nf1(c.annual)} M€/an · jusqu’à la saison ${c.end}.</p>`:''}
     ${editable?`
     <span class="program-manager-label">Modifier le programme diffusé :</span>
-    ${c?`<p>Remplacement : indemnité de ${nf1(c.annual*(c.end-gameState.season+1))} M€ couvrant les saisons restantes, saison actuelle comprise. Le coût annuel actuel est remplacé ; les droits déjà achetés ne sont pas remboursés.</p>`:''}
+    ${c?`<p class="program-manager-note">Remplacement : indemnité de ${nf1(c.annual*(c.end-gameState.season+1))} M€ couvrant les saisons restantes, saison actuelle comprise. Le coût annuel actuel est remplacé ; les droits déjà achetés ne sont pas remboursés.</p>`:''}
     <div class="program-manager-row" data-program-editor="${slot}">
-      <div class="program-manager-fields">
-        <label class="program-manager-field programme"><span class="program-manager-field-label">Programme</span><select id="program-${slot}">${PROGRAM_CATALOG.map(x=>`<option value="${x.id}" ${c?.id===x.id?'selected':''}>${x.name} — ${nf1(x.annual)} M€/an + ${nf1(x.rights)} M€ droits, ${x.years} saison(s)</option>`).join('')}</select></label>
+      <label class="program-manager-field programme"><span class="program-manager-field-label">Programme</span><select id="program-${slot}">${PROGRAM_CATALOG.map(x=>`<option value="${x.id}" ${c?.id===x.id?'selected':''}>${x.name} — ${nf1(x.annual)} M€/an + ${nf1(x.rights)} M€ droits, ${x.years} saison(s)</option>`).join('')}</select></label>
+      <div class="program-manager-combo">
         <label class="program-manager-field talent"><span class="program-manager-field-label">Talent</span><select id="talent-${slot}">${TALENT_CATALOG.map(x=>`<option value="${x.id}" ${c?.talent===x.name?'selected':''}>${x.name} — ${nf1(x.annual)} M€/an</option>`).join('')}</select></label>
-      </div>
-      <div class="program-manager-actions" aria-label="Valider ou annuler">
-        <button type="button" class="program-manager-box cancel" data-program-cancel>Annuler</button>
-        <button type="button" class="program-manager-box confirm" data-program-confirm title="Valider la combinaison programme et talent">Valider</button>
+        <div class="program-manager-actions" aria-label="Valider ou annuler">
+          <button type="button" class="program-manager-box cancel" data-program-cancel>Annuler</button>
+          <button type="button" class="program-manager-box confirm" data-program-confirm title="Valider la combinaison programme et talent">Valider</button>
+        </div>
       </div>
     </div>
-    <span class="program-manager-feedback" aria-live="polite"></span>`:'<p>Modifications disponibles au début de la prochaine saison, avant le premier dilemme.</p>'}
+    <span class="program-manager-feedback" aria-live="polite"></span>`:'<p class="program-manager-note">Modifications disponibles au début de la prochaine saison, avant le premier dilemme.</p>'}
     </section>`;
 }
 function renderCampaignPanel() {
