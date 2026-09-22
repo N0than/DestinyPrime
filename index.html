@@ -224,6 +224,12 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .pg-info-program.pg-program-updated { color: var(--vert); font-weight: 700; }
 .pg-updated-badge { font-size: 9px; margin-left: 2px; }
 
+.pg-rank {
+  flex-shrink: 0; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 10.5px;
+  color: var(--gris); white-space: nowrap;
+}
+.pg-rank.pg-rank-leader { color: var(--gold); }
+
 .pg-pda-badge {
   flex-shrink: 0; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 10.5px;
   padding: 4px 9px; border-radius: 999px; white-space: nowrap;
@@ -670,6 +676,7 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
   .pg-row { padding:8px 4px; gap:7px; }
   .pg-info-title { font-size:11.5px; }
   .pg-info-program { font-size:10px; }
+  .pg-rank { font-size:9.5px; }
   .pg-pda-badge { font-size:9.5px; padding:3px 7px; }
   .program-manager-row, .program-manager-fields { gap:4px; }
   .program-manager-field { padding:6px 7px; font-size:9px; }
@@ -792,7 +799,8 @@ function renderProgramGrid(type, pdaCible, overrides) {
           <span class="pg-info-title">${slot.label}${isKeySlot ? '<span class="pg-key-tag">Clé</span>' : ''}</span>
           <span class="pg-info-program${isUpdated ? ' pg-program-updated' : ''}">${esc(programme)}${isUpdated ? ' <span class="pg-updated-badge" title="Programme modifié par vos choix éditoriaux">🆕</span>' : ''}</span>
         </span>
-        <span class="pg-pda-badge pg-badge-${slot.accent}"${isLeaderSlot ? ' title="Leader sur ce créneau"' : ''}>${nf1(slotValue)}% PDA${isLeaderSlot ? ' 👑' : ''}</span>
+        <span class="pg-rank${isLeaderSlot ? ' pg-rank-leader' : ''}"${isLeaderSlot ? ' title="Leader sur ce créneau"' : ''}>#${rank}</span>
+        <span class="pg-pda-badge pg-badge-${slot.accent}">${nf1(slotValue)}% PDA</span>
         <svg class="pg-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
       </summary>
       ${renderProgramManager(slot.key)}
