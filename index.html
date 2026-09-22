@@ -241,7 +241,7 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .pg-badge-gris { color: var(--gris); background: rgba(107,114,128,0.14); }
 
 .pg-chevron { flex-shrink: 0; width: 14px; height: 14px; color: var(--gris); transition: transform 0.25s cubic-bezier(0.16,1,0.3,1); }
-.pg-slot-editor[open] .pg-chevron { color: var(--ink); transform: rotate(180deg); }
+.pg-slot-editor[open] > summary .pg-chevron { color: var(--ink); transform: rotate(180deg); }
 
 .ga-panel { display: flex; flex-direction: column; height: 100%; }
 .ga-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-shrink: 0; }
@@ -646,6 +646,7 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
   transition:border-color .12s ease, box-shadow .12s ease, background .12s ease;
 }
 .program-manager-field select:focus { border-color:var(--bleu); box-shadow:0 0 0 2px rgba(37,99,235,.15); background-color:#fff; }
+.program-manager-field-trigger { display:none; }
 .program-manager-combo { display:flex; align-items:flex-start; gap:6px; }
 .program-manager-combo .program-manager-field { flex:1; min-width:0; }
 .program-manager-actions { flex-shrink:0; display:flex; flex-direction:column; gap:2px; }
@@ -679,6 +680,41 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
   to { opacity:1; transform:translateY(0) scaleY(1); }
 }
 .card summary { cursor:pointer; padding:12px 0; font-weight:700; }
+
+.mobile-picker-sheet { position:fixed; inset:0; z-index:200; display:none; }
+.mobile-picker-sheet.open { display:block; }
+.mobile-picker-backdrop { position:absolute; inset:0; background:rgba(18,19,22,0.45); opacity:0; transition:opacity .22s ease; }
+.mobile-picker-sheet.open .mobile-picker-backdrop { opacity:1; }
+.mobile-picker-panel {
+  position:absolute; left:0; right:0; bottom:0; max-height:70vh; background:var(--paper-card);
+  border-radius:20px 20px 0 0; box-shadow:0 -8px 30px rgba(0,0,0,.18);
+  display:flex; flex-direction:column; transform:translateY(100%);
+  transition:transform .3s cubic-bezier(.16,1,.3,1);
+  padding-bottom:env(safe-area-inset-bottom, 0);
+}
+.mobile-picker-sheet.open .mobile-picker-panel { transform:translateY(0); }
+.mobile-picker-handle { width:36px; height:4px; border-radius:999px; background:var(--border); margin:10px auto 2px; flex-shrink:0; }
+.mobile-picker-header {
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  padding:8px 16px 10px; border-bottom:1px solid var(--paper-dark); flex-shrink:0;
+}
+.mobile-picker-title { font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:11.5px; text-transform:uppercase; letter-spacing:.4px; color:var(--gris); }
+.mobile-picker-close {
+  flex-shrink:0; width:26px; height:26px; border-radius:50%; border:none; background:var(--paper-dark);
+  color:var(--gris); font-size:12px; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center;
+}
+.mobile-picker-list { overflow-y:auto; -webkit-overflow-scrolling:touch; padding:6px 8px 14px; }
+.mobile-picker-option {
+  display:flex; align-items:center; justify-content:space-between; gap:10px; width:100%; text-align:left;
+  padding:13px 12px; border:none; background:none; border-radius:12px;
+  font-family:'Plus Jakarta Sans',sans-serif; font-weight:600; font-size:13px; color:var(--ink); cursor:pointer;
+}
+.mobile-picker-option:active { background:var(--paper-dark); }
+.mobile-picker-option.selected { background:rgba(37,99,235,0.08); color:var(--bleu); font-weight:800; }
+.mobile-picker-option-check { width:16px; height:16px; flex-shrink:0; color:var(--bleu); opacity:0; }
+.mobile-picker-option.selected .mobile-picker-option-check { opacity:1; }
+body.mobile-picker-lock { overflow:hidden; }
+
 .choice-pill { white-space:normal; max-width:160px; text-align:center; }
 @media (max-width:540px) { .choice-row { flex-wrap:wrap; } .choice-pill { max-width:100%; } }
 @media (max-width:540px) {
@@ -692,7 +728,16 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
   .program-manager-contract, .program-manager-note { font-size:9px; margin-bottom:4px; }
   .program-manager-row, .program-manager-fields { gap:4px; }
   .program-manager-field { padding:0; font-size:9px; }
-  .program-manager-field select { height:30px; padding:0 22px 0 8px; font-size:9px; background-size:12px, 100%; background-position:right 7px center, 0 0; }
+  .program-manager-field select { display:none; }
+  .program-manager-field-trigger {
+    display:flex; align-items:center; justify-content:space-between; gap:6px;
+    width:100%; box-sizing:border-box; height:30px; margin:0; padding:0 8px 0 10px;
+    color:var(--ink); background:var(--paper-dark); border:1px solid transparent; border-radius:10px;
+    font-family:'Plus Jakarta Sans',sans-serif; font-weight:600; font-size:9px; text-align:left; cursor:pointer;
+  }
+  .program-manager-field-trigger:active { background:var(--border); }
+  .program-manager-field-trigger-text { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .program-manager-field-trigger .pg-chevron { flex-shrink:0; width:11px; height:11px; }
   .program-manager-combo { gap:5px; }
   .program-manager-actions { gap:2px; }
   .program-manager-actions-buttons { height:30px; gap:4px; }
@@ -5546,14 +5591,32 @@ function renderProgramManager(slot) {
   ensureCampaign(); const p=gameState.player;
   const editable=gameState.step===6&&gameState.dilemmaPhase==='choosing'&&gameState.currentDilemmaIndex===0;
   const c=p.contracts[slot];
+  const programOpts=PROGRAM_CATALOG.map(x=>({id:x.id,label:`${x.name} — ${nf1(x.annual)} M€/an + ${nf1(x.rights)} M€ droits, ${x.years} saison(s)`,selected:c?.id===x.id}));
+  const talentOpts=TALENT_CATALOG.map(x=>({id:x.id,label:`${x.name} — ${nf1(x.annual)} M€/an`,selected:c?.talent===x.name}));
+  const selectedProgram=programOpts.find(o=>o.selected)||programOpts[0];
+  const selectedTalent=talentOpts.find(o=>o.selected)||talentOpts[0];
   return `<section class="program-manager" aria-label="Modifier la programmation">
     ${c?`<p class="program-manager-contract">${esc(c.name)} · ${esc(c.talent)} · ${nf1(c.annual)} M€/an · jusqu’à la saison ${c.end}.</p>`:''}
     ${editable?`
     ${c?`<p class="program-manager-note">Remplacement : indemnité de ${nf1(c.annual*(c.end-gameState.season+1))} M€ couvrant les saisons restantes, saison actuelle comprise. Le coût annuel actuel est remplacé ; les droits déjà achetés ne sont pas remboursés.</p>`:''}
     <div class="program-manager-row" data-program-editor="${slot}">
-      <label class="program-manager-field programme"><span class="program-manager-field-label">Programme</span><select id="program-${slot}">${PROGRAM_CATALOG.map(x=>`<option value="${x.id}" ${c?.id===x.id?'selected':''}>${x.name} — ${nf1(x.annual)} M€/an + ${nf1(x.rights)} M€ droits, ${x.years} saison(s)</option>`).join('')}</select></label>
+      <label class="program-manager-field programme">
+        <span class="program-manager-field-label">Programme</span>
+        <select id="program-${slot}">${programOpts.map(o=>`<option value="${o.id}" ${o.selected?'selected':''}>${esc(o.label)}</option>`).join('')}</select>
+        <button type="button" class="program-manager-field-trigger" data-picker-trigger="program-${slot}" data-picker-title="Choisir un programme">
+          <span class="program-manager-field-trigger-text">${esc(selectedProgram.label)}</span>
+          <svg class="pg-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </button>
+      </label>
       <div class="program-manager-combo">
-        <label class="program-manager-field talent"><span class="program-manager-field-label">Talent</span><select id="talent-${slot}">${TALENT_CATALOG.map(x=>`<option value="${x.id}" ${c?.talent===x.name?'selected':''}>${x.name} — ${nf1(x.annual)} M€/an</option>`).join('')}</select></label>
+        <label class="program-manager-field talent">
+          <span class="program-manager-field-label">Talent</span>
+          <select id="talent-${slot}">${talentOpts.map(o=>`<option value="${o.id}" ${o.selected?'selected':''}>${esc(o.label)}</option>`).join('')}</select>
+          <button type="button" class="program-manager-field-trigger" data-picker-trigger="talent-${slot}" data-picker-title="Choisir un talent">
+            <span class="program-manager-field-trigger-text">${esc(selectedTalent.label)}</span>
+            <svg class="pg-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </button>
+        </label>
         <div class="program-manager-actions" aria-label="Valider ou annuler">
           <span class="program-manager-field-label program-manager-actions-spacer" aria-hidden="true">&nbsp;</span>
           <div class="program-manager-actions-buttons">
@@ -5569,7 +5632,65 @@ function renderProgramManager(slot) {
 function renderCampaignPanel() {
   return '';
 }
+function ensureMobilePickerSheet() {
+  let sheet=document.getElementById('mobile-picker-sheet');
+  if(sheet) return sheet;
+  sheet=document.createElement('div');
+  sheet.id='mobile-picker-sheet';
+  sheet.className='mobile-picker-sheet';
+  sheet.setAttribute('aria-hidden','true');
+  sheet.innerHTML=`
+    <div class="mobile-picker-backdrop" data-picker-close></div>
+    <div class="mobile-picker-panel" role="dialog" aria-modal="true">
+      <div class="mobile-picker-handle"></div>
+      <div class="mobile-picker-header">
+        <span class="mobile-picker-title"></span>
+        <button type="button" class="mobile-picker-close" data-picker-close aria-label="Fermer">✕</button>
+      </div>
+      <div class="mobile-picker-list"></div>
+    </div>`;
+  document.body.appendChild(sheet);
+  sheet.querySelectorAll('[data-picker-close]').forEach(el=>el.addEventListener('click', closeMobilePicker));
+  document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeMobilePicker(); });
+  return sheet;
+}
+function openMobilePicker(select, trigger, title) {
+  const sheet=ensureMobilePickerSheet();
+  sheet.querySelector('.mobile-picker-title').textContent=title||'';
+  const list=sheet.querySelector('.mobile-picker-list');
+  list.innerHTML='';
+  Array.from(select.options).forEach(opt=>{
+    const btn=document.createElement('button');
+    btn.type='button';
+    btn.className='mobile-picker-option'+(opt.value===select.value?' selected':'');
+    btn.innerHTML=`<span>${esc(opt.textContent)}</span><svg class="mobile-picker-option-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+    btn.onclick=()=>{
+      select.value=opt.value;
+      select.dispatchEvent(new Event('change', {bubbles:true}));
+      const textEl=trigger.querySelector('.program-manager-field-trigger-text');
+      if(textEl) textEl.textContent=opt.textContent;
+      closeMobilePicker();
+    };
+    list.appendChild(btn);
+  });
+  sheet.classList.add('open');
+  sheet.setAttribute('aria-hidden','false');
+  document.body.classList.add('mobile-picker-lock');
+}
+function closeMobilePicker() {
+  const sheet=document.getElementById('mobile-picker-sheet');
+  if(!sheet) return;
+  sheet.classList.remove('open');
+  sheet.setAttribute('aria-hidden','true');
+  document.body.classList.remove('mobile-picker-lock');
+}
 function bindCampaignPanel(app) {
+  app.querySelectorAll('[data-picker-trigger]').forEach(trigger=>{
+    trigger.onclick=()=>{
+      const select=document.getElementById(trigger.dataset.pickerTrigger);
+      if(select) openMobilePicker(select, trigger, trigger.dataset.pickerTitle);
+    };
+  });
   app.querySelectorAll('[data-program-editor]').forEach(editor=>{
     const slot=editor.dataset.programEditor;
     const manager=editor.closest('.program-manager');
