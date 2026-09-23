@@ -469,6 +469,10 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .opt.sel .ol { color: #ffffff; }
 .opt.sel .od { color: #cfc8b6; }
 
+.card-format {
+  background: var(--paper-card); border: 1px solid var(--border); border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(18,19,22,0.06); padding: 16px; margin-bottom: 16px; position: relative;
+}
 .optgrid-format { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0 20px; }
 .opt-format {
   position: relative; text-align: left; background: var(--paper-card);
@@ -5043,17 +5047,29 @@ function render() {
     app.innerHTML = `
       ${renderMasthead("Étape 2/4 : Choisissez votre Cible Prioritaire", "Audience Masters")}
       <div class="kicker">ÉTAPE 2 — AUDIENCE CIBLÉE (1% AU DÉPART)</div>
-      <div class="optgrid">
-        ${Object.entries(TARGET_STRATEGIES).map(([k, v]) => `
-          <button class="opt ${gameState.player.target === k ? 'sel' : ''}" data-target="${k}">
-            <span class="ol">${v.nom}</span>
-            <span class="od">${v.desc}</span>
+      <div class="optgrid-format">
+        ${Object.entries(TARGET_STRATEGIES).map(([k, v]) => {
+          const meta = {
+            j1524: { icon: '📱', accent: 'cyan' },
+            a2549: { icon: '💼', accent: 'bleu' },
+            s50: { icon: '📺', accent: 'gold' },
+            csp: { icon: '🎓', accent: 'violet' }
+          }[k] || { icon: '🎯', accent: 'gris' };
+          return `
+          <button class="opt-format ${gameState.player.target === k ? 'sel' : ''}" data-target="${k}">
+            <span class="opt-format-check" aria-hidden="true">✓</span>
+            <span class="opt-format-head">
+              <span class="opt-format-icon accent-${meta.accent}">${meta.icon}</span>
+              <span class="opt-format-title">${esc(v.nom)}</span>
+            </span>
+            <span class="opt-format-obj"><b>Objectif :</b> ${esc(v.objectif)}</span>
           </button>
-        `).join('')}
+        `;
+        }).join('')}
       </div>
       <button class="btn block" id="btn-next-3">Étape suivante : Nommer la chaîne →</button>
     `;
-    app.querySelectorAll('.opt').forEach(b => {
+    app.querySelectorAll('.opt-format').forEach(b => {
       b.onclick = () => {
         gameState.player.target = b.dataset.target;
         render();
@@ -5068,8 +5084,7 @@ function render() {
     const currentDefaultName = gameState.player.name || GENERATED_NAMES[gameState.player.type][0];
     app.innerHTML = `
       ${renderMasthead("Étape 3/4 : Nom du nouveau entrant", "Audience Masters")}
-      <div class="card">
-        <div class="tape"></div>
+      <div class="card-format">
         <div class="kicker">ÉTAPE 3 — LANCEMENT OFFICIEL</div>
         <label for="chain-name">Nom de la chaîne TV</label>
         <div class="namebar">
@@ -5103,8 +5118,7 @@ function render() {
 
     app.innerHTML = `
       ${renderMasthead("Étape 4/4 : Fiche Nouveau Entrant", "Audience Masters")}
-      <div class="card">
-        <div class="tape"></div>
+      <div class="card-format">
         <div class="kicker">ÉTAPE 5 — PARAMÈTRES ANNÉE 1</div>
         <h2 style="color: var(--bleu);">${esc(gameState.player.name)}</h2>
         <p><b>Format :</b> ${typeObj.label} | <b>Cible prioritaire :</b> ${targetObj.nom}</p>
