@@ -21,6 +21,8 @@
   --gold: #d97706;
   --danger: #e11d48;
   --border: #e2dfd7;
+  --violet: #7c3aed;
+  --cyan: #0891b2;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -466,6 +468,44 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .opt.sel { background: var(--ink); color: var(--paper); }
 .opt.sel .ol { color: #ffffff; }
 .opt.sel .od { color: #cfc8b6; }
+
+.optgrid-format { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0 20px; }
+.opt-format {
+  position: relative; text-align: left; background: var(--paper-card);
+  border: 1px solid var(--border); border-radius: 14px; padding: 10px 11px 11px;
+  box-shadow: 0 1px 3px rgba(18,19,22,0.06);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease, background 0.12s ease;
+}
+.opt-format:hover { transform: translateY(-1px); box-shadow: 0 4px 10px rgba(18,19,22,0.1); }
+.opt-format-head { display: flex; align-items: center; gap: 7px; margin-bottom: 5px; }
+.opt-format-icon {
+  flex-shrink: 0; width: 24px; height: 24px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center; font-size: 12.5px;
+}
+.opt-format-icon.accent-gris { background: rgba(107,114,128,0.14); }
+.opt-format-icon.accent-rouge { background: rgba(225,29,72,0.12); }
+.opt-format-icon.accent-violet { background: rgba(124,58,237,0.13); }
+.opt-format-icon.accent-gold { background: rgba(217,119,6,0.14); }
+.opt-format-icon.accent-bleu { background: rgba(37,99,235,0.12); }
+.opt-format-icon.accent-cyan { background: rgba(8,145,178,0.13); }
+.opt-format.sel .opt-format-icon { background: rgba(255,255,255,0.15); }
+.opt-format-title {
+  font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 11px;
+  text-transform: uppercase; letter-spacing: 0.3px; color: var(--ink);
+}
+.opt-format-obj { display: block; font-size: 10.5px; line-height: 1.35; color: var(--gris); }
+.opt-format-obj b { color: #45413a; font-weight: 700; }
+.opt-format-check {
+  position: absolute; top: -6px; right: -6px; width: 18px; height: 18px; border-radius: 50%;
+  background: var(--vert); color: #fff; display: none; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 800; border: 2px solid var(--paper-card);
+}
+.opt-format.sel { background: var(--ink); border-color: var(--ink); }
+.opt-format.sel .opt-format-title { color: #fff; }
+.opt-format.sel .opt-format-obj { color: #b9b6ae; }
+.opt-format.sel .opt-format-obj b { color: #e7e4dc; }
+.opt-format.sel .opt-format-check { display: flex; }
 
 input[type=text] {
   width: 100%; font-family: 'Anton', sans-serif; font-size: 20px; text-transform: uppercase;
@@ -4959,17 +4999,27 @@ function render() {
         <div class="kicker">ÉTAPE 1 — FORMAT EDITORIAL</div>
         <button class="btn-dice" id="btn-random-setup"><span class="dice-icon">🎲</span><span class="dice-label">Aléatoire</span></button>
       </div>
-      <div class="optgrid">
-        ${Object.entries(CHANNEL_TYPES).map(([k, v]) => `
-          <button class="opt ${gameState.player.type === k ? 'sel' : ''}" data-type="${k}">
-            <span class="ol">${v.label}</span>
-            <span class="od"><b>Objectif :</b> ${v.objectif}</span>
+      <div class="optgrid-format">
+        ${Object.entries(CHANNEL_TYPES).map(([k, v]) => {
+          const accent = { generaliste: 'gris', cinema: 'rouge', culture: 'violet', jeunesse: 'gold', sport: 'bleu', info: 'cyan' }[k] || 'gris';
+          const spaceIdx = v.label.indexOf(' ');
+          const icon = v.label.slice(0, spaceIdx);
+          const title = v.label.slice(spaceIdx + 1);
+          return `
+          <button class="opt-format ${gameState.player.type === k ? 'sel' : ''}" data-type="${k}">
+            <span class="opt-format-check" aria-hidden="true">✓</span>
+            <span class="opt-format-head">
+              <span class="opt-format-icon accent-${accent}">${icon}</span>
+              <span class="opt-format-title">${esc(title)}</span>
+            </span>
+            <span class="opt-format-obj"><b>Objectif :</b> ${esc(v.objectif)}</span>
           </button>
-        `).join('')}
+        `;
+        }).join('')}
       </div>
       <button class="btn block" id="btn-next-2">Étape suivante : Définir la cible →</button>
     `;
-    app.querySelectorAll('.opt').forEach(b => {
+    app.querySelectorAll('.opt-format').forEach(b => {
       b.onclick = () => {
         gameState.player.type = b.dataset.type;
         render();
