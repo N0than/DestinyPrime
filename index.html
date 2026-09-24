@@ -23,6 +23,9 @@
   --border: #e2dfd7;
   --violet: #7c3aed;
   --cyan: #0891b2;
+  --pink: #db2777;
+  --amber: #f59e0b;
+  --crimson: #dc2626;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -418,6 +421,16 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .kicker { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--rouge); margin-bottom: 6px; }
 .kicker-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .kicker-row .kicker { margin-bottom: 0; }
+.kicker-badge {
+  display: inline-flex; align-items: center; font-family: 'Space Grotesk', sans-serif; font-weight: 700;
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px; color: var(--rouge);
+  background: rgba(225,29,72,0.08); border: 1px solid rgba(225,29,72,0.18);
+  padding: 3px 8px; border-radius: 8px;
+}
+.kicker-row .kicker-badge { margin-bottom: 0; }
+.step-dots { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 12px; }
+.step-dot { width: 6px; height: 6px; border-radius: 999px; background: var(--border); transition: width 0.15s ease, background 0.15s ease; }
+.step-dot.active { width: 20px; background: var(--ink); }
 .btn-dice {
   position: relative; display: inline-flex; align-items: center; gap: 6px;
   cursor: pointer; overflow: hidden; white-space: nowrap; margin-bottom: 6px;
@@ -493,11 +506,23 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .opt-format-icon.accent-gold { background: rgba(217,119,6,0.14); }
 .opt-format-icon.accent-bleu { background: rgba(37,99,235,0.12); }
 .opt-format-icon.accent-cyan { background: rgba(8,145,178,0.13); }
+.opt-format-icon.accent-pink { background: rgba(219,39,119,0.12); }
+.opt-format-icon.accent-amber { background: rgba(245,158,11,0.15); }
+.opt-format-icon.accent-crimson { background: rgba(220,38,38,0.12); }
 .opt-format.sel .opt-format-icon { background: rgba(255,255,255,0.15); }
 .opt-format-title {
   font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 11px;
   text-transform: uppercase; letter-spacing: 0.3px; color: var(--ink);
 }
+.opt-format-title.accent-gris { color: var(--ink); }
+.opt-format-title.accent-rouge { color: var(--rouge); }
+.opt-format-title.accent-violet { color: var(--violet); }
+.opt-format-title.accent-gold { color: var(--gold); }
+.opt-format-title.accent-bleu { color: var(--bleu); }
+.opt-format-title.accent-cyan { color: var(--cyan); }
+.opt-format-title.accent-pink { color: var(--pink); }
+.opt-format-title.accent-amber { color: var(--amber); }
+.opt-format-title.accent-crimson { color: var(--crimson); }
 .opt-format-obj { display: block; font-size: 10.5px; line-height: 1.35; color: var(--gris); }
 .opt-format-obj b { color: #45413a; font-weight: 700; }
 .opt-format-check {
@@ -4724,6 +4749,14 @@ function renderMasthead(sub, over) {
   `;
 }
 
+function renderStepDots(active, total) {
+  return `
+    <div class="step-dots" aria-hidden="true">
+      ${Array.from({ length: total }, (_, i) => `<span class="step-dot${i === active - 1 ? ' active' : ''}"></span>`).join('')}
+    </div>
+  `;
+}
+
 function renderTicker() {
   const p = gameState.player;
   const calculated = getCalculatedPDAs();
@@ -5000,12 +5033,12 @@ function render() {
     app.innerHTML = `
       ${renderMasthead("Étape 1/4 : Type de Chaîne & Capital Initial", "Audience Masters")}
       <div class="kicker-row">
-        <div class="kicker">ÉTAPE 1 — FORMAT EDITORIAL</div>
+        <div class="kicker-badge">ÉTAPE 1 — FORMAT ÉDITORIAL</div>
         <button class="btn-dice" id="btn-random-setup"><span class="dice-icon">🎲</span><span class="dice-label">Aléatoire</span></button>
       </div>
       <div class="optgrid-format">
         ${Object.entries(CHANNEL_TYPES).map(([k, v]) => {
-          const accent = { generaliste: 'gris', cinema: 'rouge', culture: 'violet', jeunesse: 'gold', sport: 'bleu', info: 'cyan' }[k] || 'gris';
+          const accent = { generaliste: 'gris', cinema: 'rouge', culture: 'pink', jeunesse: 'amber', sport: 'bleu', info: 'crimson' }[k] || 'gris';
           const spaceIdx = v.label.indexOf(' ');
           const icon = v.label.slice(0, spaceIdx);
           const title = v.label.slice(spaceIdx + 1);
@@ -5014,7 +5047,7 @@ function render() {
             <span class="opt-format-check" aria-hidden="true">✓</span>
             <span class="opt-format-head">
               <span class="opt-format-icon accent-${accent}">${icon}</span>
-              <span class="opt-format-title">${esc(title)}</span>
+              <span class="opt-format-title accent-${accent}">${esc(title)}</span>
             </span>
             <span class="opt-format-obj"><b>Objectif :</b> ${esc(v.objectif)}</span>
           </button>
@@ -5022,6 +5055,7 @@ function render() {
         }).join('')}
       </div>
       <button class="btn block" id="btn-next-2">Étape suivante : Définir la cible →</button>
+      ${renderStepDots(1, 4)}
     `;
     app.querySelectorAll('.opt-format').forEach(b => {
       b.onclick = () => {
