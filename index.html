@@ -52,6 +52,20 @@ body {
   display: flex;
   flex-direction: column;
 }
+#app.step-transitioning { position: relative; overflow: hidden; }
+.step-slide-old {
+  width: 100%;
+  transform: translateX(0);
+  transition: transform 0.34s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.step-slide-old.leaving { transform: translateX(-100%); }
+.step-slide-new {
+  position: absolute; top: 0; left: 0; right: 0; box-sizing: border-box;
+  padding: 12px 14px 60px;
+  transform: translateX(100%);
+  transition: transform 0.34s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.step-slide-new.entering { transform: translateX(0); }
 
 h1, h2, h3, .display {
   font-family: 'Anton', Impact, sans-serif;
@@ -4846,6 +4860,47 @@ function renderTicker() {
   `;
 }
 
+function goToStepAnimated(mutate) {
+  const app = document.getElementById('app');
+  const isMobile = window.matchMedia('(max-width: 540px)').matches;
+  if (!isMobile) { mutate(); render(); return; }
+
+  const prevHTML = app.innerHTML;
+  mutate();
+  render();
+
+  const newWrap = document.createElement('div');
+  newWrap.className = 'step-slide-new';
+  while (app.firstChild) newWrap.appendChild(app.firstChild);
+
+  const oldWrap = document.createElement('div');
+  oldWrap.className = 'step-slide-old';
+  oldWrap.innerHTML = prevHTML;
+
+  app.classList.add('step-transitioning');
+  app.appendChild(oldWrap);
+  app.appendChild(newWrap);
+
+  void oldWrap.offsetWidth;
+
+  requestAnimationFrame(() => {
+    oldWrap.classList.add('leaving');
+    newWrap.classList.add('entering');
+  });
+
+  let finished = false;
+  const finish = () => {
+    if (finished) return;
+    finished = true;
+    app.classList.remove('step-transitioning');
+    oldWrap.remove();
+    while (newWrap.firstChild) app.appendChild(newWrap.firstChild);
+    newWrap.remove();
+  };
+  newWrap.addEventListener('transitionend', finish, { once: true });
+  setTimeout(finish, 450);
+}
+
 function render() {
   if (gameState.step >= 5) refreshEconomy();
   const app = document.getElementById('app');
@@ -5021,7 +5076,7 @@ function render() {
         <button class="btn block" id="btn-start" style="font-size: 18px; padding: 14px;">Lancer ma chaîne →</button>
       </div>
     `;
-    document.getElementById('btn-start').onclick = () => { resetGame(); gameState.step = 2; render(); };
+    document.getElementById('btn-start').onclick = () => { goToStepAnimated(() => { resetGame(); gameState.step = 2; }); };
     if (canResume) {
       document.getElementById('btn-resume').onclick = () => { gameState.step = gameState.resumeStep; render(); };
     }
@@ -5063,7 +5118,7 @@ function render() {
         render();
       };
     });
-    document.getElementById('btn-next-2').onclick = () => { gameState.step = 3; render(); };
+    document.getElementById('btn-next-2').onclick = () => { goToStepAnimated(() => { gameState.step = 3; }); };
     document.getElementById('btn-random-setup').onclick = () => {
       gameState.player.type = pick(Object.keys(CHANNEL_TYPES));
       gameState.player.target = pick(Object.keys(TARGET_STRATEGIES));
@@ -5110,7 +5165,7 @@ function render() {
         render();
       };
     });
-    document.getElementById('btn-next-3').onclick = () => { gameState.step = 4; render(); };
+    document.getElementById('btn-next-3').onclick = () => { goToStepAnimated(() => { gameState.step = 4; }); };
     app.querySelector('.masthead').onclick = goHome;
     return;
   }
@@ -5135,14 +5190,15 @@ function render() {
       document.getElementById('chain-name').value = randomName;
     };
     document.getElementById('btn-next-4').onclick = () => {
-      const val = document.getElementById('chain-name').value.trim();
-      gameState.player.name = val || GENERATED_NAMES[gameState.player.type][0];
+      goToStepAnimated(() => {
+        const val = document.getElementById('chain-name').value.trim();
+        gameState.player.name = val || GENERATED_NAMES[gameState.player.type][0];
 
-      finalizeChannelSetup();
+        finalizeChannelSetup();
 
-      gameState.resumeStep = null;
-      gameState.step = 5;
-      render();
+        gameState.resumeStep = null;
+        gameState.step = 5;
+      });
     };
     app.querySelector('.masthead').onclick = goHome;
     return;
@@ -5174,12 +5230,13 @@ function render() {
       ${renderStepDots(4, 4)}
     `;
     document.getElementById('btn-launch').onclick = () => {
-      gameState.dilemmaQueue = pickDilemmaQueue();
-      gameState.currentDilemmaIndex = 0;
-      // La première saison sert de lancement : son coût de grille est un apport
-      // initial déjà couvert par le capital de départ, sans débit de trésorerie.
-      gameState.step = 6;
-      render();
+      goToStepAnimated(() => {
+        gameState.dilemmaQueue = pickDilemmaQueue();
+        gameState.currentDilemmaIndex = 0;
+        // La première saison sert de lancement : son coût de grille est un apport
+        // initial déjà couvert par le capital de départ, sans débit de trésorerie.
+        gameState.step = 6;
+      });
     };
     app.querySelector('.masthead').onclick = goHome;
     return;
