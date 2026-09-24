@@ -52,7 +52,7 @@ body {
   display: flex;
   flex-direction: column;
 }
-#app.step-transitioning { position: relative; overflow: hidden; }
+.step-body-container { position: relative; overflow: hidden; }
 .step-slide-old {
   width: 100%;
   transform: translateX(0);
@@ -61,7 +61,6 @@ body {
 .step-slide-old.leaving { transform: translateX(-100%); }
 .step-slide-new {
   position: absolute; top: 0; left: 0; right: 0; box-sizing: border-box;
-  padding: 12px 14px 60px;
   transform: translateX(100%);
   transition: transform 0.34s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -4865,21 +4864,33 @@ function goToStepAnimated(mutate) {
   const isMobile = window.matchMedia('(max-width: 540px)').matches;
   if (!isMobile) { mutate(); render(); return; }
 
-  const prevHTML = app.innerHTML;
+  const prevMasthead = app.querySelector('.masthead');
+  const prevBodyHTML = Array.from(app.children)
+    .filter(el => el !== prevMasthead)
+    .map(el => el.outerHTML)
+    .join('');
+
   mutate();
   render();
 
+  // Le header (bandeau + ligne mire) reste en place, rendu instantanément par
+  // le render() ci-dessus ; seul le contenu sous la mire glisse.
+  const newMasthead = app.querySelector('.masthead');
+  const newBodyNodes = Array.from(app.children).filter(el => el !== newMasthead);
+
   const newWrap = document.createElement('div');
   newWrap.className = 'step-slide-new';
-  while (app.firstChild) newWrap.appendChild(app.firstChild);
+  newBodyNodes.forEach(n => newWrap.appendChild(n));
 
   const oldWrap = document.createElement('div');
   oldWrap.className = 'step-slide-old';
-  oldWrap.innerHTML = prevHTML;
+  oldWrap.innerHTML = prevBodyHTML;
 
-  app.classList.add('step-transitioning');
-  app.appendChild(oldWrap);
-  app.appendChild(newWrap);
+  const bodyContainer = document.createElement('div');
+  bodyContainer.className = 'step-body-container';
+  bodyContainer.appendChild(oldWrap);
+  bodyContainer.appendChild(newWrap);
+  app.appendChild(bodyContainer);
 
   void oldWrap.offsetWidth;
 
@@ -4892,10 +4903,8 @@ function goToStepAnimated(mutate) {
   const finish = () => {
     if (finished) return;
     finished = true;
-    app.classList.remove('step-transitioning');
-    oldWrap.remove();
     while (newWrap.firstChild) app.appendChild(newWrap.firstChild);
-    newWrap.remove();
+    bodyContainer.remove();
   };
   newWrap.addEventListener('transitionend', finish, { once: true });
   setTimeout(finish, 450);
