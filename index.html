@@ -428,7 +428,7 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
   padding: 3px 8px; border-radius: 8px;
 }
 .kicker-row .kicker-badge { margin-bottom: 0; }
-.step-dots { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 12px; }
+.step-dots { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 20px; }
 .step-dot { width: 6px; height: 6px; border-radius: 999px; background: var(--border); transition: width 0.15s ease, background 0.15s ease; }
 .step-dot.active { width: 20px; background: var(--ink); }
 .btn-dice {
@@ -5102,6 +5102,7 @@ function render() {
         }).join('')}
       </div>
       <button class="btn block" id="btn-next-3">Étape suivante : Nommer la chaîne →</button>
+      ${renderStepDots(2, 4)}
     `;
     app.querySelectorAll('.opt-format').forEach(b => {
       b.onclick = () => {
@@ -5127,6 +5128,7 @@ function render() {
         </div>
       </div>
       <button class="btn block" id="btn-next-4">Voir le Récapitulatif →</button>
+      ${renderStepDots(3, 4)}
     `;
     document.getElementById('btn-rand').onclick = () => {
       const randomName = pick(GENERATED_NAMES[gameState.player.type]);
@@ -5169,6 +5171,7 @@ function render() {
         <div class="badge">Objectif Année 1 : Passer le cap des 3% PDA</div>
       </div>
       <button class="btn block" id="btn-launch" style="font-size: 17px; padding: 14px;">🚀 DÉMARRER LA SAISON 1</button>
+      ${renderStepDots(4, 4)}
     `;
     document.getElementById('btn-launch').onclick = () => {
       gameState.dilemmaQueue = pickDilemmaQueue();
