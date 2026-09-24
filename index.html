@@ -53,6 +53,7 @@ body {
   flex-direction: column;
 }
 .step-body-container { position: relative; overflow: hidden; }
+.step-body-container.resizing { transition: height 0.34s cubic-bezier(0.16, 1, 0.3, 1); }
 .step-slide-old {
   width: 100%;
   transform: translateX(0);
@@ -4865,10 +4866,11 @@ function goToStepAnimated(mutate) {
   if (!isMobile) { mutate(); render(); return; }
 
   const prevMasthead = app.querySelector('.masthead');
-  const prevBodyHTML = Array.from(app.children)
-    .filter(el => el !== prevMasthead)
-    .map(el => el.outerHTML)
-    .join('');
+  const prevBodyNodesLive = Array.from(app.children).filter(el => el !== prevMasthead);
+  const oldHeight = prevBodyNodesLive.length
+    ? prevBodyNodesLive[prevBodyNodesLive.length - 1].getBoundingClientRect().bottom - prevBodyNodesLive[0].getBoundingClientRect().top
+    : 0;
+  const prevBodyHTML = prevBodyNodesLive.map(el => el.outerHTML).join('');
 
   mutate();
   render();
@@ -4888,13 +4890,21 @@ function goToStepAnimated(mutate) {
 
   const bodyContainer = document.createElement('div');
   bodyContainer.className = 'step-body-container';
+  bodyContainer.style.height = oldHeight + 'px';
   bodyContainer.appendChild(oldWrap);
   bodyContainer.appendChild(newWrap);
   app.appendChild(bodyContainer);
 
+  // Hauteur naturelle du nouvel écran, mesurée pendant qu'il est encore hors
+  // champ (position absolute), pour animer le conteneur vers cette hauteur
+  // en même temps que le glissement et éviter tout saut de mise en page.
+  const newHeight = newWrap.offsetHeight;
+
   void oldWrap.offsetWidth;
 
   requestAnimationFrame(() => {
+    bodyContainer.classList.add('resizing');
+    bodyContainer.style.height = newHeight + 'px';
     oldWrap.classList.add('leaving');
     newWrap.classList.add('entering');
   });
