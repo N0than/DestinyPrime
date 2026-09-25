@@ -4196,7 +4196,9 @@ let gameState = {
   seenDilemmaIds: [],
   history: [],
   renewalDue: false,
-  gameOverReason: null
+  gameOverReason: null,
+  seasonKickoffPending: false,
+  seasonKickoffProposal: null
 };
 
 // Dilemmes universels (sans restriction de types) mais dont le thème ne concerne que le sport :
@@ -4690,6 +4692,10 @@ function startNewSeason() {
   player.coutParPointPDA = seedPdaCible > 0 ? player.coutGrilleEngageSaison / seedPdaCible : 0;
   gameState.step = player.tresorerie < TRESORERIE_CRITIQUE ? 8 : 6;
   if (gameState.step === 8) gameState.gameOverReason = 'tresorerie';
+  if (gameState.step === 6) {
+    gameState.seasonKickoffProposal = generateSeasonKickoffProposal();
+    gameState.seasonKickoffPending = !!gameState.seasonKickoffProposal;
+  }
   render();
 }
 
@@ -4753,6 +4759,8 @@ function resetGame() {
   gameState.history = [];
   gameState.renewalDue = false;
   gameState.gameOverReason = null;
+  gameState.seasonKickoffPending = false;
+  gameState.seasonKickoffProposal = null;
   render();
 }
 
@@ -4862,6 +4870,71 @@ function renderTicker() {
       </div>
     </div>
   `;
+}
+
+function bindTickerInteractions(app) {
+  bindCampaignPanel(app);
+  document.getElementById('hud-toggle').onclick = () => {
+    const isOpen = document.getElementById('hud-details').classList.toggle('open');
+    document.getElementById('hud-toggle').classList.toggle('open', isOpen);
+    document.getElementById('hud-toggle').setAttribute('aria-expanded', isOpen);
+    gameState.hudExpanded = isOpen;
+  };
+  const goToHudSlide = idx => {
+    const clamped = Math.max(0, Math.min(5, idx));
+    gameState.hudSlide = clamped;
+    document.getElementById('eh-slider-track').style.transform = `translateX(-${clamped * 100}%)`;
+    document.querySelectorAll('.eh-dot').forEach(d => d.classList.toggle('active', parseInt(d.dataset.slide, 10) === clamped));
+  };
+  document.querySelectorAll('.eh-dot').forEach(dot => {
+    dot.onclick = () => goToHudSlide(parseInt(dot.dataset.slide, 10));
+  });
+  const ehSlider = document.getElementById('eh-slider');
+  const ehTrack = document.getElementById('eh-slider-track');
+  let dragStartX = 0;
+  let dragDeltaX = 0;
+  let isDragging = false;
+  ehSlider.addEventListener('pointerdown', e => {
+    if (e.target.closest('button, select, input, label, summary, .program-manager')) return;
+    isDragging = true;
+    dragStartX = e.clientX;
+    dragDeltaX = 0;
+    ehTrack.style.transition = 'none';
+    ehSlider.setPointerCapture(e.pointerId);
+  });
+  ehSlider.addEventListener('click', e => {
+    const arcomBtn = e.target.closest('.arcom-view-btn');
+    if (arcomBtn) {
+      gameState.step = 9;
+      render();
+      return;
+    }
+    const btn = e.target.closest('.ga-target-btn');
+    if (!btn) return;
+    gameState.audienceShareTarget = btn.dataset.audienceTarget;
+    const panel = document.getElementById('ga-panel');
+    if (panel) panel.outerHTML = renderGlobalAudienceShare();
+  });
+  ehSlider.addEventListener('pointermove', e => {
+    if (!isDragging) return;
+    dragDeltaX = e.clientX - dragStartX;
+    const deltaPercent = (dragDeltaX / ehSlider.clientWidth) * 100;
+    const base = -(gameState.hudSlide || 0) * 100;
+    ehTrack.style.transform = `translateX(${base + deltaPercent}%)`;
+  });
+  const endDrag = () => {
+    if (!isDragging) return;
+    isDragging = false;
+    ehTrack.style.transition = '';
+    const threshold = ehSlider.clientWidth * 0.15;
+    let target = gameState.hudSlide || 0;
+    if (dragDeltaX > threshold) target -= 1;
+    else if (dragDeltaX < -threshold) target += 1;
+    goToHudSlide(target);
+  };
+  ehSlider.addEventListener('pointerup', endDrag);
+  ehSlider.addEventListener('pointercancel', endDrag);
+  ehSlider.addEventListener('pointerleave', endDrag);
 }
 
 function goToStepAnimated(mutate) {
@@ -5259,6 +5332,8 @@ function render() {
         // La première saison sert de lancement : son coût de grille est un apport
         // initial déjà couvert par le capital de départ, sans débit de trésorerie.
         gameState.step = 6;
+        gameState.seasonKickoffProposal = generateSeasonKickoffProposal();
+        gameState.seasonKickoffPending = !!gameState.seasonKickoffProposal;
       });
     };
     app.querySelector('.masthead').onclick = goHome;
@@ -5266,6 +5341,10 @@ function render() {
   }
 
   if (gameState.step === 6) {
+    if (gameState.seasonKickoffPending && gameState.seasonKickoffProposal) {
+      renderSeasonKickoff(app);
+      return;
+    }
     const phase = gameState.dilemmaPhase;
     // En phase "résultat", le dilemme vient d'être résolu : l'index a déjà avancé,
     // on réaffiche donc celui qui vient d'être répondu, pas le suivant.
@@ -5352,7 +5431,7 @@ function render() {
       </div>
     `;
 
-    bindCampaignPanel(app);
+    bindTickerInteractions(app);
     if (phase === 'choosing') {
       app.querySelectorAll('.choice').forEach(btn => {
         btn.onclick = () => {
@@ -5374,67 +5453,6 @@ function render() {
         continueAfterConsequence();
       };
     }
-    document.getElementById('hud-toggle').onclick = () => {
-      const isOpen = document.getElementById('hud-details').classList.toggle('open');
-      document.getElementById('hud-toggle').classList.toggle('open', isOpen);
-      document.getElementById('hud-toggle').setAttribute('aria-expanded', isOpen);
-      gameState.hudExpanded = isOpen;
-    };
-    const goToHudSlide = idx => {
-      const clamped = Math.max(0, Math.min(5, idx));
-      gameState.hudSlide = clamped;
-      document.getElementById('eh-slider-track').style.transform = `translateX(-${clamped * 100}%)`;
-      document.querySelectorAll('.eh-dot').forEach(d => d.classList.toggle('active', parseInt(d.dataset.slide, 10) === clamped));
-    };
-    document.querySelectorAll('.eh-dot').forEach(dot => {
-      dot.onclick = () => goToHudSlide(parseInt(dot.dataset.slide, 10));
-    });
-    const ehSlider = document.getElementById('eh-slider');
-    const ehTrack = document.getElementById('eh-slider-track');
-    let dragStartX = 0;
-    let dragDeltaX = 0;
-    let isDragging = false;
-    ehSlider.addEventListener('pointerdown', e => {
-      if (e.target.closest('button, select, input, label, summary, .program-manager')) return;
-      isDragging = true;
-      dragStartX = e.clientX;
-      dragDeltaX = 0;
-      ehTrack.style.transition = 'none';
-      ehSlider.setPointerCapture(e.pointerId);
-    });
-    ehSlider.addEventListener('click', e => {
-      const arcomBtn = e.target.closest('.arcom-view-btn');
-      if (arcomBtn) {
-        gameState.step = 9;
-        render();
-        return;
-      }
-      const btn = e.target.closest('.ga-target-btn');
-      if (!btn) return;
-      gameState.audienceShareTarget = btn.dataset.audienceTarget;
-      const panel = document.getElementById('ga-panel');
-      if (panel) panel.outerHTML = renderGlobalAudienceShare();
-    });
-    ehSlider.addEventListener('pointermove', e => {
-      if (!isDragging) return;
-      dragDeltaX = e.clientX - dragStartX;
-      const deltaPercent = (dragDeltaX / ehSlider.clientWidth) * 100;
-      const base = -(gameState.hudSlide || 0) * 100;
-      ehTrack.style.transform = `translateX(${base + deltaPercent}%)`;
-    });
-    const endDrag = () => {
-      if (!isDragging) return;
-      isDragging = false;
-      ehTrack.style.transition = '';
-      const threshold = ehSlider.clientWidth * 0.15;
-      let target = gameState.hudSlide || 0;
-      if (dragDeltaX > threshold) target -= 1;
-      else if (dragDeltaX < -threshold) target += 1;
-      goToHudSlide(target);
-    };
-    ehSlider.addEventListener('pointerup', endDrag);
-    ehSlider.addEventListener('pointercancel', endDrag);
-    ehSlider.addEventListener('pointerleave', endDrag);
     app.querySelector('.masthead').onclick = goHome;
     return;
   }
@@ -5858,6 +5876,110 @@ function quoteProgram(slot,programId,talentId) {
   const unchanged=previous?.id===programId && previous.talent===talent.name;
   return {...quote,program,talent,annual,termination,finance,unchanged,
     allowed:!unchanged && quote.cash>=TRESORERIE_CRITIQUE};
+}
+function generateSeasonKickoffProposal() {
+  const p = gameState.player;
+  const slotKeys = TIME_SLOTS.map(s => s.key).sort(() => Math.random() - 0.5);
+  for (const slot of slotKeys) {
+    const currentId = p.contracts?.[slot]?.id;
+    const pool = PROGRAM_CATALOG.filter(x => x.channelType === p.type && x.slot === slot && x.id !== currentId);
+    if (pool.length < 2) continue;
+    const affordable = pool.filter(x => quoteProgram(slot, x.id, 'interne')?.allowed);
+    const source = affordable.length >= 2 ? affordable : pool;
+    const options = [...source].sort(() => Math.random() - 0.5).slice(0, 2);
+    if (options.length === 2) return { slot, options };
+  }
+  return null;
+}
+function renderSeasonKickoff(app) {
+  const p = gameState.player;
+  const proposal = gameState.seasonKickoffProposal;
+  const slotMeta = TIME_SLOTS.find(s => s.key === proposal.slot);
+  const currentLabel = p.grilleOverrides[proposal.slot] || PROGRAM_GRID[p.type][proposal.slot];
+
+  const optionsHtml = proposal.options.map((program, i) => `
+    <button class="choice" data-idx="${i}">
+      <div class="choice-row">
+        <span class="choice-icon accent" aria-hidden="true">📺</span>
+        <div class="choice-content">
+          <div class="choice-eyebrow-row">
+            <span class="choice-eyebrow accent">Option ${i + 1}</span>
+          </div>
+          <span class="cl">${esc(program.name)}</span>
+          <span class="choice-caption">${nf1(program.annual)} M€/an + ${nf1(program.rights)} M€ droits · ${program.years} saison(s)</span>
+        </div>
+        <span class="choice-pill cost">${nf1(program.annual)} M€/an</span>
+      </div>
+    </button>
+  `).join('');
+
+  const noneHtml = `
+    <button class="choice" data-idx="none">
+      <div class="choice-row">
+        <span class="choice-icon neutral" aria-hidden="true">🚫</span>
+        <div class="choice-content">
+          <div class="choice-eyebrow-row">
+            <span class="choice-eyebrow neutral">Option 3</span>
+          </div>
+          <span class="cl">Aucun changement</span>
+          <span class="choice-caption">On garde « ${esc(currentLabel)} » sur ce créneau.</span>
+        </div>
+        <span class="choice-pill neutral">0 M€</span>
+      </div>
+    </button>
+  `;
+
+  app.innerHTML = `
+    ${renderMasthead("Saison " + gameState.season, "Audience Masters")}
+    ${renderTicker()}
+    <div class="dilemma-container slide-in">
+      <div class="dilemma-card">
+        <div class="dc-head">
+          <span class="dc-live-pill"><span class="dc-live-dot"></span>Programmation</span>
+          <span class="dc-season-pill">Saison ${gameState.season}</span>
+        </div>
+        <div class="dc-body">
+          <h2>Nouvelle saison : ajustez votre grille</h2>
+          <div class="dc-divider"></div>
+          <p>Le service des programmes propose deux nouveautés pour le créneau <b>${slotMeta.label}</b> (${slotMeta.range}), actuellement occupé par « ${esc(currentLabel)} ».</p>
+        </div>
+      </div>
+      <div id="choice-zone">
+        <div class="choices">${optionsHtml}${noneHtml}</div>
+        <span id="kickoff-feedback" class="program-manager-feedback" aria-live="polite"></span>
+      </div>
+    </div>
+  `;
+
+  app.querySelectorAll('.choice').forEach(btn => {
+    btn.onclick = () => {
+      const idx = btn.dataset.idx;
+      const advance = (applyFn) => {
+        btn.classList.add('selected');
+        const zone = document.querySelector('#choice-zone .choices');
+        if (zone) zone.classList.add('slide-out-up');
+        setTimeout(() => {
+          gameState.seasonKickoffPending = false;
+          gameState.seasonKickoffProposal = null;
+          applyFn();
+        }, 220);
+      };
+      if (idx === 'none') {
+        advance(() => render());
+        return;
+      }
+      const program = proposal.options[parseInt(idx, 10)];
+      const quote = quoteProgram(proposal.slot, program.id, 'interne');
+      if (!quote || !quote.allowed) {
+        const feedback = document.getElementById('kickoff-feedback');
+        if (feedback) feedback.textContent = 'Validation impossible : budget insuffisant pour ce programme.';
+        return;
+      }
+      advance(() => signProgram(proposal.slot, program.id, 'interne'));
+    };
+  });
+  bindTickerInteractions(app);
+  app.querySelector('.masthead').onclick = goHome;
 }
 function nextSeasonCommitment() {
   const p=gameState.player;
