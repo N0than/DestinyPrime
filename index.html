@@ -52,20 +52,10 @@ body {
   display: flex;
   flex-direction: column;
 }
-.step-body-container { position: relative; overflow: hidden; }
-.step-body-container.resizing { transition: height 0.34s cubic-bezier(0.16, 1, 0.3, 1); }
-.step-slide-old {
-  width: 100%;
-  transform: translateX(0);
-  transition: transform 0.34s cubic-bezier(0.16, 1, 0.3, 1);
+/* Réserver deux lignes au sous-titre pour stabiliser le début des étapes. */
+#app:is([data-rendered-step="2"], [data-rendered-step="3"], [data-rendered-step="4"], [data-rendered-step="5"]) .masthead .under {
+  min-height: 3em;
 }
-.step-slide-old.leaving { transform: translateX(-100%); }
-.step-slide-new {
-  position: absolute; top: 0; left: 0; right: 0; box-sizing: border-box;
-  transform: translateX(100%);
-  transition: transform 0.34s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.step-slide-new.entering { transform: translateX(0); }
 
 h1, h2, h3, .display {
   font-family: 'Anton', Impact, sans-serif;
@@ -4860,70 +4850,32 @@ function renderTicker() {
   `;
 }
 
+let setupAnimations = [];
 function goToStepAnimated(mutate) {
-  const app = document.getElementById('app');
-  const isMobile = window.matchMedia('(max-width: 540px)').matches;
-  if (!isMobile) { mutate(); render(); return; }
-
-  const prevMasthead = app.querySelector('.masthead');
-  const prevBodyNodesLive = Array.from(app.children).filter(el => el !== prevMasthead);
-  const oldHeight = prevBodyNodesLive.length
-    ? prevBodyNodesLive[prevBodyNodesLive.length - 1].getBoundingClientRect().bottom - prevBodyNodesLive[0].getBoundingClientRect().top
-    : 0;
-  const prevBodyHTML = prevBodyNodesLive.map(el => el.outerHTML).join('');
-
   mutate();
   render();
-
-  // Le header (bandeau + ligne mire) reste en place, rendu instantanément par
-  // le render() ci-dessus ; seul le contenu sous la mire glisse.
-  const newMasthead = app.querySelector('.masthead');
-  const newBodyNodes = Array.from(app.children).filter(el => el !== newMasthead);
-
-  const newWrap = document.createElement('div');
-  newWrap.className = 'step-slide-new';
-  newBodyNodes.forEach(n => newWrap.appendChild(n));
-
-  const oldWrap = document.createElement('div');
-  oldWrap.className = 'step-slide-old';
-  oldWrap.innerHTML = prevBodyHTML;
-
-  const bodyContainer = document.createElement('div');
-  bodyContainer.className = 'step-body-container';
-  bodyContainer.style.height = oldHeight + 'px';
-  bodyContainer.appendChild(oldWrap);
-  bodyContainer.appendChild(newWrap);
-  app.appendChild(bodyContainer);
-
-  // Hauteur naturelle du nouvel écran, mesurée pendant qu'il est encore hors
-  // champ (position absolute), pour animer le conteneur vers cette hauteur
-  // en même temps que le glissement et éviter tout saut de mise en page.
-  const newHeight = newWrap.offsetHeight;
-
-  void oldWrap.offsetWidth;
-
-  requestAnimationFrame(() => {
-    bodyContainer.classList.add('resizing');
-    bodyContainer.style.height = newHeight + 'px';
-    oldWrap.classList.add('leaving');
-    newWrap.classList.add('entering');
-  });
-
-  let finished = false;
-  const finish = () => {
-    if (finished) return;
-    finished = true;
-    while (newWrap.firstChild) app.appendChild(newWrap.firstChild);
-    bodyContainer.remove();
-  };
-  newWrap.addEventListener('transitionend', finish, { once: true });
-  setTimeout(finish, 450);
+  const app = document.getElementById('app');
+  // Un seul écran vivant, déjà à sa taille finale : aucun déplacement ni
+  // nettoyage différé susceptible de réinsérer une étape après un autre clic.
+  app.setAttribute('tabindex', '-1');
+  app.focus({ preventScroll: true });
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  setupAnimations = Array.from(app.children)
+    .filter(node => !node.classList.contains('masthead') && typeof node.animate === 'function')
+    .map(node => node.animate([{ opacity: 0 }, { opacity: 1 }], {
+      duration: 120, easing: 'ease-out'
+    }));
 }
 
 function render() {
+  setupAnimations.forEach(animation => animation.cancel());
+  setupAnimations = [];
   if (gameState.step >= 5) refreshEconomy();
   const app = document.getElementById('app');
-  window.scrollTo(0, 0);
+  if (app.dataset.renderedStep !== String(gameState.step)) {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }
+  app.dataset.renderedStep = String(gameState.step);
 
   if (gameState.step === 1) {
     const canResume = !!gameState.resumeStep;
