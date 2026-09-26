@@ -125,6 +125,12 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
   width: 6px; height: 6px; border-radius: 50%; background: var(--vert); flex-shrink: 0;
   animation: hudLiveDotPulse 1.6s ease-in-out infinite;
 }
+.hud-panel-head-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.hud-type-badge {
+  font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 9px;
+  letter-spacing: 0.3px; color: var(--ink); background: var(--paper-dark);
+  border: 1px solid var(--border); border-radius: 999px; padding: 3px 9px; white-space: nowrap;
+}
 @keyframes hudLiveDotPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
 .hud {
   display: grid; grid-template-columns: repeat(5, 1fr); gap: 2px;
@@ -4845,9 +4851,12 @@ function renderTicker() {
       <div class="hud-panel">
         <div class="hud-panel-head">
           <span class="hud-panel-head-label"><span class="hud-live-dot"></span>Tableau de bord</span>
-          <button class="hud-toggle${open ? ' open' : ''}" id="hud-toggle" aria-label="Détail des indicateurs" aria-expanded="${open}">
-            <svg class="hud-toggle-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-          </button>
+          <div class="hud-panel-head-right">
+            <span class="hud-type-badge">${CHANNEL_TYPES[p.type].label}</span>
+            <button class="hud-toggle${open ? ' open' : ''}" id="hud-toggle" aria-label="Détail des indicateurs" aria-expanded="${open}">
+              <svg class="hud-toggle-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </button>
+          </div>
         </div>
         <div class="hud">
           <div class="hud-cell hero${tresorerieLive < 0 ? ' alert' : ''}">
