@@ -1160,8 +1160,20 @@ function computeAttractivite(popularite) {
   return 1 + (popularite - 50) / 200;
 }
 
-function computeRevenusPubSaison(pdaMoyenneSaison, cible, popularite, puissanceCommerciale) {
-  return pdaMoyenneSaison * GRP_COST[cible] * VOLUME_PUB * computeAttractivite(popularite) * puissanceCommerciale;
+function computeRevenusPub(pdaGlobaleCourante, cible, popularite, puissanceCommerciale) {
+  return pdaGlobaleCourante * GRP_COST[cible] * VOLUME_PUB * computeAttractivite(popularite) * puissanceCommerciale;
+}
+
+// Crédite en une fois l'intégralité des recettes publicitaires estimées, sur la base de la
+// PDA globale courante, dès que la grille de la saison est validée (fin de l'étape de
+// programmation, avec ou sans changement). Sert ensuite de référence : chaque dilemme ne
+// créditera plus que l'écart avec cette estimation, jamais la totalité une seconde fois.
+function creditInitialAdRevenue() {
+  const p = gameState.player;
+  const pdaGlobaleCourante = getCalculatedPDAs().find(item => item.channel === p).pda[p.target];
+  const revenusPubEstimes = computeRevenusPub(pdaGlobaleCourante, p.target, p.popularite, p.puissanceCommerciale);
+  p.tresorerie += revenusPubEstimes;
+  p.revenusPubPrevisionnels = revenusPubEstimes;
 }
 
 function computeNextBudgetGrille(player) {
@@ -4541,11 +4553,12 @@ function chooseDilemmaOption(choiceIndex) {
   player.pdaMoyenneSaison = player.pdaHistorySeason.reduce((s, v) => s + v, 0) / player.pdaHistorySeason.length;
   player.pdaFinSaison = pdaCibleApres;
 
-  // Les revenus publicitaires sont réestimés à chaque dilemme à partir de la PDA moyenne de la
-  // saison, et l'écart avec l'estimation précédente est immédiatement crédité à la trésorerie :
-  // pas d'attente du bilan de fin de saison, l'ajustement est en temps réel.
+  // Les revenus publicitaires sont indexés sur la PDA globale courante (pas une moyenne de
+  // saison) : la moindre variation, même infime, réestime immédiatement la valorisation
+  // publicitaire. Seul l'écart avec l'estimation précédente est crédité/débité — la totalité
+  // a déjà été créditée au lancement de la saison (creditInitialAdRevenue).
   const revenusPubAvant = player.revenusPubPrevisionnels;
-  player.revenusPubPrevisionnels = computeRevenusPubSaison(player.pdaMoyenneSaison, player.target, player.popularite, player.puissanceCommerciale);
+  player.revenusPubPrevisionnels = computeRevenusPub(pdaCibleApres, player.target, player.popularite, player.puissanceCommerciale);
   const revenusPubDelta = player.revenusPubPrevisionnels - revenusPubAvant;
   // Le flux net de trésorerie est bien la recette publicitaire moins la variation
   // de coût de grille : un surcoût (delta positif) réduit le solde, une économie
@@ -4695,6 +4708,7 @@ function startNewSeason() {
   if (gameState.step === 6) {
     gameState.seasonKickoffProposal = generateSeasonKickoffProposal();
     gameState.seasonKickoffPending = !!gameState.seasonKickoffProposal;
+    if (!gameState.seasonKickoffPending) creditInitialAdRevenue();
   }
   render();
 }
@@ -5334,6 +5348,7 @@ function render() {
         gameState.step = 6;
         gameState.seasonKickoffProposal = generateSeasonKickoffProposal();
         gameState.seasonKickoffPending = !!gameState.seasonKickoffProposal;
+        if (!gameState.seasonKickoffPending) creditInitialAdRevenue();
       });
     };
     app.querySelector('.masthead').onclick = goHome;
@@ -5965,7 +5980,10 @@ function renderSeasonKickoff(app) {
         }, 220);
       };
       if (idx === 'none') {
-        advance(() => render());
+        advance(() => {
+          creditInitialAdRevenue();
+          render();
+        });
         return;
       }
       const program = proposal.options[parseInt(idx, 10)];
@@ -5975,7 +5993,14 @@ function renderSeasonKickoff(app) {
         if (feedback) feedback.textContent = 'Validation impossible : budget insuffisant pour ce programme.';
         return;
       }
-      advance(() => signProgram(proposal.slot, program.id, 'interne'));
+      advance(() => {
+        // La PDA globale de départ de la saison est connue une fois le programme signé
+        // (elle intègre son effet d'audience) : le crédit initial se base sur cette
+        // valeur, pas sur la PDA d'avant-choix.
+        signProgram(proposal.slot, program.id, 'interne');
+        creditInitialAdRevenue();
+        render();
+      });
     };
   });
   bindTickerInteractions(app);
