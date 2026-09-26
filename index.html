@@ -1165,15 +1165,27 @@ function computeRevenusPub(pdaGlobaleCourante, cible, popularite, puissanceComme
 }
 
 // Crédite en une fois l'intégralité des recettes publicitaires estimées, sur la base de la
-// PDA globale courante, dès que la grille de la saison est validée (fin de l'étape de
-// programmation, avec ou sans changement). Sert ensuite de référence : chaque dilemme ne
-// créditera plus que l'écart avec cette estimation, jamais la totalité une seconde fois.
+// PDA globale courante, dès l'ouverture de la saison (avant même la proposition de
+// programmation). Sert ensuite de référence : la proposition de programmation puis chaque
+// dilemme ne créditeront plus que l'écart avec cette estimation, jamais la totalité une
+// seconde fois.
 function creditInitialAdRevenue() {
   const p = gameState.player;
   const pdaGlobaleCourante = getCalculatedPDAs().find(item => item.channel === p).pda[p.target];
   const revenusPubEstimes = computeRevenusPub(pdaGlobaleCourante, p.target, p.popularite, p.puissanceCommerciale);
   p.tresorerie += revenusPubEstimes;
   p.revenusPubPrevisionnels = revenusPubEstimes;
+}
+
+// Réévalue les recettes publicitaires à partir de la PDA globale courante et n'applique
+// que l'écart avec l'estimation précédente (déjà créditée) — même mécanique que pour un
+// dilemme, utilisée ici après un changement de programme via la proposition de saison.
+function reevaluateAdRevenue() {
+  const p = gameState.player;
+  const pdaGlobaleCourante = getCalculatedPDAs().find(item => item.channel === p).pda[p.target];
+  const revenusPubAvant = p.revenusPubPrevisionnels;
+  p.revenusPubPrevisionnels = computeRevenusPub(pdaGlobaleCourante, p.target, p.popularite, p.puissanceCommerciale);
+  p.tresorerie += p.revenusPubPrevisionnels - revenusPubAvant;
 }
 
 function computeNextBudgetGrille(player) {
@@ -4706,9 +4718,11 @@ function startNewSeason() {
   gameState.step = player.tresorerie < TRESORERIE_CRITIQUE ? 8 : 6;
   if (gameState.step === 8) gameState.gameOverReason = 'tresorerie';
   if (gameState.step === 6) {
+    // Le crédit intégral intervient dès l'ouverture de la saison, avant même le choix de
+    // programmation : la proposition ne fera plus qu'ajuster l'écart, comme un dilemme.
+    creditInitialAdRevenue();
     gameState.seasonKickoffProposal = generateSeasonKickoffProposal();
     gameState.seasonKickoffPending = !!gameState.seasonKickoffProposal;
-    if (!gameState.seasonKickoffPending) creditInitialAdRevenue();
   }
   render();
 }
@@ -5346,9 +5360,11 @@ function render() {
         // La première saison sert de lancement : son coût de grille est un apport
         // initial déjà couvert par le capital de départ, sans débit de trésorerie.
         gameState.step = 6;
+        // Le crédit intégral intervient dès l'ouverture de la saison, avant même le choix de
+        // programmation : la proposition ne fera plus qu'ajuster l'écart, comme un dilemme.
+        creditInitialAdRevenue();
         gameState.seasonKickoffProposal = generateSeasonKickoffProposal();
         gameState.seasonKickoffPending = !!gameState.seasonKickoffProposal;
-        if (!gameState.seasonKickoffPending) creditInitialAdRevenue();
       });
     };
     app.querySelector('.masthead').onclick = goHome;
@@ -5980,10 +5996,9 @@ function renderSeasonKickoff(app) {
         }, 220);
       };
       if (idx === 'none') {
-        advance(() => {
-          creditInitialAdRevenue();
-          render();
-        });
+        // Les recettes de la saison ont déjà été créditées à l'ouverture ; la grille reste
+        // intacte, donc la PDA n'a pas bougé et aucun ajustement n'est nécessaire.
+        advance(() => render());
         return;
       }
       const program = proposal.options[parseInt(idx, 10)];
@@ -5994,11 +6009,10 @@ function renderSeasonKickoff(app) {
         return;
       }
       advance(() => {
-        // La PDA globale de départ de la saison est connue une fois le programme signé
-        // (elle intègre son effet d'audience) : le crédit initial se base sur cette
-        // valeur, pas sur la PDA d'avant-choix.
+        // Le changement de programme modifie la PDA globale : comme pour un dilemme, seul
+        // l'écart avec l'estimation déjà créditée à l'ouverture de la saison est ajusté.
         signProgram(proposal.slot, program.id, 'interne');
-        creditInitialAdRevenue();
+        reevaluateAdRevenue();
         render();
       });
     };
