@@ -4536,9 +4536,7 @@ function chooseDilemmaOption(choiceIndex) {
     if (popAvant < 25 && delta < 0) delta *= 1.5;
     if (popAvant > 75 && delta > 0) delta *= 1.25;
     if (choice.grille) slotDeltas[t] = delta;
-    // Seule la case démographique réellement ciblée par la chaîne porte l'impact :
-    // les autres cases ne sont que des repères de base, non suivis dilemme après dilemme.
-    else if (t === player.target) player.pda[t] = Math.max(0.1, player.pda[t] + delta);
+    else player.pda[t] = Math.max(0.1, player.pda[t] + delta);
   }
 
   strategicCompetitors();
