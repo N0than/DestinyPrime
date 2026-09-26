@@ -4219,12 +4219,12 @@ function getEligibleDilemmas() {
 function pickDilemmaQueue() {
   const pool = getEligibleDilemmas();
   const available = pool.filter(d => !gameState.seenDilemmaIds.includes(d.id));
-  let queue = shuffle(available).slice(0, 4);
-  if (queue.length < 4) {
+  let queue = shuffle(available).slice(0, 3);
+  if (queue.length < 3) {
     gameState.seenDilemmaIds = [];
     const usedIds = new Set(queue.map(d => d.id));
     const remainingPool = pool.filter(d => !usedIds.has(d.id));
-    queue = queue.concat(shuffle(remainingPool).slice(0, 4 - queue.length));
+    queue = queue.concat(shuffle(remainingPool).slice(0, 3 - queue.length));
   }
   gameState.seenDilemmaIds.push(...queue.map(d => d.id));
   ensureCampaign();
