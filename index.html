@@ -1277,6 +1277,10 @@ const SLOT_AFFINITY = {
 // Poids d'audience du jeu (volume de téléspectateurs), distincts du temps d'antenne ARCOM.
 const SLOT_AUDIENCE_WEIGHTS = { matin: 0.15, apresmidi: 0.20, access: 0.20, prime: 0.35, nuit: 0.10 };
 const SLOT_HOURS = { matin: 6, apresmidi: 6, access: 3, prime: 2, nuit: 7 };
+// Les anciennes valeurs de dilemme etaient des modificateurs de puissance de chaine.
+// En les convertissant en points de case, ce facteur conserve des effets visibles sans
+// permettre a un seul choix de bouleverser artificiellement toute l'audience nationale.
+const DILEMMA_SLOT_IMPACT_SCALE = 0.15;
 
 const PROGRAM_GRID = {
   generaliste: {
@@ -4210,7 +4214,8 @@ let gameState = {
     resultatSaison: 0,
     rentabiliteGrille: 0,
     coutParPointPDA: 0,
-    coutTalentsSaison: 0
+    coutTalentsSaison: 0,
+    slotAudienceDeltas: {}
 },
   competitors: [],
   season: 1,
@@ -4231,6 +4236,31 @@ let gameState = {
   seasonKickoffProposal: null
 };
 
+const SAVE_KEY = 'audience-masters-save-v3';
+
+function persistGameState() {
+  try {
+    localStorage.setItem(SAVE_KEY, JSON.stringify(gameState));
+  } catch (error) {
+    console.warn('Sauvegarde locale indisponible.', error);
+  }
+}
+
+function restoreGameState() {
+  try {
+    const saved = localStorage.getItem(SAVE_KEY);
+    if (!saved) return false;
+    const parsed = JSON.parse(saved);
+    if (!parsed?.player || !Number.isFinite(parsed.season)) return false;
+    gameState = parsed;
+    ensureCampaign();
+    return true;
+  } catch (error) {
+    console.warn('Sauvegarde locale illisible, une nouvelle partie sera utilisee.', error);
+    return false;
+  }
+}
+
 // Dilemmes universels (sans restriction de types) mais dont le thème ne concerne que le sport :
 // pour une chaîne Sport, seuls ceux-ci sont piochés parmi les dilemmes universels, en plus des
 // dilemmes réservés au type 'sport'. Les autres types de chaîne continuent de voir tous les
@@ -4240,6 +4270,10 @@ const SPORT_RELATED_UNIVERSAL_IDS = ['d2', 'd6', 'd14', 'd20', 'd42', 'd65', 'd6
 function getEligibleDilemmas() {
   const type = gameState.player.type;
   return DILEMMA_BANK.filter(d => {
+    // Un dilemme lie a un programme nomme n'est propose que si celui-ci est encore
+    // present dans la grille. Les donnees actuelles sont generiques, mais cette regle
+    // permet aux futurs dilemmes contextualises d'utiliser programId sans contournement.
+    if (d.programId && !Object.values(gameState.player.contracts || {}).some(c => c.id === d.programId)) return false;
     if (d.types) return d.types.includes(type);
     if (type === 'sport') return SPORT_RELATED_UNIVERSAL_IDS.includes(d.id);
     return true;
@@ -4323,6 +4357,7 @@ function finalizeChannelSetup() {
   player.rentabiliteGrille = 0;
   player.coutParPointPDA = 0;
   player.coutTalentsSaison = 0;
+  player.slotAudienceDeltas = {};
   player.tresorerieDebutSaison = player.tresorerie;
   const seedPdaCible = getCalculatedPDAs().find(item => item.channel === player).pda[targetDemo];
   player.pdaHistorySeason = [seedPdaCible];
@@ -4349,7 +4384,10 @@ function getCalculatedPDAs() {
         return Math.max(0.1, c.pda[target] * SLOT_AFFINITY[c.type][slot] + boost);
       });
       const total = powers.reduce((sum,v) => sum+v,0);
-      results.forEach((r,i) => { r.slots[slot][target] = powers[i]/total*100; });
+      results.forEach((r,i) => {
+        const persistedImpact = r.channel.slotAudienceDeltas?.[slot]?.[target] || 0;
+        r.slots[slot][target] = Math.max(0.1, Math.min(99.9, powers[i]/total*100 + persistedImpact));
+      });
     });
   }
   results.forEach(r => {
@@ -4359,6 +4397,95 @@ function getCalculatedPDAs() {
     r.globalPda = demos.reduce((sum,d) => sum+r.pda[d],0)/demos.length;
   });
   return results;
+}
+
+function normalizeAudienceText(value) {
+  return String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+}
+
+// Ordre de resolution : programme reel de la grille, metadonnee explicite, puis sens
+// editorial du dilemme. "global" est volontairement reserve aux sujets transversaux.
+function resolveDilemmaAudienceImpacts(dilemma, choice) {
+  if (Array.isArray(choice.audienceImpacts)) return choice.audienceImpacts.map(impact => ({ ...impact, explicit: true }));
+  if (choice.audienceImpact) return [{ ...choice.audienceImpact, explicit: true }];
+  if (choice.grille?.slot) return [{ slot: choice.grille.slot, targets: choice.pda }];
+
+  const text = normalizeAudienceText(`${dilemma.titre} ${dilemma.desc} ${choice.l} ${choice.r}`);
+  const contracts = Object.entries(gameState.player.contracts || {});
+  const named = contracts.find(([, contract]) => {
+    const name = normalizeAudienceText(contract.name);
+    return name.length >= 5 && text.includes(name);
+  });
+  if (named) return [{ slot: named[0], targets: choice.pda, programId: named[1].id }];
+
+  const editorialGenre = [
+    [/talk|jeu|quiz|magazine|debat|entretien/, ['diverti', 'info']],
+    [/fiction|serie|film|telefilm|cinema/, ['fiction']],
+    [/documentaire|culture|patrimoine/, ['culture']],
+    [/jeunesse|animation|enfant/, ['jeunesse']],
+    [/sport|match|football|rugby|tennis|course|combat/, ['sport']],
+    [/journal|\bjt\b|information|enquete|reportage/, ['info']]
+  ].find(([pattern]) => pattern.test(text));
+  const genreContract = editorialGenre && contracts.find(([, contract]) =>
+    editorialGenre[1].includes(contract.editorial?.genre));
+
+  let slots;
+  if (/toute la soiree|soiree entiere|apres-match/.test(text)) slots = ['prime', 'nuit'];
+  else if (/late.show|deuxieme partie|nocturne|de nuit|nuit|apres.match|23h/.test(text)) slots = ['nuit'];
+  else if (/matinale|du matin|matin|petit.dejeuner|13h/.test(text)) slots = [/13h/.test(text) ? 'apresmidi' : 'matin'];
+  else if (/apres.midi|journee|week.end|dominical|samedi|dimanche/.test(text)) slots = ['apresmidi'];
+  else if (/access|avant le prime|fin de journee|18h|19h|20h|talk.show/.test(text)) slots = ['access'];
+  else if (/prime|premiere partie|grand divertissement|tele.crochet|soiree|evenement|blockbuster/.test(text)) slots = ['prime'];
+  else if (genreContract) slots = [genreContract[0]];
+  else if (/identite de la chaine|toute la chaine|antenne entiere|crise d.image|marque|positionnement|diffusion generalisee/.test(text)) slots = ['global'];
+  else slots = ['prime']; // Un impact editorial reste local par defaut.
+
+  return slots.map((slot, index) => ({
+    slot,
+    targets: choice.pda,
+    // Une prolongation de soiree produit un effet secondaire plus faible en nuit.
+    multiplier: slots.length > 1 && index > 0 ? 0.35 : 1
+  }));
+}
+
+function applyDilemmaAudienceImpacts(dilemma, choice, popularityBefore) {
+  const player = gameState.player;
+  player.slotAudienceDeltas ??= {};
+  const resolved = resolveDilemmaAudienceImpacts(dilemma, choice);
+  const applied = [];
+  for (const impact of resolved) {
+    const slots = impact.slot === 'global' ? TIME_SLOTS.map(s => s.key) : [impact.slot];
+    for (const slot of slots) {
+      if (!TIME_SLOTS.some(s => s.key === slot)) continue;
+      player.slotAudienceDeltas[slot] ??= {};
+      const targetValues = impact.targets || choice.pda || {};
+      const targets = Object.keys(targetValues).length ? Object.keys(targetValues) : ['j1524', 'a2549', 's50', 'csp'];
+      for (const target of targets) {
+        let raw = Number(targetValues?.[target] ?? impact.value ?? 0);
+        if (popularityBefore < 25 && raw < 0) raw *= 1.5;
+        if (popularityBefore > 75 && raw > 0) raw *= 1.25;
+        const delta = raw * (impact.explicit ? 1 : DILEMMA_SLOT_IMPACT_SCALE) * (impact.multiplier ?? 1);
+        player.slotAudienceDeltas[slot][target] = (player.slotAudienceDeltas[slot][target] || 0) + delta;
+      }
+    }
+    applied.push({ slot: impact.slot, value: (impact.targets?.[player.target] ?? impact.value ?? choice.pda?.[player.target] ?? 0)
+      * (impact.explicit ? 1 : DILEMMA_SLOT_IMPACT_SCALE) * (impact.multiplier ?? 1), programId: impact.programId || dilemma.programId || null });
+  }
+  return applied;
+}
+
+// Tableau de controle exploitable depuis la console : auditAudienceDilemmas().
+function auditAudienceDilemmas() {
+  const rows = DILEMMA_BANK.flatMap(dilemma => dilemma.c
+    .filter(choice => (choice.pda && Object.values(choice.pda).some(Number.isFinite)) || choice.audienceImpact || choice.audienceImpacts)
+    .map(choice => ({
+      dilemme: dilemma.titre,
+      choix: choice.l,
+      impactHistorique: JSON.stringify(choice.pda),
+      nouveauCiblage: resolveDilemmaAudienceImpacts(dilemma, choice).map(i => i.slot).join(' + ')
+    })));
+  console.table(rows);
+  return rows;
 }
 
 function resetSeasonEditoMix() {
@@ -4528,16 +4655,16 @@ function chooseDilemmaOption(choiceIndex) {
 
   const decisionQuote = quoteDilemma(choice);
 
-  const pdaCibleAvant = getCalculatedPDAs().find(item => item.channel === player).pda[player.target];
-
-  const slotDeltas = {};
-  for (const t in choice.pda) {
-    let delta = choice.pda[t];
-    if (popAvant < 25 && delta < 0) delta *= 1.5;
-    if (popAvant > 75 && delta > 0) delta *= 1.25;
-    if (choice.grille) slotDeltas[t] = delta;
-    else player.pda[t] = Math.max(0.1, player.pda[t] + delta);
-  }
+  const calculatedAvant = getCalculatedPDAs().find(item => item.channel === player);
+  const pdaCibleAvant = calculatedAvant.pda[player.target];
+  const resolvedAudienceImpacts = applyDilemmaAudienceImpacts(dilemma, choice, popAvant);
+  const calculatedApresImpact = getCalculatedPDAs().find(item => item.channel === player);
+  const slotAudienceDeltas = resolvedAudienceImpacts.map(impact => {
+    if (impact.slot === 'global') return { ...impact, value: pdaCibleAvant === calculatedApresImpact.pda[player.target]
+      ? 0 : calculatedApresImpact.pda[player.target] - pdaCibleAvant };
+    return { ...impact, value: calculatedApresImpact.slots[impact.slot][player.target]
+      - calculatedAvant.slots[impact.slot][player.target] };
+  });
 
   strategicCompetitors();
 
@@ -4554,7 +4681,7 @@ function chooseDilemmaOption(choiceIndex) {
     player.contracts[slot]={id:'editorial-'+dilemma.id+'-'+choiceIndex, name:choice.grille.programme,
       annual, talent:'Équipe du programme', talentAnnual:0, power:0,
       target:player.target, end:gameState.season, source:'dilemma', slot,
-      audienceDeltas:slotDeltas,
+      audienceDeltas:{},
       editorial:programEditorialProfile({name:choice.grille.programme, channelType:player.type, slot})};
     player.coutTalentsSaison=Math.max(0,player.coutTalentsSaison-decisionQuote.replacedTalent);
     player.grilleOverrides[slot]=choice.grille.programme;
@@ -4601,7 +4728,8 @@ function chooseDilemmaOption(choiceIndex) {
       achats: decisionQuote.finance.purchase,
       commercial: choice.finance.commercial,
       revenusPub: revenusPubDelta,
-      popularite: player.popularite - popAvant
+      popularite: player.popularite - popAvant,
+      slots: slotAudienceDeltas
     }
   };
 
@@ -4742,6 +4870,7 @@ function goHome() {
 }
 
 function resetGame() {
+  try { localStorage.removeItem(SAVE_KEY); } catch (error) { console.warn('Reinitialisation locale indisponible.', error); }
   delete gameState.campaign;
   delete gameState.expiredPrograms;
   gameState.step = 1;
@@ -4776,7 +4905,8 @@ function resetGame() {
     resultatSaison: 0,
     rentabiliteGrille: 0,
     coutParPointPDA: 0,
-    coutTalentsSaison: 0
+    coutTalentsSaison: 0,
+    slotAudienceDeltas: {}
 };
   gameState.competitors = [];
   gameState.season = 1;
@@ -5035,6 +5165,7 @@ function goToStepAnimated(mutate) {
 }
 
 function render() {
+  persistGameState();
   if (gameState.step >= 5) refreshEconomy();
   const app = document.getElementById('app');
   window.scrollTo(0, 0);
@@ -5395,11 +5526,17 @@ function render() {
     if (phase === 'result') {
       const cq = gameState.lastConsequence;
       const d = cq.deltas;
+      const slotRows = (d.slots || []).map(impact => {
+        const meta = impact.slot === 'global' ? null : TIME_SLOTS.find(slot => slot.key === impact.slot);
+        return { icon: meta?.icon || '📺', label: impact.slot === 'global' ? 'PDA GLOBALE (directe)' : `PDA ${meta?.label || impact.slot}`,
+          val: impact.value, decimals: 1, suffix: ' pt', invert: false };
+      });
       const rows = [
+        ...slotRows,
         { icon: '🛒', label: 'Achat ponctuel', val: d.achats, decimals: 1, suffix: ' M€', invert: true },
         { icon: '🤝', label: 'Recette commerciale', val: d.commercial, decimals: 1, suffix: ' M€', invert: false },
         { icon: '💰', label: 'Trésorerie', val: d.tresorerie, decimals: 1, suffix: ' M€', invert: false },
-        { icon: '🎯', label: 'PDA Cible', val: d.pdaCible, decimals: 1, suffix: ' pts', invert: false },
+        { icon: '📊', label: 'PDA globale', val: d.pdaCible, decimals: 1, suffix: ' pt', invert: false },
         d.coutGrille > 0
           ? { icon: '📋', label: 'Coût additionnel', val: d.coutGrille, decimals: 1, suffix: ' M€', invert: true }
           : d.coutGrille < 0
@@ -5759,7 +5896,7 @@ function financeLabel(choice) {
 function ensureCampaign() {
   const p = gameState.player;
   p.commercialSaison ??= 0; p.achatsSaison ??= 0;
-  p.contracts ??= {}; p.decisionHistory ??= []; p.eventsSeen ??= [];
+  p.contracts ??= {}; p.decisionHistory ??= []; p.eventsSeen ??= []; p.slotAudienceDeltas ??= {};
   gameState.campaign ??= { deadline: 5, status: 'active', seed: 12345 };
 }
 function seededRandom() {
@@ -6256,6 +6393,6 @@ function bindCampaignPanel(app) {
   });
 }
 </script>
-<script>render();</script>
+<script>restoreGameState(); render();</script>
 </body>
 </html>
