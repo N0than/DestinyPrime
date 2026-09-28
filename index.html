@@ -4980,6 +4980,14 @@ function chooseDilemmaOption(choiceIndex) {
   if (choice.grille && !choice.careerAction) delete player.contracts[choice.grille.slot];
   const coutGrilleDelta = applyFinance(decisionQuote.finance,
     choice.careerAction === 'stop' ? dilemma.careerSlot : null);
+  // Les dilemmes de régie publicitaire (d_pub*) créditent l'indicateur Revenus pub plutôt
+  // que le compteur générique de recettes commerciales : on annule ici le crédit générique
+  // déjà appliqué par applyFinance pour le rediriger via revenusPubPrevisionnels ci-dessous.
+  const regieCommercial = dilemma.id.startsWith('d_pub') ? decisionQuote.finance.commercial : 0;
+  if (regieCommercial > 0) {
+    player.commercialSaison -= regieCommercial;
+    player.tresorerie -= regieCommercial;
+  }
   if (choice.careerAction) {
     applyCareerDilemmaChoice(dilemma, choice);
   } else if (choice.grille) {
@@ -5011,12 +5019,12 @@ function chooseDilemmaOption(choiceIndex) {
   // publicitaire. Seul l'écart avec l'estimation précédente est crédité/débité — la totalité
   // a déjà été créditée au lancement de la saison (creditInitialAdRevenue).
   const revenusPubAvant = player.revenusPubPrevisionnels;
-  player.revenusPubPrevisionnels = computeRevenusPub(pdaCibleApres, player.target, player.popularite, player.puissanceCommerciale);
+  player.revenusPubPrevisionnels = computeRevenusPub(pdaCibleApres, player.target, player.popularite, player.puissanceCommerciale) + regieCommercial;
   const revenusPubDelta = player.revenusPubPrevisionnels - revenusPubAvant;
   // Le flux net de trésorerie est bien la recette publicitaire moins la variation
   // de coût de grille : un surcoût (delta positif) réduit le solde, une économie
-  // (delta négatif) l'augmente.
-  const tresorerieDelta = revenusPubDelta - coutGrilleDelta - decisionQuote.finance.purchase + decisionQuote.finance.commercial;
+  // (delta négatif) l'augmente. La part régie est déjà comptée dans revenusPubDelta.
+  const tresorerieDelta = revenusPubDelta - coutGrilleDelta - decisionQuote.finance.purchase + (decisionQuote.finance.commercial - regieCommercial);
   player.tresorerie += revenusPubDelta;
 
   // Rentabilité grille et coût/PDA sont recalculés en temps réel à chaque dilemme,
@@ -5034,7 +5042,7 @@ function chooseDilemmaOption(choiceIndex) {
       pdaCible: pdaCibleApres - pdaCibleAvant,
       coutGrille: coutGrilleDelta,
       achats: decisionQuote.finance.purchase,
-      commercial: choice.finance.commercial,
+      commercial: choice.finance.commercial - regieCommercial,
       revenusPub: revenusPubDelta,
       popularite: player.popularite - popAvant,
       slots: slotAudienceDeltas,
