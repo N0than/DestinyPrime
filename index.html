@@ -4266,31 +4266,6 @@ let gameState = {
   competitorEvents: []
 };
 
-const SAVE_KEY = 'audience-masters-save-v3';
-
-function persistGameState() {
-  try {
-    localStorage.setItem(SAVE_KEY, JSON.stringify(gameState));
-  } catch (error) {
-    console.warn('Sauvegarde locale indisponible.', error);
-  }
-}
-
-function restoreGameState() {
-  try {
-    const saved = localStorage.getItem(SAVE_KEY);
-    if (!saved) return false;
-    const parsed = JSON.parse(saved);
-    if (!parsed?.player || !Number.isFinite(parsed.season)) return false;
-    gameState = parsed;
-    ensureCampaign();
-    return true;
-  } catch (error) {
-    console.warn('Sauvegarde locale illisible, une nouvelle partie sera utilisee.', error);
-    return false;
-  }
-}
-
 // Dilemmes universels (sans restriction de types) mais dont le thème ne concerne que le sport :
 // pour une chaîne Sport, seuls ceux-ci sont piochés parmi les dilemmes universels, en plus des
 // dilemmes réservés au type 'sport'. Les autres types de chaîne continuent de voir tous les
@@ -4958,7 +4933,6 @@ function goHome() {
 }
 
 function resetGame() {
-  try { localStorage.removeItem(SAVE_KEY); } catch (error) { console.warn('Reinitialisation locale indisponible.', error); }
   delete gameState.campaign;
   delete gameState.expiredPrograms;
   gameState.step = 1;
@@ -5254,7 +5228,6 @@ function goToStepAnimated(mutate) {
 }
 
 function render() {
-  persistGameState();
   if (gameState.step >= 5) refreshEconomy();
   const app = document.getElementById('app');
   window.scrollTo(0, 0);
@@ -6699,6 +6672,6 @@ function bindCampaignPanel(app) {
   });
 }
 </script>
-<script>restoreGameState(); render();</script>
+<script>render();</script>
 </body>
 </html>
