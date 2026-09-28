@@ -6549,14 +6549,15 @@ function renderProgramManager(slot) {
   const selectedTalent=talentOpts.find(o=>o.selected)||talentOpts[0];
   return `<section class="program-manager" aria-label="Modifier la programmation">
     ${c?`<div class="program-manager-contract-row">
-      <p class="program-manager-contract">${esc(c.name)} · ${esc(c.talent)} · ${nf1(c.annual)} M€/an · jusqu’à la saison ${c.end}.<br>
-      ${career.historic?'⭐ Franchise historique · ':''}${esc(career.status)} · ${career.seasonsCount} saison(s)</p>
       <div class="career-stats-badges">
+        <span class="pg-pda-badge pg-badge-bleu">${nf1(c.annual)} M€/an</span>
+        <span class="pg-pda-badge pg-badge-gris">Fin de contrat S${c.end}</span>
+        <span class="pg-pda-badge pg-badge-gris">${career.seasonsCount} saison(s)</span>
         <span class="pg-pda-badge pg-badge-gold">Notoriété ${Math.round(career.awareness)}/100</span>
         <span class="pg-pda-badge pg-badge-vert">Fidélité ${Math.round(career.loyalty)}/100</span>
         <span class="pg-pda-badge pg-badge-rouge">Usure ${Math.round(career.wear)}/100</span>
+        <span class="pg-pda-badge pg-badge-rouge program-manager-penalty" data-program-penalty aria-live="polite" hidden></span>
       </div>
-      <span class="pg-pda-badge pg-badge-rouge program-manager-penalty" data-program-penalty aria-live="polite" hidden></span>
     </div>`:''}
     ${editable?`
     <div class="program-manager-row" data-program-editor="${slot}">
