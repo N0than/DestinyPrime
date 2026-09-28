@@ -10,7 +10,7 @@ const assert=(v,m)=>{if(!v) throw Error(m)};
 globalThis.localStorage={d:{},setItem(k,v){this.d[k]=v},getItem(k){return this.d[k]||null},removeItem(k){delete this.d[k]}};
 const demos={j1524:10,a2549:10,s50:10,csp:10};
 const mk=(name,strategy='offensive')=>({name,type:'generaliste',target:'a2549',pda:{...demos},budget:50,contracts:{},slotAudienceDeltas:{},strategy,slotInvestments:{},strategyHistory:[]});
-function setup(){gameState.player=mk('Joueur');gameState.competitors=[mk('Off','offensive'),mk('Rent','rentable'),mk('Jeune','jeune'),mk('Prem','premium'),mk('Autre','rentable')];gameState.season=1;gameState.competitorEvents=[];gameState.pendingCareerDecision=null;gameState.campaign={deadline:5,status:'active',seed:1};}
+function setup(){gameState.player=mk('Joueur');gameState.competitors=[mk('Off','offensive'),mk('Rent','rentable'),mk('Jeune','jeune'),mk('Prem','premium'),mk('Autre','rentable')];gameState.season=1;gameState.competitorEvents=[];gameState.campaign={deadline:5,status:'active',seed:1};}
 setup();
 let base=getCalculatedPDAs().find(x=>x.channel===gameState.player);
 gameState.player.slotAudienceDeltas.access={a2549:4};
@@ -32,11 +32,11 @@ assert(c.seasonsCount===1&&c.awareness>18&&c.loyalty>12&&c.wear>0,'career evolve
 c.awareness=70;c.loyalty=60;c.wear=10;const freshPower=programCareerPower(gameState.player.contracts.access);c.wear=90;assert(programCareerPower(gameState.player.contracts.access)<freshPower,'wear reduces power');
 c.seasonsCount=4;c.awareness=80;c.loyalty=75;c.wear=45;evolveProgramCareers();
 assert(c.historic,'historic status');
-gameState.pendingCareerDecision={slot:'access',programId:'p-test'}; const oldWear=c.wear,oldCash=100;gameState.player.tresorerie=oldCash;gameState.player.achatsSaison=0;gameState.player.coutGrilleEngageSaison=10;render=()=>{};
-assert(applyCareerDecision('modify')&&c.wear<oldWear&&gameState.player.tresorerie<oldCash,'modify career');
-gameState.pendingCareerDecision={slot:'access',programId:'p-test'};const beforePotential=c.potential;applyCareerDecision('relaunch');assert(c.potential>beforePotential,'relaunch career');
-gameState.pendingCareerDecision={slot:'access',programId:'p-test'};applyCareerDecision('renew');assert(c.lastDecision==='renew','renew career');
-gameState.pendingCareerDecision={slot:'access',programId:'p-test'};applyCareerDecision('stop');assert(!gameState.player.contracts.access,'stop career');
+const renewal=createCareerRenewalDilemma();assert(renewal&&renewal.c.length===4,'dynamic renewal dilemma');gameState.player.eventsSeen=[];gameState.seenDilemmaIds=[];const queue=pickDilemmaQueue();assert(queue.at(-1).isCareerDilemma,'renewal is final season choice');
+const oldWear=c.wear;assert(applyCareerDilemmaChoice(renewal,renewal.c[1])&&c.wear<oldWear,'modify career');
+const beforePotential=c.potential;applyCareerDilemmaChoice(renewal,renewal.c[2]);assert(c.potential>beforePotential,'relaunch career');
+applyCareerDilemmaChoice(renewal,renewal.c[0]);assert(c.lastDecision==='renew','renew career');
+applyCareerDilemmaChoice(renewal,renewal.c[3]);assert(!gameState.player.contracts.access,'stop career');
 setup(); gameState.player.pda={j1524:80,a2549:80,s50:80,csp:80}; let seq=Array(30).fill(0);seededRandom=()=>seq.shift()??0;
 let events=strategicCompetitors();assert(events.some(e=>e.strategy==='offensive'),'offensive reacts');assert(gameState.competitors.find(x=>x.strategy==='jeune').slotInvestments[events.find(e=>e.strategy==='jeune')?.slot]?.targets.j1524>0,'young target');assert(gameState.competitors.find(x=>x.strategy==='premium').slotInvestments[events.find(e=>e.strategy==='premium')?.slot]?.targets.csp>0,'premium target');
 const offPower=events.find(e=>e.strategy==='offensive').power,rentPower=events.find(e=>e.strategy==='rentable').power;assert(offPower>rentPower,'offensive stronger than profitable');

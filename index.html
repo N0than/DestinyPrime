@@ -4263,8 +4263,7 @@ let gameState = {
   gameOverReason: null,
   seasonKickoffPending: false,
   seasonKickoffProposal: null,
-  competitorEvents: [],
-  pendingCareerDecision: null
+  competitorEvents: []
 };
 
 const SAVE_KEY = 'audience-masters-save-v3';
@@ -4325,6 +4324,11 @@ function pickDilemmaQueue() {
   ensureCampaign();
   const event = STORY_EVENTS.find(e=>e.eligible(gameState.player)&&!gameState.player.eventsSeen.includes(e.id));
   if(event) { queue[queue.length-1]=event; gameState.player.eventsSeen.push(event.id); }
+  // Le renouvellement est une décision éditoriale à part entière : lorsqu'un programme
+  // arrive à un moment clé, il remplace le dernier choix de la saison plutôt que
+  // d'interrompre le bilan une fois les comptes déjà arrêtés.
+  const careerDilemma = createCareerRenewalDilemma();
+  if (careerDilemma) queue[queue.length - 1] = careerDilemma;
   return queue;
 }
 
@@ -4722,7 +4726,7 @@ function chooseDilemmaOption(choiceIndex) {
 
   applyDilemmaEditoImpact(dilemma, choiceIndex, choice);
 
-  const decisionQuote = quoteDilemma(choice);
+  const decisionQuote = choice.careerAction ? quoteCareerDilemma(choice) : quoteDilemma(choice);
 
   const calculatedAvant = getCalculatedPDAs().find(item => item.channel === player);
   const pdaCibleAvant = calculatedAvant.pda[player.target];
@@ -4742,9 +4746,12 @@ function chooseDilemmaOption(choiceIndex) {
   // ou l'économie lié au choix affecte le capital de lancement.
   // Les flux sont explicites. Les économies respectent les contrats actifs ;
   // un remplacement inclut l'indemnité et retire l'ancien engagement annuel.
-  if (choice.grille) delete player.contracts[choice.grille.slot];
-  const coutGrilleDelta = applyFinance(decisionQuote.finance);
-  if (choice.grille) {
+  if (choice.grille && !choice.careerAction) delete player.contracts[choice.grille.slot];
+  const coutGrilleDelta = applyFinance(decisionQuote.finance,
+    choice.careerAction === 'stop' ? dilemma.careerSlot : null);
+  if (choice.careerAction) {
+    applyCareerDilemmaChoice(dilemma, choice);
+  } else if (choice.grille) {
     const slot=choice.grille.slot;
     const annual=Math.max(0,choice.finance.recurring);
     player.contracts[slot]={id:'editorial-'+dilemma.id+'-'+choiceIndex, name:choice.grille.programme,
@@ -5000,7 +5007,6 @@ function resetGame() {
   gameState.seasonKickoffPending = false;
   gameState.seasonKickoffProposal = null;
   gameState.competitorEvents = [];
-  gameState.pendingCareerDecision = null;
   render();
 }
 
@@ -6000,7 +6006,6 @@ function ensureCampaign() {
   gameState.competitors ??= [];
   gameState.competitors.forEach(migrateCompetitorStrategy);
   gameState.competitorEvents ??= [];
-  gameState.pendingCareerDecision ??= null;
   gameState.campaign ??= { deadline: 5, status: 'active', seed: 12345 };
 }
 function seededRandom() {
@@ -6071,7 +6076,6 @@ function evolveProgramCareers() {
       career.historicRewarded = true;
     }
   }
-  gameState.pendingCareerDecision = selectCareerDecision();
 }
 
 function selectCareerDecision() {
@@ -6084,30 +6088,50 @@ function selectCareerDecision() {
   return candidates[0] ? { slot: candidates[0].slot, programId: candidates[0].contract.id } : null;
 }
 
-function applyCareerDecision(action) {
-  const pending = gameState.pendingCareerDecision;
+function createCareerRenewalDilemma() {
+  const pending = selectCareerDecision();
+  if (!pending) return null;
   const p = gameState.player;
   const contract = pending && p.contracts?.[pending.slot];
-  if (!contract || contract.id !== pending.programId || !['renew','modify','relaunch','stop'].includes(action)) return false;
+  if (!contract || contract.id !== pending.programId) return null;
   const c = migrateProgramCareer(contract, pending.slot);
+  const slotLabel = TIME_SLOTS.find(s=>s.key===pending.slot)?.label || pending.slot;
+  const zeroPda = { j1524:0, a2549:0, s50:0, csp:0 };
+  return {
+    id:`career-${gameState.season}-${pending.slot}-${contract.id}`,
+    titre:`Quel avenir pour « ${contract.name} » ?`,
+    desc:`Dernier arbitrage de la saison : le programme de ${slotLabel} est en phase de ${c.status} après ${c.seasonsCount} saison(s). Notoriété ${Math.round(c.awareness)}, fidélité ${Math.round(c.loyalty)}, usure ${Math.round(c.wear)}.`,
+    isCareerDilemma:true, careerSlot:pending.slot, programId:contract.id,
+    c:[
+      { l:'Renouveler à l’identique', careerAction:'renew', pda:{...zeroPda}, audienceImpact:{slot:pending.slot,value:0}, pop:0,
+        finance:{recurring:0,purchase:0,commercial:0,category:'N'}, r:'Le programme conserve ses repères et son public, mais son usure continue.' },
+      { l:`Modifier la formule (${nf1(contract.annual*GAME_BALANCE.programCareer.modifyCostRate)} M€)`, careerAction:'modify', pda:{...zeroPda}, audienceImpact:{slot:pending.slot,value:0.2}, pop:1,
+        finance:{recurring:0,purchase:contract.annual*GAME_BALANCE.programCareer.modifyCostRate,commercial:0,category:'P'}, r:'La formule évolue sans rompre avec les habitudes du public.' },
+      { l:`Relancer totalement (${nf1(contract.annual*GAME_BALANCE.programCareer.relaunchCostRate)} M€)`, careerAction:'relaunch', pda:{...zeroPda}, audienceImpact:{slot:pending.slot,value:0.5}, pop:1,
+        finance:{recurring:0,purchase:contract.annual*GAME_BALANCE.programCareer.relaunchCostRate,commercial:0,category:'P'}, r:'Le programme repart avec une nouvelle ambition, au prix d’une partie de sa fidélité.' },
+      { l:'Arrêter le programme', careerAction:'stop', pda:{...zeroPda}, audienceImpact:{slot:pending.slot,value:c.historic||c.loyalty>=75?-0.4:-0.15}, pop:c.historic||c.loyalty>=75?-3:0,
+        finance:{recurring:-contract.annual,purchase:0,commercial:0,category:'E'}, r:'La case est libérée pour préparer un nouveau programme.' }
+    ]
+  };
+}
+
+function applyCareerDilemmaChoice(dilemma, choice) {
+  const p = gameState.player;
+  const contract = p.contracts?.[dilemma.careerSlot];
+  if (!contract || contract.id !== dilemma.programId) return false;
+  const c = migrateProgramCareer(contract, dilemma.careerSlot);
+  const action = choice.careerAction;
   if (action === 'stop') {
-    if (c.historic || c.loyalty >= 75) p.popularite = Math.max(0, p.popularite - 3);
-    p.coutGrilleEngageSaison = Math.max(0, p.coutGrilleEngageSaison - contract.annual);
-    delete p.contracts[pending.slot];
-    if (p.grilleOverrides) delete p.grilleOverrides[pending.slot];
+    delete p.contracts[dilemma.careerSlot];
+    if (p.grilleOverrides) delete p.grilleOverrides[dilemma.careerSlot];
   } else {
-    const rate = action === 'relaunch' ? GAME_BALANCE.programCareer.relaunchCostRate
-      : action === 'modify' ? GAME_BALANCE.programCareer.modifyCostRate : 0;
-    const cost = contract.annual * rate;
-    p.tresorerie -= cost; p.achatsSaison += cost;
     contract.end = Math.max(contract.end, gameState.season) + 1;
     if (action === 'renew') c.wear = Math.min(100, c.wear + 4);
     if (action === 'modify') { c.wear = Math.max(0, c.wear - 16); c.potential += 0.25; c.loyalty = Math.max(0, c.loyalty - 3); }
     if (action === 'relaunch') { c.wear = Math.max(0, c.wear - 38); c.potential += 0.65; c.loyalty = Math.max(0, c.loyalty - 10); c.awareness = Math.max(0, c.awareness - 4); }
     c.lastDecision = action;
   }
-  gameState.pendingCareerDecision = null;
-  refreshEconomy(); render(); return true;
+  return true;
 }
 
 // Métadonnées de simulation : les titres génériques ont une origine non précisée.
@@ -6232,6 +6256,10 @@ function quoteDilemma(choice) {
   const finance={...choice.finance, recurring:choice.finance.recurring-(previous?.annual||0),
     purchase:choice.finance.purchase+termination};
   return {...quoteFinance(finance,choice.grille?.slot),finance,termination,replacedTalent:previous?.talentAnnual||0};
+}
+function quoteCareerDilemma(choice) {
+  const slot = gameState.dilemmaQueue[gameState.currentDilemmaIndex]?.careerSlot;
+  return {...quoteFinance(choice.finance, choice.careerAction==='stop'?slot:null), finance:{...choice.finance}, termination:0, replacedTalent:0};
 }
 function quoteProgram(slot,programId,talentId) {
   const p=gameState.player;
@@ -6365,9 +6393,9 @@ function nextSeasonCommitment() {
   const annual=Math.max(0,p.coutGrilleEngageSaison-expired);
   return {annual,expired,cash:p.tresorerie-annual};
 }
-function applyFinance(f) {
+function applyFinance(f, excludedSlot=null) {
   ensureCampaign(); const p=gameState.player;
-  const quote=quoteFinance(f);
+  const quote=quoteFinance(f, excludedSlot);
   p.coutGrilleEngageSaison=quote.grille;
   const recurring=quote.recurring;
   p.achatsSaison+=f.purchase; p.commercialSaison+=f.commercial;
