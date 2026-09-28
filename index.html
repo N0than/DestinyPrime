@@ -214,7 +214,7 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .eh-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(22,19,14,0.22); border: none; padding: 0; cursor: pointer; }
 .eh-dot.active { background: var(--ink); }
 
-.pg-slide { display: flex; flex-direction: column; height: 100%; }
+.pg-slide { display: flex; flex-direction: column; height: 100%; overflow: hidden; }
 .pg-head { flex-shrink: 0; }
 .pg-rows { flex: 1; display: flex; flex-direction: column; min-height: 0; }
 .pg-rows .pg-row { flex: 1; }
@@ -5731,6 +5731,20 @@ function render() {
       isPlayer: item.channel === gameState.player
     })).sort((a, b) => b.pda - a.pda);
     const compliance = gameState.player.lastArcomResult || computeArcomCompliance();
+    const careerPending = gameState.pendingCareerDecision;
+    const careerContract = careerPending ? gameState.player.contracts?.[careerPending.slot] : null;
+    const career = careerContract ? migrateProgramCareer(careerContract, careerPending.slot) : null;
+    const careerDecisionHtml = careerContract ? `<div class="card">
+      <div class="kicker">AVENIR D’UN PROGRAMME</div>
+      <h3>${career.historic?'⭐ ':''}${esc(careerContract.name)} — ${esc(TIME_SLOTS.find(s=>s.key===careerPending.slot)?.label)}</h3>
+      <p>${esc(career.status)} · ${career.seasonsCount} saison(s) · Notoriété <b>${Math.round(career.awareness)}</b> · Fidélité <b>${Math.round(career.loyalty)}</b> · Usure <b>${Math.round(career.wear)}</b></p>
+      <div class="choices">
+        <button class="choice" data-career-action="renew"><span class="cl">Renouveler</span><span class="choice-caption">Conserver l’acquis, l’usure continue.</span></button>
+        <button class="choice" data-career-action="modify"><span class="cl">Modifier · ${nf1(careerContract.annual*GAME_BALANCE.programCareer.modifyCostRate)} M€</span><span class="choice-caption">Réduire modérément l’usure.</span></button>
+        <button class="choice" data-career-action="relaunch"><span class="cl">Relancer · ${nf1(careerContract.annual*GAME_BALANCE.programCareer.relaunchCostRate)} M€</span><span class="choice-caption">Nouvelle formule, potentiel accru mais fidélité à reconquérir.</span></button>
+        <button class="choice" data-career-action="stop"><span class="cl">Arrêter</span><span class="choice-caption">Libérer la case${career.historic?' avec un risque d’image':''}.</span></button>
+      </div>
+    </div>` : '';
 
     app.innerHTML = `
       ${renderMasthead("Fin de saison", "Audience Masters")}
@@ -5768,12 +5782,13 @@ function render() {
       </div>
 
       ${renderCampaignPanel()}
+      ${careerDecisionHtml}
       <div class="card">
         <div class="kicker">ENGAGEMENTS DE LA SAISON SUIVANTE</div>
         <p>Grille à payer : <b>${nf1(nextSeasonCommitment().annual)} M€</b> · contrats arrivant à échéance : ${nf1(nextSeasonCommitment().expired)} M€ / an.</p>
         <p>Trésorerie après paiement : <b>${nf1(nextSeasonCommitment().cash)} M€</b>, avant nouvelles recettes et décisions.${nextSeasonCommitment().cash<TRESORERIE_CRITIQUE?' Ce paiement ferait franchir le seuil de faillite.':''}</p>
       </div>
-      <button class="btn block" id="btn-next-season">${gameState.renewalDue ? 'Voir le renouvellement de convention →' : `Lancer la Saison ${gameState.season + 1} →`}</button>
+      <button class="btn block" id="btn-next-season" ${careerContract?'disabled title="Décidez d’abord de l’avenir du programme"':''}>${careerContract ? 'Choisissez l’avenir du programme ci-dessus' : gameState.renewalDue ? 'Voir le renouvellement de convention →' : `Lancer la Saison ${gameState.season + 1} →`}</button>
     `;
 
     document.getElementById('btn-next-season').onclick = () => {
@@ -5784,6 +5799,9 @@ function render() {
         startNewSeason();
       }
     };
+    app.querySelectorAll('[data-career-action]').forEach(button => {
+      button.onclick = () => applyCareerDecision(button.dataset.careerAction);
+    });
     app.querySelector('.masthead').onclick = goHome;
     return;
   }
