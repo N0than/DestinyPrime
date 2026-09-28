@@ -725,7 +725,7 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .program-manager label { display:block; }
 .program-manager label.program-manager-field { display:flex; flex-direction:column; gap:2px; margin:0; }
 .program-manager-contract, .program-manager-note { font-size:10px; line-height:1.35; color:var(--gris); margin-bottom:5px; }
-.program-manager-contract-row { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:5px; }
+.program-manager-contract-row { display:flex; flex-direction:column; gap:6px; margin-bottom:5px; }
 .program-manager-contract-row .program-manager-contract { flex:1; min-width:0; margin:0; overflow-wrap:anywhere; }
 .program-manager-penalty { flex:0 1 auto; max-width:50%; box-sizing:border-box; white-space:normal; text-align:right; }
 .program-manager-penalty[hidden] { display:none; }
@@ -6551,12 +6551,14 @@ function renderProgramManager(slot) {
     ${c?`<div class="program-manager-contract-row">
       <div class="career-stats-badges">
         <span class="pg-pda-badge pg-badge-bleu">${nf1(c.annual)} M€/an</span>
-        <span class="pg-pda-badge pg-badge-gris">Fin de contrat S${c.end}</span>
+        <span class="pg-pda-badge pg-badge-gris">Fin de contrat en S${c.end}</span>
         <span class="pg-pda-badge pg-badge-gris">${career.seasonsCount} saison(s)</span>
+        <span class="pg-pda-badge pg-badge-rouge program-manager-penalty" data-program-penalty aria-live="polite" hidden></span>
+      </div>
+      <div class="career-stats-badges">
         <span class="pg-pda-badge pg-badge-gold">Notoriété ${Math.round(career.awareness)}/100</span>
         <span class="pg-pda-badge pg-badge-vert">Fidélité ${Math.round(career.loyalty)}/100</span>
         <span class="pg-pda-badge pg-badge-rouge">Usure ${Math.round(career.wear)}/100</span>
-        <span class="pg-pda-badge pg-badge-rouge program-manager-penalty" data-program-penalty aria-live="polite" hidden></span>
       </div>
     </div>`:''}
     ${editable?`
