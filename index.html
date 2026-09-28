@@ -269,6 +269,8 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .pg-badge-rouge { color: var(--rouge); background: rgba(225,29,72,0.12); }
 .pg-badge-gris { color: var(--gris); background: rgba(107,114,128,0.14); }
 
+.career-stats-badges { display: flex; flex-wrap: wrap; gap: 6px; }
+
 .pg-chevron { flex-shrink: 0; width: 14px; height: 14px; color: var(--gris); transition: transform 0.25s cubic-bezier(0.16,1,0.3,1); }
 .pg-slot-editor[open] > summary .pg-chevron { color: var(--ink); transform: rotate(180deg); }
 
@@ -5667,6 +5669,12 @@ function render() {
           </div>
           <div class="dc-body">
             <h2>${dilemma.titre}</h2>
+            ${dilemma.isCareerDilemma ? `
+            <div class="career-stats-badges">
+              <span class="pg-pda-badge pg-badge-gold">Notoriété ${dilemma.careerStats.awareness}</span>
+              <span class="pg-pda-badge pg-badge-vert">Fidélité ${dilemma.careerStats.loyalty}</span>
+              <span class="pg-pda-badge pg-badge-rouge">Usure ${dilemma.careerStats.wear}</span>
+            </div>` : ''}
             <div class="dc-divider"></div>
             <p>${dilemma.desc}</p>
           </div>
@@ -6080,8 +6088,9 @@ function createCareerRenewalDilemma(pending) {
   return {
     id:`career-${gameState.season}-${pending.slot}-${contract.id}`,
     titre:`Quel avenir pour « ${contract.name} » ?`,
-    desc:`Dernier arbitrage de la saison : le programme du créneau ${slotDaypart} est en phase de ${c.status} après ${c.seasonsCount} saison(s). Notoriété ${Math.round(c.awareness)}, fidélité ${Math.round(c.loyalty)}, usure ${Math.round(c.wear)}.`,
+    desc:`Dernier arbitrage de la saison : le programme du créneau ${slotDaypart} est en phase de ${c.status} après ${c.seasonsCount} saison(s).`,
     isCareerDilemma:true, careerSlot:pending.slot, programId:contract.id,
+    careerStats:{ awareness:Math.round(c.awareness), loyalty:Math.round(c.loyalty), wear:Math.round(c.wear) },
     c:[
       { l:'Renouveler à l’identique', careerAction:'renew', pda:{...zeroPda}, audienceImpact:{slot:pending.slot,value:0}, pop:0,
         finance:{recurring:0,purchase:0,commercial:0,category:'N'}, r:'Le programme conserve ses repères et son public, mais son usure continue.' },
