@@ -6203,13 +6203,6 @@ function gridCreationInvestment(player) {
   return {creation:Math.min(total,creation),total};
 }
 
-function programAdvice(program, player, slot) {
-  if(program.target!==player.target) return 'Public différent de votre cible';
-  if(program.editorial.creationShare>0) return 'Soutient la création française';
-  const identity={cinema:'fiction',culture:'culture',jeunesse:'jeunesse',sport:'sport',info:'info'}[player.type];
-  if(identity===program.editorial.genre) return 'Renforce votre identité';
-  return 'Adapté au '+TIME_SLOTS.find(s=>s.key===slot).label.toLowerCase();
-}
 function availablePrograms(type, slot) {
   return PROGRAM_CATALOG.filter(program => program.channelType === type && program.slot === slot);
 }
@@ -6571,7 +6564,6 @@ function renderProgramManager(slot) {
           <svg class="pg-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
         </button>
       </label>
-      <p class="program-manager-note" data-program-advice aria-live="polite"></p>
       <div class="program-manager-combo">
         <label class="program-manager-field talent">
           <span class="program-manager-field-label">Production</span>
@@ -6663,8 +6655,6 @@ function bindCampaignPanel(app) {
       const q=quoteProgram(slot,document.getElementById('program-'+slot).value,document.getElementById('talent-'+slot).value);
       const confirm=editor.querySelector('[data-program-confirm]');
       confirm.disabled=!q?.allowed;
-      const advice=editor.querySelector('[data-program-advice]');
-      if(advice) advice.textContent=q?programAdvice(q.program,gameState.player,slot):'';
       const penalty=manager.querySelector('[data-program-penalty]');
       const replacing=!!q && !q.unchanged && !!gameState.player.contracts[slot];
       if(penalty) {
