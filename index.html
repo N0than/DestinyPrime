@@ -5669,14 +5669,14 @@ function render() {
           </div>
           <div class="dc-body">
             <h2>${dilemma.titre}</h2>
-            ${dilemma.isCareerDilemma ? `
-            <div class="career-stats-badges">
-              <span class="pg-pda-badge pg-badge-gold">Notoriété ${dilemma.careerStats.awareness}</span>
-              <span class="pg-pda-badge pg-badge-vert">Fidélité ${dilemma.careerStats.loyalty}</span>
-              <span class="pg-pda-badge pg-badge-rouge">Usure ${dilemma.careerStats.wear}</span>
-            </div>` : ''}
             <div class="dc-divider"></div>
             <p>${dilemma.desc}</p>
+            ${dilemma.isCareerDilemma ? `
+            <div class="career-stats-badges">
+              <span class="pg-pda-badge pg-badge-gold">Notoriété ${dilemma.careerStats.awareness}/100</span>
+              <span class="pg-pda-badge pg-badge-vert">Fidélité ${dilemma.careerStats.loyalty}/100</span>
+              <span class="pg-pda-badge pg-badge-rouge">Usure ${dilemma.careerStats.wear}/100</span>
+            </div>` : ''}
           </div>
         </div>
         <div id="choice-zone">${zoneHtml}</div>
