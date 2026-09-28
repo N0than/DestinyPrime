@@ -6550,7 +6550,6 @@ function renderProgramManager(slot) {
   const editable=gameState.step===6&&gameState.dilemmaPhase==='choosing'&&gameState.currentDilemmaIndex===0;
   const c=p.contracts[slot];
   const career=c ? migrateProgramCareer(c,slot) : null;
-  const breakdown=getSlotBreakdown(p,slot,p.target);
   const programOpts=availablePrograms(p.type,slot).map(x=>({
     id:x.id,
     label:`${x.name} — ${nf1(x.annual)} M€/an + ${nf1(x.rights)} M€ droits · potentiel ${nf1(x.power)} · ${x.years} saison(s)`,
@@ -6562,8 +6561,7 @@ function renderProgramManager(slot) {
   return `<section class="program-manager" aria-label="Modifier la programmation">
     ${c?`<div class="program-manager-contract-row">
       <p class="program-manager-contract">${esc(c.name)} · ${esc(c.talent)} · ${nf1(c.annual)} M€/an · jusqu’à la saison ${c.end}.<br>
-      ${career.historic?'⭐ Franchise historique · ':''}${esc(career.status)} · ${career.seasonsCount} saison(s) · Notoriété ${Math.round(career.awareness)} · Fidélité ${Math.round(career.loyalty)} · Usure ${Math.round(career.wear)}<br>
-      ${breakdown.leadIn >= 0 ? '🔥 Effet locomotive' : '⚠️ Lead-in faible'} : ${fmtDelta(breakdown.leadIn,1,' pt')} · PDA attendue ${nf1(breakdown.expected)} % → finale ${nf1(breakdown.final)} %</p>
+      ${career.historic?'⭐ Franchise historique · ':''}${esc(career.status)} · ${career.seasonsCount} saison(s) · Notoriété ${Math.round(career.awareness)} · Fidélité ${Math.round(career.loyalty)} · Usure ${Math.round(career.wear)}</p>
       <span class="pg-pda-badge pg-badge-rouge program-manager-penalty" data-program-penalty aria-live="polite" hidden></span>
     </div>`:''}
     ${editable?`
