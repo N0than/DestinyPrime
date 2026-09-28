@@ -4326,9 +4326,16 @@ function pickDilemmaQueue() {
   if(event) { queue[queue.length-1]=event; gameState.player.eventsSeen.push(event.id); }
   // Le renouvellement est une décision éditoriale à part entière : lorsqu'un programme
   // arrive à un moment clé, il remplace le dernier choix de la saison plutôt que
-  // d'interrompre le bilan une fois les comptes déjà arrêtés.
-  const careerDilemma = createCareerRenewalDilemma();
-  if (careerDilemma) queue[queue.length - 1] = careerDilemma;
+  // d'interrompre le bilan une fois les comptes déjà arrêtés. Si plusieurs programmes
+  // sont à renouveler en même temps, leurs dilemmes s'enchaînent tous en fin de saison
+  // plutôt que de n'en traiter qu'un seul et reporter les autres.
+  const pendingRenewals = selectCareerDecisions();
+  pendingRenewals.forEach((pending, i) => {
+    const careerDilemma = createCareerRenewalDilemma(pending);
+    if (!careerDilemma) return;
+    if (i === 0) queue[queue.length - 1] = careerDilemma;
+    else queue.push(careerDilemma);
+  });
   return queue;
 }
 
@@ -6078,18 +6085,17 @@ function evolveProgramCareers() {
   }
 }
 
-function selectCareerDecision() {
+function selectCareerDecisions() {
   const candidates = Object.entries(gameState.player.contracts || {}).map(([slot, contract]) => {
     const c = migrateProgramCareer(contract, slot);
     const urgency = (contract.end <= gameState.season ? 40 : 0) + c.wear + (c.historic ? 20 : 0) + c.seasonsCount * 3;
     return { slot, contract, urgency };
   }).filter(item => item.contract.end <= gameState.season || item.contract.career.wear >= 40 || item.contract.career.historic);
   candidates.sort((a,b) => b.urgency - a.urgency);
-  return candidates[0] ? { slot: candidates[0].slot, programId: candidates[0].contract.id } : null;
+  return candidates.map(item => ({ slot: item.slot, programId: item.contract.id }));
 }
 
-function createCareerRenewalDilemma() {
-  const pending = selectCareerDecision();
+function createCareerRenewalDilemma(pending) {
   if (!pending) return null;
   const p = gameState.player;
   const contract = pending && p.contracts?.[pending.slot];
