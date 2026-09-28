@@ -941,7 +941,12 @@ function renderProgramGrid(type, pdaCible, overrides) {
   const calculated = getCalculatedPDAs();
 
   const rows = TIME_SLOTS.map(slot => {
-    const slotValue = calculated.find(c => c.channel === gameState.player).slots[slot.key][targetKey];
+    const playerCalculation = calculated.find(c => c.channel === gameState.player);
+    const slotValue = playerCalculation.slots[slot.key][targetKey];
+    const leadIn = playerCalculation.leadIns[slot.key][targetKey] || 0;
+    const career = gameState.player.contracts?.[slot.key]?.career;
+    const competitorPressure = gameState.competitors.some(c => c.slotInvestments?.[slot.key]?.expires >= gameState.season);
+    const indicators = `${leadIn > 0.05 ? '🔥' : leadIn < -0.05 ? '↘️' : ''}${career?.wear >= 50 ? '⚠️' : ''}${competitorPressure ? '⚔️' : ''}${career?.historic ? '⭐' : ''}`;
     const competitorValues = calculated
       .filter(c => c.channel !== gameState.player)
       .map(c => c.slots[slot.key][targetKey]);
@@ -955,7 +960,7 @@ function renderProgramGrid(type, pdaCible, overrides) {
       <summary class="pg-row${isKeySlot ? ' pg-row-key' : ''}" aria-label="Modifier le créneau ${slot.label}">
         <span class="pg-time-pill">${slot.range}</span>
         <span class="pg-info">
-          <span class="pg-info-title">${slot.label}${isKeySlot ? '<span class="pg-key-tag">Clé</span>' : ''}</span>
+          <span class="pg-info-title">${slot.label}${isKeySlot ? '<span class="pg-key-tag">Clé</span>' : ''}${indicators ? ` <span title="Locomotive, usure, concurrence ou franchise">${indicators}</span>` : ''}</span>
           <span class="pg-info-program${isUpdated ? ' pg-program-updated' : ''}">${esc(programme)}${isUpdated ? ' <span class="pg-updated-badge" title="Programme modifié par vos choix éditoriaux">🆕</span>' : ''}</span>
         </span>
         <span class="pg-rank${isLeaderSlot ? ' pg-rank-leader' : ''}"${isLeaderSlot ? ' title="Leader sur ce créneau"' : ''}>#${rank}</span>
@@ -1281,6 +1286,30 @@ const SLOT_HOURS = { matin: 6, apresmidi: 6, access: 3, prime: 2, nuit: 7 };
 // En les convertissant en points de case, ce facteur conserve des effets visibles sans
 // permettre a un seul choix de bouleverser artificiellement toute l'audience nationale.
 const DILEMMA_SLOT_IMPACT_SCALE = 0.15;
+const GAME_BALANCE = {
+  leadIn: {
+    transitions: { matin_apresmidi: 0.05, apresmidi_access: 0.08, access_prime: 0.15, prime_nuit: 0.12 },
+    maxBonus: 0.5
+  },
+  programCareer: {
+    awarenessGrowth: 7, loyaltyGrowth: 5, wearGrowth: 8, wearPenalty: 0.018,
+    awarenessPower: 0.006, loyaltyPower: 0.004, cultSeasons: 4, cultAwareness: 75, cultLoyalty: 68,
+    longevityByGenre: { fiction: 1.1, culture: 1.25, jeunesse: 0.9, sport: 1.15, info: 1.1, diverti: 0.85 },
+    modifyCostRate: 0.25, relaunchCostRate: 0.65
+  },
+  competitors: {
+    reactionThreshold: 0.35, maxPressurePower: 1.4, eventDuration: 1,
+    profiles: {
+      offensive: { label: 'Offensive', riskTolerance: 0.85, budgetAggressiveness: 0.90, eventPreference: 0.90, targetPriority: 'a2549', reactionStrength: 0.80 },
+      rentable: { label: 'Rentable', riskTolerance: 0.25, budgetAggressiveness: 0.30, eventPreference: 0.20, targetPriority: 's50', reactionStrength: 0.30 },
+      jeune: { label: 'Jeune', riskTolerance: 0.70, budgetAggressiveness: 0.65, eventPreference: 0.70, targetPriority: 'j1524', reactionStrength: 0.70 },
+      premium: { label: 'Premium', riskTolerance: 0.60, budgetAggressiveness: 0.75, eventPreference: 0.75, targetPriority: 'csp', reactionStrength: 0.65 }
+    }
+  }
+};
+const LEAD_IN_TRANSITIONS = [
+  ['matin', 'apresmidi'], ['apresmidi', 'access'], ['access', 'prime'], ['prime', 'nuit']
+];
 
 const PROGRAM_GRID = {
   generaliste: {
@@ -4233,7 +4262,9 @@ let gameState = {
   renewalDue: false,
   gameOverReason: null,
   seasonKickoffPending: false,
-  seasonKickoffProposal: null
+  seasonKickoffProposal: null,
+  competitorEvents: [],
+  pendingCareerDecision: null
 };
 
 const SAVE_KEY = 'audience-masters-save-v3';
@@ -4303,6 +4334,7 @@ function initCompetitors() {
   const types = Object.keys(CHANNEL_TYPES);
   const targets = Object.keys(TARGET_STRATEGIES);
 
+  const profileKeys = Object.keys(GAME_BALANCE.competitors.profiles);
   gameState.competitors = names.map((name, i) => {
     const cType = types[i % types.length];
     let cTarget = (i < 2) ? gameState.player.target : targets[(i + 1) % targets.length];
@@ -4313,7 +4345,10 @@ function initCompetitors() {
       type: cType,
       target: cTarget,
       budget: CHANNEL_TYPES[cType].baseBudget,
-      pda: basePda
+      pda: basePda,
+      strategy: profileKeys[i % profileKeys.length],
+      slotInvestments: {},
+      strategyHistory: []
     };
   });
 }
@@ -4372,24 +4407,43 @@ function getAllChannels() {
 function getCalculatedPDAs() {
   const channels = getAllChannels();
   const demos = ['j1524', 'a2549', 's50', 'csp'];
-  const results = channels.map(channel => ({channel, name:channel.name, pda:{}, slots:{}, globalPda:0}));
+  const results = channels.map(channel => ({channel, name:channel.name, pda:{}, slots:{}, expectedSlots:{}, intrinsicSlots:{}, leadIns:{}, globalPda:0}));
   for (const {key:slot} of TIME_SLOTS) {
-    results.forEach(r => { r.slots[slot] = {}; });
+    results.forEach(r => { r.slots[slot] = {}; r.expectedSlots[slot] = {}; r.intrinsicSlots[slot] = {}; r.leadIns[slot] = {}; });
     demos.forEach(target => {
       const powers = channels.map(c => {
         const contract = activeContract(c, slot);
         const boost = contract?.audienceDeltas
           ? (contract.audienceDeltas[target] || 0)
           : contract ? contract.power * (contract.target === target ? 1 : 0.2) : 0;
-        return Math.max(0.1, c.pda[target] * SLOT_AFFINITY[c.type][slot] + boost);
+        const careerBoost = contract ? programCareerPower(contract) * (contract.target === target ? 1 : 0.25) : 0;
+        const investment = c.slotInvestments?.[slot];
+        const competitorBoost = investment && investment.expires >= gameState.season ? (investment.targets?.[target] || 0) : 0;
+        return Math.max(0.1, c.pda[target] * SLOT_AFFINITY[c.type][slot] + boost + careerBoost + competitorBoost);
       });
       const total = powers.reduce((sum,v) => sum+v,0);
       results.forEach((r,i) => {
         const persistedImpact = r.channel.slotAudienceDeltas?.[slot]?.[target] || 0;
-        r.slots[slot][target] = Math.max(0.1, Math.min(99.9, powers[i]/total*100 + persistedImpact));
+        const expected = powers[i]/total*100;
+        r.expectedSlots[slot][target] = expected;
+        r.intrinsicSlots[slot][target] = Math.max(0.1, Math.min(99.9, expected + persistedImpact));
       });
     });
   }
+  // Une seule passe chronologique. Le bonus reçu n'entre jamais dans le calcul transmis,
+  // qui repose exclusivement sur intrinsicSlots : aucune boucle ni cascade amplifiée.
+  for (const [source, destination] of LEAD_IN_TRANSITIONS) {
+    const coefficient = GAME_BALANCE.leadIn.transitions[`${source}_${destination}`];
+    results.forEach(r => demos.forEach(target => {
+      const gap = r.intrinsicSlots[source][target] - r.expectedSlots[source][target];
+      r.leadIns[destination][target] = Math.max(-GAME_BALANCE.leadIn.maxBonus,
+        Math.min(GAME_BALANCE.leadIn.maxBonus, gap * coefficient));
+    }));
+  }
+  results.forEach(r => TIME_SLOTS.forEach(({key}) => demos.forEach(target => {
+    r.slots[key][target] = Math.max(0.1, Math.min(99.9,
+      r.intrinsicSlots[key][target] + (r.leadIns[key][target] || 0)));
+  })));
   results.forEach(r => {
     demos.forEach(target => {
       r.pda[target] = TIME_SLOTS.reduce((sum,{key}) => sum+r.slots[key][target]*SLOT_AUDIENCE_WEIGHTS[key],0);
@@ -4397,6 +4451,21 @@ function getCalculatedPDAs() {
     r.globalPda = demos.reduce((sum,d) => sum+r.pda[d],0)/demos.length;
   });
   return results;
+}
+
+function programCareerPower(contract) {
+  if (!contract?.career) return 0;
+  const c = contract.career;
+  const recognition = c.awareness * GAME_BALANCE.programCareer.awarenessPower
+    + c.loyalty * GAME_BALANCE.programCareer.loyaltyPower;
+  const wear = c.wear * GAME_BALANCE.programCareer.wearPenalty;
+  return Math.max(-1.5, recognition - wear + (c.potential - c.basePotential));
+}
+
+function getSlotBreakdown(channel, slot, target) {
+  const row = getCalculatedPDAs().find(item => item.channel === channel);
+  return { expected: row.expectedSlots[slot][target], intrinsic: row.intrinsicSlots[slot][target],
+    leadIn: row.leadIns[slot][target] || 0, final: row.slots[slot][target] };
 }
 
 function normalizeAudienceText(value) {
@@ -4666,7 +4735,7 @@ function chooseDilemmaOption(choiceIndex) {
       - calculatedAvant.slots[impact.slot][player.target] };
   });
 
-  strategicCompetitors();
+  const competitorReactions = strategicCompetitors();
 
   // À partir de la saison 2, la grille est provisionnée à l'ouverture. Les choix
   // ajustent ensuite immédiatement la trésorerie ; en saison 1, seul le surcoût
@@ -4682,6 +4751,7 @@ function chooseDilemmaOption(choiceIndex) {
       annual, talent:'Équipe du programme', talentAnnual:0, power:0,
       target:player.target, end:gameState.season, source:'dilemma', slot,
       audienceDeltas:{},
+      career:createProgramCareer({power:0, format:'magazine'}, slot),
       editorial:programEditorialProfile({name:choice.grille.programme, channelType:player.type, slot})};
     player.coutTalentsSaison=Math.max(0,player.coutTalentsSaison-decisionQuote.replacedTalent);
     player.grilleOverrides[slot]=choice.grille.programme;
@@ -4729,8 +4799,10 @@ function chooseDilemmaOption(choiceIndex) {
       commercial: choice.finance.commercial,
       revenusPub: revenusPubDelta,
       popularite: player.popularite - popAvant,
-      slots: slotAudienceDeltas
-    }
+      slots: slotAudienceDeltas,
+      competitors: competitorReactions
+    },
+    competitorEvent: competitorReactions[0] || null
   };
 
   gameState.logs.push({
@@ -4779,6 +4851,7 @@ function chooseDilemmaOption(choiceIndex) {
       tresorerieFin: player.tresorerie,
       rentabiliteGrille: player.rentabiliteGrille
     });
+    evolveProgramCareers();
     pushArcomSeasonResult();
     // Les bonus/malus ARCOM sont des flux de clôture : l'historique doit refléter
     // le solde final après leur application.
@@ -4821,6 +4894,7 @@ function startNewSeason() {
   gameState.dilemmaQueue = pickDilemmaQueue();
   gameState.dilemmaPhase = 'choosing';
   gameState.renewalDue = false;
+  gameState.competitorEvents = [];
 
   // La nouvelle saison repart du coût de grille réellement arrêté à la fin de la
   // précédente ; il n'est donc pas recalculé ni remis à un budget théorique.
@@ -4925,6 +4999,8 @@ function resetGame() {
   gameState.gameOverReason = null;
   gameState.seasonKickoffPending = false;
   gameState.seasonKickoffProposal = null;
+  gameState.competitorEvents = [];
+  gameState.pendingCareerDecision = null;
   render();
 }
 
@@ -5531,8 +5607,12 @@ function render() {
         return { icon: meta?.icon || '📺', label: impact.slot === 'global' ? 'PDA GLOBALE (directe)' : `PDA ${meta?.label || impact.slot}`,
           val: impact.value, decimals: 1, suffix: ' pt', invert: false };
       });
+      const competitorRows = (d.competitors || []).map(event => ({ icon: '⚔️',
+        label: `Pression ${TIME_SLOTS.find(s=>s.key===event.slot)?.label || event.slot} · ${event.channel}`,
+        val: -event.power, decimals: 1, suffix: ' pt potentiel', invert: false }));
       const rows = [
         ...slotRows,
+        ...competitorRows,
         { icon: '🛒', label: 'Achat ponctuel', val: d.achats, decimals: 1, suffix: ' M€', invert: true },
         { icon: '🤝', label: 'Recette commerciale', val: d.commercial, decimals: 1, suffix: ' M€', invert: false },
         { icon: '💰', label: 'Trésorerie', val: d.tresorerie, decimals: 1, suffix: ' M€', invert: false },
@@ -5556,6 +5636,7 @@ function render() {
           <div class="dilemma-card dilemma-card-attached">
             <div class="dc-body">
               <p>${esc(cq.resultat)}</p>
+              ${cq.competitorEvent ? `<div class="program-manager-note"><b>🚨 LA CONCURRENCE RÉAGIT</b><br>${esc(cq.competitorEvent.channel)} lance une ${esc(cq.competitorEvent.action)} sur le créneau ${esc(TIME_SLOTS.find(s=>s.key===cq.competitorEvent.slot)?.label || cq.competitorEvent.slot)}.</div>` : ''}
               <div class="impact-badges">${badgesHtml}</div>
             </div>
           </div>
@@ -5644,6 +5725,20 @@ function render() {
       isPlayer: item.channel === gameState.player
     })).sort((a, b) => b.pda - a.pda);
     const compliance = gameState.player.lastArcomResult || computeArcomCompliance();
+    const careerPending = gameState.pendingCareerDecision;
+    const careerContract = careerPending ? gameState.player.contracts?.[careerPending.slot] : null;
+    const career = careerContract ? migrateProgramCareer(careerContract, careerPending.slot) : null;
+    const careerDecisionHtml = careerContract ? `<div class="card">
+      <div class="kicker">AVENIR D’UN PROGRAMME</div>
+      <h3>${career.historic?'⭐ ':''}${esc(careerContract.name)} — ${esc(TIME_SLOTS.find(s=>s.key===careerPending.slot)?.label)}</h3>
+      <p>${esc(career.status)} · ${career.seasonsCount} saison(s) · Notoriété <b>${Math.round(career.awareness)}</b> · Fidélité <b>${Math.round(career.loyalty)}</b> · Usure <b>${Math.round(career.wear)}</b></p>
+      <div class="choices">
+        <button class="choice" data-career-action="renew"><span class="cl">Renouveler</span><span class="choice-caption">Conserver l’acquis, l’usure continue.</span></button>
+        <button class="choice" data-career-action="modify"><span class="cl">Modifier · ${nf1(careerContract.annual*GAME_BALANCE.programCareer.modifyCostRate)} M€</span><span class="choice-caption">Réduire modérément l’usure.</span></button>
+        <button class="choice" data-career-action="relaunch"><span class="cl">Relancer · ${nf1(careerContract.annual*GAME_BALANCE.programCareer.relaunchCostRate)} M€</span><span class="choice-caption">Nouvelle formule, potentiel accru mais fidélité à reconquérir.</span></button>
+        <button class="choice" data-career-action="stop"><span class="cl">Arrêter</span><span class="choice-caption">Libérer la case${career.historic?' avec un risque d’image':''}.</span></button>
+      </div>
+    </div>` : '';
 
     app.innerHTML = `
       ${renderMasthead("Fin de saison", "Audience Masters")}
@@ -5681,12 +5776,13 @@ function render() {
       </div>
 
       ${renderCampaignPanel()}
+      ${careerDecisionHtml}
       <div class="card">
         <div class="kicker">ENGAGEMENTS DE LA SAISON SUIVANTE</div>
         <p>Grille à payer : <b>${nf1(nextSeasonCommitment().annual)} M€</b> · contrats arrivant à échéance : ${nf1(nextSeasonCommitment().expired)} M€ / an.</p>
         <p>Trésorerie après paiement : <b>${nf1(nextSeasonCommitment().cash)} M€</b>, avant nouvelles recettes et décisions.${nextSeasonCommitment().cash<TRESORERIE_CRITIQUE?' Ce paiement ferait franchir le seuil de faillite.':''}</p>
       </div>
-      <button class="btn block" id="btn-next-season">${gameState.renewalDue ? 'Voir le renouvellement de convention →' : `Lancer la Saison ${gameState.season + 1} →`}</button>
+      <button class="btn block" id="btn-next-season" ${careerContract?'disabled title="Décidez d’abord de l’avenir du programme"':''}>${careerContract ? 'Choisissez l’avenir du programme ci-dessus' : gameState.renewalDue ? 'Voir le renouvellement de convention →' : `Lancer la Saison ${gameState.season + 1} →`}</button>
     `;
 
     document.getElementById('btn-next-season').onclick = () => {
@@ -5697,6 +5793,9 @@ function render() {
         startNewSeason();
       }
     };
+    app.querySelectorAll('[data-career-action]').forEach(button => {
+      button.onclick = () => applyCareerDecision(button.dataset.careerAction);
+    });
     app.querySelector('.masthead').onclick = goHome;
     return;
   }
@@ -5897,6 +5996,11 @@ function ensureCampaign() {
   const p = gameState.player;
   p.commercialSaison ??= 0; p.achatsSaison ??= 0;
   p.contracts ??= {}; p.decisionHistory ??= []; p.eventsSeen ??= []; p.slotAudienceDeltas ??= {};
+  Object.entries(p.contracts).forEach(([slot,contract])=>migrateProgramCareer(contract,slot));
+  gameState.competitors ??= [];
+  gameState.competitors.forEach(migrateCompetitorStrategy);
+  gameState.competitorEvents ??= [];
+  gameState.pendingCareerDecision ??= null;
   gameState.campaign ??= { deadline: 5, status: 'active', seed: 12345 };
 }
 function seededRandom() {
@@ -5915,6 +6019,95 @@ const PROGRAM_CATALOG = PROGRAM_CATALOG_DATA.map(([id,channelType,slot,format,na
 function activeContract(channel, slot) {
   const contract = channel.contracts?.[slot];
   return contract && contract.end >= gameState.season ? contract : null;
+}
+
+function createProgramCareer(program, slot) {
+  const basePotential = Number(program.power || 0);
+  return { seasonsCount: 0, awareness: 18, loyalty: 12, wear: 0,
+    basePotential, potential: basePotential, longevity: null, status: 'lancement',
+    historic: false, lastDecision: 'lancement', history: [], slot };
+}
+
+function programLifeStage(career) {
+  if (career.historic) return 'franchise historique';
+  if (career.seasonsCount <= 1) return 'lancement';
+  if (career.seasonsCount <= 3) return 'croissance';
+  if (career.wear < 55) return 'maturité';
+  return 'usure';
+}
+
+function migrateProgramCareer(contract, slot) {
+  contract.career ??= createProgramCareer(contract, slot);
+  const c = contract.career;
+  c.seasonsCount ??= 0; c.awareness ??= 18; c.loyalty ??= 12; c.wear ??= 0;
+  c.basePotential ??= Number(contract.power || 0); c.potential ??= c.basePotential;
+  c.history ??= []; c.slot ??= slot; c.historic ??= false; c.status = programLifeStage(c);
+  return c;
+}
+
+function evolveProgramCareers() {
+  const p = gameState.player;
+  const calc = getCalculatedPDAs().find(row => row.channel === p);
+  for (const [slot, contract] of Object.entries(p.contracts || {})) {
+    const career = migrateProgramCareer(contract, slot);
+    const performance = calc.slots[slot][p.target];
+    const expected = calc.expectedSlots[slot][p.target];
+    const success = Math.max(-4, Math.min(4, performance - expected));
+    const genre = contract.editorial?.genre || 'diverti';
+    const longevity = GAME_BALANCE.programCareer.longevityByGenre[genre] || 1;
+    career.seasonsCount++;
+    career.awareness = Math.max(0, Math.min(100, career.awareness + GAME_BALANCE.programCareer.awarenessGrowth + success * 1.2));
+    career.loyalty = Math.max(0, Math.min(100, career.loyalty + GAME_BALANCE.programCareer.loyaltyGrowth + success));
+    career.wear = Math.max(0, Math.min(100, career.wear + GAME_BALANCE.programCareer.wearGrowth / longevity + Math.max(0, career.seasonsCount - 4) * 1.5));
+    career.potential = Math.max(0, career.basePotential + Math.min(0.8, career.seasonsCount * 0.15) - Math.max(0, career.wear - 35) * 0.012);
+    career.historic = career.seasonsCount >= GAME_BALANCE.programCareer.cultSeasons
+      && career.awareness >= GAME_BALANCE.programCareer.cultAwareness
+      && career.loyalty >= GAME_BALANCE.programCareer.cultLoyalty;
+    career.status = programLifeStage(career);
+    career.history.push({ season: gameState.season, performance, expected, awareness: career.awareness,
+      loyalty: career.loyalty, wear: career.wear, potential: career.potential });
+    if (career.historic && !career.historicRewarded) {
+      p.popularite = Math.min(100, p.popularite + 2);
+      career.historicRewarded = true;
+    }
+  }
+  gameState.pendingCareerDecision = selectCareerDecision();
+}
+
+function selectCareerDecision() {
+  const candidates = Object.entries(gameState.player.contracts || {}).map(([slot, contract]) => {
+    const c = migrateProgramCareer(contract, slot);
+    const urgency = (contract.end <= gameState.season ? 40 : 0) + c.wear + (c.historic ? 20 : 0) + c.seasonsCount * 3;
+    return { slot, contract, urgency };
+  }).filter(item => item.contract.end <= gameState.season || item.contract.career.wear >= 40 || item.contract.career.historic);
+  candidates.sort((a,b) => b.urgency - a.urgency);
+  return candidates[0] ? { slot: candidates[0].slot, programId: candidates[0].contract.id } : null;
+}
+
+function applyCareerDecision(action) {
+  const pending = gameState.pendingCareerDecision;
+  const p = gameState.player;
+  const contract = pending && p.contracts?.[pending.slot];
+  if (!contract || contract.id !== pending.programId || !['renew','modify','relaunch','stop'].includes(action)) return false;
+  const c = migrateProgramCareer(contract, pending.slot);
+  if (action === 'stop') {
+    if (c.historic || c.loyalty >= 75) p.popularite = Math.max(0, p.popularite - 3);
+    p.coutGrilleEngageSaison = Math.max(0, p.coutGrilleEngageSaison - contract.annual);
+    delete p.contracts[pending.slot];
+    if (p.grilleOverrides) delete p.grilleOverrides[pending.slot];
+  } else {
+    const rate = action === 'relaunch' ? GAME_BALANCE.programCareer.relaunchCostRate
+      : action === 'modify' ? GAME_BALANCE.programCareer.modifyCostRate : 0;
+    const cost = contract.annual * rate;
+    p.tresorerie -= cost; p.achatsSaison += cost;
+    contract.end = Math.max(contract.end, gameState.season) + 1;
+    if (action === 'renew') c.wear = Math.min(100, c.wear + 4);
+    if (action === 'modify') { c.wear = Math.max(0, c.wear - 16); c.potential += 0.25; c.loyalty = Math.max(0, c.loyalty - 3); }
+    if (action === 'relaunch') { c.wear = Math.max(0, c.wear - 38); c.potential += 0.65; c.loyalty = Math.max(0, c.loyalty - 10); c.awareness = Math.max(0, c.awareness - 4); }
+    c.lastDecision = action;
+  }
+  gameState.pendingCareerDecision = null;
+  refreshEconomy(); render(); return true;
 }
 
 // Métadonnées de simulation : les titres génériques ont une origine non précisée.
@@ -6191,7 +6384,8 @@ function signProgram(slot, programId, talentId) {
   delete p.contracts[slot];
   applyFinance(quote.finance);
   p.contracts[slot]={...program, annual, talent:talent.name, talentAnnual:talent.annual,
-    power:program.power+talent.bonus*SLOT_AFFINITY[p.type][slot], end:gameState.season+program.years-1};
+    power:program.power+talent.bonus*SLOT_AFFINITY[p.type][slot], end:gameState.season+program.years-1,
+    career:createProgramCareer(program, slot)};
   p.coutTalentsSaison+=talent.annual-(previous?.talentAnnual||0);
   p.grilleOverrides[slot]=program.name+' — '+talent.name;
   const audience=getCalculatedPDAs().find(c=>c.channel===p).pda[p.target];
@@ -6208,15 +6402,91 @@ function expireContracts() {
   }
 }
 function strategicCompetitors() {
-  gameState.competitors.forEach((c,i)=>{
-    c.strategy ??= ['premium','specialiste','prudent'][i%3];
-    const player=gameState.player;
-    const pressure=player.pda[c.target]>c.pda[c.target] ? 1.3 : 1;
-    const invest=Math.min(c.budget, c.strategy==='premium'?2.5:c.strategy==='specialiste'?1.5:0.6);
-    c.budget-=invest;
-    c.pda[c.target]=Math.max(1,c.pda[c.target]+invest*pressure*(0.35+seededRandom()*0.25));
-    c.lastAction=c.strategy==='premium'?'Investit dans les exclusivités':c.strategy==='specialiste'?'Renforce sa cible':'Préserve sa trésorerie';
+  const before = getCalculatedPDAs();
+  const player = gameState.player;
+  const playerRow = before.find(row => row.channel === player);
+  const events = [];
+  gameState.competitors.forEach((competitor, index) => {
+    migrateCompetitorStrategy(competitor, index);
+    const profile = GAME_BALANCE.competitors.profiles[competitor.strategy];
+    const target = profile.targetPriority;
+    const competitorRow = before.find(row => row.channel === competitor);
+    const threats = TIME_SLOTS.map(({key}) => {
+      const rivals = before.filter(row => row.channel !== player).map(row => row.slots[key][target]);
+      const playerLeading = playerRow.slots[key][target] >= Math.max(...rivals);
+      return { slot:key, gap:playerRow.slots[key][target] - competitorRow.slots[key][target], playerLeading };
+    }).filter(x => x.playerLeading && x.gap >= GAME_BALANCE.competitors.reactionThreshold)
+      .sort((a,b) => (b.gap + (b.slot === 'prime' ? 1 : 0)) - (a.gap + (a.slot === 'prime' ? 1 : 0)));
+    const threat = threats[0];
+    if (!threat) { competitor.lastAction = 'Observe le marché'; return; }
+    const probability = Math.min(0.9, profile.reactionStrength * (0.35 + Math.min(1, threat.gap / 5)));
+    if (seededRandom() > probability || competitor.budget < 0.5) {
+      competitor.lastAction = profile.label === 'Rentable' ? 'Préserve sa rentabilité' : 'N’engage pas de riposte';
+      return;
+    }
+    let action = 'contre-programmation';
+    if (competitor.strategy === 'offensive' && seededRandom() < profile.eventPreference) action = 'événement majeur';
+    else if (competitor.strategy === 'jeune') action = 'offensive jeunes';
+    else if (competitor.strategy === 'premium') action = 'investissement premium';
+    else if (competitor.strategy === 'rentable' && threat.gap > 4) action = 'retrait stratégique';
+    const destination = action === 'retrait stratégique'
+      ? TIME_SLOTS.map(s=>s.key).find(key => key !== threat.slot && competitorRow.slots[key][target] >= playerRow.slots[key][target]) || 'matin'
+      : threat.slot;
+    const spend = Math.min(competitor.budget, 0.6 + profile.budgetAggressiveness * 1.8);
+    const power = Math.min(GAME_BALANCE.competitors.maxPressurePower, spend * profile.reactionStrength);
+    competitor.budget -= spend;
+    competitor.slotInvestments[destination] = { targets: {
+      [target]: power,
+      ...(competitor.strategy === 'jeune' ? { a2549: power * 0.55 } : {})
+    }, expires: gameState.season + GAME_BALANCE.competitors.eventDuration - 1, action };
+    competitor.lastAction = action;
+    const event = { season:gameState.season, channel:competitor.name, strategy:competitor.strategy,
+      target, trigger:`Leadership joueur ${threat.slot}`, action, slot:destination, power };
+    competitor.strategyHistory.push(event); events.push(event);
   });
+  gameState.competitorEvents = events;
+  return events;
+}
+
+function migrateCompetitorStrategy(competitor, index=0) {
+  const aliases = { prudent:'rentable', specialiste:'jeune' };
+  competitor.strategy = aliases[competitor.strategy] || competitor.strategy
+    || Object.keys(GAME_BALANCE.competitors.profiles)[index % 4];
+  if (!GAME_BALANCE.competitors.profiles[competitor.strategy]) competitor.strategy = 'rentable';
+  competitor.slotInvestments ??= {}; competitor.strategyHistory ??= [];
+  competitor.budget ??= CHANNEL_TYPES[competitor.type]?.baseBudget || 20;
+  return competitor;
+}
+
+function auditLeadInEffects(channel=gameState.player, target=channel.target) {
+  const row = getCalculatedPDAs().find(item => item.channel === channel);
+  const lines = LEAD_IN_TRANSITIONS.map(([source,destination]) => ({
+    source, destination, attendu:row.expectedSlots[source][target], reelIntrinseque:row.intrinsicSlots[source][target],
+    ecart:row.intrinsicSlots[source][target]-row.expectedSlots[source][target],
+    coefficient:GAME_BALANCE.leadIn.transitions[`${source}_${destination}`],
+    bonusTransmis:row.leadIns[destination][target], plafond:GAME_BALANCE.leadIn.maxBonus
+  }));
+  console.table(lines); return lines;
+}
+
+function auditCompetitorStrategies() {
+  const lines = gameState.competitors.map((c,index) => {
+    migrateCompetitorStrategy(c,index);
+    const profile=GAME_BALANCE.competitors.profiles[c.strategy];
+    return { chaine:c.name, personnalite:profile.label, cible:profile.targetPriority, budget:c.budget,
+      derniereAction:c.lastAction || 'Aucune', investissements:Object.keys(c.slotInvestments).join(', ') || 'Aucun' };
+  });
+  console.table(lines); return lines;
+}
+
+function auditProgramCareers() {
+  const lines = Object.entries(gameState.player.contracts || {}).map(([slot,c]) => {
+    const career=migrateProgramCareer(c,slot);
+    return { programme:c.name, slot, saisons:career.seasonsCount, notoriete:career.awareness,
+      fidelite:career.loyalty, potentiel:career.potential, usure:career.wear, cycle:career.status,
+      historique:career.historic };
+  });
+  console.table(lines); return lines;
 }
 const STORY_EVENTS = [
  {id:'story_sponsor',titre:'Le sponsor demande un droit de regard',desc:'Votre précédent contrat commercial attire de nouvelles exigences éditoriales.',eligible:p=>p.decisionHistory.some(x=>x.commercial>0),c:[
@@ -6251,6 +6521,8 @@ function renderProgramManager(slot) {
   ensureCampaign(); const p=gameState.player;
   const editable=gameState.step===6&&gameState.dilemmaPhase==='choosing'&&gameState.currentDilemmaIndex===0;
   const c=p.contracts[slot];
+  const career=c ? migrateProgramCareer(c,slot) : null;
+  const breakdown=getSlotBreakdown(p,slot,p.target);
   const programOpts=availablePrograms(p.type,slot).map(x=>({
     id:x.id,
     label:`${x.name} — ${nf1(x.annual)} M€/an + ${nf1(x.rights)} M€ droits · potentiel ${nf1(x.power)} · ${x.years} saison(s)`,
@@ -6261,7 +6533,9 @@ function renderProgramManager(slot) {
   const selectedTalent=talentOpts.find(o=>o.selected)||talentOpts[0];
   return `<section class="program-manager" aria-label="Modifier la programmation">
     ${c?`<div class="program-manager-contract-row">
-      <p class="program-manager-contract">${esc(c.name)} · ${esc(c.talent)} · ${nf1(c.annual)} M€/an · jusqu’à la saison ${c.end}.</p>
+      <p class="program-manager-contract">${esc(c.name)} · ${esc(c.talent)} · ${nf1(c.annual)} M€/an · jusqu’à la saison ${c.end}.<br>
+      ${career.historic?'⭐ Franchise historique · ':''}${esc(career.status)} · ${career.seasonsCount} saison(s) · Notoriété ${Math.round(career.awareness)} · Fidélité ${Math.round(career.loyalty)} · Usure ${Math.round(career.wear)}<br>
+      ${breakdown.leadIn >= 0 ? '🔥 Effet locomotive' : '⚠️ Lead-in faible'} : ${fmtDelta(breakdown.leadIn,1,' pt')} · PDA attendue ${nf1(breakdown.expected)} % → finale ${nf1(breakdown.final)} %</p>
       <span class="pg-pda-badge pg-badge-rouge program-manager-penalty" data-program-penalty aria-live="polite" hidden></span>
     </div>`:''}
     ${editable?`
