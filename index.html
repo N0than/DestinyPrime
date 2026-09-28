@@ -977,7 +977,7 @@ function renderProgramGrid(type, pdaCible, overrides) {
     <div class="pg-slide">
       <div class="pg-head">
         <div class="eh-title">Grille de la chaîne</div>
-        <div class="eh-subtitle">Cliquez sur un créneau pour choisir son programme et son talent.</div>
+        <div class="eh-subtitle">Cliquez sur un créneau pour choisir son programme et sa production.</div>
       </div>
       <div class="pg-rows">${rows}</div>
     </div>
@@ -6214,9 +6214,9 @@ function availablePrograms(type, slot) {
   return PROGRAM_CATALOG.filter(program => program.channelType === type && program.slot === slot);
 }
 const TALENT_CATALOG = [
-  {id:'interne', name:'Équipe interne', annual:0, bonus:0},
-  {id:'espoir', name:'Nouveau talent', annual:0.5, bonus:0.7},
-  {id:'vedette', name:'Vedette', annual:2, bonus:1.8}
+  {id:'interne', name:'Prod. Interne', annual:0, bonus:0},
+  {id:'espoir', name:'Prod. Externe', annual:0.5, bonus:0.7},
+  {id:'vedette', name:'Prod. Internationale', annual:2, bonus:1.8}
 ];
 function refreshEconomy() {
   const p=gameState.player; ensureCampaign();
@@ -6509,7 +6509,7 @@ const STORY_EVENTS = [
  {id:'story_sponsor',titre:'Le sponsor demande un droit de regard',desc:'Votre précédent contrat commercial attire de nouvelles exigences éditoriales.',eligible:p=>p.decisionHistory.some(x=>x.commercial>0),c:[
   {l:'Refuser et indemniser le partenaire',b:-2,pop:3,pda:{csp:2},r:'Votre indépendance est préservée.',finance:{recurring:0,purchase:2,commercial:0,category:'P'}},
   {l:'Accepter une opération sponsorisée',b:4,pop:-4,pda:{a2549:1},r:'La marque paie cette opération ponctuelle.',finance:{recurring:0,purchase:0,commercial:4,category:'C'}}]},
- {id:'story_talent',titre:'Votre vedette reçoit une offre concurrente',desc:'Le recrutement d’une vedette a attiré l’attention des autres chaînes.',eligible:p=>Object.values(p.contracts).some(c=>c.talent==='Vedette'),c:[
+ {id:'story_talent',titre:'Votre vedette reçoit une offre concurrente',desc:'Le recrutement d’une vedette a attiré l’attention des autres chaînes.',eligible:p=>Object.values(p.contracts).some(c=>c.talent==='Prod. Internationale'),c:[
   {l:'Financer une campagne autour de la vedette',b:-2,pop:2,pda:{a2549:2},r:'La campagne renforce le rendez-vous.',finance:{recurring:0,purchase:2,commercial:0,category:'P'}},
   {l:'S’en tenir au contrat signé',b:0,pop:-1,pda:{a2549:-1},r:'Le contrat reste en vigueur, mais la concurrence brouille votre communication.',finance:{recurring:0,purchase:0,commercial:0,category:'N'}}]}
 ];
@@ -6550,7 +6550,12 @@ function renderProgramManager(slot) {
   return `<section class="program-manager" aria-label="Modifier la programmation">
     ${c?`<div class="program-manager-contract-row">
       <p class="program-manager-contract">${esc(c.name)} · ${esc(c.talent)} · ${nf1(c.annual)} M€/an · jusqu’à la saison ${c.end}.<br>
-      ${career.historic?'⭐ Franchise historique · ':''}${esc(career.status)} · ${career.seasonsCount} saison(s) · Notoriété ${Math.round(career.awareness)} · Fidélité ${Math.round(career.loyalty)} · Usure ${Math.round(career.wear)}</p>
+      ${career.historic?'⭐ Franchise historique · ':''}${esc(career.status)} · ${career.seasonsCount} saison(s)</p>
+      <div class="career-stats-badges">
+        <span class="pg-pda-badge pg-badge-gold">Notoriété ${Math.round(career.awareness)}/100</span>
+        <span class="pg-pda-badge pg-badge-vert">Fidélité ${Math.round(career.loyalty)}/100</span>
+        <span class="pg-pda-badge pg-badge-rouge">Usure ${Math.round(career.wear)}/100</span>
+      </div>
       <span class="pg-pda-badge pg-badge-rouge program-manager-penalty" data-program-penalty aria-live="polite" hidden></span>
     </div>`:''}
     ${editable?`
@@ -6566,9 +6571,9 @@ function renderProgramManager(slot) {
       <p class="program-manager-note" data-program-advice aria-live="polite"></p>
       <div class="program-manager-combo">
         <label class="program-manager-field talent">
-          <span class="program-manager-field-label">Talent</span>
+          <span class="program-manager-field-label">Production</span>
           <select id="talent-${slot}">${talentOpts.map(o=>`<option value="${o.id}" ${o.selected?'selected':''}>${esc(o.label)}</option>`).join('')}</select>
-          <button type="button" class="program-manager-field-trigger" data-picker-trigger="talent-${slot}" data-picker-title="Choisir un talent">
+          <button type="button" class="program-manager-field-trigger" data-picker-trigger="talent-${slot}" data-picker-title="Choisir une production">
             <span class="program-manager-field-trigger-text">${esc(selectedTalent.label)}</span>
             <svg class="pg-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
           </button>
@@ -6577,7 +6582,7 @@ function renderProgramManager(slot) {
           <span class="program-manager-field-label program-manager-actions-spacer" aria-hidden="true">&nbsp;</span>
           <div class="program-manager-actions-buttons">
             <button type="button" class="program-manager-box cancel" data-program-cancel>Annuler</button>
-            <button type="button" class="program-manager-box confirm" data-program-confirm title="Valider la combinaison programme et talent">Valider</button>
+            <button type="button" class="program-manager-box confirm" data-program-confirm title="Valider la combinaison programme et production">Valider</button>
           </div>
         </div>
       </div>
