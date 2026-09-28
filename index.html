@@ -1185,7 +1185,10 @@ function computeRevenusPub(pdaGlobaleCourante, cible, popularite, puissanceComme
 function creditInitialAdRevenue() {
   const p = gameState.player;
   const pdaGlobaleCourante = getCalculatedPDAs().find(item => item.channel === p).pda[p.target];
-  const revenusPubEstimes = computeRevenusPub(pdaGlobaleCourante, p.target, p.popularite, p.puissanceCommerciale);
+  // Les investissements régie activés lors des saisons précédentes (Directeur de régie,
+  // Studio Brand Content, Yield Management, etc.) reconduisent leur bénéfice chaque saison.
+  const revenusPubEstimes = computeRevenusPub(pdaGlobaleCourante, p.target, p.popularite, p.puissanceCommerciale)
+    + (p.regieInvestissementsAnnuel || 0);
   p.tresorerie += revenusPubEstimes;
   p.revenusPubPrevisionnels = revenusPubEstimes;
 }
@@ -1197,7 +1200,8 @@ function reevaluateAdRevenue() {
   const p = gameState.player;
   const pdaGlobaleCourante = getCalculatedPDAs().find(item => item.channel === p).pda[p.target];
   const revenusPubAvant = p.revenusPubPrevisionnels;
-  p.revenusPubPrevisionnels = computeRevenusPub(pdaGlobaleCourante, p.target, p.popularite, p.puissanceCommerciale);
+  p.revenusPubPrevisionnels = computeRevenusPub(pdaGlobaleCourante, p.target, p.popularite, p.puissanceCommerciale)
+    + (p.regieInvestissementsAnnuel || 0);
   p.tresorerie += p.revenusPubPrevisionnels - revenusPubAvant;
 }
 
@@ -4456,6 +4460,10 @@ const DILEMMA_TALENT_COST = {
   d272: [6, 1]
 };
 
+// Dilemmes de régie publicitaire dont le choix "investissement" (recette commerciale > 0)
+// doit se reconduire chaque saison une fois activé, plutôt que ne créditer qu'une seule fois.
+const REGIE_INVESTMENT_IDS = ['d_pub1', 'd_pub2', 'd_pub6', 'd_pub7', 'd_pub9', 'd_pub10', 'd_pub13', 'd_pub20', 'd_pub23'];
+
 let gameState = {
   step: 1,
   resumeStep: null,
@@ -4490,6 +4498,7 @@ let gameState = {
     rentabiliteGrille: 0,
     coutParPointPDA: 0,
     coutTalentsSaison: 0,
+    regieInvestissementsAnnuel: 0,
     slotAudienceDeltas: {}
 },
   competitors: [],
@@ -4988,6 +4997,16 @@ function chooseDilemmaOption(choiceIndex) {
     player.commercialSaison -= regieCommercial;
     player.tresorerie -= regieCommercial;
   }
+  // Certains dilemmes régie sont des investissements : leur choix gagnant reconduit son
+  // bénéfice indéfiniment (chaque saison, chaque dilemme suivant) via un total permanent,
+  // au lieu d'un crédit ponctuel valable uniquement pour ce dilemme.
+  const isRegieInvestment = REGIE_INVESTMENT_IDS.includes(dilemma.id) && regieCommercial > 0;
+  if (isRegieInvestment) {
+    player.regieInvestissementsAnnuel = (player.regieInvestissementsAnnuel || 0) + regieCommercial;
+  }
+  // Une fois basculé dans le total permanent, ce montant ne doit plus être compté une
+  // seconde fois comme crédit ponctuel de ce seul dilemme.
+  const regieCommercialPonctuel = isRegieInvestment ? 0 : regieCommercial;
   if (choice.careerAction) {
     applyCareerDilemmaChoice(dilemma, choice);
   } else if (choice.grille) {
@@ -5019,7 +5038,8 @@ function chooseDilemmaOption(choiceIndex) {
   // publicitaire. Seul l'écart avec l'estimation précédente est crédité/débité — la totalité
   // a déjà été créditée au lancement de la saison (creditInitialAdRevenue).
   const revenusPubAvant = player.revenusPubPrevisionnels;
-  player.revenusPubPrevisionnels = computeRevenusPub(pdaCibleApres, player.target, player.popularite, player.puissanceCommerciale) + regieCommercial;
+  player.revenusPubPrevisionnels = computeRevenusPub(pdaCibleApres, player.target, player.popularite, player.puissanceCommerciale)
+    + regieCommercialPonctuel + (player.regieInvestissementsAnnuel || 0);
   const revenusPubDelta = player.revenusPubPrevisionnels - revenusPubAvant;
   // Le flux net de trésorerie est bien la recette publicitaire moins la variation
   // de coût de grille : un surcoût (delta positif) réduit le solde, une économie
@@ -5225,6 +5245,7 @@ function resetGame() {
     rentabiliteGrille: 0,
     coutParPointPDA: 0,
     coutTalentsSaison: 0,
+    regieInvestissementsAnnuel: 0,
     slotAudienceDeltas: {}
 };
   gameState.competitors = [];
