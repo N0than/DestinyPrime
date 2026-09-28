@@ -1263,11 +1263,11 @@ const CHANNEL_TYPES = {
 };
 
 const TIME_SLOTS = [
-  { key: 'matin', icon: '🌅', label: 'Matin', range: '06h-12h', accent: 'vert' },
-  { key: 'apresmidi', icon: '☀️', label: 'Après-midi', range: '12h-18h', accent: 'bleu' },
-  { key: 'access', icon: '🌇', label: 'Access', range: '18h-21h', accent: 'gold' },
-  { key: 'prime', icon: '🌙', label: 'Prime', range: '21h-23h', accent: 'rouge' },
-  { key: 'nuit', icon: '🌃', label: 'Nuit', range: '23h-06h', accent: 'gris' }
+  { key: 'matin', icon: '🌅', label: 'Matin', range: '06h-12h', accent: 'vert', daypart: 'du matin' },
+  { key: 'apresmidi', icon: '☀️', label: 'Après-midi', range: '12h-18h', accent: 'bleu', daypart: 'de l’après-midi' },
+  { key: 'access', icon: '🌇', label: 'Access', range: '18h-21h', accent: 'gold', daypart: 'de l’access' },
+  { key: 'prime', icon: '🌙', label: 'Prime', range: '21h-23h', accent: 'rouge', daypart: 'du soir' },
+  { key: 'nuit', icon: '🌃', label: 'Nuit', range: '23h-06h', accent: 'gris', daypart: 'de la nuit' }
 ];
 
 const SLOT_AFFINITY = {
@@ -6074,12 +6074,13 @@ function createCareerRenewalDilemma(pending) {
   const contract = pending && p.contracts?.[pending.slot];
   if (!contract || contract.id !== pending.programId) return null;
   const c = migrateProgramCareer(contract, pending.slot);
-  const slotLabel = TIME_SLOTS.find(s=>s.key===pending.slot)?.label || pending.slot;
+  const slotMeta = TIME_SLOTS.find(s=>s.key===pending.slot);
+  const slotDaypart = slotMeta?.daypart || pending.slot;
   const zeroPda = { j1524:0, a2549:0, s50:0, csp:0 };
   return {
     id:`career-${gameState.season}-${pending.slot}-${contract.id}`,
     titre:`Quel avenir pour « ${contract.name} » ?`,
-    desc:`Dernier arbitrage de la saison : le programme de ${slotLabel} est en phase de ${c.status} après ${c.seasonsCount} saison(s). Notoriété ${Math.round(c.awareness)}, fidélité ${Math.round(c.loyalty)}, usure ${Math.round(c.wear)}.`,
+    desc:`Dernier arbitrage de la saison : le programme du créneau ${slotDaypart} est en phase de ${c.status} après ${c.seasonsCount} saison(s). Notoriété ${Math.round(c.awareness)}, fidélité ${Math.round(c.loyalty)}, usure ${Math.round(c.wear)}.`,
     isCareerDilemma:true, careerSlot:pending.slot, programId:contract.id,
     c:[
       { l:'Renouveler à l’identique', careerAction:'renew', pda:{...zeroPda}, audienceImpact:{slot:pending.slot,value:0}, pop:0,
