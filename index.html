@@ -689,7 +689,27 @@ input[type=text]:focus { outline: none; border-color: var(--bleu); box-shadow: 0
 label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; display: block; margin: 14px 0 6px; }
 .config-label { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 10px; letter-spacing: 0.6px; text-transform: uppercase; color: var(--gris); display: block; margin: 0 0 8px; }
 
-.namebar { display: flex; gap: 8px; align-items: center; margin-bottom: 16px; }
+.namebar { display: flex; gap: 8px; align-items: center; }
+
+.channel-preview {
+  display: flex; align-items: center; gap: 12px;
+  margin-top: 16px; padding-top: 14px;
+  border-top: 1px solid rgba(15,23,42,0.08);
+}
+.channel-preview-icon.opt-format-icon {
+  width: 40px; height: 40px; border-radius: 12px; font-size: 19px;
+}
+.channel-preview-info { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.channel-preview-name {
+  font-family: 'Anton', sans-serif; font-size: 16px; letter-spacing: 0.5px; text-transform: uppercase;
+  color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.channel-preview-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.channel-preview-tag {
+  font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 9.5px;
+  text-transform: uppercase; letter-spacing: 0.4px; color: #64748b;
+  background: rgba(15,23,42,0.05); padding: 3px 8px; border-radius: 999px;
+}
 
 .btn {
   display: inline-block; background: var(--ink); color: var(--paper); border: none;
@@ -5805,16 +5825,32 @@ function render() {
 
   if (gameState.step === 4) {
     const currentDefaultName = gameState.player.name || GENERATED_NAMES[gameState.player.type][0];
+    const typeObj4 = CHANNEL_TYPES[gameState.player.type];
+    const typeAccent4 = { generaliste: 'gris', cinema: 'rouge', culture: 'pink', jeunesse: 'amber', sport: 'bleu', info: 'crimson' }[gameState.player.type] || 'gris';
+    const typeSpaceIdx4 = typeObj4.label.indexOf(' ');
+    const typeIcon4 = typeObj4.label.slice(0, typeSpaceIdx4);
+    const typeTitle4 = typeObj4.label.slice(typeSpaceIdx4 + 1);
+    const targetShort4 = AUDIENCE_TARGETS.find(t => t.key === gameState.player.target)?.short || '';
     app.innerHTML = `
       ${renderMasthead("Étape 3/4 : Nom du nouveau entrant", "Audience Masters")}
       <div class="kicker-row">
         <div class="kicker-badge">ÉTAPE 3 — LANCEMENT OFFICIEL</div>
       </div>
-      <div class="card-format">
+      <div class="card-format namecard-format">
         <label for="chain-name" class="config-label">Nom de la chaîne TV</label>
         <div class="namebar">
           <input type="text" id="chain-name" value="${esc(currentDefaultName)}" maxlength="24">
           <button class="btn-dice" id="btn-rand"><span class="dice-icon">🎲</span><span class="dice-label">Idée</span></button>
+        </div>
+        <div class="channel-preview">
+          <span class="channel-preview-icon opt-format-icon accent-${typeAccent4}">${typeIcon4}</span>
+          <div class="channel-preview-info">
+            <span class="channel-preview-name" id="channel-preview-name">${esc(currentDefaultName)}</span>
+            <span class="channel-preview-tags">
+              <span class="channel-preview-tag">${esc(typeTitle4)}</span>
+              <span class="channel-preview-tag">${esc(targetShort4)}</span>
+            </span>
+          </div>
         </div>
       </div>
       <button class="welcome-cta" id="btn-next-4">
@@ -5824,9 +5860,15 @@ function render() {
       </button>
       ${renderStepDots(3, 4)}
     `;
+    const chainNameInput = document.getElementById('chain-name');
+    const previewName = document.getElementById('channel-preview-name');
+    chainNameInput.addEventListener('input', () => {
+      previewName.textContent = chainNameInput.value.trim() || currentDefaultName;
+    });
     document.getElementById('btn-rand').onclick = () => {
       const randomName = pick(GENERATED_NAMES[gameState.player.type]);
-      document.getElementById('chain-name').value = randomName;
+      chainNameInput.value = randomName;
+      previewName.textContent = randomName;
     };
     document.getElementById('btn-next-4').onclick = () => {
       goToStepAnimated(() => {
