@@ -5576,7 +5576,8 @@ function goToStepAnimated(mutate) {
   if (!isMobile) { mutate(); render(); return; }
 
   const prevMasthead = app.querySelector('.masthead');
-  const prevBodyNodesLive = Array.from(app.children).filter(el => el !== prevMasthead);
+  const prevHudWrap = app.querySelector('.hud-wrap');
+  const prevBodyNodesLive = Array.from(app.children).filter(el => el !== prevMasthead && el !== prevHudWrap);
   const oldHeight = prevBodyNodesLive.length
     ? prevBodyNodesLive[prevBodyNodesLive.length - 1].getBoundingClientRect().bottom - prevBodyNodesLive[0].getBoundingClientRect().top
     : 0;
@@ -5585,10 +5586,12 @@ function goToStepAnimated(mutate) {
   mutate();
   render();
 
-  // Le header (bandeau + ligne mire) reste en place, rendu instantanément par
-  // le render() ci-dessus ; seul le contenu sous la mire glisse.
+  // Le header (bandeau + ligne mire) ET le HUD (tableau de bord) restent en
+  // place, rendus instantanément par le render() ci-dessus ; seul le contenu
+  // sous la mire (dilemme / conférence de rentrée) glisse.
   const newMasthead = app.querySelector('.masthead');
-  const newBodyNodes = Array.from(app.children).filter(el => el !== newMasthead);
+  const newHudWrap = app.querySelector('.hud-wrap');
+  const newBodyNodes = Array.from(app.children).filter(el => el !== newMasthead && el !== newHudWrap);
 
   const newWrap = document.createElement('div');
   newWrap.className = 'step-slide-new';
