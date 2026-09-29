@@ -7,7 +7,7 @@
 <title>AUDIENCE MASTERS — Devenez le Roi de l'Audimat</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@500;600;700&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@500;600;700&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=VT323&display=swap" rel="stylesheet">
 <style>
 :root {
   --ink: #121316;
@@ -511,6 +511,81 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
   padding: 16px; margin-bottom: 16px; position: relative;
 }
 .tape { position: absolute; top: -10px; left: 50%; transform: translateX(-50%) rotate(-1.5deg); width: 80px; height: 20px; background: rgba(31,58,147,0.18); border: 1px dashed rgba(31,58,147,0.4); }
+
+/* ---- BLOC D'ACCUEIL "LANCER MA CHAÎNE" (glassmorphism) ---- */
+.welcome-glass {
+  background: rgba(255,255,255,0.65);
+  backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255,255,255,0.85);
+  border-radius: 32px;
+  box-shadow: 0 25px 50px -12px rgba(15,23,42,0.12), 0 0 0 1px rgba(255,255,255,0.8) inset;
+  padding: 18px; margin-bottom: 16px; text-align: center;
+}
+.welcome-glass h2 { margin: 18px 0 0; }
+.welcome-glass .welcome-lead { margin: 10px 0 0; font-weight: 600; color: #334155; }
+.welcome-glass .welcome-sub { margin: 4px 0 0; font-style: normal; font-size: 13px; color: #64748b; }
+
+.welcome-tv {
+  width: 100%; aspect-ratio: 16 / 10;
+  border-radius: 24px; padding: 6px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(241,245,249,0.7), rgba(226,232,240,0.5));
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.08);
+  border: 1px solid rgba(255,255,255,0.6);
+}
+.welcome-tv-screen {
+  position: relative; width: 100%; height: 100%;
+  border-radius: 18px; overflow: hidden;
+  box-shadow: 0 10px 30px -5px rgba(59,130,246,0.25);
+}
+.welcome-tv-bars { position: absolute; inset: 0; display: flex; }
+.welcome-tv-bars span { flex: 1; height: 100%; }
+.welcome-tv-scanlines {
+  position: absolute; inset: 0; pointer-events: none; opacity: 0.4;
+  background: linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.08) 50%);
+  background-size: 100% 4px;
+}
+.welcome-tv-glare {
+  position: absolute; top: -48px; left: -48px; width: 190px; height: 130px; pointer-events: none;
+  background: linear-gradient(135deg, rgba(255,255,255,0.4), transparent 70%);
+  transform: rotate(12deg); border-radius: 999px;
+}
+.welcome-tv-nosignal { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 8px; }
+.welcome-tv-nosignal span {
+  display: block; width: 100%; text-align: center;
+  background: rgba(0,0,0,0.9); padding: 6px 16px;
+  border-top: 1px solid rgba(255,255,255,0.1); border-bottom: 1px solid rgba(255,255,255,0.1);
+  font-family: 'VT323', monospace; font-size: 28px; letter-spacing: 4px;
+  color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+}
+.welcome-tv-status {
+  position: absolute; bottom: 10px; right: 12px;
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+  padding: 2px 8px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.1);
+  font-family: 'Plus Jakarta Sans', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.5px; color: rgba(255,255,255,0.8);
+}
+.welcome-tv-status .dot { width: 6px; height: 6px; border-radius: 50%; background: #34d399; animation: hudLiveDotPulse 1.4s ease-in-out infinite; }
+
+.welcome-cta {
+  position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; margin-top: 20px; padding: 15px; border: none; border-radius: 16px;
+  background: #0f172a; color: #fff; cursor: pointer;
+  font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 15px;
+  text-transform: uppercase; letter-spacing: 1px;
+  box-shadow: 0 12px 24px -6px rgba(15,23,42,0.3);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.welcome-cta:hover { transform: translateY(-1px); box-shadow: 0 16px 30px -6px rgba(15,23,42,0.4); }
+.welcome-cta:active { transform: scale(0.98); }
+.welcome-cta svg { width: 16px; height: 16px; transition: transform 0.2s ease; }
+.welcome-cta:hover svg { transform: translateX(3px); }
+.welcome-cta-shine {
+  position: absolute; inset: 0; width: 50%; pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+  transform: skewX(-12deg) translateX(-150%);
+  transition: transform 1s ease-out;
+}
+.welcome-cta:hover .welcome-cta-shine { transform: skewX(-12deg) translateX(350%); }
 
 .optgrid { display: grid; grid-template-columns: 1fr; gap: 10px; margin: 12px 0 20px; }
 @media(min-width: 520px) { .optgrid { grid-template-columns: 1fr 1fr; } }
@@ -5548,156 +5623,33 @@ function render() {
         <button class="btn block" id="btn-resume" style="font-size: 16px; padding: 12px;">↩ Reprendre la partie →</button>
       </div>
       ` : ''}
-      <div class="card center">
-        <div class="tape"></div>
-        <div style="width: 100%; height: 200px; margin: 0 0 14px;">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="94 214 612 372" width="100%" height="100%" preserveAspectRatio="none" shape-rendering="crispEdges" style="display: block;">
-            <rect x="0" y="0" width="800" height="800" fill="#FAFAFA"/>
-            <rect x="94" y="214" width="612" height="372" fill="#000000"/>
-            <rect x="100" y="220" width="75" height="360" fill="#FFFFFF"/>
-            <rect x="175" y="220" width="75" height="360" fill="#FFFF00"/>
-            <rect x="250" y="220" width="75" height="360" fill="#00FFFF"/>
-            <rect x="325" y="220" width="75" height="360" fill="#00FF00"/>
-            <rect x="400" y="220" width="75" height="360" fill="#FF00FF"/>
-            <rect x="475" y="220" width="75" height="360" fill="#FF0000"/>
-            <rect x="550" y="220" width="75" height="360" fill="#0000FF"/>
-            <rect x="625" y="220" width="75" height="360" fill="#000000"/>
-            <rect x="115" y="355" width="570" height="90" fill="#000000"/>
-            <rect x="196" y="372" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="228" y="372" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="196" y="380" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="204" y="380" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="228" y="380" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="196" y="388" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="212" y="388" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="228" y="388" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="196" y="396" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="212" y="396" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="228" y="396" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="196" y="404" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="220" y="404" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="228" y="404" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="196" y="412" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="228" y="412" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="196" y="420" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="228" y="420" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="252" y="372" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="260" y="372" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="268" y="372" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="244" y="380" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="276" y="380" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="244" y="388" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="276" y="388" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="244" y="396" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="276" y="396" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="244" y="404" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="276" y="404" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="244" y="412" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="276" y="412" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="252" y="420" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="260" y="420" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="268" y="420" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="332" y="372" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="340" y="372" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="348" y="372" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="356" y="372" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="324" y="380" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="324" y="388" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="332" y="396" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="340" y="396" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="348" y="396" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="356" y="404" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="356" y="412" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="324" y="420" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="332" y="420" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="340" y="420" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="348" y="420" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="372" y="372" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="380" y="372" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="388" y="372" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="396" y="372" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="404" y="372" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="388" y="380" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="388" y="388" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="388" y="396" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="388" y="404" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="388" y="412" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="372" y="420" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="380" y="420" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="388" y="420" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="396" y="420" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="404" y="420" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="428" y="372" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="436" y="372" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="444" y="372" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="420" y="380" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="452" y="380" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="420" y="388" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="420" y="396" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="436" y="396" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="444" y="396" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="452" y="396" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="420" y="404" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="452" y="404" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="420" y="412" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="452" y="412" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="428" y="420" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="436" y="420" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="444" y="420" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="452" y="420" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="468" y="372" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="500" y="372" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="468" y="380" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="476" y="380" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="500" y="380" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="468" y="388" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="484" y="388" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="500" y="388" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="468" y="396" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="484" y="396" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="500" y="396" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="468" y="404" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="492" y="404" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="500" y="404" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="468" y="412" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="500" y="412" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="468" y="420" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="500" y="420" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="524" y="372" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="532" y="372" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="540" y="372" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="516" y="380" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="548" y="380" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="516" y="388" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="548" y="388" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="516" y="396" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="524" y="396" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="532" y="396" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="540" y="396" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="548" y="396" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="516" y="404" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="548" y="404" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="516" y="412" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="548" y="412" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="516" y="420" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="548" y="420" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="564" y="372" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="564" y="380" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="564" y="388" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="564" y="396" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="564" y="404" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="564" y="412" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="564" y="420" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="572" y="420" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="580" y="420" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="588" y="420" width="8" height="8" fill="#FFFFFF"/>
-            <rect x="596" y="420" width="8" height="8" fill="#FFFFFF"/>
-          </svg>
+      <div class="welcome-glass">
+        <div class="welcome-tv" aria-hidden="true">
+          <div class="welcome-tv-screen">
+            <div class="welcome-tv-bars">
+              <span style="background:#ffffff"></span>
+              <span style="background:#ffd500"></span>
+              <span style="background:#00d0ec"></span>
+              <span style="background:#10b981"></span>
+              <span style="background:#f43f5e"></span>
+              <span style="background:#dc2626"></span>
+              <span style="background:#1e40af"></span>
+              <span style="background:#0f172a"></span>
+            </div>
+            <div class="welcome-tv-scanlines"></div>
+            <div class="welcome-tv-glare"></div>
+            <div class="welcome-tv-nosignal"><span>NO SIGNAL</span></div>
+            <div class="welcome-tv-status"><span class="dot"></span>STANDBY</div>
+          </div>
         </div>
         <h2>LA GUERRE DES CHAÎNES COMMENCE MAINTENANT.</h2>
-        <p style="margin: 12px 0;">Partez de zéro. Faites les bons choix. Grimpez jusqu'au sommet.</p>
-        <p style="margin: 0 0 12px;">Votre mission : détrôner les chaînes historiques et devenir le maître des audiences.</p>
-        <button class="btn block" id="btn-start" style="font-size: 18px; padding: 14px;">Lancer ma chaîne →</button>
+        <p class="welcome-lead">Partez de zéro. Faites les bons choix. Grimpez jusqu'au sommet.</p>
+        <p class="welcome-sub">Votre mission : détrôner les chaînes historiques et devenir le maître des audiences.</p>
+        <button class="welcome-cta" id="btn-start">
+          <span class="welcome-cta-shine"></span>
+          <span>Lancer ma chaîne</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
       </div>
     `;
     document.getElementById('btn-start').onclick = () => { goToStepAnimated(() => { resetGame(); gameState.step = 2; }); };
