@@ -5805,14 +5805,19 @@ function render() {
 
   if (gameState.step === 4) {
     const currentDefaultName = gameState.player.name || GENERATED_NAMES[gameState.player.type][0];
+    if (!gameState.nameProposals || gameState.nameProposalsType !== gameState.player.type) {
+      gameState.nameProposals = [...GENERATED_NAMES[gameState.player.type]].sort(() => Math.random() - 0.5).slice(0, 4);
+      gameState.nameProposalsType = gameState.player.type;
+    }
     app.innerHTML = `
       ${renderMasthead("Étape 3/4 : Nom du nouveau entrant", "Audience Masters")}
       <div class="kicker-row">
         <div class="kicker-badge">ÉTAPE 3 — LANCEMENT OFFICIEL</div>
-        <button class="btn-dice" id="btn-rand"><span class="dice-icon">🎲</span><span class="dice-label">Idée</span></button>
+        <button class="btn-dice" id="btn-rand"><span class="dice-icon">🎲</span><span class="dice-label">Aléatoire</span></button>
       </div>
+      <div class="optgrid-format" id="name-proposals"></div>
       <div class="card-format">
-        <label for="chain-name" class="config-label">Nom de la chaîne TV</label>
+        <label for="chain-name" class="config-label">Ou personnalisez le nom</label>
         <div class="namebar">
           <input type="text" id="chain-name" value="${esc(currentDefaultName)}" maxlength="24">
         </div>
@@ -5824,13 +5829,37 @@ function render() {
       </button>
       ${renderStepDots(3, 4)}
     `;
+    const chainInput = document.getElementById('chain-name');
+    const proposalsGrid = document.getElementById('name-proposals');
+    const renderProposals = () => {
+      proposalsGrid.innerHTML = gameState.nameProposals.map(name => `
+        <button class="opt-format ${chainInput.value === name ? 'sel' : ''}" data-name="${esc(name)}">
+          <span class="opt-format-check" aria-hidden="true">✓</span>
+          <span class="opt-format-head">
+            <span class="opt-format-icon accent-bleu">📺</span>
+            <span class="opt-format-title">${esc(name)}</span>
+          </span>
+        </button>
+      `).join('');
+      proposalsGrid.querySelectorAll('.opt-format').forEach(card => {
+        card.onclick = () => {
+          chainInput.value = card.dataset.name;
+          proposalsGrid.querySelectorAll('.opt-format').forEach(c => c.classList.remove('sel'));
+          card.classList.add('sel');
+        };
+      });
+    };
+    renderProposals();
+    chainInput.addEventListener('input', () => {
+      proposalsGrid.querySelectorAll('.opt-format').forEach(c => c.classList.toggle('sel', c.dataset.name === chainInput.value));
+    });
     document.getElementById('btn-rand').onclick = () => {
-      const randomName = pick(GENERATED_NAMES[gameState.player.type]);
-      document.getElementById('chain-name').value = randomName;
+      gameState.nameProposals = [...GENERATED_NAMES[gameState.player.type]].sort(() => Math.random() - 0.5).slice(0, 4);
+      renderProposals();
     };
     document.getElementById('btn-next-4').onclick = () => {
       goToStepAnimated(() => {
-        const val = document.getElementById('chain-name').value.trim();
+        const val = chainInput.value.trim();
         gameState.player.name = val || GENERATED_NAMES[gameState.player.type][0];
 
         finalizeChannelSetup();
