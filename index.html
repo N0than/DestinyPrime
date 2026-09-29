@@ -614,18 +614,21 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .opt.sel .od { color: #cfc8b6; }
 
 .card-format {
-  background: var(--paper-card); border: 1px solid var(--border); border-radius: 16px;
-  box-shadow: 0 1px 3px rgba(18,19,22,0.06); padding: 16px; margin-bottom: 16px; position: relative;
+  background: rgba(255,255,255,0.65); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.85); border-radius: 14px;
+  box-shadow: 0 20px 40px -15px rgba(15,23,42,0.1), 0 0 0 1px rgba(255,255,255,0.6) inset;
+  padding: 18px; margin-bottom: 16px; position: relative;
 }
 .optgrid-format { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0 20px; }
 .opt-format {
-  position: relative; text-align: left; background: var(--paper-card);
-  border: 1px solid var(--border); border-radius: 14px; padding: 10px 11px 11px;
-  box-shadow: 0 1px 3px rgba(18,19,22,0.06);
+  position: relative; text-align: left;
+  background: rgba(255,255,255,0.65); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.85); border-radius: 14px; padding: 10px 11px 11px;
+  box-shadow: 0 8px 20px -8px rgba(15,23,42,0.08);
   font-family: 'Plus Jakarta Sans', sans-serif;
   transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease, background 0.12s ease;
 }
-.opt-format:hover { transform: translateY(-1px); box-shadow: 0 4px 10px rgba(18,19,22,0.1); }
+.opt-format:hover { transform: translateY(-1px); box-shadow: 0 10px 24px -8px rgba(15,23,42,0.14); }
 .opt-format-head { display: flex; align-items: center; gap: 7px; margin-bottom: 5px; }
 .opt-format-icon {
   flex-shrink: 0; width: 24px; height: 24px; border-radius: 8px;
@@ -669,12 +672,15 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 
 input[type=text] {
   width: 100%; font-family: 'Anton', sans-serif; font-size: 20px; text-transform: uppercase;
-  padding: 10px; border: 2px solid var(--ink); border-radius: 8px; background: #fff; letter-spacing: 1px;
+  padding: 12px 14px; border: 1px solid rgba(15,23,42,0.15); border-radius: 14px;
+  background: rgba(255,255,255,0.7); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  letter-spacing: 1px; color: var(--ink);
 }
+input[type=text]:focus { outline: none; border-color: var(--bleu); box-shadow: 0 0 0 3px rgba(37,99,235,0.15); }
 label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; display: block; margin: 14px 0 6px; }
+.config-label { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 10px; letter-spacing: 0.6px; text-transform: uppercase; color: var(--gris); display: block; margin: 0 0 8px; }
 
-.namebar { display: flex; gap: 8px; margin-bottom: 16px; }
-.namebar .btn { padding: 8px 14px; font-size: 13px; white-space: nowrap; }
+.namebar { display: flex; gap: 8px; align-items: center; margin-bottom: 16px; }
 
 .btn {
   display: inline-block; background: var(--ink); color: var(--paper); border: none;
@@ -817,7 +823,12 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .grid-table th { background: var(--paper-dark); font-family: 'Anton', sans-serif; text-transform: uppercase; letter-spacing: 0.5px; }
 .grid-table tr:nth-child(even) { background: rgba(255,255,255,0.5); }
 
-.badge { background: var(--gold); color: var(--ink); font-family: 'Anton', sans-serif; padding: 2px 8px; font-size: 12px; text-transform: uppercase; border: 1px solid var(--ink); border-radius: 999px; }
+.badge {
+  display: inline-flex; align-items: center;
+  background: rgba(217,119,6,0.12); color: var(--gold); border: 1px solid rgba(217,119,6,0.25);
+  font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; padding: 6px 14px; font-size: 12px;
+  text-transform: uppercase; letter-spacing: 0.3px; border-radius: 999px;
+}
 
 @media (prefers-reduced-motion: reduce) { 
   * { transition: none !important; animation: none !important; } 
@@ -5729,7 +5740,7 @@ function render() {
   if (gameState.step === 3) {
     app.innerHTML = `
       ${renderMasthead("Étape 2/4 : Choisissez votre Cible Prioritaire", "Audience Masters")}
-      <div class="kicker">ÉTAPE 2 — AUDIENCE CIBLÉE (1% AU DÉPART)</div>
+      <div class="kicker-badge">ÉTAPE 2 — AUDIENCE CIBLÉE (1% AU DÉPART)</div>
       <div class="optgrid-format">
         ${Object.entries(TARGET_STRATEGIES).map(([k, v]) => {
           const meta = {
@@ -5750,7 +5761,11 @@ function render() {
         `;
         }).join('')}
       </div>
-      <button class="btn block" id="btn-next-3">Étape suivante : Nommer la chaîne →</button>
+      <button class="welcome-cta" id="btn-next-3">
+        <span class="welcome-cta-shine"></span>
+        <span>Étape suivante : Nommer la chaîne</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
       ${renderStepDots(2, 4)}
     `;
     app.querySelectorAll('.opt-format').forEach(b => {
@@ -5769,14 +5784,18 @@ function render() {
     app.innerHTML = `
       ${renderMasthead("Étape 3/4 : Nom du nouveau entrant", "Audience Masters")}
       <div class="card-format">
-        <div class="kicker">ÉTAPE 3 — LANCEMENT OFFICIEL</div>
-        <label for="chain-name">Nom de la chaîne TV</label>
+        <div class="kicker-badge">ÉTAPE 3 — LANCEMENT OFFICIEL</div>
+        <label for="chain-name" class="config-label">Nom de la chaîne TV</label>
         <div class="namebar">
           <input type="text" id="chain-name" value="${esc(currentDefaultName)}" maxlength="24">
-          <button class="btn ghost" id="btn-rand">🎲 Idée</button>
+          <button class="btn-dice" id="btn-rand"><span class="dice-icon">🎲</span><span class="dice-label">Idée</span></button>
         </div>
       </div>
-      <button class="btn block" id="btn-next-4">Voir le Récapitulatif →</button>
+      <button class="welcome-cta" id="btn-next-4">
+        <span class="welcome-cta-shine"></span>
+        <span>Voir le récapitulatif</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
       ${renderStepDots(3, 4)}
     `;
     document.getElementById('btn-rand').onclick = () => {
@@ -5805,12 +5824,12 @@ function render() {
     app.innerHTML = `
       ${renderMasthead("Étape 4/4 : Fiche Nouveau Entrant", "Audience Masters")}
       <div class="card-format">
-        <div class="kicker">ÉTAPE 5 — PARAMÈTRES ANNÉE 1</div>
+        <div class="kicker-badge">ÉTAPE 5 — PARAMÈTRES ANNÉE 1</div>
         <h2 style="color: var(--bleu);">${esc(gameState.player.name)}</h2>
         <p><b>Format :</b> ${typeObj.label} | <b>Cible prioritaire :</b> ${targetObj.nom}</p>
-        
-        <hr style="margin: 10px 0; border: none; border-top: 1px dashed var(--ink);">
-        
+
+        <hr style="margin: 10px 0; border: none; border-top: 1px dashed rgba(15,23,42,0.15);">
+
         <h3>CONDITIONS DE DÉPART</h3>
         <ul style="margin: 8px 0 14px 18px; font-size: 14px;">
           <li><b>Capital de départ :</b> ${nf1(gameState.player.tresorerie)} M€</li>
@@ -5820,7 +5839,10 @@ function render() {
 
         <div class="badge">Objectif Année 1 : Passer le cap des 3% PDA</div>
       </div>
-      <button class="btn block" id="btn-launch" style="font-size: 17px; padding: 14px;">🚀 DÉMARRER LA SAISON 1</button>
+      <button class="welcome-cta" id="btn-launch">
+        <span class="welcome-cta-shine"></span>
+        <span>🚀 Démarrer la saison 1</span>
+      </button>
       ${renderStepDots(4, 4)}
     `;
     document.getElementById('btn-launch').onclick = () => {
