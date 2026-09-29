@@ -5888,7 +5888,7 @@ function render() {
       </div>
       <div class="card-format">
         <h2 style="color: var(--bleu);">${esc(gameState.player.name)}</h2>
-        <p><b>Format :</b> ${typeObj.label}<br><b>Cible prioritaire :</b> ${targetObj.nom}</p>
+        <p><b>Format :</b> ${typeObj.label}<br><b>Cible prioritaire :</b> ${targetObj.nom.replace(/\s*\([^)]*\)/, '')}</p>
 
         <hr style="margin: 10px 0; border: none; border-top: 1px dashed rgba(15,23,42,0.15);">
 
