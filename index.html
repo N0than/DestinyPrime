@@ -5815,7 +5815,7 @@ function render() {
       gameState.nameProposalsType = gameState.player.type;
     }
     app.innerHTML = `
-      ${renderMasthead("Étape 3/4 : Nom du nouveau entrant", "Audience Masters")}
+      ${renderMasthead("Étape 3/4 : Nom du nouvel entrant", "Audience Masters")}
       <div class="kicker-row">
         <div class="kicker-badge">ÉTAPE 3 — LANCEMENT OFFICIEL</div>
         <button class="btn-dice" id="btn-rand"><span class="dice-icon">🎲</span><span class="dice-label">Aléatoire</span></button>
@@ -5882,7 +5882,7 @@ function render() {
     const targetObj = TARGET_STRATEGIES[gameState.player.target];
 
     app.innerHTML = `
-      ${renderMasthead("Étape 4/4 : Fiche Nouveau Entrant", "Audience Masters")}
+      ${renderMasthead("Étape 4/4 : Fiche Nouvel Entrant", "Audience Masters")}
       <div class="kicker-row">
         <div class="kicker-badge">ÉTAPE 4 — PARAMÈTRES ANNÉE 1</div>
       </div>
@@ -5895,7 +5895,7 @@ function render() {
         <h3>CONDITIONS DE DÉPART</h3>
         <ul style="margin: 8px 0 14px 18px; font-size: 14px;">
           <li><b>Capital de départ :</b> ${nf1(gameState.player.tresorerie)} M€</li>
-          <li><b>Audience sur cible :</b> 1,0 % (Nouveau entrant)</li>
+          <li><b>Audience sur cible :</b> 1,0 % (Nouvel entrant)</li>
           <li><b>Le challenge :</b> S'imposer face à cinq chaînes historiques, dotées de budgets conséquents.</li>
         </ul>
 
