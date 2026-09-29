@@ -5741,7 +5741,10 @@ function render() {
   if (gameState.step === 3) {
     app.innerHTML = `
       ${renderMasthead("Étape 2/4 : Choisissez votre Cible Prioritaire", "Audience Masters")}
-      <div class="kicker-badge">ÉTAPE 2 — AUDIENCE CIBLÉE (1% AU DÉPART)</div>
+      <div class="kicker-row">
+        <div class="kicker-badge">ÉTAPE 2 — AUDIENCE CIBLÉE</div>
+        <button class="btn-dice" id="btn-random-setup"><span class="dice-icon">🎲</span><span class="dice-label">Aléatoire</span></button>
+      </div>
       <div class="optgrid-format">
         ${Object.entries(TARGET_STRATEGIES).map(([k, v]) => {
           const meta = {
@@ -5776,6 +5779,15 @@ function render() {
       };
     });
     document.getElementById('btn-next-3').onclick = () => { goToStepAnimated(() => { gameState.step = 4; }); };
+    document.getElementById('btn-random-setup').onclick = () => {
+      gameState.player.type = pick(Object.keys(CHANNEL_TYPES));
+      gameState.player.target = pick(Object.keys(TARGET_STRATEGIES));
+      gameState.player.name = pick(GENERATED_NAMES[gameState.player.type]);
+      finalizeChannelSetup();
+      gameState.resumeStep = null;
+      gameState.step = 5;
+      render();
+    };
     app.querySelector('.masthead').onclick = goHome;
     return;
   }
