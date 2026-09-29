@@ -31,17 +31,32 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html { -webkit-text-size-adjust: 100%; }
 body {
-  background-color: var(--paper);
-  background-image:
-    radial-gradient(#d8d3c8 0.65px, transparent 0.65px),
-    linear-gradient(to bottom, rgba(247, 245, 240, 0.96), rgba(239, 236, 230, 0.98));
-  background-size: 16px 16px, 100% 100%;
+  background: linear-gradient(180deg, #dbeafe 0%, #eff6ff 25%, #f8fafc 55%, #e0f2fe 100%);
   color: var(--ink);
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 16px;
   line-height: 1.5;
   min-height: 100vh;
   overflow-x: hidden;
+  position: relative;
+}
+/* Halos d'ambiance en fixed (et non absolute) pour rester calés sur la
+   fenêtre même quand la page défile au-delà de 100vh. */
+body::before {
+  content: ''; position: fixed; top: -10%; left: -20%;
+  width: 140%; height: 60%;
+  background: radial-gradient(circle at center, rgba(147,197,253,0.45) 0%, rgba(219,234,254,0.2) 50%, transparent 80%);
+  filter: blur(60px);
+  pointer-events: none;
+  z-index: 0;
+}
+body::after {
+  content: ''; position: fixed; bottom: -10%; right: -10%;
+  width: 120%; height: 50%;
+  background: radial-gradient(circle at center, rgba(186,230,253,0.35) 0%, transparent 70%);
+  filter: blur(50px);
+  pointer-events: none;
+  z-index: 0;
 }
 
 #app {
@@ -51,6 +66,8 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  position: relative;
+  z-index: 1;
 }
 .step-body-container { position: relative; overflow: hidden; }
 .step-body-container.resizing { transition: height 0.34s cubic-bezier(0.16, 1, 0.3, 1); }
