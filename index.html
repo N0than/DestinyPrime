@@ -557,14 +557,6 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
   font-family: 'VT323', monospace; font-size: 28px; letter-spacing: 4px;
   color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.8);
 }
-.welcome-tv-status {
-  position: absolute; bottom: 10px; right: 12px;
-  display: inline-flex; align-items: center; gap: 6px;
-  background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
-  padding: 2px 8px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.1);
-  font-family: 'Plus Jakarta Sans', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.5px; color: rgba(255,255,255,0.8);
-}
-.welcome-tv-status .dot { width: 6px; height: 6px; border-radius: 50%; background: #34d399; animation: hudLiveDotPulse 1.4s ease-in-out infinite; }
 
 .welcome-cta {
   position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; gap: 8px;
@@ -5665,7 +5657,6 @@ function render() {
             <div class="welcome-tv-scanlines"></div>
             <div class="welcome-tv-glare"></div>
             <div class="welcome-tv-nosignal"><span>NO SIGNAL</span></div>
-            <div class="welcome-tv-status"><span class="dot"></span>STANDBY</div>
           </div>
         </div>
         <h2>LA GUERRE DES CHAÎNES COMMENCE MAINTENANT.</h2>
