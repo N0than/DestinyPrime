@@ -596,9 +596,10 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
   letter-spacing: 2.5px; text-transform: uppercase; color: #64748b; margin-bottom: 10px;
 }
 .resume-kicker .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--rouge); flex-shrink: 0; animation: blink 2.2s ease-in-out infinite; }
+.resume-title-row { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; }
 .resume-glass h2 { margin: 0; color: var(--bleu); }
 .resume-season-badge {
-  display: inline-flex; margin-top: 8px;
+  display: inline-flex; flex-shrink: 0;
   padding: 4px 12px; border-radius: 999px;
   background: rgba(37,99,235,0.1); border: 1px solid rgba(37,99,235,0.18);
   font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 11px;
@@ -5637,8 +5638,10 @@ function render() {
       ${canResume ? `
       <div class="welcome-glass resume-glass">
         <div class="resume-kicker"><span class="dot"></span>Partie en cours</div>
-        <h2>${esc(gameState.player.name)}</h2>
-        <span class="resume-season-badge">Saison ${gameState.season}</span>
+        <div class="resume-title-row">
+          <h2>${esc(gameState.player.name)}</h2>
+          <span class="resume-season-badge">Saison ${gameState.season}</span>
+        </div>
         <button class="welcome-cta" id="btn-resume">
           <span class="welcome-cta-shine"></span>
           <span>Reprendre la partie</span>
