@@ -587,7 +587,6 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 }
 .welcome-cta:hover .welcome-cta-shine { transform: skewX(-12deg) translateX(350%); }
 
-.resume-glass { text-align: left; }
 .resume-kicker {
   display: inline-flex; align-items: center; gap: 6px;
   padding: 4px 12px; border-radius: 999px;
@@ -597,8 +596,14 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
   letter-spacing: 2.5px; text-transform: uppercase; color: #64748b; margin-bottom: 10px;
 }
 .resume-kicker .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--rouge); flex-shrink: 0; animation: blink 2.2s ease-in-out infinite; }
-.resume-glass h2 { margin: 0; color: var(--bleu); text-align: left; }
-.resume-glass .resume-sub { margin: 6px 0 0; text-align: left; color: #64748b; font-size: 13px; }
+.resume-glass h2 { margin: 0; color: var(--bleu); }
+.resume-season-badge {
+  display: inline-flex; margin-top: 8px;
+  padding: 4px 12px; border-radius: 999px;
+  background: rgba(37,99,235,0.1); border: 1px solid rgba(37,99,235,0.18);
+  font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 11px;
+  color: var(--bleu); letter-spacing: 0.3px;
+}
 .resume-glass .welcome-cta { margin-top: 16px; background: var(--bleu); box-shadow: 0 12px 24px -6px rgba(37,99,235,0.35); }
 .resume-glass .welcome-cta:hover { box-shadow: 0 16px 30px -6px rgba(37,99,235,0.45); }
 
@@ -5633,7 +5638,7 @@ function render() {
       <div class="welcome-glass resume-glass">
         <div class="resume-kicker"><span class="dot"></span>Partie en cours</div>
         <h2>${esc(gameState.player.name)}</h2>
-        <p class="resume-sub">Saison ${gameState.season} — reprenez là où vous vous êtes arrêté.</p>
+        <span class="resume-season-badge">Saison ${gameState.season}</span>
         <button class="welcome-cta" id="btn-resume">
           <span class="welcome-cta-shine"></span>
           <span>Reprendre la partie</span>
