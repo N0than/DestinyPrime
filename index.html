@@ -629,6 +629,9 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 }
 .optgrid-format { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0 4px; }
 .optgrid-format + .welcome-cta { margin-top: 10px; }
+.namecard-custom { min-height: 0; margin-top: 10px; margin-bottom: 4px; }
+.namecard-custom .namebar { margin-bottom: 0; }
+.namecard-custom + .welcome-cta { margin-top: 10px; }
 .opt-format {
   position: relative; text-align: left;
   background: rgba(255,255,255,0.65); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
@@ -5816,7 +5819,7 @@ function render() {
         <button class="btn-dice" id="btn-rand"><span class="dice-icon">🎲</span><span class="dice-label">Aléatoire</span></button>
       </div>
       <div class="optgrid-format" id="name-proposals"></div>
-      <div class="card-format">
+      <div class="card-format namecard-custom">
         <label for="chain-name" class="config-label">Ou personnalisez le nom</label>
         <div class="namebar">
           <input type="text" id="chain-name" value="${esc(currentDefaultName)}" maxlength="24">
