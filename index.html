@@ -587,6 +587,21 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 }
 .welcome-cta:hover .welcome-cta-shine { transform: skewX(-12deg) translateX(350%); }
 
+.resume-glass { text-align: left; }
+.resume-kicker {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 12px; border-radius: 999px;
+  background: rgba(255,255,255,0.6); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,0.8); box-shadow: 0 1px 2px rgba(15,23,42,0.04);
+  font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 10px;
+  letter-spacing: 2.5px; text-transform: uppercase; color: #64748b; margin-bottom: 10px;
+}
+.resume-kicker .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--rouge); flex-shrink: 0; animation: blink 2.2s ease-in-out infinite; }
+.resume-glass h2 { margin: 0; color: var(--bleu); text-align: left; }
+.resume-glass .resume-sub { margin: 6px 0 0; text-align: left; color: #64748b; font-size: 13px; }
+.resume-glass .welcome-cta { margin-top: 16px; background: var(--bleu); box-shadow: 0 12px 24px -6px rgba(37,99,235,0.35); }
+.resume-glass .welcome-cta:hover { box-shadow: 0 16px 30px -6px rgba(37,99,235,0.45); }
+
 .optgrid { display: grid; grid-template-columns: 1fr; gap: 10px; margin: 12px 0 20px; }
 @media(min-width: 520px) { .optgrid { grid-template-columns: 1fr 1fr; } }
 
@@ -5615,12 +5630,15 @@ function render() {
         ${renderMire(8)}
       </div>
       ${canResume ? `
-      <div class="card">
-        <div class="tape"></div>
-        <div class="kicker">PARTIE EN COURS</div>
-        <h2 style="color: var(--bleu);">${esc(gameState.player.name)}</h2>
-        <p style="margin: 8px 0 12px;">Saison ${gameState.season} — reprenez là où vous vous êtes arrêté.</p>
-        <button class="btn block" id="btn-resume" style="font-size: 16px; padding: 12px;">↩ Reprendre la partie →</button>
+      <div class="welcome-glass resume-glass">
+        <div class="resume-kicker"><span class="dot"></span>Partie en cours</div>
+        <h2>${esc(gameState.player.name)}</h2>
+        <p class="resume-sub">Saison ${gameState.season} — reprenez là où vous vous êtes arrêté.</p>
+        <button class="welcome-cta" id="btn-resume">
+          <span class="welcome-cta-shine"></span>
+          <span>Reprendre la partie</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
       </div>
       ` : ''}
       <div class="welcome-glass">
