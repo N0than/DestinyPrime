@@ -5799,8 +5799,10 @@ function render() {
     const currentDefaultName = gameState.player.name || GENERATED_NAMES[gameState.player.type][0];
     app.innerHTML = `
       ${renderMasthead("Étape 3/4 : Nom du nouveau entrant", "Audience Masters")}
-      <div class="card-format">
+      <div class="kicker-row">
         <div class="kicker-badge">ÉTAPE 3 — LANCEMENT OFFICIEL</div>
+      </div>
+      <div class="card-format">
         <label for="chain-name" class="config-label">Nom de la chaîne TV</label>
         <div class="namebar">
           <input type="text" id="chain-name" value="${esc(currentDefaultName)}" maxlength="24">
@@ -5839,8 +5841,10 @@ function render() {
 
     app.innerHTML = `
       ${renderMasthead("Étape 4/4 : Fiche Nouveau Entrant", "Audience Masters")}
+      <div class="kicker-row">
+        <div class="kicker-badge">ÉTAPE 4 — PARAMÈTRES ANNÉE 1</div>
+      </div>
       <div class="card-format">
-        <div class="kicker-badge">ÉTAPE 5 — PARAMÈTRES ANNÉE 1</div>
         <h2 style="color: var(--bleu);">${esc(gameState.player.name)}</h2>
         <p><b>Format :</b> ${typeObj.label} | <b>Cible prioritaire :</b> ${targetObj.nom}</p>
 
