@@ -460,12 +460,12 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .impact-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
 .impact-badge {
   display: inline-flex; align-items: center; gap: 4px;
-  font-family: 'Anton', sans-serif; font-size: 11px; letter-spacing: 0.2px; white-space: nowrap;
-  padding: 3px 8px; border-radius: 999px; background: var(--paper); border: 1px solid var(--ink);
+  font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 0.2px; white-space: nowrap;
+  padding: 4px 10px; border-radius: 999px; background: var(--paper-dark); border: 1px solid var(--border); color: var(--gris);
 }
-.impact-badge.up { color: var(--vert); border-color: var(--vert); }
-.impact-badge.down { color: var(--rouge); border-color: var(--rouge); }
-.impact-badge.flat { color: var(--gris); border-color: var(--gris); }
+.impact-badge.up { color: var(--vert); background: rgba(5,150,105,0.08); border-color: rgba(5,150,105,0.2); }
+.impact-badge.down { color: var(--rouge); background: rgba(225,29,72,0.08); border-color: rgba(225,29,72,0.2); }
+.impact-badge.flat { color: var(--gris); background: var(--paper-dark); border-color: var(--border); }
 
 @media (max-width: 520px) {
   .hud { gap: 1px; }
