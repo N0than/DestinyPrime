@@ -5988,7 +5988,11 @@ function render() {
               <div class="impact-badges">${badgesHtml}</div>
             </div>
           </div>
-          <button class="btn block" id="btn-continue" style="font-size: 17px; padding: 14px; margin-top: 14px;">Continuer →</button>
+          <button class="welcome-cta" id="btn-continue" style="margin-top: 14px;">
+            <span class="welcome-cta-shine"></span>
+            <span>Continuer</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
         </div>
       `;
     } else {
@@ -6261,7 +6265,11 @@ function render() {
           <li>Sanctions cumulées : ${player.arcomSanctionsCount}</li>
         </ul>
       </div>
-      <button class="btn block" id="btn-renewal-continue" style="font-size: 17px; padding: 14px;">${outcome.key === 'refused' ? 'Voir le bilan final →' : 'Continuer →'}</button>
+      <button class="welcome-cta" id="btn-renewal-continue">
+        <span class="welcome-cta-shine"></span>
+        <span>${outcome.key === 'refused' ? 'Voir le bilan final' : 'Continuer'}</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
     `;
     document.getElementById('btn-renewal-continue').onclick = () => {
       if (outcome.key === 'refused') {
