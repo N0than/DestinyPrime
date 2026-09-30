@@ -522,6 +522,16 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 }
 .tape { position: absolute; top: -10px; left: 50%; transform: translateX(-50%) rotate(-1.5deg); width: 80px; height: 20px; background: rgba(31,58,147,0.18); border: 1px dashed rgba(31,58,147,0.4); }
 
+/* ---- VOLET BILAN DE SAISON (glassmorphism, homogène avec le reste) ---- */
+.bilan-card {
+  background: rgba(255,255,255,0.65); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255,255,255,0.85);
+  box-shadow: 0 25px 50px -12px rgba(15,23,42,0.12), 0 0 0 1px rgba(255,255,255,0.8) inset;
+}
+.bilan-card .tape { display: none; }
+.bilan-card .kicker-badge { margin-bottom: 10px; }
+.bilan-card h3 { font-size: 14px; margin: 14px 0 4px; }
+
 /* ---- BLOC D'ACCUEIL "LANCER MA CHAÎNE" (glassmorphism) ---- */
 .welcome-glass {
   background: rgba(255,255,255,0.65);
@@ -578,6 +588,9 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 .welcome-cta:hover { transform: translateY(-1px); box-shadow: 0 16px 30px -6px rgba(15,23,42,0.4); }
+.welcome-cta:disabled { opacity: 0.5; cursor: not-allowed; }
+.welcome-cta:disabled:hover { transform: none; box-shadow: 0 12px 24px -6px rgba(15,23,42,0.3); }
+.welcome-cta:disabled:hover .welcome-cta-shine { transform: skewX(-12deg) translateX(-150%); }
 .welcome-cta:active { transform: scale(0.98); }
 .welcome-cta svg { width: 16px; height: 16px; transition: transform 0.2s ease; }
 .welcome-cta:hover svg { transform: translateX(3px); }
@@ -842,10 +855,12 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .choice.selected .choice-pill { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.3); }
 
 /* ---- TABLE & AUDIENCE RESULTS ---- */
-.grid-table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
-.grid-table th, .grid-table td { border: 1px solid var(--ink); padding: 6px 8px; text-align: left; }
-.grid-table th { background: var(--paper-dark); font-family: 'Anton', sans-serif; text-transform: uppercase; letter-spacing: 0.5px; }
-.grid-table tr:nth-child(even) { background: rgba(255,255,255,0.5); }
+.grid-table { width: 100%; border-collapse: separate; border-spacing: 0; margin: 12px 0; font-size: 13px; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.85); }
+.grid-table th, .grid-table td { border-bottom: 1px solid rgba(255,255,255,0.7); padding: 8px 10px; text-align: left; }
+.grid-table tr:last-child td { border-bottom: none; }
+.grid-table th { background: rgba(255,255,255,0.5); font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px; color: var(--gris); }
+.grid-table td { background: rgba(255,255,255,0.3); }
+.grid-table tr:nth-child(even) td { background: rgba(255,255,255,0.5); }
 
 .badge {
   display: inline-flex; align-items: center;
@@ -6085,8 +6100,8 @@ function render() {
     const careerPending = gameState.pendingCareerDecision;
     const careerContract = careerPending ? gameState.player.contracts?.[careerPending.slot] : null;
     const career = careerContract ? migrateProgramCareer(careerContract, careerPending.slot) : null;
-    const careerDecisionHtml = careerContract ? `<div class="card">
-      <div class="kicker">AVENIR D’UN PROGRAMME</div>
+    const careerDecisionHtml = careerContract ? `<div class="card bilan-card">
+      <div class="kicker-badge">AVENIR D’UN PROGRAMME</div>
       <h3>${career.historic?'⭐ ':''}${esc(careerContract.name)} — ${esc(TIME_SLOTS.find(s=>s.key===careerPending.slot)?.label)}</h3>
       <p>${esc(career.status)} · ${career.seasonsCount} saison(s) · Notoriété <b>${Math.round(career.awareness)}</b> · Fidélité <b>${Math.round(career.loyalty)}</b> · Usure <b>${Math.round(career.wear)}</b></p>
       <div class="choices">
@@ -6099,9 +6114,8 @@ function render() {
 
     app.innerHTML = `
       ${renderMasthead("Fin de saison", "Audience Masters")}
-      <div class="card">
-        <div class="tape"></div>
-        <div class="kicker">BILAN DE LA SAISON ${gameState.season} / ${esc(targetLabel)}</div>
+      <div class="card bilan-card">
+        <div class="kicker-badge">BILAN DE LA SAISON ${gameState.season} / ${esc(targetLabel)}</div>
         <div class="bilan-title-row">
           <h2>PART D'AUDIENCE GLOBALE</h2>
           <div class="arcom-status-pill arcom-status-${compliance.status.key}">${compliance.status.emoji} ARCOM ${compliance.status.label} — ${compliance.arcomScore}/100</div>
@@ -6117,7 +6131,7 @@ function render() {
           </thead>
           <tbody>
             ${standings.map((st, idx) => `
-              <tr style="${st.isPlayer ? 'font-weight: bold; background: rgba(31,58,147,0.1);' : ''}">
+              <tr style="${st.isPlayer ? 'font-weight: bold; background: rgba(37,99,235,0.08);' : ''}">
                 <td>#${idx + 1}</td>
                 <td>${esc(st.name)}</td>
                 <td>${st.pda}%</td>
@@ -6134,12 +6148,16 @@ function render() {
 
       ${renderCampaignPanel()}
       ${careerDecisionHtml}
-      <div class="card">
-        <div class="kicker">ENGAGEMENTS DE LA SAISON SUIVANTE</div>
+      <div class="card bilan-card">
+        <div class="kicker-badge">ENGAGEMENTS DE LA SAISON SUIVANTE</div>
         <p>Grille à payer : <b>${nf1(nextSeasonCommitment().annual)} M€</b> · contrats arrivant à échéance : ${nf1(nextSeasonCommitment().expired)} M€ / an.</p>
         <p>Trésorerie après paiement : <b>${nf1(nextSeasonCommitment().cash)} M€</b>, avant nouvelles recettes et décisions.${nextSeasonCommitment().cash<TRESORERIE_CRITIQUE?' Ce paiement ferait franchir le seuil de faillite.':''}</p>
       </div>
-      <button class="btn block" id="btn-next-season" ${careerContract?'disabled title="Décidez d’abord de l’avenir du programme"':''}>${careerContract ? 'Choisissez l’avenir du programme ci-dessus' : gameState.renewalDue ? 'Voir le renouvellement de convention →' : `Lancer la Saison ${gameState.season + 1} →`}</button>
+      <button class="welcome-cta" id="btn-next-season" ${careerContract?'disabled title="Décidez d’abord de l’avenir du programme"':''}>
+        <span class="welcome-cta-shine"></span>
+        <span>${careerContract ? 'Choisissez l’avenir du programme ci-dessus' : gameState.renewalDue ? 'Voir le renouvellement de convention' : `Lancer la Saison ${gameState.season + 1}`}</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
     `;
 
     document.getElementById('btn-next-season').onclick = () => {
