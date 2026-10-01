@@ -6886,7 +6886,8 @@ function selectCareerDecisions() {
     const c = migrateProgramCareer(contract, slot);
     const urgency = (contract.end <= gameState.season ? 40 : 0) + c.wear + (c.historic ? 20 : 0) + c.seasonsCount * 3;
     return { slot, contract, urgency };
-  }).filter(item => item.contract.end <= gameState.season || item.contract.career.wear >= 40 || item.contract.career.historic);
+  }).filter(item => !item.contract.stopped
+    && (item.contract.end <= gameState.season || item.contract.career.wear >= 40 || item.contract.career.historic));
   candidates.sort((a,b) => b.urgency - a.urgency);
   return candidates.map(item => ({ slot: item.slot, programId: item.contract.id }));
 }
@@ -6931,8 +6932,14 @@ function applyCareerDilemmaChoice(dilemma, choice) {
   const c = migrateProgramCareer(contract, dilemma.careerSlot);
   const action = choice.careerAction;
   if (action === 'stop') {
-    delete p.contracts[dilemma.careerSlot];
-    if (p.grilleOverrides) delete p.grilleOverrides[dilemma.careerSlot];
+    // Arrêt en fin de saison : le programme termine la saison à l'antenne (son audience
+    // et les recettes publicitaires associées restent acquises), mais son coût annuel est
+    // déjà retiré de la grille et crédité en trésorerie. Il quitte la grille à l'ouverture
+    // de la saison suivante (expireContracts), sans être facturé une seconde fois.
+    contract.annual = 0;
+    contract.talentAnnual = 0;
+    contract.end = Math.min(contract.end, gameState.season);
+    contract.stopped = true;
   } else {
     contract.end = Math.max(contract.end, gameState.season) + 1;
     if (action === 'renew') c.wear = Math.min(100, c.wear + 4);
@@ -8306,8 +8313,10 @@ function renderProgramManager(slot) {
   return `<section class="program-manager" aria-label="Modifier la programmation">
     ${c?`<div class="program-manager-contract-row">
       <div class="career-stats-badges">
-        <span class="pg-pda-badge pg-badge-bleu">${nf1(c.annual)} M€/an</span>
-        <span class="pg-pda-badge pg-badge-gris">Fin de contrat en S${c.end}</span>
+        ${c.stopped
+          ? `<span class="pg-pda-badge pg-badge-rouge">Arrêté · dernière saison à l'antenne</span>`
+          : `<span class="pg-pda-badge pg-badge-bleu">${nf1(c.annual)} M€/an</span>
+        <span class="pg-pda-badge pg-badge-gris">Fin de contrat en S${c.end}</span>`}
         <span class="pg-pda-badge pg-badge-gris">${career.seasonsCount} saison(s)</span>
         ${c.acquiredFrom?`<span class="pg-pda-badge pg-badge-gold">Racheté à ${esc(c.acquiredFrom)}</span>`:''}
         <span class="pg-pda-badge pg-badge-rouge program-manager-penalty" data-program-penalty aria-live="polite" hidden></span>
