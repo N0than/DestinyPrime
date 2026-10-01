@@ -322,7 +322,8 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .radar-panel, .radar-sheet { display: flex; flex-direction: column; gap: 8px; animation: pg-pushdown .24s cubic-bezier(.16,1,.3,1); }
 .radar-mode .radar-panel { flex: 1; min-height: 0; }
 .radar-mode .radar-sheet { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding-right: 2px; }
-.radar-sheet .radar-toggle { align-self: flex-start; }
+.radar-head-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.radar-mode .pg-head.sheet-open { margin-bottom: 10px; }
 .radar-slots { flex-shrink: 0; }
 .radar-slots .ga-target-btn { flex: 1 1 0; min-width: 0; padding: 5px 4px; text-align: center; }
 .radar-scroll {
@@ -1189,14 +1190,18 @@ function renderEvolutionChart(points) {
 
 function renderProgramGrid(type, pdaCible, overrides) {
   if (radarState().open && gameState.competitors?.length) {
+    const sheetOpen = radarState().sheet !== null && !!gameState.competitors[radarState().sheet];
     return `
       <div class="pg-slide radar-mode">
-        <div class="pg-head pg-head-row">
+        <div class="pg-head pg-head-row${sheetOpen ? ' sheet-open' : ''}">
           <div>
             <div class="eh-title">Concurrence</div>
-            <div class="eh-subtitle">Cliquez sur une chaîne pour découvrir sa stratégie.</div>
+            ${sheetOpen ? '' : '<div class="eh-subtitle">Cliquez sur une chaîne pour découvrir sa stratégie.</div>'}
           </div>
-          <button type="button" class="radar-toggle active" data-radar-action="toggle">⚔️ Ma grille</button>
+          <div class="radar-head-actions">
+            ${sheetOpen ? '<button type="button" class="radar-toggle" data-radar-action="back">← Retour</button>' : ''}
+            <button type="button" class="radar-toggle active" data-radar-action="toggle">⚔️ Ma grille</button>
+          </div>
         </div>
         ${renderRadarPanel()}
       </div>
@@ -7935,7 +7940,6 @@ function renderCompetitorSheet(c) {
   const signed = (v, d = 1) => `${v > 0 ? '+' : ''}${v.toFixed(d).replace('.', ',')}`;
   const list = (items, empty) => items.length ? `<ul class="radar-list">${items.map(i => `<li>${i}</li>`).join('')}</ul>` : `<p class="radar-empty">${empty}</p>`;
   return `<div class="radar-sheet">
-    <button type="button" class="radar-toggle" data-radar-action="back">← Retour</button>
     <div>
       <div class="eh-title">${esc(c.name)}</div>
       <div class="career-stats-badges">
