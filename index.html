@@ -6576,6 +6576,8 @@ function render() {
     const isArcom = gameState.gameOverReason === 'arcom';
     const p = gameState.player;
     const arcomScore = p.lastArcomResult?.arcomScore ?? computeArcomCompliance().arcomScore;
+    const pdaCibleFinale = getCalculatedPDAs().find(item => item.channel === p).pda[p.target];
+    const targetShort = TARGET_STRATEGIES[p.target].nom.replace(/\s*\([^)]*\)/, '');
     const stats = isArcom
       ? [
           { value: `${arcomScore}/100`, label: 'Score ARCOM', alert: true },
@@ -6585,7 +6587,7 @@ function render() {
         ]
       : [
           { value: `${nf1(p.tresorerie)} M€`, label: 'Trésorerie', alert: true },
-          { value: `${nf1(TRESORERIE_CRITIQUE)} M€`, label: 'Seuil critique' },
+          { value: `${nf1(pdaCibleFinale)} %`, label: `PDA ${targetShort}` },
           { value: `S${gameState.season}`, label: 'Saison atteinte' },
           { value: `${Math.round(p.popularite)}/100`, label: 'Popularité finale' }
         ];
