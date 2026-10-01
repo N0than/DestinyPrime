@@ -315,11 +315,24 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .radar-toggle:hover { background: rgba(255,255,255,0.85); }
 .radar-toggle:active { transform: scale(0.97); }
 .radar-toggle.active { background: #0f172a; border-color: #0f172a; color: #fff; }
-.radar-panel, .radar-sheet { display: flex; flex-direction: column; gap: 10px; animation: pg-pushdown .24s cubic-bezier(.16,1,.3,1); }
+.programming-slide { position: relative; }
+.pg-slide.radar-mode { display: flex; flex-direction: column; min-height: 0; }
+.radar-mode .pg-head { flex-shrink: 0; align-items: center; margin-bottom: 8px; }
+.radar-panel, .radar-sheet { display: flex; flex-direction: column; gap: 8px; animation: pg-pushdown .24s cubic-bezier(.16,1,.3,1); }
+.radar-mode .radar-panel { flex: 1; min-height: 0; }
+.radar-mode .radar-sheet { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding-right: 2px; }
 .radar-sheet .radar-toggle { align-self: flex-start; }
-.radar-status { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.radar-status-note { font-size: 10.5px; color: var(--gris); font-style: italic; }
-.radar-weather { display: flex; flex-direction: column; gap: 6px; }
+.radar-slots { flex-shrink: 0; }
+.radar-scroll {
+  flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain;
+  display: flex; flex-direction: column; gap: 8px; padding: 2px 2px 4px 0;
+  scrollbar-width: thin; scrollbar-color: rgba(148,163,184,0.5) transparent;
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 14px), transparent);
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 14px), transparent);
+}
+.radar-card .career-stats-badges { flex-wrap: nowrap; overflow: hidden; }
+.radar-card .career-stats-badges > * { flex-shrink: 0; }
+.radar-weather { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
 .radar-weather-item {
   display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; border-radius: 12px;
   background: rgba(255,255,255,0.55); border: 1px solid rgba(255,255,255,0.85);
@@ -331,10 +344,10 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .radar-weather-text { font-size: 11px; color: var(--gris); }
 .radar-slots { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; }
 .radar-slots::-webkit-scrollbar { display: none; }
-.radar-cards { display: grid; grid-template-columns: 1fr; gap: 8px; }
-@media (min-width: 720px) { .radar-cards { grid-template-columns: 1fr 1fr; } }
+.radar-cards { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; flex-shrink: 0; }
+@media (min-width: 720px) { .radar-cards { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
 .radar-card {
-  display: flex; flex-direction: column; gap: 4px; width: 100%; text-align: left; padding: 10px 11px;
+  display: flex; flex-direction: column; gap: 4px; width: 100%; min-width: 0; text-align: left; padding: 8px 10px;
   border-radius: 14px; background: rgba(255,255,255,0.65); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(255,255,255,0.85); box-shadow: 0 8px 20px -8px rgba(15,23,42,0.08);
   font-family: 'Plus Jakarta Sans', sans-serif; color: var(--ink); cursor: pointer;
@@ -350,9 +363,11 @@ button.radar-card:hover { transform: translateY(-1px); box-shadow: 0 10px 24px -
   color: #fff; background: var(--bleu); border-radius: 999px; padding: 2px 6px; vertical-align: 1px;
 }
 .radar-share { font-weight: 800; font-size: 12px; }
-.radar-format { font-size: 10.5px; color: var(--gris); }
-.radar-program { font-size: 12px; font-weight: 700; }
-.radar-genre { font-weight: 500; color: var(--gris); }
+.radar-program { display: flex; align-items: baseline; gap: 5px; min-width: 0; font-size: 12px; font-weight: 700; white-space: nowrap; }
+.radar-format { flex-shrink: 0; font-size: 10.5px; font-weight: 500; color: var(--gris); }
+.radar-format::after { content: '|'; margin-left: 5px; color: rgba(148,163,184,0.7); }
+.radar-program-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.radar-genre { flex-shrink: 0; font-weight: 500; color: var(--gris); }
 .radar-card .career-stats-badges, .radar-grid-row { gap: 4px; }
 .radar-card .pg-pda-badge, .radar-grid-row .pg-pda-badge { font-size: 9.5px; padding: 3px 7px; }
 .radar-section-title {
@@ -1170,11 +1185,10 @@ function renderEvolutionChart(points) {
 function renderProgramGrid(type, pdaCible, overrides) {
   if (radarState().open && gameState.competitors?.length) {
     return `
-      <div class="pg-slide">
+      <div class="pg-slide radar-mode">
         <div class="pg-head pg-head-row">
           <div>
-            <div class="eh-title">Radar concurrence</div>
-            <div class="eh-subtitle">Comparez les six grilles, créneau par créneau.</div>
+            <div class="eh-title">Concurrence</div>
           </div>
           <button type="button" class="radar-toggle active" data-radar-action="toggle">⚔️ Ma grille</button>
         </div>
@@ -5785,6 +5799,7 @@ function renderTicker() {
 }
 
 function bindTickerInteractions(app) {
+  fitRadarToGridHeight();
   bindCampaignPanel(app);
   document.getElementById('hud-toggle').onclick = () => {
     const isOpen = document.getElementById('hud-details').classList.toggle('open');
@@ -7768,8 +7783,7 @@ function renderRadarCards(slot) {
         <span class="radar-name">${esc(r.channel.name)}${isPlayer ? '<span class="radar-you">Vous</span>' : ''}</span>
         <span class="radar-share">${nf1(r.share)} %</span>
       </span>
-      <span class="radar-format">${esc(CHANNEL_TYPES[r.channel.type].label)}</span>
-      <span class="radar-program">${esc(v.masked ? 'Projet en développement' : v.name)} <span class="radar-genre">· ${esc(genre)}</span></span>
+      <span class="radar-program"><span class="radar-format">${esc(CHANNEL_TYPES[r.channel.type].label)}</span><span class="radar-program-name" title="${esc(v.masked ? 'Projet en développement' : v.name)}">${esc(v.masked ? 'Projet en développement' : v.name)}</span><span class="radar-genre">· ${esc(genre)}</span></span>
       <span class="career-stats-badges">${investBadge(v.level)}${strategyBadge(v.tag)}${interaction}${reaction}</span>`;
     return isPlayer
       ? `<div class="radar-card radar-card-player">${inner}</div>`
@@ -7806,7 +7820,7 @@ function renderCompetitorSheet(c) {
   const signed = (v, d = 1) => `${v > 0 ? '+' : ''}${v.toFixed(d).replace('.', ',')}`;
   const list = (items, empty) => items.length ? `<ul class="radar-list">${items.map(i => `<li>${i}</li>`).join('')}</ul>` : `<p class="radar-empty">${empty}</p>`;
   return `<div class="radar-sheet">
-    <button type="button" class="radar-toggle" data-radar-action="back">← Retour au radar</button>
+    <button type="button" class="radar-toggle" data-radar-action="back">← Retour</button>
     <div>
       <div class="eh-title">${esc(c.name)}</div>
       <div class="career-stats-badges">
@@ -7860,9 +7874,6 @@ function renderRadarPanel() {
   const radar = radarState();
   if (radar.sheet !== null && gameState.competitors[radar.sheet]) return renderCompetitorSheet(gameState.competitors[radar.sheet]);
   const weather = computeMarketWeather();
-  const status = weather.confirmed
-    ? '<span class="pg-pda-badge pg-badge-vert">Programmation confirmée</span>'
-    : '<span class="pg-pda-badge pg-badge-gold">Intentions de rentrée</span>';
   const weatherHtml = weather.items.length
     ? `<div class="radar-weather">${weather.items.map(it => `<div class="radar-weather-item">
         <span class="radar-weather-title">${it.icon} ${esc(it.title)}</span>
@@ -7870,12 +7881,11 @@ function renderRadarPanel() {
     : '';
   const chips = TIME_SLOTS.map(s => `<button type="button" class="ga-target-btn${s.key === radar.slot ? ' active' : ''}" data-radar-action="slot" data-slot="${s.key}">${s.label}</button>`).join('');
   return `<div class="radar-panel">
-    <div class="radar-status">${status}<span class="radar-status-note">${weather.confirmed
-      ? 'Décisions effectivement prises par les chaînes.'
-      : 'Informations prévisionnelles : certaines annonces restent imprécises.'}</span></div>
-    ${weatherHtml}
     <div class="radar-slots" role="tablist" aria-label="Créneau comparé">${chips}</div>
-    <div class="radar-cards">${renderRadarCards(radar.slot)}</div>
+    <div class="radar-scroll">
+      <div class="radar-cards">${renderRadarCards(radar.slot)}</div>
+      ${weatherHtml}
+    </div>
   </div>`;
 }
 
@@ -7885,7 +7895,28 @@ function refreshProgrammingSlide() {
   const p = gameState.player;
   el.innerHTML = renderProgramGrid(p.type, null, p.grilleOverrides);
   bindCampaignPanel(document.getElementById('app'));
+  fitRadarToGridHeight();
 }
+
+// Le panneau Concurrence reprend exactement la hauteur de la grille (créneaux
+// repliés) : le slider ne s'agrandit pas, le contenu défile à l'intérieur.
+function fitRadarToGridHeight() {
+  const slide = document.querySelector('.programming-slide');
+  const radarSlide = slide?.querySelector('.radar-mode');
+  if (!radarSlide) return;
+  const radar = radarState();
+  const p = gameState.player;
+  radar.open = false;
+  const probe = document.createElement('div');
+  probe.style.cssText = `position:absolute;visibility:hidden;pointer-events:none;top:0;left:0;width:${radarSlide.offsetWidth}px;`;
+  probe.innerHTML = renderProgramGrid(p.type, null, p.grilleOverrides);
+  radar.open = true;
+  slide.appendChild(probe);
+  const height = probe.firstElementChild.offsetHeight;
+  probe.remove();
+  if (height > 0) radarSlide.style.height = `${height}px`;
+}
+window.addEventListener('resize', () => fitRadarToGridHeight());
 
 function handleRadarAction(btn) {
   const radar = radarState();
