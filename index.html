@@ -624,6 +624,10 @@ button.radar-card:hover { transform: translateY(-1px); box-shadow: 0 10px 24px -
 }
 .bilan-card .tape { display: none; }
 .bilan-card .kicker-badge { margin-bottom: 10px; }
+.bilan-card .bilan-kicker-row { margin-bottom: 10px; flex-wrap: nowrap; }
+.bilan-kicker-row .kicker-badge, .bilan-kicker-row .arcom-status-pill { white-space: nowrap; flex-shrink: 0; }
+@media (max-width: 480px) { .bilan-kicker-row .arcom-pill-label { display: none; } }
+.bilan-card .bilan-kicker-row .kicker-badge { margin-bottom: 0; }
 .bilan-card h3 { font-size: 14px; margin: 14px 0 4px; }
 
 /* ---- BLOC D'ACCUEIL "LANCER MA CHAÎNE" (glassmorphism) ---- */
@@ -6387,7 +6391,6 @@ function render() {
 
   if (gameState.step === 7) {
     const targetKey = gameState.player.target;
-    const targetLabel = TARGET_STRATEGIES[targetKey].nom.replace(/\s*\([^)]*\)/, '');
     const calculated = getCalculatedPDAs();
     const standings = calculated.map(item => {
       const pdaValue = item.pda[targetKey];
@@ -6419,10 +6422,12 @@ function render() {
     app.innerHTML = `
       ${renderMasthead("Fin de saison", "Audience Masters")}
       <div class="card bilan-card">
-        <div class="kicker-badge">BILAN DE LA SAISON ${gameState.season} / ${esc(targetLabel)}</div>
+        <div class="kicker-row bilan-kicker-row">
+          <div class="kicker-badge">BILAN DE LA SAISON ${gameState.season}</div>
+          <div class="arcom-status-pill arcom-status-${compliance.status.key}" title="ARCOM ${compliance.status.label} — ${compliance.arcomScore}/100">${compliance.status.emoji} ARCOM<span class="arcom-pill-label"> ${compliance.status.label} —</span> ${compliance.arcomScore}/100</div>
+        </div>
         <div class="bilan-title-row">
           <h2>PART D'AUDIENCE GLOBALE</h2>
-          <div class="arcom-status-pill arcom-status-${compliance.status.key}">${compliance.status.emoji} ARCOM ${compliance.status.label} — ${compliance.arcomScore}/100</div>
         </div>
 
         <table class="grid-table">
@@ -6461,7 +6466,6 @@ function render() {
         </ul>
       </div>
 
-      ${renderChannelBattle()}
       ${renderCampaignPanel()}
       ${careerDecisionHtml}
       <div class="card bilan-card">
