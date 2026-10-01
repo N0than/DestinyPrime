@@ -4818,7 +4818,10 @@ const DILEMMA_TALENT_COST = {
 
 // Dilemmes de régie publicitaire dont le choix "investissement" (recette commerciale > 0)
 // doit se reconduire chaque saison une fois activé, plutôt que ne créditer qu'une seule fois.
-const REGIE_INVESTMENT_IDS = ['d_pub1', 'd_pub2', 'd_pub6', 'd_pub7', 'd_pub9', 'd_pub10', 'd_pub13', 'd_pub20', 'd_pub23'];
+// Dilemmes régie dont le choix gagnant est un investissement durable (recrutement,
+// création de département ou de studio, technologie, partenariat pluriannuel) :
+// leur recette est reconduite chaque saison au lieu d'être ponctuelle.
+const REGIE_INVESTMENT_IDS = ['d_pub1', 'd_pub2', 'd_pub6', 'd_pub7', 'd_pub9', 'd_pub10', 'd_pub13', 'd_pub19', 'd_pub20', 'd_pub22', 'd_pub23', 'd_pub28'];
 
 let gameState = {
   step: 1,
@@ -4898,6 +4901,10 @@ function getEligibleDilemmas() {
     // present dans la grille. Les donnees actuelles sont generiques, mais cette regle
     // permet aux futurs dilemmes contextualises d'utiliser programId sans contournement.
     if (d.programId && !Object.values(gameState.player.contracts || {}).some(c => c.id === d.programId)) return false;
+    // Un investissement régie déjà réalisé (département, studio, technologie…) reste acquis :
+    // il n'est pas reproposé, sinon sa recette annuelle serait comptée deux fois.
+    if (REGIE_INVESTMENT_IDS.includes(d.id)
+      && (gameState.player.decisionHistory || []).some(h => h.id === d.id && h.commercial > 0)) return false;
     if (d.types) return d.types.includes(type);
     if (type === 'sport') return SPORT_RELATED_UNIVERSAL_IDS.includes(d.id);
     return true;
@@ -5526,6 +5533,7 @@ function chooseDilemmaOption(choiceIndex) {
       commercial: choice.finance.commercial - regieCommercial,
       revenusPub: revenusPubHorsRegie,
       regie: regieGain,
+      regieRecurrente: isRegieInvestment,
       popularite: player.popularite - popAvant,
       slots: slotAudienceDeltas,
       competitors: competitorReactions
@@ -6347,7 +6355,7 @@ function render() {
             ? { icon: '📋', label: 'Économie de grille', val: Math.abs(d.coutGrille), decimals: 1, suffix: ' M€', invert: false }
             : { icon: '📋', label: 'Coût de grille', val: 0, decimals: 1, suffix: ' M€', invert: true },
         { icon: '📺', label: 'Revenus pub', val: d.revenusPub, decimals: 1, suffix: ' M€', invert: false },
-        { icon: '🚀', label: 'Accélérateur régie', val: d.regie || 0, decimals: 1, suffix: ' M€', invert: false },
+        { icon: '🚀', label: 'Accélérateur régie', val: d.regie || 0, decimals: 1, suffix: d.regieRecurrente ? ' M€ / saison' : ' M€', invert: false },
         { icon: '⭐', label: 'Popularité', val: d.popularite, decimals: 0, suffix: ' pts', invert: false }
       ];
       // Seuls les indicateurs qui bougent réellement (valeur affichée non nulle) sont montrés.
@@ -7937,7 +7945,9 @@ function createRegieOpportunityDilemma() {
   const p = gameState.player;
   const cfg = GAME_BALANCE.regie;
   const targetLabel = AUDIENCE_TARGETS.find(t => t.key === p.target)?.full || p.target;
-  const reference = p.revenusPubFinals || p.revenusPubPrevisionnels || 0;
+  // Base hors accélérateurs régie : la sécurisation porte sur le CA lié à l'audience.
+  const pdaCible = getCalculatedPDAs().find(item => item.channel === p).pda[p.target];
+  const reference = computeRevenusPub(pdaCible, p.target, p.popularite, p.puissanceCommerciale);
   const secured = Math.round(Math.max(0.5, reference * cfg.secureShare) * 10) / 10;
   const zeroPda = { j1524: 0, a2549: 0, s50: 0, csp: 0 };
   return {
