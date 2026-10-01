@@ -4803,6 +4803,14 @@ function getAllChannels() {
   return [gameState.player, ...gameState.competitors];
 }
 
+// Mémorise la PDA (sur la cible du joueur) de chaque chaîne au début d'une saison,
+// pour permettre d'afficher sa dynamique (vs début de saison 1, vs saison précédente
+// ensuite) dans le bilan de fin de saison.
+function captureSeasonBaseline() {
+  const targetKey = gameState.player.target;
+  getCalculatedPDAs().forEach(item => { item.channel.pdaSeasonBaseline = item.pda[targetKey]; });
+}
+
 function getCalculatedPDAs() {
   const channels = getAllChannels();
   const demos = ['j1524', 'a2549', 's50', 'csp'];
@@ -5308,6 +5316,7 @@ function continueAfterConsequence() {
 
 function startNewSeason() {
   if (!gameState.history.some(h => h.season === gameState.season)) return;
+  captureSeasonBaseline();
   const player = gameState.player;
   gameState.season++;
   expireContracts();
@@ -5934,6 +5943,7 @@ function render() {
     `;
     document.getElementById('btn-launch').onclick = () => {
       goToStepAnimated(() => {
+        captureSeasonBaseline();
         gameState.dilemmaQueue = pickDilemmaQueue();
         gameState.currentDilemmaIndex = 0;
         // La première saison sert de lancement : son coût de grille est un apport
@@ -6091,11 +6101,17 @@ function render() {
     const targetKey = gameState.player.target;
     const targetLabel = TARGET_STRATEGIES[targetKey].nom;
     const calculated = getCalculatedPDAs();
-    const standings = calculated.map(item => ({
-      name: item.channel === gameState.player ? item.name + " (Vous)" : item.name,
-      pda: item.pda[targetKey].toFixed(1),
-      isPlayer: item.channel === gameState.player
-    })).sort((a, b) => b.pda - a.pda);
+    const standings = calculated.map(item => {
+      const pdaValue = item.pda[targetKey];
+      const baseline = item.channel.pdaSeasonBaseline;
+      const delta = baseline === undefined ? null : pdaValue - baseline;
+      return {
+        name: item.channel === gameState.player ? item.name + " (Vous)" : item.name,
+        pda: pdaValue.toFixed(1),
+        delta,
+        isPlayer: item.channel === gameState.player
+      };
+    }).sort((a, b) => b.pda - a.pda);
     const compliance = gameState.player.lastArcomResult || computeArcomCompliance();
     const careerPending = gameState.pendingCareerDecision;
     const careerContract = careerPending ? gameState.player.contracts?.[careerPending.slot] : null;
@@ -6127,16 +6143,27 @@ function render() {
               <th>Rang</th>
               <th>Chaîne TV</th>
               <th>PDA Cible</th>
+              <th>Dynamique</th>
             </tr>
           </thead>
           <tbody>
-            ${standings.map((st, idx) => `
+            ${standings.map((st, idx) => {
+              let dynHtml = '<span style="color: var(--gris);">—</span>';
+              if (st.delta !== null) {
+                const cls = st.delta > 0.05 ? 'up' : st.delta < -0.05 ? 'down' : 'flat';
+                const arrow = cls === 'up' ? '▲' : cls === 'down' ? '▼' : '▬';
+                const color = cls === 'up' ? 'var(--vert)' : cls === 'down' ? 'var(--rouge)' : 'var(--gris)';
+                dynHtml = `<span style="color: ${color}; font-weight: 700;">${arrow} ${st.delta > 0 ? '+' : ''}${st.delta.toFixed(1)} pt</span>`;
+              }
+              return `
               <tr style="${st.isPlayer ? 'font-weight: bold; background: rgba(37,99,235,0.08);' : ''}">
                 <td>#${idx + 1}</td>
                 <td>${esc(st.name)}</td>
                 <td>${st.pda}%</td>
+                <td>${dynHtml}</td>
               </tr>
-            `).join('')}
+            `;
+            }).join('')}
           </tbody>
         </table>
 
