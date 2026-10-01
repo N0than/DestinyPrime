@@ -318,7 +318,7 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .radar-toggle.active { background: #0f172a; border-color: #0f172a; color: #fff; }
 .programming-slide { position: relative; }
 .pg-slide.radar-mode { display: flex; flex-direction: column; min-height: 0; }
-.radar-mode .pg-head { flex-shrink: 0; align-items: center; margin-bottom: 8px; }
+.radar-mode .pg-head { flex-shrink: 0; }
 .radar-panel, .radar-sheet { display: flex; flex-direction: column; gap: 8px; animation: pg-pushdown .24s cubic-bezier(.16,1,.3,1); }
 .radar-mode .radar-panel { flex: 1; min-height: 0; }
 .radar-mode .radar-sheet { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding-right: 2px; }
@@ -1014,6 +1014,9 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .program-manager-box:focus-visible { outline:2px solid var(--bleu); outline-offset:2px; }
 .program-manager-feedback { display:block; min-height:0; margin-top:3px; color:var(--rouge); font-size:9.5px; }
 .program-manager-feedback:empty { margin-top:0; }
+.program-manager-exclusivity { display:block; margin-top:3px; color:var(--gold); font-size:9.5px; font-weight:700; }
+.program-manager-exclusivity:empty { display:none; }
+.program-manager-notice { display:block; margin-top:4px; padding:6px 8px; border-radius:10px; font-size:10px; line-height:1.35; color:var(--ink); background:rgba(217,119,6,0.1); border:1px solid rgba(217,119,6,0.25); }
 .programming-slide { display:flex; overflow:visible; padding-right:6px; }
 .programming-slide .pg-slide { flex:1; height:auto; }
 .pg-slot-editor { flex:1 0 auto; display:flex; flex-direction:column; }
@@ -1191,6 +1194,7 @@ function renderProgramGrid(type, pdaCible, overrides) {
         <div class="pg-head pg-head-row">
           <div>
             <div class="eh-title">Concurrence</div>
+            <div class="eh-subtitle">Cliquez sur une chaîne pour découvrir sa stratégie.</div>
           </div>
           <button type="button" class="radar-toggle active" data-radar-action="toggle">⚔️ Ma grille</button>
         </div>
@@ -1603,6 +1607,10 @@ const GAME_BALANCE = {
     alternativeBonus: 0.015, maxBonus: 0.05
   },
   franchise: { spinoffAnnualRate: 0.5, spinoffPowerRate: 0.6, consolidateCostRate: 0.15 },
+  // Exclusivité : un programme n'est diffusé que par une chaîne. Le racheter à un
+  // concurrent coûte une indemnité (droits + part des annuités restantes), reversée
+  // à la chaîne qui le déprogramme.
+  exclusivity: { baseFee: 1, rightsRate: 1, annualRate: 0.5, levelPremium: 0.15, compensationShare: 1 },
   mercato: { every: 2, duration: 2, minAnnual: 1.2, maxAnnual: 3.5, minBonus: 0.5, maxBonus: 1 },
   regie: { revalueDelta: 0.06, secureDelta: 0.02, secureShare: 0.04, backlash: 0.08, cap: 1.25, cooldown: 2 }
 };
@@ -4813,6 +4821,7 @@ let gameState = {
   seasonKickoffProposal: null,
   competitorEvents: [],
   radar: { open: false, slot: 'prime', sheet: null },
+  exclusivityNotice: null,
   mercato: null,
   mercatoPending: false
 };
@@ -5683,6 +5692,7 @@ function resetGame() {
   gameState.seasonKickoffProposal = null;
   gameState.competitorEvents = [];
   gameState.radar = { open: false, slot: 'prime', sheet: null };
+  gameState.exclusivityNotice = null;
   gameState.mercato = null;
   gameState.mercatoPending = false;
   render();
@@ -7007,10 +7017,13 @@ function quoteProgram(slot,programId,talentId) {
   const previous=p.contracts?.[slot];
   const annual=program.annual+talent.annual;
   const termination=previous?previous.annual*Math.max(0,previous.end-gameState.season+1):0;
-  const finance={recurring:annual-(previous?.annual||0),purchase:program.rights+termination,commercial:0};
+  // Programme diffusé par un concurrent : rachat des droits en plus du contrat.
+  const holder=sameProgram(previous,program)?null:programHolder(program);
+  const buyout=holder?exclusivityFee(program,holder):0;
+  const finance={recurring:annual-(previous?.annual||0),purchase:program.rights+termination+buyout,commercial:0};
   const quote=quoteFinance(finance,slot);
   const unchanged=previous?.id===programId && previous.talent===talent.name;
-  return {...quote,program,talent,annual,termination,finance,unchanged,
+  return {...quote,program,talent,annual,termination,finance,unchanged,holder,buyout,
     allowed:!unchanged && quote.cash>=TRESORERIE_CRITIQUE};
 }
 function generateSeasonKickoffProposal() {
@@ -7018,7 +7031,7 @@ function generateSeasonKickoffProposal() {
   const slotKeys = TIME_SLOTS.map(s => s.key).sort(() => Math.random() - 0.5);
   for (const slot of slotKeys) {
     const currentId = p.contracts?.[slot]?.id;
-    const pool = PROGRAM_CATALOG.filter(x => x.channelType === p.type && x.slot === slot && x.id !== currentId);
+    const pool = PROGRAM_CATALOG.filter(x => x.channelType === p.type && x.slot === slot && x.id !== currentId && !programHolder(x));
     if (pool.length < 2) continue;
     const affordable = pool.filter(x => quoteProgram(slot, x.id, 'interne')?.allowed);
     const source = affordable.length >= 2 ? affordable : pool;
@@ -7216,13 +7229,20 @@ function signProgram(slot, programId, talentId) {
   if(gameState.step!==6 || gameState.dilemmaPhase!=='choosing' || gameState.currentDilemmaIndex!==0) return false;
   const quote=quoteProgram(slot,programId,talentId);
   if(!quote || !quote.allowed) return false;
-  const {program,talent,annual}=quote;
+  const {program,talent,annual,holder,buyout}=quote;
   const previous=p.contracts[slot];
   delete p.contracts[slot];
   applyFinance(quote.finance);
   p.contracts[slot]={...program, annual, talent:talent.name, talentAnnual:talent.annual,
     power:program.power+talent.bonus*SLOT_AFFINITY[p.type][slot], end:gameState.season+program.years-1,
     career:createProgramCareer(program, slot)};
+  if(holder) {
+    p.contracts[slot].acquiredFrom=holder.competitor.name;
+    p.contracts[slot].buyout=buyout;
+    const released=releaseCompetitorProgram(holder.competitor,holder.slot,buyout);
+    gameState.exclusivityNotice={slot,season:gameState.season,
+      text:`« ${program.name} » racheté à ${holder.competitor.name} (${nf1(buyout)} M€). La chaîne le déprogramme et lance « ${released.program.name} » ${TIME_SLOTS.find(t=>t.key===holder.slot)?.daypart||''}.`};
+  }
   p.coutTalentsSaison+=talent.annual-(previous?.talentAnnual||0);
   p.grilleOverrides[slot]=program.name+' — '+talent.name;
   const audience=getCalculatedPDAs().find(c=>c.channel===p).pda[p.target];
@@ -7315,6 +7335,74 @@ const STRATEGY_TAGS = {
   riposte: { label: 'Riposte', accent: 'rouge' }
 };
 
+// ---- Exclusivité des programmes ----
+// Un même programme (même fiche ou même intitulé) ne peut être à l'antenne que sur
+// une seule chaîne à la fois.
+function programKey(name) {
+  return String(name || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+}
+
+function sameProgram(a, b) {
+  return !!a && !!b && (a.id === b.id || programKey(a.name) === programKey(b.name));
+}
+
+// Chaîne concurrente qui diffuse actuellement ce programme (tous créneaux confondus).
+function programHolder(program) {
+  for (const competitor of gameState.competitors || []) {
+    for (const { key: slot } of TIME_SLOTS) {
+      const contract = activeContract(competitor, slot);
+      if (sameProgram(contract, program)) return { competitor, slot, contract };
+    }
+  }
+  return null;
+}
+
+// Programme déjà pris par une autre chaîne que `channel` (joueur compris).
+function isProgramTaken(program, channel) {
+  const channels = [gameState.player, ...(gameState.competitors || [])].filter(c => c && c !== channel);
+  return channels.some(c => TIME_SLOTS.some(({ key }) => {
+    const contract = c === gameState.player ? activeContract(c, key) : c.contracts?.[key];
+    return sameProgram(contract, program);
+  }));
+}
+
+function exclusivityFee(program, holder) {
+  const ex = GAME_BALANCE.exclusivity;
+  const remaining = Math.max(1, (holder.contract.end ?? gameState.season) - gameState.season + 1);
+  const level = contractInvestLevel(holder.contract);
+  const fee = (ex.baseFee + program.rights * ex.rightsRate + program.annual * ex.annualRate * remaining) * (1 + ex.levelPremium * level);
+  return Math.round(fee * 10) / 10;
+}
+
+// Le concurrent perd un programme racheté par le joueur : il est indemnisé, puis
+// son IA programme un remplacement selon son profil éditorial et son budget.
+function releaseCompetitorProgram(competitor, slot, fee) {
+  const market = GAME_BALANCE.market;
+  const profile = GAME_BALANCE.competitors.profiles[competitor.strategy];
+  const lost = competitor.contracts[slot];
+  competitor.budget = (competitor.budget || 0) + fee * GAME_BALANCE.exclusivity.compensationShare;
+  const genre = profile.reactionStrength >= 0.5 ? lost.editorial?.genre : null;
+  const program = pickCompetitorProgram(competitor, slot, { excludeId: lost.id, genre });
+  let level = contractInvestLevel(lost);
+  let tag = 'nouveaute';
+  const step = level < 3 ? market.investCost[level + 1] - market.investCost[level] : Infinity;
+  if (competitor.budget >= step && marketRandom() < profile.riskTolerance) {
+    level += 1; competitor.budget -= step; tag = 'offensive';
+  } else if (competitor.budget < market.investCost[level] * 0.5 && level > 0) {
+    level -= 1; tag = 'economie';
+  }
+  competitor.contracts[slot] = makeCompetitorContract(competitor, program, slot, level, { seasonsCount: 0, tag });
+  if (competitor.plan?.slots) {
+    const prevLevel = competitor.plan.slots[slot]?.level ?? null;
+    competitor.plan.slots[slot] = { programId: program.id, name: program.name, genre: program.editorial.genre,
+      format: program.format, target: program.target, level, tag, isNew: true, prevName: lost.name, prevLevel };
+    competitor.plan.announced ??= {};
+    competitor.plan.announced[slot] = { level, masked: false };
+  }
+  competitor.strategyHistory?.push({ kind: 'loss', season: gameState.season, slot, lost: lost.name, replacement: program.name, fee });
+  return { lost, program, level, tag };
+}
+
 function slotPowerAverage(type, slot) {
   const pool = availablePrograms(type, slot);
   return pool.length ? pool.reduce((s, p) => s + p.power, 0) / pool.length : 0;
@@ -7329,6 +7417,8 @@ function competitorContractPower(competitor, program, level, slot, extra = 0) {
 // Choix d'un programme selon la personnalité éditoriale de la chaîne.
 function pickCompetitorProgram(competitor, slot, { excludeId = null, genre = null } = {}) {
   let pool = availablePrograms(competitor.type, slot).filter(p => p.id !== excludeId);
+  const free = pool.filter(p => !isProgramTaken(p, competitor));
+  if (free.length) pool = free;
   if (genre && pool.some(p => p.editorial.genre === genre)) pool = pool.filter(p => p.editorial.genre === genre);
   if (!pool.length) return null;
   const score = p => {
@@ -7413,15 +7503,20 @@ function planCompetitorSeason(competitor, index) {
         seasonsCount = 1 + Math.floor(marketRandom() * 4);
         tag = level >= 2 ? 'renforcement' : 'maintien';
       } else if (expired || (under && profile.riskTolerance > 0.5 && (market.strategicSlots[slot] ?? 0) >= 0.45)) {
-        const renew = expired && previous && success && marketRandom() > profile.riskTolerance * 0.6;
-        program = renew ? PROGRAM_CATALOG.find(p => p.id === previous.id) : pickCompetitorProgram(competitor, slot, { excludeId: previous?.id });
+        let renew = expired && previous && success && marketRandom() > profile.riskTolerance * 0.6;
+        const renewed = renew ? PROGRAM_CATALOG.find(p => p.id === previous.id) : null;
+        if (!renewed || isProgramTaken(renewed, competitor)) renew = false;
+        program = renew ? renewed : pickCompetitorProgram(competitor, slot, { excludeId: previous?.id });
         isNew = !renew;
         seasonsCount = renew ? (previous.career?.seasonsCount || 0) + 1 : 0;
         level = prevLevel === null ? level : Math.max(0, Math.min(3, Math.round((level + prevLevel) / 2) + (isNew && under ? 1 : 0)));
         tag = renew ? 'maintien' : (level >= 2 && (market.strategicSlots[slot] ?? 0) >= 0.45 ? 'offensive' : 'nouveaute');
       } else {
-        program = PROGRAM_CATALOG.find(p => p.id === previous.id) || pickCompetitorProgram(competitor, slot);
+        program = PROGRAM_CATALOG.find(p => p.id === previous.id);
         seasonsCount = (previous.career?.seasonsCount || 0) + 1;
+        if (!program || isProgramTaken(program, competitor)) {
+          program = pickCompetitorProgram(competitor, slot, { excludeId: previous.id }); isNew = true; seasonsCount = 0;
+        }
         level = prevLevel;
         if (success && profile.riskTolerance >= 0.55 && marketRandom() < profile.riskTolerance) { level = Math.min(3, level + 1); tag = 'renforcement'; }
         else if (under && profile.riskTolerance < 0.55) { level = Math.max(0, level - 1); tag = 'economie'; }
@@ -8087,20 +8182,25 @@ function renderProgramManager(slot) {
   const editable=gameState.step===6&&gameState.dilemmaPhase==='choosing'&&gameState.currentDilemmaIndex===0;
   const c=p.contracts[slot];
   const career=c ? migrateProgramCareer(c,slot) : null;
-  const programOpts=availablePrograms(p.type,slot).map(x=>({
-    id:x.id,
-    label:`${x.name} — ${nf1(x.annual)} M€/an + ${nf1(x.rights)} M€ droits · potentiel ${nf1(x.power)} · ${x.years} saison(s)`,
-    selected:c?.id===x.id
-  }));
+  const programOpts=availablePrograms(p.type,slot).map(x=>{
+    const holder=sameProgram(c,x)?null:programHolder(x);
+    return {
+      id:x.id,
+      label:`${x.name}${holder?` — 🔒 ${holder.competitor.name}, rachat ${nf1(exclusivityFee(x,holder))} M€`:''} — ${nf1(x.annual)} M€/an + ${nf1(x.rights)} M€ droits · potentiel ${nf1(x.power)} · ${x.years} saison(s)`,
+      selected:c?.id===x.id
+    };
+  });
   const talentOpts=TALENT_CATALOG.map(x=>({id:x.id,label:`${x.name} — ${nf1(x.annual)} M€/an`,selected:c?.talent===x.name}));
   const selectedProgram=programOpts.find(o=>o.selected)||programOpts[0];
   const selectedTalent=talentOpts.find(o=>o.selected)||talentOpts[0];
+  const notice=gameState.exclusivityNotice?.slot===slot&&gameState.exclusivityNotice.season===gameState.season?gameState.exclusivityNotice:null;
   return `<section class="program-manager" aria-label="Modifier la programmation">
     ${c?`<div class="program-manager-contract-row">
       <div class="career-stats-badges">
         <span class="pg-pda-badge pg-badge-bleu">${nf1(c.annual)} M€/an</span>
         <span class="pg-pda-badge pg-badge-gris">Fin de contrat en S${c.end}</span>
         <span class="pg-pda-badge pg-badge-gris">${career.seasonsCount} saison(s)</span>
+        ${c.acquiredFrom?`<span class="pg-pda-badge pg-badge-gold">Racheté à ${esc(c.acquiredFrom)}</span>`:''}
         <span class="pg-pda-badge pg-badge-rouge program-manager-penalty" data-program-penalty aria-live="polite" hidden></span>
       </div>
       <div class="career-stats-badges">
@@ -8137,7 +8237,9 @@ function renderProgramManager(slot) {
         </div>
       </div>
     </div>
-    <span class="program-manager-feedback" aria-live="polite"></span>`:'<p class="program-manager-note">Modifications disponibles au début de la prochaine saison, avant le premier dilemme.</p>'}
+    <span class="program-manager-exclusivity" data-program-exclusivity aria-live="polite"></span>
+    <span class="program-manager-feedback" aria-live="polite"></span>
+    ${notice?`<span class="program-manager-notice">${esc(notice.text)}</span>`:''}`:'<p class="program-manager-note">Modifications disponibles au début de la prochaine saison, avant le premier dilemme.</p>'}
     </section>`;
 }
 function renderCampaignPanel() {
@@ -8216,6 +8318,10 @@ function bindCampaignPanel(app) {
         penalty.hidden=!replacing;
         penalty.textContent=replacing?`Pénalité de remplacement : ${nf1(q.termination)} M€`:'';
       }
+      const exclusivity=manager.querySelector('[data-program-exclusivity]');
+      if(exclusivity) exclusivity.textContent=q?.holder
+        ?`Programme à l'antenne sur ${q.holder.competitor.name} : rachat des droits ${nf1(q.buyout)} M€. ${q.holder.competitor.name} devra le déprogrammer.`
+        :'';
     };
     editor.querySelectorAll('select').forEach(select=>select.onchange=()=>{
       feedback.textContent=''; updateValidation();
@@ -8223,8 +8329,13 @@ function bindCampaignPanel(app) {
     updateValidation();
     editor.querySelector('[data-program-confirm]').onclick=()=>{
       feedback.textContent='';
+      const bought=!!quoteProgram(slot,document.getElementById('program-'+slot).value,document.getElementById('talent-'+slot).value)?.holder;
       if(!signProgram(slot,document.getElementById('program-'+slot).value,document.getElementById('talent-'+slot).value)) {
         feedback.textContent='Validation impossible : budget insuffisant ou contrat inchangé.';
+      } else if(bought) {
+        // Rachat à un concurrent : on garde le créneau ouvert pour afficher la conséquence.
+        const details=document.querySelector(`.programming-slide [data-slot-editor="${slot}"]`);
+        if(details) details.open=true;
       }
     };
     editor.querySelector('[data-program-cancel]').onclick=()=>{
