@@ -1196,7 +1196,7 @@ function renderProgramGrid(type, pdaCible, overrides) {
       <div class="pg-slide radar-mode">
         <div class="pg-head pg-head-row${sheetOpen ? ' sheet-open' : ''}">
           <div>
-            <div class="eh-title">Concurrence</div>
+            <div class="eh-title">${sheetOpen ? esc(gameState.competitors[radarState().sheet].name) : 'Concurrence'}</div>
             ${sheetOpen ? '' : '<div class="eh-subtitle">Cliquez sur une chaîne pour découvrir sa stratégie.</div>'}
           </div>
           <div class="radar-head-actions">
@@ -7942,7 +7942,6 @@ function renderCompetitorSheet(c) {
   const list = (items, empty) => items.length ? `<ul class="radar-list">${items.map(i => `<li>${i}</li>`).join('')}</ul>` : `<p class="radar-empty">${empty}</p>`;
   return `<div class="radar-sheet">
     <div>
-      <div class="eh-title">${esc(c.name)}</div>
       <div class="career-stats-badges">
         <span class="pg-pda-badge pg-badge-bleu">${esc(CHANNEL_TYPES[c.type].label)}</span>
         <span class="pg-pda-badge pg-badge-gris">Cible : ${esc(prio)}</span>
