@@ -6290,7 +6290,9 @@ function render() {
         { icon: '📺', label: 'Revenus pub', val: d.revenusPub, decimals: 1, suffix: ' M€', invert: false },
         { icon: '⭐', label: 'Popularité', val: d.popularite, decimals: 0, suffix: ' pts', invert: false }
       ];
-      const badgesHtml = rows.map(r => {
+      // Seuls les indicateurs qui bougent réellement (valeur affichée non nulle) sont montrés.
+      const changed = r => Number.isFinite(r.val) && Math.round(Math.abs(r.val) * 10 ** r.decimals) !== 0;
+      const badgesHtml = rows.filter(changed).map(r => {
         const signal = r.invert ? -r.val : r.val;
         const cls = signal > 0.05 ? 'up' : signal < -0.05 ? 'down' : 'flat';
         return `<span class="impact-badge ${cls}"><span class="ic">${r.icon}</span>${r.label} ${fmtDelta(r.val, r.decimals, r.suffix)}</span>`;
@@ -6302,7 +6304,7 @@ function render() {
             <div class="dc-body">
               <p>${esc(cq.resultat)}</p>
               ${cq.competitorEvent ? `<div class="program-manager-note"><b>🚨 LA CONCURRENCE RÉAGIT</b><br>${esc(cq.competitorEvent.channel)} lance une ${esc(cq.competitorEvent.action)} sur le créneau ${esc(TIME_SLOTS.find(s=>s.key===cq.competitorEvent.slot)?.label || cq.competitorEvent.slot)}.</div>` : ''}
-              <div class="impact-badges">${badgesHtml}</div>
+              ${badgesHtml ? `<div class="impact-badges">${badgesHtml}</div>` : ''}
             </div>
           </div>
           <button class="welcome-cta" id="btn-continue" style="margin-top: 14px;">
