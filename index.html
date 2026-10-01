@@ -510,6 +510,7 @@ button.radar-card:hover { transform: translateY(-1px); box-shadow: 0 10px 24px -
 }
 .bilan-title-row h2 { margin: 0; }
 .bilan-title-sep { color: rgba(148,163,184,0.8); margin: 0 2px; }
+.bilan-card .bilan-title-row h2 { white-space: nowrap; font-size: min(24px, 4.1vw); }
 
 /* ---- BILAN ÉCONOMIQUE DE SAISON ---- */
 .eco-pos { color: var(--vert); }
@@ -628,6 +629,10 @@ button.radar-card:hover { transform: translateY(-1px); box-shadow: 0 10px 24px -
 .bilan-card .bilan-kicker-row { margin-bottom: 10px; flex-wrap: nowrap; }
 .bilan-kicker-row .kicker-badge, .bilan-kicker-row .arcom-status-pill { white-space: nowrap; flex-shrink: 0; }
 @media (max-width: 480px) { .bilan-kicker-row .arcom-pill-label { display: none; } }
+@media (max-width: 360px) {
+  .bilan-kicker-row .kicker-badge { font-size: 10px; padding: 6px 10px; }
+  .bilan-kicker-row .arcom-status-pill { font-size: 9.5px; padding: 4px 8px; }
+}
 .bilan-card .bilan-kicker-row .kicker-badge { margin-bottom: 0; }
 .bilan-card h3 { font-size: 14px; margin: 14px 0 4px; }
 
@@ -6430,7 +6435,7 @@ function render() {
           <div class="arcom-status-pill arcom-status-${compliance.status.key}" title="ARCOM ${compliance.status.label} — ${compliance.arcomScore}/100">${compliance.status.emoji} ARCOM<span class="arcom-pill-label"> ${compliance.status.label} —</span> ${compliance.arcomScore}/100</div>
         </div>
         <div class="bilan-title-row">
-          <h2>PART D'AUDIENCE <span class="bilan-title-sep" aria-hidden="true">|</span> ${esc(TARGET_STRATEGIES[targetKey].nom.replace(/\s*\([^)]*\)/, '').toUpperCase())}</h2>
+          <h2>PART D'AUDIENCE <span class="bilan-title-sep" aria-hidden="true">|</span> CIBLE ${esc(TARGET_STRATEGIES[targetKey].nom.replace(/\s*\([^)]*\)/, '').toUpperCase())}</h2>
         </div>
 
         <table class="grid-table">
