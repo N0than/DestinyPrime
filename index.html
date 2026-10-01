@@ -245,6 +245,7 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .eh-slider-dots { display: flex; gap: 6px; }
 .eh-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(22,19,14,0.22); border: none; padding: 0; cursor: pointer; }
 .eh-dot.active { background: var(--ink); }
+.eh-slider-nav.nav-locked .eh-dot { opacity: 0.35; pointer-events: none; cursor: default; }
 
 .pg-slide { display: flex; flex-direction: column; height: 100%; overflow: hidden; }
 .pg-head { flex-shrink: 0; }
@@ -323,6 +324,7 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .radar-mode .radar-sheet { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding-right: 2px; }
 .radar-sheet .radar-toggle { align-self: flex-start; }
 .radar-slots { flex-shrink: 0; }
+.radar-slots .ga-target-btn { flex: 1 1 0; min-width: 0; padding: 5px 4px; text-align: center; }
 .radar-scroll {
   flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain;
   display: flex; flex-direction: column; gap: 8px; padding: 2px 2px 4px 0;
@@ -5798,8 +5800,24 @@ function renderTicker() {
   `;
 }
 
+// En mode Concurrence, le slider est figé sur la grille : on n'en sort
+// qu'après être revenu sur « Ma grille ».
+function isHudSliderLocked() {
+  return !!(gameState.radar?.open && gameState.competitors?.length);
+}
+
+function syncHudSliderLock() {
+  const locked = isHudSliderLocked();
+  document.querySelector('.eh-slider-nav')?.classList.toggle('nav-locked', locked);
+  document.querySelectorAll('.eh-dot').forEach(d => {
+    d.disabled = locked;
+    if (locked) d.setAttribute('aria-disabled', 'true'); else d.removeAttribute('aria-disabled');
+  });
+}
+
 function bindTickerInteractions(app) {
   fitRadarToGridHeight();
+  syncHudSliderLock();
   bindCampaignPanel(app);
   document.getElementById('hud-toggle').onclick = () => {
     const isOpen = document.getElementById('hud-details').classList.toggle('open');
@@ -5808,6 +5826,7 @@ function bindTickerInteractions(app) {
     gameState.hudExpanded = isOpen;
   };
   const goToHudSlide = idx => {
+    if (isHudSliderLocked()) idx = 0;
     const clamped = Math.max(0, Math.min(5, idx));
     gameState.hudSlide = clamped;
     document.getElementById('eh-slider-track').style.transform = `translateX(-${clamped * 100}%)`;
@@ -5823,6 +5842,7 @@ function bindTickerInteractions(app) {
   let isDragging = false;
   ehSlider.addEventListener('pointerdown', e => {
     if (e.target.closest('button, select, input, label, summary, .program-manager')) return;
+    if (isHudSliderLocked()) return;
     isDragging = true;
     dragStartX = e.clientX;
     dragDeltaX = 0;
@@ -7896,6 +7916,7 @@ function refreshProgrammingSlide() {
   el.innerHTML = renderProgramGrid(p.type, null, p.grilleOverrides);
   bindCampaignPanel(document.getElementById('app'));
   fitRadarToGridHeight();
+  syncHudSliderLock();
 }
 
 // Le panneau Concurrence reprend exactement la hauteur de la grille (créneaux
