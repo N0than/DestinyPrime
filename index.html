@@ -636,6 +636,36 @@ button.radar-card:hover { transform: translateY(-1px); box-shadow: 0 10px 24px -
 .bilan-card .bilan-kicker-row .kicker-badge { margin-bottom: 0; }
 .bilan-card h3 { font-size: 14px; margin: 14px 0 4px; }
 
+/* ---- FIN DE PARTIE : MISE SOUS TUTELLE / AUTORISATION RETIRÉE ---- */
+.sanction-card { position: relative; overflow: hidden; }
+.sanction-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--rouge), rgba(225,29,72,0.35));
+}
+.sanction-kicker-row { margin-bottom: 14px; }
+.sanction-pill { font-size: 10.5px; padding: 5px 11px; }
+.sanction-card h2 { margin: 0 0 8px; }
+.sanction-lead { margin: 0 0 14px; font-size: 14px; line-height: 1.5; color: #334155; }
+.sanction-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 12px; }
+@media (min-width: 560px) { .sanction-stats { grid-template-columns: repeat(4, 1fr); } }
+.sanction-stat {
+  padding: 10px 8px; border-radius: 12px; text-align: center;
+  background: rgba(255,255,255,0.55); border: 1px solid rgba(255,255,255,0.85);
+}
+.sanction-stat.alert { background: rgba(225,29,72,0.08); border-color: rgba(225,29,72,0.25); }
+.sanction-stat-value { font-family: 'Anton', sans-serif; font-size: 20px; line-height: 1.1; color: var(--ink); }
+.sanction-stat.alert .sanction-stat-value { color: var(--rouge); }
+.sanction-stat-label { font-size: 9.5px; color: var(--gris); text-transform: uppercase; letter-spacing: 0.3px; margin-top: 3px; }
+.sanction-note {
+  display: flex; flex-direction: column; gap: 3px; font-size: 12.5px; line-height: 1.45; color: #334155;
+  padding: 10px 12px; border-radius: 12px; background: rgba(225,29,72,0.06); border-left: 3px solid var(--rouge);
+}
+.sanction-note-title {
+  font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 10.5px;
+  text-transform: uppercase; letter-spacing: 0.4px; color: var(--rouge);
+}
+.sanction-card + .welcome-cta { margin-top: 14px; }
+
 /* ---- BLOC D'ACCUEIL "LANCER MA CHAÎNE" (glassmorphism) ---- */
 .welcome-glass {
   background: rgba(255,255,255,0.65);
@@ -6505,21 +6535,50 @@ function render() {
 
   if (gameState.step === 8) {
     const isArcom = gameState.gameOverReason === 'arcom';
+    const p = gameState.player;
+    const arcomScore = p.lastArcomResult?.arcomScore ?? computeArcomCompliance().arcomScore;
+    const stats = isArcom
+      ? [
+          { value: `${arcomScore}/100`, label: 'Score ARCOM', alert: true },
+          { value: `S${gameState.season}`, label: 'Saison atteinte' },
+          { value: `${Math.round(p.popularite)}/100`, label: 'Popularité finale' },
+          { value: `${nf1(p.tresorerie)} M€`, label: 'Trésorerie', alert: p.tresorerie < 0 }
+        ]
+      : [
+          { value: `${nf1(p.tresorerie)} M€`, label: 'Trésorerie', alert: true },
+          { value: `${nf1(TRESORERIE_CRITIQUE)} M€`, label: 'Seuil critique' },
+          { value: `S${gameState.season}`, label: 'Saison atteinte' },
+          { value: `${Math.round(p.popularite)}/100`, label: 'Popularité finale' }
+        ];
     app.innerHTML = `
       ${renderMasthead("Fin de partie", "Audience Masters")}
-      <div class="card">
-        <div class="tape"></div>
-        <div class="kicker" style="color: var(--rouge);">${isArcom ? 'AUTORISATION RETIRÉE' : 'MISE SOUS TUTELLE'}</div>
-        <h2 style="color: var(--rouge);">${isArcom ? esc(gameState.player.name) + " perd son autorisation d'émettre" : esc(gameState.player.name) + " dépose le bilan"}</h2>
-        <p style="margin: 12px 0;">${isArcom
+      <div class="card bilan-card sanction-card">
+        <div class="kicker-row sanction-kicker-row">
+          <span class="dc-live-pill sanction-pill"><span class="dc-live-dot"></span>${isArcom ? 'Autorisation retirée' : 'Mise sous tutelle'}</span>
+          <span class="dc-season-pill">Saison ${gameState.season}</span>
+        </div>
+        <h2>${esc(p.name)} ${isArcom ? "perd son autorisation d'émettre" : 'dépose le bilan'}</h2>
+        <p class="sanction-lead">${isArcom
           ? "L'ARCOM a refusé le renouvellement de votre convention : les manquements répétés à vos obligations éditoriales ont eu raison de votre autorisation d'émettre."
-          : `La trésorerie de la chaîne est tombée à ${nf1(gameState.player.tresorerie)} M€, sous le seuil critique de ${nf1(TRESORERIE_CRITIQUE)} M€. L'Arcom place la chaîne sous tutelle administrative.`}</p>
-        <ul style="margin: 8px 0 14px 18px; font-size: 14px;">
-          <li><b>Saison atteinte :</b> ${gameState.season}</li>
-          <li><b>Popularité finale :</b> ${Math.round(gameState.player.popularite)} / 100</li>
-        </ul>
+          : `La trésorerie de la chaîne est tombée à ${nf1(p.tresorerie)} M€, sous le seuil critique de ${nf1(TRESORERIE_CRITIQUE)} M€.`}</p>
+        <div class="sanction-stats">
+          ${stats.map(st => `<div class="sanction-stat${st.alert ? ' alert' : ''}">
+            <div class="sanction-stat-value">${st.value}</div>
+            <div class="sanction-stat-label">${st.label}</div>
+          </div>`).join('')}
+        </div>
+        <div class="sanction-note">
+          <span class="sanction-note-title">⚖️ Décision de l'ARCOM</span>
+          <span>${isArcom
+            ? "Fréquence retirée : la chaîne cesse d'émettre à l'issue de la saison."
+            : "La chaîne est placée sous administration provisoire : la direction est suspendue et la grille gelée."}</span>
+        </div>
       </div>
-      <button class="btn block" id="btn-restart" style="font-size: 17px; padding: 14px;">Recommencer une chaîne →</button>
+      <button class="welcome-cta" id="btn-restart">
+        <span class="welcome-cta-shine"></span>
+        <span>Recommencer une chaîne</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
     `;
     document.getElementById('btn-restart').onclick = () => {
       resetGame();
