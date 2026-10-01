@@ -1495,13 +1495,22 @@ function computeRevenusPub(pdaGlobaleCourante, cible, popularite, puissanceComme
 // programmation). Sert ensuite de référence : la proposition de programmation puis chaque
 // dilemme ne créditeront plus que l'écart avec cette estimation, jamais la totalité une
 // seconde fois.
+// Recettes apportées par la régie (accélérateurs) : investissements reconduits chaque
+// saison et opérations ponctuelles déjà encaissées sur la saison en cours. Elles restent
+// acquises : les réestimations d'audience ne portent que sur le CA hors régie.
+function regieRevenueTotal(p) {
+  return (p.regieInvestissementsAnnuel || 0) + (p.regieRecettesSaison || 0);
+}
+
 function creditInitialAdRevenue() {
   const p = gameState.player;
   const pdaGlobaleCourante = getCalculatedPDAs().find(item => item.channel === p).pda[p.target];
   // Les investissements régie activés lors des saisons précédentes (Directeur de régie,
   // Studio Brand Content, Yield Management, etc.) reconduisent leur bénéfice chaque saison.
+  // Les opérations ponctuelles, elles, ne valent que pour la saison où elles sont signées.
+  p.regieRecettesSaison = 0;
   const revenusPubEstimes = computeRevenusPub(pdaGlobaleCourante, p.target, p.popularite, p.puissanceCommerciale)
-    + (p.regieInvestissementsAnnuel || 0);
+    + regieRevenueTotal(p);
   p.tresorerie += revenusPubEstimes;
   p.revenusPubPrevisionnels = revenusPubEstimes;
 }
@@ -1514,7 +1523,7 @@ function reevaluateAdRevenue() {
   const pdaGlobaleCourante = getCalculatedPDAs().find(item => item.channel === p).pda[p.target];
   const revenusPubAvant = p.revenusPubPrevisionnels;
   p.revenusPubPrevisionnels = computeRevenusPub(pdaGlobaleCourante, p.target, p.popularite, p.puissanceCommerciale)
-    + (p.regieInvestissementsAnnuel || 0);
+    + regieRevenueTotal(p);
   p.tresorerie += p.revenusPubPrevisionnels - revenusPubAvant;
 }
 
@@ -4846,6 +4855,7 @@ let gameState = {
     coutParPointPDA: 0,
     coutTalentsSaison: 0,
     regieInvestissementsAnnuel: 0,
+    regieRecettesSaison: 0,
     slotAudienceDeltas: {}
 },
   competitors: [],
@@ -4988,6 +4998,7 @@ function finalizeChannelSetup() {
   player.coutGrilleEngageSaison = player.budgetGrilleAnnuel;
   player.revenusPubPrevisionnels = 0;
   player.revenusPubFinals = 0;
+  player.regieRecettesSaison = 0;
   player.resultatSaison = 0;
   player.rentabiliteGrille = 0;
   player.coutParPointPDA = 0;
@@ -5441,10 +5452,11 @@ function chooseDilemmaOption(choiceIndex) {
   const isRegieInvestment = REGIE_INVESTMENT_IDS.includes(dilemma.id) && regieCommercial > 0;
   if (isRegieInvestment) {
     player.regieInvestissementsAnnuel = (player.regieInvestissementsAnnuel || 0) + regieCommercial;
+  } else if (regieCommercial > 0) {
+    // Une opération ponctuelle reste acquise jusqu'à la fin de la saison : elle rejoint le
+    // total régie de la saison au lieu d'être annulée par la réestimation suivante.
+    player.regieRecettesSaison = (player.regieRecettesSaison || 0) + regieCommercial;
   }
-  // Une fois basculé dans le total permanent, ce montant ne doit plus être compté une
-  // seconde fois comme crédit ponctuel de ce seul dilemme.
-  const regieCommercialPonctuel = isRegieInvestment ? 0 : regieCommercial;
   if (choice.careerAction) {
     applyCareerDilemmaChoice(dilemma, choice);
   } else if (choice.grille) {
@@ -5467,6 +5479,7 @@ function chooseDilemmaOption(choiceIndex) {
   player.popularite = Math.max(0, Math.min(100, player.popularite + choice.pop));
   // Renégociation régie : la puissance commerciale évolue avant la réestimation
   // unique des recettes ci-dessous (seul l'écart est crédité, jamais deux fois).
+  const puissanceAvant = player.puissanceCommerciale;
   if (choice.regie) applyRegieDecision(choice.regie);
 
   const pdaCibleApres = getCalculatedPDAs().find(item => item.channel === player).pda[player.target];
@@ -5479,9 +5492,16 @@ function chooseDilemmaOption(choiceIndex) {
   // publicitaire. Seul l'écart avec l'estimation précédente est crédité/débité — la totalité
   // a déjà été créditée au lancement de la saison (creditInitialAdRevenue).
   const revenusPubAvant = player.revenusPubPrevisionnels;
-  player.revenusPubPrevisionnels = computeRevenusPub(pdaCibleApres, player.target, player.popularite, player.puissanceCommerciale)
-    + regieCommercialPonctuel + (player.regieInvestissementsAnnuel || 0);
+  const revenusOrganiques = computeRevenusPub(pdaCibleApres, player.target, player.popularite, player.puissanceCommerciale);
+  player.revenusPubPrevisionnels = revenusOrganiques + regieRevenueTotal(player);
   const revenusPubDelta = player.revenusPubPrevisionnels - revenusPubAvant;
+  // Part due à la régie (nouvel accélérateur, opération ponctuelle, revalorisation des
+  // tarifs) : affichée à part pour que l'évolution du CA publicitaire reflète uniquement
+  // l'audience et la popularité, sans décalage lié aux accélérateurs.
+  const effetTarifsRegie = revenusOrganiques
+    - computeRevenusPub(pdaCibleApres, player.target, player.popularite, puissanceAvant);
+  const regieGain = regieCommercial + effetTarifsRegie;
+  const revenusPubHorsRegie = revenusPubDelta - regieGain;
   // Le flux net de trésorerie est bien la recette publicitaire moins la variation
   // de coût de grille : un surcoût (delta positif) réduit le solde, une économie
   // (delta négatif) l'augmente. La part régie est déjà comptée dans revenusPubDelta.
@@ -5504,7 +5524,8 @@ function chooseDilemmaOption(choiceIndex) {
       coutGrille: coutGrilleDelta,
       achats: decisionQuote.finance.purchase,
       commercial: choice.finance.commercial - regieCommercial,
-      revenusPub: revenusPubDelta,
+      revenusPub: revenusPubHorsRegie,
+      regie: regieGain,
       popularite: player.popularite - popAvant,
       slots: slotAudienceDeltas,
       competitors: competitorReactions
@@ -5640,6 +5661,7 @@ function startNewSeason() {
   player.tresorerie -= player.coutGrilleEngageSaison;
   player.revenusPubPrevisionnels = 0;
   player.revenusPubFinals = 0;
+  player.regieRecettesSaison = 0;
   player.resultatSaison = 0;
   player.coutTalentsSaison = 0;
   player.fluxArcomSaison = 0;
@@ -5717,6 +5739,7 @@ function resetGame() {
     coutParPointPDA: 0,
     coutTalentsSaison: 0,
     regieInvestissementsAnnuel: 0,
+    regieRecettesSaison: 0,
     slotAudienceDeltas: {}
 };
   gameState.competitors = [];
@@ -6324,6 +6347,7 @@ function render() {
             ? { icon: '📋', label: 'Économie de grille', val: Math.abs(d.coutGrille), decimals: 1, suffix: ' M€', invert: false }
             : { icon: '📋', label: 'Coût de grille', val: 0, decimals: 1, suffix: ' M€', invert: true },
         { icon: '📺', label: 'Revenus pub', val: d.revenusPub, decimals: 1, suffix: ' M€', invert: false },
+        { icon: '🚀', label: 'Accélérateur régie', val: d.regie || 0, decimals: 1, suffix: ' M€', invert: false },
         { icon: '⭐', label: 'Popularité', val: d.popularite, decimals: 0, suffix: ' pts', invert: false }
       ];
       // Seuls les indicateurs qui bougent réellement (valeur affichée non nulle) sont montrés.
