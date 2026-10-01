@@ -6429,7 +6429,7 @@ function render() {
           <div class="arcom-status-pill arcom-status-${compliance.status.key}" title="ARCOM ${compliance.status.label} — ${compliance.arcomScore}/100">${compliance.status.emoji} ARCOM<span class="arcom-pill-label"> ${compliance.status.label} —</span> ${compliance.arcomScore}/100</div>
         </div>
         <div class="bilan-title-row">
-          <h2>PART D'AUDIENCE GLOBALE</h2>
+          <h2>PART D'AUDIENCE ${esc(TARGET_STRATEGIES[targetKey].nom.replace(/\s*\([^)]*\)/, '').toUpperCase())}</h2>
         </div>
 
         <table class="grid-table">
