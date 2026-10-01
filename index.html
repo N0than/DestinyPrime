@@ -7893,18 +7893,11 @@ function renderRadarPanel() {
   ensureCompetitorPlans();
   const radar = radarState();
   if (radar.sheet !== null && gameState.competitors[radar.sheet]) return renderCompetitorSheet(gameState.competitors[radar.sheet]);
-  const weather = computeMarketWeather();
-  const weatherHtml = weather.items.length
-    ? `<div class="radar-weather">${weather.items.map(it => `<div class="radar-weather-item">
-        <span class="radar-weather-title">${it.icon} ${esc(it.title)}</span>
-        <span class="radar-weather-text">${esc(it.text)}</span></div>`).join('')}</div>`
-    : '';
   const chips = TIME_SLOTS.map(s => `<button type="button" class="ga-target-btn${s.key === radar.slot ? ' active' : ''}" data-radar-action="slot" data-slot="${s.key}">${s.label}</button>`).join('');
   return `<div class="radar-panel">
     <div class="radar-slots" role="tablist" aria-label="Créneau comparé">${chips}</div>
     <div class="radar-scroll">
       <div class="radar-cards">${renderRadarCards(radar.slot)}</div>
-      ${weatherHtml}
     </div>
   </div>`;
 }
