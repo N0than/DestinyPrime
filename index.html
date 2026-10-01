@@ -6387,7 +6387,7 @@ function render() {
 
   if (gameState.step === 7) {
     const targetKey = gameState.player.target;
-    const targetLabel = TARGET_STRATEGIES[targetKey].nom;
+    const targetLabel = TARGET_STRATEGIES[targetKey].nom.replace(/\s*\([^)]*\)/, '');
     const calculated = getCalculatedPDAs();
     const standings = calculated.map(item => {
       const pdaValue = item.pda[targetKey];
