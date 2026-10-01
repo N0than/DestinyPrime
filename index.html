@@ -5445,6 +5445,11 @@ function chooseDilemmaOption(choiceIndex) {
   if (choice.grille && !choice.careerAction) delete player.contracts[choice.grille.slot];
   const coutGrilleDelta = applyFinance(decisionQuote.finance,
     choice.careerAction === 'stop' ? dilemma.careerSlot : null);
+  // Arrêt / non-renouvellement : l'économie allège le coût de grille (donc la grille à
+  // payer à la saison suivante), mais la saison en cours a déjà été réglée — aucun
+  // remboursement n'est versé en trésorerie.
+  const economieDifferee = choice.careerAction === 'stop' && coutGrilleDelta < 0;
+  if (economieDifferee) player.tresorerie += coutGrilleDelta;
   // Les dilemmes de régie publicitaire (d_pub*) créditent l'indicateur Revenus pub plutôt
   // que le compteur générique de recettes commerciales : on annule ici le crédit générique
   // déjà appliqué par applyFinance pour le rediriger via revenusPubPrevisionnels ci-dessous.
@@ -5512,7 +5517,7 @@ function chooseDilemmaOption(choiceIndex) {
   // Le flux net de trésorerie est bien la recette publicitaire moins la variation
   // de coût de grille : un surcoût (delta positif) réduit le solde, une économie
   // (delta négatif) l'augmente. La part régie est déjà comptée dans revenusPubDelta.
-  const tresorerieDelta = revenusPubDelta - coutGrilleDelta - decisionQuote.finance.purchase + (decisionQuote.finance.commercial - regieCommercial);
+  const tresorerieDelta = revenusPubDelta - (economieDifferee ? 0 : coutGrilleDelta) - decisionQuote.finance.purchase + (decisionQuote.finance.commercial - regieCommercial);
   player.tresorerie += revenusPubDelta;
 
   // Rentabilité grille et coût/PDA sont recalculés en temps réel à chaque dilemme,
@@ -5529,6 +5534,7 @@ function chooseDilemmaOption(choiceIndex) {
       tresorerie: tresorerieDelta,
       pdaCible: pdaCibleApres - pdaCibleAvant,
       coutGrille: coutGrilleDelta,
+      economieDifferee,
       achats: decisionQuote.finance.purchase,
       commercial: choice.finance.commercial - regieCommercial,
       revenusPub: revenusPubHorsRegie,
@@ -6352,7 +6358,8 @@ function render() {
         d.coutGrille > 0
           ? { icon: '📋', label: 'Coût additionnel', val: d.coutGrille, decimals: 1, suffix: ' M€', invert: true }
           : d.coutGrille < 0
-            ? { icon: '📋', label: 'Économie de grille', val: Math.abs(d.coutGrille), decimals: 1, suffix: ' M€', invert: false }
+            ? { icon: '📋', label: 'Économie de grille', val: Math.abs(d.coutGrille), decimals: 1,
+                suffix: d.economieDifferee ? ` M€ dès la saison ${gameState.season + 1}` : ' M€', invert: false }
             : { icon: '📋', label: 'Coût de grille', val: 0, decimals: 1, suffix: ' M€', invert: true },
         { icon: '📺', label: 'Revenus pub', val: d.revenusPub, decimals: 1, suffix: ' M€', invert: false },
         { icon: '🚀', label: 'Accélérateur régie', val: d.regie || 0, decimals: 1, suffix: d.regieRecurrente ? ' M€ / saison' : ' M€', invert: false },
@@ -6933,9 +6940,9 @@ function applyCareerDilemmaChoice(dilemma, choice) {
   const action = choice.careerAction;
   if (action === 'stop') {
     // Arrêt en fin de saison : le programme termine la saison à l'antenne (son audience
-    // et les recettes publicitaires associées restent acquises), mais son coût annuel est
-    // déjà retiré de la grille et crédité en trésorerie. Il quitte la grille à l'ouverture
-    // de la saison suivante (expireContracts), sans être facturé une seconde fois.
+    // et les recettes publicitaires associées restent acquises). Son coût annuel est déjà
+    // retiré du coût de grille, ce qui allège la grille de la saison suivante ; il quitte
+    // la grille à l'ouverture de celle-ci (expireContracts), sans être facturé à nouveau.
     contract.annual = 0;
     contract.talentAnnual = 0;
     contract.end = Math.min(contract.end, gameState.season);
@@ -7363,6 +7370,9 @@ function signProgram(slot, programId, talentId) {
   p.grilleOverrides[slot]=program.name+' — '+talent.name;
   const audience=getCalculatedPDAs().find(c=>c.channel===p).pda[p.target];
   p.pdaHistorySeason=[audience]; p.pdaMoyenneSaison=audience; p.pdaFinSaison=audience;
+  // Le nouveau programme modifie l'audience : les recettes pub sont réestimées tout de
+  // suite (seul l'écart est appliqué), et non au dilemme suivant.
+  reevaluateAdRevenue();
   refreshEconomy(); render(); return true;
 }
 function expireContracts() {
