@@ -1158,17 +1158,16 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .dilemma-hero .grid-renewal-list { align-self: stretch; text-align: left; }
 #choice-zone > .slide-in-up.consequence-wrap { margin-top: 0; }
 .dilemma-card.consequence-card {
-  border-radius: 20px; background: rgba(255,255,255,0.86);
-  box-shadow: 0 30px 60px -16px rgba(15,23,42,0.22), 0 0 0 1px rgba(255,255,255,0.9) inset;
+  border-radius: 20px; background: rgba(255,255,255,0.42); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 10px 24px -14px rgba(15,23,42,0.12), 0 0 0 1px rgba(255,255,255,0.6) inset;
 }
-.consequence-card::after { top: 0; bottom: auto; height: 3px; }
-.consequence-card .dc-body { align-items: center; text-align: center; gap: 10px; padding: 18px 16px 18px; }
-.consequence-card .impact-badges { justify-content: center; margin-top: 2px; }
-.consequence-card .program-manager-note { text-align: left; align-self: stretch; }
+.consequence-card::after { display: none; }
+.consequence-card .dc-body { align-items: flex-start; text-align: left; gap: 10px; padding: 16px; }
+.consequence-card .impact-badges { justify-content: flex-start; margin-top: 2px; }
+.consequence-card .program-manager-note { align-self: stretch; }
 .dilemma-hero + #choice-zone .choice {
   background: rgba(255,255,255,0.86); box-shadow: 0 22px 44px -16px rgba(15,23,42,0.2), 0 0 0 1px rgba(255,255,255,0.9) inset;
 }
-.consequence-kicker { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.6px; color: var(--gris); }
 /* ---- CONFÉRENCE DE RENTRÉE : cartouche ----
    Encadré léger (fond translucide, ombre douce) : les deux propositions restent
    les blocs les plus en relief de l'écran. */
@@ -6609,7 +6608,6 @@ function render() {
         <div class="slide-in-up consequence-wrap">
           <div class="dilemma-card consequence-card">
             <div class="dc-body">
-              <span class="consequence-kicker">Conséquences</span>
               <p>${esc(cq.resultat)}</p>
               ${cq.competitorEvent ? `<div class="program-manager-note"><b>🚨 LA CONCURRENCE RÉAGIT</b><br>${esc(cq.competitorEvent.channel)} lance une ${esc(cq.competitorEvent.action)} sur le créneau ${esc(TIME_SLOTS.find(s=>s.key===cq.competitorEvent.slot)?.label || cq.competitorEvent.slot)}.</div>` : ''}
               ${badgesHtml ? `<div class="impact-badges">${badgesHtml}</div>` : ''}
