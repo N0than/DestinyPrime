@@ -1149,12 +1149,12 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
   box-shadow: 0 10px 24px -14px rgba(15,23,42,0.12), 0 0 0 1px rgba(255,255,255,0.6) inset;
 }
 .dilemma-hero::after { display: none; }
-.dilemma-hero .dc-head { justify-content: center; gap: 6px; padding: 14px 14px 0; background: transparent; }
-.dilemma-hero .dc-body { align-items: center; text-align: center; gap: 8px; padding: 10px 16px 16px; }
+.dilemma-hero .dc-head { justify-content: space-between; gap: 6px; padding: 14px 16px 0; background: transparent; }
+.dilemma-hero .dc-body { align-items: flex-start; text-align: left; gap: 8px; padding: 10px 16px 16px; }
 .dilemma-hero h2 { font-size: clamp(22px, 6.2vw, 30px); line-height: 1.05; }
 .dilemma-card.dilemma-hero .dc-body > p { font-size: 14px; line-height: 1.5; color: #475569; max-width: 440px; }
 .dilemma-hero.is-result .dc-body > p { display: none; }
-.dilemma-hero .career-stats-badges { justify-content: center; }
+.dilemma-hero .career-stats-badges { justify-content: flex-start; }
 .dilemma-hero .grid-renewal-list { align-self: stretch; text-align: left; }
 #choice-zone > .slide-in-up.consequence-wrap { margin-top: 0; }
 .dilemma-card.consequence-card {
@@ -1173,12 +1173,12 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
    Encadré léger (fond translucide, ombre douce) : les deux propositions restent
    les blocs les plus en relief de l'écran. */
 .kickoff-head {
-  display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 14px 14px 16px; text-align: center;
+  display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding: 14px 16px 16px; text-align: left;
   background: rgba(255,255,255,0.42); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(255,255,255,0.85); border-radius: 20px;
   box-shadow: 0 10px 24px -14px rgba(15,23,42,0.12), 0 0 0 1px rgba(255,255,255,0.6) inset;
 }
-.kickoff-head-pills { display: flex; align-items: center; justify-content: center; gap: 6px; }
+.kickoff-head-pills { display: flex; align-items: center; justify-content: space-between; gap: 6px; align-self: stretch; }
 .kickoff-title { margin: 2px 0 0; font-size: clamp(24px, 6.4vw, 32px); line-height: 1.05; color: var(--ink); }
 .kickoff-lead { margin: 0; font-size: 13.5px; line-height: 1.45; color: #475569; max-width: 420px; }
 .kickoff-slot {
