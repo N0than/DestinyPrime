@@ -7359,20 +7359,17 @@ function renderSeasonKickoff(app) {
 function renderMercato(app) {
   const m = gameState.mercato;
   const p = gameState.player;
-  const targetShort = AUDIENCE_TARGETS.find(t => t.key === p.target)?.short || p.target;
+  const targetShort = TARGET_STRATEGIES[p.target]?.nom.replace(/\s*\([^)]*\)/, '') || p.target;
   const stars = (value, label) => {
     const n = Math.max(0, Math.min(5, Math.round(value)));
     return `<span class="mercato-stars" role="img" aria-label="${esc(label)} : ${n} sur 5">${'★'.repeat(n)}<span class="off">${'★'.repeat(5 - n)}</span></span>`;
   };
   const criteria = offer => {
     const aff = offer.affinities || {};
-    const values = Object.values(aff);
-    const avg = values.length ? values.reduce((s, v) => s + v, 0) / values.length : 0;
     const topInterest = offer.suitors[0]?.interest || 0;
     const cfg = GAME_BALANCE.mercato;
     return [
       { label: `Affinité ${targetShort}`, value: (aff[p.target] ?? 0) * 5 },
-      { label: 'Affinité globale', value: avg * 5 },
       { label: 'Impact programmes', value: 1 + (offer.bonus - cfg.minBonus) / Math.max(0.01, cfg.maxBonus - cfg.minBonus) * 4 },
       { label: 'Cases compatibles', value: Math.min(5, offer.compatibleSlots) },
       { label: 'Chances de signature', value: offer.chance * 5 },
