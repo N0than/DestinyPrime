@@ -1141,6 +1141,34 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .mercato-outcome-lost { color: var(--rouge); background: rgba(225,29,72,0.08); border: 1px solid rgba(225,29,72,0.25); }
 .mercato-outcome-rival { color: #334155; background: rgba(148,163,184,0.18); border: 1px solid rgba(148,163,184,0.35); }
 .mercato-outcome-free { color: var(--gris); background: rgba(255,255,255,0.6); border: 1px solid rgba(148,163,184,0.3); }
+/* ---- DILEMMES : en-tête encadré et carte de conséquences ----
+   Même langage que la Conférence de rentrée : un en-tête léger et centré,
+   puis des blocs distincts (choix ou conséquences) qui portent le relief. */
+.dilemma-card.dilemma-hero {
+  border-radius: 20px; background: rgba(255,255,255,0.42); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 10px 24px -14px rgba(15,23,42,0.12), 0 0 0 1px rgba(255,255,255,0.6) inset;
+}
+.dilemma-hero::after { display: none; }
+.dilemma-hero .dc-head { justify-content: center; gap: 6px; padding: 14px 14px 0; background: transparent; }
+.dilemma-hero .dc-body { align-items: center; text-align: center; gap: 8px; padding: 10px 16px 16px; }
+.dilemma-hero h2 { font-size: clamp(22px, 6.2vw, 30px); line-height: 1.05; }
+.dilemma-card.dilemma-hero .dc-body > p { font-size: 14px; line-height: 1.5; color: #475569; max-width: 440px; }
+.dilemma-hero.is-result .dc-body > p { display: none; }
+.dilemma-hero .career-stats-badges { justify-content: center; }
+.dilemma-hero .grid-renewal-list { align-self: stretch; text-align: left; }
+#choice-zone > .slide-in-up.consequence-wrap { margin-top: 0; }
+.dilemma-card.consequence-card {
+  border-radius: 20px; background: rgba(255,255,255,0.86);
+  box-shadow: 0 30px 60px -16px rgba(15,23,42,0.22), 0 0 0 1px rgba(255,255,255,0.9) inset;
+}
+.consequence-card::after { top: 0; bottom: auto; height: 3px; }
+.consequence-card .dc-body { align-items: center; text-align: center; gap: 10px; padding: 18px 16px 18px; }
+.consequence-card .impact-badges { justify-content: center; margin-top: 2px; }
+.consequence-card .program-manager-note { text-align: left; align-self: stretch; }
+.dilemma-hero + #choice-zone .choice {
+  background: rgba(255,255,255,0.86); box-shadow: 0 22px 44px -16px rgba(15,23,42,0.2), 0 0 0 1px rgba(255,255,255,0.9) inset;
+}
+.consequence-kicker { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.6px; color: var(--gris); }
 /* ---- CONFÉRENCE DE RENTRÉE : cartouche ----
    Encadré léger (fond translucide, ombre douce) : les deux propositions restent
    les blocs les plus en relief de l'écran. */
@@ -6578,9 +6606,10 @@ function render() {
       }).join('');
 
       zoneHtml = `
-        <div class="slide-in-up">
-          <div class="dilemma-card dilemma-card-attached">
+        <div class="slide-in-up consequence-wrap">
+          <div class="dilemma-card consequence-card">
             <div class="dc-body">
+              <span class="consequence-kicker">Conséquences</span>
               <p>${esc(cq.resultat)}</p>
               ${cq.competitorEvent ? `<div class="program-manager-note"><b>🚨 LA CONCURRENCE RÉAGIT</b><br>${esc(cq.competitorEvent.channel)} lance une ${esc(cq.competitorEvent.action)} sur le créneau ${esc(TIME_SLOTS.find(s=>s.key===cq.competitorEvent.slot)?.label || cq.competitorEvent.slot)}.</div>` : ''}
               ${badgesHtml ? `<div class="impact-badges">${badgesHtml}</div>` : ''}
@@ -6624,7 +6653,7 @@ function render() {
       ${renderTicker()}
       ${renderCampaignPanel()}
       <div class="dilemma-container${phase === 'choosing' ? ' slide-in' : ''}">
-        <div class="dilemma-card${phase === 'result' ? ' dilemma-card-joined' : ''}">
+        <div class="dilemma-card dilemma-hero${phase === 'result' ? ' is-result' : ''}">
           <div class="dc-head">
             <span class="dc-live-pill"><span class="dc-live-dot"></span>Événement</span>
             <span class="dc-season-pill">Saison ${gameState.season}</span>
@@ -7586,7 +7615,7 @@ function renderMercato(app) {
     ${renderMasthead("Saison " + gameState.season, "Audience Masters")}
     ${renderTicker()}
     <div class="dilemma-container slide-in">
-      ${m.result && m.outcomes ? '' : `<div class="dilemma-card">
+      ${m.result && m.outcomes ? '' : `<div class="dilemma-card dilemma-hero">
         <div class="dc-head">
           <span class="dc-live-pill"><span class="dc-live-dot"></span>Mercato</span>
           <span class="dc-season-pill">Saison ${gameState.season}</span>
