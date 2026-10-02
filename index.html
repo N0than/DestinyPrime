@@ -7452,7 +7452,7 @@ function renderMercato(app) {
     ${renderMasthead("Saison " + gameState.season, "Audience Masters")}
     ${renderTicker()}
     <div class="dilemma-container slide-in">
-      <div class="dilemma-card">
+      ${m.result && m.outcomes ? '' : `<div class="dilemma-card">
         <div class="dc-head">
           <span class="dc-live-pill"><span class="dc-live-dot"></span>Mercato</span>
           <span class="dc-season-pill">Saison ${gameState.season}</span>
@@ -7461,7 +7461,7 @@ function renderMercato(app) {
           <h2>Mercato des talents</h2>
           ${m.result ? '' : `<p>Deux personnalités sont sur le marché pour ${GAME_BALANCE.mercato.duration} saisons. Une seule offre est possible : un talent renforce les programmes de son genre, et son salaire s’ajoute à vos dépenses récurrentes.</p>`}
         </div>
-      </div>
+      </div>`}
       ${m.result ? resultHtml : `<div id="choice-zone"><div class="choices">${offersHtml}${passHtml}</div></div>`}
     </div>
   `;
