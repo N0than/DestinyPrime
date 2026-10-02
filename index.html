@@ -158,6 +158,14 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
   border: 1px solid rgba(255,255,255,0.8); box-shadow: 0 4px 12px rgba(15,23,42,0.06);
 }
 @keyframes hudLiveDotPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+.hud-panel-head-right { gap: 6px; }
+/* Écrans étroits : la cible rejoint le format de chaîne, le libellé « Tableau de
+   bord » s'efface pour laisser la place aux deux badges (le point vert reste). */
+.hud-panel { container-type: inline-size; }
+@container (max-width: 330px) { .hud-panel-head-text { display: none; } }
+@media (max-width: 420px) {
+  .hud-panel-head-right .hud-type-badge { font-size: 9.5px; padding: 3px 7px; }
+}
 .hud {
   display: grid; grid-template-columns: repeat(5, 1fr); gap: 2px;
   align-items: stretch;
@@ -6073,9 +6081,10 @@ function renderTicker() {
     <div class="hud-wrap">
       <div class="hud-panel">
         <div class="hud-panel-head">
-          <span class="hud-panel-head-label"><span class="hud-live-dot"></span>Tableau de bord</span>
+          <span class="hud-panel-head-label"><span class="hud-live-dot"></span><span class="hud-panel-head-text">Tableau de bord</span></span>
           <div class="hud-panel-head-right">
             <span class="hud-type-badge">${CHANNEL_TYPES[p.type].label}</span>
+            <span class="hud-type-badge hud-target-badge" title="Cible : ${esc(TARGET_STRATEGIES[p.target]?.nom || p.target)}">🎯 ${esc((TARGET_STRATEGIES[p.target]?.nom || p.target).replace(/\s*\([^)]*\)/, ''))}</span>
             <button class="hud-toggle${open ? ' open' : ''}" id="hud-toggle" aria-label="Détail des indicateurs" aria-expanded="${open}">
               <svg class="hud-toggle-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
             </button>
