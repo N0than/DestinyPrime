@@ -1156,13 +1156,21 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .dilemma-hero.is-result .dc-body > p { display: none; }
 .dilemma-hero .career-stats-badges { justify-content: flex-start; }
 .dilemma-hero .grid-renewal-list { align-self: stretch; text-align: left; }
-#choice-zone > .slide-in-up.consequence-wrap { margin-top: 0; }
+#choice-zone > .slide-in-up.consequence-wrap { margin-top: -14px; }
+/* À l'affichage des conséquences, l'en-tête et la carte de résultat ne forment
+   plus qu'un seul bloc (angles, bordure et ombre raccordés). */
+.dilemma-card.dilemma-hero.is-result {
+  border-bottom-left-radius: 0; border-bottom-right-radius: 0; border-bottom: none;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.6) inset;
+}
+.dilemma-hero.is-result .dc-body { padding-bottom: 12px; }
 .dilemma-card.consequence-card {
   border-radius: 20px; background: rgba(255,255,255,0.42); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
   box-shadow: 0 10px 24px -14px rgba(15,23,42,0.12), 0 0 0 1px rgba(255,255,255,0.6) inset;
 }
 .consequence-card::after { display: none; }
-.consequence-card .dc-body { align-items: flex-start; text-align: left; gap: 10px; padding: 16px; }
+.dilemma-card.consequence-card { border-top-left-radius: 0; border-top-right-radius: 0; border-top: none; }
+.consequence-card .dc-body { align-items: flex-start; text-align: left; gap: 10px; margin: 0 16px; padding: 14px 0 16px; border-top: 1px solid rgba(148,163,184,0.22); }
 .consequence-card .impact-badges { justify-content: flex-start; margin-top: 2px; }
 .consequence-card .program-manager-note { align-self: stretch; }
 .dilemma-hero + #choice-zone .choice {
