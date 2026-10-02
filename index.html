@@ -1086,6 +1086,30 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .mercato-suitors { font-size: 9.5px; color: var(--gris); line-height: 1.3; margin-top: 4px; }
 .mercato-cost { margin-top: auto; }
 .mercato-suitors + .mercato-cost { margin-top: auto; padding-top: 3px; }
+.mercato-card { position: relative; }
+.mercato-card:disabled { opacity: 0.78; }
+.mercato-card.outcome-signed { opacity: 1; border-color: rgba(16,185,129,0.55); box-shadow: 0 25px 50px -12px rgba(16,185,129,0.25), 0 0 0 2px rgba(16,185,129,0.35) inset; }
+.mercato-card.chosen:not(.outcome-signed) { opacity: 1; }
+.mercato-outcome {
+  align-self: stretch; margin: -4px 0 8px; padding: 5px 8px; border-radius: 999px; text-align: center;
+  font-size: 9.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.3px; line-height: 1.25;
+}
+.mercato-outcome-signed { color: #047857; background: rgba(16,185,129,0.14); border: 1px solid rgba(16,185,129,0.35); }
+.mercato-outcome-lost { color: var(--rouge); background: rgba(225,29,72,0.08); border: 1px solid rgba(225,29,72,0.25); }
+.mercato-outcome-rival { color: #334155; background: rgba(148,163,184,0.18); border: 1px solid rgba(148,163,184,0.35); }
+.mercato-outcome-free { color: var(--gris); background: rgba(255,255,255,0.6); border: 1px solid rgba(148,163,184,0.3); }
+.mercato-pass-note { margin: 10px 0 0; text-align: center; font-size: 12px; font-style: italic; color: var(--gris); }
+.confetti-layer { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 9999; }
+.confetti-piece {
+  position: absolute; top: -20px; border-radius: 2px; opacity: 0.95;
+  animation-name: confetti-fall; animation-timing-function: cubic-bezier(.25,.6,.4,1); animation-fill-mode: forwards;
+}
+.confetti-piece.round { border-radius: 50%; }
+@keyframes confetti-fall {
+  0% { transform: translate3d(0, 0, 0) rotate(0deg); opacity: 1; }
+  80% { opacity: 1; }
+  100% { transform: translate3d(var(--drift), 105vh, 0) rotate(var(--spin)); opacity: 0; }
+}
 @media (max-width: 380px) {
   .mercato-card { padding: 12px 8px 10px; }
   .mercato-criterion-label { font-size: 9.5px; }
@@ -7376,8 +7400,20 @@ function renderMercato(app) {
       { label: 'Convoitise', value: topInterest * 5 }
     ];
   };
-  const offersHtml = `<div class="mercato-cards">${m.offers.map((offer, i) => `
-    <button class="mercato-card" data-mercato-offer="${i}" ${m.result ? 'disabled' : ''}>
+  // Issue du mercato pour chaque carte (statut affiché une fois l'offre jouée).
+  const outcomeOf = i => {
+    const o = m.outcomes?.[i];
+    if (!o) return null;
+    if (o.status === 'signed') return { cls: 'signed', text: '✔ Rejoint votre chaîne' };
+    const lost = o.status === 'refused' ? 'Offre refusée' : o.status === 'unaffordable' ? 'Offre impossible' : null;
+    const fate = o.rival ? `Recruté par ${o.rival}` : 'Reste libre';
+    return { cls: lost ? 'lost' : o.rival ? 'rival' : 'free', text: lost ? `${lost} · ${fate}` : fate };
+  };
+  const offersHtml = `<div class="mercato-cards">${m.offers.map((offer, i) => {
+    const outcome = outcomeOf(i);
+    return `
+    <button class="mercato-card${outcome ? ` outcome-${outcome.cls}` : ''}${m.chosen === i ? ' chosen' : ''}" data-mercato-offer="${i}" ${m.result ? 'disabled' : ''}>
+      ${outcome ? `<span class="mercato-outcome mercato-outcome-${outcome.cls}">${esc(outcome.text)}</span>` : ''}
       <span class="mercato-avatar"><img src="${MERCATO_AVATARS[offer.id] || ''}" alt="" width="72" height="72"></span>
       <span class="mercato-name">${esc(offer.name)}</span>
       <span class="mercato-role">${esc(offer.role)}</span>
@@ -7387,7 +7423,7 @@ function renderMercato(app) {
       </span>
       <span class="mercato-suitors">${offer.suitors.length ? 'Intéressés : ' + offer.suitors.map(s => esc(s.name)).join(', ') : 'Aucun concurrent déclaré'}</span>
       <span class="choice-pill cost mercato-cost">${nf1(offer.annual)} M€/an</span>
-    </button>`).join('')}</div>`;
+    </button>`; }).join('')}</div>`;
   const passHtml = `
     <button class="choice" data-mercato-offer="none" ${m.result ? 'disabled' : ''}>
       <div class="choice-row">
@@ -7400,11 +7436,13 @@ function renderMercato(app) {
       </div>
     </button>`;
   const resultHtml = m.result ? `
+    ${m.outcomes ? offersHtml : `
     <div class="dilemma-card dilemma-card-attached">
       <div class="dc-body">
         <ul class="radar-list">${m.result.map(l => `<li class="${l.won ? 'radar-good' : ''}">${esc(l.text)}</li>`).join('')}</ul>
       </div>
-    </div>
+    </div>`}
+    ${m.outcomes && m.chosen === null ? '<p class="mercato-pass-note">Vous avez laissé passer ce mercato.</p>' : ''}
     <button class="welcome-cta" id="btn-mercato-continue" style="margin-top: 14px;">
       <span class="welcome-cta-shine"></span><span>Continuer</span>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -7421,7 +7459,7 @@ function renderMercato(app) {
         </div>
         <div class="dc-body">
           <h2>Mercato des talents</h2>
-          <p>Deux personnalités sont sur le marché pour ${GAME_BALANCE.mercato.duration} saisons. Une seule offre est possible : un talent renforce les programmes de son genre, et son salaire s’ajoute à vos dépenses récurrentes.</p>
+          ${m.result ? '' : `<p>Deux personnalités sont sur le marché pour ${GAME_BALANCE.mercato.duration} saisons. Une seule offre est possible : un talent renforce les programmes de son genre, et son salaire s’ajoute à vos dépenses récurrentes.</p>`}
         </div>
       </div>
       ${m.result ? resultHtml : `<div id="choice-zone"><div class="choices">${offersHtml}${passHtml}</div></div>`}
@@ -7436,8 +7474,33 @@ function renderMercato(app) {
   });
   const cont = document.getElementById('btn-mercato-continue');
   if (cont) cont.onclick = () => { gameState.mercatoPending = false; render(); };
+  // Signature réussie : une pluie de cotillons, jouée une seule fois.
+  if (m.outcomes?.some(o => o?.status === 'signed') && !m.celebrated) {
+    m.celebrated = true;
+    launchConfetti();
+  }
   bindTickerInteractions(app);
   app.querySelector('.masthead').onclick = goHome;
+}
+
+function launchConfetti() {
+  if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+  const colors = ['#e11d48', '#2563eb', '#f59e0b', '#10b981', '#8b5cf6', '#06b6d4', '#facc15'];
+  const layer = document.createElement('div');
+  layer.className = 'confetti-layer';
+  layer.setAttribute('aria-hidden', 'true');
+  for (let i = 0; i < 90; i++) {
+    const piece = document.createElement('span');
+    piece.className = 'confetti-piece' + (i % 3 === 0 ? ' round' : '');
+    const drift = (Math.random() - 0.5) * 220;
+    piece.style.cssText = `left:${Math.random() * 100}%;background:${colors[i % colors.length]};`
+      + `--drift:${drift}px;--spin:${(Math.random() < 0.5 ? -1 : 1) * (360 + Math.random() * 540)}deg;`
+      + `animation-duration:${2.2 + Math.random() * 1.6}s;animation-delay:${Math.random() * 0.5}s;`
+      + `width:${6 + Math.random() * 5}px;height:${8 + Math.random() * 8}px;`;
+    layer.appendChild(piece);
+  }
+  document.body.appendChild(layer);
+  setTimeout(() => layer.remove(), 4600);
 }
 
 function nextSeasonCommitment() {
@@ -8021,6 +8084,7 @@ function resolveMercato(offerIndex) {
   const p = gameState.player;
   const until = gameState.season + GAME_BALANCE.mercato.duration - 1;
   const lines = [];
+  const outcomes = [];
   m.offers.forEach((offer, i) => {
     const signed = { id: offer.id, name: offer.name, specialty: offer.specialty, role: offer.role,
       annual: offer.annual, bonus: offer.bonus, until };
@@ -8031,9 +8095,11 @@ function resolveMercato(offerIndex) {
         p.talents = [...(p.talents || []), signed];
         p.coutTalentsSaison += offer.annual;
         lines.push({ won: true, text: `${offer.name} rejoint votre antenne pour ${GAME_BALANCE.mercato.duration} saisons (${nf1(offer.annual)} M€/an).` });
+        outcomes[i] = { status: 'signed' };
         return;
       }
       lines.push({ won: false, text: affordable ? `Votre offre pour ${offer.name} n’a pas convaincu.` : `Offre impossible : votre trésorerie ne permet pas d’accueillir ${offer.name}.` });
+      outcomes[i] = { status: affordable ? 'refused' : 'unaffordable' };
     }
     const suitor = offer.suitors[0] && gameState.competitors.find(c => c.name === offer.suitors[0].name);
     if (suitor) {
@@ -8041,8 +8107,10 @@ function resolveMercato(offerIndex) {
       suitor.budget = Math.max(0, suitor.budget - offer.annual);
       suitor.strategyHistory.push({ kind: 'talent', season: gameState.season, name: offer.name, specialty: offer.specialty });
       lines.push({ won: false, text: `${suitor.name} recrute ${offer.name} (${(GENRE_LABELS[offer.specialty] || offer.specialty).toLowerCase()}).` });
+      outcomes[i] = { ...(outcomes[i] || {}), rival: suitor.name };
     } else {
       lines.push({ won: false, text: `${offer.name} reste libre cette saison.` });
+      outcomes[i] = { ...(outcomes[i] || {}), free: true };
     }
   });
   // Les talents modifient les audiences : seul l'écart de recettes est réestimé.
@@ -8051,6 +8119,8 @@ function resolveMercato(offerIndex) {
   p.pdaHistorySeason = [audience]; p.pdaMoyenneSaison = audience; p.pdaFinSaison = audience;
   refreshEconomy();
   m.result = lines;
+  m.outcomes = outcomes;
+  m.chosen = offerIndex;
 }
 
 function expireTalents() {
