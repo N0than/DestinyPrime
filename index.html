@@ -1056,6 +1056,11 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .program-manager-box:focus-visible { outline:2px solid var(--bleu); outline-offset:2px; }
 .program-manager-feedback { display:block; min-height:0; margin-top:3px; color:var(--rouge); font-size:9.5px; }
 .program-manager-feedback:empty { margin-top:0; }
+.grid-renewal-list { display: flex; flex-direction: column; margin-top: 10px; }
+.grid-renewal-row { display: flex; align-items: center; gap: 8px; padding: 7px 0; border-bottom: 1px solid rgba(148,163,184,0.25); font-size: 12.5px; }
+.grid-renewal-row:last-child { border-bottom: none; }
+.grid-renewal-slot { width: 78px; flex-shrink: 0; font-weight: 800; font-size: 11px; text-transform: uppercase; letter-spacing: 0.3px; color: var(--gris); }
+.grid-renewal-name { flex: 1; min-width: 0; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .program-manager-exclusivity { display:block; margin-top:3px; color:var(--gold); font-size:9.5px; font-weight:700; }
 .program-manager-exclusivity:empty { display:none; }
 .program-manager-notice { display:block; margin-top:4px; padding:6px 8px; border-radius:10px; font-size:10px; line-height:1.35; color:var(--ink); background:rgba(217,119,6,0.1); border:1px solid rgba(217,119,6,0.25); }
@@ -4935,14 +4940,56 @@ function pickDilemmaQueue() {
   // d'interrompre le bilan une fois les comptes déjà arrêtés. Si plusieurs programmes
   // sont à renouveler en même temps, leurs dilemmes s'enchaînent tous en fin de saison
   // plutôt que de n'en traiter qu'un seul et reporter les autres.
-  const pendingRenewals = selectCareerDecisions();
+  // Plusieurs programmes à arbitrer : un premier dilemme propose de reconduire toute la
+  // grille à l'identique ; en cas de refus, les arbitrages programme par programme
+  // s'enchaînent ensuite comme d'habitude.
+  const pendingRenewals = selectCareerDecisions()
+    .filter(pending => createCareerRenewalDilemma(pending));
+  if (pendingRenewals.length >= 2) {
+    queue[queue.length - 1] = createGridRenewalDilemma(pendingRenewals);
+    return queue;
+  }
   pendingRenewals.forEach((pending, i) => {
     const careerDilemma = createCareerRenewalDilemma(pending);
-    if (!careerDilemma) return;
     if (i === 0) queue[queue.length - 1] = careerDilemma;
     else queue.push(careerDilemma);
   });
   return queue;
+}
+
+function createGridRenewalDilemma(pendingRenewals) {
+  const p = gameState.player;
+  const zeroPda = { j1524: 0, a2549: 0, s50: 0, csp: 0 };
+  const programs = pendingRenewals.map(pending => {
+    const contract = p.contracts[pending.slot];
+    const career = migrateProgramCareer(contract, pending.slot);
+    return { slot: pending.slot, name: contract.name, wear: Math.round(career.wear), historic: !!career.historic };
+  });
+  return {
+    id: `grid-renewal-${gameState.season}`, isGridRenewal: true, gridRenewals: pendingRenewals, gridPrograms: programs,
+    titre: 'Reconduire la grille ?',
+    desc: `Dernier arbitrage de la saison : ${programs.length} programmes arrivent à un moment clé. Vous pouvez reconduire toute la grille à l'identique, ou décider de l'avenir de chacun.`,
+    c: [
+      { l: 'Renouveler toute la grille à l’identique', gridRenewal: 'all', pillLabel: `${programs.length} programmes reconduits`,
+        pda: { ...zeroPda }, audienceImpacts: [], pop: 0, finance: { recurring: 0, purchase: 0, commercial: 0, category: 'N' },
+        r: 'La grille est reconduite telle quelle : vos programmes conservent leurs repères et leur public, mais leur usure continue.' },
+      { l: 'Arbitrer programme par programme', gridRenewal: 'each', pillLabel: 'Au cas par cas',
+        pda: { ...zeroPda }, audienceImpacts: [], pop: 0, finance: { recurring: 0, purchase: 0, commercial: 0, category: 'N' },
+        r: 'Chaque programme passe devant la direction : renouveler, faire évoluer, relancer ou arrêter.' }
+    ]
+  };
+}
+
+function applyGridRenewalChoice(dilemma, choice) {
+  const pendings = dilemma.gridRenewals || [];
+  if (choice.gridRenewal === 'all') {
+    pendings.forEach(pending => applyCareerDilemmaChoice(
+      { careerSlot: pending.slot, programId: pending.programId }, { careerAction: 'renew' }));
+    return;
+  }
+  // Arbitrage au cas par cas : les dilemmes de renouvellement s'insèrent juste après.
+  const next = pendings.map(pending => createCareerRenewalDilemma(pending)).filter(Boolean);
+  gameState.dilemmaQueue.splice(gameState.currentDilemmaIndex + 1, 0, ...next);
 }
 
 function initCompetitors() {
@@ -5471,6 +5518,8 @@ function chooseDilemmaOption(choiceIndex) {
   }
   if (choice.careerAction) {
     applyCareerDilemmaChoice(dilemma, choice);
+  } else if (choice.gridRenewal) {
+    applyGridRenewalChoice(dilemma, choice);
   } else if (choice.grille) {
     const slot=choice.grille.slot;
     const annual=Math.max(0,choice.finance.recurring);
@@ -5699,11 +5748,13 @@ function startNewSeason() {
     // Le crédit intégral intervient dès l'ouverture de la saison, avant même le choix de
     // programmation : la proposition ne fera plus qu'ajuster l'écart, comme un dilemme.
     creditInitialAdRevenue();
-    gameState.seasonKickoffProposal = generateSeasonKickoffProposal();
-    gameState.seasonKickoffPending = !!gameState.seasonKickoffProposal;
     // Mercato des talents : une phase de décision unique, tous les deux ans.
     gameState.mercato = isMercatoSeason() ? generateMercato() : null;
     gameState.mercatoPending = !!gameState.mercato;
+    // Une saison de mercato a déjà son arbitrage de rentrée (les talents) : la
+    // conférence de rentrée n'est alors pas proposée, pour ne pas enchaîner deux phases.
+    gameState.seasonKickoffProposal = gameState.mercato ? null : generateSeasonKickoffProposal();
+    gameState.seasonKickoffPending = !!gameState.seasonKickoffProposal;
   }
   render();
 }
@@ -6433,6 +6484,14 @@ function render() {
               <span class="pg-pda-badge pg-badge-gold">Notoriété ${dilemma.careerStats.awareness}/100</span>
               <span class="pg-pda-badge pg-badge-vert">Fidélité ${dilemma.careerStats.loyalty}/100</span>
               <span class="pg-pda-badge pg-badge-rouge">Usure ${dilemma.careerStats.wear}/100</span>
+            </div>` : ''}
+            ${dilemma.isGridRenewal ? `
+            <div class="grid-renewal-list">${dilemma.gridPrograms.map(g => `
+              <div class="grid-renewal-row">
+                <span class="grid-renewal-slot">${esc(slotLabelOf(g.slot))}</span>
+                <span class="grid-renewal-name">${g.historic ? '⭐ ' : ''}${esc(g.name)}</span>
+                <span class="pg-pda-badge pg-badge-rouge">Usure ${g.wear}/100</span>
+              </div>`).join('')}
             </div>` : ''}
           </div>
         </div>
