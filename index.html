@@ -636,6 +636,49 @@ button.radar-card:hover { transform: translateY(-1px); box-shadow: 0 10px 24px -
 .bilan-card .bilan-kicker-row .kicker-badge { margin-bottom: 0; }
 .bilan-card h3 { font-size: 14px; margin: 14px 0 4px; }
 
+/* ---- RENOUVELLEMENT DE CONVENTION ---- */
+.renewal-card { position: relative; overflow: hidden; }
+.renewal-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+.renewal-renewed::before { background: linear-gradient(90deg, var(--vert), rgba(16,185,129,0.35)); }
+.renewal-watch::before { background: linear-gradient(90deg, var(--gold), rgba(217,119,6,0.35)); }
+.renewal-refused::before { background: linear-gradient(90deg, var(--rouge), rgba(225,29,72,0.35)); }
+.renewal-kicker-row { margin-bottom: 14px; }
+.bilan-card .renewal-kicker-row .kicker-badge { margin-bottom: 0; }
+.renewal-kicker-row .kicker-badge, .renewal-kicker-row .dc-season-pill { white-space: nowrap; }
+@media (max-width: 400px) { .renewal-kicker-row .kicker-badge { font-size: 10px; padding: 6px 10px; letter-spacing: 0.3px; } }
+@media (max-width: 389px) { .renewal-xs-hide { display: none; } }
+.renewal-card h2 { margin: 0 0 8px; }
+.renewal-lead { margin: 0 0 14px; font-size: 14px; line-height: 1.5; color: #334155; }
+.renewal-score { padding: 12px 14px; border-radius: 14px; background: rgba(255,255,255,0.55); border: 1px solid rgba(255,255,255,0.85); margin-bottom: 12px; }
+.renewal-score-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+.renewal-score-value { font-family: 'Anton', sans-serif; font-size: 30px; line-height: 1; color: var(--ink); }
+.renewal-score-value span { font-size: 14px; color: var(--gris); margin-left: 2px; }
+.renewal-score-pill { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 10px; text-transform: uppercase; letter-spacing: 0.4px; padding: 5px 10px; border-radius: 999px; }
+.renewal-pill-renewed { color: #047857; background: rgba(16,185,129,0.14); border: 1px solid rgba(16,185,129,0.35); }
+.renewal-pill-watch { color: #92400e; background: rgba(217,119,6,0.12); border: 1px solid rgba(217,119,6,0.3); }
+.renewal-pill-refused { color: var(--rouge); background: rgba(225,29,72,0.08); border: 1px solid rgba(225,29,72,0.25); }
+.renewal-gauge { position: relative; height: 10px; border-radius: 999px; background: rgba(148,163,184,0.22); overflow: visible; }
+.renewal-gauge-fill { height: 100%; border-radius: 999px; }
+.renewal-renewed .renewal-gauge-fill { background: linear-gradient(90deg, #34d399, var(--vert)); }
+.renewal-watch .renewal-gauge-fill { background: linear-gradient(90deg, #fbbf24, var(--gold)); }
+.renewal-refused .renewal-gauge-fill { background: linear-gradient(90deg, #fb7185, var(--rouge)); }
+.renewal-gauge-mark { position: absolute; top: -3px; width: 2px; height: 16px; border-radius: 2px; background: rgba(15,23,42,0.35); transform: translateX(-1px); }
+.renewal-gauge-legend { position: relative; height: 12px; margin-top: 6px; font-size: 9.5px; color: var(--gris); text-transform: uppercase; letter-spacing: 0.3px; white-space: nowrap; }
+.renewal-gauge-legend > span { position: absolute; top: 0; }
+.renewal-gauge-legend > span:nth-child(1) { left: 0; }
+.renewal-gauge-legend > span:nth-child(2) { left: 50%; transform: translateX(-50%); }
+.renewal-gauge-legend > span:nth-child(3) { left: 80%; transform: translateX(-50%); }
+.renewal-gauge-legend > span:nth-child(4) { right: 0; }
+.renewal-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.renewal-stats .renewal-stat:first-child { grid-column: 1 / -1; }
+@media (min-width: 560px) { .renewal-stats { grid-template-columns: repeat(5, 1fr); } .renewal-stats .renewal-stat:first-child { grid-column: auto; } }
+.renewal-stat { padding: 10px 6px; border-radius: 12px; text-align: center; background: rgba(255,255,255,0.55); border: 1px solid rgba(255,255,255,0.85); }
+.renewal-stat.alert { background: rgba(225,29,72,0.08); border-color: rgba(225,29,72,0.25); }
+.renewal-stat-value { font-family: 'Anton', sans-serif; font-size: 19px; line-height: 1.1; color: var(--ink); }
+.renewal-stat.alert .renewal-stat-value { color: var(--rouge); }
+.renewal-stat-label { font-size: 9.5px; color: var(--gris); text-transform: uppercase; letter-spacing: 0.3px; margin-top: 3px; }
+.renewal-card + .welcome-cta { margin-top: 14px; }
+
 /* ---- FIN DE PARTIE : MISE SOUS TUTELLE / AUTORISATION RETIRÉE ---- */
 .sanction-card { position: relative; overflow: hidden; }
 .sanction-card::before {
@@ -6813,21 +6856,43 @@ function render() {
     const pdaMoyenne = playerCalc.globalPda;
     const gravesRecents = player.arcomViolations.filter(v => v.severity === 'grave' && v.season > gameState.season - CONVENTION_DURATION).length;
 
+    const tone = outcome.key === 'refused' ? 'refused' : outcome.key === 'renewed' ? 'renewed' : 'watch';
+    const score = Math.max(0, Math.min(100, renewal.renewalScore));
+    const stats = [
+      { value: `${nf1(pdaMoyenne)} %`, label: 'PDA moyenne' },
+      { value: `${nf1(player.revenusPubCumul)} M€`, label: 'Revenus cumulés' },
+      { value: `${nf1(renewal.complianceAverage)}/100`, label: 'Score ARCOM moyen', alert: renewal.complianceAverage < 60 },
+      { value: `${gravesRecents}`, label: 'Manquements graves', alert: gravesRecents > 0 },
+      { value: `${player.arcomSanctionsCount}`, label: 'Sanctions cumulées', alert: player.arcomSanctionsCount > 0 }
+    ];
+
     app.innerHTML = `
       ${renderMasthead("Renouvellement de convention", "Audience Masters")}
-      <div class="card">
-        <div class="tape"></div>
-        <div class="kicker">⚖️ RENOUVELLEMENT DE VOTRE CONVENTION</div>
+      <div class="card bilan-card renewal-card renewal-${tone}">
+        <div class="kicker-row renewal-kicker-row">
+          <span class="kicker-badge">⚖️ Renouvellement<span class="renewal-xs-hide">&nbsp;de convention</span></span>
+          <span class="dc-season-pill">Saison ${gameState.season}</span>
+        </div>
         <h2>${esc(outcome.title)}</h2>
-        <p style="margin: 10px 0;">${esc(outcome.message)}</p>
-        <div class="arcom-status-pill arcom-status-${outcome.key === 'refused' ? 'nonconforme' : (outcome.key === 'renewed' ? 'excellent' : 'vigilance')}">${outcome.emoji} Score de renouvellement : ${renewal.renewalScore} / 100</div>
-        <ul style="margin: 14px 0 4px 18px; font-size: 13px;">
-          <li>PDA moyenne : ${nf1(pdaMoyenne)}%</li>
-          <li>Revenus cumulés : ${nf1(player.revenusPubCumul)} M€</li>
-          <li>Score ARCOM moyen (période) : ${nf1(renewal.complianceAverage)} / 100</li>
-          <li>Manquements graves récents : ${gravesRecents}</li>
-          <li>Sanctions cumulées : ${player.arcomSanctionsCount}</li>
-        </ul>
+        <p class="renewal-lead">${esc(outcome.message)}</p>
+        <div class="renewal-score">
+          <div class="renewal-score-head">
+            <span class="renewal-score-value">${score}<span>/100</span></span>
+            <span class="renewal-score-pill renewal-pill-${tone}">${outcome.emoji} Score de renouvellement</span>
+          </div>
+          <div class="renewal-gauge" role="img" aria-label="Score de renouvellement : ${score} sur 100">
+            <div class="renewal-gauge-fill" style="width:${score}%"></div>
+            <span class="renewal-gauge-mark" style="left:50%" title="Seuil de refus : 50"></span>
+            <span class="renewal-gauge-mark" style="left:80%" title="Renouvellement plein : 80"></span>
+          </div>
+          <div class="renewal-gauge-legend"><span>0</span><span>50<span class="renewal-xs-hide"> · seuil de refus</span></span><span>80</span><span>100</span></div>
+        </div>
+        <div class="renewal-stats">
+          ${stats.map(st => `<div class="renewal-stat${st.alert ? ' alert' : ''}">
+            <div class="renewal-stat-value">${st.value}</div>
+            <div class="renewal-stat-label">${st.label}</div>
+          </div>`).join('')}
+        </div>
       </div>
       <button class="welcome-cta" id="btn-renewal-continue">
         <span class="welcome-cta-shine"></span>
