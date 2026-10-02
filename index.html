@@ -6806,7 +6806,7 @@ function render() {
         <p>Grille à payer : <b>${nf1(nextSeasonCommitment().annual)} M€</b> · contrats arrivant à échéance : ${nf1(nextSeasonCommitment().expired)} M€ / an.</p>
         <p>Trésorerie après paiement : <b>${nf1(nextSeasonCommitment().cash)} M€</b>, avant nouvelles recettes et décisions.${nextSeasonCommitment().cash<TRESORERIE_CRITIQUE?' Ce paiement ferait franchir le seuil de faillite.':''}</p>
       </div>
-      <button class="welcome-cta" id="btn-next-season" ${careerContract?'disabled title="Décidez d’abord de l’avenir du programme"':''}>
+      <button class="welcome-cta" id="btn-next-season" style="margin-top: 2px;" ${careerContract?'disabled title="Décidez d’abord de l’avenir du programme"':''}>
         <span class="welcome-cta-shine"></span>
         <span>${careerContract ? 'Choisissez l’avenir du programme ci-dessus' : gameState.renewalDue ? 'Voir le renouvellement de convention' : `Lancer la Saison ${gameState.season + 1}`}</span>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" stroke-linecap="round" stroke-linejoin="round"/></svg>
