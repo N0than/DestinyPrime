@@ -1142,9 +1142,14 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .mercato-outcome-rival { color: #334155; background: rgba(148,163,184,0.18); border: 1px solid rgba(148,163,184,0.35); }
 .mercato-outcome-free { color: var(--gris); background: rgba(255,255,255,0.6); border: 1px solid rgba(148,163,184,0.3); }
 /* ---- CONFÉRENCE DE RENTRÉE : cartouche ----
-   En-tête « posé » sur la page, sans carte : les deux propositions restent les
-   seuls blocs mis en relief de l'écran. */
-.kickoff-head { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 6px 8px 2px; text-align: center; }
+   Encadré léger (fond translucide, ombre douce) : les deux propositions restent
+   les blocs les plus en relief de l'écran. */
+.kickoff-head {
+  display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 14px 14px 16px; text-align: center;
+  background: rgba(255,255,255,0.42); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.85); border-radius: 20px;
+  box-shadow: 0 10px 24px -14px rgba(15,23,42,0.12), 0 0 0 1px rgba(255,255,255,0.6) inset;
+}
 .kickoff-head-pills { display: flex; align-items: center; justify-content: center; gap: 6px; }
 .kickoff-title { margin: 2px 0 0; font-size: clamp(24px, 6.4vw, 32px); line-height: 1.05; color: var(--ink); }
 .kickoff-lead { margin: 0; font-size: 13.5px; line-height: 1.45; color: #475569; max-width: 420px; }
