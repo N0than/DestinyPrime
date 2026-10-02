@@ -687,6 +687,29 @@ button.radar-card:hover { transform: translateY(-1px); box-shadow: 0 10px 24px -
 .renewal-stat-label { font-size: 9.5px; color: var(--gris); text-transform: uppercase; letter-spacing: 0.3px; margin-top: 3px; }
 .renewal-card + .welcome-cta { margin-top: 14px; }
 
+/* ---- CONVENTION ARCOM (page de détail) ---- */
+.arcom-gauge-legend { position: relative; height: 12px; margin-top: 6px; font-size: 9.5px; color: var(--gris); text-transform: uppercase; letter-spacing: 0.3px; white-space: nowrap; }
+.arcom-gauge-legend > span { position: absolute; top: 0; }
+.arcom-gauge-legend > span:nth-child(2), .arcom-gauge-legend > span:nth-child(3) { transform: translateX(-50%); }
+.arcom-stats { grid-template-columns: repeat(2, 1fr); }
+.arcom-stats .renewal-stat:first-child { grid-column: auto; }
+@media (min-width: 560px) { .arcom-stats { grid-template-columns: repeat(4, 1fr); } }
+.arcom-stats .renewal-stat-value { font-size: 17px; }
+.arcom-oblig-card .kicker-row { margin-bottom: 12px; }
+.arcom-oblig-grid { display: flex; flex-direction: column; gap: 8px; }
+.arcom-oblig-item { padding: 10px 12px; border-radius: 12px; background: rgba(255,255,255,0.55); border: 1px solid rgba(255,255,255,0.85); }
+.arcom-oblig-item.arcom-oblig-bad { background: rgba(225,29,72,0.06); border-color: rgba(225,29,72,0.2); }
+.arcom-oblig-top { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
+.arcom-oblig-name { flex: 1; min-width: 0; font-size: 12.5px; font-weight: 700; color: #334155; }
+.arcom-oblig-figure { flex-shrink: 0; font-family: 'Anton', sans-serif; font-size: 14px; color: var(--ink); white-space: nowrap; }
+.arcom-oblig-figure span { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10.5px; font-weight: 700; color: var(--gris); }
+.arcom-oblig-item .arcom-oblig-bar-track { height: 6px; border-radius: 999px; background: rgba(148,163,184,0.22); }
+.arcom-oblig-item .arcom-oblig-bar-fill { border-radius: 999px; }
+.arcom-oblig-item .arcom-oblig-bar-fill.ok { background: linear-gradient(90deg, #34d399, var(--vert)); }
+.arcom-oblig-item .arcom-oblig-bar-fill.warn { background: linear-gradient(90deg, #fbbf24, var(--gold)); }
+.arcom-oblig-item .arcom-oblig-bar-fill.bad { background: linear-gradient(90deg, #fb7185, var(--rouge)); }
+#btn-arcom-back svg { order: -1; }
+
 /* ---- FIN DE PARTIE : MISE SOUS TUTELLE / AUTORISATION RETIRÉE ---- */
 .sanction-card { position: relative; overflow: hidden; }
 .sanction-card::before {
@@ -6891,48 +6914,74 @@ function render() {
     const renewal = computeRenewalScore();
     const renewalOutcome = getRenewalOutcome(renewal.renewalScore);
 
+    // Présentation dans les codes du jeu (cartes bilan, jauge et tuiles de la convention).
+    const statusKey = compliance.status.key;
+    const tone = statusKey === 'excellent' || statusKey === 'conforme' ? 'renewed' : statusKey === 'vigilance' ? 'watch' : 'refused';
+    const score = Math.max(0, Math.min(100, compliance.arcomScore));
+    const met = compliance.obligations.filter(ob => ob.rate >= 1).length;
+    const levelOf = ob => ob.rate >= 1 ? 'ok' : ob.rate >= 0.75 ? 'warn' : 'bad';
+    const unitOf = ob => ob.unit === '%' ? '%' : ' ' + ob.unit;
+    const renewalTone = renewalOutcome.key === 'refused' ? 'alert' : '';
+    const renewalLabel = { renewed: 'Favorable', conditional: 'Sous conditions', watch: 'Sous surveillance', refused: 'Refus' }[renewalOutcome.key];
+    const stats = [
+      { value: `${met}/${compliance.obligations.length}`, label: 'Obligations tenues', alert: met < compliance.obligations.length },
+      { value: `${player.arcomSanctionsCount}`, label: 'Sanctions cumulées', alert: player.arcomSanctionsCount > 0 },
+      { value: `Saison ${nextEcheance}`, label: 'Prochaine échéance' },
+      { value: renewalLabel, label: 'Renouvellement', alert: !!renewalTone }
+    ];
+
     app.innerHTML = `
       ${renderMasthead("Détails de votre convention", "Audience Masters")}
-      <div class="card">
-        <div class="tape"></div>
-        <div class="kicker">CONVENTION — ${esc(convention.label).toUpperCase()}</div>
-        <div class="arcom-score-row">
-          <div class="arcom-score-value">${compliance.arcomScore} / 100</div>
-          <div class="arcom-status-pill arcom-status-${compliance.status.key}">${compliance.status.emoji} ${compliance.status.label}</div>
+      <div class="card bilan-card renewal-card renewal-${tone} arcom-card">
+        <div class="kicker-row renewal-kicker-row">
+          <span class="kicker-badge">⚖️ Convention ARCOM</span>
+          <span class="dc-season-pill">Saison ${gameState.season}</span>
+        </div>
+        <h2>${esc(convention.label)}</h2>
+        <p class="renewal-lead">Les engagements éditoriaux de votre chaîne et leur niveau de respect sur la saison en cours.</p>
+        <div class="renewal-score">
+          <div class="renewal-score-head">
+            <span class="renewal-score-value">${score}<span>/100</span></span>
+            <span class="renewal-score-pill renewal-pill-${tone}">${compliance.status.emoji} ${esc(compliance.status.label)}</span>
+          </div>
+          <div class="renewal-gauge" role="img" aria-label="Score ARCOM : ${score} sur 100">
+            <div class="renewal-gauge-fill" style="width:${score}%"></div>
+            <span class="renewal-gauge-mark" style="left:60%" title="Vigilance : 60"></span>
+            <span class="renewal-gauge-mark" style="left:75%" title="Conforme : 75"></span>
+          </div>
+          <div class="arcom-gauge-legend"><span style="left:0">0</span><span style="left:60%">60</span><span style="left:75%">75</span><span style="right:0">100</span></div>
+        </div>
+        <div class="renewal-stats arcom-stats">
+          ${stats.map(st => `<div class="renewal-stat${st.alert ? ' alert' : ''}">
+            <div class="renewal-stat-value">${st.value}</div>
+            <div class="renewal-stat-label">${st.label}</div>
+          </div>`).join('')}
         </div>
       </div>
 
-      <div class="card">
-        <div class="tape"></div>
-        <h3>1. OBLIGATIONS ÉDITORIALES</h3>
-        <div class="arcom-obligations-list">
+      <div class="card bilan-card arcom-oblig-card">
+        <div class="kicker-row">
+          <span class="kicker-badge">📋 Obligations éditoriales</span>
+        </div>
+        <div class="arcom-oblig-grid">
           ${compliance.obligations.map(ob => `
-            <div class="arcom-oblig-row">
-              <span class="arcom-mini-dot ${ob.rate >= 1 ? 'ok' : (ob.rate >= 0.75 ? 'warn' : 'bad')}"></span>
-              <div class="arcom-oblig-info">
-                <div class="arcom-oblig-label">${esc(ob.label)}</div>
-                <div class="arcom-oblig-bar-track"><div class="arcom-oblig-bar-fill ${ob.rate >= 1 ? 'ok' : (ob.rate >= 0.75 ? 'warn' : 'bad')}" style="width:${Math.min(100, ob.rate * 100).toFixed(0)}%"></div></div>
+            <div class="arcom-oblig-item arcom-oblig-${levelOf(ob)}">
+              <div class="arcom-oblig-top">
+                <span class="arcom-mini-dot ${levelOf(ob)}"></span>
+                <span class="arcom-oblig-name">${esc(ob.label)}</span>
+                <span class="arcom-oblig-figure">${nf1(ob.actualValue)}${unitOf(ob)} <span>/ ${ob.minimum}${unitOf(ob)}</span></span>
               </div>
-              <div class="arcom-oblig-value">${nf1(ob.actualValue)}${ob.unit === '%' ? '%' : ''} / ${ob.minimum}${ob.unit === '%' ? '%' : ' ' + ob.unit}</div>
+              <div class="arcom-oblig-bar-track"><div class="arcom-oblig-bar-fill ${levelOf(ob)}" style="width:${Math.min(100, ob.rate * 100).toFixed(0)}%"></div></div>
             </div>
           `).join('')}
         </div>
       </div>
 
-      <div class="card">
-        <div class="tape"></div>
-        <h3>2. SANCTIONS</h3>
-        <p style="font-size: 14px;">Sanctions financières cumulées : <b>${player.arcomSanctionsCount}</b></p>
-      </div>
-
-      <div class="card">
-        <div class="tape"></div>
-        <h3>3. RENOUVELLEMENT</h3>
-        <p style="font-size: 14px;">Prochaine échéance : <b>Saison ${nextEcheance}</b></p>
-        <div class="arcom-status-pill arcom-status-${renewalOutcome.key === 'refused' ? 'nonconforme' : (renewalOutcome.key === 'renewed' ? 'excellent' : 'vigilance')}" style="margin-top: 8px;">${renewalOutcome.emoji} ${renewalOutcome.key === 'renewed' ? 'RENOUVELLEMENT FAVORABLE' : renewalOutcome.title}</div>
-      </div>
-
-      <button class="btn ghost block" id="btn-arcom-back">← Retour</button>
+      <button class="welcome-cta" id="btn-arcom-back" style="margin-top: 2px;">
+        <span class="welcome-cta-shine"></span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Retour au jeu</span>
+      </button>
     `;
     document.getElementById('btn-arcom-back').onclick = () => {
       gameState.step = 6;
@@ -8416,9 +8465,6 @@ function renderCompetitorSheet(c) {
   const view = competitorView(c);
   const firstSeason = view.every(v => v.prevName === null);
   const label = v => v.masked ? 'Projet en développement' : `« ${v.name} »`;
-  const heavy = view.filter(v => v.level >= 2);
-  const fresh = view.filter(v => v.isNew);
-  const kept = view.filter(v => !v.isNew);
   const changes = firstSeason ? [] : view.flatMap(v => {
     const out = [];
     if (v.prevName && v.prevName !== v.name) out.push(`${slotLabelOf(v.slot)} : « ${v.prevName} » laisse place à ${label(v)}.`);
@@ -8452,18 +8498,6 @@ function renderCompetitorSheet(c) {
         <span class="radar-grid-program">${esc(v.masked ? 'Projet en développement' : v.name)}</span>
         ${investBadge(v.level)}${strategyBadge(v.tag)}
       </div>`).join('')}
-    </div>
-    <div>
-      <div class="radar-section-title">Investissements importants</div>
-      ${list(heavy.map(v => `${slotLabelOf(v.slot)} : ${esc(label(v))} (${GAME_BALANCE.market.investLabels[v.level]})`), 'Aucun investissement majeur cette saison.')}
-    </div>
-    <div>
-      <div class="radar-section-title">Nouveaux programmes</div>
-      ${list(fresh.map(v => `${slotLabelOf(v.slot)} : ${esc(label(v))}`), firstSeason ? 'Grille installée : première saison observée.' : 'Aucune nouveauté.')}
-    </div>
-    <div>
-      <div class="radar-section-title">Programmes conservés</div>
-      ${list(kept.map(v => `${slotLabelOf(v.slot)} : ${esc(label(v))}`), 'Aucun programme reconduit.')}
     </div>
     ${firstSeason ? '' : `<div>
       <div class="radar-section-title">Depuis la saison précédente</div>
