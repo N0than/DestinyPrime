@@ -6106,7 +6106,7 @@ function renderTicker() {
         <div class="hud-panel-head">
           <span class="hud-panel-head-label"><span class="hud-live-dot"></span><span class="hud-panel-head-text">Tableau de bord</span></span>
           <div class="hud-panel-head-right">
-            <span class="hud-type-badge">${CHANNEL_TYPES[p.type].label}</span>
+            <span class="hud-type-badge">${CHANNEL_TYPES[p.type].label.replace(/\s*\/\s*Famille\b/, '')}</span>
             <span class="hud-type-badge hud-target-badge" title="Cible : ${esc(TARGET_STRATEGIES[p.target]?.nom || p.target)}">🎯 ${esc((TARGET_STRATEGIES[p.target]?.nom || p.target).replace(/\s*\([^)]*\)/, ''))}</span>
             <button class="hud-toggle${open ? ' open' : ''}" id="hud-toggle" aria-label="Détail des indicateurs" aria-expanded="${open}">
               <svg class="hud-toggle-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
