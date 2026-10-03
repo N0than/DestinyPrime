@@ -487,6 +487,7 @@ button.radar-card:hover { transform: translateY(-1px); box-shadow: 0 10px 24px -
 .mercato-avatar.tl-back-avatar { width: 36px; height: 36px; flex-shrink: 0; }
 .mercato-avatar.tl-back-avatar img { width: 32px; height: 32px; }
 .tl-back-sub { font-size: 9.5px; color: var(--gris); line-height: 1.25; margin-bottom: 2px; }
+.tl-back-role { font-weight: 700; color: var(--ink); }
 .tl-action {
   width: 100%; display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 6px 4px; border-radius: 12px; cursor: pointer;
   font-family: inherit; transition: background .15s ease, color .15s ease, transform .1s ease;
@@ -1787,6 +1788,14 @@ function talentSince(t) {
   return t.since ?? (t.until - GAME_BALANCE.mercato.duration + 1);
 }
 
+// Rôle affiché sur les cartes : version courte quand la carte est étroite (mobile).
+function talentRoleHtml(t) {
+  const short = t.shortRole || MERCATO_TALENTS.find(x => x.id === t.id)?.shortRole;
+  return short && short !== t.role
+    ? `<span class="tl-long">${esc(t.role)}</span><span class="tl-short">${esc(short)}</span>`
+    : esc(t.role);
+}
+
 // Répartition des talents actifs dans les places ; un talent sans place (ou en
 // conflit) reçoit la première place libre.
 function talentSlotLayout() {
@@ -2058,7 +2067,7 @@ function renderTalentsSlide() {
           ${badges ? `<span class="tl-badges">${badges}</span>` : ''}
         </span>
         <span class="tl-name">${esc(t.name)}</span>
-        <span class="tl-role">${esc(t.role)}</span>
+        <span class="tl-role" title="${esc(t.role)}">${talentRoleHtml(t)}</span>
         <span class="pg-pda-badge pg-badge-bleu tl-genre">${esc(GENRE_LABELS[t.specialty] || t.specialty)}</span>
         <span class="tl-criteria">${talentCoreCriteria(t, slotsMatchingGenre(p, t.specialty)).map(c => `
           <span class="tl-criterion"><span class="tl-criterion-label" title="${esc(c.label)}"><span class="tl-long">${esc(c.label)}</span><span class="tl-short">${esc(c.short)}</span></span>${mercatoStarsHtml(c.value, c.label)}</span>`).join('')}
@@ -2074,7 +2083,7 @@ function renderTalentsSlide() {
           <button type="button" class="tl-back-close" data-talent-unflip aria-label="Revenir à la carte">↺</button>
           <span class="mercato-avatar tl-avatar tl-back-avatar"><img src="${MERCATO_AVATARS[t.id] || ''}" alt="" width="44" height="44"></span>
           <span class="tl-name">${esc(t.name)}</span>
-          <span class="tl-back-sub">Contrat jusqu’à la saison ${t.until}</span>
+          <span class="tl-back-sub"><span class="tl-back-role">${esc(t.role)}</span><br>Contrat jusqu’à la saison ${t.until}</span>
           <button type="button" class="tl-action tl-action-extend" data-talent-extend="${esc(t.id)}" ${ext.allowed ? '' : 'disabled'}>
             <span class="tl-action-label">Prolonger</span>
             <span class="tl-action-sub">+${seasonsTxt(ext.seasons)} · ${nf1(ext.newAnnual)}\u00a0M€/saison</span>
@@ -2130,7 +2139,7 @@ function renderTalentsSlide() {
             <span class="mercato-avatar tl-avatar"><img src="${MERCATO_AVATARS[offer.id] || ''}" alt="" width="44" height="44"></span>
           </span>
           <span class="tl-name">${esc(offer.name)}</span>
-          <span class="tl-role">${esc(offer.role)}</span>
+          <span class="tl-role" title="${esc(offer.role)}">${talentRoleHtml(offer)}</span>
           <span class="pg-pda-badge pg-badge-bleu tl-genre">${esc(GENRE_LABELS[offer.specialty] || offer.specialty)}</span>
           <span class="tl-criteria">${criteria.map(c => `
             <span class="tl-criterion"><span class="tl-criterion-label" title="${esc(c.label)}"><span class="tl-long">${esc(c.label)}</span><span class="tl-short">${esc(c.short)}</span></span>${mercatoStarsHtml(c.value, c.label)}</span>`).join('')}
@@ -8986,14 +8995,14 @@ function competitorDecryptage(competitor) {
 // MERCATO DES TALENTS — une phase de décision unique, tous les deux ans
 // ---------------------------------------------------------------------------
 const MERCATO_TALENTS = [
-  { id: 't_lea', name: 'Léa Marchand', specialty: 'diverti', role: 'Animatrice de divertissement', affinities: { j1524: 0.7, a2549: 1, s50: 0.6, csp: 0.4 } },
-  { id: 't_karim', name: 'Karim Delaunay', specialty: 'info', role: 'Journaliste politique', affinities: { j1524: 0.3, a2549: 0.6, s50: 0.9, csp: 1 } },
-  { id: 't_ines', name: 'Inès Ferrand', specialty: 'sport', role: 'Commentatrice sportive', affinities: { j1524: 0.7, a2549: 1, s50: 0.6, csp: 0.6 } },
-  { id: 't_hugo', name: 'Hugo Vasseur', specialty: 'fiction', role: 'Showrunner de séries', affinities: { j1524: 0.6, a2549: 1, s50: 0.7, csp: 0.7 } },
-  { id: 't_camille', name: 'Camille Roux', specialty: 'jeunesse', role: 'Créatrice d’animation', affinities: { j1524: 1, a2549: 0.5, s50: 0.2, csp: 0.3 } },
-  { id: 't_paul', name: 'Paul Aubry', specialty: 'culture', role: 'Documentariste', affinities: { j1524: 0.3, a2549: 0.5, s50: 0.9, csp: 1 } },
-  { id: 't_nora', name: 'Nora Benali', specialty: 'diverti', role: 'Humoriste et présentatrice', affinities: { j1524: 1, a2549: 0.8, s50: 0.4, csp: 0.5 } },
-  { id: 't_julien', name: 'Julien Morel', specialty: 'fiction', role: 'Réalisateur de fictions', affinities: { j1524: 0.5, a2549: 0.9, s50: 0.9, csp: 0.6 } }
+  { id: 't_lea', name: 'Léa Marchand', specialty: 'diverti', role: 'Animatrice de divertissement', shortRole: 'Animatrice', affinities: { j1524: 0.7, a2549: 1, s50: 0.6, csp: 0.4 } },
+  { id: 't_karim', name: 'Karim Delaunay', specialty: 'info', role: 'Journaliste politique', shortRole: 'Journaliste', affinities: { j1524: 0.3, a2549: 0.6, s50: 0.9, csp: 1 } },
+  { id: 't_ines', name: 'Inès Ferrand', specialty: 'sport', role: 'Commentatrice sportive', shortRole: 'Commentatrice', affinities: { j1524: 0.7, a2549: 1, s50: 0.6, csp: 0.6 } },
+  { id: 't_hugo', name: 'Hugo Vasseur', specialty: 'fiction', role: 'Showrunner de séries', shortRole: 'Showrunner', affinities: { j1524: 0.6, a2549: 1, s50: 0.7, csp: 0.7 } },
+  { id: 't_camille', name: 'Camille Roux', specialty: 'jeunesse', role: 'Créatrice d’animation', shortRole: 'Créatrice anim.', affinities: { j1524: 1, a2549: 0.5, s50: 0.2, csp: 0.3 } },
+  { id: 't_paul', name: 'Paul Aubry', specialty: 'culture', role: 'Documentariste', shortRole: 'Documentariste', affinities: { j1524: 0.3, a2549: 0.5, s50: 0.9, csp: 1 } },
+  { id: 't_nora', name: 'Nora Benali', specialty: 'diverti', role: 'Humoriste et présentatrice', shortRole: 'Humoriste', affinities: { j1524: 1, a2549: 0.8, s50: 0.4, csp: 0.5 } },
+  { id: 't_julien', name: 'Julien Morel', specialty: 'fiction', role: 'Réalisateur de fictions', shortRole: 'Réalisateur', affinities: { j1524: 0.5, a2549: 0.9, s50: 0.9, csp: 0.6 } }
 ];
 // Portraits des talents : style « personas » de DiceBear 10 (Draftbit, CC BY 4.0),
 // générés hors ligne et intégrés en data URI pour fonctionner sans réseau.
