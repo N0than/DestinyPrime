@@ -1304,6 +1304,18 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
   border: 1px solid rgba(255,255,255,0.8); box-shadow: 0 4px 12px rgba(15,23,42,0.06);
   padding: 4px 9px; border-radius: 999px; white-space: nowrap;
 }
+.dc-head-left { display: flex; align-items: center; gap: 6px; min-width: 0; flex: 1 1 auto; }
+.dc-head-left .dc-live-pill { flex-shrink: 0; white-space: nowrap; }
+.dc-head + .dc-season-pill, .dc-head .dc-season-pill, .kickoff-head-pills .dc-season-pill { flex-shrink: 0; }
+.dc-channel-pill {
+  min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.4px;
+  color: var(--ink); background: rgba(255,255,255,0.6); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,0.8); box-shadow: 0 4px 12px rgba(15,23,42,0.06);
+  padding: 4px 9px; border-radius: 999px;
+}
+.season-short { display: none; }
+@media (max-width: 359px) { .season-long { display: none; } .season-short { display: inline; } }
 .dc-body { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
 .dc-divider { height: 1px; background: var(--paper-dark); }
 .dilemma-card h2 { font-size: clamp(20px, 5.5vw, 28px); color: var(--ink); }
@@ -6829,6 +6841,17 @@ function resetGame() {
 
 // hudMode : écrans de jeu avec HUD — seule la barre multicolore reste affichée,
 // la marque passe dans le badge « Audience Masters » du HUD.
+// Nom de la chaîne, en badge à côté du badge d'en-tête des blocs de jeu.
+function channelPillHtml() {
+  const name = gameState.player.name;
+  return name ? `<span class="dc-channel-pill" title="${esc(name)}">${esc(name)}</span>` : '';
+}
+
+// « Saison N », réduit à « SN » sur très petit écran pour laisser la place au nom de la chaîne.
+function seasonPillLabel() {
+  return `<span class="season-long">Saison </span><span class="season-short">S</span>${gameState.season}`;
+}
+
 function renderMasthead(sub, over, hudMode = false) {
   return `
     <div class="masthead${hudMode ? ' masthead-hud' : ''}">
@@ -7542,8 +7565,8 @@ function render() {
       <div class="dilemma-container${phase === 'choosing' ? ' slide-in' : ''}">
         <div class="dilemma-card dilemma-hero${phase === 'result' ? ' is-result' : ''}">
           <div class="dc-head">
-            <span class="dc-live-pill"><span class="dc-live-dot"></span>Événement</span>
-            <span class="dc-season-pill">Saison ${gameState.season}</span>
+            <span class="dc-head-left"><span class="dc-live-pill"><span class="dc-live-dot"></span>Événement</span>${channelPillHtml()}</span>
+            <span class="dc-season-pill">${seasonPillLabel()}</span>
           </div>
           <div class="dc-body">
             <h2>${dilemma.titre}</h2>
@@ -8398,8 +8421,8 @@ function renderSeasonKickoff(app) {
     <div class="dilemma-container slide-in">
       <header class="kickoff-head">
         <div class="kickoff-head-pills">
-          <span class="dc-live-pill"><span class="dc-live-dot"></span>Programmation</span>
-          <span class="dc-season-pill">Saison ${gameState.season}</span>
+          <span class="dc-head-left"><span class="dc-live-pill"><span class="dc-live-dot"></span>Programmation</span>${channelPillHtml()}</span>
+          <span class="dc-season-pill">${seasonPillLabel()}</span>
         </div>
         <h2 class="kickoff-title">Conférence de rentrée</h2>
         <p class="kickoff-lead">La direction des programmes vous propose deux nouveautés pour ce créneau.</p>
@@ -8541,8 +8564,8 @@ function renderMercato(app) {
     <div class="dilemma-container slide-in">
       ${m.result && m.outcomes ? '' : `<div class="dilemma-card dilemma-hero">
         <div class="dc-head">
-          <span class="dc-live-pill"><span class="dc-live-dot"></span>Mercato</span>
-          <span class="dc-season-pill">Saison ${gameState.season}</span>
+          <span class="dc-head-left"><span class="dc-live-pill"><span class="dc-live-dot"></span>Mercato</span>${channelPillHtml()}</span>
+          <span class="dc-season-pill">${seasonPillLabel()}</span>
         </div>
         <div class="dc-body">
           <h2>Mercato des talents</h2>
