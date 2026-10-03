@@ -146,7 +146,7 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 }
 .hud-brand-badge {
   display: inline-flex; align-items: center; gap: 6px; flex-shrink: 1; min-width: 0; cursor: pointer;
-  font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase;
+  font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase;
   /* Sans habillage : point rouge + texte, comme la ligne de marque du header. */
   padding: 0; border: 0; background: none; white-space: nowrap; color: var(--gris);
   min-height: 26px; overflow: visible; transition: opacity 0.15s;
@@ -174,14 +174,14 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .hud-panel { container-type: inline-size; }
 /* Panneau étroit (mobile) : badges resserrés pour garder « Audience Masters » sur une ligne. */
 @container (max-width: 460px) {
-  .hud-brand-badge { gap: 5px; font-size: 9px; letter-spacing: 0.5px; min-height: 24px; }
+  .hud-brand-badge { gap: 5px; font-size: 10px; letter-spacing: 0.5px; min-height: 24px; }
   .hud-panel-head-right { gap: 4px; }
   .hud-panel-head-right .hud-type-badge { font-size: 9.5px; padding: 4px 7px; }
   .hud-target-badge .hud-badge-long { display: none; }
   .hud-target-badge .hud-badge-short { display: inline; }
 }
 @container (max-width: 300px) {
-  .hud-brand-badge { gap: 3px; font-size: 8.2px; letter-spacing: 0; }
+  .hud-brand-badge { gap: 3px; font-size: 9px; letter-spacing: 0; }
   .hud-brand-badge .dot { width: 6px; height: 6px; }
   .hud-panel-head { gap: 4px; }
   .hud-panel-head-right { gap: 3px; }
