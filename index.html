@@ -431,7 +431,6 @@ button.radar-card:hover { transform: translateY(-1px); box-shadow: 0 10px 24px -
 .ga-target-btn.active { background: var(--rouge); border-color: var(--rouge); color: #fff; }
 .ga-headline { margin: 8px 0 10px; flex-shrink: 0; }
 .ga-headline-value { font-family: 'Anton', sans-serif; font-size: 26px; color: var(--ink); line-height: 1; }
-.ga-headline-label { font-size: 11px; color: var(--gris); font-style: italic; margin-top: 2px; }
 
 .ga-rows { flex: 1; display: flex; flex-direction: column; min-height: 0; }
 .ga-rows .ga-row { flex: 1; }
@@ -1788,8 +1787,7 @@ function renderGlobalAudienceShare(animate = false) {
         <div class="ga-target-switcher">${switcherHtml}</div>
       </div>
       <div class="ga-headline">
-        <div class="ga-headline-value">${nf1(playerValue)}%</div>
-        <div class="ga-headline-label">${activeTarget.full}</div>
+        <div class="ga-headline-value" aria-label="${nf1(playerValue)} % — ${esc(activeTarget.full)}">${nf1(playerValue)}%</div>
       </div>
       <div class="ga-rows">${rows}</div>
     </div>
