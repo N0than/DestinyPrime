@@ -121,6 +121,9 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .masthead .over { height: 16.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .masthead h1 { height: 1.05em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .masthead .under { height: 19.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* Écrans avec HUD : seule la barre multicolore reste, tout en haut. */
+.masthead.masthead-hud { padding: 0 0 8px; }
+.masthead.masthead-hud .over, .masthead.masthead-hud h1, .masthead.masthead-hud .under { display: none; }
 
 /* ---- HUD (5 INDICATEURS) ---- */
 /* Toujours précédé du masthead dans le rendu final ; règle non conditionnée à
@@ -141,15 +144,20 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
   background-position: bottom; background-size: 100% 1px; background-repeat: no-repeat;
   box-shadow: 0 1px 1px rgba(255,255,255,0.7);
 }
-.hud-panel-head-label {
-  display: inline-flex; align-items: center; gap: 6px;
-  font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 10px;
-  text-transform: uppercase; letter-spacing: 0.6px; color: var(--gris);
+.hud-brand-badge {
+  display: inline-flex; align-items: center; gap: 6px; flex-shrink: 1; min-width: 0; cursor: pointer;
+  font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase;
+  padding: 4px 10px; border-radius: 999px; white-space: nowrap; color: var(--gris);
+  background: rgba(255,255,255,0.6); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,0.8); box-shadow: 0 4px 12px rgba(15,23,42,0.06);
+  min-height: 26px; overflow: hidden; transition: opacity 0.15s;
 }
-.hud-live-dot {
-  width: 6px; height: 6px; border-radius: 50%; background: var(--vert); flex-shrink: 0;
-  animation: hudLiveDotPulse 1.6s ease-in-out infinite;
+.hud-brand-badge:hover { opacity: 0.75; }
+.hud-brand-badge .dot {
+  flex-shrink: 0; width: 7px; height: 7px; border-radius: 50%;
+  background: var(--danger); box-shadow: 0 0 8px var(--danger); animation: blink 2.2s ease-in-out infinite;
 }
+.hud-brand-text { overflow: hidden; text-overflow: ellipsis; }
 .hud-panel-head-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 .hud-type-badge {
   flex-shrink: 0; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 10.5px;
@@ -157,12 +165,17 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
   color: #334155; background: rgba(255,255,255,0.6); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
   border: 1px solid rgba(255,255,255,0.8); box-shadow: 0 4px 12px rgba(15,23,42,0.06);
 }
-@keyframes hudLiveDotPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
 .hud-panel-head-right { gap: 6px; }
-/* Écrans étroits : la cible rejoint le format de chaîne, le libellé « Tableau de
-   bord » s'efface pour laisser la place aux deux badges (le point vert reste). */
+/* Écrans étroits : le nom passe sur deux lignes, puis s'efface s'il ne tient pas (le point rouge reste). */
 .hud-panel { container-type: inline-size; }
-@container (max-width: 330px) { .hud-panel-head-text { display: none; } }
+/* Panneau étroit (mobile) : « Audience / Masters » sur deux lignes pour rester entier. */
+@container (max-width: 460px) {
+  .hud-brand-badge { padding: 3px 9px 3px 8px; gap: 5px; letter-spacing: 1px; }
+  .hud-brand-text { font-size: 8.5px; line-height: 1.05; white-space: normal; width: min-content; text-align: left; }
+}
+/* Si même sur deux lignes le nom ne tient pas, seul le point rouge reste (cf. fitHudBrand). */
+.hud-brand-badge.compact .hud-brand-text { display: none; }
+.hud-brand-badge.compact { padding: 4px 7px; min-height: 22px; }
 @media (max-width: 420px) {
   .hud-panel-head-right .hud-type-badge { font-size: 9.5px; padding: 3px 7px; }
 }
@@ -6799,9 +6812,11 @@ function resetGame() {
   render();
 }
 
-function renderMasthead(sub, over) {
+// hudMode : écrans de jeu avec HUD — seule la barre multicolore reste affichée,
+// la marque passe dans le badge « Audience Masters » du HUD.
+function renderMasthead(sub, over, hudMode = false) {
   return `
-    <div class="masthead">
+    <div class="masthead${hudMode ? ' masthead-hud' : ''}">
       <div class="over"><span class="header-brand"><span class="dot"></span>${over || `Audience Masters V2 — Saison ${gameState.season}`}</span></div>
       <h1 title="${esc(gameState.player.name || "Bienvenue dans l'arène")}">${esc(gameState.player.name || "Bienvenue dans l'arène")}</h1>
       <div class="under" title="${esc(sub)}">${sub}</div>
@@ -6853,7 +6868,7 @@ function renderTicker() {
     <div class="hud-wrap">
       <div class="hud-panel">
         <div class="hud-panel-head">
-          <span class="hud-panel-head-label"><span class="hud-live-dot"></span><span class="hud-panel-head-text">Tableau de bord</span></span>
+          <button type="button" class="hud-brand-badge" id="hud-brand" title="Retour à l’accueil"><span class="dot"></span><span class="hud-brand-text">Audience Masters</span></button>
           <div class="hud-panel-head-right">
             <span class="hud-type-badge">${CHANNEL_TYPES[p.type].label.replace(/\s*\/\s*Famille\b/, '')}</span>
             <span class="hud-type-badge hud-target-badge" title="Cible : ${esc(TARGET_STRATEGIES[p.target]?.nom || p.target)}">🎯 ${esc((TARGET_STRATEGIES[p.target]?.nom || p.target).replace(/\s*\([^)]*\)/, ''))}</span>
@@ -6931,6 +6946,10 @@ function bindTickerInteractions(app) {
   fitTalentCards();
   syncHudSliderLock();
   bindCampaignPanel(app);
+  // Le badge reprend le rôle du header masqué : même action au clic.
+  fitHudBrand();
+  const brand = document.getElementById('hud-brand');
+  if (brand) brand.onclick = () => document.querySelector('#app .masthead')?.click();
   document.getElementById('hud-toggle').onclick = () => {
     const isOpen = document.getElementById('hud-details').classList.toggle('open');
     document.getElementById('hud-toggle').classList.toggle('open', isOpen);
@@ -7492,7 +7511,7 @@ function render() {
     }
 
     app.innerHTML = `
-      ${renderMasthead("Saison " + gameState.season, "Audience Masters")}
+      ${renderMasthead("Saison " + gameState.season, "Audience Masters", true)}
       ${renderTicker()}
       ${renderCampaignPanel()}
       <div class="dilemma-container${phase === 'choosing' ? ' slide-in' : ''}">
@@ -8349,7 +8368,7 @@ function renderSeasonKickoff(app) {
   `;
 
   app.innerHTML = `
-    ${renderMasthead("Saison " + gameState.season, "Audience Masters")}
+    ${renderMasthead("Saison " + gameState.season, "Audience Masters", true)}
     ${renderTicker()}
     <div class="dilemma-container slide-in">
       <header class="kickoff-head">
@@ -8492,7 +8511,7 @@ function renderMercato(app) {
     </button>` : '';
 
   app.innerHTML = `
-    ${renderMasthead("Saison " + gameState.season, "Audience Masters")}
+    ${renderMasthead("Saison " + gameState.season, "Audience Masters", true)}
     ${renderTicker()}
     <div class="dilemma-container slide-in">
       ${m.result && m.outcomes ? '' : `<div class="dilemma-card dilemma-hero">
@@ -9387,6 +9406,16 @@ function fitTalentCards() {
   });
 }
 
+// Le badge « Audience Masters » garde son nom tant qu'il tient à côté des badges du HUD.
+function fitHudBrand() {
+  const brand = document.getElementById('hud-brand');
+  if (!brand) return;
+  brand.classList.remove('compact');
+  const head = brand.closest('.hud-panel-head');
+  const text = brand.querySelector('.hud-brand-text');
+  if (text.scrollWidth > text.clientWidth + 1 || brand.scrollWidth > brand.clientWidth + 1 || head.scrollWidth > head.clientWidth + 1) brand.classList.add('compact');
+}
+
 function fitRadarToGridHeight() {
   const slide = document.querySelector('.programming-slide');
   const radarSlide = slide?.querySelector('.radar-mode');
@@ -9403,7 +9432,7 @@ function fitRadarToGridHeight() {
   probe.remove();
   if (height > 0) radarSlide.style.height = `${height}px`;
 }
-if (typeof window !== 'undefined') window.addEventListener('resize', () => { fitRadarToGridHeight(); fitTalentCards(); });
+if (typeof window !== 'undefined') window.addEventListener('resize', () => { fitRadarToGridHeight(); fitTalentCards(); fitHudBrand(); });
 
 function handleRadarAction(btn) {
   const radar = radarState();
