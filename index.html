@@ -242,8 +242,51 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
   font-family: 'Anton', sans-serif; font-size: 10px; text-transform: uppercase; letter-spacing: 0.3px;
 }
 .eh-legend-item i { display: inline-block; width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
-.eh-bar-svg { display: block; width: 100%; height: 215px; }
-.spark-empty { font-size: 12px; color: var(--gris); font-style: italic; margin-top: 3px; }
+/* Évolution : barres verticales « pilule » (piste claire hachurée, remplissage plein rayé). */
+.eh-slide.evo-slide { position: relative; }
+.evo-panel { position: absolute; inset: 0; display: flex; flex-direction: column; min-width: 0; }
+.evo-head { display: flex; align-items: center; justify-content: space-between; gap: 6px 12px; flex-wrap: wrap; flex-shrink: 0; }
+.evo-head .eh-title { margin-bottom: 0; }
+.evo-panel .eh-subtitle { margin: 4px 0 8px; flex-shrink: 0; }
+.evo-legend { display: flex; gap: 10px; flex-wrap: wrap; }
+.evo-legend-item { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 700; color: var(--gris); white-space: nowrap; }
+.evo-legend-item i { width: 9px; height: 9px; border-radius: 50%; background: var(--evo-c); }
+.evo-cost { --evo-c: #3b82f6; --evo-rgb: 59,130,246; }
+.evo-rev { --evo-c: #059669; --evo-rgb: 5,150,105; }
+.evo-chart { flex: 1; min-height: 0; display: flex; align-items: stretch; justify-content: center; gap: clamp(4px, 2.5%, 18px); }
+.evo-group { flex: 1 1 0; min-width: 0; max-width: 104px; display: flex; flex-direction: column; gap: 6px; }
+.evo-pills { position: relative; flex: 1; min-height: 0; display: flex; justify-content: center; gap: clamp(2px, 8%, 6px); }
+.evo-pill {
+  position: relative; flex: 1 1 0; min-width: 0; max-width: 40px; border-radius: 999px;
+  background:
+    repeating-linear-gradient(-45deg, rgba(var(--evo-rgb),0.07) 0 3px, transparent 3px 7px),
+    rgba(var(--evo-rgb),0.09);
+}
+.evo-fill {
+  position: absolute; left: 0; right: 0; bottom: 0; min-height: 8px; border-radius: 999px;
+  background:
+    repeating-linear-gradient(-45deg, rgba(255,255,255,0.18) 0 3px, transparent 3px 7px),
+    var(--evo-c);
+  box-shadow: 0 2px 6px -2px rgba(var(--evo-rgb),0.55);
+}
+.evo-val {
+  position: absolute; left: 50%; transform: translateX(-50%); white-space: nowrap;
+  font-family: 'Anton', sans-serif; font-size: 8.5px; line-height: 1; color: var(--ink);
+}
+.evo-label { flex-shrink: 0; text-align: center; font-size: 10px; font-weight: 700; color: var(--ink); line-height: 1.15; white-space: nowrap; }
+.evo-label-short { display: none; }
+.evo-now {
+  position: absolute; top: 6px; left: 50%; transform: translateX(-50%); z-index: 1; white-space: nowrap;
+  font-size: 7.5px; font-weight: 800; color: #fff; background: var(--rouge); text-transform: uppercase; letter-spacing: 0.2px;
+  padding: 2px 5px; border-radius: 999px; box-shadow: 0 0 0 1.5px #fff;
+}
+.evo-group.current .evo-label { color: var(--rouge); }
+.evo-panel.dense .evo-now { display: none; }
+.evo-group.current .evo-pill { box-shadow: 0 0 0 1px rgba(var(--evo-rgb),0.25) inset; }
+@media (max-width: 599px) { .evo-label-long { display: none; } .evo-label-short { display: inline; } }
+.evo-panel.dense .evo-val { display: none; }
+.evo-panel.dense .evo-label-long { display: none; }
+.evo-panel.dense .evo-label-short { display: inline; }
 
 .eh-slider { overflow: hidden; touch-action: pan-y; cursor: grab; user-select: none; }
 .eh-slider:active { cursor: grabbing; }
@@ -1623,53 +1666,43 @@ function fmtDelta(val, decimals, suffix) {
 }
 
 function renderEvolutionChart(points) {
-  if (points.length < 2) {
-    return `
-      <div class="eh-title">Évolution de votre chaîne</div>
-      <div class="eh-subtitle">Performance des principaux indicateurs sur les 5 dernières saisons</div>
-      <div class="spark-empty">Graphique disponible après la saison 1</div>
-    `;
-  }
+  // Toutes les saisons depuis la saison 1, saison en cours comprise (valeurs prévisionnelles).
   const series = [
-    { key: 'coutGrille', color: 'var(--gris)', icon: '📋', label: 'Coût de grille', suffix: ' M€' },
-    { key: 'revenusPub', color: 'var(--vert)', icon: '📺', label: 'Revenus pub', suffix: ' M€' }
+    { key: 'coutGrille', cls: 'evo-cost', label: 'Coût de grille' },
+    { key: 'revenusPub', cls: 'evo-rev', label: 'Revenus pub' }
   ];
-  const recentPoints = points.slice(-5);
-  const w = 280, h = 215, padTop = 16, padSide = 6;
-  const baseline = h - 20;
-  const chartH = baseline - padTop;
-  const n = recentPoints.length;
-  const groupGap = 10;
-  const barGap = 3;
-  const groupW = (w - padSide * 2 - groupGap * (n - 1)) / n;
-  const barW = (groupW - barGap) / 2;
-  const max = Math.max(...recentPoints.flatMap(pt => series.map(s => pt[s.key])), 1);
-
-  const barsHtml = recentPoints.map((pt, i) => {
-    const groupX = padSide + i * (groupW + groupGap);
-    const groupBars = series.map((s, si) => {
-      const v = pt[s.key];
-      const x = groupX + si * (barW + barGap);
-      const barH = Math.max((v / max) * chartH, 2);
-      const y = baseline - barH;
+  const max = Math.max(...points.flatMap(pt => series.map(s => pt[s.key] || 0)), 1);
+  const dense = points.length > 6;
+  const groups = points.map(pt => {
+    const current = pt.season === gameState.season;
+    const pills = series.map(s => {
+      const v = Math.max(0, pt[s.key] || 0);
+      // 85 % de la piste au maximum : la valeur reste lisible au-dessus de la barre.
+      const pct = (v / max) * 85;
       return `
-        <text x="${(x + barW / 2).toFixed(1)}" y="${(y - 3).toFixed(1)}" text-anchor="middle" font-family="'Anton', sans-serif" font-size="7.5" fill="var(--ink)">${nf1(v)}</text>
-        <rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="${barH.toFixed(1)}" rx="2" fill="${s.color}">
-          <title>Saison ${pt.season} — ${s.label} : ${nf1(v)}${s.suffix}</title>
-        </rect>
-      `;
+          <div class="evo-pill ${s.cls}" role="img" aria-label="Saison ${pt.season}${current ? ' (en cours)' : ''} — ${s.label} : ${nf1(v)} M€" title="Saison ${pt.season} — ${s.label} : ${nf1(v)} M€">
+            <div class="evo-fill" style="height:${pct.toFixed(1)}%"></div>
+            <span class="evo-val" style="bottom:calc(${pct.toFixed(1)}% + 3px)">${nf1(v)}</span>
+          </div>`;
     }).join('');
-    const seasonLabel = `<text x="${(groupX + groupW / 2).toFixed(1)}" y="${(baseline + 12).toFixed(1)}" text-anchor="middle" font-size="9" font-style="italic" fill="var(--gris)">Saison ${pt.season}</text>`;
-    return groupBars + seasonLabel;
+    return `
+        <div class="evo-group${current ? ' current' : ''}">
+          <div class="evo-pills">${pills}${current ? '<span class="evo-now">En cours</span>' : ''}</div>
+          <div class="evo-label"${current ? ' title="Saison en cours : valeurs prévisionnelles"' : ''}><span class="evo-label-long">Saison </span><span class="evo-label-short">S</span>${pt.season}</div>
+        </div>`;
   }).join('');
 
   return `
-    <div class="eh-title">Évolution de votre chaîne</div>
-    <div class="eh-subtitle">Performance des principaux indicateurs sur les 5 dernières saisons</div>
-    <div class="eh-legend">
-      ${series.map(s => `<span class="eh-legend-item"><i style="background:${s.color}"></i>${s.icon} ${s.label}</span>`).join('')}
+    <div class="evo-panel${dense ? ' dense' : ''}">
+      <div class="evo-head">
+        <div class="eh-title">Évolution de votre chaîne</div>
+        <div class="evo-legend">
+          ${series.map(s => `<span class="evo-legend-item ${s.cls}"><i></i>${s.label}</span>`).join('')}
+        </div>
+      </div>
+      <div class="eh-subtitle">En M€, saison par saison depuis la saison 1.</div>
+      <div class="evo-chart">${groups}</div>
     </div>
-    <svg class="eh-bar-svg" viewBox="0 0 ${w} ${h}" aria-hidden="true">${barsHtml}</svg>
   `;
 }
 
@@ -6858,7 +6891,7 @@ function renderTicker() {
               <div class="eh-slide">${ecoBilanSlideHtml}</div>
               <div class="eh-slide">${globalAudienceShareHtml}</div>
               <div class="eh-slide talents-slide">${talentsSlideHtml}</div>
-              <div class="eh-slide">${evolutionChartHtml}</div>
+              <div class="eh-slide evo-slide">${evolutionChartHtml}</div>
               <div class="eh-slide">${statStarsHtml}</div>
               <div class="eh-slide arcom-slide-wrap">${arcomSlideHtml}</div>
             </div>
