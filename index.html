@@ -439,26 +439,18 @@ button.radar-card:hover { transform: translateY(-1px); box-shadow: 0 10px 24px -
 .tl-panel { position: absolute; inset: 0; display: flex; flex-direction: column; min-width: 0; }
 .tl-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-shrink: 0; }
 .tl-header .eh-title { margin-bottom: 0; }
-.tl-recruit {
-  flex-shrink: 0; border: none; border-radius: 999px; padding: 5px 10px; cursor: pointer;
+.tl-cancel {
+  flex-shrink: 0; border: 1px solid rgba(22,19,14,0.2); border-radius: 999px; padding: 4px 10px; cursor: pointer;
   font-family: 'Anton', sans-serif; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.3px;
-  background: var(--rouge); color: #fff; white-space: nowrap;
+  background: rgba(255,255,255,0.8); color: var(--ink); white-space: nowrap;
 }
-.tl-recruit:disabled { background: rgba(148,163,184,0.25); color: var(--gris); cursor: default; }
+.tl-cancel:disabled { opacity: 0.35; cursor: default; }
 .tl-summary {
   display: flex; align-items: center; flex-wrap: wrap; gap: 4px 6px; margin: 6px 0 2px; flex-shrink: 0;
   font-size: 11px; color: var(--gris);
 }
 .tl-summary b { color: var(--ink); font-weight: 800; }
 .tl-dot { opacity: 0.6; }
-.tl-pager { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; }
-.tl-arrow {
-  width: 22px; height: 22px; border-radius: 50%; border: 1px solid rgba(22,19,14,0.25); background: rgba(255,255,255,0.7);
-  color: var(--ink); font-size: 14px; line-height: 1; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; padding: 0 0 2px;
-}
-.tl-arrow:disabled { opacity: 0.3; cursor: default; }
-.tl-page { font-family: 'Anton', sans-serif; font-size: 10px; color: var(--ink); letter-spacing: 0.3px; }
-.tl-mercato-note { font-size: 10px; font-style: italic; color: var(--gris); flex-shrink: 0; margin-bottom: 2px; }
 .tl-cards {
   flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 6px;
 }
@@ -507,7 +499,62 @@ button.radar-card:hover { transform: translateY(-1px); box-shadow: 0 10px 24px -
 .tl-action-fire { border: 1px solid rgba(225,29,72,0.4); background: rgba(225,29,72,0.06); color: var(--rouge); }
 .tl-action-fire:hover:not(:disabled) { background: var(--rouge); color: #fff; }
 .tl-action-note { font-size: 8.5px; font-style: italic; color: var(--gris); line-height: 1.25; }
-@media (prefers-reduced-motion: reduce) { .tl-flip { transition: none; } }
+/* Place libre : « + » au centre de la carte en pointillés */
+.tl-slot-add {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 8px;
+  background: transparent; font-family: inherit; cursor: pointer; color: var(--gris);
+  transition: border-color .2s ease, background .2s ease;
+}
+.tl-slot-add:hover:not(:disabled) { border-color: rgba(225,29,72,0.55); background: rgba(225,29,72,0.03); }
+.tl-slot-add:focus-visible { outline: 2px solid var(--rouge); outline-offset: 2px; }
+.tl-slot-add:disabled { cursor: default; opacity: 0.6; }
+.tl-plus {
+  width: 44px; height: 44px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+  font-size: 28px; font-weight: 300; line-height: 1; color: var(--rouge);
+  border: 1.5px dashed rgba(225,29,72,0.5); background: rgba(255,255,255,0.7);
+  transition: transform .25s cubic-bezier(.2,.75,.25,1.3), background .2s ease, color .2s ease;
+}
+.tl-slot-add:hover:not(:disabled) .tl-plus { transform: scale(1.12) rotate(90deg); background: var(--rouge); color: #fff; border-style: solid; }
+.tl-slot-add:disabled .tl-plus { color: var(--gris); border-color: rgba(148,163,184,0.5); }
+.tl-plus-label { font-size: 9.5px; font-weight: 700; line-height: 1.25; text-align: center; color: var(--gris); }
+.tl-none { display: flex; align-items: center; justify-content: center; padding: 8px; }
+/* Profils proposés : distribution, attente, verdict */
+.tl-cand.deal { animation: tl-deal .45s cubic-bezier(.2,.75,.25,1.15) both; animation-delay: calc(var(--i) * 90ms); }
+@keyframes tl-deal { from { opacity: 0; transform: translateY(14px) rotate(-3deg) scale(.94); } to { opacity: 1; transform: none; } }
+.tl-cand { transition: opacity .35s ease, transform .35s ease, filter .35s ease; }
+.tl-cand.dimmed { opacity: 0.4; transform: scale(0.96); filter: saturate(0.5); pointer-events: none; }
+.tl-cand.leaving { opacity: 0; transform: scale(0.9) translateY(8px); pointer-events: none; }
+.tl-cand.waiting .tl-face { border-color: rgba(225,29,72,0.55); animation: tl-wait 1.1s ease-in-out infinite; }
+@keyframes tl-wait { 0%, 100% { box-shadow: 0 0 0 0 rgba(225,29,72,0.28); } 50% { box-shadow: 0 0 0 6px rgba(225,29,72,0); } }
+.tl-cand.accepted .tl-face { border-color: rgba(4,120,87,0.6); box-shadow: 0 0 0 3px rgba(16,185,129,0.25); animation: tl-pop .45s ease both; }
+.tl-cand.declined .tl-face { filter: grayscale(0.7); opacity: 0.75; }
+.tl-cand.shake .tl-face { animation: tl-shake .45s ease both; }
+@keyframes tl-shake { 0%, 100% { transform: none; } 20%, 60% { transform: translateX(-4px); } 40%, 80% { transform: translateX(4px); } }
+.tl-cand-face > .tl-avatar-wrap { margin-top: auto; }
+.tl-cand-footer { width: 100%; margin-top: auto; padding-top: 2px; display: flex; justify-content: center; }
+.tl-action-offer { border: 1px solid var(--rouge); background: var(--rouge); color: #fff; }
+.tl-action-offer:hover:not(:disabled) { background: #be123c; }
+.tl-cand-status {
+  width: 100%; padding: 6px 4px; border-radius: 12px; font-family: 'Anton', sans-serif; font-size: 10px;
+  text-transform: uppercase; letter-spacing: 0.3px; line-height: 1.2;
+}
+.tl-cand-status.waiting { color: var(--rouge); background: rgba(225,29,72,0.06); }
+.tl-cand-status.ok { color: #fff; background: #047857; }
+.tl-cand-status.ko { color: var(--gris); background: rgba(148,163,184,0.18); }
+.tl-dots { display: inline-flex; gap: 2px; margin-left: 3px; vertical-align: middle; }
+.tl-dots i { width: 3px; height: 3px; border-radius: 50%; background: currentColor; animation: tl-dot 1s ease-in-out infinite; }
+.tl-dots i:nth-child(2) { animation-delay: .15s; }
+.tl-dots i:nth-child(3) { animation-delay: .3s; }
+@keyframes tl-dot { 0%, 80%, 100% { opacity: .25; transform: translateY(0); } 40% { opacity: 1; transform: translateY(-2px); } }
+/* Nouvelle recrue posée dans sa place, retour de l'effectif après une recherche */
+.tl-card.tl-pop { animation: tl-pop .55s cubic-bezier(.2,.75,.25,1.3) both; }
+@keyframes tl-pop { 0% { opacity: 0; transform: scale(.85); } 60% { opacity: 1; transform: scale(1.04); } 100% { transform: none; } }
+.tl-card.tl-return { animation: tl-return .35s ease both; }
+@keyframes tl-return { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .tl-flip { transition: none; }
+  .tl-cand, .tl-cand.deal, .tl-cand .tl-face, .tl-card.tl-pop, .tl-card.tl-return, .tl-dots i { animation: none !important; transition: none; }
+}
 .tl-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 3px; max-width: 100%; }
 .tl-chip {
   font-size: 9px; font-weight: 800; line-height: 1; white-space: nowrap; padding: 3px 6px; border-radius: 999px;
@@ -533,7 +580,7 @@ button.radar-card:hover { transform: translateY(-1px); box-shadow: 0 10px 24px -
 .tl-short { display: none; }
 @container (max-width: 150px) { .tl-long { display: none; } .tl-short { display: inline; } }
 @media (max-width: 359px) { .tl-face { gap: 2px; padding: 8px 5px 6px; } }
-@container (max-width: 90px) { .tl-effect { line-height: 1.15; } .tl-chip { font-size: 8px; padding: 2px 4px; } .tl-action-label { font-size: 9.5px; } .tl-action-sub, .tl-action-note { font-size: 7.5px; } .tl-back-sub { font-size: 8.5px; } .tl-avatar-wrap { margin-bottom: 8px; } .tl-badge { font-size: 6.5px; letter-spacing: 0; padding: 2px 3px; } .mercato-avatar.tl-avatar { width: 38px; height: 38px; } .mercato-avatar.tl-avatar img { width: 34px; height: 34px; } .tl-name { font-size: 11px; } .tl-criterion { gap: 2px; } .tl-criterion-label { font-size: 8px; } .tl-criterion .mercato-stars { font-size: 7.5px; } }
+@container (max-width: 90px) { .tl-cand-status { font-size: 8.5px; } .tl-plus-label { font-size: 8.5px; } .tl-effect { line-height: 1.15; } .tl-chip { font-size: 8px; padding: 2px 4px; } .tl-action-label { font-size: 9.5px; } .tl-action-sub, .tl-action-note { font-size: 7.5px; } .tl-back-sub { font-size: 8.5px; } .tl-avatar-wrap { margin-bottom: 8px; } .tl-badge { font-size: 6.5px; letter-spacing: 0; padding: 2px 3px; } .mercato-avatar.tl-avatar { width: 38px; height: 38px; } .mercato-avatar.tl-avatar img { width: 34px; height: 34px; } .tl-name { font-size: 11px; } .tl-criterion { gap: 2px; } .tl-criterion-label { font-size: 8px; } .tl-criterion .mercato-stars { font-size: 7.5px; } }
 .tl-effect { font-size: 9.5px; font-weight: 800; color: #047857; line-height: 1.2; }
 .tl-effect.none { color: var(--gris); font-weight: 700; }
 .tl-programs {
@@ -541,14 +588,6 @@ button.radar-card:hover { transform: translateY(-1px); box-shadow: 0 10px 24px -
   display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden;
 }
 .tl-programs.none { color: var(--rouge); font-style: italic; -webkit-line-clamp: 4; max-height: 5em; }
-.tl-empty {
-  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center;
-  margin-top: 8px; padding: 16px; border: 1px dashed rgba(148,163,184,0.45); border-radius: 14px;
-}
-.tl-empty-icon { font-size: 26px; }
-.tl-empty-title { font-family: 'Anton', sans-serif; font-size: 13px; text-transform: uppercase; letter-spacing: 0.3px; color: var(--ink); }
-.tl-empty-text { font-size: 11px; color: var(--gris); line-height: 1.4; max-width: 300px; }
-.tl-empty-note { font-size: 10.5px; font-weight: 700; color: var(--ink); }
 @media (min-width: 600px) {
   .tl-cards { gap: 12px; }
   .tl-face { padding: 12px 10px 10px; gap: 4px; }
@@ -1727,7 +1766,11 @@ function renderGlobalAudienceShare() {
 // ---------------------------------------------------------------------------
 // TALENTS — effectif sous contrat (source unique : gameState.player.talents)
 // ---------------------------------------------------------------------------
-const TALENTS_PER_PAGE = 3;
+// Trois places de talent : chaque talent occupe la place où il a été recruté.
+const TALENT_SLOTS = 3;
+// Recrutement à tout moment : délai de réponse du profil, puis affichage du verdict.
+const TALENT_WAIT_MS = 1800;
+const TALENT_REVEAL_MS = 1100;
 
 function activePlayerTalents() {
   return (gameState.player.talents || []).filter(t => t.until >= gameState.season);
@@ -1738,16 +1781,134 @@ function talentSince(t) {
   return t.since ?? (t.until - GAME_BALANCE.mercato.duration + 1);
 }
 
-function nextMercatoSeason() {
-  const every = GAME_BALANCE.mercato.every;
-  let s = gameState.season + 1;
-  while (!(s >= 2 && s % every === 0)) s++;
-  return s;
+// Répartition des talents actifs dans les places ; un talent sans place (ou en
+// conflit) reçoit la première place libre.
+function talentSlotLayout() {
+  const slots = Array(TALENT_SLOTS).fill(null);
+  const rest = [];
+  activePlayerTalents().forEach(t => {
+    if (Number.isInteger(t.slot) && t.slot >= 0 && t.slot < TALENT_SLOTS && !slots[t.slot]) slots[t.slot] = t;
+    else rest.push(t);
+  });
+  rest.forEach(t => {
+    const i = slots.indexOf(null);
+    if (i >= 0) { slots[i] = t; t.slot = i; }
+  });
+  return slots;
 }
 
-// Le mercato est accessible tant que l'offre de la saison n'a pas été jouée.
-function mercatoIsOpen() {
-  return gameState.step === 6 && !!gameState.mercato && !gameState.mercato.result;
+function firstFreeTalentSlot() {
+  return talentSlotLayout().indexOf(null);
+}
+
+// Talents indisponibles : sous contrat chez le joueur ou chez un concurrent.
+function takenTalentIds() {
+  const rivals = gameState.competitors.flatMap(c => (c.talents || []).filter(t => t.until >= gameState.season));
+  return new Set([...activePlayerTalents(), ...rivals].map(t => t.id));
+}
+
+// Profils proposés pendant la saison : trois au plus, renouvelés quand l'un est
+// recruté ; un profil qui a décliné reste affiché (et indisponible) jusqu'à la
+// saison suivante.
+function talentMarket() {
+  let market = gameState.talentMarket;
+  if (!market || market.season !== gameState.season) {
+    market = gameState.talentMarket = { season: gameState.season, offers: [], refused: [] };
+  }
+  const taken = takenTalentIds();
+  market.offers = market.offers.filter(o => !taken.has(o.id));
+  const need = TALENT_SLOTS - market.offers.length;
+  if (need > 0) {
+    const p = gameState.player;
+    const shown = new Set([...market.offers.map(o => o.id), ...market.refused]);
+    // Les profils du mercato en cours ne sont pas proposés deux fois.
+    if (gameState.mercato && !gameState.mercato.result) gameState.mercato.offers.forEach(o => shown.add(o.id));
+    const ranked = MERCATO_TALENTS.filter(t => !taken.has(t.id) && !shown.has(t.id))
+      .map(t => ({ t, k: marketRandom() + (slotsMatchingGenre(p, t.specialty) ? 1 : 0) }))
+      .sort((a, b) => b.k - a.k).map(x => x.t);
+    // Des genres variés d'abord, puis le reste du classement.
+    const picks = [];
+    ranked.forEach(t => { if (picks.length < need && !picks.some(x => x.specialty === t.specialty)) picks.push(t); });
+    ranked.forEach(t => { if (picks.length < need && !picks.includes(t)) picks.push(t); });
+    market.offers.push(...picks.map(buildTalentOffer));
+  }
+  return market;
+}
+
+function openTalentScouting(slot) {
+  if (gameState.step !== 6 || talentSlotLayout()[slot] || gameState.talentScouting?.pending) return false;
+  talentMarket();
+  gameState.talentFlipped = null;
+  gameState.talentScouting = { slot, pending: null, dealt: false };
+  return true;
+}
+
+function closeTalentScouting() {
+  const sc = gameState.talentScouting;
+  if (!sc || sc.pending) return false;
+  gameState.talentScouting = null;
+  gameState.talentsReturn = true;
+  return true;
+}
+
+// Signature d'un talent dans une place : salaire ajouté aux dépenses récurrentes,
+// audience et recettes pub réestimées (comme au mercato).
+function signTalent(offer, slot) {
+  const p = gameState.player;
+  applyFinance({ recurring: offer.annual, purchase: 0, commercial: 0 });
+  p.talents = [...(p.talents || []), {
+    id: offer.id, name: offer.name, specialty: offer.specialty, role: offer.role,
+    annual: offer.annual, bonus: offer.bonus, until: gameState.season + GAME_BALANCE.mercato.duration - 1,
+    since: gameState.season, affinities: offer.affinities, slot
+  }];
+  p.coutTalentsSaison += offer.annual;
+  reevaluateAdRevenue();
+  const audience = getCalculatedPDAs().find(c => c.channel === p).pda[p.target];
+  p.pdaHistorySeason = [audience]; p.pdaMoyenneSaison = audience; p.pdaFinSaison = audience;
+  refreshEconomy();
+}
+
+function talentOfferAffordable(offer) {
+  return quoteFinance({ recurring: offer.annual, purchase: 0, commercial: 0 }).cash >= TRESORERIE_CRITIQUE;
+}
+
+// Offre à un profil : la réponse est tirée tout de suite (et la signature
+// comptabilisée), mais révélée après un temps d'attente.
+function makeTalentOffer(idx) {
+  const sc = gameState.talentScouting;
+  const market = gameState.talentMarket;
+  if (!sc || sc.pending || gameState.step !== 6 || !market) return false;
+  const offer = market.offers[idx];
+  if (!offer || market.refused.includes(offer.id) || talentSlotLayout()[sc.slot] || !talentOfferAffordable(offer)) return false;
+  const accepted = marketRandom() < offer.chance;
+  if (accepted) signTalent(offer, sc.slot);
+  else market.refused.push(offer.id);
+  sc.pending = { idx, id: offer.id, accepted, phase: 'waiting' };
+  refreshTalentsPanel();
+  setTimeout(() => {
+    if (gameState.talentScouting !== sc) return;
+    sc.pending.phase = 'reveal';
+    refreshTalentsPanel();
+    setTimeout(() => {
+      if (gameState.talentScouting !== sc) return;
+      if (accepted) {
+        gameState.talentScouting = null;
+        gameState.talentJustSigned = offer.id;
+        render();
+      } else {
+        sc.pending = null;
+        refreshTalentsPanel();
+      }
+    }, TALENT_REVEAL_MS);
+  }, TALENT_WAIT_MS);
+  return true;
+}
+
+function refreshTalentsPanel() {
+  const panel = document.getElementById('tl-panel');
+  if (!panel) return;
+  panel.outerHTML = renderTalentsSlide();
+  fitTalentCards();
 }
 
 // Cases de la grille dont le genre correspond à la spécialité du talent.
@@ -1849,16 +2010,17 @@ function dismissTalent(talentId) {
 function renderTalentsSlide() {
   const p = gameState.player;
   const talents = activePlayerTalents();
+  const slots = talentSlotLayout();
   const payroll = talents.reduce((sum, t) => sum + t.annual, 0);
-  const pages = Math.max(1, Math.ceil(talents.length / TALENTS_PER_PAGE));
-  const page = Math.min(Math.max(0, gameState.talentsPage || 0), pages - 1);
-  gameState.talentsPage = page;
-  const open = mercatoIsOpen();
   const targetShort = AUDIENCE_TARGETS.find(t => t.key === p.target)?.short || p.target;
-  const mercatoNote = open ? 'Mercato ouvert cette saison'
-    : `Mercato fermé · réouverture saison ${nextMercatoSeason()}`;
-  const recruitBtn = `<button type="button" class="tl-recruit" data-talents-recruit ${open ? '' : 'disabled'}
-    title="${esc(open ? 'Ouvrir le mercato des talents' : mercatoNote)}">${open ? '＋ Recruter un talent' : `Mercato · saison ${nextMercatoSeason()}`}</button>`;
+  const inSeason = gameState.step === 6;
+  const sc = inSeason ? gameState.talentScouting : null;
+  const market = gameState.talentMarket;
+  const seasonsTxt = n => `${n} saison${n > 1 ? 's' : ''}`;
+  const justSigned = gameState.talentJustSigned;
+  const returning = gameState.talentsReturn;
+  gameState.talentJustSigned = null;
+  gameState.talentsReturn = false;
 
   const card = t => {
     const remaining = t.until - gameState.season + 1;
@@ -1877,13 +2039,11 @@ function renderTalentsSlide() {
       : programsText;
     const flipped = gameState.talentFlipped === t.id;
     const ext = quoteTalentExtension(t);
-    const inSeason = gameState.step === 6;
-    const seasonsTxt = n => `${n} saison${n > 1 ? 's' : ''}`;
     const extNote = !inSeason ? 'Actions possibles pendant la saison'
       : t.nextAnnual != null ? `Déjà prolongé · ${nf1(t.nextAnnual)} M€/saison dès la saison ${t.nextAnnualFrom}`
       : !ext.lastSeason ? 'Prolongation possible lors de la dernière saison du contrat' : '';
     return `
-      <article class="tl-card${flipped ? ' flipped' : ''}" data-talent-id="${esc(t.id)}">
+      <article class="tl-card${flipped ? ' flipped' : ''}${t.id === justSigned ? ' tl-pop' : returning ? ' tl-return' : ''}" data-talent-id="${esc(t.id)}">
        <div class="tl-flip">
         <div class="tl-face tl-front" role="button" tabindex="0" aria-expanded="${flipped}" aria-label="${esc(t.name)} : afficher les actions" ${flipped ? 'inert' : ''}>
         <span class="tl-flip-hint" aria-hidden="true">↻</span>
@@ -1923,35 +2083,85 @@ function renderTalentsSlide() {
       </article>`;
   };
 
-  const visible = talents.slice(page * TALENTS_PER_PAGE, page * TALENTS_PER_PAGE + TALENTS_PER_PAGE);
-  const body = talents.length ? `
-      <div class="tl-cards">${visible.map(card).join('')}${Array.from({ length: TALENTS_PER_PAGE - visible.length }, () => '<div class="tl-card tl-card-ghost" aria-hidden="true"></div>').join('')}</div>`
-    : `
-      <div class="tl-empty">
-        <span class="tl-empty-icon" aria-hidden="true">🎤</span>
-        <span class="tl-empty-title">Aucun talent sous contrat</span>
-        <span class="tl-empty-text">Recrutez une personnalité au mercato : elle renforce les programmes de son genre sur votre grille.</span>
-        <span class="tl-empty-note">${esc(mercatoNote)}</span>
-      </div>`;
+  // Place libre : carte en pointillés avec un « + » qui lance la recherche de profils.
+  const addCard = i => `
+      <button type="button" class="tl-card tl-card-ghost tl-slot-add${returning ? ' tl-return' : ''}" data-talent-slot="${i}" ${inSeason ? '' : 'disabled'}
+        aria-label="Recruter un talent pour la place ${i + 1}">
+        <span class="tl-plus" aria-hidden="true">+</span>
+        <span class="tl-plus-label">${inSeason ? 'Recruter un talent' : 'Recrutement pendant la saison'}</span>
+      </button>`;
+
+  // Profil proposé pendant une recherche.
+  const candCard = (offer, i) => {
+    const pend = sc.pending;
+    const chosen = pend && pend.idx === i;
+    const refused = market.refused.includes(offer.id) && !(chosen && pend.phase === 'waiting');
+    const affordable = talentOfferAffordable(offer);
+    let state = '';
+    let footer;
+    if (chosen && pend.phase === 'waiting') {
+      state = ' waiting';
+      footer = '<span class="tl-cand-status waiting" role="status">En attente de réponse<span class="tl-dots" aria-hidden="true"><i></i><i></i><i></i></span></span>';
+    } else if (chosen && pend.accepted) {
+      state = ' accepted';
+      footer = '<span class="tl-cand-status ok" role="status">✓ Offre acceptée</span>';
+    } else if (refused) {
+      state = chosen ? ' declined shake' : ' declined';
+      footer = '<span class="tl-cand-status ko" role="status">✕ Offre déclinée</span>';
+    } else {
+      footer = `<button type="button" class="tl-action tl-action-offer" data-scout-offer="${i}" ${pend || !affordable ? 'disabled' : ''} title="${Math.round(offer.chance * 100)} % de chances de signature">
+          <span class="tl-action-label">Recruter</span>
+          ${affordable ? '' : '<span class="tl-action-sub">Trésorerie insuffisante</span>'}
+        </button>`;
+    }
+    const fading = pend && !chosen ? (pend.accepted && pend.phase === 'reveal' ? ' leaving' : ' dimmed') : '';
+    const criteria = [...talentCoreCriteria(offer, slotsMatchingGenre(p, offer.specialty)),
+      { label: 'Chances de signature', short: 'Chances', value: offer.chance * 5 }];
+    return `
+      <article class="tl-card tl-cand${state}${fading}${sc.dealt ? '' : ' deal'}" style="--i:${i}" data-cand-id="${esc(offer.id)}">
+        <div class="tl-face tl-cand-face">
+          <span class="tl-avatar-wrap">
+            <span class="mercato-avatar tl-avatar"><img src="${MERCATO_AVATARS[offer.id] || ''}" alt="" width="44" height="44"></span>
+          </span>
+          <span class="tl-name">${esc(offer.name)}</span>
+          <span class="tl-role">${esc(offer.role)}</span>
+          <span class="pg-pda-badge pg-badge-bleu tl-genre">${esc(GENRE_LABELS[offer.specialty] || offer.specialty)}</span>
+          <span class="tl-criteria">${criteria.map(c => `
+            <span class="tl-criterion"><span class="tl-criterion-label" title="${esc(c.label)}"><span class="tl-long">${esc(c.label)}</span><span class="tl-short">${esc(c.short)}</span></span>${mercatoStarsHtml(c.value, c.label)}</span>`).join('')}
+          </span>
+          <span class="tl-chips">
+            <span class="tl-chip tl-chip-pay" title="Salaire par saison">${nf1(offer.annual)} M€<span class="tl-chip-unit">/saison</span></span>
+            <span class="tl-chip tl-chip-term" title="Durée du contrat, saison en cours comprise">${seasonsTxt(GAME_BALANCE.mercato.duration)}</span>
+          </span>
+          <span class="tl-cand-footer">${footer}</span>
+        </div>
+      </article>`;
+  };
+
+  let cards;
+  if (sc && market) {
+    const offers = market.offers.slice(0, TALENT_SLOTS);
+    cards = offers.map(candCard).join('') + Array.from({ length: TALENT_SLOTS - offers.length }, () => `
+      <div class="tl-card tl-card-ghost tl-none"><span class="tl-plus-label">Aucun autre profil disponible</span></div>`).join('');
+    sc.dealt = true;
+  } else {
+    cards = slots.map((t, i) => t ? card(t) : addCard(i)).join('');
+  }
+  const allRefused = sc && market && market.offers.every(o => market.refused.includes(o.id)) && !sc.pending;
 
   return `
-    <div class="tl-panel" id="tl-panel">
+    <div class="tl-panel${sc ? ' scouting' : ''}" id="tl-panel">
       <div class="tl-header">
         <div class="eh-title">Talents</div>
-        ${recruitBtn}
+        ${sc ? `<button type="button" class="tl-cancel" data-scout-cancel ${sc.pending ? 'disabled' : ''}>✕ Annuler</button>` : ''}
       </div>
       <div class="tl-summary">
+        ${sc ? `<span>${allRefused ? 'Aucun profil n’a accepté cette saison : revenez la saison prochaine.' : `Choisissez un profil pour la <b>place ${sc.slot + 1}</b>`}</span>` : `
         <span><b>${talents.length}</b> sous contrat</span>
         <span class="tl-dot" aria-hidden="true">·</span>
-        <span>Masse salariale <b>${nf1(payroll)} M€</b>/saison</span>
-        ${pages > 1 ? `
-        <span class="tl-pager">
-          <button type="button" class="tl-arrow" data-talents-page="${page - 1}" ${page === 0 ? 'disabled' : ''} aria-label="Talents précédents">‹</button>
-          <span class="tl-page">${page + 1} / ${pages}</span>
-          <button type="button" class="tl-arrow" data-talents-page="${page + 1}" ${page >= pages - 1 ? 'disabled' : ''} aria-label="Talents suivants">›</button>
-        </span>` : ''}
+        <span>Masse salariale <b>${nf1(payroll)} M€</b>/saison</span>`}
       </div>
-      ${body}
+      <div class="tl-cards">${cards}</div>
     </div>`;
 }
 
@@ -5551,8 +5761,11 @@ let gameState = {
   pendingNextStep: null,
   hudExpanded: false,
   hudSlide: 0,
-  talentsPage: 0,
   talentFlipped: null,
+  talentScouting: null,
+  talentMarket: null,
+  talentJustSigned: null,
+  talentsReturn: false,
   audienceShareTarget: null,
   seenDilemmaIds: [],
   history: [],
@@ -6494,8 +6707,9 @@ function resetGame() {
   gameState.pendingNextStep = null;
   gameState.hudExpanded = false;
   gameState.hudSlide = 0;
-  gameState.talentsPage = 0;
   gameState.talentFlipped = null;
+  gameState.talentScouting = null;
+  gameState.talentMarket = null;
   gameState.audienceShareTarget = null;
   gameState.seenDilemmaIds = [];
   gameState.history = [];
@@ -6683,12 +6897,18 @@ function bindTickerInteractions(app) {
       handleRadarAction(radarBtn);
       return;
     }
-    const pageBtn = e.target.closest('[data-talents-page]');
-    if (pageBtn) {
-      gameState.talentsPage = parseInt(pageBtn.dataset.talentsPage, 10) || 0;
-      const panel = document.getElementById('tl-panel');
-      if (panel) panel.outerHTML = renderTalentsSlide();
-      fitTalentCards();
+    const slotBtn = e.target.closest('[data-talent-slot]');
+    if (slotBtn) {
+      if (openTalentScouting(parseInt(slotBtn.dataset.talentSlot, 10))) refreshTalentsPanel();
+      return;
+    }
+    const offerBtn = e.target.closest('[data-scout-offer]');
+    if (offerBtn) {
+      makeTalentOffer(parseInt(offerBtn.dataset.scoutOffer, 10));
+      return;
+    }
+    if (e.target.closest('[data-scout-cancel]')) {
+      if (closeTalentScouting()) refreshTalentsPanel();
       return;
     }
     const fireBtn = e.target.closest('[data-talent-fire]');
@@ -6702,9 +6922,7 @@ function bindTickerInteractions(app) {
       if (!extendTalent(id)) return;
       // La carte est redessinée côté verso, puis se retourne sur son recto à jour.
       gameState.talentFlipped = id;
-      const panel = document.getElementById('tl-panel');
-      if (panel) panel.outerHTML = renderTalentsSlide();
-      fitTalentCards();
+      refreshTalentsPanel();
       const card = document.querySelector(`.tl-card[data-talent-id="${CSS.escape(id)}"]`);
       requestAnimationFrame(() => requestAnimationFrame(() => card && setTalentCardFlipped(card, false)));
       return;
@@ -6716,13 +6934,6 @@ function bindTickerInteractions(app) {
       const toBack = !talentCard.classList.contains('flipped');
       if (toBack) document.querySelectorAll('.tl-card.flipped').forEach(c => c !== talentCard && setTalentCardFlipped(c, false));
       setTalentCardFlipped(talentCard, toBack);
-      return;
-    }
-    if (e.target.closest('[data-talents-recruit]')) {
-      if (!mercatoIsOpen()) return;
-      gameState.mercatoPending = true;
-      render();
-      document.querySelector('.dilemma-container')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       return;
     }
     const arcomBtn = e.target.closest('.arcom-view-btn');
@@ -6738,6 +6949,10 @@ function bindTickerInteractions(app) {
     if (panel) panel.outerHTML = renderGlobalAudienceShare();
   });
   ehSlider.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && e.target.closest('.tl-panel.scouting')) {
+      if (closeTalentScouting()) refreshTalentsPanel();
+      return;
+    }
     const card = e.target.closest('.tl-card[data-talent-id]');
     if (!card) return;
     if ((e.key === 'Enter' || e.key === ' ') && e.target.classList.contains('tl-front')) {
@@ -8809,24 +9024,29 @@ function interestLabel(value) {
   return value >= 0.75 ? 'très fort' : value >= 0.5 ? 'fort' : value >= 0.3 ? 'modéré' : 'faible';
 }
 
-function generateMercato() {
+// Conditions d'un profil : salaire, impact, prétendants concurrents et chances de signature.
+function buildTalentOffer(t) {
   const cfg = GAME_BALANCE.mercato;
   const p = gameState.player;
+  const annual = Math.round((cfg.minAnnual + marketRandom() * (cfg.maxAnnual - cfg.minAnnual)) * 10) / 10;
+  const bonus = Math.round((cfg.minBonus + (annual - cfg.minAnnual) / (cfg.maxAnnual - cfg.minAnnual) * (cfg.maxBonus - cfg.minBonus)) * 100) / 100;
+  const suitors = gameState.competitors.map(c => ({ name: c.name, interest: competitorTalentInterest(c, t) }))
+    .filter(s => s.interest >= 0.3).sort((a, b) => b.interest - a.interest).slice(0, 3);
+  const top = suitors[0]?.interest || 0;
+  const chance = Math.max(0.2, Math.min(0.85, 0.78 - top * 0.45 + (p.popularite - 50) / 250));
+  return { ...t, annual, bonus, suitors, chance, compatibleSlots: slotsMatchingGenre(p, t.specialty) };
+}
+
+function generateMercato() {
+  const p = gameState.player;
   const used = new Set((gameState.mercatoHistory || []).flatMap(m => m.ids));
-  let pool = MERCATO_TALENTS.filter(t => !used.has(t.id));
-  if (pool.length < 2) pool = [...MERCATO_TALENTS];
+  const taken = takenTalentIds();
+  let pool = MERCATO_TALENTS.filter(t => !used.has(t.id) && !taken.has(t.id));
+  if (pool.length < 2) pool = MERCATO_TALENTS.filter(t => !taken.has(t.id));
   const ranked = pool.map(t => ({ t, k: marketRandom() + (slotsMatchingGenre(p, t.specialty) ? 1 : 0) }))
     .sort((a, b) => b.k - a.k).map(x => x.t);
   const picks = [ranked[0], ranked.find(t => t.specialty !== ranked[0].specialty) || ranked[1]];
-  const offers = picks.map(t => {
-    const annual = Math.round((cfg.minAnnual + marketRandom() * (cfg.maxAnnual - cfg.minAnnual)) * 10) / 10;
-    const bonus = Math.round((cfg.minBonus + (annual - cfg.minAnnual) / (cfg.maxAnnual - cfg.minAnnual) * (cfg.maxBonus - cfg.minBonus)) * 100) / 100;
-    const suitors = gameState.competitors.map(c => ({ name: c.name, interest: competitorTalentInterest(c, t) }))
-      .filter(s => s.interest >= 0.3).sort((a, b) => b.interest - a.interest).slice(0, 3);
-    const top = suitors[0]?.interest || 0;
-    const chance = Math.max(0.2, Math.min(0.85, 0.78 - top * 0.45 + (p.popularite - 50) / 250));
-    return { ...t, annual, bonus, suitors, chance, compatibleSlots: slotsMatchingGenre(p, t.specialty) };
-  });
+  const offers = picks.map(buildTalentOffer);
   gameState.mercatoHistory = [...(gameState.mercatoHistory || []), { season: gameState.season, ids: picks.map(t => t.id) }];
   return { season: gameState.season, offers, result: null };
 }
@@ -8843,8 +9063,10 @@ function resolveMercato(offerIndex) {
     const signed = { id: offer.id, name: offer.name, specialty: offer.specialty, role: offer.role,
       annual: offer.annual, bonus: offer.bonus, until, since: gameState.season, affinities: offer.affinities };
     if (i === offerIndex) {
-      const affordable = quoteFinance({ recurring: offer.annual, purchase: 0, commercial: 0 }).cash >= TRESORERIE_CRITIQUE;
+      const slot = firstFreeTalentSlot();
+      const affordable = slot >= 0 && quoteFinance({ recurring: offer.annual, purchase: 0, commercial: 0 }).cash >= TRESORERIE_CRITIQUE;
       if (affordable && marketRandom() < offer.chance) {
+        signed.slot = slot;
         applyFinance({ recurring: offer.annual, purchase: 0, commercial: 0 });
         p.talents = [...(p.talents || []), signed];
         p.coutTalentsSaison += offer.annual;
@@ -8852,7 +9074,9 @@ function resolveMercato(offerIndex) {
         outcomes[i] = { status: 'signed' };
         return;
       }
-      lines.push({ won: false, text: affordable ? `Votre offre pour ${offer.name} n’a pas convaincu.` : `Offre impossible : votre trésorerie ne permet pas d’accueillir ${offer.name}.` });
+      lines.push({ won: false, text: affordable ? `Votre offre pour ${offer.name} n’a pas convaincu.`
+        : slot < 0 ? `Offre impossible : vos ${TALENT_SLOTS} places de talent sont occupées.`
+        : `Offre impossible : votre trésorerie ne permet pas d’accueillir ${offer.name}.` });
       outcomes[i] = { status: affordable ? 'refused' : 'unaffordable' };
     }
     const suitor = offer.suitors[0] && gameState.competitors.find(c => c.name === offer.suitors[0].name);
@@ -8879,6 +9103,7 @@ function resolveMercato(offerIndex) {
 
 function expireTalents() {
   const p = gameState.player;
+  gameState.talentScouting = null;
   (p.talents || []).forEach(t => {
     if (t.nextAnnual == null || gameState.season < t.nextAnnualFrom || t.until < gameState.season) return;
     p.coutGrilleEngageSaison += t.nextAnnual - t.annual;
