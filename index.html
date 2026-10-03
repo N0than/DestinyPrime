@@ -124,16 +124,6 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 /* Écrans avec HUD : seule la barre multicolore reste, tout en haut. */
 .masthead.masthead-hud { padding: 0 0 8px; }
 .masthead.masthead-hud .over, .masthead.masthead-hud h1, .masthead.masthead-hud .under { display: none; }
-/* Comme l'identifiant d'une mire TV : le nom de la chaîne reste affiché au centre de la barre. */
-.mire-id-wrap { position: relative; }
-.mire-id {
-  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
-  max-width: 72%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-  padding: 0 12px; height: 100%; display: block; line-height: 18px; box-sizing: border-box;
-  background: #fff; color: var(--ink); border-radius: 2px;
-  font-family: 'Anton', sans-serif; font-size: 11px; letter-spacing: 1.2px; text-transform: uppercase;
-  box-shadow: 0 0 0 2px #fff, 0 2px 6px rgba(15,23,42,0.15);
-}
 
 /* ---- HUD (5 INDICATEURS) ---- */
 /* Toujours précédé du masthead dans le rendu final ; règle non conditionnée à
@@ -6845,11 +6835,7 @@ function renderMasthead(sub, over, hudMode = false) {
       <div class="over"><span class="header-brand"><span class="dot"></span>${over || `Audience Masters V2 — Saison ${gameState.season}`}</span></div>
       <h1 title="${esc(gameState.player.name || "Bienvenue dans l'arène")}">${esc(gameState.player.name || "Bienvenue dans l'arène")}</h1>
       <div class="under" title="${esc(sub)}">${sub}</div>
-      ${hudMode ? `
-      <div class="mire-id-wrap">
-        ${renderMire(18)}
-        <span class="mire-id" title="${esc(gameState.player.name || '')}">${esc(gameState.player.name || 'Audience Masters')}</span>
-      </div>` : renderMire(8)}
+      ${renderMire(8)}
     </div>
   `;
 }
