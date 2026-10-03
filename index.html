@@ -159,6 +159,10 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 }
 .hud-brand-text { overflow: hidden; text-overflow: ellipsis; }
 .hud-badge-short { display: none; }
+.hud-channel-type .tb-short { display: none; }
+.hud-channel-type.no-icon .tb-icon, .hud-target-badge.no-icon .tb-icon { display: none; }
+.hud-channel-type.short .tb-long { display: none; }
+.hud-channel-type.short .tb-short { display: inline; }
 .hud-panel-head-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 .hud-type-badge {
   flex-shrink: 0; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 10.5px;
@@ -174,13 +178,15 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
   .hud-brand-badge { padding: 4px 8px; gap: 5px; font-size: 9px; letter-spacing: 0.5px; min-height: 24px; }
   .hud-panel-head-right { gap: 4px; }
   .hud-panel-head-right .hud-type-badge { font-size: 9.5px; padding: 4px 7px; }
-  .hud-panel-head-right .hud-badge-long { display: none; }
-  .hud-panel-head-right .hud-badge-short { display: inline; }
+  .hud-target-badge .hud-badge-long { display: none; }
+  .hud-target-badge .hud-badge-short { display: inline; }
 }
 @container (max-width: 300px) {
-  .hud-brand-badge { padding: 4px 7px; gap: 4px; font-size: 8.5px; letter-spacing: 0.2px; }
-  .hud-panel-head { gap: 6px; }
-  .hud-panel-head-right .hud-type-badge { padding: 4px 6px; }
+  .hud-brand-badge { padding: 4px 6px 4px 5px; gap: 3px; font-size: 8.2px; letter-spacing: 0; }
+  .hud-brand-badge .dot { width: 6px; height: 6px; }
+  .hud-panel-head { gap: 4px; }
+  .hud-panel-head-right { gap: 3px; }
+  .hud-panel-head-right .hud-type-badge { padding: 4px 5px; font-size: 9px; }
 }
 /* Si même sur deux lignes le nom ne tient pas, seul le point rouge reste (cf. fitHudBrand). */
 .hud-brand-badge.compact .hud-brand-text { display: none; }
@@ -6880,14 +6886,16 @@ function renderTicker() {
           <button type="button" class="hud-brand-badge" id="hud-brand" title="Retour à l’accueil"><span class="dot"></span><span class="hud-brand-text">Audience Masters</span></button>
           <div class="hud-panel-head-right">
             ${(() => {
-              // Sur mobile, le type de chaîne se réduit à son emoji et la cible perd « ans » :
-              // la place libérée garde « Audience Masters » sur une ligne.
+              // Le type de chaîne reste toujours écrit ; s'il manque de place (cf. fitHudBrand),
+              // il perd son emoji puis passe à son libellé court. La cible perd « ans » sur mobile.
               const typeLabel = CHANNEL_TYPES[p.type].label.replace(/\s*\/\s*Famille\b/, '');
               const [typeIcon, ...typeWords] = typeLabel.split(' ');
+              const typeName = typeWords.join(' ');
+              const typeShort = typeName.split(/\s*\/\s*|\s+en\s+/)[0];
               const targetLabel = (TARGET_STRATEGIES[p.target]?.nom || p.target).replace(/\s*\([^)]*\)/, '');
               const targetShort = targetLabel.replace(/\s+ans\b/, '');
-              return `<span class="hud-type-badge" title="${esc(typeLabel)}" aria-label="${esc(typeWords.join(' '))}">${typeIcon}<span class="hud-badge-long"> ${esc(typeWords.join(' '))}</span></span>
-            <span class="hud-type-badge hud-target-badge" title="Cible : ${esc(TARGET_STRATEGIES[p.target]?.nom || p.target)}">🎯 <span class="hud-badge-long">${esc(targetLabel)}</span><span class="hud-badge-short">${esc(targetShort)}</span></span>`;
+              return `<span class="hud-type-badge hud-channel-type" title="${esc(typeLabel)}"><span class="tb-icon">${typeIcon} </span><span class="tb-long">${esc(typeName)}</span><span class="tb-short">${esc(typeShort)}</span></span>
+            <span class="hud-type-badge hud-target-badge" title="Cible : ${esc(TARGET_STRATEGIES[p.target]?.nom || p.target)}"><span class="tb-icon">🎯 </span><span class="hud-badge-long">${esc(targetLabel)}</span><span class="hud-badge-short">${esc(targetShort)}</span></span>`;
             })()}
             <button class="hud-toggle${open ? ' open' : ''}" id="hud-toggle" aria-label="Détail des indicateurs" aria-expanded="${open}">
               <svg class="hud-toggle-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
@@ -9427,10 +9435,23 @@ function fitTalentCards() {
 function fitHudBrand() {
   const brand = document.getElementById('hud-brand');
   if (!brand) return;
-  brand.classList.remove('compact');
   const head = brand.closest('.hud-panel-head');
   const text = brand.querySelector('.hud-brand-text');
-  if (text.scrollWidth > text.clientWidth + 1 || brand.scrollWidth > brand.clientWidth + 1 || head.scrollWidth > head.clientWidth + 1) brand.classList.add('compact');
+  const type = head.querySelector('.hud-channel-type');
+  const target = head.querySelector('.hud-target-badge');
+  // Mesure au sous-pixel : la largeur réelle du texte face à celle de sa boîte.
+  const range = document.createRange();
+  range.selectNodeContents(text);
+  const tight = () => range.getBoundingClientRect().width > text.getBoundingClientRect().width + 0.25
+    || brand.scrollWidth > brand.clientWidth + 1 || head.scrollWidth > head.clientWidth + 1;
+  brand.classList.remove('compact');
+  type?.classList.remove('no-icon', 'short');
+  target?.classList.remove('no-icon');
+  // Le type de chaîne cède de la place par étapes ; en dernier recours seulement, la marque se réduit au point.
+  if (tight() && type) type.classList.add('no-icon');
+  if (tight() && type) type.classList.add('short');
+  if (tight() && target) target.classList.add('no-icon');
+  if (tight()) brand.classList.add('compact');
 }
 
 function fitRadarToGridHeight() {
@@ -9450,6 +9471,7 @@ function fitRadarToGridHeight() {
   if (height > 0) radarSlide.style.height = `${height}px`;
 }
 if (typeof window !== 'undefined') window.addEventListener('resize', () => { fitRadarToGridHeight(); fitTalentCards(); fitHudBrand(); });
+if (typeof document !== 'undefined' && document.fonts?.ready) document.fonts.ready.then(() => fitHudBrand());
 
 function handleRadarAction(btn) {
   const radar = radarState();
