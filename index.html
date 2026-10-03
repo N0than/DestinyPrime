@@ -432,6 +432,119 @@ button.radar-card:hover { transform: translateY(-1px); box-shadow: 0 10px 24px -
 .ga-rows .ga-row { flex: 1; }
 .ga-row { display: flex; align-items: center; gap: 6px; padding: 3.5px 0; border-bottom: 1px dashed rgba(22,19,14,0.12); }
 .ga-row:last-child { border-bottom: none; }
+
+/* Écran Talents */
+/* L'écran ne fixe pas la hauteur du slider : il occupe celle des autres écrans. */
+.eh-slide.talents-slide { position: relative; }
+.tl-panel { position: absolute; inset: 0; display: flex; flex-direction: column; min-width: 0; }
+.tl-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-shrink: 0; }
+.tl-header .eh-title { margin-bottom: 0; }
+.tl-recruit {
+  flex-shrink: 0; border: none; border-radius: 999px; padding: 5px 10px; cursor: pointer;
+  font-family: 'Anton', sans-serif; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.3px;
+  background: var(--rouge); color: #fff; white-space: nowrap;
+}
+.tl-recruit:disabled { background: rgba(148,163,184,0.25); color: var(--gris); cursor: default; }
+.tl-summary {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 4px 6px; margin: 6px 0 2px; flex-shrink: 0;
+  font-size: 11px; color: var(--gris);
+}
+.tl-summary b { color: var(--ink); font-weight: 800; }
+.tl-dot { opacity: 0.6; }
+.tl-pager { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; }
+.tl-arrow {
+  width: 22px; height: 22px; border-radius: 50%; border: 1px solid rgba(22,19,14,0.25); background: rgba(255,255,255,0.7);
+  color: var(--ink); font-size: 14px; line-height: 1; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; padding: 0 0 2px;
+}
+.tl-arrow:disabled { opacity: 0.3; cursor: default; }
+.tl-page { font-family: 'Anton', sans-serif; font-size: 10px; color: var(--ink); letter-spacing: 0.3px; }
+.tl-mercato-note { font-size: 10px; font-style: italic; color: var(--gris); flex-shrink: 0; margin-bottom: 2px; }
+.tl-cards {
+  flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 6px;
+}
+.tl-card {
+  container-type: inline-size;
+  position: relative; display: flex; flex-direction: column; align-items: center; gap: 3px; min-width: 0; min-height: 0;
+  padding: 10px 7px 8px; text-align: center; overflow: hidden;
+  background: rgba(255,255,255,0.65); border: 1px solid rgba(255,255,255,0.85); border-radius: 14px;
+  box-shadow: 0 12px 28px -12px rgba(15,23,42,0.18), 0 0 0 1px rgba(255,255,255,0.8) inset;
+}
+.tl-card-ghost { background: transparent; border: 1px dashed rgba(148,163,184,0.35); box-shadow: none; }
+.tl-avatar-wrap { position: relative; display: flex; justify-content: center; flex-shrink: 0; margin-bottom: 4px; }
+.tl-badges { position: absolute; left: 50%; bottom: -7px; transform: translateX(-50%); display: flex; gap: 3px; pointer-events: none; }
+.tl-badge { font-size: 7.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.2px; padding: 2px 5px; border-radius: 999px; white-space: nowrap; box-shadow: 0 0 0 1.5px #fff; }
+.tl-badge-new { color: #047857; background: #d1fae5; }
+.tl-badge-end { color: #b45309; background: #fef3c7; }
+.mercato-avatar.tl-avatar { width: 46px; height: 46px; margin-bottom: 1px; flex-shrink: 0; }
+.mercato-avatar.tl-avatar img { width: 42px; height: 42px; }
+.tl-name { font-family: 'Anton', sans-serif; font-size: 12px; text-transform: uppercase; letter-spacing: 0.3px; line-height: 1.1; max-width: 100%; overflow-wrap: anywhere; }
+.tl-role { font-size: 9.5px; color: var(--gris); line-height: 1.25; max-width: 100%; }
+.tl-genre { font-size: 8.5px; padding: 2px 6px; margin: 1px 0 2px; }
+.tl-criteria { display: flex; flex-direction: column; gap: 2px; width: 100%; padding: 4px 0; border-top: 1px solid rgba(148,163,184,0.25); border-bottom: 1px solid rgba(148,163,184,0.25); }
+.tl-criterion { display: flex; align-items: center; justify-content: space-between; gap: 4px; min-width: 0; }
+.tl-criterion-label { font-size: 9px; font-weight: 700; color: #334155; text-align: left; min-width: 0; line-height: 1.15; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tl-criterion .mercato-stars { font-size: 9.5px; letter-spacing: 0; }
+.tl-short { display: none; }
+@container (max-width: 150px) { .tl-long { display: none; } .tl-short { display: inline; } }
+@media (max-width: 359px) { .tl-card { gap: 2px; padding: 8px 5px 6px; } }
+@container (max-width: 90px) { .tl-facts, .tl-effect { line-height: 1.15; } .tl-avatar-wrap { margin-bottom: 8px; } .tl-badge { font-size: 6.5px; letter-spacing: 0; padding: 2px 3px; } .mercato-avatar.tl-avatar { width: 38px; height: 38px; } .mercato-avatar.tl-avatar img { width: 34px; height: 34px; } .tl-name { font-size: 11px; } .tl-criterion { gap: 2px; } .tl-criterion-label { font-size: 8px; } .tl-criterion .mercato-stars { font-size: 7.5px; } }
+.tl-facts { display: flex; flex-direction: column; gap: 1px; font-size: 9.5px; color: var(--gris); line-height: 1.25; }
+.tl-facts b { color: var(--ink); font-weight: 800; }
+.tl-effect { font-size: 9.5px; font-weight: 800; color: #047857; line-height: 1.2; }
+.tl-effect.none { color: var(--gris); font-weight: 700; }
+.tl-programs {
+  flex-shrink: 0; max-height: 2.5em; font-size: 9px; color: #334155; line-height: 1.25; max-width: 100%;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.tl-programs.none { color: var(--rouge); font-style: italic; -webkit-line-clamp: 4; max-height: 5em; }
+.tl-fire {
+  margin-top: auto; width: 100%; border-radius: 999px; padding: 4px 6px; cursor: pointer;
+  border: 1px solid rgba(225,29,72,0.4); background: rgba(225,29,72,0.06); color: var(--rouge);
+  font-family: 'Anton', sans-serif; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.3px;
+}
+.tl-fire:hover:not(:disabled) { background: var(--rouge); color: #fff; }
+.tl-fire:disabled { opacity: 0.4; cursor: default; }
+.tl-empty {
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center;
+  margin-top: 8px; padding: 16px; border: 1px dashed rgba(148,163,184,0.45); border-radius: 14px;
+}
+.tl-empty-icon { font-size: 26px; }
+.tl-empty-title { font-family: 'Anton', sans-serif; font-size: 13px; text-transform: uppercase; letter-spacing: 0.3px; color: var(--ink); }
+.tl-empty-text { font-size: 11px; color: var(--gris); line-height: 1.4; max-width: 300px; }
+.tl-empty-note { font-size: 10.5px; font-weight: 700; color: var(--ink); }
+@media (min-width: 600px) {
+  .tl-cards { gap: 12px; }
+  .tl-card { padding: 12px 10px 10px; gap: 4px; }
+  .tl-name { font-size: 13px; }
+  .tl-role, .tl-facts, .tl-effect { font-size: 10.5px; }
+  .tl-programs { font-size: 10px; }
+  .tl-criterion-label { font-size: 10px; }
+  .tl-criterion .mercato-stars { font-size: 10.5px; }
+  .tl-badge { font-size: 8.5px; }
+}
+/* Fenêtre de confirmation (feuille en bas sur mobile, centrée au-delà) */
+.confirm-sheet .fire-body { padding: 12px 16px 16px; overflow-y: auto; }
+.fire-who { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--ink); }
+.fire-role { font-size: 11px; color: var(--gris); }
+.fire-lines { list-style: none; margin: 12px 0 8px; padding: 0; border-top: 1px solid var(--paper-dark); }
+.fire-lines li { display: flex; justify-content: space-between; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--paper-dark); font-size: 12.5px; color: var(--ink); }
+.fire-lines li b { white-space: nowrap; }
+.fire-lines li.fire-total span { font-weight: 800; }
+.fire-lines li.fire-total b.neg { color: var(--rouge); }
+.fire-rule { font-size: 11px; line-height: 1.45; color: var(--gris); margin: 0 0 12px; }
+.fire-blocked { font-size: 11.5px; font-weight: 700; color: var(--rouge); margin: 0 0 10px; }
+.fire-actions .program-manager-box.fire-confirm:disabled { opacity: 0.4; cursor: default; }
+.fire-actions { display: flex; gap: 8px; justify-content: flex-end; }
+.fire-actions .program-manager-box { min-width: 96px; }
+.fire-actions .program-manager-box.fire-confirm { background: var(--rouge); border-color: var(--rouge); color: #fff; }
+@media (min-width: 600px) {
+  .confirm-sheet .mobile-picker-panel {
+    left: 50%; right: auto; bottom: auto; top: 50%; width: min(440px, calc(100vw - 32px)); max-height: 80vh;
+    border-radius: 20px; transform: translate(-50%, -46%); opacity: 0; transition: transform .25s ease, opacity .2s ease;
+  }
+  .mobile-picker-sheet.confirm-sheet.open .mobile-picker-panel { transform: translate(-50%, -50%); opacity: 1; }
+  .confirm-sheet .mobile-picker-handle { display: none; }
+}
 .ga-rank { font-family: 'Anton', sans-serif; font-size: 10px; color: var(--gris); width: 16px; flex-shrink: 0; }
 .ga-info { flex: 1; min-width: 0; }
 .ga-name {
@@ -1569,6 +1682,239 @@ function renderGlobalAudienceShare() {
       <div class="ga-rows">${rows}</div>
     </div>
   `;
+}
+
+// ---------------------------------------------------------------------------
+// TALENTS — effectif sous contrat (source unique : gameState.player.talents)
+// ---------------------------------------------------------------------------
+const TALENTS_PER_PAGE = 3;
+
+function activePlayerTalents() {
+  return (gameState.player.talents || []).filter(t => t.until >= gameState.season);
+}
+
+// Saison de signature : enregistrée au recrutement, sinon déduite de la durée du contrat.
+function talentSince(t) {
+  return t.since ?? (t.until - GAME_BALANCE.mercato.duration + 1);
+}
+
+function nextMercatoSeason() {
+  const every = GAME_BALANCE.mercato.every;
+  let s = gameState.season + 1;
+  while (!(s >= 2 && s % every === 0)) s++;
+  return s;
+}
+
+// Le mercato est accessible tant que l'offre de la saison n'a pas été jouée.
+function mercatoIsOpen() {
+  return gameState.step === 6 && !!gameState.mercato && !gameState.mercato.result;
+}
+
+// Cases de la grille dont le genre correspond à la spécialité du talent.
+function talentPrograms(t) {
+  const p = gameState.player;
+  return TIME_SLOTS.filter(({ key }) => channelSlotProfile(p, key).genre === t.specialty).map(({ key, label }) => ({
+    slot: key, label,
+    name: activeContract(p, key)?.name || p.grilleOverrides?.[key] || PROGRAM_GRID[p.type][key]
+  }));
+}
+
+// Effet réel du talent : écart de PDA sur la cible de la chaîne avec et sans lui.
+function talentAudienceEffect(t) {
+  const p = gameState.player;
+  const all = p.talents;
+  const withTalent = getCalculatedPDAs().find(r => r.channel === p).pda[p.target];
+  try {
+    p.talents = all.filter(x => x !== t);
+    return withTalent - getCalculatedPDAs().find(r => r.channel === p).pda[p.target];
+  } finally {
+    p.talents = all;
+  }
+}
+
+// Règle de rupture des contrats (identique à celle des programmes remplacés) : le
+// salaire est dû pour chaque saison restante, saison en cours comprise ; la part
+// de la saison en cours, déjà versée, est restituée avec le retrait du salaire.
+function quoteTalentDismissal(t) {
+  const remaining = Math.max(0, t.until - gameState.season + 1);
+  const indemnity = Math.round(t.annual * remaining * 100) / 100;
+  const finance = { recurring: -t.annual, purchase: indemnity, commercial: 0 };
+  // Sans le talent, l'audience baisse : les recettes pub sont réestimées comme
+  // le fera reevaluateAdRevenue au licenciement.
+  const p = gameState.player;
+  const all = p.talents;
+  let adDelta = 0;
+  try {
+    p.talents = all.filter(x => x !== t);
+    const pda = getCalculatedPDAs().find(r => r.channel === p).pda[p.target];
+    adDelta = computeRevenusPub(pda, p.target, p.popularite, p.puissanceCommerciale) + regieRevenueTotal(p) - p.revenusPubPrevisionnels;
+  } finally {
+    p.talents = all;
+  }
+  const net = indemnity - t.annual;
+  const cashDelta = adDelta - net;
+  return { remaining, indemnity, finance, net, adDelta, cashDelta, allowed: p.tresorerie + cashDelta >= TRESORERIE_CRITIQUE };
+}
+
+function dismissTalent(talentId) {
+  const p = gameState.player;
+  const t = activePlayerTalents().find(x => x.id === talentId);
+  if (!t || gameState.step !== 6) return false;
+  const { finance, indemnity, allowed } = quoteTalentDismissal(t);
+  if (!allowed) return false;
+  applyFinance(finance);
+  // L’indemnité reste un coût de talent : le bilan la range avec les salaires.
+  p.coutTalentsSaison = Math.max(0, p.coutTalentsSaison - t.annual + indemnity);
+  p.talents = (p.talents || []).filter(x => x !== t);
+  // Le bonus disparaît avec le talent : audience et recettes pub sont réestimées.
+  reevaluateAdRevenue();
+  const audience = getCalculatedPDAs().find(c => c.channel === p).pda[p.target];
+  p.pdaHistorySeason = [audience]; p.pdaMoyenneSaison = audience; p.pdaFinSaison = audience;
+  refreshEconomy();
+  return true;
+}
+
+function renderTalentsSlide() {
+  const p = gameState.player;
+  const talents = activePlayerTalents();
+  const payroll = talents.reduce((sum, t) => sum + t.annual, 0);
+  const pages = Math.max(1, Math.ceil(talents.length / TALENTS_PER_PAGE));
+  const page = Math.min(Math.max(0, gameState.talentsPage || 0), pages - 1);
+  gameState.talentsPage = page;
+  const open = mercatoIsOpen();
+  const targetShort = AUDIENCE_TARGETS.find(t => t.key === p.target)?.short || p.target;
+  const mercatoNote = open ? 'Mercato ouvert cette saison'
+    : `Mercato fermé · réouverture saison ${nextMercatoSeason()}`;
+  const recruitBtn = `<button type="button" class="tl-recruit" data-talents-recruit ${open ? '' : 'disabled'}
+    title="${esc(open ? 'Ouvrir le mercato des talents' : mercatoNote)}">${open ? '＋ Recruter un talent' : `Mercato · saison ${nextMercatoSeason()}`}</button>`;
+
+  const card = t => {
+    const remaining = t.until - gameState.season + 1;
+    const programs = talentPrograms(t);
+    const effect = programs.length ? talentAudienceEffect(t) : 0;
+    const badges = [
+      talentSince(t) === gameState.season ? '<span class="tl-badge tl-badge-new">Nouvelle recrue</span>' : '',
+      remaining <= 1 ? '<span class="tl-badge tl-badge-end">Fin de contrat</span>' : ''
+    ].join('');
+    const effectText = `+${nf1(Math.max(0, effect))} pt de PDA ${targetShort}`;
+    const programsText = programs.length
+      ? programs.map(x => x.name).join(', ')
+      : 'Aucun programme compatible dans votre grille';
+    const programsTitle = programs.length
+      ? 'Programmes renforcés : ' + programs.map(x => `${x.label} · ${x.name}`).join(' ; ')
+      : programsText;
+    return `
+      <article class="tl-card" data-talent-id="${esc(t.id)}">
+        <span class="tl-avatar-wrap">
+          <span class="mercato-avatar tl-avatar"><img src="${MERCATO_AVATARS[t.id] || ''}" alt="" width="44" height="44"></span>
+          ${badges ? `<span class="tl-badges">${badges}</span>` : ''}
+        </span>
+        <span class="tl-name">${esc(t.name)}</span>
+        <span class="tl-role">${esc(t.role)}</span>
+        <span class="pg-pda-badge pg-badge-bleu tl-genre">${esc(GENRE_LABELS[t.specialty] || t.specialty)}</span>
+        <span class="tl-criteria">${talentCoreCriteria(t, slotsMatchingGenre(p, t.specialty)).map(c => `
+          <span class="tl-criterion"><span class="tl-criterion-label" title="${esc(c.label)}"><span class="tl-long">${esc(c.label)}</span><span class="tl-short">${esc(c.short)}</span></span>${mercatoStarsHtml(c.value, c.label)}</span>`).join('')}
+        </span>
+        <span class="tl-facts">
+          <span class="tl-fact"><b>${nf1(t.annual)} M€</b>/saison</span>
+          <span class="tl-fact">${remaining} saison${remaining > 1 ? 's' : ''} restante${remaining > 1 ? 's' : ''}</span>
+        </span>
+        ${programs.length ? `<span class="tl-effect">${esc(effectText)}</span>` : ''}
+        <span class="tl-programs${programs.length ? '' : ' none'}" title="${esc(programsTitle)}">${esc(programsText)}</span>
+        <button type="button" class="tl-fire" data-talent-fire="${esc(t.id)}" ${gameState.step === 6 ? '' : 'disabled'}>Licencier</button>
+      </article>`;
+  };
+
+  const visible = talents.slice(page * TALENTS_PER_PAGE, page * TALENTS_PER_PAGE + TALENTS_PER_PAGE);
+  const body = talents.length ? `
+      <div class="tl-cards">${visible.map(card).join('')}${Array.from({ length: TALENTS_PER_PAGE - visible.length }, () => '<div class="tl-card tl-card-ghost" aria-hidden="true"></div>').join('')}</div>`
+    : `
+      <div class="tl-empty">
+        <span class="tl-empty-icon" aria-hidden="true">🎤</span>
+        <span class="tl-empty-title">Aucun talent sous contrat</span>
+        <span class="tl-empty-text">Recrutez une personnalité au mercato : elle renforce les programmes de son genre sur votre grille.</span>
+        <span class="tl-empty-note">${esc(mercatoNote)}</span>
+      </div>`;
+
+  return `
+    <div class="tl-panel" id="tl-panel">
+      <div class="tl-header">
+        <div class="eh-title">Talents</div>
+        ${recruitBtn}
+      </div>
+      <div class="tl-summary">
+        <span><b>${talents.length}</b> sous contrat</span>
+        <span class="tl-dot" aria-hidden="true">·</span>
+        <span>Masse salariale <b>${nf1(payroll)} M€</b>/saison</span>
+        ${pages > 1 ? `
+        <span class="tl-pager">
+          <button type="button" class="tl-arrow" data-talents-page="${page - 1}" ${page === 0 ? 'disabled' : ''} aria-label="Talents précédents">‹</button>
+          <span class="tl-page">${page + 1} / ${pages}</span>
+          <button type="button" class="tl-arrow" data-talents-page="${page + 1}" ${page >= pages - 1 ? 'disabled' : ''} aria-label="Talents suivants">›</button>
+        </span>` : ''}
+      </div>
+      ${body}
+    </div>`;
+}
+
+// Fenêtre de confirmation du licenciement.
+function openTalentDismissal(talentId) {
+  const t = activePlayerTalents().find(x => x.id === talentId);
+  if (!t) return;
+  const q = quoteTalentDismissal(t);
+  let sheet = document.getElementById('talent-fire-sheet');
+  if (!sheet) {
+    sheet = document.createElement('div');
+    sheet.id = 'talent-fire-sheet';
+    sheet.className = 'mobile-picker-sheet confirm-sheet';
+    document.body.appendChild(sheet);
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeTalentDismissal(); });
+  }
+  sheet.innerHTML = `
+    <div class="mobile-picker-backdrop" data-fire-close></div>
+    <div class="mobile-picker-panel" role="dialog" aria-modal="true" aria-labelledby="fire-title">
+      <div class="mobile-picker-handle"></div>
+      <div class="mobile-picker-header">
+        <span class="mobile-picker-title" id="fire-title">Licencier ${esc(t.name)} ?</span>
+        <button type="button" class="mobile-picker-close" data-fire-close aria-label="Fermer">✕</button>
+      </div>
+      <div class="fire-body">
+        <div class="fire-who">
+          <span class="mercato-avatar tl-avatar"><img src="${MERCATO_AVATARS[t.id] || ''}" alt="" width="44" height="44"></span>
+          <span><b>${esc(t.name)}</b><br><span class="fire-role">${esc(t.role)} · ${q.remaining} saison${q.remaining > 1 ? 's' : ''} de contrat restante${q.remaining > 1 ? 's' : ''}</span></span>
+        </div>
+        <ul class="fire-lines">
+          <li><span>Indemnité de rupture</span><b>${nf1(q.indemnity)} M€</b></li>
+          <li><span>Salaire de la saison en cours restitué</span><b>+${nf1(t.annual)} M€</b></li>
+          <li><span>Recettes pub (audience perdue)</span><b>${q.adDelta < 0 ? '−' : '+'}${nf1(Math.abs(q.adDelta))} M€</b></li>
+          <li class="fire-total"><span>Impact sur la trésorerie</span><b class="${q.cashDelta < -0.05 ? 'neg' : ''}">${q.cashDelta < -0.05 ? '−' : q.cashDelta > 0.05 ? '+' : ''}${nf1(Math.abs(q.cashDelta))} M€</b></li>
+          <li><span>Dépenses récurrentes</span><b>−${nf1(t.annual)} M€/saison</b></li>
+        </ul>
+        <p class="fire-rule">Règle de rupture : salaire par saison × saisons restantes (saison en cours comprise), comme pour l’arrêt anticipé d’un programme. Les effets de ${esc(t.name)} sur vos programmes ${esc((GENRE_LABELS[t.specialty] || t.specialty).toLowerCase())} disparaissent immédiatement.</p>
+        ${q.allowed ? '' : '<p class="fire-blocked">Trésorerie insuffisante : l’indemnité ferait passer la chaîne sous le seuil critique.</p>'}
+        <div class="fire-actions">
+          <button type="button" class="program-manager-box cancel" data-fire-close>Annuler</button>
+          <button type="button" class="program-manager-box confirm fire-confirm" data-fire-confirm ${q.allowed ? '' : 'disabled'}>Licencier</button>
+        </div>
+      </div>
+    </div>`;
+  sheet.querySelectorAll('[data-fire-close]').forEach(el => el.addEventListener('click', closeTalentDismissal));
+  sheet.querySelector('[data-fire-confirm]').addEventListener('click', () => {
+    closeTalentDismissal();
+    if (dismissTalent(t.id)) render();
+  }, { once: true });
+  sheet.classList.add('open');
+  sheet.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('mobile-picker-lock');
+  sheet.querySelector('[data-fire-confirm]').focus();
+}
+
+function closeTalentDismissal() {
+  const sheet = document.getElementById('talent-fire-sheet');
+  if (!sheet) return;
+  sheet.classList.remove('open');
+  sheet.setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('mobile-picker-lock');
 }
 
 function starRowHtml(filled) {
@@ -5095,6 +5441,7 @@ let gameState = {
   pendingNextStep: null,
   hudExpanded: false,
   hudSlide: 0,
+  talentsPage: 0,
   audienceShareTarget: null,
   seenDilemmaIds: [],
   history: [],
@@ -6036,6 +6383,7 @@ function resetGame() {
   gameState.pendingNextStep = null;
   gameState.hudExpanded = false;
   gameState.hudSlide = 0;
+  gameState.talentsPage = 0;
   gameState.audienceShareTarget = null;
   gameState.seenDilemmaIds = [];
   gameState.history = [];
@@ -6098,6 +6446,7 @@ function renderTicker() {
   const statStarsHtml = renderStatStars(p, pdaCible, compliance);
   const arcomSlideHtml = renderArcomSlide(compliance, ARCOM_CONVENTIONS[p.type]);
   const ecoBilanSlideHtml = renderEcoBilanSlide(p);
+  const talentsSlideHtml = renderTalentsSlide();
   const slide = gameState.hudSlide || 0;
 
   return `
@@ -6143,6 +6492,7 @@ function renderTicker() {
               <div class="eh-slide programming-slide">${programGridHtml}</div>
               <div class="eh-slide">${ecoBilanSlideHtml}</div>
               <div class="eh-slide">${globalAudienceShareHtml}</div>
+              <div class="eh-slide talents-slide">${talentsSlideHtml}</div>
               <div class="eh-slide">${evolutionChartHtml}</div>
               <div class="eh-slide">${statStarsHtml}</div>
               <div class="eh-slide arcom-slide-wrap">${arcomSlideHtml}</div>
@@ -6150,12 +6500,7 @@ function renderTicker() {
           </div>
           <div class="eh-slider-nav">
             <div class="eh-slider-dots" id="eh-slider-dots">
-              <button class="eh-dot${slide === 0 ? ' active' : ''}" data-slide="0" aria-label="Écran 1"></button>
-              <button class="eh-dot${slide === 1 ? ' active' : ''}" data-slide="1" aria-label="Écran 2"></button>
-              <button class="eh-dot${slide === 2 ? ' active' : ''}" data-slide="2" aria-label="Écran 3"></button>
-              <button class="eh-dot${slide === 3 ? ' active' : ''}" data-slide="3" aria-label="Écran 4"></button>
-              <button class="eh-dot${slide === 4 ? ' active' : ''}" data-slide="4" aria-label="Écran 5"></button>
-              <button class="eh-dot${slide === 5 ? ' active' : ''}" data-slide="5" aria-label="Écran 6"></button>
+              ${Array.from({ length: HUD_SLIDE_COUNT }, (_, i) => `<button class="eh-dot${slide === i ? ' active' : ''}" data-slide="${i}" aria-label="Écran ${i + 1}"></button>`).join('')}
             </div>
           </div>
         </div>
@@ -6163,6 +6508,8 @@ function renderTicker() {
     </div>
   `;
 }
+
+const HUD_SLIDE_COUNT = 7;
 
 // En mode Concurrence, le slider est figé sur la grille : on n'en sort
 // qu'après être revenu sur « Ma grille ».
@@ -6181,6 +6528,7 @@ function syncHudSliderLock() {
 
 function bindTickerInteractions(app) {
   fitRadarToGridHeight();
+  fitTalentCards();
   syncHudSliderLock();
   bindCampaignPanel(app);
   document.getElementById('hud-toggle').onclick = () => {
@@ -6191,7 +6539,7 @@ function bindTickerInteractions(app) {
   };
   const goToHudSlide = idx => {
     if (isHudSliderLocked()) idx = 0;
-    const clamped = Math.max(0, Math.min(5, idx));
+    const clamped = Math.max(0, Math.min(HUD_SLIDE_COUNT - 1, idx));
     gameState.hudSlide = clamped;
     document.getElementById('eh-slider-track').style.transform = `translateX(-${clamped * 100}%)`;
     document.querySelectorAll('.eh-dot').forEach(d => d.classList.toggle('active', parseInt(d.dataset.slide, 10) === clamped));
@@ -6217,6 +6565,26 @@ function bindTickerInteractions(app) {
     const radarBtn = e.target.closest('[data-radar-action]');
     if (radarBtn) {
       handleRadarAction(radarBtn);
+      return;
+    }
+    const pageBtn = e.target.closest('[data-talents-page]');
+    if (pageBtn) {
+      gameState.talentsPage = parseInt(pageBtn.dataset.talentsPage, 10) || 0;
+      const panel = document.getElementById('tl-panel');
+      if (panel) panel.outerHTML = renderTalentsSlide();
+      fitTalentCards();
+      return;
+    }
+    const fireBtn = e.target.closest('[data-talent-fire]');
+    if (fireBtn) {
+      openTalentDismissal(fireBtn.dataset.talentFire);
+      return;
+    }
+    if (e.target.closest('[data-talents-recruit]')) {
+      if (!mercatoIsOpen()) return;
+      gameState.mercatoPending = true;
+      render();
+      document.querySelector('.dilemma-container')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       return;
     }
     const arcomBtn = e.target.closest('.arcom-view-btn');
@@ -7607,22 +7975,34 @@ function renderSeasonKickoff(app) {
   bindTickerInteractions(app);
   app.querySelector('.masthead').onclick = goHome;
 }
+// Étoiles des talents : une seule échelle et un seul rendu, partagés par le mercato
+// et l'écran Talents.
+function mercatoStarsHtml(value, label) {
+  const n = Math.max(0, Math.min(5, Math.round(value)));
+  return `<span class="mercato-stars" role="img" aria-label="${esc(label)} : ${n} sur 5">${'★'.repeat(n)}<span class="off">${'★'.repeat(5 - n)}</span></span>`;
+}
+
+// Critères propres au talent (affinité avec la cible, impact, cases compatibles).
+function talentCoreCriteria(talent, compatibleSlots) {
+  const p = gameState.player;
+  const cfg = GAME_BALANCE.mercato;
+  const targetShort = TARGET_STRATEGIES[p.target]?.nom.replace(/\s*\([^)]*\)/, '') || p.target;
+  const aff = talent.affinities || MERCATO_TALENTS.find(x => x.id === talent.id)?.affinities || {};
+  return [
+    { label: `Affinité ${targetShort}`, short: 'Affin.', value: (aff[p.target] ?? 0) * 5 },
+    { label: 'Impact programmes', short: 'Impact', value: 1 + (talent.bonus - cfg.minBonus) / Math.max(0.01, cfg.maxBonus - cfg.minBonus) * 4 },
+    { label: 'Cases compatibles', short: 'Cases', value: Math.min(5, compatibleSlots) }
+  ];
+}
+
 function renderMercato(app) {
   const m = gameState.mercato;
   const p = gameState.player;
-  const targetShort = TARGET_STRATEGIES[p.target]?.nom.replace(/\s*\([^)]*\)/, '') || p.target;
-  const stars = (value, label) => {
-    const n = Math.max(0, Math.min(5, Math.round(value)));
-    return `<span class="mercato-stars" role="img" aria-label="${esc(label)} : ${n} sur 5">${'★'.repeat(n)}<span class="off">${'★'.repeat(5 - n)}</span></span>`;
-  };
+  const stars = mercatoStarsHtml;
   const criteria = offer => {
-    const aff = offer.affinities || {};
     const topInterest = offer.suitors[0]?.interest || 0;
-    const cfg = GAME_BALANCE.mercato;
     return [
-      { label: `Affinité ${targetShort}`, value: (aff[p.target] ?? 0) * 5 },
-      { label: 'Impact programmes', value: 1 + (offer.bonus - cfg.minBonus) / Math.max(0.01, cfg.maxBonus - cfg.minBonus) * 4 },
-      { label: 'Cases compatibles', value: Math.min(5, offer.compatibleSlots) },
+      ...talentCoreCriteria(offer, offer.compatibleSlots),
       { label: 'Chances de signature', value: offer.chance * 5 },
       { label: 'Convoitise', value: topInterest * 5 }
     ];
@@ -8313,7 +8693,7 @@ function resolveMercato(offerIndex) {
   const outcomes = [];
   m.offers.forEach((offer, i) => {
     const signed = { id: offer.id, name: offer.name, specialty: offer.specialty, role: offer.role,
-      annual: offer.annual, bonus: offer.bonus, until };
+      annual: offer.annual, bonus: offer.bonus, until, since: gameState.season, affinities: offer.affinities };
     if (i === offerIndex) {
       const affordable = quoteFinance({ recurring: offer.annual, purchase: 0, commercial: 0 }).cash >= TRESORERIE_CRITIQUE;
       if (affordable && marketRandom() < offer.chance) {
@@ -8536,6 +8916,23 @@ function refreshProgrammingSlide() {
 
 // Le panneau Concurrence reprend exactement la hauteur de la grille (créneaux
 // repliés) : le slider ne s'agrandit pas, le contenu défile à l'intérieur.
+// Les cartes Talents ont une hauteur fixe (celle du slider) : si le contenu
+// déborde, la liste des programmes perd des lignes, jamais le bouton.
+function fitTalentCards() {
+  document.querySelectorAll('.tl-card:not(.tl-card-ghost)').forEach(card => {
+    const programs = card.querySelector('.tl-programs');
+    if (!programs) return;
+    programs.style.webkitLineClamp = '';
+    programs.style.maxHeight = '';
+    let lines = parseInt(getComputedStyle(programs).webkitLineClamp, 10) || 2;
+    while (card.scrollHeight > card.clientHeight && lines > 1) {
+      lines--;
+      programs.style.webkitLineClamp = String(lines);
+      programs.style.maxHeight = `${lines * 1.25}em`;
+    }
+  });
+}
+
 function fitRadarToGridHeight() {
   const slide = document.querySelector('.programming-slide');
   const radarSlide = slide?.querySelector('.radar-mode');
@@ -8552,7 +8949,7 @@ function fitRadarToGridHeight() {
   probe.remove();
   if (height > 0) radarSlide.style.height = `${height}px`;
 }
-if (typeof window !== 'undefined') window.addEventListener('resize', () => fitRadarToGridHeight());
+if (typeof window !== 'undefined') window.addEventListener('resize', () => { fitRadarToGridHeight(); fitTalentCards(); });
 
 function handleRadarAction(btn) {
   const radar = radarState();
