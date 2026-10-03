@@ -7685,7 +7685,7 @@ function renderMercato(app) {
         </div>
         <div class="dc-body">
           <h2>Mercato des talents</h2>
-          ${m.result ? '' : `<p>Deux personnalités sont sur le marché pour ${GAME_BALANCE.mercato.duration} saisons. Une seule offre est possible : un talent renforce les programmes de son genre, et son salaire s’ajoute à vos dépenses récurrentes.</p>`}
+          ${m.result ? '' : `<p>Recrutez une des deux personnalités pour ${GAME_BALANCE.mercato.duration === 2 ? 'deux' : GAME_BALANCE.mercato.duration} saisons : elle renforce les programmes de son genre et son salaire s’ajoute à vos dépenses récurrentes.</p>`}
         </div>
       </div>`}
       ${m.result ? resultHtml : `<div id="choice-zone"><div class="choices">${offersHtml}${passHtml}</div></div>`}
