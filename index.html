@@ -158,6 +158,7 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
   background: var(--danger); box-shadow: 0 0 8px var(--danger); animation: blink 2.2s ease-in-out infinite;
 }
 .hud-brand-text { overflow: hidden; text-overflow: ellipsis; }
+.hud-badge-short { display: none; }
 .hud-panel-head-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 .hud-type-badge {
   flex-shrink: 0; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 10.5px;
@@ -166,12 +167,20 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
   border: 1px solid rgba(255,255,255,0.8); box-shadow: 0 4px 12px rgba(15,23,42,0.06);
 }
 .hud-panel-head-right { gap: 6px; }
-/* Écrans étroits : le nom passe sur deux lignes, puis s'efface s'il ne tient pas (le point rouge reste). */
+/* Écrans étroits : badges resserrés ; si le nom ne tient pas sur une ligne, seul le point rouge reste. */
 .hud-panel { container-type: inline-size; }
-/* Panneau étroit (mobile) : « Audience / Masters » sur deux lignes pour rester entier. */
+/* Panneau étroit (mobile) : badges resserrés pour garder « Audience Masters » sur une ligne. */
 @container (max-width: 460px) {
-  .hud-brand-badge { padding: 3px 9px 3px 8px; gap: 5px; letter-spacing: 1px; }
-  .hud-brand-text { font-size: 8.5px; line-height: 1.05; white-space: normal; width: min-content; text-align: left; }
+  .hud-brand-badge { padding: 4px 8px; gap: 5px; font-size: 9px; letter-spacing: 0.5px; min-height: 24px; }
+  .hud-panel-head-right { gap: 4px; }
+  .hud-panel-head-right .hud-type-badge { font-size: 9.5px; padding: 4px 7px; }
+  .hud-panel-head-right .hud-badge-long { display: none; }
+  .hud-panel-head-right .hud-badge-short { display: inline; }
+}
+@container (max-width: 300px) {
+  .hud-brand-badge { padding: 4px 7px; gap: 4px; font-size: 8.5px; letter-spacing: 0.2px; }
+  .hud-panel-head { gap: 6px; }
+  .hud-panel-head-right .hud-type-badge { padding: 4px 6px; }
 }
 /* Si même sur deux lignes le nom ne tient pas, seul le point rouge reste (cf. fitHudBrand). */
 .hud-brand-badge.compact .hud-brand-text { display: none; }
@@ -6870,8 +6879,16 @@ function renderTicker() {
         <div class="hud-panel-head">
           <button type="button" class="hud-brand-badge" id="hud-brand" title="Retour à l’accueil"><span class="dot"></span><span class="hud-brand-text">Audience Masters</span></button>
           <div class="hud-panel-head-right">
-            <span class="hud-type-badge">${CHANNEL_TYPES[p.type].label.replace(/\s*\/\s*Famille\b/, '')}</span>
-            <span class="hud-type-badge hud-target-badge" title="Cible : ${esc(TARGET_STRATEGIES[p.target]?.nom || p.target)}">🎯 ${esc((TARGET_STRATEGIES[p.target]?.nom || p.target).replace(/\s*\([^)]*\)/, ''))}</span>
+            ${(() => {
+              // Sur mobile, le type de chaîne se réduit à son emoji et la cible perd « ans » :
+              // la place libérée garde « Audience Masters » sur une ligne.
+              const typeLabel = CHANNEL_TYPES[p.type].label.replace(/\s*\/\s*Famille\b/, '');
+              const [typeIcon, ...typeWords] = typeLabel.split(' ');
+              const targetLabel = (TARGET_STRATEGIES[p.target]?.nom || p.target).replace(/\s*\([^)]*\)/, '');
+              const targetShort = targetLabel.replace(/\s+ans\b/, '');
+              return `<span class="hud-type-badge" title="${esc(typeLabel)}" aria-label="${esc(typeWords.join(' '))}">${typeIcon}<span class="hud-badge-long"> ${esc(typeWords.join(' '))}</span></span>
+            <span class="hud-type-badge hud-target-badge" title="Cible : ${esc(TARGET_STRATEGIES[p.target]?.nom || p.target)}">🎯 <span class="hud-badge-long">${esc(targetLabel)}</span><span class="hud-badge-short">${esc(targetShort)}</span></span>`;
+            })()}
             <button class="hud-toggle${open ? ' open' : ''}" id="hud-toggle" aria-label="Détail des indicateurs" aria-expanded="${open}">
               <svg class="hud-toggle-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
             </button>
