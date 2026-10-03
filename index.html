@@ -416,6 +416,11 @@ button.radar-card:hover { transform: translateY(-1px); box-shadow: 0 10px 24px -
   max-width: 60%;
 }
 .ga-target-switcher::-webkit-scrollbar { display: none; }
+/* Part d'audience : les cibles occupent toute la largeur entre le titre et le bord du bloc. */
+/* Sous 150 px disponibles (très petits écrans), la barre passe sous le titre, sur toute la largeur. */
+.ga-panel > .ga-header { gap: 6px 12px; flex-wrap: wrap; }
+.ga-panel > .ga-header .ga-target-switcher { flex: 1 1 150px; min-width: 0; max-width: none; }
+.ga-panel > .ga-header .ga-target-btn { flex: 1 1 0; min-width: 0; text-align: center; padding-left: 4px; padding-right: 4px; }
 .ga-target-btn {
   flex-shrink: 0; background: transparent; border: 1px solid rgba(22,19,14,0.3); color: var(--gris);
   font-family: 'Anton', sans-serif; font-size: 9px; text-transform: uppercase; letter-spacing: 0.3px;
