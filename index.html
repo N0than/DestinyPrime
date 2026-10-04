@@ -1647,13 +1647,14 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .mobile-picker-card .mpc-art img { position:absolute; inset:0; width:100%; height:100%; display:block; object-fit:cover; }
 .mobile-picker-card .mpc-art .mobile-picker-option-check { position:absolute; top:6px; right:6px; width:20px; height:20px; padding:3px; box-sizing:border-box; border-radius:50%; color:#fff; background:var(--bleu); box-shadow:0 2px 6px rgba(0,0,0,.25); }
 .mobile-picker-card > * { flex-shrink:0; }
-.mobile-picker-card .mpc-head, .mobile-picker-card .mpc-name, .mobile-picker-card .mpc-badges { margin:0 10px; }
+.mobile-picker-card .mpc-head, .mobile-picker-card .mpc-name, .mobile-picker-card .mpc-pitch, .mobile-picker-card .mpc-badges { margin-left:10px; margin-right:10px; }
 .mobile-picker-card .mpc-head { display:flex; align-items:center; gap:6px; }
 .mobile-picker-card .mpc-format { font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:9px; letter-spacing:.5px; text-transform:uppercase; color:var(--gris); }
 .mobile-picker-card .mpc-name { font-weight:800; font-size:12.5px; line-height:1.25; overflow-wrap:anywhere; }
 .mobile-picker-card.selected .mpc-name { color:var(--bleu); }
+.mobile-picker-card .mpc-pitch { font-size:10px; font-weight:500; line-height:1.35; color:var(--gris); margin-top:-3px; }
 .mobile-picker-card .mpc-badges { display:flex; flex-wrap:wrap; gap:4px; }
-.mobile-picker-card .pg-pda-badge { font-size:9px; padding:3px 6px; }
+.mobile-picker-card .pg-pda-badge { font-size:9px; padding:3px 6px; max-width:100%; box-sizing:border-box; white-space:normal; line-height:1.3; border-radius:9px; }
 .mobile-picker-card.selected .mobile-picker-option-check { opacity:1; }
 body.mobile-picker-lock { overflow:hidden; }
 
@@ -9770,6 +9771,7 @@ function openMobilePicker(select, trigger, title) {
   const cards=select.hasAttribute('data-picker-cards');
   list.innerHTML='';
   list.classList.toggle('cards', cards);
+  const pitches=[];
   const check=`<svg class="mobile-picker-option-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
   Array.from(select.options).forEach(opt=>{
     const btn=document.createElement('button');
@@ -9778,10 +9780,14 @@ function openMobilePicker(select, trigger, title) {
     const d=cards&&opt.dataset.card?JSON.parse(opt.dataset.card):null;
     const program=d?PROGRAM_CATALOG.find(x=>x.id===opt.value):null;
     const art=program&&typeof TvPrograms!=='undefined'?TvPrograms.forProgram(program):'';
+    // Accroche de la conférence de rentrée ; on évite de répéter celle d'une carte voisine.
+    const pitch=art?TvPrograms.pitch(program, pitches):'';
+    if(pitch) pitches.push(pitch);
     btn.innerHTML=d
       ? `<span class="mpc-art">${art?`<img src="${art}" alt="" width="320" height="180" decoding="async">`:''}${check}</span>
         <span class="mpc-head"><span class="mpc-format">${esc(program?programGenreLabel(program):d.format)}</span></span>
         <span class="mpc-name">${esc(d.name)}</span>
+        ${pitch?`<span class="mpc-pitch">${esc(pitch)}</span>`:''}
         <span class="mpc-badges">
           <span class="pg-pda-badge pg-badge-bleu">${nf1(d.annual)} M€/an</span>
           ${d.rights>0?`<span class="pg-pda-badge pg-badge-gold">+${nf1(d.rights)} M€ droits</span>`:''}
