@@ -148,7 +148,8 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
   display: inline-flex; align-items: center; gap: 6px; flex-shrink: 1; min-width: 0; cursor: pointer;
   font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase;
   /* Sans habillage : point rouge + texte, comme la ligne de marque du header. */
-  padding: 0 0 0 2px; border: 0; background: none; white-space: nowrap; color: var(--gris);
+  /* Retrait calé pour que le point s'aligne sur celui du badge « Événement » des dilemmes. */
+  padding: 0 0 0 15.5px; border: 0; background: none; white-space: nowrap; color: var(--gris);
   min-height: 26px; overflow: visible; transition: opacity 0.15s;
 }
 .hud-brand-badge:hover { opacity: 0.75; }
@@ -182,6 +183,7 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 }
 @container (max-width: 300px) {
   .hud-brand-badge { gap: 3px; font-size: 9px; letter-spacing: 0; }
+  .hud-brand-badge { padding-left: 16px; }
   .hud-brand-badge .dot { width: 6px; height: 6px; }
   .hud-panel-head { gap: 4px; }
   .hud-panel-head-right { gap: 3px; }
