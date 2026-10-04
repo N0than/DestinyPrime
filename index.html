@@ -1487,7 +1487,7 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .dilemma-hero::after { display: none; }
 .dilemma-hero .dc-head { justify-content: space-between; gap: 6px; padding: 14px 16px 0; background: transparent; }
 .dilemma-hero .dc-body { align-items: flex-start; text-align: left; gap: 8px; padding: 10px 16px 16px; }
-.dilemma-hero h2 { font-size: clamp(22px, 6.2vw, 30px); line-height: 1.05; }
+.dilemma-hero h2 { align-self: stretch; font-size: clamp(22px, 6.2vw, 30px); line-height: 1.05; }
 .dilemma-card.dilemma-hero .dc-body > p { font-size: 14px; line-height: 1.5; color: #475569; max-width: 440px; }
 .dilemma-hero.is-result .dc-body > p { display: none; }
 .dilemma-hero .career-stats-badges { justify-content: flex-start; }
@@ -1534,8 +1534,12 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .gr-wear-label { font-size: 10px; font-weight: 700; color: var(--gris); }
 .gr-wear.is-wear .mercato-stars { color: var(--rouge); }
 .gr-cards.gr-single { grid-template-columns: minmax(0, 1fr); }
-.gr-slot-badge { position: absolute; top: 8px; right: 8px; padding: 3px 9px; border-radius: 999px; font-family: 'Space Grotesk', sans-serif; font-size: 10px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase; color: var(--ink); background: rgba(255,255,255,0.92); box-shadow: 0 1px 4px rgba(0,0,0,.15); }
-.gr-single .gr-name { margin-top: 4px; font-size: 15px; }
+.gr-name-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 4px 10px 0; }
+.gr-name-row .gr-name { margin: 0; min-width: 0; }
+.gr-slot-badge { flex-shrink: 0; padding: 3px 9px; border-radius: 999px; font-family: 'Space Grotesk', sans-serif; font-size: 10px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase; color: var(--ink); background: var(--paper-dark); white-space: nowrap; }
+.gr-single .gr-name { font-size: 15px; }
+/* Nom du programme entre guillemets : passe à la ligne d'un bloc s'il ne tient pas sur la ligne du titre. */
+.dc-title-keep { display: inline-block; max-width: 100%; }
 .gr-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 6px 10px 0; }
 .gr-stat { display: flex; flex-direction: column; align-items: center; gap: 3px; min-width: 0; padding: 2px 4px; text-align: center; }
 .gr-stat + .gr-stat { border-left: 1px solid var(--border); }
@@ -7703,7 +7707,7 @@ function render() {
             <span class="dc-season-pill">${seasonPillLabel()}</span>
           </div>
           <div class="dc-body">
-            <h2>${dilemma.isCareerDilemma ? dilemma.titre.replace(/ pour « /, ' pour<br>« ') : dilemma.titre}</h2>
+            <h2>${dilemma.isCareerDilemma ? dilemma.titre.replace(/« [^»]*»(?: \?)?/, m => `<span class="dc-title-keep">${m}</span>`) : dilemma.titre}</h2>
             <p>${dilemma.desc}</p>
             ${dilemma.isCareerDilemma ? `
             <div class="gr-cards gr-single" data-gr-cards="single">${renewalCardHtml(dilemma.careerSlot,
@@ -8538,9 +8542,9 @@ function renewalCardHtml(slot, name, historic, stats, opts = {}) {
     <div class="gr-card${flippable ? ' flippable' : ''}${picked ? ' picked' : ''}" data-gr-slot="${esc(slot)}">
      <div class="gr-flip">
       <div class="gr-face gr-front"${flippable ? ` role="button" tabindex="0" aria-label="${esc(name)} : choisir son avenir"` : ''}>
-        <span class="gr-art">${art ? `<img src="${art}" alt="" width="320" height="180" decoding="async">` : ''}${historic ? '<span class="gr-historic">⭐ Historique</span>' : ''}${flippable ? '<span class="gr-flip-hint" aria-hidden="true">↻</span>' : ''}${opts.single && slotMeta ? `<span class="gr-slot-badge">${slotMeta.icon} ${esc(slotLabelOf(slot))}</span>` : ''}</span>
-        ${opts.single ? '' : slotHtml}
-        <span class="gr-name">${esc(name)}</span>
+        <span class="gr-art">${art ? `<img src="${art}" alt="" width="320" height="180" decoding="async">` : ''}${historic ? '<span class="gr-historic">⭐ Historique</span>' : ''}${flippable ? '<span class="gr-flip-hint" aria-hidden="true">↻</span>' : ''}</span>
+        ${opts.single ? `<span class="gr-name-row"><span class="gr-name">${esc(name)}</span>${slotMeta ? `<span class="gr-slot-badge">${slotMeta.icon} ${esc(slotLabelOf(slot))}</span>` : ''}</span>`
+          : `${slotHtml}<span class="gr-name">${esc(name)}</span>`}
         ${opts.single ? `<span class="gr-stats">${stats.map(st => `<span class="gr-stat${st.wear ? ' is-wear' : ''}"><span class="gr-wear-label">${esc(st.label)}</span>${mercatoStarsHtml(programWearStars(st.value), `${st.label} (${st.value}/100)`)}</span>`).join('')}</span>`
           : stats.map(st => `<span class="gr-wear${st.wear ? ' is-wear' : ''}"><span class="gr-wear-label">${esc(st.label)}</span>${mercatoStarsHtml(programWearStars(st.value), `${st.label} (${st.value}/100)`)}</span>`).join('')}
         ${choices.length ? `<span class="gr-pick ${picked ? picked.action : ''}" data-gr-pick>${picked ? esc(picked.badge) : ''}</span>` : ''}
