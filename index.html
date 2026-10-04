@@ -1506,6 +1506,22 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .gr-wear-label { font-size: 10px; font-weight: 700; color: var(--gris); }
 .gr-wear.is-wear .mercato-stars { color: var(--rouge); }
 .gr-cards.gr-single { grid-template-columns: minmax(0, 1fr); max-width: 300px; }
+.gr-carousel { align-self: stretch; position: relative; min-width: 0; margin-top: 4px; }
+.gr-cards.gr-track { display: flex; gap: 10px; margin: 0; padding: 2px 0 4px; overflow-x: auto; overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.gr-track::-webkit-scrollbar { display: none; }
+.gr-track > .gr-card { flex: 0 0 72%; scroll-snap-align: start; }
+@media (min-width: 640px) { .gr-track > .gr-card { flex-basis: 250px; } }
+.gr-dots { display: flex; justify-content: center; gap: 6px; margin-top: 8px; }
+.gr-dot { width: 7px; height: 7px; padding: 0; border: 0; border-radius: 999px; background: var(--border); cursor: pointer; transition: width .2s, background .2s; }
+.gr-dot.active { width: 18px; background: var(--ink); }
+.gr-nav { position: absolute; top: 22%; z-index: 2; display: none; width: 32px; height: 32px; padding: 0; border: 0; border-radius: 50%;
+  align-items: center; justify-content: center; font-size: 20px; line-height: 1; color: var(--ink); background: rgba(255,255,255,0.95);
+  box-shadow: 0 2px 8px rgba(0,0,0,.18); cursor: pointer; }
+.gr-nav.prev { left: 6px; } .gr-nav.next { right: 6px; }
+.gr-nav:disabled { opacity: 0; pointer-events: none; }
+@media (hover: hover) and (pointer: fine) { .gr-nav { display: flex; } }
+.gr-carousel.no-scroll .gr-dots, .gr-carousel.no-scroll .gr-nav { display: none; }
 @media (min-width: 640px) { .gr-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 #choice-zone > .slide-in-up.consequence-wrap { margin-top: -14px; }
 /* À l'affichage des conséquences, l'en-tête et la carte de résultat ne forment
@@ -7630,8 +7646,13 @@ function render() {
                 { label: 'Usure', value: dilemma.careerStats.wear, wear: true }])}
             </div>` : ''}
             ${dilemma.isGridRenewal ? `
-            <div class="gr-cards">${dilemma.gridPrograms.map(g => renewalCardHtml(g.slot, g.name, g.historic,
-              [{ label: 'Usure', value: g.wear, wear: true }])).join('')}
+            <div class="gr-carousel" data-gr-carousel>
+              <div class="gr-cards gr-track" aria-label="Programmes à reconduire">${dilemma.gridPrograms.map(g => renewalCardHtml(g.slot, g.name, g.historic,
+                [{ label: 'Usure', value: g.wear, wear: true }])).join('')}
+              </div>
+              <button type="button" class="gr-nav prev" data-gr-nav="-1" aria-label="Programme précédent">‹</button>
+              <button type="button" class="gr-nav next" data-gr-nav="1" aria-label="Programme suivant">›</button>
+              <div class="gr-dots" role="tablist">${dilemma.gridPrograms.map((g, i) => `<button type="button" class="gr-dot${i === 0 ? ' active' : ''}" data-gr-dot="${i}" aria-label="${esc(g.name)}"></button>`).join('')}</div>
             </div>` : ''}
           </div>
         </div>
@@ -7640,6 +7661,7 @@ function render() {
     `;
 
     bindTickerInteractions(app);
+    bindRenewalCarousel(app);
     if (phase === 'choosing') {
       app.querySelectorAll('.choice').forEach(btn => {
         btn.onclick = () => {
@@ -8436,6 +8458,29 @@ function renewalCardHtml(slot, name, historic, stats) {
       <span class="gr-name">${esc(name)}</span>
       ${stats.map(st => `<span class="gr-wear${st.wear ? ' is-wear' : ''}"><span class="gr-wear-label">${esc(st.label)}</span>${mercatoStarsHtml(programWearStars(st.value), `${st.label} (${st.value}/100)`)}</span>`).join('')}
     </div>`;
+}
+// Carrousel des programmes à reconduire : défilement natif avec aimantation,
+// points indicateurs et flèches (visibles sur les écrans à souris).
+function bindRenewalCarousel(root) {
+  root.querySelectorAll('[data-gr-carousel]').forEach(carousel => {
+    const track = carousel.querySelector('.gr-track');
+    const cards = [...track.children];
+    const dots = [...carousel.querySelectorAll('[data-gr-dot]')];
+    const step = () => cards.length > 1 ? cards[1].offsetLeft - cards[0].offsetLeft : track.clientWidth;
+    const update = () => {
+      const max = track.scrollWidth - track.clientWidth;
+      const index = track.scrollLeft >= max - 2 ? cards.length - 1 : Math.round(track.scrollLeft / step());
+      dots.forEach((d, i) => d.classList.toggle('active', i === index));
+      carousel.querySelector('.gr-nav.prev').disabled = track.scrollLeft <= 2;
+      carousel.querySelector('.gr-nav.next').disabled = track.scrollLeft >= max - 2;
+      carousel.classList.toggle('no-scroll', max <= 2);
+    };
+    track.addEventListener('scroll', () => requestAnimationFrame(update), { passive: true });
+    carousel.querySelectorAll('[data-gr-nav]').forEach(btn => btn.onclick = () =>
+      track.scrollBy({ left: Number(btn.dataset.grNav) * step(), behavior: 'smooth' }));
+    dots.forEach((dot, i) => dot.onclick = () => track.scrollTo({ left: i * step(), behavior: 'smooth' }));
+    update();
+  });
 }
 // Libellé de genre affiché sur les cartes illustrées (conférence de rentrée, choix du programme).
 function programGenreLabel(program) {
