@@ -1492,6 +1492,20 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .dilemma-hero.is-result .dc-body > p { display: none; }
 .dilemma-hero .career-stats-badges { justify-content: flex-start; }
 .dilemma-hero .grid-renewal-list { align-self: stretch; text-align: left; }
+/* Reconduction de la grille : un programme par carte illustrée, usure en étoiles. */
+.gr-cards { align-self: stretch; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: max-content; gap: 8px; margin-top: 4px; }
+.gr-card { display: flex; flex-direction: column; gap: 4px; min-width: 0; padding: 0 0 10px; overflow: hidden; border-radius: 14px; background: var(--paper-card); border: 1.5px solid var(--paper-dark); }
+.gr-card > * { flex-shrink: 0; }
+.gr-art { display: block; position: relative; aspect-ratio: 16 / 9; margin-bottom: 4px; background: linear-gradient(160deg, rgba(37,99,235,0.10), rgba(225,29,72,0.08)); }
+.gr-art img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; object-fit: cover; }
+.gr-historic { position: absolute; top: 6px; left: 6px; padding: 2px 7px; border-radius: 999px; font-size: 9px; font-weight: 800; color: var(--gold); background: rgba(255,255,255,0.92); box-shadow: 0 1px 4px rgba(0,0,0,.15); }
+.gr-slot, .gr-name, .gr-wear { margin: 0 10px; }
+.gr-slot { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 9px; letter-spacing: .5px; text-transform: uppercase; color: var(--gris); }
+.gr-name { font-weight: 800; font-size: 12.5px; line-height: 1.25; color: var(--ink); overflow-wrap: anywhere; }
+.gr-wear { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-top: 2px; }
+.gr-wear-label { font-size: 10px; font-weight: 700; color: var(--gris); }
+.gr-wear .mercato-stars { color: var(--rouge); }
+@media (min-width: 640px) { .gr-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 #choice-zone > .slide-in-up.consequence-wrap { margin-top: -14px; }
 /* À l'affichage des conséquences, l'en-tête et la carte de résultat ne forment
    plus qu'un seul bloc (angles, bordure et ombre raccordés). */
@@ -7613,12 +7627,17 @@ function render() {
               <span class="pg-pda-badge pg-badge-rouge">Usure ${dilemma.careerStats.wear}/100</span>
             </div>` : ''}
             ${dilemma.isGridRenewal ? `
-            <div class="grid-renewal-list">${dilemma.gridPrograms.map(g => `
-              <div class="grid-renewal-row">
-                <span class="grid-renewal-slot">${esc(slotLabelOf(g.slot))}</span>
-                <span class="grid-renewal-name">${g.historic ? '⭐ ' : ''}${esc(g.name)}</span>
-                <span class="pg-pda-badge pg-badge-rouge">Usure ${g.wear}/100</span>
-              </div>`).join('')}
+            <div class="gr-cards">${dilemma.gridPrograms.map(g => {
+              const contract = gameState.player.contracts[g.slot];
+              const art = contract && typeof TvPrograms !== 'undefined' ? TvPrograms.forProgram(contract) : '';
+              const slotMeta = TIME_SLOTS.find(s => s.key === g.slot);
+              return `
+              <div class="gr-card">
+                <span class="gr-art">${art ? `<img src="${art}" alt="" width="320" height="180" decoding="async">` : ''}${g.historic ? '<span class="gr-historic">⭐ Historique</span>' : ''}</span>
+                <span class="gr-slot">${slotMeta ? `${slotMeta.icon} ` : ''}${esc(slotLabelOf(g.slot))}</span>
+                <span class="gr-name">${esc(g.name)}</span>
+                <span class="gr-wear"><span class="gr-wear-label">Usure</span>${mercatoStarsHtml(programWearStars(g.wear), `Usure (${g.wear}/100)`)}</span>
+              </div>`; }).join('')}
             </div>` : ''}
           </div>
         </div>
@@ -8405,6 +8424,10 @@ function generateSeasonKickoffProposal() {
 // Potentiel d'audience en étoiles (1 à 5) : le catalogue va de 0,9 à 4,5.
 function programPotentialStars(power) {
   return Math.max(1, Math.min(5, 1 + (Number(power) - 1) / 3.5 * 4));
+}
+// Usure d'un programme en étoiles (1 à 5) : une étoile par tranche de 20 points d'usure.
+function programWearStars(wear) {
+  return Math.max(1, Math.min(5, 1 + Math.floor((Number(wear) || 0) / 20)));
 }
 // Libellé de genre affiché sur les cartes illustrées (conférence de rentrée, choix du programme).
 function programGenreLabel(program) {
