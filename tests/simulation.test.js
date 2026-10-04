@@ -32,19 +32,29 @@ assert(c.seasonsCount===1&&c.awareness>18&&c.loyalty>12&&c.wear>0,'career evolve
 c.awareness=70;c.loyalty=60;c.wear=10;const freshPower=programCareerPower(gameState.player.contracts.access);c.wear=90;assert(programCareerPower(gameState.player.contracts.access)<freshPower,'wear reduces power');
 c.seasonsCount=4;c.awareness=80;c.loyalty=75;c.wear=45;evolveProgramCareers();
 assert(c.historic,'historic status');
-const renewal=createCareerRenewalDilemma();assert(renewal&&renewal.c.length===4,'dynamic renewal dilemma');gameState.player.eventsSeen=[];gameState.seenDilemmaIds=[];const queue=pickDilemmaQueue();assert(queue.at(-1).isCareerDilemma,'renewal is final season choice');
+c.franchiseOffered=true;const renewal=createCareerRenewalDilemma(selectCareerDecisions()[0]);assert(renewal&&renewal.c.length===4,'dynamic renewal dilemma');gameState.player.eventsSeen=[];gameState.seenDilemmaIds=[];const queue=pickDilemmaQueue();assert(queue.at(-1).isCareerDilemma,'renewal is final season choice');
 const oldWear=c.wear;assert(applyCareerDilemmaChoice(renewal,renewal.c[1])&&c.wear<oldWear,'modify career');
 const beforePotential=c.potential;applyCareerDilemmaChoice(renewal,renewal.c[2]);assert(c.potential>beforePotential,'relaunch career');
 applyCareerDilemmaChoice(renewal,renewal.c[0]);assert(c.lastDecision==='renew','renew career');
-applyCareerDilemmaChoice(renewal,renewal.c[3]);assert(!gameState.player.contracts.access,'stop career');
+applyCareerDilemmaChoice(renewal,renewal.c[3]);const stopped=gameState.player.contracts.access;assert(stopped&&stopped.stopped&&stopped.end<=gameState.season&&stopped.annual===0,'stop career');gameState.player.grilleOverrides??={};gameState.season++;expireContracts();assert(!gameState.player.contracts.access,'stopped program leaves next season');gameState.season--;
 setup(); gameState.player.pda={j1524:80,a2549:80,s50:80,csp:80}; let seq=Array(30).fill(0);seededRandom=()=>seq.shift()??0;
 let events=strategicCompetitors();assert(events.some(e=>e.strategy==='offensive'),'offensive reacts');assert(gameState.competitors.find(x=>x.strategy==='jeune').slotInvestments[events.find(e=>e.strategy==='jeune')?.slot]?.targets.j1524>0,'young target');assert(gameState.competitors.find(x=>x.strategy==='premium').slotInvestments[events.find(e=>e.strategy==='premium')?.slot]?.targets.csp>0,'premium target');
 const offPower=events.find(e=>e.strategy==='offensive').power,rentPower=events.find(e=>e.strategy==='rentable').power;assert(offPower>rentPower,'offensive stronger than profitable');
 setup();gameState.player.pda={j1524:80,a2549:80,s50:80,csp:80};seededRandom=()=>.999;assert(strategicCompetitors().length===0,'reaction not systematic');
 setup();gameState.player.slotAudienceDeltas.access={a2549:3};gameState.player.pda={j1524:50,a2549:50,s50:50,csp:50};seededRandom=()=>0;const pre=getCalculatedPDAs().find(x=>x.channel===gameState.player);const rev0=computeRevenusPub(pre.pda.a2549,'a2549',50,1);strategicCompetitors();const post=getCalculatedPDAs().find(x=>x.channel===gameState.player);const rev1=computeRevenusPub(post.pda.a2549,'a2549',50,1);assert(pre.leadIns.prime.a2549>0&&post.pda.a2549!==pre.pda.a2549&&rev1!==rev0,'full interaction and revenue');
 gameState.player.contracts.access={...prog,career:createProgramCareer(prog,'access')};gameState.player.contracts.access.career.seasonsCount=3;
-persistGameState();const saved=JSON.stringify(gameState.competitors);gameState.competitors=[];gameState.player.contracts={};assert(restoreGameState()&&JSON.stringify(gameState.competitors)===saved,'save competitor strategy');assert(gameState.player.contracts.access.career.seasonsCount===3,'save program career');
-console.log('OK lead-in, competitors, careers, interaction, revenue, persistence');
+// La sauvegarde persistante a été retirée du jeu (commit cb74fca) : test conservé si elle revient.
+if(typeof persistGameState==='function'){persistGameState();const saved=JSON.stringify(gameState.competitors);gameState.competitors=[];gameState.player.contracts={};assert(restoreGameState()&&JSON.stringify(gameState.competitors)===saved,'save competitor strategy');assert(gameState.player.contracts.access.career.seasonsCount===3,'save program career');}
+// Programme d'une saison signé après le tirage de la file (conférence de rentrée, grille) :
+// son renouvellement doit être proposé en fin de saison, et disparaître s'il est remplacé.
+render=()=>{};setup();Object.assign(gameState.player,{grilleOverrides:{},talents:[],tresorerie:500,coutGrilleEngageSaison:0,coutTalentsSaison:0,achatsSaison:0,commercialSaison:0,eventsSeen:[],popularite:50,puissanceCommerciale:1,revenusPubPrevisionnels:0,revenusPubFinals:0,regieRecettesSaison:0,pdaHistorySeason:[],pdaMoyenneSaison:0,pdaFinSaison:0});
+gameState.step=6;gameState.dilemmaPhase='choosing';gameState.currentDilemmaIndex=0;gameState.seenDilemmaIds=[];gameState.dilemmaQueue=pickDilemmaQueue();
+const baseLen=gameState.dilemmaQueue.length;assert(!gameState.dilemmaQueue.some(d=>d.isCareerDilemma||d.isGridRenewal),'no renewal before signing');
+const oneSeason=availablePrograms('generaliste','matin').find(x=>x.years===1);assert(oneSeason&&signProgram('matin',oneSeason.id,'interne'),'sign one-season program');
+assert(gameState.dilemmaQueue.at(-1).isCareerDilemma&&gameState.dilemmaQueue.at(-1).careerSlot==='matin'&&gameState.dilemmaQueue.length===baseLen,'one-season program renewal offered');
+const twoSeasons=availablePrograms('generaliste','matin').find(x=>x.years>=2);assert(signProgram('matin',twoSeasons.id,'interne'),'replace program');
+assert(!gameState.dilemmaQueue.some(d=>d.isCareerDilemma||d.isGridRenewal)&&gameState.dilemmaQueue.length===baseLen,'replaced program renewal removed');
+console.log('OK lead-in, competitors, careers, interaction, revenue'+(typeof persistGameState==='function'?', persistence':''));
 
 `;
 const source = scripts.slice(0, -1).join('\n') + '\n' + tests;

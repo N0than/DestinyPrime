@@ -5933,6 +5933,7 @@ let gameState = {
   season: 1,
   currentDilemmaIndex: 0,
   dilemmaQueue: [],
+  dilemmaBaseQueue: null,
   dilemmaPhase: 'choosing',
   logs: [],
   lastConsequence: null,
@@ -6012,6 +6013,13 @@ function pickDilemmaQueue() {
   // Plusieurs programmes à arbitrer : un premier dilemme propose de reconduire toute la
   // grille à l'identique ; en cas de refus, les arbitrages programme par programme
   // s'enchaînent ensuite comme d'habitude.
+  // La file sans renouvellement est conservée : une signature en début de saison
+  // (conférence de rentrée, grille) recalcule ensuite les renouvellements à partir d'elle.
+  gameState.dilemmaBaseQueue = [...queue];
+  return withRenewalDilemmas(queue);
+}
+
+function withRenewalDilemmas(queue) {
   const pendingRenewals = selectCareerDecisions()
     .filter(pending => createCareerRenewalDilemma(pending));
   if (pendingRenewals.length >= 2) {
@@ -6024,6 +6032,18 @@ function pickDilemmaQueue() {
     else queue.push(careerDilemma);
   });
   return queue;
+}
+
+// Un programme signé après le tirage de la file (conférence de rentrée, grille de
+// programmes) doit, lui aussi, être proposé au renouvellement la saison où son contrat
+// expire — y compris un engagement d'une seule saison. La signature n'est possible
+// qu'avant le premier dilemme : aucun choix déjà joué n'est touché.
+function refreshRenewalDilemmas() {
+  if (gameState.step !== 6 || gameState.currentDilemmaIndex !== 0 || gameState.dilemmaPhase !== 'choosing') return;
+  const base = gameState.dilemmaBaseQueue
+    || (gameState.dilemmaQueue || []).filter(d => !d.isCareerDilemma && !d.isGridRenewal);
+  if (!base.length) return;
+  gameState.dilemmaQueue = withRenewalDilemmas([...base]);
 }
 
 function createGridRenewalDilemma(pendingRenewals) {
@@ -8775,6 +8795,7 @@ function signProgram(slot, programId, talentId) {
   // Le nouveau programme modifie l'audience : les recettes pub sont réestimées tout de
   // suite (seul l'écart est appliqué), et non au dilemme suivant.
   reevaluateAdRevenue();
+  refreshRenewalDilemmas();
   refreshEconomy(); render(); return true;
 }
 function expireContracts() {
