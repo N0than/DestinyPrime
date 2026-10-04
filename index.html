@@ -1504,7 +1504,8 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .gr-name { font-weight: 800; font-size: 12.5px; line-height: 1.25; color: var(--ink); overflow-wrap: anywhere; }
 .gr-wear { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-top: 2px; }
 .gr-wear-label { font-size: 10px; font-weight: 700; color: var(--gris); }
-.gr-wear .mercato-stars { color: var(--rouge); }
+.gr-wear.is-wear .mercato-stars { color: var(--rouge); }
+.gr-cards.gr-single { grid-template-columns: minmax(0, 1fr); max-width: 300px; }
 @media (min-width: 640px) { .gr-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 #choice-zone > .slide-in-up.consequence-wrap { margin-top: -14px; }
 /* À l'affichage des conséquences, l'en-tête et la carte de résultat ne forment
@@ -7621,23 +7622,16 @@ function render() {
             <h2>${dilemma.titre}</h2>
             <p>${dilemma.desc}</p>
             ${dilemma.isCareerDilemma ? `
-            <div class="career-stats-badges">
-              <span class="pg-pda-badge pg-badge-gold">Notoriété ${dilemma.careerStats.awareness}/100</span>
-              <span class="pg-pda-badge pg-badge-vert">Fidélité ${dilemma.careerStats.loyalty}/100</span>
-              <span class="pg-pda-badge pg-badge-rouge">Usure ${dilemma.careerStats.wear}/100</span>
+            <div class="gr-cards gr-single">${renewalCardHtml(dilemma.careerSlot,
+              gameState.player.contracts[dilemma.careerSlot]?.name || '',
+              !!gameState.player.contracts[dilemma.careerSlot]?.career?.historic, [
+                { label: 'Notoriété', value: dilemma.careerStats.awareness },
+                { label: 'Fidélité', value: dilemma.careerStats.loyalty },
+                { label: 'Usure', value: dilemma.careerStats.wear, wear: true }])}
             </div>` : ''}
             ${dilemma.isGridRenewal ? `
-            <div class="gr-cards">${dilemma.gridPrograms.map(g => {
-              const contract = gameState.player.contracts[g.slot];
-              const art = contract && typeof TvPrograms !== 'undefined' ? TvPrograms.forProgram(contract) : '';
-              const slotMeta = TIME_SLOTS.find(s => s.key === g.slot);
-              return `
-              <div class="gr-card">
-                <span class="gr-art">${art ? `<img src="${art}" alt="" width="320" height="180" decoding="async">` : ''}${g.historic ? '<span class="gr-historic">⭐ Historique</span>' : ''}</span>
-                <span class="gr-slot">${slotMeta ? `${slotMeta.icon} ` : ''}${esc(slotLabelOf(g.slot))}</span>
-                <span class="gr-name">${esc(g.name)}</span>
-                <span class="gr-wear"><span class="gr-wear-label">Usure</span>${mercatoStarsHtml(programWearStars(g.wear), `Usure (${g.wear}/100)`)}</span>
-              </div>`; }).join('')}
+            <div class="gr-cards">${dilemma.gridPrograms.map(g => renewalCardHtml(g.slot, g.name, g.historic,
+              [{ label: 'Usure', value: g.wear, wear: true }])).join('')}
             </div>` : ''}
           </div>
         </div>
@@ -8425,9 +8419,23 @@ function generateSeasonKickoffProposal() {
 function programPotentialStars(power) {
   return Math.max(1, Math.min(5, 1 + (Number(power) - 1) / 3.5 * 4));
 }
-// Usure d'un programme en étoiles (1 à 5) : une étoile par tranche de 20 points d'usure.
+// Statistique sur 100 (usure, notoriété, fidélité) en étoiles : une par tranche de 20 points.
 function programWearStars(wear) {
   return Math.max(1, Math.min(5, 1 + Math.floor((Number(wear) || 0) / 20)));
+}
+// Carte illustrée d'un programme à reconduire (reconduction de la grille ou d'un seul
+// programme) : chaque statistique sur 100 est traduite en 1 à 5 étoiles.
+function renewalCardHtml(slot, name, historic, stats) {
+  const contract = gameState.player.contracts[slot];
+  const art = contract && typeof TvPrograms !== 'undefined' ? TvPrograms.forProgram(contract) : '';
+  const slotMeta = TIME_SLOTS.find(s => s.key === slot);
+  return `
+    <div class="gr-card">
+      <span class="gr-art">${art ? `<img src="${art}" alt="" width="320" height="180" decoding="async">` : ''}${historic ? '<span class="gr-historic">⭐ Historique</span>' : ''}</span>
+      <span class="gr-slot">${slotMeta ? `${slotMeta.icon} ` : ''}${esc(slotLabelOf(slot))}</span>
+      <span class="gr-name">${esc(name)}</span>
+      ${stats.map(st => `<span class="gr-wear${st.wear ? ' is-wear' : ''}"><span class="gr-wear-label">${esc(st.label)}</span>${mercatoStarsHtml(programWearStars(st.value), `${st.label} (${st.value}/100)`)}</span>`).join('')}
+    </div>`;
 }
 // Libellé de genre affiché sur les cartes illustrées (conférence de rentrée, choix du programme).
 function programGenreLabel(program) {
