@@ -1635,15 +1635,20 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .mobile-picker-option.selected { background:rgba(37,99,235,0.08); color:var(--bleu); font-weight:800; }
 .mobile-picker-option-check { width:16px; height:16px; flex-shrink:0; color:var(--bleu); opacity:0; }
 .mobile-picker-option.selected .mobile-picker-option-check { opacity:1; }
-.mobile-picker-list.cards { display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:8px; padding:10px 10px 16px; align-content:start; }
+.mobile-picker-list.cards { display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); grid-auto-rows:max-content; gap:8px; padding:10px 10px 16px; align-content:start; }
 .mobile-picker-card {
-  display:flex; flex-direction:column; align-items:stretch; gap:6px; min-width:0; text-align:left;
-  padding:10px 10px 11px; border:1.5px solid var(--paper-dark); background:var(--paper-card); border-radius:14px;
+  display:flex; flex-direction:column; align-items:stretch; gap:6px; min-width:0; text-align:left; overflow:hidden;
+  padding:0 0 11px; border:1.5px solid var(--paper-dark); background:var(--paper-card); border-radius:14px;
   font-family:'Plus Jakarta Sans',sans-serif; color:var(--ink); cursor:pointer; transition:border-color .15s, background .15s;
 }
 .mobile-picker-card:active { background:var(--paper-dark); }
 .mobile-picker-card.selected { border-color:var(--bleu); background:rgba(37,99,235,0.06); }
-.mobile-picker-card .mpc-head { display:flex; align-items:center; justify-content:space-between; gap:6px; min-height:16px; }
+.mobile-picker-card .mpc-art { display:block; position:relative; aspect-ratio:16 / 9; margin-bottom:2px; background:linear-gradient(160deg, rgba(37,99,235,0.10), rgba(225,29,72,0.08)); }
+.mobile-picker-card .mpc-art img { position:absolute; inset:0; width:100%; height:100%; display:block; object-fit:cover; }
+.mobile-picker-card .mpc-art .mobile-picker-option-check { position:absolute; top:6px; right:6px; width:20px; height:20px; padding:3px; box-sizing:border-box; border-radius:50%; color:#fff; background:var(--bleu); box-shadow:0 2px 6px rgba(0,0,0,.25); }
+.mobile-picker-card > * { flex-shrink:0; }
+.mobile-picker-card .mpc-head, .mobile-picker-card .mpc-name, .mobile-picker-card .mpc-badges { margin:0 10px; }
+.mobile-picker-card .mpc-head { display:flex; align-items:center; gap:6px; }
 .mobile-picker-card .mpc-format { font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:9px; letter-spacing:.5px; text-transform:uppercase; color:var(--gris); }
 .mobile-picker-card .mpc-name { font-weight:800; font-size:12.5px; line-height:1.25; overflow-wrap:anywhere; }
 .mobile-picker-card.selected .mpc-name { color:var(--bleu); }
@@ -8379,6 +8384,12 @@ function generateSeasonKickoffProposal() {
   }
   return null;
 }
+// Libellé de genre affiché sur les cartes illustrées (conférence de rentrée, choix du programme).
+function programGenreLabel(program) {
+  const tvp = typeof TvPrograms !== 'undefined' ? TvPrograms : null;
+  const family = tvp ? tvp.classify(program).genre : 'generique';
+  return family !== 'generique' ? tvp.GENRES[family].label : (GENRE_LABELS[program.editorial?.genre] || 'Programme');
+}
 function renderSeasonKickoff(app) {
   const p = gameState.player;
   const proposal = gameState.seasonKickoffProposal;
@@ -8392,10 +8403,7 @@ function renderSeasonKickoff(app) {
     return `<span class="mercato-stars" role="img" aria-label="${esc(label)} : ${n} sur 5">${'★'.repeat(n)}<span class="off">${'★'.repeat(5 - n)}</span></span>`;
   };
   const tvp = typeof TvPrograms !== 'undefined' ? TvPrograms : null;
-  const genreLabel = program => {
-    const family = tvp ? tvp.classify(program).genre : 'generique';
-    return family !== 'generique' ? tvp.GENRES[family].label : (GENRE_LABELS[program.editorial?.genre] || 'Programme');
-  };
+  const genreLabel = programGenreLabel;
   // Programme actuellement à l'antenne, illustré dans le même style que les cartes.
   const currentArt = tvp ? tvp.forProgram({ id: `${p.type}:${proposal.slot}:${currentLabel}`, name: currentLabel, channelType: p.type, slot: proposal.slot }) : '';
   // Deux nouveautés d'un même genre ne doivent pas afficher le même pitch.
@@ -9768,8 +9776,11 @@ function openMobilePicker(select, trigger, title) {
     btn.type='button';
     btn.className=(cards?'mobile-picker-card':'mobile-picker-option')+(opt.value===select.value?' selected':'');
     const d=cards&&opt.dataset.card?JSON.parse(opt.dataset.card):null;
+    const program=d?PROGRAM_CATALOG.find(x=>x.id===opt.value):null;
+    const art=program&&typeof TvPrograms!=='undefined'?TvPrograms.forProgram(program):'';
     btn.innerHTML=d
-      ? `<span class="mpc-head"><span class="mpc-format">${esc(d.format.charAt(0).toUpperCase()+d.format.slice(1))}</span>${check}</span>
+      ? `<span class="mpc-art">${art?`<img src="${art}" alt="" width="320" height="180" decoding="async">`:''}${check}</span>
+        <span class="mpc-head"><span class="mpc-format">${esc(program?programGenreLabel(program):d.format)}</span></span>
         <span class="mpc-name">${esc(d.name)}</span>
         <span class="mpc-badges">
           <span class="pg-pda-badge pg-badge-bleu">${nf1(d.annual)} M€/an</span>
