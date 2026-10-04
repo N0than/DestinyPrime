@@ -54,7 +54,23 @@ const oneSeason=availablePrograms('generaliste','matin').find(x=>x.years===1);as
 assert(gameState.dilemmaQueue.at(-1).isCareerDilemma&&gameState.dilemmaQueue.at(-1).careerSlot==='matin'&&gameState.dilemmaQueue.length===baseLen,'one-season program renewal offered');
 const twoSeasons=availablePrograms('generaliste','matin').find(x=>x.years>=2);assert(signProgram('matin',twoSeasons.id,'interne'),'replace program');
 assert(!gameState.dilemmaQueue.some(d=>d.isCareerDilemma||d.isGridRenewal)&&gameState.dilemmaQueue.length===baseLen,'replaced program renewal removed');
-console.log('OK lead-in, competitors, careers, interaction, revenue'+(typeof persistGameState==='function'?', persistence':''));
+// Talents en fin de contrat : un arbitrage de fin de saison propose de les prolonger ou de les laisser partir.
+const mkTalent=(src,slot,annual)=>({id:src.id,name:src.name,specialty:src.specialty,role:src.role,affinities:src.affinities,annual,bonus:.6,until:gameState.season,since:gameState.season-1,slot});
+const [ta,tb,tc]=MERCATO_TALENTS;gameState.player.talents=[mkTalent(ta,0,2),mkTalent(tb,1,1.5),mkTalent(tc,2,1)];
+gameState.dilemmaQueue=pickDilemmaQueue();const td=gameState.dilemmaQueue.at(-1);
+assert(td.isTalentRenewal&&td.talentIds.length===3&&td.c.length===2,'talent renewal dilemma offered');
+assert(!quoteTalentExtension(gameState.player.talents[0]).allowed,'panel extension waits for the season-end decision');
+td.picks={[ta.id]:0,[tb.id]:1,[tc.id]:2};const tChoice=buildTalentRenewalChoice(td,td.c[1]);
+tChoice.talentPicks.forEach(x=>applyTalentRenewalAction(x.id,x.action));
+const [xa,xb,xc]=gameState.player.talents;
+assert(xa.until===gameState.season+GAME_BALANCE.mercato.duration&&xa.nextAnnual===2.2,'talent extended');
+assert(xb.until===gameState.season+1&&xb.nextAnnual===1.8,'talent extended one season');
+assert(xc.leaving&&!pendingTalentRenewals().length,'talent leaves');
+gameState.player.coutGrilleEngageSaison=10;gameState.season++;expireTalents();
+assert(gameState.player.talents.length===2&&!gameState.player.talents.some(t=>t.id===tc.id)&&xa.annual===2.2&&Math.abs(gameState.player.coutGrilleEngageSaison-9.5)<1e-9,'season rollover applies talent decisions');
+gameState.season--;
+const solo=createTalentRenewalDilemma([mkTalent(ta,0,2)]);assert(solo.c.length===3&&solo.c[2].talentAction==='leave','single talent renewal options');
+console.log('OK lead-in, competitors, careers, interaction, revenue, talents'+(typeof persistGameState==='function'?', persistence':''));
 
 `;
 const source = scripts.slice(0, -1).join('\n') + '\n' + tests;

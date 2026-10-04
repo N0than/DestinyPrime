@@ -1539,6 +1539,10 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .gr-name-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 4px 10px 0; }
 .gr-name-row .gr-name { margin: 0; min-width: 0; }
 .gr-track .gr-slot-badge { padding: 2px 7px; font-size: 9px; }
+.gr-sub { margin: -2px 10px 2px; font-size: 10.5px; line-height: 1.3; color: var(--gris); }
+.gr-art-talent { background: radial-gradient(circle at 50% 60%, rgba(255,255,255,0.9), rgba(37,99,235,0.14) 70%), linear-gradient(160deg, rgba(37,99,235,0.12), rgba(225,29,72,0.10)); }
+.gr-art.gr-art-talent img { inset: 12% auto auto 50%; width: auto; height: 76%; aspect-ratio: 1; transform: translateX(-50%); object-fit: contain;
+  border-radius: 50%; background: #fff; box-shadow: 0 6px 18px rgba(15,23,42,0.14); }
 .gr-slot-badge { flex-shrink: 0; padding: 3px 9px; border-radius: 999px; font-family: 'Space Grotesk', sans-serif; font-size: 10px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase; color: var(--ink); background: var(--paper-dark); white-space: nowrap; }
 .gr-single .gr-name { font-size: 15px; }
 /* Nom du programme entre guillemets : passe à la ligne d'un bloc s'il ne tient pas sur la ligne du titre. */
@@ -2196,8 +2200,9 @@ function quoteTalentExtension(t) {
   const seasons = GAME_BALANCE.mercato.duration;
   const remaining = t.until - gameState.season + 1;
   const newAnnual = Math.round(t.annual * (1 + TALENT_EXTENSION_RAISE) * 10) / 10;
-  const lastSeason = remaining <= 1 && t.nextAnnual == null;
-  return { seasons, newUntil: t.until + seasons, newAnnual, lastSeason, allowed: lastSeason && gameState.step === 6 };
+  const lastSeason = remaining <= 1 && t.nextAnnual == null && !t.leaving;
+  const scheduled = lastSeason && talentRenewalScheduled(t);
+  return { seasons, newUntil: t.until + seasons, newAnnual, lastSeason, scheduled, allowed: lastSeason && !scheduled && gameState.step === 6 };
 }
 
 function extendTalent(talentId) {
@@ -2264,6 +2269,8 @@ function renderTalentsSlide() {
     const flipped = gameState.talentFlipped === t.id;
     const ext = quoteTalentExtension(t);
     const extNote = !inSeason ? 'Actions possibles pendant la saison'
+      : t.leaving ? 'Départ prévu en fin de saison'
+      : ext.scheduled ? 'Prolongation décidée en fin de saison'
       : t.nextAnnual != null ? `Déjà prolongé · ${nf1(t.nextAnnual)} M€/saison dès la saison ${t.nextAnnualFrom}`
       : !ext.lastSeason ? 'Prolongation possible lors de la dernière saison du contrat' : '';
     return `
@@ -6070,13 +6077,16 @@ function withRenewalDilemmas(queue) {
     .filter(pending => createCareerRenewalDilemma(pending));
   if (pendingRenewals.length >= 2) {
     queue[queue.length - 1] = createGridRenewalDilemma(pendingRenewals);
-    return queue;
+  } else {
+    pendingRenewals.forEach((pending, i) => {
+      const careerDilemma = createCareerRenewalDilemma(pending);
+      if (i === 0) queue[queue.length - 1] = careerDilemma;
+      else queue.push(careerDilemma);
+    });
   }
-  pendingRenewals.forEach((pending, i) => {
-    const careerDilemma = createCareerRenewalDilemma(pending);
-    if (i === 0) queue[queue.length - 1] = careerDilemma;
-    else queue.push(careerDilemma);
-  });
+  // Les talents en fin de contrat ferment la saison : un arbitrage de plus, après la grille.
+  const talentDilemma = createTalentRenewalDilemma(pendingTalentRenewals());
+  if (talentDilemma) queue.push(talentDilemma);
   return queue;
 }
 
@@ -6087,7 +6097,7 @@ function withRenewalDilemmas(queue) {
 function refreshRenewalDilemmas() {
   if (gameState.step !== 6 || gameState.currentDilemmaIndex !== 0 || gameState.dilemmaPhase !== 'choosing') return;
   const base = gameState.dilemmaBaseQueue
-    || (gameState.dilemmaQueue || []).filter(d => !d.isCareerDilemma && !d.isGridRenewal);
+    || (gameState.dilemmaQueue || []).filter(d => !d.isCareerDilemma && !d.isGridRenewal && !d.isTalentRenewal);
   if (!base.length) return;
   gameState.dilemmaQueue = withRenewalDilemmas([...base]);
 }
@@ -6130,6 +6140,130 @@ function applyGridRenewalChoice(dilemma, choice) {
   // Arbitrage au cas par cas : les dilemmes de renouvellement s'insèrent juste après.
   const next = pendings.map(pending => createCareerRenewalDilemma(pending)).filter(Boolean);
   gameState.dilemmaQueue.splice(gameState.currentDilemmaIndex + 1, 0, ...next);
+}
+
+// ---------------------------------------------------------------------------
+// TALENTS EN FIN DE CONTRAT — arbitrage de fin de saison, comme les programmes
+// ---------------------------------------------------------------------------
+// Une prolongation courte (une saison) se paie plus cher qu'un nouveau contrat complet.
+const TALENT_SHORT_EXTENSION_RAISE = 0.2;
+// Laisser partir une figure connue déçoit une partie du public.
+const TALENT_LEAVE_POP = { espoir: 0, confirme: -1, vedette: -2 };
+
+function talentTier(t) {
+  return t.tier || MERCATO_TALENTS.find(x => x.id === t.id)?.tier || 'confirme';
+}
+
+// Talents dont le contrat s'achève cette saison et dont l'avenir n'est pas encore décidé.
+function pendingTalentRenewals() {
+  return activePlayerTalents().filter(t => t.until <= gameState.season && t.nextAnnual == null && !t.leaving);
+}
+
+// Avenirs possibles d'un talent : prolongation complète, prolongation d'une saison, départ.
+function talentRenewalOptions(t) {
+  const long = quoteTalentExtension(t);
+  const shortAnnual = Math.round(t.annual * (1 + TALENT_SHORT_EXTENSION_RAISE) * 10) / 10;
+  const seasonsTxt = n => `${n} saison${n > 1 ? 's' : ''}`;
+  return [
+    { action: 'extend', seasons: long.seasons, annual: long.newAnnual, label: `Prolonger ${seasonsTxt(long.seasons)}`,
+      badge: '✔ Prolongé', cost: `${nf1(long.newAnnual)} M€/an`, costCls: 'cost', icon: '✍️' },
+    { action: 'short', seasons: 1, annual: shortAnnual, label: 'Prolonger une saison',
+      badge: '✔ Prolongé 1 saison', cost: `${nf1(shortAnnual)} M€/an`, costCls: 'cost', icon: '📝' },
+    { action: 'leave', label: 'Laisser partir', badge: '✖ Libéré', cost: `−${nf1(t.annual)} M€/an`, costCls: 'save', icon: '👋',
+      pop: TALENT_LEAVE_POP[talentTier(t)] ?? 0 }
+  ];
+}
+
+function talentRenewalResult(t, option) {
+  if (option.action === 'leave') return `${t.name} quittera l’antenne à la fin de la saison : son salaire de ${nf1(t.annual)} M€ disparaît de la saison suivante, son effet sur vos programmes aussi.`;
+  return `${t.name} reste ${option.seasons > 1 ? `${option.seasons} saisons de plus` : 'une saison de plus'}, à ${nf1(option.annual)} M€ par saison dès la saison ${gameState.season + 1}.`;
+}
+
+function createTalentRenewalDilemma(talents) {
+  if (!talents.length) return null;
+  const zeroPda = { j1524: 0, a2549: 0, s50: 0, csp: 0 };
+  const base = { pda: { ...zeroPda }, audienceImpacts: [], finance: { recurring: 0, purchase: 0, commercial: 0, category: 'N' } };
+  const dilemma = {
+    id: `talent-renewal-${gameState.season}-${talents.map(t => t.id).join('-')}`, isTalentRenewal: true,
+    talentIds: talents.map(t => t.id), picks: {}
+  };
+  if (talents.length === 1) {
+    const t = talents[0];
+    return { ...dilemma,
+      titre: `Quel avenir pour « ${t.name} » ?`,
+      desc: `Dernier arbitrage de la saison : le contrat de ${t.name} (${t.role.toLowerCase()}) arrive à son terme. Prolongez son contrat, ou laissez ce talent partir à la fin de la saison.`,
+      c: talentRenewalOptions(t).map(o => ({ ...base, l: o.label, talentAction: o.action, talentId: t.id, icon: o.icon, pop: o.pop || 0,
+        pillLabel: o.action === 'leave' ? `Économie / an : ${nf1(t.annual)} M€` : `Salaire : ${nf1(o.annual)} M€/an`,
+        pillCls: o.costCls, r: talentRenewalResult(t, o) }))
+    };
+  }
+  return { ...dilemma,
+    titre: 'Prolonger vos talents ?',
+    desc: `Dernier arbitrage de la saison : ${talents.length} talents arrivent en fin de contrat. Prolongez-les tous, ou touchez une carte pour décider de l’avenir de chacun.`,
+    c: [
+      { ...base, l: 'Prolonger tous les talents', talentRenewal: 'all', icon: '✍️', pop: 0, pillLabel: `${talents.length} talents prolongés`, pillCls: 'cost',
+        r: 'Toute l’équipe reste à l’antenne, avec des salaires revalorisés dès la saison prochaine.' },
+      { ...base, l: 'Valider mes choix', talentRenewal: 'custom', icon: '🗂️', pop: 0, pillLabel: `${talents.length} talents prolongés`, pillCls: 'cost',
+        r: 'Chaque talent suit l’avenir choisi sur sa carte.' }
+    ]
+  };
+}
+
+// Talents encore concernés par l'arbitrage (un talent licencié entre-temps en sort),
+// avec le choix retenu : celui de sa carte, sinon la prolongation complète.
+function talentRenewalItems(dilemma) {
+  const live = new Set(pendingTalentRenewals().map(t => t.id));
+  return (dilemma.talentIds || []).filter(id => live.has(id)).map(id => {
+    const t = activePlayerTalents().find(x => x.id === id);
+    const options = talentRenewalOptions(t);
+    const pick = dilemma.picks?.[id];
+    const index = Number.isInteger(pick) && options[pick] ? pick : 0;
+    return { id, t, options, index, option: options[index], explicit: Number.isInteger(pick) };
+  });
+}
+
+function talentRenewalSummary(dilemma, all = false) {
+  const counts = {};
+  talentRenewalItems(dilemma).forEach(item => {
+    const key = !all && item.option.action === 'leave' ? 'libéré' : 'prolongé';
+    counts[key] = (counts[key] || 0) + 1;
+  });
+  return Object.entries(counts).map(([k, n]) => `${n} ${k}${n > 1 ? 's' : ''}`).join(' · ');
+}
+
+// Choix composite (« tous » ou « mes choix ») : effets cumulés de chaque carte.
+function buildTalentRenewalChoice(dilemma, base) {
+  const items = talentRenewalItems(dilemma).map(item => base.talentRenewal === 'all' ? { ...item, option: item.options[0] } : item);
+  const stay = items.filter(i => i.option.action !== 'leave');
+  const leave = items.filter(i => i.option.action === 'leave');
+  const parts = [];
+  if (stay.length) parts.push(`Prolongés : ${stay.map(i => `${i.t.name} (${i.option.seasons} saison${i.option.seasons > 1 ? 's' : ''})`).join(', ')}.`);
+  if (leave.length) parts.push(`Départ en fin de saison : ${leave.map(i => i.t.name).join(', ')}.`);
+  return { ...base, pop: leave.reduce((sum, i) => sum + (i.option.pop || 0), 0),
+    talentPicks: items.map(i => ({ id: i.id, action: i.option.action })), r: parts.join(' ') || base.r };
+}
+
+function applyTalentRenewalAction(talentId, action) {
+  const t = pendingTalentRenewals().find(x => x.id === talentId);
+  const option = t && talentRenewalOptions(t).find(o => o.action === action);
+  if (!option) return false;
+  if (action === 'leave') {
+    // Le talent termine la saison ; expireTalents le retire (et son salaire) à l'ouverture de la suivante.
+    t.leaving = true;
+    return true;
+  }
+  t.since = talentSince(t);
+  t.until = gameState.season + option.seasons;
+  // Aucun flux immédiat : la saison en cours reste au salaire actuel.
+  t.nextAnnual = option.annual;
+  t.nextAnnualFrom = gameState.season + 1;
+  return true;
+}
+
+// Un talent dont l'arbitrage de fin de contrat est encore à venir dans la saison.
+function talentRenewalScheduled(t) {
+  const queue = gameState.step === 6 ? gameState.dilemmaQueue || [] : [];
+  return queue.slice(gameState.currentDilemmaIndex).some(d => d.isTalentRenewal && d.talentIds.includes(t.id));
 }
 
 function initCompetitors() {
@@ -6599,8 +6733,9 @@ function chooseDilemmaOption(choiceIndex) {
   if (gameState.step !== 6 || gameState.dilemmaPhase !== 'choosing') return;
   const dilemma = gameState.dilemmaQueue[gameState.currentDilemmaIndex];
   if (!dilemma || !Number.isInteger(choiceIndex) || !dilemma.c[choiceIndex]) return;
-  const choice = dilemma.c[choiceIndex].gridRenewal === 'custom'
-    ? buildGridRenewalCustomChoice(dilemma, dilemma.c[choiceIndex]) : dilemma.c[choiceIndex];
+  const choice = dilemma.c[choiceIndex].gridRenewal === 'custom' ? buildGridRenewalCustomChoice(dilemma, dilemma.c[choiceIndex])
+    : dilemma.c[choiceIndex].talentRenewal ? buildTalentRenewalChoice(dilemma, dilemma.c[choiceIndex])
+    : dilemma.c[choiceIndex];
   ensureCampaign();
   // La grille du joueur se fige au premier dilemme : les intentions concurrentes
   // annoncées deviennent la programmation confirmée de la saison.
@@ -6663,6 +6798,10 @@ function chooseDilemmaOption(choiceIndex) {
     applyCareerDilemmaChoice(dilemma, choice);
   } else if (choice.gridRenewal) {
     applyGridRenewalChoice(dilemma, choice);
+  } else if (choice.talentPicks) {
+    choice.talentPicks.forEach(pick => applyTalentRenewalAction(pick.id, pick.action));
+  } else if (choice.talentAction) {
+    applyTalentRenewalAction(choice.talentId, choice.talentAction);
   } else if (choice.grille) {
     const slot=choice.grille.slot;
     const annual=Math.max(0,choice.finance.recurring);
@@ -6745,6 +6884,11 @@ function chooseDilemmaOption(choiceIndex) {
   });
 
   gameState.currentDilemmaIndex++;
+  // Un talent licencié entre-temps n'a plus d'avenir à décider : son arbitrage disparaît.
+  while (gameState.dilemmaQueue[gameState.currentDilemmaIndex]?.isTalentRenewal
+    && !talentRenewalItems(gameState.dilemmaQueue[gameState.currentDilemmaIndex]).length) {
+    gameState.dilemmaQueue.splice(gameState.currentDilemmaIndex, 1);
+  }
 
   if (player.tresorerie < TRESORERIE_CRITIQUE) {
     gameState.pendingNextStep = 8;
@@ -7679,8 +7823,10 @@ function render() {
             const accent = i % 2 === 0 ? 'accent' : 'neutral';
             const icon = responseEmoji(dilemma, choice, i);
             const custom = choice.gridRenewal === 'custom' ? buildGridRenewalCustomChoice(dilemma, choice) : null;
-            const badgeCls = (custom || choice).finance.purchase || (custom || choice).finance.recurring > 0 ? 'cost' : 'save';
-            const badgeText = custom ? gridRenewalSummary(dilemma) : financeLabel(choice);
+            const badgeCls = choice.talentRenewal === 'custom' ? talentRenewalPillCls(dilemma) : choice.pillCls
+              || ((custom || choice).finance.purchase || (custom || choice).finance.recurring > 0 ? 'cost' : 'save');
+            const badgeText = custom ? gridRenewalSummary(dilemma)
+              : choice.talentRenewal ? talentRenewalSummary(dilemma, choice.talentRenewal === 'all') : financeLabel(choice);
             return `
             <button class="choice" data-idx="${i}">
               <div class="choice-row">
@@ -7710,7 +7856,7 @@ function render() {
             <span class="dc-season-pill">${seasonPillLabel()}</span>
           </div>
           <div class="dc-body">
-            <h2>${dilemma.isCareerDilemma ? dilemma.titre.replace(/« [^»]*»(?: \?)?/, m => `<span class="dc-title-keep">${m}</span>`) : dilemma.titre}</h2>
+            <h2>${dilemma.isCareerDilemma || dilemma.isTalentRenewal ? dilemma.titre.replace(/« [^»]*»(?: \?)?/, m => `<span class="dc-title-keep">${m}</span>`) : dilemma.titre}</h2>
             <p>${dilemma.desc}</p>
             ${dilemma.isCareerDilemma ? `
             <div class="gr-cards gr-single" data-gr-cards="single">${renewalCardHtml(dilemma.careerSlot,
@@ -7736,6 +7882,24 @@ function render() {
               <button type="button" class="gr-nav next" data-gr-nav="1" aria-label="Programme suivant">›</button>
               <div class="gr-dots" role="tablist">${dilemma.gridPrograms.map((g, i) => `<button type="button" class="gr-dot${i === 0 ? ' active' : ''}" data-gr-dot="${i}" aria-label="${esc(g.name)}"></button>`).join('')}</div>
             </div>` : ''}
+            ${dilemma.isTalentRenewal ? (() => {
+              // Après le choix, les talents ne sont plus « en attente » : on garde leurs cartes à l'écran.
+              const items = phase === 'choosing' ? talentRenewalItems(dilemma)
+                : (dilemma.talentIds || []).map(id => (gameState.player.talents || []).find(t => t.id === id)).filter(Boolean).map(t => {
+                  const options = talentRenewalOptions(t), pick = dilemma.picks?.[t.id];
+                  return { id: t.id, t, options, index: Number.isInteger(pick) ? pick : 0, explicit: Number.isInteger(pick) };
+                });
+              if (dilemma.c.some(c => c.talentAction)) return items.length
+                ? `<div class="gr-cards gr-single" data-gr-cards="single">${talentRenewalCardHtml(items[0].t, { readonly: true, single: true })}</div>` : '';
+              return `
+            <div class="gr-carousel" data-gr-carousel>
+              <div class="gr-cards gr-track" data-gr-cards="grid" aria-label="Talents en fin de contrat">${items.map(item =>
+                talentRenewalCardHtml(item.t, { choices: talentChoiceCards(item), picked: item.explicit ? item.index : null, readonly: phase !== 'choosing' })).join('')}
+              </div>
+              <button type="button" class="gr-nav prev" data-gr-nav="-1" aria-label="Talent précédent">‹</button>
+              <button type="button" class="gr-nav next" data-gr-nav="1" aria-label="Talent suivant">›</button>
+              <div class="gr-dots" role="tablist">${items.map((item, i) => `<button type="button" class="gr-dot${i === 0 ? ' active' : ''}" data-gr-dot="${i}" aria-label="${esc(item.t.name)}"></button>`).join('')}</div>
+            </div>`; })() : ''}
           </div>
         </div>
         <div id="choice-zone">${zoneHtml}</div>
@@ -7744,7 +7908,7 @@ function render() {
 
     bindTickerInteractions(app);
     bindRenewalCarousel(app);
-    if (phase === 'choosing' && dilemma.isGridRenewal) bindRenewalCards(app, dilemma);
+    if (phase === 'choosing' && (dilemma.isGridRenewal || dilemma.isTalentRenewal)) bindRenewalCards(app, dilemma);
     if (phase === 'choosing') {
       app.querySelectorAll('.choice').forEach(btn => {
         btn.onclick = () => {
@@ -8137,6 +8301,7 @@ const RESPONSE_EMOJI_RULES = [
 ];
 function responseEmoji(dilemma, choice, index) {
   if(choice.emoji) return choice.emoji;
+  if(choice.icon) return choice.icon;
   const override=RESPONSE_EMOJI_OVERRIDES[dilemma.id]?.[index];
   if(override) return override;
   const normalize=text=>String(text||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
@@ -8537,23 +8702,43 @@ function renewalCardHtml(slot, name, historic, stats, opts = {}) {
   const contract = gameState.player.contracts[slot];
   const art = contract && typeof TvPrograms !== 'undefined' ? TvPrograms.forProgram(contract) : '';
   const slotMeta = TIME_SLOTS.find(s => s.key === slot);
-  const choices = opts.choices || [];
-  const flippable = choices.length > 0 && !opts.readonly;
-  const picked = Number.isInteger(opts.picked) ? choices[opts.picked] : null;
-  const slotHtml = `<span class="gr-slot">${slotMeta ? `${slotMeta.icon} ` : ''}${esc(slotLabelOf(slot))}</span>`;
+  return flipCardHtml({ ...opts, key: slot, name, stats,
+    artHtml: art ? `<img src="${art}" alt="" width="320" height="180" decoding="async">` : '',
+    ribbon: historic ? '⭐ Historique' : '',
+    badge: `${slotMeta ? `${slotMeta.icon} ` : ''}${slotLabelOf(slot)}` });
+}
+
+// Carte d'un talent en fin de contrat : portrait, genre et critères du panneau Talents.
+function talentRenewalCardHtml(t, opts = {}) {
+  const genre = GENRE_LABELS[t.specialty] || t.specialty;
+  const stats = talentCoreCriteria(t, slotsMatchingGenre(gameState.player, t.specialty))
+    .map(c => ({ label: opts.single ? c.label : c.short, title: c.label, stars: c.value }));
+  return flipCardHtml({ ...opts, key: t.id, name: t.name, stats, artCls: 'gr-art-talent',
+    artHtml: `<img src="${MERCATO_AVATARS[t.id] || ''}" alt="" width="64" height="64" decoding="async">`,
+    ribbon: TALENT_TIERS[talentTier(t)]?.label || '', badge: genre, sub: t.role });
+}
+
+// Carte retournable (programme ou talent) : recto illustré, choix d'avenir au verso.
+function flipCardHtml(o) {
+  const choices = o.choices || [];
+  const flippable = choices.length > 0 && !o.readonly;
+  const picked = Number.isInteger(o.picked) ? choices[o.picked] : null;
+  const starsOf = st => st.stars ?? programWearStars(st.value);
+  const starsTitle = st => st.stars != null ? (st.title || st.label) : `${st.label} (${st.value}/100)`;
   return `
-    <div class="gr-card${flippable ? ' flippable' : ''}${picked ? ' picked' : ''}" data-gr-slot="${esc(slot)}">
+    <div class="gr-card${flippable ? ' flippable' : ''}${picked ? ' picked' : ''}" data-gr-slot="${esc(o.key)}">
      <div class="gr-flip">
-      <div class="gr-face gr-front"${flippable ? ` role="button" tabindex="0" aria-label="${esc(name)} : choisir son avenir"` : ''}>
-        <span class="gr-art">${art ? `<img src="${art}" alt="" width="320" height="180" decoding="async">` : ''}${historic ? '<span class="gr-historic">⭐ Historique</span>' : ''}${flippable ? '<span class="gr-flip-hint" aria-hidden="true">↻</span>' : ''}</span>
-        <span class="gr-name-row"><span class="gr-name">${esc(name)}</span>${slotMeta ? `<span class="gr-slot-badge">${slotMeta.icon} ${esc(slotLabelOf(slot))}</span>` : ''}</span>
-        ${opts.single ? `<span class="gr-stats">${stats.map(st => `<span class="gr-stat${st.wear ? ' is-wear' : ''}"><span class="gr-wear-label">${esc(st.label)}</span>${mercatoStarsHtml(programWearStars(st.value), `${st.label} (${st.value}/100)`)}</span>`).join('')}</span>`
-          : stats.map(st => `<span class="gr-wear${st.wear ? ' is-wear' : ''}"><span class="gr-wear-label">${esc(st.label)}</span>${mercatoStarsHtml(programWearStars(st.value), `${st.label} (${st.value}/100)`)}</span>`).join('')}
+      <div class="gr-face gr-front"${flippable ? ` role="button" tabindex="0" aria-label="${esc(o.name)} : choisir son avenir"` : ''}>
+        <span class="gr-art${o.artCls ? ` ${o.artCls}` : ''}">${o.artHtml || ''}${o.ribbon ? `<span class="gr-historic">${esc(o.ribbon)}</span>` : ''}${flippable ? '<span class="gr-flip-hint" aria-hidden="true">↻</span>' : ''}</span>
+        <span class="gr-name-row"><span class="gr-name">${esc(o.name)}</span>${o.badge ? `<span class="gr-slot-badge">${esc(o.badge)}</span>` : ''}</span>
+        ${o.sub ? `<span class="gr-sub">${esc(o.sub)}</span>` : ''}
+        ${o.single ? `<span class="gr-stats">${o.stats.map(st => `<span class="gr-stat${st.wear ? ' is-wear' : ''}"><span class="gr-wear-label">${esc(st.label)}</span>${mercatoStarsHtml(starsOf(st), starsTitle(st))}</span>`).join('')}</span>`
+          : o.stats.map(st => `<span class="gr-wear${st.wear ? ' is-wear' : ''}"><span class="gr-wear-label" title="${esc(st.title || st.label)}">${esc(st.label)}</span>${mercatoStarsHtml(starsOf(st), starsTitle(st))}</span>`).join('')}
         ${choices.length ? `<span class="gr-pick ${picked ? picked.action : ''}" data-gr-pick>${picked ? esc(picked.badge) : ''}</span>` : ''}
       </div>
       ${flippable ? `
       <div class="gr-face gr-back" inert>
-        <span class="gr-back-head">${slotHtml}<span class="gr-name">${esc(name)}</span></span>
+        <span class="gr-back-head"><span class="gr-slot">${esc(o.badge || '')}</span><span class="gr-name">${esc(o.name)}</span></span>
         ${choices.map(ch => `<button type="button" class="gr-opt${ch === picked ? ' selected' : ''}" data-gr-choice="${ch.index}">
           <span>${esc(ch.label)}</span><span class="gr-opt-cost ${ch.costCls}">${esc(ch.cost)}</span></button>`).join('')}
         <button type="button" class="gr-back-close" data-gr-close>↺ Retour</button>
@@ -8628,6 +8813,29 @@ function buildGridRenewalCustomChoice(dilemma, base) {
 // Cartes de renouvellement retournables : le dos propose l'avenir du programme. Grille :
 // le choix est mémorisé sur la carte et résumé sur « Valider mes choix » ; programme seul :
 // le choix vaut l'option correspondante du dilemme.
+function talentRenewalPillCls(dilemma) {
+  return talentRenewalItems(dilemma).some(i => i.option.action !== 'leave') ? 'cost' : 'save';
+}
+function talentChoiceCards(item) {
+  return item.options.map((o, index) => ({ index, action: o.action === 'leave' ? 'stop' : 'renew', label: o.label, badge: o.badge, cost: o.cost, costCls: o.costCls }));
+}
+// Cartes d'un arbitrage groupé (grille de programmes ou talents) : choix au dos de
+// chaque carte et résumé de l'option « Valider mes choix ».
+function renewalDeck(dilemma) {
+  if (dilemma.isTalentRenewal) return {
+    cards: key => { const item = talentRenewalItems(dilemma).find(i => i.id === key); return item ? talentChoiceCards(item) : []; },
+    custom: dilemma.c.findIndex(c => c.talentRenewal === 'custom'),
+    summary: () => talentRenewalSummary(dilemma),
+    pillCls: () => talentRenewalPillCls(dilemma)
+  };
+  const custom = dilemma.c.findIndex(c => c.gridRenewal === 'custom');
+  return {
+    cards: key => { const item = gridRenewalItems(dilemma).find(i => i.slot === key); return item ? careerChoiceCards(item.sub) : []; },
+    custom,
+    summary: () => gridRenewalSummary(dilemma),
+    pillCls: () => buildGridRenewalCustomChoice(dilemma, dilemma.c[custom]).finance.purchase > 0 ? 'cost' : 'save'
+  };
+}
 function bindRenewalCards(root, dilemma) {
   const container = root.querySelector('[data-gr-cards="grid"]');
   if (!container) return;
@@ -8649,20 +8857,18 @@ function bindRenewalCards(root, dilemma) {
     card.querySelectorAll('[data-gr-choice]').forEach(btn => btn.onclick = () => {
       const index = Number(btn.dataset.grChoice);
       const slot = card.dataset.grSlot;
+      const deck = renewalDeck(dilemma);
       dilemma.picks = { ...(dilemma.picks || {}), [slot]: index };
-      const item = gridRenewalItems(dilemma).find(i => i.slot === slot);
-      const ui = item && careerChoiceCards(item.sub)[index];
+      const ui = deck.cards(slot)[index];
       card.querySelectorAll('.gr-opt').forEach(o => o.classList.toggle('selected', o === btn));
       const badge = card.querySelector('[data-gr-pick]');
       if (badge && ui) { badge.className = `gr-pick ${ui.action}`; badge.textContent = ui.badge; }
       card.classList.add('picked');
       setFlipped(card, false);
-      const custom = dilemma.c.findIndex(c => c.gridRenewal === 'custom');
-      const pill = root.querySelector(`#choice-zone .choice[data-idx="${custom}"] .choice-pill`);
+      const pill = root.querySelector(`#choice-zone .choice[data-idx="${deck.custom}"] .choice-pill`);
       if (pill) {
-        const preview = buildGridRenewalCustomChoice(dilemma, dilemma.c[custom]);
-        pill.textContent = gridRenewalSummary(dilemma);
-        pill.className = `choice-pill ${preview.finance.purchase > 0 ? 'cost' : 'save'}`;
+        pill.textContent = deck.summary();
+        pill.className = `choice-pill ${deck.pillCls()}`;
       }
     });
   });
