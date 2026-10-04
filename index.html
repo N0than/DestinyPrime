@@ -1635,6 +1635,21 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .mobile-picker-option.selected { background:rgba(37,99,235,0.08); color:var(--bleu); font-weight:800; }
 .mobile-picker-option-check { width:16px; height:16px; flex-shrink:0; color:var(--bleu); opacity:0; }
 .mobile-picker-option.selected .mobile-picker-option-check { opacity:1; }
+.mobile-picker-list.cards { display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:8px; padding:10px 10px 16px; align-content:start; }
+.mobile-picker-card {
+  display:flex; flex-direction:column; align-items:stretch; gap:6px; min-width:0; text-align:left;
+  padding:10px 10px 11px; border:1.5px solid var(--paper-dark); background:var(--paper-card); border-radius:14px;
+  font-family:'Plus Jakarta Sans',sans-serif; color:var(--ink); cursor:pointer; transition:border-color .15s, background .15s;
+}
+.mobile-picker-card:active { background:var(--paper-dark); }
+.mobile-picker-card.selected { border-color:var(--bleu); background:rgba(37,99,235,0.06); }
+.mobile-picker-card .mpc-head { display:flex; align-items:center; justify-content:space-between; gap:6px; min-height:16px; }
+.mobile-picker-card .mpc-format { font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:9px; letter-spacing:.5px; text-transform:uppercase; color:var(--gris); }
+.mobile-picker-card .mpc-name { font-weight:800; font-size:12.5px; line-height:1.25; overflow-wrap:anywhere; }
+.mobile-picker-card.selected .mpc-name { color:var(--bleu); }
+.mobile-picker-card .mpc-badges { display:flex; flex-wrap:wrap; gap:4px; }
+.mobile-picker-card .pg-pda-badge { font-size:9px; padding:3px 6px; }
+.mobile-picker-card.selected .mobile-picker-option-check { opacity:1; }
 body.mobile-picker-lock { overflow:hidden; }
 
 .choice-pill { white-space:normal; max-width:160px; text-align:center; }
@@ -9656,6 +9671,8 @@ function renderProgramManager(slot) {
     return {
       id:x.id,
       label:`${x.name}${holder?` — 🔒 ${holder.competitor.name}, rachat ${nf1(exclusivityFee(x,holder))} M€`:''} — ${nf1(x.annual)} M€/an + ${nf1(x.rights)} M€ droits · potentiel ${nf1(x.power)} · ${x.years} saison(s)`,
+      card:{name:x.name,format:x.format,annual:x.annual,rights:x.rights,power:x.power,years:x.years,
+        holder:holder?.competitor.name||'',fee:holder?exclusivityFee(x,holder):0},
       selected:c?.id===x.id
     };
   });
@@ -9684,7 +9701,7 @@ function renderProgramManager(slot) {
     <div class="program-manager-row" data-program-editor="${slot}">
       <label class="program-manager-field programme">
         <span class="program-manager-field-label">Programme</span>
-        <select id="program-${slot}">${programOpts.map(o=>`<option value="${o.id}" ${o.selected?'selected':''}>${esc(o.label)}</option>`).join('')}</select>
+        <select id="program-${slot}" data-picker-cards>${programOpts.map(o=>`<option value="${o.id}" ${o.selected?'selected':''} data-card="${esc(JSON.stringify(o.card)).replace(/"/g,'&quot;')}">${esc(o.label)}</option>`).join('')}</select>
         <button type="button" class="program-manager-field-trigger" data-picker-trigger="program-${slot}" data-picker-title="Choisir un programme">
           <span class="program-manager-field-trigger-text">${esc(selectedProgram.label)}</span>
           <svg class="pg-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
@@ -9742,12 +9759,26 @@ function openMobilePicker(select, trigger, title) {
   const sheet=ensureMobilePickerSheet();
   sheet.querySelector('.mobile-picker-title').textContent=title||'';
   const list=sheet.querySelector('.mobile-picker-list');
+  const cards=select.hasAttribute('data-picker-cards');
   list.innerHTML='';
+  list.classList.toggle('cards', cards);
+  const check=`<svg class="mobile-picker-option-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
   Array.from(select.options).forEach(opt=>{
     const btn=document.createElement('button');
     btn.type='button';
-    btn.className='mobile-picker-option'+(opt.value===select.value?' selected':'');
-    btn.innerHTML=`<span>${esc(opt.textContent)}</span><svg class="mobile-picker-option-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+    btn.className=(cards?'mobile-picker-card':'mobile-picker-option')+(opt.value===select.value?' selected':'');
+    const d=cards&&opt.dataset.card?JSON.parse(opt.dataset.card):null;
+    btn.innerHTML=d
+      ? `<span class="mpc-head"><span class="mpc-format">${esc(d.format.charAt(0).toUpperCase()+d.format.slice(1))}</span>${check}</span>
+        <span class="mpc-name">${esc(d.name)}</span>
+        <span class="mpc-badges">
+          <span class="pg-pda-badge pg-badge-bleu">${nf1(d.annual)} M€/an</span>
+          ${d.rights>0?`<span class="pg-pda-badge pg-badge-gold">+${nf1(d.rights)} M€ droits</span>`:''}
+          <span class="pg-pda-badge pg-badge-vert">Potentiel ${nf1(d.power)}</span>
+          <span class="pg-pda-badge pg-badge-gris">${d.years} saison${d.years>1?'s':''}</span>
+          ${d.holder?`<span class="pg-pda-badge pg-badge-rouge">🔒 ${esc(d.holder)} · rachat ${nf1(d.fee)} M€</span>`:''}
+        </span>`
+      : `<span>${esc(opt.textContent)}</span>${check}`;
     btn.onclick=()=>{
       select.value=opt.value;
       select.dispatchEvent(new Event('change', {bubbles:true}));
