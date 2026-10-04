@@ -323,8 +323,9 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .eh-slide { flex: 0 0 100%; min-width: 0; }
 .eh-slider-nav { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 10px; }
 .eh-slider-dots { display: flex; gap: 6px; }
-.eh-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(22,19,14,0.22); border: none; padding: 0; cursor: pointer; }
-.eh-dot.active { background: var(--ink); }
+/* Même indicateur que le carrousel des renouvellements : le point actif s'allonge en pilule. */
+.eh-dot { width: 7px; height: 7px; border-radius: 999px; background: var(--border); border: none; padding: 0; cursor: pointer; transition: width .2s, background .2s; }
+.eh-dot.active { width: 18px; background: var(--ink); }
 .eh-slider-nav.nav-locked .eh-dot { opacity: 0.35; pointer-events: none; cursor: default; }
 
 .pg-slide { display: flex; flex-direction: column; height: 100%; overflow: hidden; }
