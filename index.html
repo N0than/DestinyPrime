@@ -1652,6 +1652,8 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .mobile-picker-card .mpc-format { font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:9px; letter-spacing:.5px; text-transform:uppercase; color:var(--gris); }
 .mobile-picker-card .mpc-name { font-weight:800; font-size:12.5px; line-height:1.25; overflow-wrap:anywhere; }
 .mobile-picker-card.selected .mpc-name { color:var(--bleu); }
+.mobile-picker-card .mpc-stars { display:flex; align-items:center; justify-content:space-between; gap:6px; margin-left:10px; margin-right:10px; }
+.mobile-picker-card .mpc-stars-label { font-size:10px; font-weight:700; color:var(--gris); }
 .mobile-picker-card .mpc-pitch { font-size:10px; font-weight:500; line-height:1.35; color:var(--gris); margin-top:-3px; }
 .mobile-picker-card .mpc-badges { display:flex; flex-wrap:wrap; gap:4px; }
 .mobile-picker-card .pg-pda-badge { font-size:9px; padding:3px 6px; max-width:100%; box-sizing:border-box; white-space:normal; line-height:1.3; border-radius:9px; }
@@ -8400,6 +8402,10 @@ function generateSeasonKickoffProposal() {
   }
   return null;
 }
+// Potentiel d'audience en étoiles (1 à 5) : le catalogue va de 0,9 à 4,5.
+function programPotentialStars(power) {
+  return Math.max(1, Math.min(5, 1 + (Number(power) - 1) / 3.5 * 4));
+}
 // Libellé de genre affiché sur les cartes illustrées (conférence de rentrée, choix du programme).
 function programGenreLabel(program) {
   const tvp = typeof TvPrograms !== 'undefined' ? TvPrograms : null;
@@ -8433,7 +8439,7 @@ function renderSeasonKickoff(app) {
         <span class="mercato-name">${esc(program.name)}</span>
         <span class="kickoff-pitch">${esc(pitches[i] || '')}</span>
         <span class="mercato-criteria">
-          <span class="mercato-criterion"><span class="mercato-criterion-label">Potentiel d’audience</span>${stars(1 + (Number(program.power) - 1) / 3.5 * 4, 'Potentiel d’audience')}</span>
+          <span class="mercato-criterion"><span class="mercato-criterion-label">Potentiel d’audience</span>${stars(programPotentialStars(program.power), 'Potentiel d’audience')}</span>
           <span class="mercato-criterion"><span class="mercato-criterion-label">Coût d’acquisition</span><span class="kickoff-value">${nf1(program.rights)} M€</span></span>
           <span class="mercato-criterion"><span class="mercato-criterion-label">Engagement</span><span class="kickoff-value">${program.years} saison${program.years > 1 ? 's' : ''}</span></span>
         </span>
@@ -9979,10 +9985,10 @@ function openMobilePicker(select, trigger, title) {
         <span class="mpc-head"><span class="mpc-format">${esc(program?programGenreLabel(program):d.format)}</span></span>
         <span class="mpc-name">${esc(d.name)}</span>
         ${pitch?`<span class="mpc-pitch">${esc(pitch)}</span>`:''}
+        <span class="mpc-stars"><span class="mpc-stars-label">Potentiel</span>${mercatoStarsHtml(programPotentialStars(d.power), 'Potentiel d’audience')}</span>
         <span class="mpc-badges">
           <span class="pg-pda-badge pg-badge-bleu">${nf1(d.annual)} M€/an</span>
           ${d.rights>0?`<span class="pg-pda-badge pg-badge-gold">+${nf1(d.rights)} M€ droits</span>`:''}
-          <span class="pg-pda-badge pg-badge-vert">Potentiel ${nf1(d.power)}</span>
           <span class="pg-pda-badge pg-badge-gris">${d.years} saison${d.years>1?'s':''}</span>
           ${d.holder?`<span class="pg-pda-badge pg-badge-rouge">🔒 ${esc(d.holder)} · rachat ${nf1(d.fee)} M€</span>`:''}
         </span>`
