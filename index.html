@@ -1533,7 +1533,12 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .gr-wear { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-top: 2px; }
 .gr-wear-label { font-size: 10px; font-weight: 700; color: var(--gris); }
 .gr-wear.is-wear .mercato-stars { color: var(--rouge); }
-.gr-cards.gr-single { grid-template-columns: minmax(0, 1fr); max-width: 300px; }
+.gr-cards.gr-single { grid-template-columns: minmax(0, 1fr); }
+/* Carte seule sur grand écran : illustration à gauche, fiche du programme à droite. */
+@media (min-width: 640px) {
+  .gr-single .gr-front { position: relative; min-height: 190px; justify-content: center; padding: 14px 6px 14px 44%; }
+  .gr-single .gr-art { position: absolute; top: 0; left: 0; bottom: 0; width: 40%; aspect-ratio: auto; margin: 0; }
+}
 .gr-carousel { align-self: stretch; position: relative; min-width: 0; margin-top: 4px; }
 .gr-cards.gr-track { display: flex; gap: 10px; margin: 0; padding: 2px 0 4px; overflow-x: auto; overscroll-behavior-x: contain;
   scroll-snap-type: x mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
@@ -7692,7 +7697,7 @@ function render() {
             <span class="dc-season-pill">${seasonPillLabel()}</span>
           </div>
           <div class="dc-body">
-            <h2>${dilemma.titre}</h2>
+            <h2>${dilemma.isCareerDilemma ? dilemma.titre.replace(/ pour « /, ' pour<br>« ') : dilemma.titre}</h2>
             <p>${dilemma.desc}</p>
             ${dilemma.isCareerDilemma ? `
             <div class="gr-cards gr-single" data-gr-cards="single">${renewalCardHtml(dilemma.careerSlot,
@@ -7701,7 +7706,7 @@ function render() {
                 { label: 'Notoriété', value: dilemma.careerStats.awareness },
                 { label: 'Fidélité', value: dilemma.careerStats.loyalty },
                 { label: 'Usure', value: dilemma.careerStats.wear, wear: true }],
-                { choices: careerChoiceCards(dilemma), readonly: phase !== 'choosing' })}
+                { readonly: true })}
             </div>` : ''}
             ${dilemma.isGridRenewal ? `
             <div class="gr-carousel" data-gr-carousel>
@@ -7726,7 +7731,7 @@ function render() {
 
     bindTickerInteractions(app);
     bindRenewalCarousel(app);
-    if (phase === 'choosing') bindRenewalCards(app, dilemma);
+    if (phase === 'choosing' && dilemma.isGridRenewal) bindRenewalCards(app, dilemma);
     if (phase === 'choosing') {
       app.querySelectorAll('.choice').forEach(btn => {
         btn.onclick = () => {
@@ -8611,9 +8616,8 @@ function buildGridRenewalCustomChoice(dilemma, base) {
 // le choix est mémorisé sur la carte et résumé sur « Valider mes choix » ; programme seul :
 // le choix vaut l'option correspondante du dilemme.
 function bindRenewalCards(root, dilemma) {
-  const container = root.querySelector('[data-gr-cards]');
+  const container = root.querySelector('[data-gr-cards="grid"]');
   if (!container) return;
-  const grid = container.dataset.grCards === 'grid';
   const setFlipped = (card, on) => {
     card.classList.toggle('flipped', on);
     card.querySelector('.gr-front')?.toggleAttribute('inert', on);
@@ -8631,11 +8635,6 @@ function bindRenewalCards(root, dilemma) {
     card.querySelector('[data-gr-close]').onclick = () => { setFlipped(card, false); front.focus({ preventScroll: true }); };
     card.querySelectorAll('[data-gr-choice]').forEach(btn => btn.onclick = () => {
       const index = Number(btn.dataset.grChoice);
-      if (!grid) {
-        const target = root.querySelector(`#choice-zone .choice[data-idx="${index}"]`);
-        if (target) target.click(); else chooseDilemmaOption(index);
-        return;
-      }
       const slot = card.dataset.grSlot;
       dilemma.picks = { ...(dilemma.picks || {}), [slot]: index };
       const item = gridRenewalItems(dilemma).find(i => i.slot === slot);
