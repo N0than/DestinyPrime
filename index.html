@@ -1494,8 +1494,37 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .dilemma-hero .grid-renewal-list { align-self: stretch; text-align: left; }
 /* Reconduction de la grille : un programme par carte illustrée, usure en étoiles. */
 .gr-cards { align-self: stretch; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: max-content; gap: 8px; margin-top: 4px; }
-.gr-card { display: flex; flex-direction: column; gap: 4px; min-width: 0; padding: 0 0 10px; overflow: hidden; border-radius: 14px; background: var(--paper-card); border: 1.5px solid var(--paper-dark); }
-.gr-card > * { flex-shrink: 0; }
+.gr-card { min-width: 0; perspective: 900px; }
+.gr-flip { display: grid; height: 100%; transition: transform .5s cubic-bezier(.2,.7,.2,1); transform-style: preserve-3d; }
+.gr-card.flipped .gr-flip { transform: rotateY(180deg); }
+.gr-face { grid-area: 1 / 1; display: flex; flex-direction: column; gap: 4px; min-width: 0; overflow: hidden; border-radius: 14px;
+  background: var(--paper-card); border: 1.5px solid var(--paper-dark); backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.gr-face > * { flex-shrink: 0; }
+.gr-front { padding: 0 0 10px; }
+.gr-card.flippable .gr-front { cursor: pointer; }
+.gr-card.flippable .gr-front:focus-visible, .gr-opt:focus-visible { outline: 2px solid var(--bleu); outline-offset: 2px; }
+.gr-back { transform: rotateY(180deg); padding: 10px; gap: 6px; }
+.gr-flip-hint { position: absolute; top: 6px; right: 6px; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-size: 12px; color: var(--ink); background: rgba(255,255,255,0.92); box-shadow: 0 1px 4px rgba(0,0,0,.15); }
+.gr-pick { align-self: flex-start; margin: 2px 10px 0; padding: 3px 8px; border-radius: 999px; font-size: 9.5px; font-weight: 800; }
+.gr-pick:empty { display: none; }
+.gr-pick.renew, .gr-pick.consolidate { color: var(--vert); background: rgba(5,150,105,0.12); }
+.gr-pick.modify, .gr-pick.relaunch, .gr-pick.franchise { color: var(--bleu); background: rgba(37,99,235,0.12); }
+.gr-pick.stop { color: var(--rouge); background: rgba(225,29,72,0.12); }
+.gr-card.picked .gr-front { border-color: var(--bleu); }
+.gr-back-head { display: flex; flex-direction: column; gap: 1px; margin-bottom: 2px; }
+.gr-back-head .gr-slot, .gr-back-head .gr-name { margin: 0; }
+.gr-opt { display: flex; align-items: center; justify-content: space-between; gap: 6px; width: 100%; padding: 8px 9px; border: 1.5px solid var(--paper-dark);
+  border-radius: 10px; background: var(--paper-card); font-family: 'Plus Jakarta Sans', sans-serif; font-size: 11px; font-weight: 700; color: var(--ink);
+  text-align: left; cursor: pointer; transition: border-color .15s, background .15s; }
+.gr-opt:active { background: var(--paper-dark); }
+.gr-opt.selected { border-color: var(--bleu); background: rgba(37,99,235,0.06); color: var(--bleu); }
+.gr-opt-cost { flex-shrink: 0; font-size: 9.5px; font-weight: 800; padding: 2px 6px; border-radius: 999px; }
+.gr-opt-cost.free { color: var(--gris); background: rgba(107,114,128,0.12); }
+.gr-opt-cost.cost { color: var(--rouge); background: rgba(225,29,72,0.10); }
+.gr-opt-cost.save { color: var(--vert); background: rgba(5,150,105,0.12); }
+.gr-back-close { align-self: center; margin-top: auto; padding: 4px 10px; border: 0; background: none; font-size: 10.5px; font-weight: 700; color: var(--gris); cursor: pointer; }
+.gr-hint { align-self: stretch; margin: 2px 0 0; font-size: 11px; color: var(--gris); }
 .gr-art { display: block; position: relative; aspect-ratio: 16 / 9; margin-bottom: 4px; background: linear-gradient(160deg, rgba(37,99,235,0.10), rgba(225,29,72,0.08)); }
 .gr-art img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; object-fit: cover; }
 .gr-historic { position: absolute; top: 6px; left: 6px; padding: 2px 7px; border-radius: 999px; font-size: 9px; font-weight: 800; color: var(--gold); background: rgba(255,255,255,0.92); box-shadow: 0 1px 4px rgba(0,0,0,.15); }
@@ -6057,20 +6086,25 @@ function createGridRenewalDilemma(pendingRenewals) {
   return {
     id: `grid-renewal-${gameState.season}`, isGridRenewal: true, gridRenewals: pendingRenewals, gridPrograms: programs,
     titre: 'Reconduire la grille ?',
-    desc: `Dernier arbitrage de la saison : ${programs.length} programmes arrivent à un moment clé. Vous pouvez reconduire toute la grille à l'identique, ou décider de l'avenir de chacun.`,
+    desc: `Dernier arbitrage de la saison : ${programs.length} programmes arrivent à un moment clé. Reconduisez toute la grille à l'identique, ou touchez une carte pour décider de l'avenir de chaque programme.`,
+    picks: {},
     c: [
       { l: 'Renouveler toute la grille à l’identique', gridRenewal: 'all', pillLabel: `${programs.length} programmes reconduits`,
         pda: { ...zeroPda }, audienceImpacts: [], pop: 0, finance: { recurring: 0, purchase: 0, commercial: 0, category: 'N' },
         r: 'La grille est reconduite telle quelle : vos programmes conservent leurs repères et leur public, mais leur usure continue.' },
-      { l: 'Arbitrer programme par programme', gridRenewal: 'each', pillLabel: 'Au cas par cas',
+      { l: 'Valider mes choix', gridRenewal: 'custom', pillLabel: `${programs.length} programmes reconduits`,
         pda: { ...zeroPda }, audienceImpacts: [], pop: 0, finance: { recurring: 0, purchase: 0, commercial: 0, category: 'N' },
-        r: 'Chaque programme passe devant la direction : renouveler, faire évoluer, relancer ou arrêter.' }
+        r: 'Chaque programme suit l’avenir choisi sur sa carte.' }
     ]
   };
 }
 
 function applyGridRenewalChoice(dilemma, choice) {
   const pendings = dilemma.gridRenewals || [];
+  if (choice.gridRenewal === 'custom') {
+    (choice.gridPicks || []).forEach(({ sub, choice: subChoice }) => applyCareerDilemmaChoice(sub, subChoice));
+    return;
+  }
   if (choice.gridRenewal === 'all') {
     pendings.forEach(pending => applyCareerDilemmaChoice(
       { careerSlot: pending.slot, programId: pending.programId }, { careerAction: 'renew' }));
@@ -6548,7 +6582,8 @@ function chooseDilemmaOption(choiceIndex) {
   if (gameState.step !== 6 || gameState.dilemmaPhase !== 'choosing') return;
   const dilemma = gameState.dilemmaQueue[gameState.currentDilemmaIndex];
   if (!dilemma || !Number.isInteger(choiceIndex) || !dilemma.c[choiceIndex]) return;
-  const choice = dilemma.c[choiceIndex];
+  const choice = dilemma.c[choiceIndex].gridRenewal === 'custom'
+    ? buildGridRenewalCustomChoice(dilemma, dilemma.c[choiceIndex]) : dilemma.c[choiceIndex];
   ensureCampaign();
   // La grille du joueur se fige au premier dilemme : les intentions concurrentes
   // annoncées deviennent la programmation confirmée de la saison.
@@ -6558,7 +6593,9 @@ function chooseDilemmaOption(choiceIndex) {
 
   applyDilemmaEditoImpact(dilemma, choiceIndex, choice);
 
-  const decisionQuote = choice.careerAction ? quoteCareerDilemma(choice) : quoteDilemma(choice);
+  const decisionQuote = choice.careerAction ? quoteCareerDilemma(choice)
+    : choice.excludedSlots ? { ...quoteFinance(choice.finance, choice.excludedSlots), finance: { ...choice.finance }, termination: 0, replacedTalent: 0 }
+    : quoteDilemma(choice);
 
   const calculatedAvant = getCalculatedPDAs().find(item => item.channel === player);
   const pdaCibleAvant = calculatedAvant.pda[player.target];
@@ -6580,11 +6617,11 @@ function chooseDilemmaOption(choiceIndex) {
   // un remplacement inclut l'indemnité et retire l'ancien engagement annuel.
   if (choice.grille && !choice.careerAction) delete player.contracts[choice.grille.slot];
   const coutGrilleDelta = applyFinance(decisionQuote.finance,
-    choice.careerAction === 'stop' ? dilemma.careerSlot : null);
+    choice.careerAction === 'stop' ? dilemma.careerSlot : choice.excludedSlots || null);
   // Arrêt / non-renouvellement : l'économie allège le coût de grille (donc la grille à
   // payer à la saison suivante), mais la saison en cours a déjà été réglée — aucun
   // remboursement n'est versé en trésorerie.
-  const economieDifferee = choice.careerAction === 'stop' && coutGrilleDelta < 0;
+  const economieDifferee = (choice.careerAction === 'stop' || choice.excludedSlots?.length > 0) && coutGrilleDelta < 0;
   if (economieDifferee) player.tresorerie += coutGrilleDelta;
   // Les dilemmes de régie publicitaire (d_pub*) créditent l'indicateur Revenus pub plutôt
   // que le compteur générique de recettes commerciales : on annule ici le crédit générique
@@ -7624,8 +7661,9 @@ function render() {
           ${dilemma.c.map((choice, i) => {
             const accent = i % 2 === 0 ? 'accent' : 'neutral';
             const icon = responseEmoji(dilemma, choice, i);
-            const badgeCls = choice.finance.purchase || choice.finance.recurring > 0 ? 'cost' : 'save';
-            const badgeText = financeLabel(choice);
+            const custom = choice.gridRenewal === 'custom' ? buildGridRenewalCustomChoice(dilemma, choice) : null;
+            const badgeCls = (custom || choice).finance.purchase || (custom || choice).finance.recurring > 0 ? 'cost' : 'save';
+            const badgeText = custom ? gridRenewalSummary(dilemma) : financeLabel(choice);
             return `
             <button class="choice" data-idx="${i}">
               <div class="choice-row">
@@ -7658,22 +7696,26 @@ function render() {
             <h2>${dilemma.titre}</h2>
             <p>${dilemma.desc}</p>
             ${dilemma.isCareerDilemma ? `
-            <div class="gr-cards gr-single">${renewalCardHtml(dilemma.careerSlot,
+            <div class="gr-cards gr-single" data-gr-cards="single">${renewalCardHtml(dilemma.careerSlot,
               gameState.player.contracts[dilemma.careerSlot]?.name || '',
               !!gameState.player.contracts[dilemma.careerSlot]?.career?.historic, [
                 { label: 'Notoriété', value: dilemma.careerStats.awareness },
                 { label: 'Fidélité', value: dilemma.careerStats.loyalty },
-                { label: 'Usure', value: dilemma.careerStats.wear, wear: true }])}
-            </div>` : ''}
+                { label: 'Usure', value: dilemma.careerStats.wear, wear: true }],
+                { choices: careerChoiceCards(dilemma), readonly: phase !== 'choosing' })}
+            </div>${phase === 'choosing' ? '<p class="gr-hint">Touchez la carte pour choisir l’avenir du programme.</p>' : ''}` : ''}
             ${dilemma.isGridRenewal ? `
             <div class="gr-carousel" data-gr-carousel>
-              <div class="gr-cards gr-track" aria-label="Programmes à reconduire">${dilemma.gridPrograms.map(g => renewalCardHtml(g.slot, g.name, g.historic,
-                [{ label: 'Usure', value: g.wear, wear: true }])).join('')}
+              <div class="gr-cards gr-track" data-gr-cards="grid" aria-label="Programmes à reconduire">${dilemma.gridPrograms.map(g => {
+                const item = gridRenewalItems(dilemma).find(i => i.slot === g.slot);
+                return renewalCardHtml(g.slot, g.name, g.historic, [{ label: 'Usure', value: g.wear, wear: true }],
+                  { choices: item ? careerChoiceCards(item.sub) : [], picked: item?.explicit ? item.index : null, readonly: phase !== 'choosing' });
+              }).join('')}
               </div>
               <button type="button" class="gr-nav prev" data-gr-nav="-1" aria-label="Programme précédent">‹</button>
               <button type="button" class="gr-nav next" data-gr-nav="1" aria-label="Programme suivant">›</button>
               <div class="gr-dots" role="tablist">${dilemma.gridPrograms.map((g, i) => `<button type="button" class="gr-dot${i === 0 ? ' active' : ''}" data-gr-dot="${i}" aria-label="${esc(g.name)}"></button>`).join('')}</div>
-            </div>` : ''}
+            </div>${phase === 'choosing' ? '<p class="gr-hint">Touchez une carte pour choisir l’avenir du programme. Sans choix, il est reconduit à l’identique.</p>' : ''}` : ''}
           </div>
         </div>
         <div id="choice-zone">${zoneHtml}</div>
@@ -7682,6 +7724,7 @@ function render() {
 
     bindTickerInteractions(app);
     bindRenewalCarousel(app);
+    if (phase === 'choosing') bindRenewalCards(app, dilemma);
     if (phase === 'choosing') {
       app.querySelectorAll('.choice').forEach(btn => {
         btn.onclick = () => {
@@ -8409,7 +8452,8 @@ function validateFinance(f) {
 function quoteFinance(f, excludedSlot=null) {
   validateFinance(f);
   const p=gameState.player;
-  const floor=Object.entries(p.contracts||{}).reduce((sum,[slot,c])=>sum+(slot===excludedSlot?0:c.annual),0);
+  const excluded=[].concat(excludedSlot||[]);
+  const floor=Object.entries(p.contracts||{}).reduce((sum,[slot,c])=>sum+(excluded.includes(slot)?0:c.annual),0);
   const grille=Math.max(floor,p.coutGrilleEngageSaison+f.recurring);
   const recurring=grille-p.coutGrilleEngageSaison;
   return {grille,recurring,immediate:recurring+f.purchase-f.commercial,
@@ -8467,17 +8511,147 @@ function programWearStars(wear) {
 }
 // Carte illustrée d'un programme à reconduire (reconduction de la grille ou d'un seul
 // programme) : chaque statistique sur 100 est traduite en 1 à 5 étoiles.
-function renewalCardHtml(slot, name, historic, stats) {
+// opts.choices : choix proposés au dos de la carte (la carte devient retournable) ;
+// opts.picked : index du choix retenu, affiché en badge sur la face avant.
+function renewalCardHtml(slot, name, historic, stats, opts = {}) {
   const contract = gameState.player.contracts[slot];
   const art = contract && typeof TvPrograms !== 'undefined' ? TvPrograms.forProgram(contract) : '';
   const slotMeta = TIME_SLOTS.find(s => s.key === slot);
+  const choices = opts.choices || [];
+  const flippable = choices.length > 0 && !opts.readonly;
+  const picked = Number.isInteger(opts.picked) ? choices[opts.picked] : null;
+  const slotHtml = `<span class="gr-slot">${slotMeta ? `${slotMeta.icon} ` : ''}${esc(slotLabelOf(slot))}</span>`;
   return `
-    <div class="gr-card">
-      <span class="gr-art">${art ? `<img src="${art}" alt="" width="320" height="180" decoding="async">` : ''}${historic ? '<span class="gr-historic">⭐ Historique</span>' : ''}</span>
-      <span class="gr-slot">${slotMeta ? `${slotMeta.icon} ` : ''}${esc(slotLabelOf(slot))}</span>
-      <span class="gr-name">${esc(name)}</span>
-      ${stats.map(st => `<span class="gr-wear${st.wear ? ' is-wear' : ''}"><span class="gr-wear-label">${esc(st.label)}</span>${mercatoStarsHtml(programWearStars(st.value), `${st.label} (${st.value}/100)`)}</span>`).join('')}
+    <div class="gr-card${flippable ? ' flippable' : ''}${picked ? ' picked' : ''}" data-gr-slot="${esc(slot)}">
+     <div class="gr-flip">
+      <div class="gr-face gr-front"${flippable ? ` role="button" tabindex="0" aria-label="${esc(name)} : choisir son avenir"` : ''}>
+        <span class="gr-art">${art ? `<img src="${art}" alt="" width="320" height="180" decoding="async">` : ''}${historic ? '<span class="gr-historic">⭐ Historique</span>' : ''}${flippable ? '<span class="gr-flip-hint" aria-hidden="true">↻</span>' : ''}</span>
+        ${slotHtml}
+        <span class="gr-name">${esc(name)}</span>
+        ${stats.map(st => `<span class="gr-wear${st.wear ? ' is-wear' : ''}"><span class="gr-wear-label">${esc(st.label)}</span>${mercatoStarsHtml(programWearStars(st.value), `${st.label} (${st.value}/100)`)}</span>`).join('')}
+        ${choices.length ? `<span class="gr-pick ${picked ? picked.action : ''}" data-gr-pick>${picked ? esc(picked.badge) : ''}</span>` : ''}
+      </div>
+      ${flippable ? `
+      <div class="gr-face gr-back" inert>
+        <span class="gr-back-head">${slotHtml}<span class="gr-name">${esc(name)}</span></span>
+        ${choices.map(ch => `<button type="button" class="gr-opt${ch === picked ? ' selected' : ''}" data-gr-choice="${ch.index}">
+          <span>${esc(ch.label)}</span><span class="gr-opt-cost ${ch.costCls}">${esc(ch.cost)}</span></button>`).join('')}
+        <button type="button" class="gr-back-close" data-gr-close>↺ Retour</button>
+      </div>` : ''}
+     </div>
     </div>`;
+}
+
+// Choix d'avenir d'un programme, présentés au dos de sa carte (libellé court, coût, badge).
+const CAREER_ACTION_UI = {
+  renew: { label: 'Renouveler', badge: '✔ Renouvelé' },
+  modify: { label: 'Modifier la formule', badge: '✎ Formule modifiée' },
+  relaunch: { label: 'Relancer totalement', badge: '↻ Relancé' },
+  stop: { label: 'Arrêter', badge: '✖ Arrêté' },
+  consolidate: { label: 'Consolider', badge: '✔ Consolidé' },
+  franchise: { label: 'Développer la franchise', badge: '★ Franchise' }
+};
+function careerChoiceCards(dilemma) {
+  return (dilemma?.c || []).map((choice, index) => {
+    const ui = CAREER_ACTION_UI[choice.careerAction] || { label: choice.l.replace(/\s*\([^)]*M€\)\s*$/, ''), badge: '✔ Choisi' };
+    const f = choice.finance || { recurring: 0, purchase: 0 };
+    const cost = f.purchase > 0 ? `${nf1(f.purchase)} M€` : f.recurring < 0 ? `−${nf1(-f.recurring)} M€/an` : f.recurring > 0 ? `+${nf1(f.recurring)} M€/an` : 'Sans frais';
+    const costCls = f.purchase > 0 || f.recurring > 0 ? 'cost' : f.recurring < 0 ? 'save' : 'free';
+    return { index, action: choice.careerAction, label: ui.label, badge: ui.badge, cost, costCls };
+  });
+}
+// Arbitrage de la grille sur les cartes : choix par défaut (renouvellement) et choix retenus.
+function gridRenewalItems(dilemma) {
+  return (dilemma.gridRenewals || []).map(pending => {
+    const sub = createCareerRenewalDilemma(pending);
+    if (!sub) return null;
+    const fallback = Math.max(0, sub.c.findIndex(c => c.careerAction === 'renew') >= 0
+      ? sub.c.findIndex(c => c.careerAction === 'renew') : sub.c.findIndex(c => c.careerAction === 'consolidate'));
+    const pick = dilemma.picks?.[pending.slot];
+    const index = Number.isInteger(pick) && sub.c[pick] ? pick : fallback;
+    return { slot: pending.slot, sub, index, choice: sub.c[index], explicit: Number.isInteger(pick) };
+  }).filter(Boolean);
+}
+function gridRenewalSummary(dilemma) {
+  const counts = {};
+  gridRenewalItems(dilemma).forEach(item => {
+    const key = item.choice.careerAction === 'stop' ? 'arrêté' : ['renew', 'consolidate'].includes(item.choice.careerAction) ? 'reconduit' : 'retravaillé';
+    counts[key] = (counts[key] || 0) + 1;
+  });
+  return Object.entries(counts).map(([k, n]) => `${n} ${k}${n > 1 ? 's' : ''}`).join(' · ');
+}
+// Choix composite « Valider mes choix » : les décisions de chaque carte avec leurs effets
+// réels (coûts, économies, audience, popularité), comme si chaque programme avait été
+// arbitré par son propre dilemme.
+function buildGridRenewalCustomChoice(dilemma, base) {
+  const items = gridRenewalItems(dilemma);
+  const finance = { recurring: 0, purchase: 0, commercial: 0, category: 'N' };
+  let pop = 0;
+  const audienceImpacts = [];
+  items.forEach(({ sub, choice }) => {
+    finance.recurring += choice.finance?.recurring || 0;
+    finance.purchase += choice.finance?.purchase || 0;
+    finance.commercial += choice.finance?.commercial || 0;
+    pop += choice.pop || 0;
+    resolveDilemmaAudienceImpacts(sub, choice).forEach(({ explicit, ...impact }) => audienceImpacts.push(impact));
+  });
+  if (finance.purchase > 0) finance.category = 'P'; else if (finance.recurring < 0) finance.category = 'E';
+  const groups = {};
+  items.forEach(({ sub, choice }) => {
+    const label = (CAREER_ACTION_UI[choice.careerAction]?.badge || '✔').replace(/^\S+\s/, '');
+    (groups[label] ||= []).push(gameState.player.contracts[sub.careerSlot]?.name || '');
+  });
+  return { ...base, finance, pop, audienceImpacts, gridPicks: items,
+    excludedSlots: items.filter(i => i.choice.careerAction === 'stop').map(i => i.slot),
+    r: Object.entries(groups).map(([label, names]) => `${label} : ${names.join(', ')}`).join('. ') + '.' };
+}
+// Cartes de renouvellement retournables : le dos propose l'avenir du programme. Grille :
+// le choix est mémorisé sur la carte et résumé sur « Valider mes choix » ; programme seul :
+// le choix vaut l'option correspondante du dilemme.
+function bindRenewalCards(root, dilemma) {
+  const container = root.querySelector('[data-gr-cards]');
+  if (!container) return;
+  const grid = container.dataset.grCards === 'grid';
+  const setFlipped = (card, on) => {
+    card.classList.toggle('flipped', on);
+    card.querySelector('.gr-front')?.toggleAttribute('inert', on);
+    card.querySelector('.gr-back')?.toggleAttribute('inert', !on);
+  };
+  container.querySelectorAll('.gr-card.flippable').forEach(card => {
+    const front = card.querySelector('.gr-front');
+    const open = () => {
+      container.querySelectorAll('.gr-card.flipped').forEach(other => { if (other !== card) setFlipped(other, false); });
+      setFlipped(card, true);
+      card.querySelector('.gr-opt.selected, .gr-opt')?.focus({ preventScroll: true });
+    };
+    front.onclick = open;
+    front.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } };
+    card.querySelector('[data-gr-close]').onclick = () => { setFlipped(card, false); front.focus({ preventScroll: true }); };
+    card.querySelectorAll('[data-gr-choice]').forEach(btn => btn.onclick = () => {
+      const index = Number(btn.dataset.grChoice);
+      if (!grid) {
+        const target = root.querySelector(`#choice-zone .choice[data-idx="${index}"]`);
+        if (target) target.click(); else chooseDilemmaOption(index);
+        return;
+      }
+      const slot = card.dataset.grSlot;
+      dilemma.picks = { ...(dilemma.picks || {}), [slot]: index };
+      const item = gridRenewalItems(dilemma).find(i => i.slot === slot);
+      const ui = item && careerChoiceCards(item.sub)[index];
+      card.querySelectorAll('.gr-opt').forEach(o => o.classList.toggle('selected', o === btn));
+      const badge = card.querySelector('[data-gr-pick]');
+      if (badge && ui) { badge.className = `gr-pick ${ui.action}`; badge.textContent = ui.badge; }
+      card.classList.add('picked');
+      setFlipped(card, false);
+      const custom = dilemma.c.findIndex(c => c.gridRenewal === 'custom');
+      const pill = root.querySelector(`#choice-zone .choice[data-idx="${custom}"] .choice-pill`);
+      if (pill) {
+        const preview = buildGridRenewalCustomChoice(dilemma, dilemma.c[custom]);
+        pill.textContent = gridRenewalSummary(dilemma);
+        pill.className = `choice-pill ${preview.finance.purchase > 0 ? 'cost' : 'save'}`;
+      }
+    });
+  });
 }
 // Carrousel des programmes à reconduire : défilement natif avec aimantation,
 // points indicateurs et flèches (visibles sur les écrans à souris).
