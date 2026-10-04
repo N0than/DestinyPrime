@@ -1524,7 +1524,6 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .gr-opt-cost.cost { color: var(--rouge); background: rgba(225,29,72,0.10); }
 .gr-opt-cost.save { color: var(--vert); background: rgba(5,150,105,0.12); }
 .gr-back-close { align-self: center; margin-top: auto; padding: 4px 10px; border: 0; background: none; font-size: 10.5px; font-weight: 700; color: var(--gris); cursor: pointer; }
-.gr-hint { align-self: stretch; margin: 2px 0 0; font-size: 11px; color: var(--gris); }
 .gr-art { display: block; position: relative; aspect-ratio: 16 / 9; margin-bottom: 4px; background: linear-gradient(160deg, rgba(37,99,235,0.10), rgba(225,29,72,0.08)); }
 .gr-art img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; object-fit: cover; }
 .gr-historic { position: absolute; top: 6px; left: 6px; padding: 2px 7px; border-radius: 999px; font-size: 9px; font-weight: 800; color: var(--gold); background: rgba(255,255,255,0.92); box-shadow: 0 1px 4px rgba(0,0,0,.15); }
@@ -6081,7 +6080,7 @@ function createGridRenewalDilemma(pendingRenewals) {
   const programs = pendingRenewals.map(pending => {
     const contract = p.contracts[pending.slot];
     const career = migrateProgramCareer(contract, pending.slot);
-    return { slot: pending.slot, name: contract.name, wear: Math.round(career.wear), historic: !!career.historic };
+    return { slot: pending.slot, name: contract.name, awareness: Math.round(career.awareness), wear: Math.round(career.wear), historic: !!career.historic };
   });
   return {
     id: `grid-renewal-${gameState.season}`, isGridRenewal: true, gridRenewals: pendingRenewals, gridPrograms: programs,
@@ -7703,19 +7702,22 @@ function render() {
                 { label: 'Fidélité', value: dilemma.careerStats.loyalty },
                 { label: 'Usure', value: dilemma.careerStats.wear, wear: true }],
                 { choices: careerChoiceCards(dilemma), readonly: phase !== 'choosing' })}
-            </div>${phase === 'choosing' ? '<p class="gr-hint">Touchez la carte pour choisir l’avenir du programme.</p>' : ''}` : ''}
+            </div>` : ''}
             ${dilemma.isGridRenewal ? `
             <div class="gr-carousel" data-gr-carousel>
               <div class="gr-cards gr-track" data-gr-cards="grid" aria-label="Programmes à reconduire">${dilemma.gridPrograms.map(g => {
                 const item = gridRenewalItems(dilemma).find(i => i.slot === g.slot);
-                return renewalCardHtml(g.slot, g.name, g.historic, [{ label: 'Usure', value: g.wear, wear: true }],
+                const awareness = g.awareness ?? Math.round(gameState.player.contracts[g.slot]?.career?.awareness || 0);
+                return renewalCardHtml(g.slot, g.name, g.historic, [
+                  { label: 'Notoriété', value: awareness },
+                  { label: 'Usure', value: g.wear, wear: true }],
                   { choices: item ? careerChoiceCards(item.sub) : [], picked: item?.explicit ? item.index : null, readonly: phase !== 'choosing' });
               }).join('')}
               </div>
               <button type="button" class="gr-nav prev" data-gr-nav="-1" aria-label="Programme précédent">‹</button>
               <button type="button" class="gr-nav next" data-gr-nav="1" aria-label="Programme suivant">›</button>
               <div class="gr-dots" role="tablist">${dilemma.gridPrograms.map((g, i) => `<button type="button" class="gr-dot${i === 0 ? ' active' : ''}" data-gr-dot="${i}" aria-label="${esc(g.name)}"></button>`).join('')}</div>
-            </div>${phase === 'choosing' ? '<p class="gr-hint">Touchez une carte pour choisir l’avenir du programme. Sans choix, il est reconduit à l’identique.</p>' : ''}` : ''}
+            </div>` : ''}
           </div>
         </div>
         <div id="choice-zone">${zoneHtml}</div>
