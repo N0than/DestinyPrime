@@ -1536,6 +1536,7 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .gr-cards.gr-single { grid-template-columns: minmax(0, 1fr); }
 .gr-name-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 4px 10px 0; }
 .gr-name-row .gr-name { margin: 0; min-width: 0; }
+.gr-track .gr-slot-badge { padding: 2px 7px; font-size: 9px; }
 .gr-slot-badge { flex-shrink: 0; padding: 3px 9px; border-radius: 999px; font-family: 'Space Grotesk', sans-serif; font-size: 10px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase; color: var(--ink); background: var(--paper-dark); white-space: nowrap; }
 .gr-single .gr-name { font-size: 15px; }
 /* Nom du programme entre guillemets : passe à la ligne d'un bloc s'il ne tient pas sur la ligne du titre. */
@@ -8543,8 +8544,7 @@ function renewalCardHtml(slot, name, historic, stats, opts = {}) {
      <div class="gr-flip">
       <div class="gr-face gr-front"${flippable ? ` role="button" tabindex="0" aria-label="${esc(name)} : choisir son avenir"` : ''}>
         <span class="gr-art">${art ? `<img src="${art}" alt="" width="320" height="180" decoding="async">` : ''}${historic ? '<span class="gr-historic">⭐ Historique</span>' : ''}${flippable ? '<span class="gr-flip-hint" aria-hidden="true">↻</span>' : ''}</span>
-        ${opts.single ? `<span class="gr-name-row"><span class="gr-name">${esc(name)}</span>${slotMeta ? `<span class="gr-slot-badge">${slotMeta.icon} ${esc(slotLabelOf(slot))}</span>` : ''}</span>`
-          : `${slotHtml}<span class="gr-name">${esc(name)}</span>`}
+        <span class="gr-name-row"><span class="gr-name">${esc(name)}</span>${slotMeta ? `<span class="gr-slot-badge">${slotMeta.icon} ${esc(slotLabelOf(slot))}</span>` : ''}</span>
         ${opts.single ? `<span class="gr-stats">${stats.map(st => `<span class="gr-stat${st.wear ? ' is-wear' : ''}"><span class="gr-wear-label">${esc(st.label)}</span>${mercatoStarsHtml(programWearStars(st.value), `${st.label} (${st.value}/100)`)}</span>`).join('')}</span>`
           : stats.map(st => `<span class="gr-wear${st.wear ? ' is-wear' : ''}"><span class="gr-wear-label">${esc(st.label)}</span>${mercatoStarsHtml(programWearStars(st.value), `${st.label} (${st.value}/100)`)}</span>`).join('')}
         ${choices.length ? `<span class="gr-pick ${picked ? picked.action : ''}" data-gr-pick>${picked ? esc(picked.badge) : ''}</span>` : ''}
