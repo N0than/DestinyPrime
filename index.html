@@ -1777,6 +1777,203 @@ body.mobile-picker-lock { overflow:hidden; }
   .program-manager-box { height:30px; padding:0 11px; font-size:9px; }
   .program-manager-box.cancel { padding:0 2px; }
 }
+
+/* ===========================================================================
+   VERSION BUREAU (≥ 1200 px) — tableau de bord : navigation latérale, en-tête,
+   indicateurs et colonne « cette saison / activité » autour des écrans du jeu.
+   =========================================================================== */
+#desk-nav, #desk-top, #desk-greet, #desk-kpis { display: none; }
+#desk-main { display: contents; }
+#desk-restore {
+  position: fixed; right: 20px; bottom: 20px; z-index: 50; display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 16px; border: 1px solid #e4e4e7; border-radius: 999px; background: #fff; color: #1b1b1f;
+  font: 600 13px 'Plus Jakarta Sans', sans-serif; box-shadow: 0 8px 24px -10px rgba(16,24,40,.25);
+}
+#desk-restore .desk-ic { width: 16px; height: 16px; }
+@media (max-width: 1199px) { #desk-restore { display: none; } }
+
+body.desk {
+  --desk-bg: #ececee; --desk-card: #ffffff; --desk-line: #e4e4e8; --desk-ink: #1b1b1f; --desk-muted: #6b6b75;
+  --desk-soft: #f6f6f7; --desk-accent: #c8553d; --desk-accent-soft: #f7e3dd; --desk-blue: #8ea9cf; --desk-green: #1f8a5b;
+  background: var(--desk-bg); color: var(--desk-ink);
+  display: grid; grid-template-columns: 248px minmax(0, 1fr); align-items: start; min-height: 100vh;
+}
+body.desk::before, body.desk::after { display: none; }
+
+/* ---- Navigation latérale ---- */
+body.desk #desk-nav {
+  display: flex; flex-direction: column; gap: 4px; position: sticky; top: 0; height: 100vh; overflow-y: auto;
+  padding: 22px 14px 18px 18px;
+}
+.desk-brand { display: flex; align-items: center; gap: 10px; padding: 0 8px 18px; }
+.desk-logo { position: relative; width: 30px; height: 30px; border-radius: 9px; background: var(--desk-ink); flex-shrink: 0; }
+.desk-logo .dot { position: absolute; top: 7px; right: 7px; width: 8px; height: 8px; border-radius: 50%; background: var(--rouge); box-shadow: 0 0 8px var(--rouge); }
+.desk-logo::after { content: ''; position: absolute; left: 8px; bottom: 8px; width: 9px; height: 3px; border-radius: 2px; background: #fff; }
+.desk-brand-text { font: 700 15px 'Plus Jakarta Sans', sans-serif; letter-spacing: -0.01em; }
+.desk-channel { display: flex; flex-direction: column; margin: 0 4px 14px; padding: 10px 12px; border-radius: 12px; background: var(--desk-card); border: 1px solid var(--desk-line); }
+.desk-channel-name { font: 700 13.5px 'Plus Jakarta Sans', sans-serif; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.desk-channel-sub { font-size: 11.5px; color: var(--desk-muted); }
+.desk-nav-list { display: flex; flex-direction: column; gap: 2px; }
+.desk-nav-group { margin: 16px 12px 6px; font: 600 10.5px 'Plus Jakarta Sans', sans-serif; letter-spacing: 0.08em; text-transform: uppercase; color: #9a9aa3; }
+.desk-nav-item {
+  display: flex; align-items: center; gap: 11px; width: 100%; padding: 9px 12px; border: 0; border-radius: 10px; background: none;
+  color: #3a3a42; font: 500 13.5px 'Plus Jakarta Sans', sans-serif; text-align: left; transition: background .15s, color .15s;
+}
+.desk-nav-item:hover:not(:disabled) { background: rgba(255,255,255,.6); }
+.desk-nav-item.active { background: var(--desk-card); color: var(--desk-ink); font-weight: 600; box-shadow: 0 1px 2px rgba(16,24,40,.06), 0 0 0 1px var(--desk-line); }
+.desk-nav-item:disabled { opacity: .4; cursor: default; }
+.desk-nav-item span:not(.desk-nav-badge) { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.desk-ic { width: 18px; height: 18px; flex-shrink: 0; }
+.desk-nav-badge { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center;
+  font: 700 11px 'Plus Jakarta Sans', sans-serif; background: #e3e3e7; color: #4a4a52; }
+.desk-nav-badge.hot { background: var(--desk-accent); color: #fff; }
+.desk-nav-foot { margin-top: auto; display: flex; flex-direction: column; gap: 2px; padding-top: 16px; }
+
+/* ---- Colonne principale ---- */
+body.desk #desk-main { display: flex; flex-direction: column; gap: 18px; min-width: 0; padding: 18px 28px 48px 10px; }
+body.desk #desk-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.desk-top-pill {
+  display: inline-flex; align-items: center; gap: 8px; min-width: 0; max-width: 520px; padding: 7px 8px 7px 14px; border-radius: 12px;
+  background: var(--desk-card); border: 1px solid var(--desk-line); font-size: 13px; color: var(--desk-muted);
+}
+.desk-top-pill .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--rouge); }
+.desk-top-chip { padding: 3px 9px; border-radius: 8px; background: var(--desk-soft); color: #33333a; font-weight: 600; font-size: 12.5px; white-space: nowrap; }
+.desk-top-sep { width: 1px; height: 18px; background: var(--desk-line); }
+.desk-top-season { padding-right: 8px; font-weight: 600; color: var(--desk-ink); white-space: nowrap; }
+.desk-top-right { display: flex; align-items: center; gap: 10px; }
+.desk-icon-btn { position: relative; width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--desk-line); background: var(--desk-card); color: #3a3a42; display: grid; place-items: center; }
+.desk-icon-btn .desk-ic { width: 17px; height: 17px; }
+.desk-icon-dot { position: absolute; top: 8px; right: 9px; width: 7px; height: 7px; border-radius: 50%; background: var(--desk-accent); border: 1.5px solid #fff; }
+.desk-avatar { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; background: var(--desk-ink); color: #fff; font: 700 13px 'Plus Jakarta Sans', sans-serif; }
+
+body.desk #desk-greet { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; }
+.desk-greet-text { min-width: 0; }
+body.desk .desk-greet-text h1 { font: 600 26px/1.2 'Plus Jakarta Sans', sans-serif; text-transform: none; letter-spacing: -0.02em; }
+.desk-greet-text p { margin-top: 4px; font-size: 13.5px; color: var(--desk-muted); }
+.desk-greet-actions { display: flex; gap: 10px; flex-shrink: 0; }
+.desk-btn {
+  display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 10px; border: 1px solid var(--desk-line);
+  background: var(--desk-card); color: var(--desk-ink); font: 600 13.5px 'Plus Jakarta Sans', sans-serif; white-space: nowrap;
+  box-shadow: 0 1px 2px rgba(16,24,40,.05); transition: transform .1s, filter .15s;
+}
+.desk-btn .desk-ic { width: 16px; height: 16px; }
+.desk-btn:hover { filter: brightness(.97); }
+.desk-btn:active { transform: scale(.98); }
+.desk-btn.primary { background: var(--desk-accent); border-color: var(--desk-accent); color: #fff; }
+.desk-btn.primary b { padding: 0 6px; border-radius: 6px; background: rgba(255,255,255,.22); font-size: 12px; }
+
+body.desk.desk-has-player #desk-kpis {
+  display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); padding: 18px 6px; border-radius: 16px;
+  background: var(--desk-card); border: 1px solid var(--desk-line); box-shadow: 0 1px 2px rgba(16,24,40,.04);
+}
+.desk-kpi { display: flex; flex-direction: column; gap: 6px; padding: 0 20px; min-width: 0; }
+.desk-kpi + .desk-kpi { border-left: 1px solid var(--desk-line); }
+.desk-kpi-label { display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--desk-muted); white-space: nowrap; }
+.desk-kpi-dot { width: 7px; height: 7px; border-radius: 50%; }
+.desk-kpi-dot.blue { background: var(--desk-blue); } .desk-kpi-dot.green { background: var(--desk-green); } .desk-kpi-dot.red { background: var(--desk-accent); }
+.desk-kpi-row { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 8px; min-width: 0; }
+.desk-kpi-value { font: 500 26px/1.1 'Plus Jakarta Sans', sans-serif; letter-spacing: -0.02em; color: var(--desk-ink); white-space: nowrap; }
+.desk-kpi.alert .desk-kpi-value { color: var(--rouge); }
+.desk-kpi-delta { font-size: 12px; font-weight: 600; color: var(--desk-muted); white-space: nowrap; }
+.desk-kpi-delta.up { color: var(--desk-green); } .desk-kpi-delta.down { color: var(--desk-accent); }
+.desk-kpi-note { font-size: 11.5px; color: #9a9aa3; white-space: nowrap; }
+
+/* L'écran du jeu (#app) devient une grille : jeu à gauche, saison à droite. */
+body.desk #app { max-width: none; width: 100%; margin: 0; padding: 0; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; align-items: start; }
+body.desk.desk-has-player #app { grid-template-columns: minmax(0, 1fr) 330px; }
+body.desk:not(.desk-has-player) #desk-col { width: 100%; max-width: 820px; }
+#desk-col { min-width: 0; display: flex; flex-direction: column; }
+body.desk.desk-page #app { grid-template-columns: minmax(0, 1fr); }
+body.desk.desk-page #desk-aside { display: none; }
+
+/* Le masthead et l'en-tête du HUD sont remplacés par la coque ; les volets du HUD
+   deviennent des pages pleine largeur. */
+body.desk #app .masthead { display: none; }
+body.desk #app .hud-wrap { margin: 0; }
+body.desk #app .hud-panel { display: none; }
+body.desk #app .hud-details { display: none; }
+body.desk.desk-page #app .hud-details { display: block; max-height: none; opacity: 1; overflow: visible; }
+body.desk.desk-page #app .hud-details-inner { margin: 0; padding: 22px 24px; border-radius: 16px; }
+body.desk.desk-page #app .hud-wrap ~ * { display: none; }
+body.desk #app .eh-slider { overflow: visible; cursor: default; touch-action: auto; }
+body.desk #app .eh-slider-track { transform: none !important; display: block; }
+body.desk #app .eh-slide { display: none; }
+body.desk #app .eh-slide.desk-current { display: block; }
+body.desk #app .eh-slider-nav { display: none; }
+/* Volets qui empruntent d'habitude la hauteur des autres : hauteur propre en page. */
+body.desk #app .evo-panel { position: relative; inset: auto; min-height: 520px; }
+body.desk #app .tl-panel { position: relative; inset: auto; min-height: 400px; }
+body.desk:not(.desk-page) #app .hud-wrap { display: none; }
+
+/* ---- Cartes du jeu : surfaces blanches nettes ---- */
+body.desk .dilemma-card, body.desk .choice, body.desk .hud-details-inner, body.desk .kickoff-head,
+body.desk .mercato-card, body.desk .consequence-card, body.desk .welcome-glass, body.desk .gr-face {
+  background: var(--desk-card); backdrop-filter: none; -webkit-backdrop-filter: none;
+  border: 1px solid var(--desk-line); box-shadow: 0 1px 2px rgba(16,24,40,.05);
+}
+body.desk .choice:hover { box-shadow: 0 6px 18px -8px rgba(16,24,40,.18); }
+body.desk .dilemma-container { gap: 14px; }
+body.desk .dilemma-hero .dc-body { padding: 14px 22px 22px; }
+body.desk .dilemma-hero .dc-head { padding: 18px 22px 0; }
+body.desk .dilemma-card.dilemma-hero .dc-body > p { max-width: 640px; font-size: 14.5px; }
+body.desk .choices { gap: 10px; }
+body.desk .card-choices { gap: 14px; }
+body.desk .choice { border-radius: 14px; }
+body.desk .welcome-cta { border-radius: 12px; background: var(--desk-accent); text-transform: none; letter-spacing: 0; font-weight: 700;
+  box-shadow: 0 10px 22px -12px rgba(200,85,61,.7); }
+
+/* Typographie : titres en casse normale, comme le reste du tableau de bord. */
+body.desk h1, body.desk h2, body.desk h3, body.desk .display, body.desk .choice .cl, body.desk .mercato-name,
+body.desk .tl-name, body.desk .kicker, body.desk .tl-action-label, body.desk .kickoff-title {
+  font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; text-transform: none; letter-spacing: -0.01em;
+}
+body.desk .dilemma-hero h2 { font-size: 26px; line-height: 1.2; font-weight: 700; }
+/* Valeurs et libellés des volets : même famille que le tableau de bord. */
+body.desk .hud-cell .val, body.desk .evo-val, body.desk .radar-stat-value, body.desk .ga-headline-value, body.desk .ga-rank, body.desk .ga-pct, body.desk .stat-row-value, body.desk .arcom-score-value, body.desk .arcom-mini-value, body.desk .arcom-oblig-value, body.desk .arcom-hist-val, body.desk .eco-hero-value, body.desk .eco-flow-value, body.desk .eco-bilan-value, body.desk .renewal-score-value, body.desk .renewal-stat-value, body.desk .arcom-oblig-figure, body.desk .sanction-stat-value, body.desk .kickoff-or { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; letter-spacing: -0.01em; }
+body.desk .eh-title, body.desk .eh-legend-item, body.desk .ga-target-btn, body.desk .tl-cancel, body.desk .tl-cand-status, body.desk .ga-name, body.desk .stat-row-label, body.desk .arcom-status-pill, body.desk .arcom-view-btn, body.desk .eco-flow-label, body.desk .eco-bilan-label, body.desk .opt .ol, body.desk input[type=text], body.desk label, body.desk .btn { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; text-transform: none; letter-spacing: 0; }
+body.desk .eh-title { font-size: 16px; font-weight: 700; }
+body.desk .eh-subtitle { font-size: 12.5px; }
+body.desk .kickoff-title { font-size: 26px; line-height: 1.2; }
+body.desk .choice .cl { font-size: 15px; line-height: 1.35; font-weight: 600; }
+body.desk .mercato-name { font-size: 16px; }
+
+/* ---- Colonne de droite ---- */
+#desk-aside { display: none; }
+body.desk #desk-aside { display: flex; flex-direction: column; gap: 14px; position: sticky; top: 18px; max-height: calc(100vh - 36px); overflow-y: auto; scrollbar-width: none; padding: 12px; border-radius: 18px; background: #e3e3e6; }
+body.desk #desk-aside::-webkit-scrollbar { display: none; }
+.desk-card { padding: 4px 4px 6px; }
+.desk-card + .desk-card { padding-top: 0; }
+.desk-card-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 6px 6px 10px; }
+body.desk .desk-card-head h3 { font-size: 14.5px; font-weight: 600; }
+.desk-card-head > span { font-size: 12px; color: var(--desk-muted); }
+.desk-link { display: inline-flex; align-items: center; gap: 2px; border: 0; background: none; font: 600 12.5px 'Plus Jakarta Sans', sans-serif; color: var(--desk-ink); }
+.desk-link .desk-ic { width: 14px; height: 14px; }
+.desk-chart-card, .desk-feed { background: var(--desk-card); border-radius: 14px; border: 1px solid var(--desk-line); }
+.desk-chart-card { padding: 16px 16px 12px; }
+.desk-chart-top { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.desk-chart-value { font: 500 30px/1 'Plus Jakarta Sans', sans-serif; letter-spacing: -0.02em; }
+.desk-chart-value small { font-size: 15px; }
+.desk-chart-sub { font-size: 12.5px; color: var(--desk-muted); }
+.desk-chart-top .desk-kpi-delta { margin-left: auto; }
+.desk-chart-legend { display: flex; gap: 14px; margin: 10px 0 6px; font-size: 11.5px; color: var(--desk-muted); }
+.desk-chart-legend i { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 5px; vertical-align: 1px; }
+.desk-chart-legend i.blue { background: var(--desk-blue); } .desk-chart-legend i.red { background: var(--desk-accent); }
+.desk-bars { display: flex; align-items: stretch; justify-content: space-between; gap: 6px; height: 150px; padding-top: 8px; }
+.desk-bar { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 6px; min-width: 0; }
+.desk-bar-fill { position: relative; width: 16px; max-width: 100%; border-radius: 999px; background: var(--desk-blue); min-height: 14px;
+  background-image: linear-gradient(to bottom, transparent 0, transparent calc(100% - 2px), rgba(255,255,255,.0) 100%); }
+.desk-bar.last .desk-bar-fill { background: #5f7fae; }
+.desk-bar-cap { position: absolute; top: -4px; left: -3px; right: -3px; height: 12px; border-radius: 999px; background: var(--desk-accent); }
+.desk-bar-label { font-size: 10.5px; color: var(--desk-muted); white-space: nowrap; }
+.desk-feed { list-style: none; padding: 4px 14px; }
+.desk-feed li { display: flex; align-items: center; gap: 10px; padding: 10px 0; }
+.desk-feed li + li { border-top: 1px solid #f0f0f2; }
+.desk-feed-ic { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; flex-shrink: 0; background: var(--desk-soft); font-size: 15px; }
+.desk-feed-text { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.desk-feed-text b { font-size: 13px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.desk-feed-text span { font-size: 11.5px; color: var(--desk-muted); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.35; }
+.desk-feed-tag { align-self: flex-start; margin-top: 2px; font-size: 10.5px; color: #9a9aa3; white-space: nowrap; }
+.desk-empty { padding: 14px; font-size: 12.5px; color: var(--desk-muted); background: var(--desk-card); border-radius: 14px; border: 1px solid var(--desk-line); }
 </style>
 </head>
 <body>
@@ -7316,7 +7513,8 @@ function bindTickerInteractions(app) {
   ehSlider.addEventListener('pointerdown', e => {
     pressTarget = e.target;
     if (e.target.closest('button, select, input, label, summary, .program-manager')) return;
-    if (isHudSliderLocked()) return;
+    // Version bureau : les volets sont des pages de la navigation, pas un carrousel.
+    if (isHudSliderLocked() || document.body.classList.contains('desk')) return;
     isDragging = true;
     dragStartX = e.clientX;
     dragDeltaX = 0;
@@ -10564,6 +10762,352 @@ function bindCampaignPanel(app) {
 }
 </script>
 <!-- tv-programs:start — généré par tv-programs/build.mjs, ne pas éditer à la main -->
+<script>
+// ---------------------------------------------------------------------------
+// VERSION BUREAU — tableau de bord sur grand écran
+// ---------------------------------------------------------------------------
+// Sur un écran d'au moins DESK_MIN_WIDTH px, le jeu s'affiche dans une coque de
+// type tableau de bord : navigation latérale, en-tête, indicateurs, et colonne
+// « cette saison / activité ». Les écrans du jeu restent ceux de la version
+// mobile (mêmes règles, mêmes interactions) : la coque se synchronise après
+// chaque rendu, et les volets du HUD (grille, audiences, talents, bilan…)
+// deviennent des pages de la navigation.
+const DESK_MIN_WIDTH = 1200;
+const DESK_PREF_KEY = 'am-desk-view';
+const DESK_ICONS = {
+  play: '<path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"/>',
+  grid: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M9 9v11"/>',
+  audience: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+  talents: '<circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c.8-3.2 3-5 5.5-5s4.7 1.8 5.5 5"/><circle cx="17" cy="9" r="2.4"/><path d="M15.5 14.2c2.3.2 4 1.8 4.6 4.8"/>',
+  eco: '<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/>',
+  evo: '<path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/>',
+  stats: '<path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4 6.7 19.4l1.2-6L3.4 9.3l6-.7z"/>',
+  arcom: '<path d="M12 3l8 3v6c0 4.4-3.4 8-8 9-4.6-1-8-4.6-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/>',
+  home: '<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/>',
+  phone: '<rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18h2"/>',
+  bell: '<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20a2 2 0 0 0 4 0"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  chevron: '<path d="M9 6l6 6-6 6"/>',
+  sidebar: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/>'
+};
+const DESK_NAV = [
+  { page: 'play', label: 'Tableau de bord', icon: 'play' },
+  { group: 'Ma chaîne' },
+  { page: 0, label: 'Grille des programmes', icon: 'grid' },
+  { page: 1, label: 'Audiences', icon: 'audience' },
+  { page: 4, label: 'Talents', icon: 'talents' },
+  { group: 'Pilotage' },
+  { page: 2, label: 'Bilan économique', icon: 'eco' },
+  { page: 3, label: 'Évolution', icon: 'evo' },
+  { page: 5, label: 'Indicateurs', icon: 'stats' },
+  { page: 6, label: 'Conformité ARCOM', icon: 'arcom' }
+];
+let deskPage = 'play';
+let deskMedia = null;
+
+const deskIcon = (name, cls = 'desk-ic') =>
+  `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${DESK_ICONS[name] || ''}</svg>`;
+
+function deskPreferred() {
+  try { return localStorage.getItem(DESK_PREF_KEY) !== 'classic'; } catch (e) { return true; }
+}
+function deskActive() {
+  return !!deskMedia?.matches && deskPreferred();
+}
+
+function initDesktopShell() {
+  if (typeof document === 'undefined' || document.getElementById('desk-nav')) return;
+  const app = document.getElementById('app');
+  const nav = document.createElement('aside');
+  nav.id = 'desk-nav';
+  const main = document.createElement('div');
+  main.id = 'desk-main';
+  main.innerHTML = '<header id="desk-top"></header><section id="desk-greet"></section><section id="desk-kpis"></section>';
+  app.parentNode.insertBefore(nav, app);
+  app.parentNode.insertBefore(main, app);
+  main.appendChild(app);
+  // Toute réécriture de l'écran est suivie d'une synchronisation de la coque.
+  const baseRender = render;
+  render = function () {
+    const result = baseRender.apply(this, arguments);
+    syncDesktopShell();
+    return result;
+  };
+  deskMedia = window.matchMedia(`(min-width: ${DESK_MIN_WIDTH}px)`);
+  const onChange = () => { document.body.classList.toggle('desk', deskActive()); render(); };
+  deskMedia.addEventListener ? deskMedia.addEventListener('change', onChange) : deskMedia.addListener(onChange);
+  document.body.classList.toggle('desk', deskActive());
+  nav.addEventListener('click', e => {
+    const item = e.target.closest('[data-desk-page]');
+    if (item && !item.disabled) {
+      const raw = item.dataset.deskPage;
+      deskGoTo(raw === 'play' ? 'play' : parseInt(raw, 10));
+      return;
+    }
+    const action = e.target.closest('[data-desk-action]')?.dataset.deskAction;
+    if (action === 'home') { deskPage = 'play'; goHome(); }
+    if (action === 'classic') {
+      try { localStorage.setItem(DESK_PREF_KEY, 'classic'); } catch (err) {}
+      document.body.classList.remove('desk');
+      render();
+    }
+  });
+  main.addEventListener('click', e => {
+    const go = e.target.closest('[data-desk-go]');
+    if (!go) return;
+    const raw = go.dataset.deskGo;
+    if (raw === 'decide') {
+      deskGoTo('play');
+      const cont = document.getElementById('btn-continue');
+      if (cont) { cont.click(); return; }
+      document.getElementById('choice-zone')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+    deskGoTo(raw === 'play' ? 'play' : parseInt(raw, 10));
+  });
+  // Bouton du bandeau « vue classique » : retour à la version bureau.
+  document.addEventListener('click', e => {
+    if (!e.target.closest('[data-desk-restore]')) return;
+    try { localStorage.removeItem(DESK_PREF_KEY); } catch (err) {}
+    document.body.classList.toggle('desk', deskActive());
+    render();
+  });
+}
+
+function deskGoTo(page) {
+  if (page !== 'play' && isHudSliderLocked()) page = 0;
+  deskPage = page;
+  if (page !== 'play') gameState.hudSlide = page;
+  syncDesktopShell();
+  window.scrollTo({ top: 0 });
+}
+
+function deskInGame() {
+  return !!document.querySelector('#app .hud-wrap');
+}
+
+function syncDesktopShell() {
+  if (typeof document === 'undefined' || !document.getElementById('desk-nav')) return;
+  const body = document.body;
+  body.classList.toggle('desk', deskActive());
+  const restore = document.getElementById('desk-restore');
+  if (deskMedia?.matches && !deskPreferred()) {
+    if (!restore) {
+      const btn = document.createElement('button');
+      btn.type = 'button'; btn.id = 'desk-restore'; btn.dataset.deskRestore = '';
+      btn.innerHTML = `${deskIcon('sidebar')}<span>Version bureau</span>`;
+      document.body.appendChild(btn);
+    }
+  } else restore?.remove();
+  if (!body.classList.contains('desk')) return;
+
+  const app = document.getElementById('app');
+  const inGame = deskInGame();
+  if (!inGame) deskPage = 'play';
+  const hasPlayer = !!gameState.player?.name && gameState.step >= 6;
+  const page = deskPage;
+  body.classList.toggle('desk-ingame', inGame);
+  body.classList.toggle('desk-page', inGame && page !== 'play');
+  body.classList.toggle('desk-has-player', hasPlayer);
+
+  // Colonne principale : tout l'écran du jeu ; colonne de droite : la saison.
+  let col = document.getElementById('desk-col');
+  if (!col || col.parentNode !== app) {
+    col = document.createElement('div');
+    col.id = 'desk-col';
+  }
+  [...app.childNodes].forEach(n => { if (n !== col && n.id !== 'desk-aside') col.appendChild(n); });
+  if (col.parentNode !== app) app.prepend(col);
+
+  if (inGame) {
+    const slides = app.querySelectorAll('.eh-slide');
+    slides.forEach((s, i) => s.classList.toggle('desk-current', i === page));
+    if (page !== 'play') {
+      gameState.hudSlide = page;
+      requestAnimationFrame(() => { try { fitRadarToGridHeight(); fitTalentCards(); } catch (e) {} });
+    }
+  }
+
+  let aside = document.getElementById('desk-aside');
+  if (hasPlayer) {
+    if (!aside) { aside = document.createElement('aside'); aside.id = 'desk-aside'; }
+    aside.innerHTML = deskAsideHtml();
+    app.appendChild(aside);
+  } else aside?.remove();
+
+  document.getElementById('desk-nav').innerHTML = deskNavHtml(inGame, page);
+  document.getElementById('desk-top').innerHTML = deskTopHtml(hasPlayer);
+  document.getElementById('desk-greet').innerHTML = deskGreetHtml(inGame, hasPlayer, page);
+  document.getElementById('desk-kpis').innerHTML = hasPlayer ? deskKpisHtml() : '';
+}
+
+function deskQueueInfo() {
+  const queue = gameState.dilemmaQueue || [];
+  const total = queue.length;
+  const phase = gameState.dilemmaPhase;
+  const current = Math.min(total, gameState.currentDilemmaIndex + (phase === 'result' ? 0 : 1));
+  const done = Math.min(total, gameState.currentDilemmaIndex);
+  return { total, current, done, remaining: Math.max(0, total - done) };
+}
+
+function deskNavHtml(inGame, page) {
+  const p = gameState.player || {};
+  const q = deskQueueInfo();
+  let arcomIssues = 0, endingTalents = 0;
+  if (inGame) {
+    try { arcomIssues = computeArcomCompliance().obligations.filter(o => !o.compliant).length; } catch (e) {}
+    endingTalents = activePlayerTalents().filter(t => t.until <= gameState.season && t.nextAnnual == null && !t.leaving).length;
+  }
+  const badge = { play: inGame && gameState.step === 6 ? q.remaining : 0, 4: endingTalents, 6: arcomIssues };
+  const items = DESK_NAV.map(item => {
+    if (item.group) return `<div class="desk-nav-group">${esc(item.group)}</div>`;
+    const active = page === item.page;
+    const disabled = item.page !== 'play' && !inGame;
+    const n = badge[item.page] || 0;
+    return `<button type="button" class="desk-nav-item${active ? ' active' : ''}" data-desk-page="${item.page}"${disabled ? ' disabled' : ''}${active ? ' aria-current="page"' : ''}>
+      ${deskIcon(item.icon)}<span>${esc(item.label)}</span>${n ? `<span class="desk-nav-badge${item.page === 'play' ? ' hot' : ''}">${n}</span>` : ''}</button>`;
+  }).join('');
+  return `
+    <div class="desk-brand">
+      <span class="desk-logo" aria-hidden="true"><span class="dot"></span></span>
+      <span class="desk-brand-text">Audience Masters</span>
+    </div>
+    ${p.name && gameState.step >= 2 ? `<div class="desk-channel"><span class="desk-channel-name">${esc(p.name)}</span><span class="desk-channel-sub">${esc((CHANNEL_TYPES[p.type]?.label || '').replace(/^\S+\s/, ''))}</span></div>` : ''}
+    <nav class="desk-nav-list" aria-label="Navigation">${items}</nav>
+    <div class="desk-nav-foot">
+      <button type="button" class="desk-nav-item" data-desk-action="home">${deskIcon('home')}<span>Accueil</span></button>
+      <button type="button" class="desk-nav-item" data-desk-action="classic">${deskIcon('phone')}<span>Vue mobile</span></button>
+    </div>`;
+}
+
+function deskTopHtml(hasPlayer) {
+  const p = gameState.player || {};
+  if (!hasPlayer) return `<div class="desk-top-pill"><span class="dot"></span>Audience Masters — devenez le roi de l’audimat</div>`;
+  const typeLabel = CHANNEL_TYPES[p.type]?.label || '';
+  const target = (TARGET_STRATEGIES[p.target]?.nom || p.target).replace(/\s*\([^)]*\)/, '');
+  let alerts = 0;
+  try { alerts = computeArcomCompliance().obligations.filter(o => !o.compliant).length; } catch (e) {}
+  const initials = p.name.split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase();
+  return `
+    <div class="desk-top-pill">
+      <span class="desk-top-chip">${esc(typeLabel)}</span>
+      <span class="desk-top-chip">🎯 ${esc(target)}</span>
+      <span class="desk-top-sep"></span>
+      <span class="desk-top-season">Saison ${gameState.season}</span>
+    </div>
+    <div class="desk-top-right">
+      <button type="button" class="desk-icon-btn" data-desk-go="6" title="Conformité ARCOM">${deskIcon('bell')}${alerts ? '<span class="desk-icon-dot"></span>' : ''}</button>
+      <span class="desk-avatar" title="${esc(p.name)}">${esc(initials)}</span>
+    </div>`;
+}
+
+function deskGreetHtml(inGame, hasPlayer, page) {
+  const p = gameState.player || {};
+  const hour = new Date().getHours();
+  const hello = hour >= 18 || hour < 5 ? 'Bonsoir' : 'Bonjour';
+  if (!hasPlayer) {
+    const sub = gameState.step === 1 ? 'Lancez une partie ou reprenez la vôtre.'
+      : 'Configurez votre chaîne : format, cible et grille de lancement.';
+    return `<div class="desk-greet-text"><h1>${hello}${p.name ? `, ${esc(p.name)}` : ''}</h1><p>${sub}</p></div>`;
+  }
+  const q = deskQueueInfo();
+  let pda = 0;
+  try { pda = getCalculatedPDAs().find(r => r.channel === p).pda[p.target]; } catch (e) {}
+  let sub;
+  if (gameState.step === 6 && gameState.mercatoPending && gameState.mercato) sub = `Saison ${gameState.season} · Mercato des talents avant les dilemmes de la saison.`;
+  else if (gameState.step === 6 && gameState.seasonKickoffPending) sub = `Saison ${gameState.season} · Conférence de rentrée : la direction des programmes attend votre arbitrage.`;
+  else if (gameState.step === 6) sub = `Saison ${gameState.season} · Décision ${Math.max(1, q.current)} sur ${q.total} · votre chaîne réunit ${nf1(pda)} % de sa cible.`;
+  else sub = `Saison ${gameState.season} · bilan et résultats de votre chaîne.`;
+  const pageItem = DESK_NAV.find(i => i.page === page);
+  const pending = gameState.step === 6;
+  const decideLabel = gameState.dilemmaPhase === 'result' && !gameState.seasonKickoffPending && !gameState.mercatoPending ? 'Continuer' : 'Décision en cours';
+  return `
+    <div class="desk-greet-text">
+      <h1>${page !== 'play' && pageItem ? esc(pageItem.label) : `${hello}, ${esc(p.name)}`}</h1>
+      <p>${esc(sub)}</p>
+    </div>
+    ${inGame ? `<div class="desk-greet-actions">
+      ${page === 'play' ? `<button type="button" class="desk-btn" data-desk-go="0">${deskIcon('grid')}Grille des programmes</button>`
+        : `<button type="button" class="desk-btn" data-desk-go="play">${deskIcon('play')}Tableau de bord</button>`}
+      ${pending ? `<button type="button" class="desk-btn primary" data-desk-go="decide">${decideLabel}${q.remaining && decideLabel !== 'Continuer' ? ` <b>${q.remaining}</b>` : ''}${deskIcon('chevron')}</button>` : ''}
+    </div>` : ''}`;
+}
+
+function deskDelta(value, digits = 1, suffix = '', invert = false) {
+  if (value == null || !isFinite(value) || Math.abs(value) < Math.pow(10, -digits) / 2) return '<span class="desk-kpi-delta">stable</span>';
+  const good = invert ? value < 0 : value > 0;
+  const txt = (value > 0 ? '+' : '−') + Math.abs(value).toLocaleString('fr-FR', { minimumFractionDigits: digits, maximumFractionDigits: digits }) + suffix;
+  return `<span class="desk-kpi-delta ${good ? 'up' : 'down'}">${txt}</span>`;
+}
+
+function deskKpisHtml() {
+  const p = gameState.player;
+  let pda = 0;
+  try { pda = getCalculatedPDAs().find(r => r.channel === p).pda[p.target]; } catch (e) {}
+  const startPda = p.pdaHistorySeason?.[0] ?? p.pdaSeasonBaseline;
+  const prev = gameState.history.filter(h => h.season < gameState.season).at(-1);
+  const contracts = Object.values(p.contracts || {}).filter(c => c && c.end >= gameState.season && !c.stopped).length;
+  const margin = p.coutGrilleEngageSaison > 0 ? (p.revenusPubPrevisionnels / p.coutGrilleEngageSaison - 1) * 100 : 0;
+  const cells = [
+    { label: 'Trésorerie', value: `${nf1(p.tresorerie)} M€`, sub: deskDelta(p.tresorerie - (p.tresorerieDebutSaison ?? p.tresorerie), 1, ' M€'), note: 'depuis la rentrée', alert: p.tresorerie < 0 },
+    { label: 'PDA cible', value: `${nf1(pda)} %`, sub: deskDelta(startPda == null ? null : pda - startPda, 1, ' pt'), note: 'cette saison', dot: 'blue' },
+    { label: 'Coût de grille', value: `${nf1(p.coutGrilleEngageSaison)} M€`, sub: contracts ? `<span class="desk-kpi-delta">${contracts} contrat${contracts > 1 ? 's' : ''}</span>` : '', note: 'engagé cette saison' },
+    { label: 'Revenus pub', value: `${nf1(p.revenusPubPrevisionnels)} M€`, sub: deskDelta(margin, 0, ' %'), note: 'de rentabilité', dot: 'green' },
+    { label: 'Popularité', value: `${Math.round(p.popularite)} %`, sub: deskDelta(prev ? p.popularite - prev.popularite : null, 0, ' pts'), note: prev ? 'sur la saison' : '', dot: 'red' }
+  ];
+  return cells.map(c => `
+    <div class="desk-kpi${c.alert ? ' alert' : ''}">
+      <span class="desk-kpi-label">${c.dot ? `<span class="desk-kpi-dot ${c.dot}"></span>` : ''}${c.label}</span>
+      <span class="desk-kpi-row"><span class="desk-kpi-value">${c.value}</span>${c.sub}${c.note ? `<span class="desk-kpi-note">${c.note}</span>` : ''}</span>
+    </div>`).join('');
+}
+
+function deskAsideHtml() {
+  const p = gameState.player;
+  let pda = 0;
+  try { pda = getCalculatedPDAs().find(r => r.channel === p).pda[p.target]; } catch (e) {}
+  const points = (p.pdaHistorySeason || []).slice(-9);
+  const seasonal = points.length >= 2 || !gameState.history.length;
+  const series = seasonal ? points.map((v, i) => ({ v, label: i === 0 ? 'Début' : `D${i}` }))
+    : gameState.history.slice(-8).map(h => ({ v: h.pdaCible, label: `S${h.season}` }));
+  const max = Math.max(...series.map(s => s.v), 0.1), min = Math.min(...series.map(s => s.v), max);
+  const base = Math.max(0, min - (max - min) * 0.8 - 0.05);
+  const bars = series.map((s, i) => {
+    const prevV = i ? series[i - 1].v : s.v;
+    const h = 18 + (s.v - base) / Math.max(0.0001, max - base) * 82;
+    const down = s.v < prevV - 0.005;
+    return `<div class="desk-bar${i === series.length - 1 ? ' last' : ''}${down ? ' down' : ''}" title="${esc(s.label)} : ${nf1(s.v)} %">
+      <span class="desk-bar-fill" style="height:${h.toFixed(1)}%">${down ? '<span class="desk-bar-cap"></span>' : ''}</span>
+      <span class="desk-bar-label">${esc(s.label)}</span></div>`;
+  }).join('');
+  const start = p.pdaHistorySeason?.[0];
+  const trend = start == null ? '' : deskDelta(pda - start, 1, ' pt');
+
+  const events = (gameState.competitorEvents || []).filter(e => e.season === gameState.season).map(e => ({
+    icon: '⚔️', title: e.channel, sub: `${e.action} · ${TIME_SLOTS.find(s => s.key === e.slot)?.label || e.slot}`, tag: 'Rival'
+  }));
+  const logs = (gameState.logs || []).slice(-8).reverse().map((l, i, arr) => ({
+    icon: ['📺', '🎬', '🗳️', '💡', '📣', '🎯', '🧩', '📰'][(arr.length - 1 - i) % 8], title: l.title, sub: l.result, tag: 'Décision'
+  }));
+  const feed = [...events, ...logs].slice(0, 7);
+  return `
+    <section class="desk-card">
+      <header class="desk-card-head"><h3>Cette saison</h3><span>${seasonal ? `Saison ${gameState.season}` : 'Saisons passées'}</span></header>
+      <div class="desk-chart-card">
+        <div class="desk-chart-top"><span class="desk-chart-value">${nf1(pda)}<small> %</small></span><span class="desk-chart-sub">PDA sur votre cible</span>${trend}</div>
+        <div class="desk-chart-legend"><span><i class="blue"></i>Après chaque décision</span><span><i class="red"></i>Recul</span></div>
+        ${series.length ? `<div class="desk-bars">${bars}</div>` : '<p class="desk-empty">Vos décisions de la saison s’afficheront ici.</p>'}
+      </div>
+    </section>
+    <section class="desk-card">
+      <header class="desk-card-head"><h3>Activité</h3><button type="button" class="desk-link" data-desk-go="3">Évolution${deskIcon('chevron')}</button></header>
+      ${feed.length ? `<ul class="desk-feed">${feed.map(f => `
+        <li><span class="desk-feed-ic">${f.icon}</span><span class="desk-feed-text"><b>${esc(f.title)}</b><span>${esc(f.sub)}</span></span><span class="desk-feed-tag">${f.tag}</span></li>`).join('')}</ul>`
+        : '<p class="desk-empty">Les décisions et les réactions des chaînes concurrentes apparaîtront ici.</p>'}
+    </section>`;
+}
+</script>
+
 <script>/*! @dicebear/core 10.7.0 — MIT License — https://www.dicebear.com (validateurs retirés : la définition est validée au build) */
 var DiceBearCore=(()=>{var de=Object.defineProperty;var cr=Object.getOwnPropertyDescriptor;var fr=Object.getOwnPropertyNames;var dr=Object.prototype.hasOwnProperty;var ur=(s,t)=>{for(var e in t)de(s,e,{get:t[e],enumerable:!0})},mr=(s,t,e,r)=>{if(t&&typeof t=="object"||typeof t=="function")for(let i of fr(t))!dr.call(s,i)&&i!==e&&de(s,i,{get:()=>t[i],enumerable:!(r=cr(t,i))||r.enumerable});return s};var pr=s=>mr(de({},"__esModule",{value:!0}),s);var Pr={};ur(Pr,{Avatar:()=>jt,Style:()=>j});var Re={validate(){}};var Gt=class extends Error{constructor(t,e){let r=[];for(let i of e){let o=[];i.instancePath&&o.push(i.instancePath),i.message&&o.push(i.message),r.push(o.join(" "))}super(`${t}: ${r.join(", ")}`),this.name="ValidationError",this.details=e}};var Ot=class extends Gt{constructor(t){super("Invalid style definition",t),this.name="StyleValidationError"}};var wr=function(s,t,e,r,i){if(r==="m")throw new TypeError("Private method is not writable");if(r==="a"&&!i)throw new TypeError("Private accessor was defined without a setter");if(typeof t=="function"?s!==t||!i:!t.has(s))throw new TypeError("Cannot write private member to an object whose class did not declare it");return r==="a"?i.call(s,e):i?i.value=e:t.set(s,e),e},ue=function(s,t,e,r){if(e==="a"&&!r)throw new TypeError("Private accessor was defined without a getter");if(typeof t=="function"?s!==t||!r:!t.has(s))throw new TypeError("Cannot read private member from an object whose class did not declare it");return e==="m"?r:e==="a"?r.call(s):r?r.value:t.get(s)},J,At=class{constructor(t){J.set(this,void 0),wr(this,J,t,"f")}name(){return ue(this,J,"f").name}url(){return ue(this,J,"f").url}text(){return ue(this,J,"f").text}};J=new WeakMap;var _r=function(s,t,e,r,i){if(r==="m")throw new TypeError("Private method is not writable");if(r==="a"&&!i)throw new TypeError("Private accessor was defined without a setter");if(typeof t=="function"?s!==t||!i:!t.has(s))throw new TypeError("Cannot write private member to an object whose class did not declare it");return r==="a"?i.call(s,e):i?i.value=e:t.set(s,e),e},Ee=function(s,t,e,r){if(e==="a"&&!r)throw new TypeError("Private accessor was defined without a getter");if(typeof t=="function"?s!==t||!r:!t.has(s))throw new TypeError("Cannot read private member from an object whose class did not declare it");return e==="m"?r:e==="a"?r.call(s):r?r.value:t.get(s)},ct,Vt=class{constructor(t){ct.set(this,void 0),_r(this,ct,t,"f")}name(){return Ee(this,ct,"f").name}url(){return Ee(this,ct,"f").url}};ct=new WeakMap;var yr=function(s,t,e,r,i){if(r==="m")throw new TypeError("Private method is not writable");if(r==="a"&&!i)throw new TypeError("Private accessor was defined without a setter");if(typeof t=="function"?s!==t||!i:!t.has(s))throw new TypeError("Cannot write private member to an object whose class did not declare it");return r==="a"?i.call(s,e):i?i.value=e:t.set(s,e),e},Te=function(s,t,e,r){if(e==="a"&&!r)throw new TypeError("Private accessor was defined without a getter");if(typeof t=="function"?s!==t||!r:!t.has(s))throw new TypeError("Cannot read private member from an object whose class did not declare it");return e==="m"?r:e==="a"?r.call(s):r?r.value:t.get(s)},ft,zt=class{constructor(t){ft.set(this,void 0),yr(this,ft,t,"f")}name(){return Te(this,ft,"f").name}url(){return Te(this,ft,"f").url}};ft=new WeakMap;var Dt=function(s,t,e,r,i){if(r==="m")throw new TypeError("Private method is not writable");if(r==="a"&&!i)throw new TypeError("Private accessor was defined without a setter");if(typeof t=="function"?s!==t||!i:!t.has(s))throw new TypeError("Cannot write private member to an object whose class did not declare it");return r==="a"?i.call(s,e):i?i.value=e:t.set(s,e),e},O=function(s,t,e,r){if(e==="a"&&!r)throw new TypeError("Private accessor was defined without a getter");if(typeof t=="function"?s!==t||!r:!t.has(s))throw new TypeError("Cannot read private member from an object whose class did not declare it");return e==="m"?r:e==="a"?r.call(s):r?r.value:t.get(s)},Z,dt,ut,mt,Nt=class{constructor(t){Z.set(this,void 0),dt.set(this,void 0),ut.set(this,void 0),mt.set(this,void 0),Dt(this,Z,t,"f")}license(){return Dt(this,dt,O(this,dt,"f")??new At(O(this,Z,"f").license??{}),"f"),O(this,dt,"f")}creator(){return Dt(this,ut,O(this,ut,"f")??new Vt(O(this,Z,"f").creator??{}),"f"),O(this,ut,"f")}source(){return Dt(this,mt,O(this,mt,"f")??new zt(O(this,Z,"f").source??{}),"f"),O(this,mt,"f")}};Z=new WeakMap,dt=new WeakMap,ut=new WeakMap,mt=new WeakMap;var xe=function(s,t,e,r,i){if(r==="m")throw new TypeError("Private method is not writable");if(r==="a"&&!i)throw new TypeError("Private accessor was defined without a setter");if(typeof t=="function"?s!==t||!i:!t.has(s))throw new TypeError("Cannot write private member to an object whose class did not declare it");return r==="a"?i.call(s,e):i?i.value=e:t.set(s,e),e},B=function(s,t,e,r){if(e==="a"&&!r)throw new TypeError("Private accessor was defined without a getter");if(typeof t=="function"?s!==t||!r:!t.has(s))throw new TypeError("Cannot read private member from an object whose class did not declare it");return e==="m"?r:e==="a"?r.call(s):r?r.value:t.get(s)},V,pt,K=class s{constructor(t){V.set(this,void 0),pt.set(this,void 0),xe(this,V,t,"f")}type(){return B(this,V,"f").type}name(){return B(this,V,"f").name}value(){return B(this,V,"f").value}attributes(){return B(this,V,"f").attributes}children(){return xe(this,pt,B(this,pt,"f")??(B(this,V,"f").children??[]).map(t=>new s(t)),"f"),B(this,pt,"f")}};V=new WeakMap,pt=new WeakMap;var Fe=function(s,t,e,r,i){if(r==="m")throw new TypeError("Private method is not writable");if(r==="a"&&!i)throw new TypeError("Private accessor was defined without a setter");if(typeof t=="function"?s!==t||!i:!t.has(s))throw new TypeError("Cannot write private member to an object whose class did not declare it");return r==="a"?i.call(s,e):i?i.value=e:t.set(s,e),e},wt=function(s,t,e,r){if(e==="a"&&!r)throw new TypeError("Private accessor was defined without a getter");if(typeof t=="function"?s!==t||!r:!t.has(s))throw new TypeError("Cannot read private member from an object whose class did not declare it");return e==="m"?r:e==="a"?r.call(s):r?r.value:t.get(s)},Q,_t,It=class{constructor(t){Q.set(this,void 0),_t.set(this,void 0),Fe(this,Q,t,"f")}width(){return wt(this,Q,"f").width}height(){return wt(this,Q,"f").height}elements(){return Fe(this,_t,wt(this,_t,"f")??wt(this,Q,"f").elements.map(t=>new K(t)),"f"),wt(this,_t,"f")}};Q=new WeakMap,_t=new WeakMap;var gr=function(s,t,e,r,i){if(r==="m")throw new TypeError("Private method is not writable");if(r==="a"&&!i)throw new TypeError("Private accessor was defined without a setter");if(typeof t=="function"?s!==t||!i:!t.has(s))throw new TypeError("Cannot write private member to an object whose class did not declare it");return r==="a"?i.call(s,e):i?i.value=e:t.set(s,e),e},Ce=function(s,t,e,r){if(e==="a"&&!r)throw new TypeError("Private accessor was defined without a getter");if(typeof t=="function"?s!==t||!r:!t.has(s))throw new TypeError("Cannot read private member from an object whose class did not declare it");return e==="m"?r:e==="a"?r.call(s):r?r.value:t.get(s)},yt,Bt=class{constructor(t){yt.set(this,void 0),gr(this,yt,t,"f")}x(){return Ce(this,yt,"f").x}y(){return Ce(this,yt,"f").y}};yt=new WeakMap;var Se=function(s,t,e,r,i){if(r==="m")throw new TypeError("Private method is not writable");if(r==="a"&&!i)throw new TypeError("Private accessor was defined without a setter");if(typeof t=="function"?s!==t||!i:!t.has(s))throw new TypeError("Cannot write private member to an object whose class did not declare it");return r==="a"?i.call(s,e):i?i.value=e:t.set(s,e),e},gt=function(s,t,e,r){if(e==="a"&&!r)throw new TypeError("Private accessor was defined without a getter");if(typeof t=="function"?s!==t||!r:!t.has(s))throw new TypeError("Cannot read private member from an object whose class did not declare it");return e==="m"?r:e==="a"?r.call(s):r?r.value:t.get(s)},k,vt,Xt=class{constructor(t){k.set(this,void 0),vt.set(this,void 0),Se(this,k,t,"f")}elements(){return Se(this,vt,gt(this,vt,"f")??gt(this,k,"f").elements.map(t=>new K(t)),"f"),gt(this,vt,"f")}weight(){return gt(this,k,"f").weight??1}tags(){return gt(this,k,"f").tags??[]}hasTag(t,e){return e===void 0?this.tags().some(r=>r===t||r.startsWith(`${t}:`)):this.tags().includes(`${t}:${e}`)}};k=new WeakMap,vt=new WeakMap;var bt=function(s,t,e,r,i){if(r==="m")throw new TypeError("Private method is not writable");if(r==="a"&&!i)throw new TypeError("Private accessor was defined without a setter");if(typeof t=="function"?s!==t||!i:!t.has(s))throw new TypeError("Cannot write private member to an object whose class did not declare it");return r==="a"?i.call(s,e):i?i.value=e:t.set(s,e),e},w=function(s,t,e,r){if(e==="a"&&!r)throw new TypeError("Private accessor was defined without a getter");if(typeof t=="function"?s!==t||!r:!t.has(s))throw new TypeError("Cannot read private member from an object whose class did not declare it");return e==="m"?r:e==="a"?r.call(s):r?r.value:t.get(s)},A,tt,Pt,b,$t,Rt,z,Et=class{constructor(t,e,r){A.add(this),tt.set(this,void 0),Pt.set(this,void 0),b.set(this,void 0),$t.set(this,void 0),Rt.set(this,void 0),bt(this,tt,e,"f"),bt(this,Pt,t,"f"),bt(this,b,r,"f")}name(){return w(this,Pt,"f")}extendsName(){return"extends"in w(this,tt,"f")?w(this,tt,"f").extends:void 0}sourceName(){return this.extendsName()??w(this,Pt,"f")}width(){return w(this,b,"f")?w(this,b,"f").width():w(this,A,"m",z).call(this).width}height(){return w(this,b,"f")?w(this,b,"f").height():w(this,A,"m",z).call(this).height}probability(){return w(this,b,"f")?w(this,b,"f").probability():w(this,A,"m",z).call(this).probability??100}rotate(){return w(this,b,"f")?w(this,b,"f").rotate():w(this,A,"m",z).call(this).rotate}scale(){return w(this,b,"f")?w(this,b,"f").scale():w(this,A,"m",z).call(this).scale}translate(){return w(this,b,"f")?w(this,b,"f").translate():(bt(this,$t,w(this,$t,"f")??new Bt(w(this,A,"m",z).call(this).translate??{}),"f"),w(this,$t,"f"))}variants(){return w(this,b,"f")?w(this,b,"f").variants():(bt(this,Rt,w(this,Rt,"f")??new Map(Object.entries(w(this,A,"m",z).call(this).variants).map(([t,e])=>[t,new Xt(e)])),"f"),w(this,Rt,"f"))}};tt=new WeakMap,Pt=new WeakMap,b=new WeakMap,$t=new WeakMap,Rt=new WeakMap,A=new WeakSet,z=function(){return w(this,tt,"f")};var vr=function(s,t,e,r,i){if(r==="m")throw new TypeError("Private method is not writable");if(r==="a"&&!i)throw new TypeError("Private accessor was defined without a setter");if(typeof t=="function"?s!==t||!i:!t.has(s))throw new TypeError("Cannot write private member to an object whose class did not declare it");return r==="a"?i.call(s,e):i?i.value=e:t.set(s,e),e},me=function(s,t,e,r){if(e==="a"&&!r)throw new TypeError("Private accessor was defined without a getter");if(typeof t=="function"?s!==t||!r:!t.has(s))throw new TypeError("Cannot read private member from an object whose class did not declare it");return e==="m"?r:e==="a"?r.call(s):r?r.value:t.get(s)},et,Lt=class{constructor(t){et.set(this,void 0),vr(this,et,t,"f")}values(){return me(this,et,"f").values}notEqualTo(){return me(this,et,"f").notEqualTo??[]}contrastTo(){return me(this,et,"f").contrastTo}};et=new WeakMap;var Tt=function(s,t,e,r,i){if(r==="m")throw new TypeError("Private method is not writable");if(r==="a"&&!i)throw new TypeError("Private accessor was defined without a setter");if(typeof t=="function"?s!==t||!i:!t.has(s))throw new TypeError("Cannot write private member to an object whose class did not declare it");return r==="a"?i.call(s,e):i?i.value=e:t.set(s,e),e},_=function(s,t,e,r){if(e==="a"&&!r)throw new TypeError("Private accessor was defined without a getter");if(typeof t=="function"?s!==t||!r:!t.has(s))throw new TypeError("Cannot read private member from an object whose class did not declare it");return e==="m"?r:e==="a"?r.call(s):r?r.value:t.get(s)},pe,C,F,xt,Ft,rt,Ct,Me,St,j=class{constructor(t){pe.add(this),F.set(this,void 0),xt.set(this,void 0),Ft.set(this,void 0),rt.set(this,void 0),Ct.set(this,void 0),Re.validate(t),Tt(this,F,structuredClone(t),"f"),_(this,pe,"m",Me).call(this)}id(){return _(this,F,"f").$id}schema(){return _(this,F,"f").$schema}comment(){return _(this,F,"f").$comment}meta(){return Tt(this,xt,_(this,xt,"f")??new Nt(_(this,F,"f").meta??{}),"f"),_(this,xt,"f")}attributes(){return structuredClone(_(this,F,"f").attributes??{})}definition(){return structuredClone(_(this,F,"f"))}canvas(){return Tt(this,Ft,_(this,Ft,"f")??new It(_(this,F,"f").canvas),"f"),_(this,Ft,"f")}components(){if(_(this,rt,"f"))return _(this,rt,"f");let t=Object.entries(_(this,F,"f").components??{}),e=new Map;for(let[r,i]of t)_(C,C,"m",St).call(C,i)||e.set(r,new Et(r,i));for(let[r,i]of t)_(C,C,"m",St).call(C,i)&&e.set(r,new Et(r,i,e.get(i.extends)));return Tt(this,rt,e,"f"),_(this,rt,"f")}colors(){return Tt(this,Ct,_(this,Ct,"f")??new Map(Object.entries(_(this,F,"f").colors??{}).map(([t,e])=>[t,new Lt(e)])),"f"),_(this,Ct,"f")}};C=j,F=new WeakMap,xt=new WeakMap,Ft=new WeakMap,rt=new WeakMap,Ct=new WeakMap,pe=new WeakSet,Me=function(){let t=_(this,F,"f").components;if(!t)return;let e=[];for(let[r,i]of Object.entries(t)){if(!_(C,C,"m",St).call(C,i))continue;let o=i.extends,n=t[o];if(!n){e.push({instancePath:`/components/${r}/extends`,message:`references unknown component "${o}"`});continue}_(C,C,"m",St).call(C,n)&&e.push({instancePath:`/components/${r}/extends`,message:`references alias "${o}" \u2014 alias chains are not allowed`})}if(e.length>0)throw new Ot(e)},St=function(t){return"extends"in t};var We={validate(){}};var je=function(s,t,e,r,i){if(r==="m")throw new TypeError("Private method is not writable");if(r==="a"&&!i)throw new TypeError("Private accessor was defined without a setter");if(typeof t=="function"?s!==t||!i:!t.has(s))throw new TypeError("Cannot write private member to an object whose class did not declare it");return r==="a"?i.call(s,e):i?i.value=e:t.set(s,e),e},f=function(s,t,e,r){if(e==="a"&&!r)throw new TypeError("Private accessor was defined without a getter");if(typeof t=="function"?s!==t||!r:!t.has(s))throw new TypeError("Cannot read private member from an object whose class did not declare it");return e==="m"?r:e==="a"?r.call(s):r?r.value:t.get(s)},g,P,Ut,D,X,N,qt=class{constructor(t={}){g.add(this),P.set(this,void 0),Ut.set(this,void 0),We.validate(t),je(this,P,structuredClone(t),"f")}seed(){return f(this,P,"f").seed}size(){return f(this,P,"f").size}idRandomization(){return f(this,P,"f").idRandomization}title(){return f(this,P,"f").title}flip(){return f(this,g,"m",X).call(this,f(this,P,"f").flip)}fontFamily(){return f(this,g,"m",X).call(this,f(this,P,"f").fontFamily)}fontWeight(){return f(this,g,"m",X).call(this,f(this,P,"f").fontWeight)}scale(){return f(this,g,"m",N).call(this,f(this,P,"f").scale)}borderRadius(){return f(this,g,"m",N).call(this,f(this,P,"f").borderRadius)}rotate(){return f(this,g,"m",N).call(this,f(this,P,"f").rotate)}translateX(){return f(this,g,"m",N).call(this,f(this,P,"f").translateX)}translateY(){return f(this,g,"m",N).call(this,f(this,P,"f").translateY)}tags(){return je(this,Ut,f(this,Ut,"f")??f(this,g,"m",X).call(this,f(this,P,"f").tags).map(t=>{let e=t.startsWith("!"),r=e?t.slice(1):t,i=r.indexOf(":");return i===-1?{category:r,negated:e}:{category:r.slice(0,i),value:r.slice(i+1),negated:e}}),"f")}componentVariant(t){let e=f(this,g,"m",D).call(this,`${t}Variant`);if(e!==void 0)return typeof e=="string"?{[e]:1}:Array.isArray(e)?Object.fromEntries(e.map(r=>[r,1])):e}componentProbability(t){return f(this,g,"m",D).call(this,`${t}Probability`)}color(t){let e=f(this,g,"m",D).call(this,`${t}Color`);return e===void 0?void 0:f(this,g,"m",X).call(this,e)}colorFill(t){return f(this,g,"m",X).call(this,f(this,g,"m",D).call(this,`${t}ColorFill`))}colorAngle(t){return f(this,g,"m",N).call(this,f(this,g,"m",D).call(this,`${t}ColorAngle`))}colorFillStops(t){return f(this,g,"m",N).call(this,f(this,g,"m",D).call(this,`${t}ColorFillStops`))}colorOrder(t){return f(this,g,"m",D).call(this,`${t}ColorOrder`)}};P=new WeakMap,Ut=new WeakMap,g=new WeakSet,D=function(t){return f(this,P,"f")[t]},X=function(t){return t===void 0?[]:Array.isArray(t)?t:[t]},N=function(t){if(t!==void 0){if(typeof t=="number")return{min:t,max:t};if(t.length!==0)return{min:Math.min(...t),max:Math.max(...t)}}};var L=class s{static hash(t){let e=2166136261;for(let r=0;r<t.length;r++)e^=t.charCodeAt(r),e=Math.imul(e,16777619);return e>>>0}static hex(t){return s.hash(t).toString(16).padStart(8,"0")}};var Ge=function(s,t,e,r,i){if(r==="m")throw new TypeError("Private method is not writable");if(r==="a"&&!i)throw new TypeError("Private accessor was defined without a setter");if(typeof t=="function"?s!==t||!i:!t.has(s))throw new TypeError("Cannot write private member to an object whose class did not declare it");return r==="a"?i.call(s,e):i?i.value=e:t.set(s,e),e},Oe=function(s,t,e,r){if(e==="a"&&!r)throw new TypeError("Private accessor was defined without a getter");if(typeof t=="function"?s!==t||!r:!t.has(s))throw new TypeError("Cannot read private member from an object whose class did not declare it");return e==="m"?r:e==="a"?r.call(s):r?r.value:t.get(s)},st;var Mt=class{constructor(t){st.set(this,void 0),Ge(this,st,t,"f")}next(){let t=Ge(this,st,Oe(this,st,"f")+1831565813|0,"f"),e=Math.imul(t^t>>>15,t|1);return e^=e+Math.imul(e^e>>>7,e|61),(e^e>>>14)>>>0}nextFloat(){return this.next()/4294967296}state(){return Oe(this,st,"f")}};st=new WeakMap;var br=function(s,t,e,r,i){if(r==="m")throw new TypeError("Private method is not writable");if(r==="a"&&!i)throw new TypeError("Private accessor was defined without a setter");if(typeof t=="function"?s!==t||!i:!t.has(s))throw new TypeError("Cannot write private member to an object whose class did not declare it");return r==="a"?i.call(s,e):i?i.value=e:t.set(s,e),e},U=function(s,t,e,r){if(e==="a"&&!r)throw new TypeError("Private accessor was defined without a getter");if(typeof t=="function"?s!==t||!r:!t.has(s))throw new TypeError("Cannot read private member from an object whose class did not declare it");return e==="m"?r:e==="a"?r.call(s):r?r.value:t.get(s)},q,Wt,we,Ht,Yt=class{constructor(t){q.add(this),Wt.set(this,void 0),br(this,Wt,t,"f")}pick(t,e){if(e.length===0)return;if(e.length===1)return e[0];let r=U(this,q,"m",we).call(this,e);if(r.length===1)return r[0];let i=r.sort(U(this,q,"m",Ht)),o=Math.floor(this.getValue(t)*i.length);return i[o]}weightedPick(t,e){let r=Object.keys(e);if(r.length===0)return;if(r.length===1)return r[0];let i=r.sort(U(this,q,"m",Ht)),o=i.reduce((c,u)=>c+e[u],0);if(o===0)return this.pick(t,i);let n=this.getValue(t)*o,h=0;for(let c of i)if(h+=e[c],n<h)return c;return i[i.length-1]}bool(t,e=50){return this.getValue(t)*100<e}float(t,e){let r=Math.min(e.min,e.max),i=Math.max(e.min,e.max),o=e.step??0,n;if(o>0){let h=Math.floor((i-r)/o)+1,c=Math.floor(this.getValue(t)*h);n=r+c*o}else n=r+this.getValue(t)*(i-r);return Math.round(n*1e4)/1e4}integer(t,e){let r=Math.min(e.min,e.max),i=Math.max(e.min,e.max);return Math.floor(this.getValue(t)*(i-r+1))+r}shuffle(t,e){if(e.length<=1)return[...e];let r=U(this,q,"m",we).call(this,e).sort(U(this,q,"m",Ht)),i=new Mt(L.hash(U(this,Wt,"f")+":"+t));for(let o=r.length-1;o>0;o--){let n=Math.floor(i.nextFloat()*(o+1)),h=r[o];r[o]=r[n],r[n]=h}return r}getValue(t){return new Mt(L.hash(U(this,Wt,"f")+":"+t)).nextFloat()}};Wt=new WeakMap,q=new WeakSet,we=function(t,e=String){let r=new Set,i=[];for(let o of t){let n=e(o);r.has(n)||(r.add(n),i.push(o))}return i},Ht=function(t,e){let r=String(t),i=String(e);return r<i?-1:r>i?1:0};var Jt=function(s,t,e,r){if(e==="a"&&!r)throw new TypeError("Private accessor was defined without a getter");if(typeof t=="function"?s!==t||!r:!t.has(s))throw new TypeError("Cannot read private member from an object whose class did not declare it");return e==="m"?r:e==="a"?r.call(s):r?r.value:t.get(s)},it,Ae,Zt,H=class{static toHex(t){let e=t.replace(/^#/,"").toLowerCase();return e.length===3?"#"+e[0]+e[0]+e[1]+e[1]+e[2]+e[2]:e.length===4?"#"+e[0]+e[0]+e[1]+e[1]+e[2]+e[2]+e[3]+e[3]:"#"+e}static toRgbHex(t){let e=this.toHex(t);return e.length>7?e.slice(0,7):e}static parseHex(t){let e=this.toHex(t).slice(1);return[parseInt(e.slice(0,2),16),parseInt(e.slice(2,4),16),parseInt(e.slice(4,6),16)]}static luminance(t){let e=this.parseHex(t),r=Jt(this,it,"m",Zt).call(this,e[0]),i=Jt(this,it,"m",Zt).call(this,e[1]),o=Jt(this,it,"m",Zt).call(this,e[2]);return .2126*r+.7152*i+.0722*o}static sortByContrast(t,e){let r=this.luminance(e),i=t.map(o=>{let n=this.luminance(o),h=(Math.max(n,r)+.05)/(Math.min(n,r)+.05);return{color:o,ratio:h}});return i.sort((o,n)=>n.ratio-o.ratio),i.map(o=>o.color)}static filterNotEqualTo(t,e){let r=new Set(e.map(o=>this.toRgbHex(o))),i=t.filter(o=>!r.has(this.toRgbHex(o)));return i.length>0?i:Array.from(t)}};it=H,Zt=function(t){return Jt(it,it,"f",Ae)[t]};Ae={value:[0,.0003035269835488375,.000607053967097675,.0009105809506465125,.00121410793419535,.0015176349177441874,.001821161901293025,.0021246888848418626,.0024282158683907,.0027317428519395373,.003035269835488375,.003346535763899161,.003676507324047436,.004024717018496307,.004391442037410293,.004776953480693729,.005181516702338386,.005605391624202723,.006048833022857055,.006512090792594474,.006995410187265387,.007499032043226175,.008023192985384994,.008568125618069307,.009134058702220787,.009721217320237847,.010329823029626938,.010960094006488246,.011612245179743887,.012286488356915872,.012983032342173012,.013702083047289686,.014443843596092545,.01520851442291271,.01599629336550963,.016807375752887384,.017641954488384078,.018500220128379697,.019382360956935723,.0202885630566524,.021219010376003558,.02217388479338738,.02315336617811041,.024157632448504756,.025186859627361627,.026241221894849898,.027320891639074897,.028426039504420793,.0295568344378088,.030713443732993635,.03189603307301153,.033104766570885055,.03433980680868217,.03560131487502034,.03688945040110004,.0382043715953465,.03954623527673283,.04091519690685319,.042311410620809675,.043735029256973465,.04518620438567554,.0466650863368801,.048171824226889426,.04970656598412723,.05126945837404324,.052860647023180246,.05448027644244237,.05612849004960009,.05780543019106723,.0595112381629812,.06124605423161761,.06301001765316767,.06480326669290577,.06662593864377289,.06847816984440017,.07036009569659588,.07227185068231748,.07421356838014963,.07618538148130785,.07818742180518633,.08021982031446831,.0822827071298148,.08437621154414882,.08650046203654976,.08865558628577294,.09084171118340767,.09305896284668747,.0953074666309647,.09758734714186246,.09989872824711389,.1022417330881013,.10461648409110419,.10702310297826761,.10946171077829933,.1119324278369056,.11443537382697373,.11697066775851084,.11953842798834562,.12213877222960187,.12477181756095049,.12743768043564743,.1301364766903643,.13286832155381798,.13563332965520566,.13843161503245183,.14126329114027164,.14412847085805777,.14702726649759498,.14995978981060856,.15292615199615017,.1559264637078274,.1589608350608804,.16202937563911096,.1651321945016676,.16826940018969075,.1714411007328226,.17464740365558504,.17788841598362914,.18116424424986022,.184474994500441,.18782077230067787,.1912016827407914,.19461783044157582,.19806931955994886,.20155625379439707,.20507873639031693,.20863687014525575,.21223075741405523,.21586050011389923,.21952619972926923,.2232279573168085,.22696587351009836,.23074004852434915,.23455058216100522,.238397573812271,.24228112246555486,.24620132670783548,.25015828472995344,.25415209433082675,.2581828529215958,.26225065752969623,.26635560480286247,.2704977910130658,.27467731206038465,.2788942634768104,.2831487404299921,.2874408377269175,.29177064981753587,.2961382707983211,.3005437944157765,.3049873140698863,.30946892281750854,.31398871337571754,.31854677812509186,.32314320911295075,.3277780980565422,.33245153634617935,.33716361504833037,.341914424908661,.3467040563550296,.35153259950043936,.3564001441459435,.3613067797835095,.3662525955988395,.3712376804741491,.37626212299090644,.3813260114325301,.386429433787049,.39157247774972326,.39675523072562685,.40197777983219574,.4072402119017367,.41254261348390375,.4178850708481375,.4232676699860717,.4286904966139067,.4341536361747489,.4396571738409188,.44520119451622786,.45078578283822346,.45641102318040466,.4620769996544071,.467783796112159,.47353149614800955,.4793201831008268,.4851499400560704,.4910208498478356,.4969329950608704,.5028864580325687,.5088813208549338,.5149176653765214,.5209955732043543,.5271151257058131,.5332764040105052,.5394794890121071,.5457244613701866,.5520114015120001,.5583403896342679,.5647115057049292,.5711248294648731,.5775804404296506,.5840784178911641,.5906188409193369,.5972017883637634,.6038273388553378,.6104955708078648,.6172065624196511,.6239603916750761,.6307571363461468,.6375968739940326,.6444796819705821,.6514056374198242,.6583748172794486,.665387298282272,.6724431569576875,.6795424696330938,.6866853124353134,.6938717612919899,.7011018919329731,.7083757798916868,.7156935005064807,.7230551289219693,.7304607400903537,.7379104087727308,.7454042095403874,.7529422167760779,.7605245046752924,.7681511472475071,.7758222183174236,.7835377915261935,.7912979403326302,.799102738014409,.8069522576692516,.8148465722161012,.8227857543962835,.8307698767746546,.83879901174074,.846873231509858,.8549926081242338,.8631572134541023,.8713671191987973,.8796223968878317,.8879231178819663,.8962693533742664,.9046611743911496,.9130986517934192,.9215818562772946,.9301108583754237,.938685728457888,.9473065367331999,.9559733532492861,.9646862478944651,.9734452903984125,.9822505503331171,.9911020971138298,1]};var Kt=class extends Error{constructor(t){let e=t.join(" \u2192 ");super(`Circular color reference: ${e}`),this.name="CircularColorReferenceError",this.chain=t}};var Ve="random",ze="fixed";var Qt=function(s,t,e,r,i){if(r==="m")throw new TypeError("Private method is not writable");if(r==="a"&&!i)throw new TypeError("Private accessor was defined without a setter");if(typeof t=="function"?s!==t||!i:!t.has(s))throw new TypeError("Cannot write private member to an object whose class did not declare it");return r==="a"?i.call(s,e):i?i.value=e:t.set(s,e),e},a=function(s,t,e,r){if(e==="a"&&!r)throw new TypeError("Private accessor was defined without a getter");if(typeof t=="function"?s!==t||!r:!t.has(s))throw new TypeError("Cannot read private member from an object whose class did not declare it");return e==="m"?r:e==="a"?r.call(s):r?r.value:t.get(s)},p,at,y,S,ot,lt,nt,De,Xe,Le,Ne,Ie,Ue,_e,Be,M,W,kt=class{constructor(t,e){p.add(this),at.set(this,void 0),y.set(this,void 0),S.set(this,void 0),ot.set(this,[]),lt.set(this,{}),nt.set(this,void 0),Qt(this,at,t,"f"),Qt(this,y,e,"f"),Qt(this,S,new Yt(this.seed()),"f")}seed(){return a(this,y,"f").seed()??""}size(){return a(this,p,"m",W).call(this,"size",()=>a(this,y,"f").size())}idRandomization(){return a(this,p,"m",W).call(this,"idRandomization",()=>a(this,y,"f").idRandomization()??!1)}title(){return a(this,p,"m",W).call(this,"title",()=>a(this,y,"f").title())}flip(){return a(this,p,"m",W).call(this,"flip",()=>a(this,S,"f").pick("flip",a(this,y,"f").flip())??"none")}fontFamily(){return a(this,p,"m",W).call(this,"fontFamily",()=>a(this,S,"f").pick("fontFamily",a(this,y,"f").fontFamily())??"system-ui")}fontWeight(){return a(this,p,"m",W).call(this,"fontWeight",()=>a(this,S,"f").pick("fontWeight",a(this,y,"f").fontWeight())??400)}scale(){return a(this,p,"m",M).call(this,"scale",a(this,y,"f").scale(),1)}borderRadius(){return a(this,p,"m",M).call(this,"borderRadius",a(this,y,"f").borderRadius(),0)}rotate(){return a(this,p,"m",M).call(this,"rotate",a(this,y,"f").rotate(),0)}translateX(){return a(this,p,"m",M).call(this,"translateX",a(this,y,"f").translateX(),0)}translateY(){return a(this,p,"m",M).call(this,"translateY",a(this,y,"f").translateY(),0)}variant(t){return a(this,p,"m",W).call(this,`${t}Variant`,()=>{let e=a(this,at,"f").components().get(t);if(!(!e||!a(this,p,"m",Xe).call(this,t,e)))return a(this,S,"f").weightedPick(`${t}Variant`,a(this,p,"m",Le).call(this,e))})}color(t){return a(this,p,"m",W).call(this,`${t}Color`,()=>a(this,p,"m",Ue).call(this,t))}colorFill(t){return a(this,p,"m",W).call(this,`${t}ColorFill`,()=>a(this,S,"f").pick(`${t}ColorFill`,a(this,y,"f").colorFill(t))??"solid")}colorAngle(t){return a(this,p,"m",M).call(this,`${t}ColorAngle`,a(this,y,"f").colorAngle(t),0)}colorOrder(t){return a(this,y,"f").colorOrder(t)??Ve}componentTransform(t){let e=a(this,at,"f").components().get(t);return{rotate:a(this,p,"m",M).call(this,`${t}Rotate`,e?.rotate(),0),translateX:a(this,p,"m",M).call(this,`${t}TranslateX`,e?.translate().x(),0),translateY:a(this,p,"m",M).call(this,`${t}TranslateY`,e?.translate().y(),0),scale:a(this,p,"m",M).call(this,`${t}Scale`,e?.scale(),1)}}resolved(){return a(this,lt,"f")}};at=new WeakMap,y=new WeakMap,S=new WeakMap,ot=new WeakMap,lt=new WeakMap,nt=new WeakMap,p=new WeakSet,De=function(t){return a(this,y,"f").componentProbability(t.sourceName())??t.probability()},Xe=function(t,e){return a(this,S,"f").bool(`${t}Probability`,a(this,p,"m",De).call(this,e))},Le=function(t){let e=t.variants(),r=a(this,y,"f").componentVariant(t.sourceName()),i={},o=r?Object.keys(r):a(this,y,"f").tags().length>0?a(this,p,"m",Ie).call(this,e):e.keys();for(let n of o){let h=e.get(n);h!==void 0&&(i[n]=r?r[n]:h.weight())}return i},Ne=function(){if(a(this,nt,"f"))return a(this,nt,"f");let t=new Map,e=new Set,r=[],i=new Set;for(let{category:o,value:n,negated:h}of a(this,y,"f").tags())if(h)r.push({category:o,value:n}),n===void 0&&i.add(o);else if(n!==void 0){let c=t.get(o)??[];c.push(n),t.set(o,c)}else e.add(o);return Qt(this,nt,{allowGroups:[...t],bares:e,disallows:r,bareDisallows:i},"f"),a(this,nt,"f")},Ie=function(t){let{allowGroups:e,bares:r,disallows:i,bareDisallows:o}=a(this,p,"m",Ne).call(this),n=[...r].filter(c=>{if(o.has(c))return!1;for(let u of t.values())if(u.hasTag(c))return!0;return!1}),h=[];for(let[c,u]of t){let T=e.every(([R,x])=>!u.hasTag(R)||x.some(fe=>u.hasTag(R,fe)))&&n.every(R=>u.hasTag(R)),$=i.some(({category:R,value:x})=>u.hasTag(R,x));T&&!$&&h.push(c)}return h},Ue=function(t){let e=a(this,y,"f").color(t),r=a(this,at,"f").colors().get(t),o=(e??r?.values()??[]).map(x=>H.toHex(x)),n=this.colorOrder(t)===ze,h=e!==void 0&&n,u=this.colorFill(t)==="solid"?1:a(this,p,"m",Be).call(this,t,h?o.length:2);if(!r)return a(this,p,"m",_e).call(this,t,o,n,h).slice(0,u);if(a(this,ot,"f").includes(t))throw new Kt(a(this,ot,"f").concat(t));a(this,ot,"f").push(t);let T=r.contrastTo(),$=r.notEqualTo();try{if(T&&!h){let x=this.color(T)[0];x&&(o=H.sortByContrast(o,x))}if($.length>0){let x=[];for(let fe of $)for(let hr of this.color(fe))x.push(hr);o=H.filterNotEqualTo(o,x)}}finally{a(this,ot,"f").pop()}return(T?o:a(this,p,"m",_e).call(this,t,o,n,h)).slice(0,u)},_e=function(t,e,r,i){return r?i?e:Array.from(new Set(e)).sort():a(this,S,"f").shuffle(`${t}Color`,e)},Be=function(t,e){let r=a(this,y,"f").colorFillStops(t);return r?a(this,S,"f").integer(`${t}ColorFillStops`,r):e},M=function(t,e,r){return a(this,p,"m",W).call(this,t,()=>e?a(this,S,"f").float(t,e):r)},W=function(t,e){if(t in a(this,lt,"f"))return a(this,lt,"f")[t];let r=e();return a(this,lt,"f")[t]=r,r};var te=class{static fromSeed(t,e=!0){let r=t;e&&(r=t.replace(/@.*/s,"")),r=r.replace(/[`´'ʼ]/g,"");let i=r.match(/(\p{L}[\p{L}\p{M}]*)/gu);if(!i)return e?this.fromSeed(t,!1):"";if(i.length===1){let h=i[0].match(/^(?:\p{L}\p{M}*){1,2}/u);return h?h[0].toUpperCase():""}let o=i[0].match(/^(?:\p{L}\p{M}*)/u),n=i[i.length-1].match(/^(?:\p{L}\p{M}*)/u);return!o||!n?"":(o[0]+n[0]).toUpperCase()}};var ye=function(s,t,e,r){if(e==="a"&&!r)throw new TypeError("Private accessor was defined without a getter");if(typeof t=="function"?s!==t||!r:!t.has(s))throw new TypeError("Cannot read private member from an object whose class did not declare it");return e==="m"?r:e==="a"?r.call(s):r?r.value:t.get(s)},Y,ge,qe,E=class{static escape(t){return t.replace(ye(Y,Y,"f",qe),e=>ye(Y,Y,"f",ge)[e])}};Y=E;ge={value:{"&":"&amp;","'":"&apos;",'"':"&quot;","<":"&lt;",">":"&gt;"}};qe={value:new RegExp(`[${Object.keys(ye(Y,Y,"f",ge)).join("")}]`,"g")};var ee=class{static text(t){let e=t.source().name(),r=t.source().url(),i=t.creator().name(),o=t.license().name(),n=t.license().url();if(!e&&!i&&!o)return"";let h=e?`\u201C${e}\u201D`:"Design";r&&(h+=` (${r})`);let c=`\u201C${i??"Unknown"}\u201D`,u="";return o!=="MIT"&&i!=="DiceBear"&&e&&(u+="Remix of "),u+=`${h} by ${c}`,o&&(u+=`, licensed under \u201C${o}\u201D`,n&&(u+=` (${n})`)),u}static xml(t){let e=t.source().name(),r=t.creator().name(),i=t.source().url(),o=t.license().url(),n=this.text(t);if(!e&&!r&&!i&&!o&&!n)return"";let h=[];return e&&h.push(`<dc:title>${E.escape(e)}</dc:title>`),r&&h.push(`<dc:creator>${E.escape(r)}</dc:creator>`),i&&h.push(`<dc:source xsi:type="dcterms:URI">${E.escape(i)}</dc:source>`),o&&h.push(`<dcterms:license xsi:type="dcterms:URI">${E.escape(o)}</dcterms:license>`),n&&h.push(`<dc:rights>${E.escape(n)}</dc:rights>`),`<metadata xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/"><rdf:RDF><rdf:Description>${h.join("")}</rdf:Description></rdf:RDF></metadata>`}};var d=class{static format(t){if(t!==t)return"NaN";if(t===1/0)return"Infinity";if(t===-1/0)return"-Infinity";let e=Math.round(t*1e5),r=e<0?"-":"";e=Math.abs(e);let i=Math.floor(e/1e5),o=String(e%1e5).padStart(5,"0").replace(/0+$/,"");return`${r}${i}${o?`.${o}`:""}`}};var ae=function(s,t,e,r,i){if(r==="m")throw new TypeError("Private method is not writable");if(r==="a"&&!i)throw new TypeError("Private accessor was defined without a setter");if(typeof t=="function"?s!==t||!i:!t.has(s))throw new TypeError("Cannot write private member to an object whose class did not declare it");return r==="a"?i.call(s,e):i?i.value=e:t.set(s,e),e},l=function(s,t,e,r){if(e==="a"&&!r)throw new TypeError("Private accessor was defined without a getter");if(typeof t=="function"?s!==t||!r:!t.has(s))throw new TypeError("Cannot read private member from an object whose class did not declare it");return e==="m"?r:e==="a"?r.call(s):r?r.value:t.get(s)},m,I,v,G,se,ie,tr,er,rr,sr,ir,or,nr,oe,ve,He,Ye,Je,Ze,ne,Ke,be,Qe,ke,Pe,$e,re,le=class{constructor(t,e){m.add(this),I.set(this,void 0),v.set(this,void 0),G.set(this,new Map),se.set(this,void 0),ie.set(this,void 0),ae(this,I,t,"f"),ae(this,v,e,"f")}render(){let t=l(this,I,"f").canvas(),e=l(this,m,"m",or).call(this,t),r=l(this,m,"m",oe).call(this,t.elements());r=l(this,m,"m",er).call(this,r,t),r=l(this,m,"m",tr).call(this,r,t),r=l(this,m,"m",sr).call(this,r,t),r=l(this,m,"m",ir).call(this,r,t),r=l(this,m,"m",rr).call(this,`${e}${r}`,t);let i=ee.xml(l(this,I,"f").meta()),o=l(this,G,"f").size>0?`<defs>${Array.from(l(this,G,"f").values()).join("")}</defs>`:"",n=l(this,v,"f").size(),h=l(this,v,"f").title(),c=h!==void 0?E.escape(h):void 0,u=['xmlns="http://www.w3.org/2000/svg"',`viewBox="0 0 ${d.format(t.width())} ${d.format(t.height())}"`],T=l(this,m,"m",ne).call(this,l(this,I,"f").attributes());if(T&&u.push(T.trimStart()),c!==void 0?u.push('role="img"',`aria-label="${c}"`):u.push('aria-hidden="true"'),n!==void 0){let x=d.format(n);u.push(`width="${x}"`,`height="${x}"`)}let $=c!==void 0?`<title>${c}</title>`:"",R=`<svg ${u.join(" ")}><!-- Generated by DiceBear (https://www.dicebear.com) -->${i}${o}${$}${r}</svg>`;return l(this,v,"f").idRandomization()&&(R=l(this,m,"m",nr).call(this,R)),R}};I=new WeakMap,v=new WeakMap,G=new WeakMap,se=new WeakMap,ie=new WeakMap,m=new WeakSet,tr=function(t,e){let r=l(this,v,"f").flip();if(r==="none")return t;let i=d.format(e.width()),o=d.format(e.height()),n;switch(r){case"horizontal":n=`translate(${i}, 0) scale(-1, 1)`;break;case"vertical":n=`translate(0, ${o}) scale(1, -1)`;break;case"both":n=`translate(${i}, ${o}) scale(-1, -1)`;break}return`<g transform="${n}">${t}</g>`},er=function(t,e){let r=l(this,v,"f").scale();if(r===1)return t;let i=e.width()/2,o=e.height()/2;return`<g transform="translate(${d.format(i)}, ${d.format(o)}) scale(${d.format(r)}) translate(${d.format(-i)}, ${d.format(-o)})">${t}</g>`},rr=function(t,e){let r=l(this,v,"f").borderRadius(),i=`clip-${l(this,m,"m",re).call(this)}`,o=d.format(r/100*e.width()),n=d.format(r/100*e.height());return l(this,G,"f").set(i,`<clipPath id="${i}"><rect width="${d.format(e.width())}" height="${d.format(e.height())}" rx="${o}" ry="${n}"/></clipPath>`),`<g clip-path="url(#${i})">${t}</g>`},sr=function(t,e){let r=l(this,v,"f").rotate();if(r===0)return t;let i=e.width()/2,o=e.height()/2;return`<g transform="rotate(${d.format(r)}, ${d.format(i)}, ${d.format(o)})">${t}</g>`},ir=function(t,e){let r=l(this,v,"f").translateX(),i=l(this,v,"f").translateY();if(r===0&&i===0)return t;let o=d.format(r/100*e.width()),n=d.format(i/100*e.height());return`<g transform="translate(${o}, ${n})">${t}</g>`},or=function(t){return l(this,v,"f").color("background").length===0?"":`<rect width="${d.format(t.width())}" height="${d.format(t.height())}" fill="${E.escape(l(this,m,"m",be).call(this,"background"))}"/>`},nr=function(t){let e=Math.floor(Math.random()*16777215).toString(16).padStart(6,"0"),r=new Set;for(let n of t.matchAll(/\bid="([^"]+)"/g))r.add(n[1]);if(r.size===0)return t;let i=Array.from(r,n=>n.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")),o=new RegExp(`(id="|url\\(#|href="#)(${i.join("|")})("|\\))`,"g");return t.replace(o,(n,h,c,u)=>`${h}${c}-${e}${u}`)},oe=function(t){return t.map(e=>l(this,m,"m",ve).call(this,e)).join("")},ve=function(t){switch(t.type()){case"element":return l(this,m,"m",He).call(this,t);case"text":return l(this,m,"m",Ye).call(this,t);case"component":return l(this,m,"m",Je).call(this,t)}},He=function(t){let e=t.name();if(!e)return"";if(e==="defs"){for(let o of t.children()){let n=l(this,m,"m",ve).call(this,o);if(n.length>0){let h=o.attributes()?.id,c=typeof h=="string"?h:`_${l(this,G,"f").size}`;l(this,G,"f").set(c,n)}}return""}let r=l(this,m,"m",ne).call(this,t.attributes()),i=l(this,m,"m",oe).call(this,t.children());return i.length===0?t.children().length>0&&t.attributes()?.id===void 0?"":`<${e}${r}/>`:`<${e}${r}>${i}</${e}>`},Ye=function(t){let e=t.value();return e!==void 0?E.escape(l(this,m,"m",ke).call(this,e)):""},Je=function(t){let e=t.name();if(typeof e!="string")return"";let r=l(this,v,"f").variant(e);if(!r)return"";let i=l(this,I,"f").components().get(e);if(!i)return"";let o=i.variants().get(r);if(!o)return"";let n=`${i.sourceName()}-${r}-${l(this,m,"m",re).call(this)}`;if(!l(this,G,"f").has(n)){let $=l(this,m,"m",oe).call(this,o.elements());l(this,G,"f").set(n,`<g id="${n}">${$}</g>`)}let h=l(this,m,"m",Ze).call(this,i),c=t.attributes(),u=c;if(h.length>0){let $=c?.transform,R=typeof $=="string"&&$.length>0?[$,...h]:h;u={...c,transform:R.join(" ")}}return`<use${l(this,m,"m",ne).call(this,u)} href="#${n}"/>`},Ze=function(t){let{rotate:e,translateX:r,translateY:i,scale:o}=l(this,v,"f").componentTransform(t.name());if(r===0&&i===0&&e===0&&o===1)return[];let n=[],h=t.width()/2,c=t.height()/2,u=d.format(h),T=d.format(c);if(r!==0||i!==0){let $=d.format(r/100*t.width()),R=d.format(i/100*t.height());n.push(`translate(${$}, ${R})`)}return e!==0&&n.push(`rotate(${d.format(e)}, ${u}, ${T})`),o!==1&&n.push(`translate(${u}, ${T}) scale(${d.format(o)}) translate(${d.format(-h)}, ${d.format(-c)})`),n},ne=function(t){if(!t)return"";let e=[];for(let[r,i]of Object.entries(t))i!==void 0&&e.push(`${r}="${E.escape(l(this,m,"m",Ke).call(this,i))}"`);return e.length===0?"":` ${e.join(" ")}`},Ke=function(t){return typeof t=="string"?t:t.type==="color"?l(this,m,"m",be).call(this,t.name):l(this,m,"m",Pe).call(this,t.name)},be=function(t){let e=l(this,v,"f").color(t),r=l(this,v,"f").colorFill(t);return r==="solid"||e.length<=1?e[0]??"none":l(this,m,"m",Qe).call(this,t,e,r)},Qe=function(t,e,r){let i=l(this,v,"f").colorAngle(t),o=`${t}-color-${l(this,m,"m",re).call(this)}`,n=r==="linear"?"linearGradient":"radialGradient",h=i!==0?` gradientTransform="rotate(${d.format(i)}, 0.5, 0.5)"`:"",c=e.map((u,T)=>`<stop offset="${d.format(T/(e.length-1)*100)}%" stop-color="${E.escape(u)}"/>`);return l(this,G,"f").set(o,`<${n} id="${o}"${h}>${c.join("")}</${n}>`),`url(#${o})`},ke=function(t){return typeof t=="string"?t:t.type==="variable"?l(this,m,"m",Pe).call(this,t.name):""},Pe=function(t){switch(t){case"initial":{let e=l(this,m,"m",$e).call(this).codePointAt(0);return e!==void 0?String.fromCodePoint(e):""}case"initials":return l(this,m,"m",$e).call(this);case"fontWeight":return d.format(l(this,v,"f").fontWeight());case"fontFamily":return l(this,v,"f").fontFamily()}},$e=function(){return ae(this,ie,l(this,ie,"f")??te.fromSeed(l(this,v,"f").seed()),"f")},re=function(){return ae(this,se,l(this,se,"f")??L.hex((l(this,I,"f").meta().source().name()??"")+":"+l(this,v,"f").seed()),"f")};var ar=function(s,t,e,r,i){if(r==="m")throw new TypeError("Private method is not writable");if(r==="a"&&!i)throw new TypeError("Private accessor was defined without a setter");if(typeof t=="function"?s!==t||!i:!t.has(s))throw new TypeError("Cannot write private member to an object whose class did not declare it");return r==="a"?i.call(s,e):i?i.value=e:t.set(s,e),e},he=function(s,t,e,r){if(e==="a"&&!r)throw new TypeError("Private accessor was defined without a getter");if(typeof t=="function"?s!==t||!r:!t.has(s))throw new TypeError("Cannot read private member from an object whose class did not declare it");return e==="m"?r:e==="a"?r.call(s):r?r.value:t.get(s)},ht,ce,lr=!1,jt=class{constructor(t,e){ht.set(this,void 0),ce.set(this,void 0),!(t instanceof j)&&!lr&&(lr=!0,console.warn("[DiceBear] Passing a style definition to `new Avatar()` is deprecated and will be removed in v11. Wrap it in a Style first: `new Avatar(new Style(definition), options)`."));let r=t instanceof j?t:new j(t),i=new qt(e),o=new kt(r,i);ar(this,ht,new le(r,o).render(),"f"),ar(this,ce,o.resolved(),"f")}toString(){return he(this,ht,"f")}toJSON(){return{svg:he(this,ht,"f"),options:structuredClone(he(this,ce,"f"))}}toDataUri(){return`data:image/svg+xml;charset=utf-8,${encodeURIComponent(he(this,ht,"f"))}`}};ht=new WeakMap,ce=new WeakMap;return pr(Pr);})();</script>
 <script>/*! tv-programs — bibliothèque SVG modulaire (générée par tv-programs/build.mjs) */
@@ -10890,6 +11434,6 @@ var TV_PROGRAMS_LIBRARY = {"meta":{"creator":{"name":"Audience Masters — tv-pr
 })(typeof globalThis !== 'undefined' ? globalThis : this);
 </script>
 <!-- tv-programs:end -->
-<script>render();</script>
+<script>initDesktopShell(); render();</script>
 </body>
 </html>
