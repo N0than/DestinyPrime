@@ -1629,6 +1629,8 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 }
 .mercato-card.kickoff-card:hover:not(:disabled) { box-shadow: 0 34px 64px -14px rgba(15,23,42,0.3), 0 0 0 1px rgba(255,255,255,0.9) inset; }
 .kickoff-cards { position: relative; container-type: inline-size; }
+/* Même écart entre le cartouche, les cartes et « Aucun changement » (celui de .dilemma-container). */
+.kickoff-choices { gap: 14px; }
 .kickoff-or {
   position: absolute; left: 50%; top: 25%; top: calc((50cqw - 5px) * 9 / 16); transform: translate(-50%, -50%); z-index: 2;
   width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
@@ -8974,7 +8976,7 @@ function renderSeasonKickoff(app) {
         </div>
       </header>
       <div id="choice-zone">
-        <div class="choices">${optionsHtml}${noneHtml}</div>
+        <div class="choices kickoff-choices">${optionsHtml}${noneHtml}</div>
         <span id="kickoff-feedback" class="program-manager-feedback" aria-live="polite"></span>
       </div>
     </div>
