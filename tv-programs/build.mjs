@@ -18,7 +18,7 @@ import { fileURLToPath } from 'node:url';
 import { build } from 'esbuild';
 import * as DiceBearCore from '@dicebear/core';
 
-import { character, legs, torso, armLeft, armRight, head, face, hair } from './src/characters.mjs';
+import { character, legs, torsoF, torsoM, armLeft, armRight, headF, headM, faceF, faceM, hairF, hairM } from './src/characters.mjs';
 import { headwear, handheld, accessory, decor } from './src/items.mjs';
 import { scene } from './src/scenes.mjs';
 import { prop } from './src/props.mjs';
@@ -32,7 +32,7 @@ const coreVersion = JSON.parse(fs.readFileSync(path.join(here, 'node_modules/@di
 // ---------------------------------------------------------------------------
 // 1. Assemblage
 // ---------------------------------------------------------------------------
-const CHARACTER_PARTS = { character, legs, torso, armLeft, armRight, head, face, hair, headwear, handheld };
+const CHARACTER_PARTS = { character, legs, torsoF, torsoM, armLeft, armRight, headF, headM, faceF, faceM, hairF, hairM, headwear, handheld };
 const PERSON_COLORS = ['skin', 'hair', 'top', 'bottom'];
 
 const cloneForSecond = comp => {
@@ -97,7 +97,7 @@ new DiceBearCore.Style(definition); // lève une StyleValidationError si la déf
 // 3. Tests de rendu
 // ---------------------------------------------------------------------------
 const errors = [];
-const used = id => new RegExp(`id="${id}2?-`);
+const used = id => new RegExp(`id="(?:${id})2?-`);
 const pickedVariant = (svgText, comp) => (svgText.match(new RegExp(`id="${comp}-([A-Za-z0-9]+)-[a-z0-9]+"`)) || [])[1];
 const SUBS = Object.fromEntries(Object.entries(TP.SUBGENRES).map(([genre, list]) => [genre, ['', ...list]]));
 const stats = {};
@@ -108,15 +108,21 @@ for (const genre of Object.keys(TP.GENRES)) {
       const opts = { seed: `test-${i}`, genre, subgenre: sub };
       const a = TP.svg(opts), b = TP.svg(opts);
       if (a !== b) errors.push(`${genre}/${sub}: rendu non déterministe`);
-      for (const comp of ['scene', 'composition', 'prop', 'character', 'legs', 'torso', 'hair', 'head']) {
+      for (const comp of ['scene', 'composition', 'prop', 'character', 'legs', 'torsoF|torsoM', 'hairF|hairM', 'headF|headM']) {
         if (!used(comp).test(a)) errors.push(`${genre}/${sub} #${i}: composant « ${comp} » absent`);
       }
       if (/\$[a-z]/i.test(a)) errors.push(`${genre}/${sub}: référence de couleur non résolue`);
-      combos.add(['scene', 'composition', 'prop', 'hair', 'torso'].map(c => pickedVariant(a, c) || pickedVariant(a, c + '2')).join('/'));
+      combos.add(['scene', 'composition', 'prop', 'hairF', 'hairM', 'torsoF', 'torsoM'].map(c => pickedVariant(a, c) || pickedVariant(a, c + '2')).join('/'));
     }
     stats[`${genre}${sub ? '/' + sub : ''}`] = combos.size;
     if (combos.size < 15) errors.push(`${genre}/${sub}: diversité insuffisante (${combos.size} combinaisons sur 40)`);
   }
+}
+// Cohérence des silhouettes : jamais de barbe ni de moustache sur une silhouette féminine,
+// jamais de robe sur une silhouette masculine.
+for (let i = 0; i < 300; i++) {
+  const svgText = TP.svg({ seed: `coh-${i}`, genre: Object.keys(TP.GENRES)[i % Object.keys(TP.GENRES).length] });
+  if (/id="faceF2?-(beard|mustache)-/.test(svgText) || /id="torsoM2?-dress-/.test(svgText)) errors.push(`silhouette incohérente (graine coh-${i})`);
 }
 // Chaque genre doit disposer de décors, d'objets et d'accessoires dédiés.
 const genresOf = comp => new Set(Object.values(components[comp].variants).flatMap(v => (v.tags || []).filter(t => t.startsWith('genre:')).map(t => t.slice(6))));
