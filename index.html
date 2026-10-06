@@ -744,7 +744,7 @@ button.radar-card:hover { transform: translateY(-1px); box-shadow: 0 10px 24px -
 /* ---- INDICATEURS DE PERFORMANCE : 4 tuiles qui occupent toute la hauteur du slider ---- */
 .eh-slide.perf-slide-wrap { position: relative; }
 /* Positionné en absolu comme l'évolution : la slide prend la hauteur du slider sans jamais l'agrandir. */
-.perf-slide { position: absolute; inset: 0 0 2px; display: flex; flex-direction: column; min-width: 0; }
+.perf-slide { position: absolute; inset: 0 1px 2px; display: flex; flex-direction: column; min-width: 0; }
 .perf-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-shrink: 0; }
 .perf-head .eh-title { margin-bottom: 0; }
 .perf-slide .eh-subtitle { margin: 4px 0 10px; flex-shrink: 0; }
@@ -791,10 +791,54 @@ button.radar-card:hover { transform: translateY(-1px); box-shadow: 0 10px 24px -
 @media (max-width: 360px) { .perf-tile { padding: 9px 9px; } .perf-verdict { font-size: 7.5px; padding: 2px 5px; } .perf-hint { font-size: 9px; } }
 
 /* ---- CONVENTION ARCOM ---- */
-.arcom-slide-wrap { display: flex; overflow: visible; }
-.arcom-slide { flex: 1; height: auto; display: flex; flex-direction: column; }
-.arcom-score-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 8px 0 12px; flex-wrap: wrap; }
-.arcom-score-value { font-family: 'Anton', sans-serif; font-size: 28px; color: var(--ink); line-height: 1; }
+/* Slide ARCOM : même langage que les indicateurs (pilule d'état, carte teintée), pleine hauteur sans agrandir le slider. */
+.eh-slide.arcom-slide-wrap { position: relative; }
+/* Les ombres des cartes ne débordent pas sur la slide voisine. */
+.eh-slide.arcom-slide-wrap, .eh-slide.perf-slide-wrap { overflow-x: clip; }
+.arcom-slide { position: absolute; inset: 0 1px 2px; display: flex; flex-direction: column; min-width: 0; }
+.arcom-slide .eh-subtitle { margin: 4px 0 10px; flex-shrink: 0; }
+.arcom-slide .good { --pf-c: var(--vert); --pf-rgb: 5,150,105; }
+.arcom-slide .warn { --pf-c: #b45309; --pf-rgb: 217,119,6; }
+.arcom-slide .bad { --pf-c: var(--rouge); --pf-rgb: 225,29,72; }
+.arc-hero {
+  flex-shrink: 0; display: flex; align-items: center; gap: 14px; padding: 9px 12px; border-radius: 14px;
+  background: linear-gradient(160deg, rgba(var(--pf-rgb),0.08) 0%, rgba(255,255,255,0.9) 60%);
+  border: 1px solid rgba(255,255,255,0.9); box-shadow: 0 0 0 1px rgba(226,223,215,0.7), 0 8px 18px -12px rgba(15,23,42,0.22);
+}
+.arc-score { flex-shrink: 0; font-family: 'Anton', sans-serif; font-size: 30px; line-height: 1.05; color: var(--pf-c); font-variant-numeric: tabular-nums; }
+.arc-score small { font-size: 0.5em; color: var(--gris); margin-left: 1px; }
+.arc-hero-side { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.arc-hero-text { font-size: 11px; color: var(--gris); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.arc-hero-text b { font-family: 'Anton', sans-serif; font-weight: 400; font-size: 13px; color: var(--ink); }
+.arc-gauge, .arc-bar {
+  position: relative; border-radius: 999px;
+  background: repeating-linear-gradient(-45deg, rgba(var(--pf-rgb),0.07) 0 3px, transparent 3px 7px), rgba(var(--pf-rgb),0.1);
+}
+.arc-gauge { height: 8px; }
+.arc-gauge-fill, .arc-bar-fill {
+  position: absolute; left: 0; top: 0; bottom: 0; border-radius: 999px;
+  background: repeating-linear-gradient(-45deg, rgba(255,255,255,0.2) 0 3px, transparent 3px 7px), var(--pf-c);
+  box-shadow: 0 2px 6px -2px rgba(var(--pf-rgb),0.55);
+}
+.arc-gauge i { position: absolute; top: -2px; bottom: -2px; width: 2px; margin-left: -1px; border-radius: 2px; background: #fff; box-shadow: 0 0 0 1px rgba(148,163,184,0.45); }
+.arc-rows { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: space-evenly; margin-top: 6px; }
+.arc-row { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.arc-row-line { display: flex; align-items: center; gap: 7px; min-width: 0; }
+.arc-row-ic {
+  flex-shrink: 0; width: 16px; height: 16px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 800; line-height: 1; color: var(--pf-c); background: rgba(var(--pf-rgb),0.12);
+}
+.arc-row-label { flex: 1; min-width: 0; font-size: 12px; font-weight: 600; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.arc-row-value { flex-shrink: 0; font-family: 'Anton', sans-serif; font-size: 12px; color: var(--pf-c); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.arc-row-value small { font-size: 0.85em; color: var(--gris); }
+.arc-bar { height: 5px; margin-left: 23px; }
+.arc-bar-min { position: absolute; left: 50%; top: -2px; bottom: -2px; width: 2px; margin-left: -1px; border-radius: 2px; background: var(--ink); opacity: 0.35; }
+.arcom-slide .arcom-view-btn {
+  flex-shrink: 0; display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 8px;
+  border: 1px solid var(--border); background: rgba(255,255,255,0.85); border-radius: 999px; padding: 8px 12px;
+  box-shadow: 0 6px 14px -10px rgba(15,23,42,0.3); transition: background .15s, color .15s, border-color .15s;
+}
+.arcom-slide .arcom-view-btn:hover { background: var(--ink); color: #fff; border-color: var(--ink); }
 .arcom-status-pill {
   display: inline-flex; align-items: center; gap: 5px;
   font-family: 'Anton', sans-serif; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.4px;
@@ -803,15 +847,10 @@ button.radar-card:hover { transform: translateY(-1px); box-shadow: 0 10px 24px -
 .arcom-status-excellent, .arcom-status-conforme { background: rgba(46,107,58,0.12); color: var(--vert); border-color: var(--vert); }
 .arcom-status-vigilance { background: rgba(212,175,55,0.16); color: #8a6d1a; border-color: var(--gold); }
 .arcom-status-manquements, .arcom-status-nonconforme { background: rgba(200,16,46,0.1); color: var(--rouge); border-color: var(--rouge); }
-.arcom-obligations-mini { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: space-evenly; margin-top: 4px; }
-.arcom-mini-row { display: flex; align-items: center; gap: 6px; padding: 4px 0; font-size: 12px; border-bottom: 1px dashed rgba(22,19,14,0.1); }
-.arcom-mini-row:last-child { border-bottom: none; }
 .arcom-mini-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 .arcom-mini-dot.ok { background: var(--vert); }
 .arcom-mini-dot.warn { background: var(--gold); }
 .arcom-mini-dot.bad { background: var(--rouge); }
-.arcom-mini-label { flex: 1; min-width: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
-.arcom-mini-value { font-family: 'Anton', sans-serif; font-size: 10.5px; color: var(--gris); white-space: nowrap; }
 .arcom-obligations-list { display: flex; flex-direction: column; gap: 9px; margin-top: 8px; }
 .arcom-oblig-row { display: flex; align-items: center; gap: 8px; }
 .arcom-oblig-info { flex: 1; min-width: 0; }
@@ -2574,23 +2613,44 @@ function renderStatStars(player, pdaCible, compliance) {
 }
 
 function renderArcomSlide(compliance, convention) {
-  const rows = compliance.obligations.map(ob => `
-    <div class="arcom-mini-row">
-      <span class="arcom-mini-dot ${ob.rate >= 1 ? 'ok' : (ob.rate >= 0.75 ? 'warn' : 'bad')}"></span>
-      <span class="arcom-mini-label">${esc(ob.label)}</span>
-      <span class="arcom-mini-value">${nf1(ob.actualValue)}${ob.unit === '%' ? '%' : ' ' + ob.unit} / ${ob.minimum}${ob.unit === '%' ? '%' : ' ' + ob.unit}</span>
-    </div>
-  `).join('');
+  const levelOf = ob => ob.rate >= 1 ? 'good' : (ob.rate >= 0.75 ? 'warn' : 'bad');
+  const unitOf = ob => ob.unit === '%' ? '%' : '';
+  const statusCls = { excellent: 'good', conforme: 'good', vigilance: 'warn' }[compliance.status.key] || 'bad';
+  const respected = compliance.obligations.filter(ob => ob.rate >= 1).length;
+  const total = compliance.obligations.length;
+  const rows = compliance.obligations.map(ob => {
+    const lvl = levelOf(ob);
+    // Le seuil est placé au milieu de la jauge : à droite, l'obligation est tenue.
+    const fill = Math.max(3, Math.min(100, ob.rate * 50));
+    return `
+    <div class="arc-row ${lvl}" title="${esc(ob.label)} : ${nf1(ob.actualValue)}${unitOf(ob)} pour un minimum de ${ob.minimum}${unitOf(ob) || ' ' + ob.unit}">
+      <div class="arc-row-line">
+        <span class="arc-row-ic">${lvl === 'good' ? '✓' : (lvl === 'warn' ? '!' : '✕')}</span>
+        <span class="arc-row-label">${esc(ob.label)}</span>
+        <span class="arc-row-value">${ob.unit === '%' ? nf1(ob.actualValue) : Math.round(ob.actualValue)}${unitOf(ob)}<small> / ${ob.minimum}${unitOf(ob)}</small></span>
+      </div>
+      <div class="arc-bar"><span class="arc-bar-fill" style="width:${fill.toFixed(1)}%"></span><i class="arc-bar-min"></i></div>
+    </div>`;
+  }).join('');
   return `
     <div class="arcom-slide">
-      <div class="eh-title">Convention ARCOM</div>
-      <div class="eh-subtitle">${esc(convention.label)} — obligations éditoriales</div>
-      <div class="arcom-score-row">
-        <div class="arcom-score-value">${compliance.arcomScore} / 100</div>
-        <div class="arcom-status-pill arcom-status-${compliance.status.key}">${compliance.status.emoji} ${compliance.status.label}</div>
+      <div class="perf-head">
+        <div class="eh-title">Convention ARCOM</div>
+        <div class="perf-overall ${statusCls}">${compliance.status.emoji} ${compliance.status.label.charAt(0)}${compliance.status.label.slice(1).toLowerCase()}</div>
       </div>
-      <div class="arcom-obligations-mini">${rows}</div>
-      <button class="arcom-view-btn" type="button">Voir la convention complète →</button>
+      <div class="eh-subtitle">${esc(convention.label)} — obligations éditoriales</div>
+      <div class="arc-hero ${statusCls}">
+        <div class="arc-score">${compliance.arcomScore}<small>/100</small></div>
+        <div class="arc-hero-side">
+          <div class="arc-hero-text"><b>${respected}/${total}</b> obligation${respected > 1 ? 's' : ''} respectée${respected > 1 ? 's' : ''}</div>
+          <div class="arc-gauge" title="Seuils : vigilance 60, conforme 75, excellent 90">
+            <span class="arc-gauge-fill" style="width:${Math.max(3, compliance.arcomScore)}%"></span>
+            <i style="left:60%"></i><i style="left:75%"></i><i style="left:90%"></i>
+          </div>
+        </div>
+      </div>
+      <div class="arc-rows">${rows}</div>
+      <button class="arcom-view-btn" type="button">Voir la convention complète <span aria-hidden="true">→</span></button>
     </div>
   `;
 }
