@@ -10740,7 +10740,7 @@ function programLabelHtml(label) {
   const m = text.match(/^(.*) — (Prod\. [^—]+)$/);
   const talent = m && TALENT_CATALOG.find(t => t.name === m[2].trim());
   if (!talent) return esc(text);
-  return `<span class="pg-prog-name">${esc(m[1])}</span><span class="pg-prog-sep">—</span>${productionStarsHtml(productionLevelOf(talent.name))}`;
+  return `<span class="pg-prog-name">${esc(m[1])}</span><span class="pg-prog-sep">— Prod.</span>${productionStarsHtml(productionLevelOf(talent.name))}`;
 }
 function productionStarsHtml(level) {
   return `<span class="pm-prod-stars" role="img" aria-label="${esc(level.label)}">${'★'.repeat(level.stars)}<span class="off">${'★'.repeat(3 - level.stars)}</span></span>`;
