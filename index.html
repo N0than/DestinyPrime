@@ -1653,8 +1653,8 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .gr-back { transform: rotateY(180deg); padding: 10px; gap: 6px; }
 .gr-flip-hint { position: absolute; top: 6px; right: 6px; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
   font-size: 12px; color: var(--ink); background: rgba(255,255,255,0.92); box-shadow: 0 1px 4px rgba(0,0,0,.15); }
-.gr-pda { position: absolute; top: 6px; right: 6px; z-index: 1; padding: 3px 8px; border-radius: 999px; font-size: 9.5px; font-weight: 800; white-space: nowrap;
-  font-variant-numeric: tabular-nums; background: rgba(255,255,255,0.94); box-shadow: 0 1px 4px rgba(0,0,0,.15); }
+.gr-pda { flex-shrink: 0; padding: 3px 8px; border-radius: 999px; font-size: 9.5px; font-weight: 800; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.gr-art .gr-pda { position: absolute; top: 6px; right: 6px; z-index: 1; background: rgba(255,255,255,0.94); box-shadow: 0 1px 4px rgba(0,0,0,.15); }
 /* Avec le badge PDA en haut à droite, l'indice de retournement passe en bas à droite. */
 .gr-pda ~ .gr-flip-hint { top: auto; bottom: 6px; }
 .gr-pick { align-self: flex-start; margin: 2px 10px 0; padding: 3px 8px; border-radius: 999px; font-size: 9.5px; font-weight: 800; }
@@ -1663,7 +1663,9 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .gr-pick.modify, .gr-pick.relaunch, .gr-pick.franchise { color: var(--bleu); background: rgba(37,99,235,0.12); }
 .gr-pick.stop { color: var(--rouge); background: rgba(225,29,72,0.12); }
 .gr-card.picked .gr-front { border-color: var(--bleu); }
-.gr-back-head { display: flex; flex-direction: column; gap: 1px; margin-bottom: 2px; }
+/* Dos de carte : nom à gauche, PDA actuelle à droite. */
+.gr-back-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 2px; }
+.gr-back-head .gr-name { min-width: 0; }
 .gr-back-head .gr-slot, .gr-back-head .gr-name { margin: 0; }
 .gr-opt { display: flex; align-items: center; justify-content: space-between; gap: 6px; width: 100%; padding: 8px 9px; border: 1.5px solid var(--paper-dark);
   border-radius: 10px; background: var(--paper-card); font-family: 'Plus Jakarta Sans', sans-serif; font-size: 11px; font-weight: 700; color: var(--ink);
@@ -8891,7 +8893,7 @@ function renewalCardHtml(slot, name, historic, stats, opts = {}) {
   const playerCalc = getCalculatedPDAs().find(c => c.channel === gameState.player);
   const pda = playerCalc?.slots?.[slot]?.[gameState.player.target];
   return flipCardHtml({ ...opts, key: slot, name, stats,
-    artBadge: Number.isFinite(pda) ? `<span class="gr-pda pg-badge-${slotMeta?.accent || 'gris'}" title="PDA actuelle du programme">${nf1(pda)}% PDA</span>` : '',
+    pdaBadge: Number.isFinite(pda) ? `<span class="gr-pda pg-badge-${slotMeta?.accent || 'gris'}" title="PDA actuelle du programme">${nf1(pda)}% PDA</span>` : '',
     artHtml: art ? `<img src="${art}" alt="" width="320" height="180" decoding="async">` : '',
     ribbon: historic ? '⭐ Historique' : '',
     badge: `${slotMeta ? `${slotMeta.icon} ` : ''}${slotLabelOf(slot)}` });
@@ -8918,7 +8920,7 @@ function flipCardHtml(o) {
     <div class="gr-card${flippable ? ' flippable' : ''}${picked ? ' picked' : ''}" data-gr-slot="${esc(o.key)}">
      <div class="gr-flip">
       <div class="gr-face gr-front"${flippable ? ` role="button" tabindex="0" aria-label="${esc(o.name)} : choisir son avenir"` : ''}>
-        <span class="gr-art${o.artCls ? ` ${o.artCls}` : ''}">${o.artHtml || ''}${o.ribbon ? `<span class="gr-historic">${esc(o.ribbon)}</span>` : ''}${o.artBadge || ''}${flippable ? '<span class="gr-flip-hint" aria-hidden="true">↻</span>' : ''}</span>
+        <span class="gr-art${o.artCls ? ` ${o.artCls}` : ''}">${o.artHtml || ''}${o.ribbon ? `<span class="gr-historic">${esc(o.ribbon)}</span>` : ''}${o.pdaBadge || ''}${flippable ? '<span class="gr-flip-hint" aria-hidden="true">↻</span>' : ''}</span>
         <span class="gr-name-row"><span class="gr-name">${esc(o.name)}</span>${o.badge ? `<span class="gr-slot-badge">${esc(o.badge)}</span>` : ''}</span>
         ${o.sub ? `<span class="gr-sub">${esc(o.sub)}</span>` : ''}
         ${o.single ? `<span class="gr-stats">${o.stats.map(st => `<span class="gr-stat${st.wear ? ' is-wear' : ''}"><span class="gr-wear-label">${esc(st.label)}</span>${mercatoStarsHtml(starsOf(st), starsTitle(st))}</span>`).join('')}</span>`
@@ -8927,7 +8929,7 @@ function flipCardHtml(o) {
       </div>
       ${flippable ? `
       <div class="gr-face gr-back" inert>
-        <span class="gr-back-head"><span class="gr-slot">${esc(o.badge || '')}</span><span class="gr-name">${esc(o.name)}</span></span>
+        <span class="gr-back-head"><span class="gr-name">${esc(o.name)}</span>${o.pdaBadge || ''}</span>
         ${choices.map(ch => `<button type="button" class="gr-opt${ch === picked ? ' selected' : ''}" data-gr-choice="${ch.index}">
           <span>${esc(ch.label)}</span><span class="gr-opt-cost ${ch.costCls}">${esc(ch.cost)}</span></button>`).join('')}
         <button type="button" class="gr-back-close" data-gr-close>↺ Retour</button>
