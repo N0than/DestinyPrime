@@ -410,13 +410,12 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .radar-head-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
 .radar-mode .pg-head.sheet-open { margin-bottom: 10px; }
 .radar-slots { flex-shrink: 0; }
-.radar-slots .ga-target-btn { flex: 1 1 0; min-width: 0; padding: 5px 4px; text-align: center; }
+.radar-slots .ga-target-btn { flex: 1 1 0; min-width: 0; padding: 4px 4px; text-align: center; }
+.radar-mode .pg-head:not(.sheet-open) { align-items: center; margin-bottom: 8px; }
 .radar-scroll {
   flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain;
-  display: flex; flex-direction: column; gap: 8px; padding: 2px 2px 4px 0;
+  display: flex; flex-direction: column; gap: 8px; padding: 1px 1px 2px 0;
   scrollbar-width: thin; scrollbar-color: rgba(148,163,184,0.5) transparent;
-  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 14px), transparent);
-  mask-image: linear-gradient(to bottom, #000 calc(100% - 14px), transparent);
 }
 .radar-card .career-stats-badges { flex-wrap: nowrap; overflow: hidden; }
 .radar-card .career-stats-badges > * { flex-shrink: 0; }
@@ -432,30 +431,48 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .radar-weather-text { font-size: 11px; color: var(--gris); }
 .radar-slots { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; }
 .radar-slots::-webkit-scrollbar { display: none; }
-.radar-cards { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; flex-shrink: 0; }
-@media (min-width: 720px) { .radar-cards { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+/* Liste compacte : une chaîne = deux lignes, les six tiennent dans la hauteur de la grille. */
+.radar-cards { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr); grid-auto-rows: minmax(min-content, 1fr); gap: 3px; }
 .radar-card {
-  display: flex; flex-direction: column; gap: 4px; width: 100%; min-width: 0; text-align: left; padding: 8px 10px;
-  border-radius: 14px; background: rgba(255,255,255,0.65); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255,255,255,0.85); box-shadow: 0 8px 20px -8px rgba(15,23,42,0.08);
+  display: flex; flex-direction: column; justify-content: center; gap: 2px; width: 100%; min-width: 0; min-height: 0; text-align: left; padding: 3px 9px;
+  border-radius: 12px; background: rgba(255,255,255,0.7); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.85); box-shadow: 0 6px 16px -10px rgba(15,23,42,0.16);
   font-family: 'Plus Jakarta Sans', sans-serif; color: var(--ink); cursor: pointer;
   transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
 button.radar-card:hover { transform: translateY(-1px); box-shadow: 0 10px 24px -8px rgba(15,23,42,0.14); }
 .radar-card-player { background: rgba(37,99,235,0.08); border-color: rgba(37,99,235,0.3); cursor: default; }
-.radar-card-head { display: flex; align-items: center; gap: 6px; }
-.radar-rank { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 10px; color: var(--gris); }
-.radar-name { flex: 1; min-width: 0; font-weight: 800; font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.radar-line { display: flex; align-items: center; gap: 6px; min-width: 0; line-height: 1.2; }
+.radar-rank { flex-shrink: 0; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 10px; color: var(--gris); }
+.radar-name { flex-shrink: 0; max-width: 45%; font-weight: 800; font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.radar-type { flex: 1; min-width: 0; font-size: 10.5px; font-weight: 500; color: var(--gris); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.radar-type::before { content: '|'; margin-right: 6px; color: rgba(148,163,184,0.7); }
 .radar-you {
-  display: inline-block; margin-left: 5px; font-size: 8.5px; font-weight: 800; text-transform: uppercase;
-  color: #fff; background: var(--bleu); border-radius: 999px; padding: 2px 6px; vertical-align: 1px;
+  flex-shrink: 0; font-size: 8.5px; font-weight: 800; text-transform: uppercase;
+  color: #fff; background: var(--bleu); border-radius: 999px; padding: 2px 6px;
 }
-.radar-share { font-weight: 800; font-size: 12px; }
-.radar-program { display: flex; align-items: baseline; gap: 5px; min-width: 0; font-size: 12px; font-weight: 700; white-space: nowrap; }
-.radar-format { flex-shrink: 0; font-size: 10.5px; font-weight: 500; color: var(--gris); }
-.radar-format::after { content: '|'; margin-left: 5px; color: rgba(148,163,184,0.7); }
-.radar-program-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
-.radar-genre { flex-shrink: 0; font-weight: 500; color: var(--gris); }
+.radar-share { flex-shrink: 0; min-width: 40px; text-align: right; font-family: 'Anton', sans-serif; font-size: 14px; line-height: 1; font-variant-numeric: tabular-nums; }
+.radar-share small { font-size: 0.7em; margin-left: 1px; }
+.radar-program { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: 4px; font-size: 11.5px; font-weight: 700; white-space: nowrap; }
+/* Le genre cède sa place avant le titre du programme. */
+.radar-program-name { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.radar-genre { flex: 0 30 auto; min-width: 3.4em; overflow: hidden; text-overflow: ellipsis; font-weight: 500; color: var(--gris); }
+.radar-chip {
+  flex-shrink: 0; display: inline-flex; align-items: center; font-size: 9px; font-weight: 700; line-height: 1;
+  padding: 2px 6px; border-radius: 999px; white-space: nowrap;
+}
+.radar-riposte { color: #fff; background: var(--rouge); }
+@media (min-width: 600px) { .radar-chip { font-size: 10px; } .radar-program { font-size: 12.5px; } .radar-type { font-size: 11.5px; } .radar-name { font-size: 13.5px; } .radar-share { font-size: 15px; } }
+@media (max-width: 399px) { .radar-riposte-txt { display: none; } .radar-riposte { padding: 2px 4px; } }
+.radar-clash.clash-high { color: var(--rouge); background: rgba(225,29,72,0.1); }
+.radar-clash.clash-mid { color: #b45309; background: rgba(217,119,6,0.13); }
+.radar-clash.clash-low { color: var(--gris); background: rgba(107,114,128,0.14); }
+.radar-clash.clash-none { color: var(--vert); background: rgba(5,150,105,0.1); }
+.radar-invest { letter-spacing: -0.3px; color: rgba(148,163,184,0.55); background: rgba(107,114,128,0.1); }
+.radar-invest b { font-weight: 800; color: var(--gris); }
+.radar-invest.lvl-1 b { color: var(--bleu); }
+.radar-invest.lvl-2 b { color: #b45309; }
+.radar-invest.lvl-3 b { color: var(--rouge); }
 .radar-card .career-stats-badges, .radar-grid-row { gap: 4px; }
 .radar-card .pg-pda-badge, .radar-grid-row .pg-pda-badge { font-size: 9.5px; padding: 3px 7px; }
 .radar-section-title {
@@ -1940,7 +1957,7 @@ function renderProgramGrid(type, pdaCible, overrides) {
         <div class="pg-head pg-head-row${sheetOpen ? ' sheet-open' : ''}">
           <div>
             <div class="eh-title">${sheetOpen ? esc(gameState.competitors[radarState().sheet].name) : 'Concurrence'}</div>
-            ${sheetOpen ? '' : '<div class="eh-subtitle">Cliquez sur une chaîne pour découvrir sa stratégie.</div>'}
+
           </div>
           <div class="radar-head-actions">
             ${sheetOpen ? '<button type="button" class="radar-toggle" data-radar-action="back">← Retour</button>' : ''}
@@ -10156,25 +10173,45 @@ function renderRadarCards(slot) {
     ...gameState.competitors.map((c, i) => ({ channel: c, view: competitorView(c).find(v => v.slot === slot), idx: i }))
   ].map(r => ({ ...r, share: calc.find(x => x.channel === r.channel).slots[slot][target] }))
     .sort((a, b) => b.share - a.share);
+  const typeName = ch => CHANNEL_TYPES[ch.type].label.replace(/^\S+\s+/, '');
   return rows.map((r, rank) => {
     const isPlayer = r.channel === p;
     const v = r.view;
     const genre = v.genre ? (GENRE_LABELS[v.genre] || v.genre) : '—';
-    const interaction = isPlayer ? '' : `<span class="pg-pda-badge pg-badge-gris">${confrontationLabel(mine, v, target, slot)}</span>`;
-    const reaction = v.reaction ? `<span class="pg-pda-badge pg-badge-rouge">Riposte : ${esc(v.reaction)}</span>` : '';
+    const programName = v.masked ? 'Projet en développement' : v.name;
+    const clash = isPlayer ? null : confrontationLabel(mine, v, target, slot);
+    const clashMeta = clash && RADAR_CLASH_SHORT[clash];
+    const investLabel = GAME_BALANCE.market.investLabels[v.level] || '—';
+    const level = Number.isInteger(v.level) ? v.level : 0;
+    const strategy = STRATEGY_TAGS[v.tag] || STRATEGY_TAGS.maintien;
     const inner = `
-      <span class="radar-card-head">
+      <span class="radar-line">
         <span class="radar-rank">#${rank + 1}</span>
-        <span class="radar-name">${esc(r.channel.name)}${isPlayer ? '<span class="radar-you">Vous</span>' : ''}</span>
-        <span class="radar-share">${nf1(r.share)} %</span>
+        <span class="radar-name">${esc(r.channel.name)}</span>
+        <span class="radar-type">${esc(typeName(r.channel))}</span>
+        ${v.reaction ? `<span class="radar-chip radar-riposte" title="Riposte : ${esc(v.reaction)}">⚔️<span class="radar-riposte-txt"> Riposte</span></span>` : ''}
+        ${isPlayer ? '<span class="radar-you">Vous</span>' : `<span class="radar-chip radar-clash ${clashMeta.cls}" title="${esc(clash)}">${clashMeta.label}</span>`}
+        <span class="radar-share">${nf1(r.share)}<small>%</small></span>
       </span>
-      <span class="radar-program"><span class="radar-format">${esc(CHANNEL_TYPES[r.channel.type].label)}</span><span class="radar-program-name" title="${esc(v.masked ? 'Projet en développement' : v.name)}">${esc(v.masked ? 'Projet en développement' : v.name)}</span><span class="radar-genre">· ${esc(genre)}</span></span>
-      <span class="career-stats-badges">${investBadge(v.level)}${strategyBadge(v.tag)}${interaction}${reaction}</span>`;
+      <span class="radar-line">
+        <span class="radar-program"><span class="radar-program-name">${esc(programName)}</span><span class="radar-genre">· ${esc(genre)}</span></span>
+        <span class="radar-chip pg-badge-${strategy.accent}" title="Stratégie : ${esc(strategy.label)}">${strategy.label}</span>
+        <span class="radar-chip radar-invest lvl-${level}" title="Investissement ${esc(investLabel)}"><b>${'€'.repeat(level + 1)}</b>${'€'.repeat(3 - level)}</span>
+      </span>`;
     return isPlayer
       ? `<div class="radar-card radar-card-player">${inner}</div>`
       : `<button type="button" class="radar-card" data-radar-action="sheet" data-idx="${r.idx}" aria-label="Fiche stratégique de ${esc(r.channel.name)}">${inner}</button>`;
   }).join('');
 }
+
+// Interaction avec votre programme, en version courte pour la liste compacte.
+const RADAR_CLASH_SHORT = {
+  'Concurrence directe': { label: 'Frontal', cls: 'clash-high' },
+  'Bataille de fidélisation': { label: 'Fidélisation', cls: 'clash-high' },
+  'Concurrence partielle': { label: 'Partiel', cls: 'clash-mid' },
+  'Chevauchement limité': { label: 'Limité', cls: 'clash-low' },
+  'Positionnement alternatif': { label: 'Alternatif', cls: 'clash-none' }
+};
 
 function renderCompetitorSheet(c) {
   const p = gameState.player;
