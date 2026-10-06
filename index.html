@@ -1833,6 +1833,50 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .pg-slot-editor .program-manager { margin:0; padding:10px 6px 10px; border-top:0; }
 .pg-slot-editor[open] .program-manager { animation:pg-pushdown .24s cubic-bezier(.16,1,.3,1); transform-origin:top; }
 /* Créneau ouvert : il prend la place du premier, les autres s'effacent et le détail remplit la grille. */
+/* Carrousel des programmes d'un créneau : 2 cartes et demie visibles, la carte se retourne pour la production. */
+.pm-carousel { display:flex; gap:8px; margin:2px -6px 0; padding:2px 6px 6px; overflow-x:auto; overscroll-behavior-x:contain;
+  scroll-snap-type:x mandatory; scroll-padding:0 6px; scrollbar-width:none; touch-action:pan-x pan-y; -webkit-overflow-scrolling:touch; }
+.pm-carousel::-webkit-scrollbar { display:none; }
+.pm-card { flex:0 0 40%; min-width:0; scroll-snap-align:start; perspective:900px; }
+@media (min-width:600px) { .pm-card { flex-basis:min(40%, 190px); } }
+.pm-flip { display:grid; height:100%; transition:transform .45s cubic-bezier(.2,.7,.2,1); transform-style:preserve-3d; }
+.pm-card.flipped .pm-flip { transform:rotateY(180deg); }
+.pm-face { grid-area:1 / 1; display:flex; flex-direction:column; min-width:0; overflow:hidden; border-radius:12px;
+  background:var(--paper-card); border:1.5px solid var(--paper-dark); backface-visibility:hidden; -webkit-backface-visibility:hidden; }
+.pm-card.is-current .pm-face { border-color:rgba(37,99,235,0.45); }
+.pm-art { position:relative; display:block; height:64px; flex-shrink:0; background:linear-gradient(160deg, rgba(37,99,235,0.10), rgba(225,29,72,0.08)); }
+.pm-art img { position:absolute; inset:0; width:100%; height:100%; display:block; object-fit:cover; }
+.pm-tag { position:absolute; left:5px; bottom:5px; max-width:calc(100% - 10px); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  padding:2px 6px; border-radius:999px; font-size:8.5px; font-weight:800; color:#fff; background:var(--bleu); }
+.pm-tag.lock { color:var(--rouge); background:rgba(255,255,255,0.94); }
+.pm-body { flex:1; display:flex; flex-direction:column; gap:3px; padding:6px 7px 7px; min-width:0; }
+.pm-genre { font-family:'Space Grotesk', sans-serif; font-size:8px; font-weight:700; letter-spacing:.4px; text-transform:uppercase; color:var(--gris);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.pm-name { font-weight:800; font-size:11.5px; line-height:1.2; color:var(--ink); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.pm-pot .mercato-stars { font-size:10px; }
+.pm-meta { font-size:9px; font-weight:700; color:var(--gris); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.pm-buy, .pm-confirm { margin-top:auto; width:100%; border:0; border-radius:999px; padding:6px 8px; font-family:'Plus Jakarta Sans', sans-serif;
+  font-size:10.5px; font-weight:800; color:#fff; background:var(--ink); cursor:pointer; }
+.pm-card.is-current .pm-buy { color:var(--bleu); background:rgba(37,99,235,0.12); }
+.pm-confirm:disabled { opacity:.4; cursor:not-allowed; }
+.pm-back { transform:rotateY(180deg); padding:8px 7px 6px; gap:4px; }
+.pm-back .pm-name { -webkit-line-clamp:1; }
+.pm-label { font-family:'Space Grotesk', sans-serif; font-size:8px; font-weight:700; letter-spacing:.4px; text-transform:uppercase; color:var(--gris); }
+.pm-levels { display:flex; gap:2px; }
+.pm-level { flex:1; padding:0; border:0; background:none; font-size:22px; line-height:1; color:rgba(148,163,184,0.45); cursor:pointer; transition:color .15s, transform .15s; }
+.pm-level.on { color:var(--gold); }
+.pm-level:active { transform:scale(.9); }
+.pm-level-name { font-size:9px; font-weight:700; color:var(--ink); line-height:1.25; }
+.pm-quote { display:flex; flex-direction:column; gap:1px; font-size:9px; color:var(--gris); line-height:1.3; }
+.pm-quote b { color:var(--ink); }
+.pm-quote .warn { color:#b45309; }
+.pm-quote .bad { color:var(--rouge); font-weight:700; }
+.pm-quote .muted { font-style:italic; }
+.pm-back-btn { border:0; background:none; padding:2px 0 0; font-size:9.5px; font-weight:700; color:var(--gris); cursor:pointer; }
+/* Contrat en cours : une seule ligne de badges qui défile, pour laisser la hauteur au carrousel. */
+.pg-slot-editor .program-manager-contract-row { flex-direction:row; flex-wrap:nowrap; gap:4px; margin-bottom:4px; overflow-x:auto; scrollbar-width:none; }
+.pg-slot-editor .program-manager-contract-row::-webkit-scrollbar { display:none; }
+.pg-slot-editor .program-manager-contract-row .career-stats-badges { flex-wrap:nowrap; flex-shrink:0; gap:4px; }
 .pg-rows { position:relative; }
 .pg-rows.pg-focus { flex:none; }
 .pg-rows.pg-focus > .pg-slot-editor:not(.pg-focused) { position:absolute; left:0; right:0; opacity:0; visibility:hidden; pointer-events:none; }
@@ -10608,6 +10652,10 @@ function renderProgramManager(slot) {
   const selectedProgram=programOpts.find(o=>o.selected)||programOpts[0];
   const selectedTalent=talentOpts.find(o=>o.selected)||talentOpts[0];
   const notice=gameState.exclusivityNotice?.slot===slot&&gameState.exclusivityNotice.season===gameState.season?gameState.exclusivityNotice:null;
+  // Carrousel : le programme à l'antenne d'abord, puis le reste du catalogue du créneau.
+  const catalog=availablePrograms(p.type,slot);
+  const ordered=[...catalog.filter(x=>sameProgram(c,x)),...catalog.filter(x=>!sameProgram(c,x))];
+  const programCards=editable?ordered.map(x=>programCardHtml(slot,x,c)):[];
   return `<section class="program-manager" aria-label="Modifier la programmation">
     ${c?`<div class="program-manager-contract-row">
       <div class="career-stats-badges">
@@ -10617,7 +10665,6 @@ function renderProgramManager(slot) {
         <span class="pg-pda-badge pg-badge-gris">Fin de contrat en S${c.end}</span>`}
         <span class="pg-pda-badge pg-badge-gris">${career.seasonsCount} saison(s)</span>
         ${c.acquiredFrom?`<span class="pg-pda-badge pg-badge-gold">Racheté à ${esc(c.acquiredFrom)}</span>`:''}
-        <span class="pg-pda-badge pg-badge-rouge program-manager-penalty" data-program-penalty aria-live="polite" hidden></span>
       </div>
       <div class="career-stats-badges">
         <span class="pg-pda-badge pg-badge-gold">Notoriété ${Math.round(career.awareness)}/100</span>
@@ -10626,37 +10673,55 @@ function renderProgramManager(slot) {
       </div>
     </div>`:''}
     ${editable?`
-    <div class="program-manager-row" data-program-editor="${slot}">
-      <label class="program-manager-field programme">
-        <span class="program-manager-field-label">Programme</span>
-        <select id="program-${slot}" data-picker-cards>${programOpts.map(o=>`<option value="${o.id}" ${o.selected?'selected':''} data-card="${esc(JSON.stringify(o.card)).replace(/"/g,'&quot;')}">${esc(o.label)}</option>`).join('')}</select>
-        <button type="button" class="program-manager-field-trigger" data-picker-trigger="program-${slot}" data-picker-title="Choisir un programme">
-          <span class="program-manager-field-trigger-text">${esc(selectedProgram.label)}</span>
-          <svg class="pg-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
-        </button>
-      </label>
-      <div class="program-manager-combo">
-        <label class="program-manager-field talent">
-          <span class="program-manager-field-label">Production</span>
-          <select id="talent-${slot}">${talentOpts.map(o=>`<option value="${o.id}" ${o.selected?'selected':''}>${esc(o.label)}</option>`).join('')}</select>
-          <button type="button" class="program-manager-field-trigger" data-picker-trigger="talent-${slot}" data-picker-title="Choisir une production">
-            <span class="program-manager-field-trigger-text">${esc(selectedTalent.label)}</span>
-            <svg class="pg-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
-          </button>
-        </label>
-        <div class="program-manager-actions" aria-label="Valider ou annuler">
-          <span class="program-manager-field-label program-manager-actions-spacer" aria-hidden="true">&nbsp;</span>
-          <div class="program-manager-actions-buttons">
-            <button type="button" class="program-manager-box cancel" data-program-cancel>Annuler</button>
-            <button type="button" class="program-manager-box confirm" data-program-confirm title="Valider la combinaison programme et production">Valider</button>
-          </div>
-        </div>
-      </div>
+    <div class="pm-carousel" data-pm-carousel="${slot}" aria-label="Programmes disponibles">
+      ${programCards.join('')}
     </div>
-    <span class="program-manager-exclusivity" data-program-exclusivity aria-live="polite"></span>
     <span class="program-manager-feedback" aria-live="polite"></span>
     ${notice?`<span class="program-manager-notice">${esc(notice.text)}</span>`:''}`:'<p class="program-manager-note">Modifications disponibles au début de la prochaine saison, avant le premier dilemme.</p>'}
     </section>`;
+}
+// Niveau de production en étoiles : 1 = interne, 2 = externe, 3 = internationale.
+const PRODUCTION_LEVELS = [
+  { id: 'interne', stars: 1, label: 'Production interne' },
+  { id: 'espoir', stars: 2, label: 'Production externe' },
+  { id: 'vedette', stars: 3, label: 'Production internationale' }
+];
+function productionLevelOf(talentName) {
+  const t = TALENT_CATALOG.find(x => x.name === talentName);
+  return PRODUCTION_LEVELS.find(l => l.id === t?.id) || PRODUCTION_LEVELS[0];
+}
+// Carte du carrousel de programmes : recto (fiche + Acheter), verso (production en étoiles + devis).
+function programCardHtml(slot, x, current) {
+  const onAir = sameProgram(current, x);
+  const holder = onAir ? null : programHolder(x);
+  const art = typeof TvPrograms !== 'undefined' ? TvPrograms.forProgram(x) : '';
+  const level = onAir ? productionLevelOf(current.talent) : PRODUCTION_LEVELS[0];
+  return `<article class="pm-card${onAir ? ' is-current' : ''}" data-pm-card="${esc(x.id)}" data-level="${level.id}">
+    <div class="pm-flip">
+      <div class="pm-face pm-front">
+        <span class="pm-art">${art ? `<img src="${art}" alt="" width="320" height="180" decoding="async" loading="lazy">` : ''}
+          ${onAir ? '<span class="pm-tag">À l’antenne</span>' : holder ? `<span class="pm-tag lock" title="Diffusé par ${esc(holder.competitor.name)}">🔒 ${esc(holder.competitor.name)}</span>` : ''}</span>
+        <span class="pm-body">
+          <span class="pm-genre">${esc(programGenreLabel(x))}</span>
+          <span class="pm-name">${esc(x.name)}</span>
+          <span class="pm-pot">${mercatoStarsHtml(programPotentialStars(x.power), 'Potentiel d’audience')}</span>
+          <span class="pm-meta">${nf1(x.annual)} M€/an${x.rights > 0 ? ` · +${nf1(x.rights)} M€` : ''} · ${x.years} s.</span>
+          <button type="button" class="pm-buy" data-pm-buy>${onAir ? 'Production' : 'Acheter'}</button>
+        </span>
+      </div>
+      <div class="pm-face pm-back" inert>
+        <span class="pm-name">${esc(x.name)}</span>
+        <span class="pm-label">Niveau de production</span>
+        <span class="pm-levels" role="radiogroup" aria-label="Niveau de production">
+          ${PRODUCTION_LEVELS.map(l => `<button type="button" class="pm-level" role="radio" data-pm-level="${l.id}" aria-label="${l.stars} étoile${l.stars > 1 ? 's' : ''} — ${l.label}">★</button>`).join('')}
+        </span>
+        <span class="pm-level-name" data-pm-level-name></span>
+        <span class="pm-quote" data-pm-quote></span>
+        <button type="button" class="pm-confirm" data-pm-confirm>Valider</button>
+        <button type="button" class="pm-back-btn" data-pm-back>↺ Retour</button>
+      </div>
+    </div>
+  </article>`;
 }
 function renderCampaignPanel() {
   return '';
@@ -10839,45 +10904,63 @@ function bindCampaignPanel(app) {
       if(select) openMobilePicker(select, trigger, trigger.dataset.pickerTitle);
     };
   });
-  app.querySelectorAll('[data-program-editor]').forEach(editor=>{
-    const slot=editor.dataset.programEditor;
-    const manager=editor.closest('.program-manager');
-    const feedback=manager.querySelector('.program-manager-feedback');
-    const updateValidation=()=>{
-      const q=quoteProgram(slot,document.getElementById('program-'+slot).value,document.getElementById('talent-'+slot).value);
-      const confirm=editor.querySelector('[data-program-confirm]');
-      confirm.disabled=!q?.allowed;
-      const penalty=manager.querySelector('[data-program-penalty]');
-      const replacing=!!q && !q.unchanged && !!gameState.player.contracts[slot];
-      if(penalty) {
-        penalty.hidden=!replacing;
-        penalty.textContent=replacing?`Pénalité de remplacement : ${nf1(q.termination)} M€`:'';
-      }
-      const exclusivity=manager.querySelector('[data-program-exclusivity]');
-      if(exclusivity) exclusivity.textContent=q?.holder
-        ?`Programme à l'antenne sur ${q.holder.competitor.name} : rachat des droits ${nf1(q.buyout)} M€. ${q.holder.competitor.name} devra le déprogrammer.`
-        :'';
+  app.querySelectorAll('[data-pm-carousel]').forEach(carousel=>{
+    if(carousel.dataset.bound) return;
+    carousel.dataset.bound='1';
+    const slot=carousel.dataset.pmCarousel;
+    const feedback=carousel.closest('.program-manager').querySelector('.program-manager-feedback');
+    const setFlipped=(card,on)=>{
+      card.classList.toggle('flipped',on);
+      card.querySelector('.pm-back').toggleAttribute('inert',!on);
+      card.querySelector('.pm-front').toggleAttribute('inert',on);
     };
-    editor.querySelectorAll('select').forEach(select=>select.onchange=()=>{
-      feedback.textContent=''; updateValidation();
+    const update=card=>{
+      const level=PRODUCTION_LEVELS.find(l=>l.id===card.dataset.level)||PRODUCTION_LEVELS[0];
+      card.querySelectorAll('[data-pm-level]').forEach((b,i)=>{
+        b.classList.toggle('on',i<level.stars);
+        b.setAttribute('aria-checked',String(b.dataset.pmLevel===level.id));
+      });
+      const talent=TALENT_CATALOG.find(t=>t.id===level.id);
+      card.querySelector('[data-pm-level-name]').textContent=`${level.label} · ${talent.annual>0?`+${nf1(talent.annual)} M€/an`:'incluse'}`;
+      const q=quoteProgram(slot,card.dataset.pmCard,level.id);
+      const lines=[];
+      if(q?.unchanged){
+        lines.push(`<span><b>${nf1(q.annual)} M€</b>/an</span>`,'<span class="muted">Contrat actuel</span>');
+      } else if(q){
+        lines.push(`<span><b>${nf1(q.annual)} M€</b>/an</span>`);
+        if(q.finance.purchase>0) lines.push(`<span>Achat <b>${nf1(q.finance.purchase)} M€</b></span>`);
+        if(q.termination>0) lines.push(`<span class="warn">dont pénalité ${nf1(q.termination)} M€</span>`);
+        if(q.buyout>0) lines.push(`<span class="warn">dont rachat à ${esc(q.holder.competitor.name)} ${nf1(q.buyout)} M€</span>`);
+        if(!q.allowed) lines.push('<span class="bad">Budget insuffisant</span>');
+      }
+      card.querySelector('[data-pm-quote]').innerHTML=lines.join('');
+      card.querySelector('[data-pm-confirm]').disabled=!q?.allowed;
+    };
+    carousel.addEventListener('click',e=>{
+      const card=e.target.closest('.pm-card');
+      if(!card) return;
+      feedback.textContent='';
+      if(e.target.closest('[data-pm-buy]')){
+        carousel.querySelectorAll('.pm-card.flipped').forEach(other=>{ if(other!==card) setFlipped(other,false); });
+        update(card);
+        setFlipped(card,true);
+        return;
+      }
+      if(e.target.closest('[data-pm-back]')){ setFlipped(card,false); return; }
+      const levelBtn=e.target.closest('[data-pm-level]');
+      if(levelBtn){ card.dataset.level=levelBtn.dataset.pmLevel; update(card); return; }
+      if(e.target.closest('[data-pm-confirm]')){
+        const programId=card.dataset.pmCard, talentId=card.dataset.level;
+        const bought=!!quoteProgram(slot,programId,talentId)?.holder;
+        if(!signProgram(slot,programId,talentId)) {
+          feedback.textContent='Validation impossible : budget insuffisant ou contrat inchangé.';
+        } else if(bought) {
+          // Rachat à un concurrent : on garde le créneau ouvert pour afficher la conséquence.
+          const details=document.querySelector(`.programming-slide [data-slot-editor="${slot}"]`);
+          if(details) details.open=true;
+        }
+      }
     });
-    updateValidation();
-    editor.querySelector('[data-program-confirm]').onclick=()=>{
-      feedback.textContent='';
-      const bought=!!quoteProgram(slot,document.getElementById('program-'+slot).value,document.getElementById('talent-'+slot).value)?.holder;
-      if(!signProgram(slot,document.getElementById('program-'+slot).value,document.getElementById('talent-'+slot).value)) {
-        feedback.textContent='Validation impossible : budget insuffisant ou contrat inchangé.';
-      } else if(bought) {
-        // Rachat à un concurrent : on garde le créneau ouvert pour afficher la conséquence.
-        const details=document.querySelector(`.programming-slide [data-slot-editor="${slot}"]`);
-        if(details) details.open=true;
-      }
-    };
-    editor.querySelector('[data-program-cancel]').onclick=()=>{
-      feedback.textContent='';
-      const details=editor.closest('.pg-slot-editor');
-      if(details) unfocusGridSlot(details);
-    };
   });
 }
 </script>
