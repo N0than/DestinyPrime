@@ -107,7 +107,7 @@ let gb=sportsGaugeBounds(a);assert(gb.min===ev.reservePrice&&gb.max>gb.estMax&&g
 assert(sportsGaugeFeedback(a,gb.min).zone==='low'&&sportsGaugeFeedback(a,gb.estMax+1).zone==='high'&&sportsGaugeFeedback(a,gb.suggested).zone==='fair','gauge zones');
 settle();const pdaBefore=getCalculatedPDAs().find(r=>r.channel===gameState.player).pda.a2549;
 const revBefore=gameState.player.revenusPubPrevisionnels;
-sportsAuctionSealedBid(18,true);
+sportsAuctionSealedBid(18);
 assert(a.phase==='verdict'&&a.result.outcome==='won','player wins in one round');
 assert(a.result.price>15&&a.result.price<=18&&a.result.playerLastBid===18,'pays just above the second offer');
 assert(a.result.reveal.length===3&&a.result.reveal[0].isPlayer&&a.result.reveal[1].amount===15&&a.result.reveal[2].amount===13,'sealed offers revealed in order');
@@ -123,33 +123,31 @@ assert(sr().owned.at(-1).ownerId==='player'&&sr().owned.at(-1).acquisitionPrice=
 chooseDilemmaOption(0);assert(sr().owned.filter(o=>o.ownerId==='player').length===1,'no double record');
 // Défaite : l'offre la plus haute gagne et paie juste au-dessus de la nôtre.
 a=auctionSetup([80,80,0,0,0]);setMax(a,[24,0,0,0,0]);
-sportsAuctionParticipate();sportsAuctionSealedBid(20,true);assert(a.result.outcome==='lost'&&a.result.price>20&&a.result.price<=24&&a.result.playerLastBid===20,'lower offer loses');
+sportsAuctionParticipate();sportsAuctionSealedBid(20);assert(a.result.outcome==='lost'&&a.result.price>20&&a.result.price<=24&&a.result.playerLastBid===20,'lower offer loses');
 // Égalité : le concurrent l'emporte.
 a=auctionSetup([80,80,0,0,0]);setMax(a,[20,0,0,0,0]);
-sportsAuctionParticipate();sportsAuctionSealedBid(20,true);assert(a.result.outcome==='lost'&&a.result.price===20,'tie goes to the rival');
+sportsAuctionParticipate();sportsAuctionSealedBid(20);assert(a.result.outcome==='lost'&&a.result.price===20,'tie goes to the rival');
 // Offres concurrentes jamais exposées avant l'ouverture des plis.
 a=auctionSetup([80,80,0,0,0]);setMax(a,[13.5,0,0,0,0]);sportsAuctionParticipate();
 const zoneHtml=renderSportsAuctionZone(DILEMMA_BANK.find(x=>x.id==='d2'));
 assert(zoneHtml.includes('data-sa-range')&&!zoneHtml.includes('13,5'),'gauge shown, rival offers sealed');
 // Hors des bornes de la jauge : ignoré.
-const sealedBefore=JSON.stringify(a);sportsAuctionSealedBid(sportsGaugeBounds(a).max+5,true);sportsAuctionSealedBid(ev.reservePrice-1,true);
+const sealedBefore=JSON.stringify(a);sportsAuctionSealedBid(sportsGaugeBounds(a).max+5);sportsAuctionSealedBid(ev.reservePrice-1);
 assert(JSON.stringify(a)===sealedBefore,'out of range offer ignored');
 // Se retirer.
 a=auctionSetup([80,80,0,0,0]);setMax(a,[18,16,0,0,0]);
 sportsAuctionParticipate();sportsAuctionWithdraw();assert(a.result.outcome==='withdrawn'&&a.leader===0&&a.result.reveal.length===2,'withdraw');
 // Aucun intérêt IA : le joueur l'emporte au prix de départ.
 a=auctionSetup([0,0,0,0,0]);assert(a.rivals.every(r=>r.status==='out'),'no rival interested');
-sportsAuctionParticipate();sportsAuctionSealedBid(sportsGaugeBounds(a).suggested,true);assert(a.result.outcome==='won'&&a.result.price===ev.reservePrice,'win at reserve');
-// Budget insuffisant : offre bloquée ; offre risquée : confirmation demandée.
+sportsAuctionParticipate();sportsAuctionSealedBid(sportsGaugeBounds(a).suggested);assert(a.result.outcome==='won'&&a.result.price===ev.reservePrice,'win at reserve');
+// Budget insuffisant : offre bloquée ; offre risquée : signalée, déposée sans confirmation.
 a=auctionSetup([80,80,0,0,0]);setMax(a,[15,0,0,0,0]);
 sportsAuctionParticipate();gameState.player.tresorerie=-50;
 assert(!sportsGaugeBounds(a).canBid,'cannot bid without funds');
-const before=JSON.stringify(a);sportsAuctionSealedBid(ev.reservePrice,true);assert(JSON.stringify(a)===before,'blocked bid ignored');
+const before=JSON.stringify(a);sportsAuctionSealedBid(ev.reservePrice);assert(JSON.stringify(a)===before,'blocked bid ignored');
 gameState.player.tresorerie=-40;gb=sportsGaugeBounds(a);assert(gb.canBid&&gb.max<sportsGaugeBounds(a).estMax*1.5&&playerCanAfford(gb.max)&&!playerCanAfford(gb.max+0.5),'gauge capped by treasury');
 gameState.player.tresorerie=20;gb=sportsGaugeBounds(a);assert(sportsGaugeFeedback(a,gb.max).risky,'risky top of the gauge');
-sportsAuctionSealedBid(gb.max);assert(a.pending&&a.pending.amount===gb.max&&a.phase==='bidding','risky offer asks confirmation');
-sportsAuctionCancelPending();assert(!a.pending,'confirmation cancelled');
-sportsAuctionSealedBid(gb.max);sportsAuctionSealedBid(a.pending.amount,true);assert(a.phase==='verdict'&&a.result.outcome==='won','confirmed risky offer');
+sportsAuctionSealedBid(gb.max);assert(a.phase==='verdict'&&a.result.outcome==='won'&&!a.pending,'risky offer submitted without confirmation');
 
 // ---------- Diffusion la saison suivante ----------
 setup();gameState.player.tresorerie=80;

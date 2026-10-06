@@ -1997,9 +1997,6 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .sa-btn.primary { background:var(--ink); border-color:var(--ink); color:#fff; }
 .sa-btn.ghost { flex:none; align-self:center; min-height:34px; padding:0 18px; color:var(--gris); }
 .sa-btn:focus-visible, .sa-gauge-range:focus-visible { outline:2px solid var(--bleu); outline-offset:2px; }
-.sa-confirm { display:flex; flex-direction:column; gap:8px; padding:10px 12px; border-radius:12px; background:rgba(217,119,6,0.1); border:1px solid rgba(217,119,6,0.3); }
-.sa-confirm-title { font-family:'Anton', sans-serif; font-size:14px; text-transform:uppercase; color:#b45309; }
-.sa-confirm p { margin:0; font-size:12px; line-height:1.45; }
 .sa-verdict { display:flex; flex-direction:column; gap:8px; }
 .sa-verdict-line { margin:0; font-size:14px; }
 .sa-ledger { display:flex; flex-direction:column; border-radius:12px; background:rgba(255,255,255,0.7); border:1px solid rgba(22,19,14,0.06); padding:4px 10px; }
@@ -2028,7 +2025,6 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 /* Jauge d'offre */
 .sa-gauge { display:flex; flex-direction:column; gap:8px; padding:12px 12px 10px; border-radius:14px; background:rgba(255,255,255,0.75);
   border:1px solid rgba(22,19,14,0.07); }
-.sa-gauge.is-locked { opacity:.55; }
 .sa-gauge-head { display:flex; align-items:baseline; justify-content:space-between; gap:8px; }
 .sa-gauge-label { font-family:'Space Grotesk', sans-serif; font-size:9.5px; font-weight:800; letter-spacing:.5px; text-transform:uppercase; color:var(--gris); }
 .sa-gauge-value { font-family:'Anton', sans-serif; font-size:34px; line-height:1; color:var(--rouge); font-variant-numeric:tabular-nums; }
@@ -2073,25 +2069,23 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .sa-reveal-row.you:not(.win) .sa-reveal-bar > span { background:var(--bleu); }
 .sa-reveal-amount { font-variant-numeric:tabular-nums; }
 .sa-tail { display:flex; flex-direction:column; gap:8px; }
-.sa-continue { margin-top:14px; }
+#choice-zone > .consequence-wrap.sa-continue { margin-top:-14px; }
 /* Pendant la jauge, l'accroche s'efface et l'illustration se resserre. */
 .sa-hero.sa-phase-bidding .dc-body > p { display:none; }
 .sa-hero.sa-phase-bidding .sa-illu { aspect-ratio:2.2 / 1; }
 @media (min-width:600px) { .sa-hero.sa-phase-bidding .sa-illu { height:220px; } }
 .dilemma-card .sa-inline p { margin:0; font-size:11.5px; line-height:1.45; color:var(--gris); }
 .dilemma-card .sa-inline .sa-verdict-line { font-size:14px; color:var(--ink); }
-.dilemma-card .sa-confirm p { font-size:12px; color:#44403c; }
 /* Le verdict reste dans la carte : elle garde ses angles arrondis, sans carte de conséquence. */
 .dilemma-card.dilemma-hero.sa-hero.is-result { border-radius:20px; border-bottom:1px solid rgba(255,255,255,0.85);
   box-shadow:0 25px 50px -12px rgba(15,23,42,0.12), 0 0 0 1px rgba(255,255,255,0.8) inset; }
 .dilemma-hero.sa-hero.is-result .dc-body { padding-bottom:16px; }
-#choice-zone > .sa-continue.slide-in-up { margin-top:14px; }
 @media (max-width: 380px) {
   .sa-illu-name { font-size:18px; }
   .sa-rival-txt { display:none; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .sa-inline, .sa-confirm, .sa-pop, .sa-leaving, .sa-flag, .sa-reveal-bar > span { animation:none !important; transition:none !important; }
+  .sa-inline, .sa-pop, .sa-leaving, .sa-flag, .sa-reveal-bar > span { animation:none !important; transition:none !important; }
 }
 .pg-rows { position:relative; }
 .pg-rows.pg-focus { flex:none; }
@@ -9041,7 +9035,7 @@ function startSportsRightsAuction(eventId, dilemmaId) {
     return { idx, name: c.name, max, interest: sportsInterest(max, event), status: max >= event.reservePrice ? 'in' : 'out', lastBid: null };
   });
   sr.activeAuction = { eventId, dilemmaId, season: gameState.season, phase: 'market', price: null, leader: null,
-    playerLastBid: null, rivals, draft: null, reveal: null, pending: null, result: null };
+    playerLastBid: null, rivals, draft: null, reveal: null, result: null };
   return sr.activeAuction;
 }
 function sportsIncrement(event, price) {
@@ -9076,15 +9070,15 @@ function sportsGaugeFeedback(a, amount) {
 }
 // Offre unique sous pli scellé : chaque chaîne intéressée dépose son offre maximale, la plus
 // haute l'emporte et paie juste ce qu'il faut pour battre la deuxième (sans dépasser son offre).
-// À égalité, l'offre concurrente l'emporte : il faut faire strictement mieux.
-function sportsAuctionSealedBid(amount, confirmed = false) {
+// À égalité, l'offre concurrente l'emporte : il faut faire strictement mieux. L'offre
+// positionnée sur la jauge est déposée sans confirmation (le risque est signalé en direct).
+function sportsAuctionSealedBid(amount) {
   const a = gameState.sportsRights.activeAuction;
   if (!a || a.phase !== 'bidding') return;
   const event = SPORT_RIGHTS_EVENTS[a.eventId], b = sportsGaugeBounds(a);
   amount = roundHalf(amount);
   if (!b.canBid || amount < b.min || amount > b.max || !playerCanAfford(amount)) return;
-  if (!confirmed && sportsBidRisky(amount, event)) { a.pending = { amount }; a.draft = amount; return; }
-  a.pending = null; a.draft = amount; a.playerLastBid = amount;
+  a.draft = amount; a.playerLastBid = amount;
   const bids = activeRivals(a).filter(r => r.max >= event.reservePrice).map(r => ({ idx: r.idx, name: r.name, amount: r.max }));
   bids.forEach(x => { a.rivals.find(r => r.idx === x.idx).lastBid = x.amount; });
   const all = [...bids, { idx: 'player', name: gameState.player.name, amount, isPlayer: true }]
@@ -9094,10 +9088,6 @@ function sportsAuctionSealedBid(amount, confirmed = false) {
   a.leader = top.isPlayer ? 'player' : top.idx;
   a.reveal = all.map(x => ({ name: x.name, amount: x.amount, isPlayer: !!x.isPlayer }));
   return finishSportsAuction(a, 'lost');
-}
-function sportsAuctionCancelPending() {
-  const a = gameState.sportsRights.activeAuction;
-  if (a) a.pending = null;
 }
 // Les chaînes IA règlent l'enchère entre elles (le joueur passe ou se retire).
 function resolveSportsAmongRivals(a, result) {
@@ -9126,7 +9116,6 @@ function sportsAuctionPass() {
 function sportsAuctionWithdraw() {
   const a = gameState.sportsRights.activeAuction;
   if (!a || a.phase !== 'bidding') return;
-  a.pending = null;
   resolveSportsAmongRivals(a, 'withdrawn');
 }
 function finishSportsAuction(a, outcome) {
@@ -9410,23 +9399,15 @@ function renderSportsAuctionZone(dilemma) {
   const f = sportsGaugeFeedback(a, value);
   const pct = v => b.max > b.min ? Math.max(0, Math.min(100, (v - b.min) / (b.max - b.min) * 100)) : 100;
   const sealed = interested.length;
-  const confirm = a.pending ? `<div class="sa-confirm sa-pop" style="--d:0s" role="alertdialog" aria-label="Offre risquée">
-      <span class="sa-confirm-title">⚠️ Offre risquée</span>
-      <p>Une offre de <b>${nf1(a.pending.amount)} M€</b> laisserait seulement <b>${nf1(sportsGaugeFeedback(a, a.pending.amount).cashAfter)} M€</b> de trésorerie si vous l’emportez. Production estimée : <b>+${nf1(event.productionCost)} M€</b> à la diffusion.</p>
-      <div class="sa-actions">
-        <button type="button" class="sa-btn primary" data-sa-action="confirm">Confirmer ${nf1(a.pending.amount)} M€</button>
-        <button type="button" class="sa-btn" data-sa-action="cancel">Ajuster</button>
-      </div>
-    </div>` : '';
   return `<div class="sa-inline" data-sa-zone>
     ${sportsIllustrationHtml(event, { overlay: slotCap, corner: 'Tour unique · sous pli' })}
-    ${b.canBid ? `<div ${pop(0.05, `sa-gauge${a.pending ? ' is-locked' : ''}`)}>
+    ${b.canBid ? `<div ${pop(0.05, 'sa-gauge')}>
       <div class="sa-gauge-head">
         <span class="sa-gauge-label">Votre offre</span>
         <output class="sa-gauge-value" data-sa-value>${nf1(value)} M€</output>
       </div>
       <input type="range" class="sa-gauge-range" data-sa-range min="${b.min}" max="${b.max}" step="${b.step}" value="${value}"
-        aria-label="Montant de votre offre" aria-valuetext="${nf1(value)} millions d’euros" ${a.pending ? 'disabled' : ''}
+        aria-label="Montant de votre offre" aria-valuetext="${nf1(value)} millions d’euros"
         style="--est-a:${pct(b.estMin)}%;--est-b:${pct(b.estMax)}%;--pos:${pct(value)}%">
       <div class="sa-gauge-scale">
         <span>${nf1(b.min)} M€</span>
@@ -9443,11 +9424,11 @@ function renderSportsAuctionZone(dilemma) {
       <span class="sa-row-label">${sealed ? `${sealed} ${sealed > 1 ? 'offres concurrentes sous pli' : 'offre concurrente sous pli'}` : 'Aucune offre concurrente annoncée'}</span>
       ${sealed ? `<div class="sa-rivals">${interested.map((r, k) => `<span class="sa-envelope sa-pop ${r.interest.key}" style="--d:${0.2 + k * 0.1}s"><span aria-hidden="true">✉️</span> <b>${esc(r.name)}</b> <span aria-hidden="true">${r.interest.icon}</span></span>`).join('')}</div>` : ''}
     </div>
-    ${confirm || `<p ${pop(0.3, 'sa-note')}>Vous ne paierez que ce qu’il faut pour battre la meilleure offre concurrente, dans la limite de la vôtre. À égalité, le concurrent l’emporte.</p>
+    <p ${pop(0.3, 'sa-note')}>Vous ne paierez que ce qu’il faut pour battre la meilleure offre concurrente, dans la limite de la vôtre. À égalité, le concurrent l’emporte.</p>
     <div ${pop(0.35, 'sa-actions')}>
       ${b.canBid ? '<button type="button" class="sa-btn primary" data-sa-action="submit">Déposer mon offre</button>' : ''}
       <button type="button" class="sa-btn${b.canBid ? '' : ' primary'}" data-sa-action="withdraw">Se retirer</button>
-    </div>`}
+    </div>
   </div>`;
 }
 const SPORTS_ZONE_LABELS = {
@@ -9501,7 +9482,7 @@ function renderSportsVerdictInline(cq) {
 function renderSportsVerdictZone(cq) {
   const delay = 0.45 + (cq?.sportsAuction?.reveal?.length || 0) * 0.32;
   return `<div class="consequence-wrap sa-continue sa-pop" style="--d:${delay}s">
-    <button class="welcome-cta" id="btn-continue">
+    <button class="welcome-cta" id="btn-continue" style="margin-top: 14px;">
       <span class="welcome-cta-shine"></span><span>Continuer</span>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </button>
@@ -9550,12 +9531,9 @@ function bindSportsAuctionZone(app) {
     if (action === 'participate') leaveThen(() => { sportsAuctionParticipate(); render(); });
     else if (action === 'pass') leaveThen(() => { sportsAuctionPass(); toVerdict(); });
     else if (action === 'withdraw') leaveThen(() => { sportsAuctionWithdraw(); toVerdict(); });
-    else if (action === 'cancel') { sportsAuctionCancelPending(); render(); }
-    else if (action === 'confirm' && a.pending) leaveThen(() => { sportsAuctionSealedBid(a.pending.amount, true); toVerdict(); });
     else if (action === 'submit') {
       sportsAuctionSealedBid(a.draft ?? sportsGaugeBounds(a).suggested);
-      if (a.pending) render();
-      else if (a.phase === 'verdict') leaveThen(toVerdict);
+      if (a.phase === 'verdict') leaveThen(toVerdict);
     }
   });
 }
