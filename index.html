@@ -968,42 +968,64 @@ button.radar-row:focus-visible { outline: 2px solid var(--bleu); outline-offset:
 /* ---- BILAN ÉCONOMIQUE DE SAISON ---- */
 .eco-pos { color: var(--vert); }
 .eco-neg { color: var(--rouge); }
+/* ---- BILAN ÉCONOMIQUE : même langage que les indicateurs (pilule d'état, cartes teintées, jauges rayées) ---- */
+.eh-slide.eco-slide-wrap { position: relative; overflow-x: clip; }
+.eco-slide { position: absolute; inset: 0 1px 2px; display: flex; flex-direction: column; min-width: 0; }
+.eco-slide .eh-subtitle { margin: 4px 0 10px; flex-shrink: 0; }
+.eco-slide .good { --pf-c: var(--vert); --pf-rgb: 5,150,105; }
+.eco-slide .warn { --pf-c: #b45309; --pf-rgb: 217,119,6; }
+.eco-slide .bad { --pf-c: var(--rouge); --pf-rgb: 225,29,72; }
 .eco-hero {
-  text-align: center; padding: 14px 0 18px; margin-bottom: 4px;
-  border-bottom: 1px dashed rgba(22,19,14,0.15);
+  flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 9px 12px; border-radius: 14px;
+  background: linear-gradient(160deg, rgba(var(--pf-rgb),0.08) 0%, rgba(255,255,255,0.9) 60%);
+  border: 1px solid rgba(255,255,255,0.9); box-shadow: 0 0 0 1px rgba(226,223,215,0.7), 0 8px 18px -12px rgba(15,23,42,0.22);
 }
-.eco-hero-value { font-family: 'Anton', sans-serif; font-size: 42px; line-height: 1; }
-.eco-hero-label {
-  font-size: 11px; font-style: italic; color: var(--gris); margin-top: 4px;
-  text-transform: uppercase; letter-spacing: 0.5px;
+.eco-hero-main, .eco-hero-side { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.eco-hero-side { align-items: flex-end; text-align: right; }
+.eco-hero-label { font-family: 'Space Grotesk', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: .4px; text-transform: uppercase; color: var(--gris); white-space: nowrap; }
+.eco-hero-value { font-family: 'Anton', sans-serif; font-size: 30px; line-height: 1.05; color: var(--pf-c); font-variant-numeric: tabular-nums; }
+.eco-solde { font-family: 'Anton', sans-serif; font-size: 17px; line-height: 1.1; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.eco-solde.pos { color: var(--vert); }
+.eco-solde.neg { color: var(--rouge); }
+.eco-flows { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: space-evenly; gap: 6px; padding: 6px 2px 8px; }
+.eco-flow { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.eco-flow-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.eco-flow-name { display: inline-flex; align-items: center; gap: 6px; min-width: 0; font-size: 12px; font-weight: 700; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.eco-ic { flex-shrink: 0; width: 22px; height: 22px; border-radius: 7px; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; }
+.eco-ic.out { background: rgba(225,29,72,0.12); }
+.eco-ic.in { background: rgba(5,150,105,0.12); }
+.eco-flow-value { flex-shrink: 0; font-family: 'Anton', sans-serif; font-size: 14px; font-variant-numeric: tabular-nums; }
+.eco-flow-value.out { color: var(--rouge); }
+.eco-flow-value.in { color: var(--vert); }
+.eco-bar { display: flex; height: 10px; border-radius: 999px; overflow: hidden;
+  background: repeating-linear-gradient(-45deg, rgba(22,19,14,0.05) 0 3px, transparent 3px 7px), rgba(22,19,14,0.06); }
+.eco-fill { height: 100%; transition: width .3s ease; background-image: repeating-linear-gradient(-45deg, rgba(255,255,255,0.2) 0 3px, transparent 3px 7px); }
+.eco-fill:first-child { border-radius: 999px 0 0 999px; }
+.eco-fill:last-child { border-radius: 0 999px 999px 0; }
+.eco-fill:only-child { border-radius: 999px; }
+.eco-fill.prog { background-color: var(--rouge); }
+.eco-fill.tal { background-color: var(--bleu); }
+.eco-fill.rev { background-color: var(--vert); }
+.eco-legend { display: flex; flex-wrap: wrap; gap: 2px 12px; font-size: 10px; color: var(--gris); }
+.eco-legend span { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+.eco-legend i { width: 8px; height: 8px; border-radius: 50%; }
+.eco-legend i.prog { background: var(--rouge); }
+.eco-legend i.tal { background: var(--bleu); }
+.eco-legend i.rev { background: var(--vert); }
+.eco-tiles { flex-shrink: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.eco-tile {
+  display: flex; flex-direction: column; align-items: center; gap: 3px; min-width: 0; padding: 8px 4px; border-radius: 12px; text-align: center;
+  background: rgba(255,255,255,0.75); box-shadow: 0 0 0 1px rgba(226,223,215,0.7), 0 6px 14px -10px rgba(15,23,42,0.2);
 }
-.eco-flow { display: flex; flex-direction: column; gap: 14px; margin: 18px 0; }
-.eco-flow-row { display: flex; align-items: center; gap: 10px; }
-.eco-flow-label {
-  flex: 0 0 96px; display: flex; align-items: center; gap: 5px;
-  font-family: 'Anton', sans-serif; font-size: 10px; text-transform: uppercase; letter-spacing: 0.3px;
-  color: var(--ink);
-}
-.eco-flow-bar-track { flex: 1; display: flex; height: 10px; background: rgba(22,19,14,0.08); border-radius: 5px; overflow: hidden; }
-.eco-flow-bar-fill { height: 100%; transition: width 0.3s ease; }
-.eco-flow-bar-fill.eco-flow-programmes { background: var(--rouge); }
-.eco-flow-bar-fill.eco-flow-talents { background: var(--bleu); }
-.eco-flow-bar-fill.eco-flow-revenu { background: var(--vert); }
-.eco-flow-value {
-  flex: 0 0 74px; text-align: right;
-  font-family: 'Anton', sans-serif; font-size: 13px;
-}
-.eco-bilan-grid {
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px 12px;
-  margin-top: 18px; padding-top: 16px; border-top: 1px dashed rgba(22,19,14,0.15);
-}
-.eco-bilan-item { display: flex; flex-direction: column; gap: 3px; text-align: center; }
-.eco-bilan-label {
-  display: flex; align-items: center; justify-content: center; gap: 4px;
-  font-family: 'Anton', sans-serif; font-size: 9px; text-transform: uppercase; letter-spacing: 0.3px;
-  color: var(--gris);
-}
-.eco-bilan-value { font-family: 'Anton', sans-serif; font-size: 15px; color: var(--ink); }
+.eco-tile-ic { width: 24px; height: 24px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; }
+.eco-treso .eco-tile-ic { background: rgba(217,119,6,0.14); }
+.eco-talents .eco-tile-ic { background: rgba(37,99,235,0.12); }
+.eco-pda .eco-tile-ic { background: rgba(124,58,237,0.12); }
+.eco-tile-label { font-family: 'Space Grotesk', sans-serif; font-size: 8.5px; font-weight: 700; letter-spacing: .3px; text-transform: uppercase; color: var(--gris);
+  max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.eco-tile-value { font-family: 'Anton', sans-serif; font-size: 15px; color: var(--ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.eco-tile.bad .eco-tile-value { color: var(--rouge); }
+@media (min-width: 600px) { .eco-hero-value { font-size: 32px; } .eco-flow-name { font-size: 13px; } .eco-tile { flex-direction: row; justify-content: center; gap: 8px; padding: 9px 6px; } .eco-tile-value { font-size: 16px; } }
 
 /* ---- ÉCRAN DE CONSÉQUENCES ---- */
 .impact-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
@@ -2837,56 +2859,65 @@ function renderEcoBilanSlide(player) {
   const depenses = player.coutGrilleEngageSaison + player.achatsSaison;
   const coutTalents = Math.min(depenses, player.coutTalentsSaison);
   const coutProgrammes = Math.max(0, depenses - coutTalents);
-  const revenusPublicitaires = player.revenusPubPrevisionnels;
-  const maxFlow = Math.max(depenses, revenusPublicitaires, 1);
-  const rentabilitePositive = player.rentabiliteGrille >= 0;
-  const indicators = [
-    { icon: '💰', label: 'Trésorerie', value: `${nf1(player.tresorerie)} M€` },
-    { icon: '🎤', label: 'Coût des talents', value: `${nf1(player.coutTalentsSaison)} M€` },
-    { icon: '📊', label: 'Coût / pt PDA', value: `${nf1(player.coutParPointPDA)} M€` }
+  const recettes = player.revenusPubPrevisionnels;
+  const solde = recettes - depenses;
+  const maxFlow = Math.max(depenses, recettes, 1);
+  const pct = v => Math.max(0, Math.min(100, v / maxFlow * 100)).toFixed(1);
+  const renta = player.rentabiliteGrille;
+  const rentaCls = renta >= 0 ? 'good' : (renta >= -30 ? 'warn' : 'bad');
+  const verdict = { good: 'Rentable', warn: 'Déficitaire', bad: 'Très déficitaire' }[rentaCls];
+  const tiles = [
+    { key: 'treso', ic: '💰', label: 'Trésorerie', value: `${nf1(player.tresorerie)} M€`, cls: player.tresorerie < 0 ? 'bad' : '' },
+    { key: 'talents', ic: '🎤', label: 'Talents', value: `${nf1(player.coutTalentsSaison)} M€`, cls: '' },
+    { key: 'pda', ic: '📊', label: 'Coût / pt PDA', value: `${nf1(player.coutParPointPDA)} M€`, cls: '' }
   ];
 
   return `
-    <div class="ga-header">
-      <div class="eh-title">Bilan économique</div>
-      <div class="eh-legend" style="margin: 0; gap: 8px;">
-        <span class="eh-legend-item"><i style="background:var(--rouge)"></i>Programmes</span>
-        <span class="eh-legend-item"><i style="background:var(--bleu)"></i>Talents</span>
-        <span class="eh-legend-item"><i style="background:var(--vert)"></i>Revenus</span>
+    <div class="eco-slide">
+      <div class="perf-head">
+        <div class="eh-title">Bilan économique</div>
+        <div class="perf-overall ${rentaCls}">${verdict}</div>
       </div>
-    </div>
-    <div class="eh-subtitle">Flux financiers en temps réel.</div>
-
-    <div class="eco-hero">
-      <div class="eco-hero-value ${rentabilitePositive ? 'eco-pos' : 'eco-neg'}">${fmtDelta(player.rentabiliteGrille, 1, '%')}</div>
-      <div class="eco-hero-label">Rentabilité de la grille</div>
-    </div>
-
-    <div class="eco-flow">
-      <div class="eco-flow-row">
-        <div class="eco-flow-label"><span class="ic">📋</span>Dépenses</div>
-        <div class="eco-flow-bar-track">
-          <div class="eco-flow-bar-fill eco-flow-programmes" style="width:${(coutProgrammes / maxFlow * 100).toFixed(1)}%"></div>
-          <div class="eco-flow-bar-fill eco-flow-talents" style="width:${(coutTalents / maxFlow * 100).toFixed(1)}%"></div>
+      <div class="eh-subtitle">Flux financiers de la saison, en temps réel.</div>
+      <div class="eco-hero ${rentaCls}">
+        <div class="eco-hero-main">
+          <span class="eco-hero-label">Rentabilité de la grille</span>
+          <span class="eco-hero-value">${fmtDelta(renta, 1, '%')}</span>
         </div>
-        <div class="eco-flow-value eco-neg">-${nf1(depenses)} M€</div>
+        <div class="eco-hero-side">
+          <span class="eco-hero-label">Solde de la saison</span>
+          <span class="eco-solde ${solde >= 0 ? 'pos' : 'neg'}">${solde >= 0 ? '+' : '−'}${nf1(Math.abs(solde))} M€</span>
+        </div>
       </div>
-      <div class="eco-flow-row">
-        <div class="eco-flow-label"><span class="ic">📺</span>Recettes pub.</div>
-        <div class="eco-flow-bar-track">
-          <div class="eco-flow-bar-fill eco-flow-revenu" style="width:${(revenusPublicitaires / maxFlow * 100).toFixed(1)}%"></div>
+      <div class="eco-flows">
+        <div class="eco-flow">
+          <div class="eco-flow-head">
+            <span class="eco-flow-name"><span class="eco-ic out">📋</span>Dépenses</span>
+            <span class="eco-flow-value out">−${nf1(depenses)} M€</span>
+          </div>
+          <div class="eco-bar"><span class="eco-fill prog" style="width:${pct(coutProgrammes)}%"></span><span class="eco-fill tal" style="width:${pct(coutTalents)}%"></span></div>
+          <div class="eco-legend">
+            <span><i class="prog"></i>Programmes ${nf1(coutProgrammes)} M€</span>
+            <span><i class="tal"></i>Talents ${nf1(coutTalents)} M€</span>
+          </div>
         </div>
-        <div class="eco-flow-value eco-pos">+${nf1(revenusPublicitaires)} M€</div>
+        <div class="eco-flow">
+          <div class="eco-flow-head">
+            <span class="eco-flow-name"><span class="eco-ic in">📺</span>Recettes publicitaires</span>
+            <span class="eco-flow-value in">+${nf1(recettes)} M€</span>
+          </div>
+          <div class="eco-bar"><span class="eco-fill rev" style="width:${pct(recettes)}%"></span></div>
+          <div class="eco-legend"><span><i class="rev"></i>Prévision de fin de saison</span></div>
+        </div>
       </div>
-    </div>
-
-    <div class="eco-bilan-grid">
-      ${indicators.map(it => `
-        <div class="eco-bilan-item">
-          <div class="eco-bilan-label"><span class="ic">${it.icon}</span>${it.label}</div>
-          <div class="eco-bilan-value">${it.value}</div>
-        </div>
-      `).join('')}
+      <div class="eco-tiles">
+        ${tiles.map(t => `
+          <div class="eco-tile eco-${t.key} ${t.cls}">
+            <span class="eco-tile-ic">${t.ic}</span>
+            <span class="eco-tile-label">${t.label}</span>
+            <span class="eco-tile-value">${t.value}</span>
+          </div>`).join('')}
+      </div>
     </div>
   `;
 }
@@ -7526,7 +7557,7 @@ function renderTicker() {
             <div class="eh-slider-track" id="eh-slider-track" style="transform: translateX(-${slide * 100}%);">
               <div class="eh-slide programming-slide">${programGridHtml}</div>
               <div class="eh-slide">${globalAudienceShareHtml}</div>
-              <div class="eh-slide">${ecoBilanSlideHtml}</div>
+              <div class="eh-slide eco-slide-wrap">${ecoBilanSlideHtml}</div>
               <div class="eh-slide evo-slide">${evolutionChartHtml}</div>
               <div class="eh-slide talents-slide">${talentsSlideHtml}</div>
               <div class="eh-slide perf-slide-wrap">${statStarsHtml}</div>
