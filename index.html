@@ -600,6 +600,8 @@ button.radar-row:focus-visible { outline: 2px solid var(--bleu); outline-offset:
   background: rgba(255,255,255,0.8); color: var(--ink); white-space: nowrap;
 }
 .tl-cancel:disabled { opacity: 0.35; cursor: default; }
+.tl-header-actions { display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.tl-more { color: var(--bleu); border-color: rgba(37,99,235,0.35); background: rgba(37,99,235,0.08); }
 .tl-summary {
   display: flex; align-items: center; flex-wrap: wrap; gap: 4px 6px; margin: 6px 0 2px; flex-shrink: 0;
   font-size: 11px; color: var(--gris);
@@ -2330,9 +2332,12 @@ function talentMarket() {
     const shown = new Set([...market.offers.map(o => o.id), ...market.refused]);
     // Les profils du mercato en cours ne sont pas proposés deux fois.
     if (gameState.mercato && !gameState.mercato.result) gameState.mercato.offers.forEach(o => shown.add(o.id));
-    const ranked = MERCATO_TALENTS.filter(t => !taken.has(t.id) && !shown.has(t.id))
-      .map(t => ({ t, k: marketRandom() + (slotsMatchingGenre(p, t.specialty) ? 1 : 0) - talentFatigue(t) }))
+    const score = list => list.map(t => ({ t, k: marketRandom() + (slotsMatchingGenre(p, t.specialty) ? 1 : 0) - talentFatigue(t) }))
       .sort((a, b) => b.k - a.k).map(x => x.t);
+    // Profils écartés via « + de profils » : proposés à nouveau seulement s'il n'en reste plus d'autres.
+    const passed = new Set(market.passed || []);
+    const pool = MERCATO_TALENTS.filter(t => !taken.has(t.id) && !shown.has(t.id));
+    const ranked = [...score(pool.filter(t => !passed.has(t.id))), ...score(pool.filter(t => passed.has(t.id)))];
     // Des genres variés d'abord, puis le reste du classement.
     const picks = [];
     ranked.forEach(t => { if (picks.length < need && !picks.some(x => x.specialty === t.specialty)) picks.push(t); });
@@ -2348,6 +2353,18 @@ function openTalentScouting(slot) {
   talentMarket();
   gameState.talentFlipped = null;
   gameState.talentScouting = { slot, pending: null, dealt: false };
+  return true;
+}
+
+// « + de profils » : les trois profils affichés laissent place à de nouveaux visages.
+function shuffleTalentOffers() {
+  const sc = gameState.talentScouting;
+  if (!sc || sc.pending) return false;
+  const market = talentMarket();
+  market.passed = [...new Set([...(market.passed || []), ...market.offers.map(o => o.id)])];
+  market.offers = [];
+  talentMarket();
+  sc.dealt = false;
   return true;
 }
 
@@ -2664,7 +2681,10 @@ function renderTalentsSlide() {
     <div class="tl-panel${sc ? ' scouting' : ''}" id="tl-panel">
       <div class="tl-header">
         <div class="eh-title">Talents</div>
-        ${sc ? `<button type="button" class="tl-cancel" data-scout-cancel ${sc.pending ? 'disabled' : ''}>✕ Annuler</button>` : ''}
+        ${sc ? `<span class="tl-header-actions">
+          <button type="button" class="tl-cancel tl-more" data-scout-more ${sc.pending ? 'disabled' : ''} title="Remplacer les trois profils par de nouveaux">+ de profils</button>
+          <button type="button" class="tl-cancel" data-scout-cancel ${sc.pending ? 'disabled' : ''}>✕ Annuler</button>
+        </span>` : ''}
       </div>
       <div class="tl-summary">
         ${sc ? `<span>${allRefused ? 'Aucun profil n’a accepté cette saison : revenez la saison prochaine.' : `Choisissez un profil pour la <b>place ${sc.slot + 1}</b>`}</span>` : `
@@ -7649,6 +7669,10 @@ function bindTickerInteractions(app) {
     const offerBtn = e.target.closest('[data-scout-offer]');
     if (offerBtn) {
       makeTalentOffer(parseInt(offerBtn.dataset.scoutOffer, 10));
+      return;
+    }
+    if (e.target.closest('[data-scout-more]')) {
+      if (shuffleTalentOffers()) refreshTalentsPanel();
       return;
     }
     if (e.target.closest('[data-scout-cancel]')) {
