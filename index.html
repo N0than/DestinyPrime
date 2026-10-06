@@ -9131,6 +9131,12 @@ function sportsBroadcastsFor(channel) {
 function sportsBroadcastOn(channel, slot) {
   return sportsBroadcastsFor(channel).find(o => o.slots.includes(slot)) || null;
 }
+// Droit qu'une chaîne concurrente diffuse cette saison sur la case : connu dès la
+// planification de rentrée, avant même l'activation de la diffusion.
+function competitorSportsRightOn(competitor, slot, season = gameState.season) {
+  return gameState.sportsRights?.owned?.find(o => o.ownerId !== 'player' && o.ownerName === competitor.name
+    && o.broadcastSeason === season && (o.status === 'owned' || o.status === 'broadcast') && o.slots.includes(slot)) || null;
+}
 function calculateSportsEventAudience(event, channel, slot, record) {
   const T = SPORT_RIGHTS_TUNING;
   const fit = T.channelFit[channel.type]?.[event.sport] ?? 1;
@@ -9159,10 +9165,9 @@ function sportsEventEditorial(event, channel, slot) {
 }
 // Attractivité commerciale : agit comme un multiplicateur du moteur de recettes, pondéré
 // par le poids d'audience des cases occupées — jamais comme un montant crédité.
-function sportsAdFactor() {
-  const p = gameState.player;
-  if (!p) return 1;
-  return sportsBroadcastsFor(p).reduce((f, rec) => {
+function sportsAdFactor(channel = gameState.player) {
+  if (!channel) return 1;
+  return sportsBroadcastsFor(channel).reduce((f, rec) => {
     const event = SPORT_RIGHTS_EVENTS[rec.eventId];
     const weight = rec.slots.reduce((s, slot) => s + (SLOT_AUDIENCE_WEIGHTS[slot] || 0), 0);
     return f * (1 + (event.commercialAttractiveness - 1) * weight);
@@ -9224,8 +9229,48 @@ function evaluateSportsBroadcasts() {
     rec.perf = { pdaGain, revenueGain, popGain: rec.popGain || 0, cost, verdict };
     rec.status = 'done';
   });
-  // Droits des concurrents : la diffusion est terminée.
-  sr.owned.filter(o => o.ownerId !== 'player' && o.broadcastSeason === gameState.season && o.status === 'broadcast').forEach(o => { o.status = 'done'; });
+  // Droits des concurrents : écart d'audience de la chaîne et du joueur avec / sans
+  // l'événement ; les recettes supplémentaires abondent le budget du diffuseur.
+  sr.owned.filter(o => o.ownerId !== 'player' && o.broadcastSeason === gameState.season && o.status === 'broadcast').forEach(rec => {
+    const c = gameState.competitors.find(x => x.name === rec.ownerName);
+    if (c && !rec.perf) {
+      const factor = sportsAdFactor(c);
+      const rowsWith = getCalculatedPDAs();
+      rec.suppressed = true;
+      const rowsWithout = getCalculatedPDAs();
+      delete rec.suppressed;
+      const pdaOf = (rows, ch, t) => rows.find(r => r.channel === ch).pda[t];
+      const pdaWith = pdaOf(rowsWith, c, c.target), pdaWithout = pdaOf(rowsWithout, c, c.target);
+      const revenueGain = Math.max(0, Math.round((pdaWith * COMPETITOR_INCOME_RATE * factor - pdaWithout * COMPETITOR_INCOME_RATE) * 10) / 10);
+      c.budget = (c.budget || 0) + revenueGain;
+      rec.perf = { pdaGain: pdaWith - pdaWithout, revenueGain, cost: rec.acquisitionPrice + rec.productionCost,
+        playerImpact: pdaOf(rowsWith, p, p.target) - pdaOf(rowsWithout, p, p.target) };
+    }
+    rec.status = 'done';
+  });
+}
+// Fiche d'une chaîne concurrente : ses droits sportifs à venir, en cours ou diffusés.
+function competitorSportsRightsHtml(competitor, list) {
+  const owned = (gameState.sportsRights?.owned || []).filter(o => o.ownerId !== 'player' && o.ownerName === competitor.name
+    && o.broadcastSeason >= gameState.season - 1);
+  if (!owned.length) return '';
+  const items = owned.map(o => {
+    const e = SPORT_RIGHTS_EVENTS[o.eventId];
+    const where = esc(sportsSlotsLabel(e));
+    if (o.broadcastSeason > gameState.season) return `${e.icon} <b>${esc(e.name)}</b> : diffusion en saison ${o.broadcastSeason} (${where}), droits payés ${nf1(o.acquisitionPrice)} M€.`;
+    if (o.broadcastSeason === gameState.season && o.status !== 'done') return `${e.icon} <b>${esc(e.name)}</b> : à l'antenne cette saison (${where}).`;
+    return o.perf
+      ? `${e.icon} <b>${esc(e.name)}</b> : ${fmtDelta(o.perf.pdaGain, 1, ' pt')} de PDA, ${nf1(o.perf.revenueGain)} M€ de recettes pour ${nf1(o.perf.cost)} M€ investis.`
+      : `${e.icon} <b>${esc(e.name)}</b> : diffusé en saison ${o.broadcastSeason}.`;
+  });
+  return `<div>
+      <div class="radar-section-title">Droits sportifs</div>
+      ${list(items, '')}
+    </div>`;
+}
+// Diffusions concurrentes de la saison, pour la météo du marché.
+function competitorSportsBroadcastsThisSeason() {
+  return (gameState.sportsRights?.owned || []).filter(o => o.ownerId !== 'player' && o.broadcastSeason === gameState.season);
 }
 function sportsMarketOutlook() {
   const sr = ensureSportsRightsState();
@@ -9388,6 +9433,18 @@ function renderSportsRightsBilanHtml() {
       </div>
     </div>`;
   }).join('');
+  const rivals = sr.owned.filter(o => o.ownerId !== 'player' && o.broadcastSeason === season && o.perf).map(o => {
+    const e = SPORT_RIGHTS_EVENTS[o.eventId], f = o.perf;
+    return `<div class="sa-bilan-event">
+      <div class="sa-bilan-head"><b>${e.icon} ${esc(e.name)} · ${esc(o.ownerName)}</b><span class="sa-verdict-pill ${f.playerImpact < -0.05 ? 'bad' : 'warn'}">CONCURRENT</span></div>
+      <div class="sa-ledger compact">
+        <div><span>Investissement (droits + prod.)</span><b>${nf1(f.cost)} M€</b></div>
+        <div><span>Gain d'audience de ${esc(o.ownerName)} (sa cible)</span><b>${fmtDelta(f.pdaGain, 1, ' pt')}</b></div>
+        <div><span>Recettes supplémentaires</span><b>${nf1(f.revenueGain)} M€</b></div>
+        <div><span>Impact sur votre PDA cible</span><b>${fmtDelta(f.playerImpact, 1, ' pt')}</b></div>
+      </div>
+    </div>`;
+  }).join('');
   const next = upcoming.map(o => {
     const e = SPORT_RIGHTS_EVENTS[o.eventId];
     return o.ownerId === 'player'
@@ -9396,7 +9453,7 @@ function renderSportsRightsBilanHtml() {
   }).join('');
   return `<div class="card bilan-card sa-bilan">
     <div class="kicker-badge">🏆 MARCHÉ DES DROITS</div>
-    ${rows}
+    ${rows}${rivals}
     ${next ? `<ul class="sa-bilan-list">${next}</ul>` : ''}
     <p class="sa-note">${sr.lastAuctionSeason === season ? 'Une enchère s’est tenue cette saison. ' : 'Aucun grand droit cette saison. '}${esc(sportsMarketOutlook())}</p>
   </div>`;
@@ -10341,7 +10398,8 @@ const STRATEGY_TAGS = {
   economie: { label: 'Économie', accent: 'vert' },
   renforcement: { label: 'Renforcement', accent: 'gold' },
   franchise: { label: 'Franchise', accent: 'gold' },
-  riposte: { label: 'Riposte', accent: 'rouge' }
+  riposte: { label: 'Riposte', accent: 'rouge' },
+  evenement: { label: 'Événement', accent: 'gold' }
 };
 
 // ---- Exclusivité des programmes ----
@@ -10487,6 +10545,17 @@ function planCompetitorSeason(competitor, index) {
   TIME_SLOTS.forEach(({ key: slot }) => {
     const previous = competitor.contracts[slot];
     const prevLevel = previous ? contractInvestLevel(previous) : null;
+    // Droit sportif diffusé cette saison : l'événement occupe la case, le programme sous
+    // contrat est mis en pause et prolongé d'une saison, sans investissement de grille.
+    const sportsRight = competitorSportsRightOn(competitor, slot);
+    if (sportsRight) {
+      if (previous && previous.end >= gameState.season && previous.sportsPause !== gameState.season) {
+        previous.sportsPause = gameState.season; previous.end += 1;
+      }
+      slots[slot] = { sportsRight, program: null, level: 3, tag: 'evenement', isNew: true, seasonsCount: 0, extraPower: 0,
+        prevName: previous?.name || null, prevLevel, pausedName: previous?.sportsPause === gameState.season ? previous.name : null };
+      return;
+    }
     const trend = firstSeason ? 0 : slotTrend(competitor, slot);
     const success = trend >= market.successThreshold;
     const under = trend <= market.underperformThreshold;
@@ -10539,8 +10608,10 @@ function planCompetitorSeason(competitor, index) {
 
   // Contrainte budgétaire : on réduit d'abord les cases les moins stratégiques.
   const cap = Math.max(1, competitor.budget * (market.budgetShare + 0.3 * profile.riskTolerance));
-  const cost = () => Object.values(slots).reduce((s, d) => s + market.investCost[d.level], 0);
-  const byImportance = TIME_SLOTS.map(s => s.key).sort((a, b) => (market.strategicSlots[a] ?? 0) - (market.strategicSlots[b] ?? 0));
+  // L'événement est payé à part (droits puis production) : il sort du budget de grille.
+  const cost = () => Object.values(slots).reduce((s, d) => s + (d.sportsRight ? 0 : market.investCost[d.level]), 0);
+  const byImportance = TIME_SLOTS.map(s => s.key).filter(s => !slots[s].sportsRight)
+    .sort((a, b) => (market.strategicSlots[a] ?? 0) - (market.strategicSlots[b] ?? 0));
   let guard = 0;
   while (cost() > cap && guard++ < 20) {
     const slot = byImportance.find(s => slots[s].level > 0);
@@ -10554,6 +10625,7 @@ function planCompetitorSeason(competitor, index) {
   const announced = {};
   TIME_SLOTS.forEach(({ key: slot }) => {
     const d = slots[slot];
+    if (d.sportsRight) { announced[slot] = { level: d.level, masked: false }; return; }
     competitor.contracts[slot] = makeCompetitorContract(competitor, d.program, slot, d.level,
       { seasonsCount: d.seasonsCount, tag: d.tag, extraPower: d.extraPower });
     if (firstSeason) competitor.contracts[slot].end = gameState.season + Math.floor(marketRandom() * 3);
@@ -10566,10 +10638,18 @@ function planCompetitorSeason(competitor, index) {
   });
   competitor.plan = {
     season: gameState.season, confirmed: false, announced,
-    slots: Object.fromEntries(Object.entries(slots).map(([slot, d]) => [slot, {
-      programId: d.program.id, name: d.program.name, genre: d.program.editorial.genre, format: d.program.format,
-      target: d.program.target, level: d.level, tag: d.tag, isNew: d.isNew, prevName: d.prevName, prevLevel: d.prevLevel
-    }]))
+    slots: Object.fromEntries(Object.entries(slots).map(([slot, d]) => {
+      if (d.sportsRight) {
+        const event = SPORT_RIGHTS_EVENTS[d.sportsRight.eventId];
+        return [slot, { programId: `sport:${event.id}`, name: event.name, genre: 'sport', format: 'sport', target: competitor.target,
+          level: d.level, tag: d.tag, isNew: true, isSportsEvent: true, icon: event.icon, pausedName: d.pausedName,
+          prevName: d.prevName, prevLevel: d.prevLevel }];
+      }
+      return [slot, {
+        programId: d.program.id, name: d.program.name, genre: d.program.editorial.genre, format: d.program.format,
+        target: d.program.target, level: d.level, tag: d.tag, isNew: d.isNew, prevName: d.prevName, prevLevel: d.prevLevel
+      }];
+    }))
   };
   competitor.strategyHistory.push({ kind: 'plan', season: gameState.season,
     slots: Object.fromEntries(Object.entries(competitor.plan.slots).map(([s, d]) => [s, { name: d.name, level: d.level, tag: d.tag }])) });
@@ -10619,7 +10699,7 @@ function competitorView(competitor) {
     const a = plan.announced?.[key] || {};
     const reaction = competitor.slotInvestments?.[key];
     return { slot: key, name: d.name, genre: d.genre, format: d.format, target: d.target, tag: d.tag, isNew: d.isNew,
-      prevName: d.prevName, prevLevel: d.prevLevel,
+      prevName: d.prevName, prevLevel: d.prevLevel, isSportsEvent: !!d.isSportsEvent, icon: d.icon || null, pausedName: d.pausedName || null,
       level: confirmed ? d.level : a.level ?? d.level,
       masked: !confirmed && !!a.masked,
       reaction: reaction && reaction.expires >= gameState.season ? reaction.action : null };
@@ -10660,7 +10740,11 @@ function computeMarketWeather() {
   const p = gameState.player;
   const confirmed = gameState.competitors.every(c => c.plan?.confirmed);
   const views = gameState.competitors.map(competitorView);
-  const items = [];
+  const items = competitorSportsBroadcastsThisSeason().map(o => {
+    const e = SPORT_RIGHTS_EVENTS[o.eventId];
+    return { icon: e.icon, title: `${e.name} sur ${o.ownerName}`,
+      text: `Retransmission en direct ${e.preferredSlots.length > 1 ? `de l'après-midi à la nuit` : `en ${sportsSlotsLabel(e)}`} cette saison : attendez-vous à une forte pression sur ces créneaux.` };
+  }).slice(0, 1);
   const highBySlot = TIME_SLOTS.map(({ key, label, daypart }) => ({ key, label, daypart,
     high: views.filter(v => v.find(x => x.slot === key).level >= 2).length,
     total: views.reduce((s, v) => s + v.find(x => x.slot === key).level, 0) }));
@@ -10700,7 +10784,8 @@ function competitorDecryptage(competitor) {
   const slotLabel = s => TIME_SLOTS.find(t => t.slot === s || t.key === s)?.label || s;
   const genre = lead.genre ? (GENRE_LABELS[lead.genre] || lead.genre).toLowerCase() : 'sa programmation';
   const verbs = { offensive: 'passe à l’offensive en', renforcement: 'renforce son', nouveaute: 'renouvelle son',
-    maintien: 'maintient son', economie: 'allège son', franchise: 'décline une franchise en', riposte: 'riposte en' };
+    maintien: 'maintient son', economie: 'allège son', franchise: 'décline une franchise en', riposte: 'riposte en',
+    evenement: 'frappe un grand coup en' };
   const verb = verbs[lead.tag] || 'mise sur son';
   let sentence = `${competitor.name} ${verb} ${slotLabel(lead.slot)} avec ${lead.masked ? 'un projet encore confidentiel' : `« ${lead.name} » (${genre})`}`;
   const prio = GAME_BALANCE.competitors.profiles[competitor.strategy]?.targetPriority;
@@ -11135,7 +11220,7 @@ function renderRadarCards(slot) {
           <span class="radar-share-badge" title="Part d'audience sur ce créneau">${nf1(r.share)}%<span class="radar-pda-sfx"> PDA</span></span>
         </span>
         <span class="radar-line">
-          <span class="radar-program"><span class="radar-program-name">${esc(programName)}</span><span class="radar-genre">· ${esc(genre)}</span></span>
+          <span class="radar-program"><span class="radar-program-name">${v.icon ? `${v.icon} ` : ''}${esc(programName)}</span><span class="radar-genre">· ${esc(genre)}</span></span>
           <span class="radar-strat strat-${strategy.accent}" title="Stratégie : ${esc(strategy.label)}">${strategy.label}</span>
           <span class="radar-invest lvl-${level}" title="Investissement ${esc(investLabel)}"><b>${'€'.repeat(level + 1)}</b>${'€'.repeat(3 - level)}</span>
         </span>
@@ -11173,8 +11258,11 @@ function renderCompetitorSheet(c) {
   const label = v => v.masked ? 'Projet en développement' : `« ${v.name} »`;
   const changes = firstSeason ? [] : view.flatMap(v => {
     const out = [];
-    if (v.prevName && v.prevName !== v.name) out.push(`${slotLabelOf(v.slot)} : « ${v.prevName} » laisse place à ${label(v)}.`);
-    if (Number.isInteger(v.prevLevel) && v.prevLevel !== v.level) {
+    if (v.isSportsEvent) out.push(v.pausedName
+      ? `${slotLabelOf(v.slot)} : « ${v.pausedName} » est mis en pause pour ${label(v)} (droits exclusifs).`
+      : `${slotLabelOf(v.slot)} : ${label(v)} en direct (droits exclusifs).`);
+    else if (v.prevName && v.prevName !== v.name) out.push(`${slotLabelOf(v.slot)} : « ${v.prevName} » laisse place à ${label(v)}.`);
+    if (!v.isSportsEvent && Number.isInteger(v.prevLevel) && v.prevLevel !== v.level) {
       out.push(`${slotLabelOf(v.slot)} : investissement ${GAME_BALANCE.market.investLabels[v.prevLevel]} → ${GAME_BALANCE.market.investLabels[v.level]}.`);
     }
     return out;
@@ -11201,7 +11289,7 @@ function renderCompetitorSheet(c) {
       <div class="radar-section-title">Grille ${c.plan?.confirmed ? 'confirmée' : 'annoncée'}</div>
       ${view.map(v => `<div class="radar-grid-row">
         <span class="radar-grid-slot">${slotLabelOf(v.slot)}</span>
-        <span class="radar-grid-program">${esc(v.masked ? 'Projet en développement' : v.name)}</span>
+        <span class="radar-grid-program">${v.icon ? `${v.icon} ` : ''}${esc(v.masked ? 'Projet en développement' : v.name)}</span>
         ${investBadge(v.level)}${strategyBadge(v.tag)}
       </div>`).join('')}
     </div>
@@ -11209,6 +11297,7 @@ function renderCompetitorSheet(c) {
       <div class="radar-section-title">Depuis la saison précédente</div>
       ${list(changes.map(esc), 'Aucune modification majeure.')}
     </div>`}
+    ${competitorSportsRightsHtml(c, list)}
     ${(c.talents || []).length ? `<div>
       <div class="radar-section-title">Talents sous contrat</div>
       ${list(c.talents.map(t => `${esc(t.name)} — ${esc(t.role)}`), '')}
@@ -11342,7 +11431,7 @@ function computeChannelBattle() {
       playerDelta: p.slotBaseline ? playerRow.slots[key][target] - p.slotBaseline[key] : 0 };
   });
   const hottest = [...slots].sort((a, b) => b.score - a.score)[0];
-  const tagWeight = { riposte: 5, offensive: 4, franchise: 3, nouveaute: 2, renforcement: 1 };
+  const tagWeight = { evenement: 6, riposte: 5, offensive: 4, franchise: 3, nouveaute: 2, renforcement: 1 };
   const moves = gameState.competitors.flatMap(c => TIME_SLOTS.map(({ key }) => {
     const d = c.plan?.season === gameState.season ? c.plan.slots[key] : null;
     return d && tagWeight[d.tag] ? { c, key, d, w: tagWeight[d.tag] * 10 + d.level } : null;
@@ -11374,7 +11463,7 @@ function renderChannelBattle() {
   if (!gameState.competitors?.length) return '';
   const b = computeChannelBattle();
   const signed = v => `${v > 0 ? '+' : ''}${v.toFixed(1).replace('.', ',')}`;
-  const tagVerb = { riposte: 'riposte avec', offensive: 'lance une offensive avec', franchise: 'décline la franchise', nouveaute: 'lance', renforcement: 'renforce' };
+  const tagVerb = { evenement: 'diffuse en direct', riposte: 'riposte avec', offensive: 'lance une offensive avec', franchise: 'décline la franchise', nouveaute: 'lance', renforcement: 'renforce' };
   return `<div class="card bilan-card">
     <div class="kicker-badge">⚔️ LA BATAILLE DES CHAÎNES</div>
     <div class="radar-stats">
@@ -11438,6 +11527,8 @@ function campaignProgress() {
     {name:'Conformité ≥ 75 et trésorerie positive',done:computeArcomCompliance().arcomScore>=75&&p.tresorerie>=0,value:computeArcomCompliance().arcomScore+'/100'}
   ];
 }
+// Recettes annuelles d'une chaîne concurrente par point de PDA sur sa cible.
+const COMPETITOR_INCOME_RATE = 0.4;
 function closeCampaignSeason() {
   refreshEconomy(); const p=gameState.player, h=gameState.history.at(-1);
   h.resultatSaison=p.resultatSaison; h.commercial=p.commercialSaison; h.achats=p.achatsSaison;
@@ -11449,7 +11540,7 @@ function closeCampaignSeason() {
     p.puissanceCommerciale=Math.max(0.85,p.puissanceCommerciale-GAME_BALANCE.regie.backlash);
     h.regieBacklash=true;
   }
-  gameState.competitors.forEach(c=>{c.budget+=Math.max(1,c.pda[c.target]*0.4);});
+  gameState.competitors.forEach(c=>{c.budget+=Math.max(1,c.pda[c.target]*COMPETITOR_INCOME_RATE);});
   if(gameState.campaign.status==='active' && gameState.season>=gameState.campaign.deadline) {
     const authorized=getRenewalOutcome(computeRenewalScore().renewalScore).key!=='refused';
     gameState.campaign.status=campaignProgress().filter(x=>x.done).length>=2 && authorized && p.tresorerie>=TRESORERIE_CRITIQUE?'won':'lost';
