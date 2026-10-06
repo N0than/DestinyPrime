@@ -370,6 +370,10 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .pg-info-program.pg-program-updated { color: var(--vert); font-weight: 700; }
+/* Nom du programme raccourci si besoin, étoiles de production toujours visibles. */
+.pg-info-program:has(.pm-prod-stars) { display: flex; align-items: center; gap: 4px; }
+.pg-info-program .pg-prog-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.pg-info-program .pg-prog-sep, .pg-info-program .pm-prod-stars, .pg-info-program .pg-updated-badge { flex-shrink: 0; }
 .pg-updated-badge { font-size: 9px; margin-left: 2px; }
 
 .pg-rank {
@@ -2140,7 +2144,7 @@ function renderProgramGrid(type, pdaCible, overrides) {
         <span class="pg-time-pill">${slot.range}</span>
         <span class="pg-info">
           <span class="pg-info-title">${slot.label}${isKeySlot ? '<span class="pg-key-tag">Clé</span>' : ''}${indicators ? ` <span title="Locomotive, usure, concurrence ou franchise">${indicators}</span>` : ''}</span>
-          <span class="pg-info-program${isUpdated ? ' pg-program-updated' : ''}">${esc(programme)}${isUpdated ? ' <span class="pg-updated-badge" title="Programme modifié par vos choix éditoriaux">🆕</span>' : ''}</span>
+          <span class="pg-info-program${isUpdated ? ' pg-program-updated' : ''}">${programLabelHtml(programme)}${isUpdated ? ' <span class="pg-updated-badge" title="Programme modifié par vos choix éditoriaux">🆕</span>' : ''}</span>
         </span>
         <span class="pg-rank${isLeaderSlot ? ' pg-rank-leader' : ''}"${isLeaderSlot ? ' title="Leader sur ce créneau"' : ''}>#${rank}</span>
         <span class="pg-pda-badge pg-badge-${slot.accent}">${nf1(slotValue)}% PDA</span>
@@ -9224,7 +9228,7 @@ function renderSeasonKickoff(app) {
         <span class="choice-icon neutral" aria-hidden="true">🚫</span>
         <div class="choice-content">
           <span class="cl">Aucun changement</span>
-          <span class="choice-caption">On garde « ${esc(currentLabel)} » sur ce créneau.</span>
+          <span class="choice-caption">On garde « ${programLabelHtml(currentLabel)} » sur ce créneau.</span>
         </div>
         <span class="choice-pill neutral">0 M€</span>
       </div>
@@ -9246,7 +9250,7 @@ function renderSeasonKickoff(app) {
           <span class="kickoff-slot-art">${currentArt ? `<img src="${currentArt}" alt="" width="320" height="180" decoding="async">` : ''}</span>
           <span class="kickoff-slot-info">
             <span class="kickoff-slot-kicker">${slotMeta.icon} ${esc(slotMeta.label)} · ${esc(slotMeta.range)}</span>
-            <span class="kickoff-slot-name"><span class="kickoff-slot-caption">À l’antenne :</span> ${esc(currentLabel)}</span>
+            <span class="kickoff-slot-name"><span class="kickoff-slot-caption">À l’antenne :</span> ${programLabelHtml(currentLabel)}</span>
           </span>
         </div>
       </header>
@@ -10730,6 +10734,14 @@ const PRODUCTION_LEVELS = [
   { id: 'espoir', stars: 2, label: 'Production externe' },
   { id: 'vedette', stars: 3, label: 'Production internationale' }
 ];
+// Libellé « Programme — Prod. Interne » de la grille : la production devient son nombre d'étoiles.
+function programLabelHtml(label) {
+  const text = String(label || '');
+  const m = text.match(/^(.*) — (Prod\. [^—]+)$/);
+  const talent = m && TALENT_CATALOG.find(t => t.name === m[2].trim());
+  if (!talent) return esc(text);
+  return `<span class="pg-prog-name">${esc(m[1])}</span><span class="pg-prog-sep">—</span>${productionStarsHtml(productionLevelOf(talent.name))}`;
+}
 function productionStarsHtml(level) {
   return `<span class="pm-prod-stars" role="img" aria-label="${esc(level.label)}">${'★'.repeat(level.stars)}<span class="off">${'★'.repeat(3 - level.stars)}</span></span>`;
 }
