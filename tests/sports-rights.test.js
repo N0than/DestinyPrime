@@ -1,0 +1,176 @@
+'use strict';
+// Enchères de droits sportifs : fréquence, sélection, moteur d'enchère, économie, audience,
+// concurrence et compatibilité d'état (copie JSON de gameState).
+const fs = require('node:fs');
+const vm = require('node:vm');
+const html = fs.readFileSync('index.html', 'utf8');
+const scripts = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(match => match[1]);
+const tests = String.raw`
+const assert=(v,m)=>{if(!v) throw Error(m)};
+render=()=>{};
+const demos={j1524:10,a2549:10,s50:10,csp:10};
+const mk=(name,strategy='offensive',type='generaliste',budget=50)=>({name,type,target:'a2549',pda:{...demos},budget,contracts:{},slotAudienceDeltas:{},strategy,slotInvestments:{},strategyHistory:[]});
+function setup(type='generaliste',seed=123456789){
+  delete gameState.sportsRights;
+  gameState.player=Object.assign(mk('Joueur','offensive',type),{grilleOverrides:{},talents:[],tresorerie:60,coutGrilleEngageSaison:0,coutTalentsSaison:0,achatsSaison:0,commercialSaison:0,
+    eventsSeen:[],decisionHistory:[],popularite:50,puissanceCommerciale:1,revenusPubPrevisionnels:0,revenusPubFinals:0,regieRecettesSaison:0,pdaHistorySeason:[],pdaMoyenneSaison:0,pdaFinSaison:0});
+  gameState.competitors=[mk('Off','offensive'),mk('Rent','rentable','culture',25),mk('Jeune','jeune','jeunesse'),mk('Prem','premium','sport'),mk('Autre','rentable','info',25)];
+  gameState.season=1;gameState.competitorEvents=[];gameState.campaign={deadline:5,status:'active',seed:1,marketSeed:7};gameState.history=[];gameState.logs=[];gameState.seenDilemmaIds=[];
+  gameState.step=6;gameState.dilemmaPhase='choosing';gameState.currentDilemmaIndex=0;
+  gameState.sportsRights={owned:[],history:[],lastAuctionSeason:null,nextAuctionSeason:null,activeAuction:null,seed};
+  ensureSportsRightsState();
+}
+const sr=()=>gameState.sportsRights;
+
+// ---------- Fréquence ----------
+setup();
+assert([2,3].includes(sr().nextAuctionSeason),'first auction in season 2 or 3');
+function calendar(seed){
+  setup('generaliste',seed);const seasons=[];
+  for(let s=1;s<=40;s++){gameState.season=s;if(sportsAuctionDue()){seasons.push(s);sr().lastAuctionSeason=s;sr().nextAuctionSeason=s+sportsChoice([2,3]);}}
+  return seasons;
+}
+const cal=calendar(42);
+assert(cal.length>=12&&cal.length<=20,'about one auction every 2-3 seasons: '+cal.length);
+for(let i=1;i<cal.length;i++) assert([2,3].includes(cal[i]-cal[i-1]),'gap 2 or 3 seasons');
+assert(new Set(cal).size===cal.length,'never two auctions in a season');
+assert(JSON.stringify(calendar(42))===JSON.stringify(cal),'same seed, same calendar');
+// Copie / rechargement de l'état : même échéance et même suite de tirages.
+setup('generaliste',99);const snapshot=JSON.stringify(gameState.sportsRights);const a1=[sportsChoice([2,3]),sportsChoice([2,3]),sportsChoice([1,2,3,4])];
+gameState.sportsRights=JSON.parse(snapshot);const a2=[sportsChoice([2,3]),sportsChoice([2,3]),sportsChoice([1,2,3,4])];
+assert(JSON.stringify(a1)===JSON.stringify(a2)&&JSON.parse(snapshot).nextAuctionSeason===gameState.sportsRights.nextAuctionSeason,'reload keeps calendar');
+// Ancienne partie sans état sportif : première enchère 1 ou 2 saisons plus tard.
+setup();delete gameState.sportsRights;gameState.season=6;ensureCampaign();
+assert([7,8].includes(gameState.sportsRights.nextAuctionSeason),'old game gets a delayed first auction');
+
+// ---------- Sélection et file de la saison ----------
+setup();
+const seen=new Set();
+for(let s=1;s<=60;s++){
+  gameState.season=s;gameState.seenDilemmaIds=[];gameState.player.eventsSeen=[];gameState.player.lastRegieOpportunity=s;
+  const q=pickDilemmaQueue();
+  const auctions=q.filter(d=>d.type==='sports_rights_auction');
+  assert(q.length===3,'still three dilemmas');
+  assert(auctions.length<=1,'max one auction per season');
+  if(auctions.length){
+    assert(s===sr().nextAuctionSeason,'auction only on scheduled season');
+    seen.add(auctions[0].rightsEventId);
+    const last=[...sr().history].reverse()[0];
+    if(last) assert(last.eventId!==auctions[0].rightsEventId,'no immediate repeat');
+    // Résolution sans le joueur pour avancer le calendrier.
+    gameState.dilemmaQueue=q;gameState.currentDilemmaIndex=1;startSportsRightsAuction(auctions[0].rightsEventId,auctions[0].id);
+    sportsAuctionPass();recordSportsAuctionOutcome(auctions[0]);
+  } else assert(!q.some(d=>SPORT_RIGHTS_DILEMMA_IDS.includes(d.id)),'auction dilemma never drawn normally');
+}
+assert(['roland_garros','world_cup','olympic_games'].every(id=>seen.has(id)),'every event can be selected: '+[...seen]);
+// Chaîne Sport : ses dilemmes dédiés (d89, d145) sont préférés.
+setup('sport');gameState.season=sr().nextAuctionSeason;const sq=pickDilemmaQueue().find(d=>d.type==='sports_rights_auction');
+assert(sq&&(['d89','d145','d2'].includes(sq.id)),'sport channel auction dilemma');
+// Un dilemme sport éditorial ou de production n'est pas converti.
+['d79','d165','d20','d244','d76','d77','d92','d148'].forEach(id=>assert(!DILEMMA_BANK.find(d=>d.id===id).type,'not converted '+id));
+assert(DILEMMA_BANK.find(d=>d.id==='d2').titre.includes('Coupe du monde'),'d2 rewritten as World Cup');
+
+// ---------- Moteur d'enchère ----------
+const ev=SPORT_RIGHTS_EVENTS.world_cup;
+// Isole l'effet de l'enchère : recettes à jour et pas de réaction concurrente aléatoire.
+function settle(){const p=gameState.player;p.revenusPubPrevisionnels=computeRevenusPub(getCalculatedPDAs().find(r=>r.channel===p).pda[p.target],p.target,p.popularite,p.puissanceCommerciale)+regieRevenueTotal(p);}
+function auctionSetup(budgets){
+  setup();seededRandom=()=>.999;gameState.competitors.forEach((c,i)=>c.budget=budgets[i]);
+  const d=DILEMMA_BANK.find(x=>x.id==='d2');gameState.dilemmaQueue=[d,DILEMMA_BANK[0],DILEMMA_BANK[2]];gameState.currentDilemmaIndex=0;
+  return startSportsRightsAuction('world_cup','d2');
+}
+// IA : profils et budgets façonnent les plafonds.
+setup();
+const off=computeCompetitorSportsMaxBid({...mk('A','offensive'),budget:200},ev),rent=computeCompetitorSportsMaxBid({...mk('B','rentable'),budget:200},ev);
+assert(off>rent,'offensive bids higher than profitable');
+const poor=computeCompetitorSportsMaxBid({...mk('C','offensive'),budget:10},ev);assert(poor<ev.reservePrice,'small budget cannot follow');
+const young=computeCompetitorSportsMaxBid({...mk('D','jeune'),budget:200},ev),youngTennis=computeCompetitorSportsMaxBid({...mk('E','jeune'),budget:200},SPORT_RIGHTS_EVENTS.roland_garros);
+assert(young/ev.estimatedValueMax>youngTennis/SPORT_RIGHTS_EVENTS.roland_garros.estimatedValueMax,'young profile prefers football');
+// Passer : les IA se départagent ; le gagnant possède réellement les droits.
+let a=auctionSetup([80,80,0,0,0]);a.rivals.forEach((r,i)=>{r.max=[20,17,0,0,0][i];r.status=r.max>=ev.reservePrice?'in':'out';});
+sportsAuctionPass();assert(a.phase==='verdict'&&a.result.outcome==='declined'&&a.leader===0,'pass: rivals settle');
+assert(a.result.price>=17&&a.result.price<=20,'second price plus increment');
+settle();let cash0=gameState.player.tresorerie;chooseDilemmaOption(0);
+assert(gameState.player.tresorerie===cash0,'declined auction costs nothing');
+assert(sr().owned.length===1&&sr().owned[0].ownerName==='Off'&&sr().owned[0].broadcastSeason===2,'competitor owns the right');
+assert(gameState.competitors[0].budget===80-a.result.price,'competitor pays');
+assert(sr().history.at(-1).result==='declined'&&sr().history.at(-1).winnerId==='Off','history declined');
+// Exclusivité : un droit en cours n'est pas remis en vente.
+assert(sportsRightBusy('world_cup')&&!selectNextSportsRightsEventIds().includes('world_cup'),'exclusive right not resold');
+function selectNextSportsRightsEventIds(){const out=new Set();for(let i=0;i<30;i++){const p=selectNextSportsRightsEvent();if(p)out.add(p.event.id);}return [...out];}
+// Enchérir puis gagner : un seul débit, aucune PDA, aucune recette.
+a=auctionSetup([80,80,0,0,0]);a.rivals.forEach((r,i)=>{r.max=[15,13,0,0,0][i];r.status=r.max>=ev.reservePrice?'in':'out';});
+sportsAuctionParticipate();assert(a.phase==='bidding'&&a.leader===0&&a.price===ev.reservePrice,'strongest rival opens');
+let opts=sportsBidOptions(a);assert(opts.length===3&&opts[0].amount>a.price&&opts[2].kind==='ceiling','dynamic bid options');
+sportsAuctionBid('bid',opts[0].amount,true);assert(a.log.some(l=>l.text==='se retire'),'AI drops out');
+settle();const pdaBefore=getCalculatedPDAs().find(r=>r.channel===gameState.player).pda.a2549;
+const revBefore=gameState.player.revenusPubPrevisionnels;
+while(a.phase==='bidding'){const o=sportsBidOptions(a)[0];sportsAuctionBid(o.kind,o.amount,true);}
+assert(a.result.outcome==='won','player wins');
+cash0=gameState.player.tresorerie;const achats0=gameState.player.achatsSaison;
+chooseDilemmaOption(0);
+assert(Math.abs(gameState.player.tresorerie-(cash0-a.result.price))<1e-9,'rights debited once');
+assert(Math.abs(gameState.player.achatsSaison-achats0-a.result.price)<1e-9,'counted as purchase');
+assert(Math.abs(getCalculatedPDAs().find(r=>r.channel===gameState.player).pda.a2549-pdaBefore)<1e-9,'no PDA at acquisition');
+assert(gameState.player.revenusPubPrevisionnels===revBefore,'no ad revenue at acquisition');
+assert(gameState.lastConsequence.sportsAuction.outcome==='won'&&gameState.currentDilemmaIndex===1,'continues the season');
+assert(sr().owned.at(-1).ownerId==='player'&&sr().owned.at(-1).acquisitionPrice===a.result.price,'player owns the right');
+chooseDilemmaOption(0);assert(sr().owned.filter(o=>o.ownerId==='player').length===1,'no double record');
+// Plafond automatique : victoire et défaite, plafonds jamais exposés.
+a=auctionSetup([80,80,0,0,0]);a.rivals.forEach((r,i)=>{r.max=[19,0,0,0,0][i];r.status=r.max>=ev.reservePrice?'in':'out';});
+sportsAuctionParticipate();sportsAuctionBid('ceiling',22,true);assert(a.result.outcome==='won'&&a.result.price>19&&a.result.price<=22,'ceiling wins above rival max');
+const zoneHtml=(()=>{a.phase='bidding';a.leader=0;const h=renderSportsAuctionZone(DILEMMA_BANK.find(x=>x.id==='d2'));return h;})();
+assert(!zoneHtml.includes('19 M€')&&!/max/.test(zoneHtml.replace(/maxim/g,'')),'rival caps never shown');
+a=auctionSetup([80,80,0,0,0]);a.rivals.forEach((r,i)=>{r.max=[24,0,0,0,0][i];r.status=r.max>=ev.reservePrice?'in':'out';});
+sportsAuctionParticipate();sportsAuctionBid('ceiling',20,true);assert(a.result.outcome==='lost'&&a.result.price>20&&a.result.price<=24&&a.result.playerLastBid===20,'ceiling below rival loses');
+// Égalité : l'offre déjà en tête garde la main.
+a=auctionSetup([80,80,0,0,0]);a.rivals.forEach((r,i)=>{r.max=[20,0,0,0,0][i];r.status=r.max>=ev.reservePrice?'in':'out';});
+sportsAuctionParticipate();sportsAuctionBid('ceiling',20,true);assert(a.result.outcome==='lost'&&a.result.price===20,'tie goes to current leader');
+// Se retirer.
+a=auctionSetup([80,80,0,0,0]);a.rivals.forEach((r,i)=>{r.max=[18,16,0,0,0][i];r.status=r.max>=ev.reservePrice?'in':'out';});
+sportsAuctionParticipate();sportsAuctionWithdraw();assert(a.result.outcome==='withdrawn'&&a.leader===0,'withdraw');
+// Aucun intérêt IA : le joueur peut l'emporter au prix de départ.
+a=auctionSetup([0,0,0,0,0]);assert(a.rivals.every(r=>r.status==='out'),'no rival interested');
+sportsAuctionParticipate();assert(a.price===null,'no opening bid');sportsAuctionBid('bid',sportsBidOptions(a)[0].amount,true);assert(a.result.outcome==='won'&&a.result.price===ev.reservePrice,'win at reserve');
+// Budget insuffisant : l'offre est bloquée ; offre risquée : confirmation demandée.
+a=auctionSetup([80,80,0,0,0]);a.rivals.forEach((r,i)=>{r.max=[15,0,0,0,0][i];r.status=r.max>=ev.reservePrice?'in':'out';});
+sportsAuctionParticipate();gameState.player.tresorerie=-50;
+assert(sportsBidOptions(a).every(o=>!o.allowed),'cannot overbid without funds');
+const before=JSON.stringify(a);sportsAuctionBid('bid',sportsBidOptions(a)[0].amount,true);assert(JSON.stringify(a)===before,'blocked bid ignored');
+gameState.player.tresorerie=20;const o=sportsBidOptions(a)[1];assert(o.risky,'risky offer flagged');sportsAuctionBid('bid',o.amount);assert(a.pending&&a.pending.amount===o.amount&&a.turn===0,'risky offer asks confirmation');
+sportsAuctionCancelPending();assert(!a.pending,'confirmation cancelled');
+
+// ---------- Diffusion la saison suivante ----------
+setup();gameState.player.tresorerie=80;
+const progA={id:'p-test',name:'Talk test',slot:'prime',format:'magazine',power:3,target:'a2549',annual:5,talent:'Équipe',talentAnnual:0,end:2,editorial:programEditorialProfile({name:'Talk test',channelType:'generaliste',slot:'prime'})};
+gameState.player.contracts.prime={...progA,career:createProgramCareer(progA,'prime')};gameState.player.coutGrilleEngageSaison=5;
+acquireSportsRight('world_cup',{owner:'player',price:18});
+const rec=sr().owned.at(-1);
+const s1=getCalculatedPDAs().find(r=>r.channel===gameState.player);
+assert(!sportsBroadcastOn(gameState.player,'prime'),'not broadcast during acquisition season');
+gameState.season=2;gameState.player.tresorerie=50;gameState.player.coutGrilleEngageSaison=5;gameState.player.achatsSaison=0;
+const popBefore=gameState.player.popularite,factorBefore=sportsAdFactor();
+activateSportsBroadcasts();
+assert(rec.status==='broadcast'&&sportsBroadcastOn(gameState.player,'prime'),'broadcast next season on its slot');
+assert(gameState.player.contracts.prime.end===3&&gameState.player.contracts.prime.sportsPause===2,'program paused and extended');
+assert(Math.abs(gameState.player.tresorerie-(50+5-ev.productionCost))<1e-9&&gameState.player.coutGrilleEngageSaison===0,'paused program free, production debited');
+assert(gameState.player.achatsSaison===ev.productionCost,'production is a distinct cost');
+assert(sportsAdFactor()>factorBefore&&gameState.player.popularite>popBefore,'attractiveness and popularity only on air');
+const s2=getCalculatedPDAs().find(r=>r.channel===gameState.player);
+assert(s2.slots.prime.a2549>s1.slots.prime.a2549&&Math.abs(s2.slots.matin.a2549-s1.slots.matin.a2549)<0.6,'audience gained on the event slot');
+const fitPrime=calculateSportsEventAudience(ev,gameState.player,'prime',rec),fitNight=calculateSportsEventAudience(SPORT_RIGHTS_EVENTS.olympic_games,gameState.player,'nuit',rec);
+assert(fitPrime.a2549!==fitPrime.csp,'impact differs by target');
+assert(calculateSportsEventAudience(SPORT_RIGHTS_EVENTS.olympic_games,gameState.player,'prime',rec).a2549>fitNight.a2549,'impact differs by slot');
+// Bilan : performance mesurée avec / sans l'événement.
+evaluateSportsBroadcasts();assert(rec.perf&&rec.perf.pdaGain>0&&rec.perf.revenueGain>0&&rec.status==='done','broadcast evaluated');
+assert(renderSportsRightsBilanHtml().includes(rec.perf.verdict),'season report shows verdict');
+// Saison suivante : le programme reprend et son coût revient dans la grille.
+gameState.season=3;restorePausedPrograms();assert(gameState.player.coutGrilleEngageSaison===5&&!gameState.player.contracts.prime.sportsPause,'program resumes');
+assert(!sportsBroadcastOn(gameState.player,'prime'),'event over');
+// Droit gagné par un concurrent : diffusé sur sa chaîne.
+setup();acquireSportsRight('olympic_games',{owner:gameState.competitors[0],price:15});gameState.season=2;activateSportsBroadcasts();
+assert(activeContract(gameState.competitors[0],'apresmidi')?.isSportsEvent&&!sportsBroadcastOn(gameState.player,'apresmidi'),'competitor broadcasts its right');
+console.log('OK sports rights: frequency, selection, auction, economy, broadcast, competitors, state');
+`;
+const source = scripts.slice(0, -1).join('\n') + '\n' + tests;
+vm.runInNewContext(source, { console }, { filename: 'audience-masters-sports-rights.js' });

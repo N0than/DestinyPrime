@@ -1953,6 +1953,75 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .pm-ov-note { flex-shrink:0; margin:0; font-size:10px; font-style:italic; color:var(--gris); text-align:center; }
 .pm-level-name .pm-prod-stars { font-size:11px; }
 .pm-level-name span:not(.pm-prod-stars):not(.off) { color:var(--gris); }
+/* ---- DROITS SPORTIFS : enchère dans la carte de dilemme ---- */
+.sa-card { display:flex; flex-direction:column; gap:10px; padding:14px; border-radius:16px; background:var(--paper-card);
+  border:1.5px solid var(--paper-dark); box-shadow:0 8px 20px -14px rgba(15,23,42,0.35); }
+.sa-head { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.sa-kicker { font-family:'Space Grotesk', sans-serif; font-size:10px; font-weight:700; letter-spacing:.6px; text-transform:uppercase; color:var(--rouge); }
+.sa-tier { font-size:9.5px; font-weight:800; padding:3px 8px; border-radius:999px; color:var(--bleu); background:rgba(37,99,235,0.1); }
+.sa-tier.mega { color:#b45309; background:rgba(217,119,6,0.14); }
+.sa-title { font-family:'Anton', sans-serif; font-size:24px; line-height:1.05; text-transform:uppercase; color:var(--ink); }
+.sa-stats { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:6px; }
+.sa-stat { display:flex; flex-direction:column; gap:2px; padding:7px 9px; border-radius:10px; background:rgba(22,19,14,0.035); min-width:0; }
+.sa-stat > span { font-family:'Space Grotesk', sans-serif; font-size:8.5px; font-weight:700; letter-spacing:.4px; text-transform:uppercase; color:var(--gris); }
+.sa-stat b { font-size:13px; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.sa-stat .mercato-stars { font-size:12px; }
+.sa-risk.low { color:var(--vert); } .sa-risk.medium { color:#b45309; } .sa-risk.high { color:var(--rouge); }
+.sa-rivals { display:flex; flex-wrap:wrap; gap:5px; }
+.sa-rival { display:inline-flex; align-items:center; gap:4px; font-size:10.5px; padding:4px 9px; border-radius:999px; background:rgba(107,114,128,0.12); color:var(--gris); }
+.sa-rival b { color:var(--ink); }
+.sa-rival.hot { background:rgba(225,29,72,0.1); } .sa-rival.mid { background:rgba(217,119,6,0.12); }
+.sa-budget { display:flex; flex-wrap:wrap; justify-content:space-between; gap:4px 12px; font-size:11px; color:var(--gris); padding-top:2px; border-top:1px dashed rgba(22,19,14,0.12); padding-top:8px; }
+.sa-budget b { color:var(--ink); }
+.sa-note { margin:0; font-size:11px; line-height:1.4; color:var(--gris); }
+.sa-actions { display:flex; gap:8px; }
+.sa-btn { flex:1; min-height:42px; border-radius:999px; border:1.5px solid var(--border); background:#fff; color:var(--ink); cursor:pointer;
+  font-family:'Anton', sans-serif; font-size:13px; letter-spacing:.4px; text-transform:uppercase; }
+.sa-btn.primary { background:var(--ink); border-color:var(--ink); color:#fff; }
+.sa-btn.ghost { flex:none; align-self:center; min-height:34px; padding:0 18px; color:var(--gris); }
+.sa-btn:focus-visible, .sa-bid:focus-visible { outline:2px solid var(--bleu); outline-offset:2px; }
+.sa-current { display:flex; flex-direction:column; align-items:center; gap:2px; padding:10px; border-radius:14px;
+  background:linear-gradient(160deg, rgba(225,29,72,0.07), rgba(255,255,255,0.9) 60%); box-shadow:0 0 0 1px rgba(226,223,215,0.8); }
+.sa-current-label { font-family:'Space Grotesk', sans-serif; font-size:9px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; color:var(--gris); }
+.sa-current-value { font-family:'Anton', sans-serif; font-size:34px; line-height:1.05; color:var(--rouge); font-variant-numeric:tabular-nums; }
+.sa-current-leader { font-size:12px; font-weight:700; color:var(--ink); }
+.sa-sub { text-align:center; font-size:11px; color:var(--gris); }
+.sa-log { margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:3px; font-size:11px; color:var(--gris); }
+.sa-log li::before { content:'•'; margin-right:6px; color:var(--rouge); }
+.sa-log b { color:var(--ink); }
+.sa-bids { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:6px; }
+.sa-bid { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; min-height:58px; padding:6px 4px; border-radius:12px;
+  border:1.5px solid var(--border); background:#fff; cursor:pointer; text-align:center; }
+.sa-bid.ceiling { border-color:rgba(37,99,235,0.45); background:rgba(37,99,235,0.06); }
+.sa-bid:disabled { opacity:.45; cursor:not-allowed; }
+.sa-bid-amount { font-family:'Anton', sans-serif; font-size:15px; color:var(--ink); line-height:1.1; }
+.sa-bid-sub { font-size:9px; font-weight:700; color:var(--gris); line-height:1.2; }
+.sa-confirm { display:flex; flex-direction:column; gap:8px; padding:10px 12px; border-radius:12px; background:rgba(217,119,6,0.1); border:1px solid rgba(217,119,6,0.3); }
+.sa-confirm-title { font-family:'Anton', sans-serif; font-size:14px; text-transform:uppercase; color:#b45309; }
+.sa-confirm p { margin:0; font-size:12px; line-height:1.45; }
+.sa-verdict { display:flex; flex-direction:column; gap:8px; }
+.sa-verdict-kicker { align-self:flex-start; font-family:'Space Grotesk', sans-serif; font-size:10px; font-weight:800; letter-spacing:.6px; text-transform:uppercase;
+  padding:4px 10px; border-radius:999px; }
+.sa-verdict-kicker.won { color:var(--vert); background:rgba(5,150,105,0.12); }
+.sa-verdict-kicker.lost { color:var(--rouge); background:rgba(225,29,72,0.1); }
+.sa-verdict-line { margin:0; font-size:14px; }
+.sa-ledger { display:flex; flex-direction:column; border-radius:12px; background:rgba(22,19,14,0.035); padding:4px 10px; }
+.sa-ledger > div { display:flex; justify-content:space-between; gap:10px; padding:5px 0; font-size:12px; border-bottom:1px solid rgba(22,19,14,0.06); }
+.sa-ledger > div:last-child { border-bottom:none; }
+.sa-ledger span { color:var(--gris); }
+.sa-ledger .total { border-top:1px solid rgba(22,19,14,0.15); font-weight:800; }
+.sa-ledger.compact > div { font-size:11.5px; padding:4px 0; }
+.sa-bilan-event { display:flex; flex-direction:column; gap:6px; margin:8px 0; }
+.sa-bilan-head { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.sa-verdict-pill { font-size:9.5px; font-weight:800; padding:3px 9px; border-radius:999px; white-space:nowrap; }
+.sa-verdict-pill.good { color:var(--vert); background:rgba(5,150,105,0.12); }
+.sa-verdict-pill.warn { color:#b45309; background:rgba(217,119,6,0.13); }
+.sa-verdict-pill.bad { color:var(--rouge); background:rgba(225,29,72,0.1); }
+.sa-bilan-list { margin:8px 0; padding-left:18px; font-size:12.5px; display:flex; flex-direction:column; gap:4px; }
+.sa-onair { gap:6px; justify-content:center; padding:12px; border-radius:14px; background:linear-gradient(160deg, rgba(217,119,6,0.08), rgba(255,255,255,0.9) 60%); }
+.pg-sport-tag { color:#b45309; background:rgba(217,119,6,0.12); border-color:rgba(217,119,6,0.3); }
+@media (min-width:600px) { .sa-stats { grid-template-columns:repeat(4, minmax(0, 1fr)); } .sa-title { font-size:28px; } }
+@media (prefers-reduced-motion: reduce) { .sa-card, .sa-confirm { animation:none !important; transition:none !important; } }
 .pg-rows { position:relative; }
 .pg-rows.pg-focus { flex:none; }
 .pg-rows.pg-focus > .pg-slot-editor:not(.pg-focused) { position:absolute; left:0; right:0; opacity:0; visibility:hidden; pointer-events:none; }
@@ -2170,14 +2239,15 @@ function renderProgramGrid(type, pdaCible, overrides) {
     const rank = 1 + competitorValues.filter(v => v > slotValue + 1e-9).length;
     const isLeaderSlot = rank === 1;
     const isKeySlot = slot.key === 'prime';
-    const isUpdated = !!(overrides && overrides[slot.key]);
-    const programme = isUpdated ? overrides[slot.key] : grid[slot.key];
+    const sportOn = sportsBroadcastOn(gameState.player, slot.key);
+    const isUpdated = !sportOn && !!(overrides && overrides[slot.key]);
+    const programme = sportOn ? `${SPORT_RIGHTS_EVENTS[sportOn.eventId].icon} ${SPORT_RIGHTS_EVENTS[sportOn.eventId].name}` : isUpdated ? overrides[slot.key] : grid[slot.key];
     return `
       <details class="pg-slot-editor" data-slot-editor="${slot.key}">
       <summary class="pg-row${isKeySlot ? ' pg-row-key' : ''}" aria-label="Modifier le créneau ${slot.label}">
         <span class="pg-time-pill">${slot.range}</span>
         <span class="pg-info">
-          <span class="pg-info-title">${slot.label}${isKeySlot ? '<span class="pg-key-tag">Clé</span>' : ''}${indicators ? ` <span title="Locomotive, usure, concurrence ou franchise">${indicators}</span>` : ''}</span>
+          <span class="pg-info-title">${slot.label}${isKeySlot ? '<span class="pg-key-tag">Clé</span>' : ''}${sportOn ? '<span class="pg-key-tag pg-sport-tag">Événement</span>' : ''}${indicators ? ` <span title="Locomotive, usure, concurrence ou franchise">${indicators}</span>` : ''}</span>
           <span class="pg-info-program${isUpdated ? ' pg-program-updated' : ''}">${programLabelHtml(programme)}${isUpdated ? ' <span class="pg-updated-badge" title="Programme modifié par vos choix éditoriaux">🆕</span>' : ''}</span>
         </span>
         <span class="pg-rank${isLeaderSlot ? ' pg-rank-leader' : ''}"${isLeaderSlot ? ' title="Leader sur ce créneau"' : ''}>#${rank}</span>
@@ -2947,7 +3017,8 @@ function computeAttractivite(popularite) {
 }
 
 function computeRevenusPub(pdaGlobaleCourante, cible, popularite, puissanceCommerciale) {
-  return pdaGlobaleCourante * GRP_COST[cible] * VOLUME_PUB * computeAttractivite(popularite) * puissanceCommerciale;
+  return pdaGlobaleCourante * GRP_COST[cible] * VOLUME_PUB * computeAttractivite(popularite) * puissanceCommerciale
+    * (typeof sportsAdFactor === 'function' ? sportsAdFactor() : 1);
 }
 
 // Crédite en une fois l'intégralité des recettes publicitaires estimées, sur la base de la
@@ -3271,8 +3342,9 @@ const DILEMMA_BANK = [
     ]
   },
   {
-    id: 'd2', titre: "Le retour de la coupe de la ligue de football",
-    desc: "Les droits de diffusion d'une nouvelle compétition de football sont aux enchères.",
+    id: 'd2', titre: "La Coupe du monde change de diffuseur",
+    desc: "Les droits de la prochaine Coupe du monde de football arrivent sur le marché. Plusieurs chaînes préparent déjà leur offre.",
+    type: 'sports_rights_auction', rightsEventId: 'world_cup',
     c: [
       { l: "Mettre le paquet et surenchérir", finance: {"recurring":0,"purchase":18,"commercial":0,"category":"P"}, pda: { j1524: +3, a2549: +6, s50: +3, csp: +2 }, r: "Gros investissement, mais une visibilité maximale ce week-end.", pop: 2 },
       { l: "Laisser filer et programmer un film classique", finance: {"recurring":-3,"purchase":0,"commercial":0,"category":"E"}, pda: { j1524: -2, a2549: -3, s50: +1, csp: 0 }, r: "Économies réalisées, mais déception chez les fans de sport.", pop: 0 }
@@ -3369,6 +3441,7 @@ const DILEMMA_BANK = [
   {
     id: 'd14', titre: "Droits des Jeux Olympiques",
     desc: "Les droits de diffusion des jeux Olympiques sont mis aux enchères.",
+    type: 'sports_rights_auction', rightsEventId: 'olympic_games',
     c: [
       { l: "Mettre le paquet pour décrocher les droits", finance: {"recurring":0,"purchase":22,"commercial":0,"category":"P"}, pda: { j1524: +6, a2549: +7, s50: +6, csp: +4 }, r: "Raz-de-marée d'audience pendant 15 jours sur toute la population.", pop: 5 },
       { l: "Faire l'impasse et miser sur des rediffusions", finance: {"recurring":0,"purchase":3,"commercial":0,"category":"P"}, pda: { j1524: 0, a2549: +1, s50: +2, csp: +1 }, r: "Budget préservé, mais part de marché modeste pendant l'événement.", pop: 2 }
@@ -3593,6 +3666,7 @@ const DILEMMA_BANK = [
   {
     id: 'd42', titre: "Night sessions de tennis",
     desc: "Les droits du grand tournoi sur terre battue sont en jeu pour diffuser les matchs de 21h.",
+    type: 'sports_rights_auction', rightsEventId: 'roland_garros',
     c: [
       { l: "Racheter les droits des sessions nocturnes", finance: {"recurring":0,"purchase":12,"commercial":0,"category":"P"}, pda: { j1524: +4, a2549: +4, s50: +1, csp: +3 }, r: "Carton d'audience sur les CSP+ et actifs en soirée.", pop: 2 },
       { l: "Laisser ces matchs à la plateforme payante", finance: {"recurring":0,"purchase":6,"commercial":0,"category":"P"}, pda: { j1524: -1, a2549: 0, s50: +4, csp: +1 }, r: "Vous évitez les pertes, mais perdez un marqueur fort.", pop: 2 }
@@ -3983,6 +4057,7 @@ const DILEMMA_BANK = [
   {
     id: 'd89', titre: "Roland-Garros : la terre battue au complet",
     desc: "Les finales sont chères, les courts annexes le sont moins et racontent souvent les plus belles histoires.",
+    type: 'sports_rights_auction', rightsEventId: 'roland_garros',
     types: ['sport'],
     c: [
       { l: "Acheter aussi les courts annexes", finance: {"recurring":0,"purchase":14,"commercial":0,"category":"P"}, pda: { j1524: +5, a2549: +6, s50: +4, csp: +5 }, r: "Le public suit en nombre : enveloppe généreuse débloquée. L'accueil est positif.", pop: 2 },
@@ -4487,6 +4562,7 @@ const DILEMMA_BANK = [
   {
     id: 'd145', titre: "Les Jeux Olympiques arrivent",
     desc: "Quinze jours qui peuvent redéfinir ta chaîne, ou l'endetter pour trois ans. Le package complet est sur la table.",
+    type: 'sports_rights_auction', rightsEventId: 'olympic_games',
     types: ['sport'],
     c: [
       { l: "Acheter un gros package olympique", finance: {"recurring":0,"purchase":35,"commercial":0,"category":"P"}, pda: { j1524: +10, a2549: +9, s50: +8, csp: +7 }, r: "Investissement lourd pour la grille, les scores explosent sur toutes les cibles. Les réseaux sociaux s'enflamment positivement.", pop: 3 },
@@ -6379,7 +6455,8 @@ function getEligibleDilemmas() {
 }
 
 function pickDilemmaQueue() {
-  const pool = getEligibleDilemmas().filter(d => !isMercatoSeason() || !MERCATO_OVERLAP_DILEMMAS.includes(d.id));
+  const pool = getEligibleDilemmas().filter(d => (!isMercatoSeason() || !MERCATO_OVERLAP_DILEMMAS.includes(d.id))
+    && d.type !== 'sports_rights_auction');
   const available = pool.filter(d => !gameState.seenDilemmaIds.includes(d.id));
   let queue = shuffle(available).slice(0, 3);
   if (queue.length < 3) {
@@ -6392,8 +6469,10 @@ function pickDilemmaQueue() {
   ensureCampaign();
   const event = STORY_EVENTS.find(e=>e.eligible(gameState.player)&&!gameState.player.eventsSeen.includes(e.id));
   if(event) { queue[queue.length-1]=event; gameState.player.eventsSeen.push(event.id); }
+  // Enchère de droits sportifs (une toutes les 2 ou 3 saisons) : remplace le 2e dilemme.
+  const sportsAuction = scheduleSportsAuction(queue);
   // Opportunité régie : prend la place d'un dilemme standard, comme les événements.
-  if (queue.length >= 2 && regieOpportunityEligible()) {
+  if (!sportsAuction && queue.length >= 2 && regieOpportunityEligible()) {
     queue[1] = createRegieOpportunityDilemma();
     gameState.player.lastRegieOpportunity = gameState.season;
   }
@@ -7072,7 +7151,10 @@ function chooseDilemmaOption(choiceIndex) {
   if (gameState.step !== 6 || gameState.dilemmaPhase !== 'choosing') return;
   const dilemma = gameState.dilemmaQueue[gameState.currentDilemmaIndex];
   if (!dilemma || !Number.isInteger(choiceIndex) || !dilemma.c[choiceIndex]) return;
-  const choice = dilemma.c[choiceIndex].gridRenewal === 'custom' ? buildGridRenewalCustomChoice(dilemma, dilemma.c[choiceIndex])
+  const isSportsAuction = dilemma.type === 'sports_rights_auction';
+  if (isSportsAuction && gameState.sportsRights?.activeAuction?.phase !== 'verdict') return;
+  const choice = isSportsAuction ? buildSportsAuctionChoice(dilemma)
+    : dilemma.c[choiceIndex].gridRenewal === 'custom' ? buildGridRenewalCustomChoice(dilemma, dilemma.c[choiceIndex])
     : dilemma.c[choiceIndex].talentRenewal ? buildTalentRenewalChoice(dilemma, dilemma.c[choiceIndex])
     : dilemma.c[choiceIndex];
   ensureCampaign();
@@ -7082,7 +7164,7 @@ function chooseDilemmaOption(choiceIndex) {
   const player = gameState.player;
   const popAvant = player.popularite;
 
-  applyDilemmaEditoImpact(dilemma, choiceIndex, choice);
+  if (!isSportsAuction) applyDilemmaEditoImpact(dilemma, choiceIndex, choice);
 
   const decisionQuote = choice.careerAction ? quoteCareerDilemma(choice)
     : choice.excludedSlots ? { ...quoteFinance(choice.finance, choice.excludedSlots), finance: { ...choice.finance }, termination: 0, replacedTalent: 0 }
@@ -7153,8 +7235,9 @@ function chooseDilemmaOption(choiceIndex) {
     player.coutTalentsSaison=Math.max(0,player.coutTalentsSaison-decisionQuote.replacedTalent);
     player.grilleOverrides[slot]=choice.grille.programme;
   }
-  player.decisionHistory.push({id:dilemma.id, choice:choiceIndex, season:gameState.season, ...decisionQuote.finance});
-  const talentCost = DILEMMA_TALENT_COST[dilemma.id];
+  player.decisionHistory.push({id:dilemma.id, choice:isSportsAuction ? -1 : choiceIndex, season:gameState.season, ...decisionQuote.finance});
+  if (isSportsAuction) recordSportsAuctionOutcome(dilemma);
+  const talentCost = isSportsAuction ? null : DILEMMA_TALENT_COST[dilemma.id];
   if (talentCost) {
     player.coutTalentsSaison += talentCost[choiceIndex];
   }
@@ -7216,6 +7299,10 @@ function chooseDilemmaOption(choiceIndex) {
     },
     competitorEvent: competitorReactions[0] || null
   };
+  if (isSportsAuction) {
+    const a = gameState.sportsRights.activeAuction;
+    gameState.lastConsequence.sportsAuction = { eventId: a.eventId, season: a.season, ...a.result };
+  }
 
   gameState.logs.push({
     title: dilemma.titre,
@@ -7271,6 +7358,7 @@ function chooseDilemmaOption(choiceIndex) {
       tresorerieFin: player.tresorerie,
       rentabiliteGrille: player.rentabiliteGrille
     });
+    evaluateSportsBroadcasts();
     evolveProgramCareers();
     pushArcomSeasonResult();
     // Les bonus/malus ARCOM sont des flux de clôture : l'historique doit refléter
@@ -7341,6 +7429,7 @@ function startNewSeason() {
 
   // La nouvelle saison repart du coût de grille réellement arrêté à la fin de la
   // précédente ; il n'est donc pas recalculé ni remis à un budget théorique.
+  restorePausedPrograms();
   player.budgetGrilleAnnuel = player.coutGrilleEngageSaison;
   player.tresorerieDebutSaison = player.tresorerie;
   // Le budget de grille est annuel : il revient chaque saison comme coût fixe de départ,
@@ -7358,6 +7447,7 @@ function startNewSeason() {
   player.achatsSaison = 0;
   player.coutTalentsSaison = Object.values(player.contracts).reduce((sum,c)=>sum+c.talentAnnual,0)
     + (player.talents || []).filter(t => t.until >= gameState.season).reduce((sum, t) => sum + t.annual, 0);
+  activateSportsBroadcasts();
   player.lastArcomResult = null;
   player.rentabiliteGrille = player.coutGrilleEngageSaison > 0 ? -100 : 0;
   const seedPdaCible = getCalculatedPDAs().find(item => item.channel === player).pda[player.target];
@@ -7395,6 +7485,7 @@ function goHome() {
 
 function resetGame() {
   delete gameState.campaign;
+  delete gameState.sportsRights;
   delete gameState.expiredPrograms;
   gameState.step = 1;
   gameState.resumeStep = null;
@@ -8107,7 +8198,12 @@ function render() {
     const dilemma = gameState.dilemmaQueue[dilemmaIndex];
 
     let zoneHtml;
-    if (phase === 'result') {
+    const sportEvent = sportsEventOfDilemma(dilemma);
+    if (phase === 'result' && gameState.lastConsequence?.sportsAuction) {
+      zoneHtml = renderSportsVerdictZone(gameState.lastConsequence);
+    } else if (phase === 'choosing' && sportEvent) {
+      zoneHtml = renderSportsAuctionZone(dilemma);
+    } else if (phase === 'result') {
       const cq = gameState.lastConsequence;
       const d = cq.deltas;
       const slotRows = (d.slots || []).map(impact => {
@@ -8195,12 +8291,12 @@ function render() {
       <div class="dilemma-container${phase === 'choosing' ? ' slide-in' : ''}">
         <div class="dilemma-card dilemma-hero${phase === 'result' ? ' is-result' : ''}">
           <div class="dc-head">
-            <span class="dc-head-left"><span class="dc-live-pill"><span class="dc-live-dot"></span>Événement</span>${channelPillHtml()}</span>
+            <span class="dc-head-left"><span class="dc-live-pill"><span class="dc-live-dot"></span>${sportEvent ? 'Droits sportifs' : 'Événement'}</span>${channelPillHtml()}</span>
             <span class="dc-season-pill">${seasonPillLabel()}</span>
           </div>
           <div class="dc-body">
-            <h2>${dilemma.isCareerDilemma || dilemma.isTalentRenewal ? dilemma.titre.replace(/« [^»]*»(?: \?)?/, m => `<span class="dc-title-keep">${m}</span>`) : dilemma.titre}</h2>
-            <p>${dilemma.desc}</p>
+            <h2>${sportEvent ? esc(sportEvent.headline) : dilemma.isCareerDilemma || dilemma.isTalentRenewal ? dilemma.titre.replace(/« [^»]*»(?: \?)?/, m => `<span class="dc-title-keep">${m}</span>`) : dilemma.titre}</h2>
+            <p>${sportEvent ? esc(sportEvent.pitch) : dilemma.desc}</p>
             ${dilemma.isCareerDilemma ? `
             <div class="gr-cards gr-single" data-gr-cards="single">${renewalCardHtml(dilemma.careerSlot,
               gameState.player.contracts[dilemma.careerSlot]?.name || '',
@@ -8252,7 +8348,9 @@ function render() {
     bindTickerInteractions(app);
     bindRenewalCarousel(app);
     if (phase === 'choosing' && (dilemma.isGridRenewal || dilemma.isTalentRenewal)) bindRenewalCards(app, dilemma);
-    if (phase === 'choosing') {
+    if (phase === 'choosing' && sportEvent) {
+      bindSportsAuctionZone(app);
+    } else if (phase === 'choosing') {
       app.querySelectorAll('.choice').forEach(btn => {
         btn.onclick = () => {
           const choicesEl = document.querySelector('#choice-zone .choices');
@@ -8356,6 +8454,7 @@ function render() {
 
       ${renderCampaignPanel()}
       ${careerDecisionHtml}
+      ${renderSportsRightsBilanHtml()}
       <div class="card bilan-card">
         <div class="kicker-badge">ENGAGEMENTS DE LA SAISON SUIVANTE</div>
         <p>Grille à payer : <b>${nf1(nextSeasonCommitment().annual)} M€</b> · contrats arrivant à échéance : ${nf1(nextSeasonCommitment().expired)} M€ / an.</p>
@@ -8669,6 +8768,7 @@ function ensureCampaign() {
   gameState.competitors.forEach(migrateCompetitorStrategy);
   gameState.competitorEvents ??= [];
   gameState.campaign ??= { deadline: 5, status: 'active', seed: 12345 };
+  ensureSportsRightsState();
 }
 // Flux aléatoire propre au marché concurrentiel : il ne consomme pas celui de la
 // campagne (tirage des dilemmes, réactions), dont les séquences restent inchangées.
@@ -8687,6 +8787,620 @@ function seededRandom() {
   gameState.campaign.seed = x >>> 0;
   return (x >>> 0) / 4294967296;
 }
+// ---------------------------------------------------------------------------
+// DROITS SPORTIFS — enchères dynamiques (V1)
+// ---------------------------------------------------------------------------
+// Certains dilemmes d'acquisition de grands droits (type 'sports_rights_auction') ouvrent
+// une enchère courte face aux chaînes IA : Marché → Enchère → Verdict. Le droit acheté
+// n'apporte ni PDA ni recette à l'achat : l'événement est diffusé la saison suivante sur
+// ses cases (en priorité sur les programmes, mis en pause et prolongés d'une saison), et
+// c'est cette diffusion qui passe par les moteurs d'audience et de recettes existants.
+const SPORT_RIGHTS_EVENTS = {
+  roland_garros: {
+    id: 'roland_garros', name: 'Roland-Garros', the: 'Roland-Garros', sport: 'tennis', icon: '🎾', tier: 'premium',
+    headline: 'Roland-Garros cherche un diffuseur',
+    pitch: 'Les droits du tournoi sur terre battue arrivent sur le marché : quinze jours de direct, de l’après-midi jusqu’aux sessions de nuit.',
+    reservePrice: 8, estimatedValueMin: 11, estimatedValueMax: 16, productionCost: 2, exclusive: true, duration: 1,
+    audiencePower: { j1524: 1.05, a2549: 1.20, s50: 1.30, csp: 1.25 },
+    commercialAttractiveness: 1.20,
+    preferredSlots: ['apresmidi', 'access', 'prime', 'nuit'],
+    slotFit: { apresmidi: 1, access: 0.9, prime: 0.85, nuit: 0.5 },
+    dilemmaIds: ['d42', 'd89']
+  },
+  world_cup: {
+    id: 'world_cup', name: 'Coupe du monde', the: 'la Coupe du monde', sport: 'football', icon: '⚽', tier: 'mega',
+    headline: 'La Coupe du monde change de diffuseur',
+    pitch: 'Les droits de la prochaine Coupe du monde de football arrivent sur le marché. Plusieurs chaînes préparent déjà leur offre.',
+    reservePrice: 12, estimatedValueMin: 18, estimatedValueMax: 25, productionCost: 4, exclusive: true, duration: 1,
+    audiencePower: { j1524: 1.30, a2549: 1.45, s50: 1.30, csp: 1.20 },
+    commercialAttractiveness: 1.35,
+    preferredSlots: ['prime'],
+    slotFit: { prime: 1 },
+    dilemmaIds: ['d2']
+  },
+  olympic_games: {
+    id: 'olympic_games', name: 'Jeux olympiques', the: 'les Jeux olympiques', sport: 'multisports', icon: '🏅', tier: 'mega',
+    headline: 'Les Jeux olympiques sont mis aux enchères',
+    pitch: 'Quinze jours de compétitions en continu, de l’après-midi jusqu’à la nuit. Le package complet est sur la table.',
+    reservePrice: 10, estimatedValueMin: 15, estimatedValueMax: 22, productionCost: 4, exclusive: true, duration: 1,
+    audiencePower: { j1524: 1.20, a2549: 1.30, s50: 1.35, csp: 1.25 },
+    commercialAttractiveness: 1.25,
+    preferredSlots: ['apresmidi', 'access', 'prime', 'nuit'],
+    slotFit: { apresmidi: 1, access: 1, prime: 1, nuit: 0.6 },
+    dilemmaIds: ['d14', 'd145']
+  }
+};
+const SPORT_RIGHTS_TUNING = {
+  // Puissance de case d'un événement avant affinités (même échelle que les boosts de programme).
+  tierPower: { premium: 7, mega: 10 },
+  popularityOnAir: { premium: 2, mega: 3 },
+  maxPlayerTurns: 3,
+  // Affinité stratégique selon le type de chaîne (jamais d'interdiction, seulement une valeur).
+  channelFit: {
+    sport: { tennis: 1.15, football: 1.2, multisports: 1.2 },
+    generaliste: { tennis: 1.0, football: 1.05, multisports: 1.05 },
+    jeunesse: { tennis: 0.8, football: 1.05, multisports: 0.95 },
+    cinema: { tennis: 0.8, football: 0.9, multisports: 0.85 },
+    culture: { tennis: 0.9, football: 0.75, multisports: 0.85 },
+    info: { tennis: 0.85, football: 0.85, multisports: 0.95 }
+  }
+};
+const SPORT_RIGHTS_DILEMMA_IDS = Object.values(SPORT_RIGHTS_EVENTS).flatMap(e => e.dilemmaIds);
+
+function ensureSportsRightsState() {
+  if (!gameState.sportsRights) {
+    gameState.sportsRights = { owned: [], history: [], lastAuctionSeason: null, nextAuctionSeason: null, activeAuction: null };
+  }
+  const sr = gameState.sportsRights;
+  sr.owned ??= []; sr.history ??= []; sr.activeAuction ??= null;
+  sr.seed ??= (Math.floor(Math.random() * 4294967295) >>> 0) || 2463534242;
+  // Partie sans calendrier (nouvelle ou ancienne) : première mise sur le marché dans 1 ou 2 saisons.
+  if (sr.nextAuctionSeason == null) sr.nextAuctionSeason = (gameState.season || 1) + sportsChoice([1, 2]);
+  return sr;
+}
+// Flux déterministe propre aux droits sportifs (même générateur que les autres flux) :
+// il ne décale ni le tirage des dilemmes, ni le marché concurrentiel.
+function sportsRandom() {
+  const sr = gameState.sportsRights;
+  let x = sr.seed >>> 0;
+  x ^= x << 13; x ^= x >>> 17; x ^= x << 5;
+  sr.seed = x >>> 0;
+  return (x >>> 0) / 4294967296;
+}
+function sportsChoice(list) {
+  return list[Math.floor(sportsRandom() * list.length)];
+}
+const roundHalf = v => Math.round(v * 2) / 2;
+
+function sportsEventOfDilemma(dilemma) {
+  return dilemma?.type === 'sports_rights_auction' ? SPORT_RIGHTS_EVENTS[dilemma.rightsEventId] || null : null;
+}
+// Droits encore à diffuser (ou en cours de diffusion) : l'événement n'est pas remis en vente.
+function sportsRightBusy(eventId) {
+  return gameState.sportsRights.owned.some(o => o.eventId === eventId && o.broadcastSeason >= gameState.season);
+}
+function sportsAuctionDue() {
+  const sr = ensureSportsRightsState();
+  return gameState.season >= sr.nextAuctionSeason && sr.lastAuctionSeason !== gameState.season;
+}
+// Rotation déterministe : on évite l'événement des enchères les plus récentes s'il existe une autre option.
+function selectNextSportsRightsEvent() {
+  const sr = ensureSportsRightsState();
+  const eligible = getEligibleDilemmas();
+  const candidates = Object.values(SPORT_RIGHTS_EVENTS)
+    .map(event => ({ event, dilemma: eligible.find(d => event.dilemmaIds.includes(d.id) && d.types?.includes(gameState.player.type))
+      || eligible.find(d => event.dilemmaIds.includes(d.id)) }))
+    .filter(c => c.dilemma && !sportsRightBusy(c.event.id));
+  if (!candidates.length) return null;
+  const lastSeen = id => { const h = [...sr.history].reverse().find(x => x.eventId === id); return h ? h.season : -Infinity; };
+  const oldest = Math.min(...candidates.map(c => lastSeen(c.event.id)));
+  const pool = candidates.filter(c => lastSeen(c.event.id) === oldest);
+  return sportsChoice(pool);
+}
+// Place une enchère dans la file de la saison (remplace un dilemme, jamais de quatrième).
+function scheduleSportsAuction(queue) {
+  if (queue.length < 2 || !sportsAuctionDue()) return false;
+  const sr = gameState.sportsRights;
+  const pick = selectNextSportsRightsEvent();
+  if (!pick) { sr.nextAuctionSeason = gameState.season + 1; return false; }
+  queue[1] = pick.dilemma;
+  sr.activeAuction = null;
+  return true;
+}
+
+function evaluateSportsRight(event, player) {
+  const fit = SPORT_RIGHTS_TUNING.channelFit[player.type]?.[event.sport] ?? 1;
+  const targetFit = event.audiencePower[player.target] / 1.25;
+  const k = Math.max(0.85, Math.min(1.12, 0.5 + 0.5 * fit * targetFit));
+  const minValue = roundHalf(event.estimatedValueMin * k), maxValue = Math.max(minValue + 1, roundHalf(event.estimatedValueMax * k));
+  const exposure = maxValue + event.productionCost;
+  const share = exposure / Math.max(1, player.tresorerie);
+  return {
+    minValue, maxValue, exposure,
+    risk: share > 0.75 ? 'high' : share > 0.45 ? 'medium' : 'low',
+    strategicFit: fit * targetFit >= 1.1 ? 'high' : fit * targetFit >= 0.9 ? 'medium' : 'low'
+  };
+}
+
+// Plafond privé d'une chaîne IA : valeur perçue de l'événement × profil, borné par le budget.
+function computeCompetitorSportsMaxBid(competitor, event) {
+  const profile = GAME_BALANCE.competitors.profiles[competitor.strategy] || GAME_BALANCE.competitors.profiles.rentable;
+  const mid = (event.estimatedValueMin + event.estimatedValueMax) / 2;
+  const typeFit = SPORT_RIGHTS_TUNING.channelFit[competitor.type]?.[event.sport] ?? 1;
+  const targetFit = event.audiencePower[competitor.target] / 1.25;
+  const styles = {
+    offensive: 1.12,
+    rentable: 0.82,
+    jeune: event.sport === 'football' ? 1.12 : 0.88,
+    premium: event.sport === 'tennis' || event.tier === 'mega' ? 1.08 : 0.92
+  };
+  const commercial = 0.9 + 0.1 * event.commercialAttractiveness;
+  const alreadyOwned = gameState.sportsRights.owned.filter(o => o.ownerName === competitor.name && o.broadcastSeason >= gameState.season).length;
+  const noise = 0.92 + sportsRandom() * 0.16;
+  const wanted = mid * typeFit * (0.85 + 0.15 * targetFit) * (styles[competitor.strategy] || 1) * commercial * (1 - 0.12 * alreadyOwned) * noise;
+  const cap = Math.max(0, (competitor.budget || 0) * (0.45 + 0.45 * profile.riskTolerance) - event.productionCost);
+  return roundHalf(Math.max(0, Math.min(wanted, cap)));
+}
+function sportsInterest(max, event) {
+  const mid = (event.estimatedValueMin + event.estimatedValueMax) / 2;
+  if (max < event.reservePrice) return null;
+  if (max >= mid) return { key: 'hot', icon: '🔥', label: 'Très intéressée' };
+  if (max >= mid * 0.8) return { key: 'mid', icon: '🟠', label: 'Intérêt modéré' };
+  return { key: 'low', icon: '⚪', label: 'Prudente' };
+}
+
+function startSportsRightsAuction(eventId, dilemmaId) {
+  const sr = ensureSportsRightsState();
+  const event = SPORT_RIGHTS_EVENTS[eventId];
+  if (!event) return null;
+  if (sr.activeAuction?.eventId === eventId && sr.activeAuction.season === gameState.season) return sr.activeAuction;
+  const rivals = gameState.competitors.map((c, idx) => {
+    const max = computeCompetitorSportsMaxBid(c, event);
+    return { idx, name: c.name, max, interest: sportsInterest(max, event), status: max >= event.reservePrice ? 'in' : 'out', lastBid: null };
+  });
+  sr.activeAuction = { eventId, dilemmaId, season: gameState.season, phase: 'market', price: null, leader: null,
+    playerLastBid: null, turn: 0, rivals, log: [], pending: null, result: null };
+  return sr.activeAuction;
+}
+function sportsIncrement(event, price) {
+  return Math.max(0.5, roundHalf((event.estimatedValueMax - event.estimatedValueMin) * 0.15 + (price || event.reservePrice) * 0.04));
+}
+function auctionMinNext(a, event) {
+  return a.price == null ? event.reservePrice : roundHalf(a.price + sportsIncrement(event, a.price));
+}
+function activeRivals(a) { return a.rivals.filter(r => r.status === 'in'); }
+function playerCanAfford(amount) {
+  return quoteFinance({ recurring: 0, purchase: amount, commercial: 0, category: 'P' }).cash >= TRESORERIE_CRITIQUE;
+}
+function sportsBidOptions(a) {
+  const event = SPORT_RIGHTS_EVENTS[a.eventId];
+  const evalv = evaluateSportsRight(event, gameState.player);
+  const first = auctionMinNext(a, event);
+  const second = roundHalf(first + sportsIncrement(event, first));
+  const finalTurn = a.turn >= SPORT_RIGHTS_TUNING.maxPlayerTurns - 1;
+  let ceiling = roundHalf(Math.max(second + sportsIncrement(event, second), evalv.maxValue));
+  const opts = [
+    { kind: finalTurn ? 'ceiling' : 'bid', amount: first },
+    { kind: finalTurn ? 'ceiling' : 'bid', amount: second },
+    { kind: 'ceiling', amount: ceiling, label: 'Plafond' }
+  ];
+  return opts.map(o => ({ ...o, allowed: playerCanAfford(o.amount), risky: sportsBidRisky(o.amount, event) }));
+}
+function sportsBidRisky(amount, event) {
+  const cashAfter = quoteFinance({ recurring: 0, purchase: amount, commercial: 0, category: 'P' }).cash;
+  return cashAfter - event.productionCost < Math.max(5, gameState.player.tresorerie * 0.2);
+}
+
+// Résolution au plafond (enchère « proxy ») : le plus haut plafond l'emporte, au prix du
+// second plafond + un pas (sans dépasser le sien). À égalité, l'offre déjà en tête garde la main.
+function resolveSportsCeiling(a, ceiling) {
+  const event = SPORT_RIGHTS_EVENTS[a.eventId];
+  const minNext = auctionMinNext(a, event);
+  const rivals = activeRivals(a).filter(r => r.max >= minNext || (a.leader === r.idx));
+  const best = rivals.reduce((b, r) => (!b || r.max > b.max ? r : b), null);
+  a.playerLastBid = ceiling;
+  if (!best || ceiling > best.max || (ceiling === best.max && a.leader === 'player')) {
+    const floor = a.leader === 'player' ? a.price : minNext;
+    const price = best ? Math.min(ceiling, roundHalf(Math.max(floor, best.max + sportsIncrement(event, best.max)))) : Math.max(floor, event.reservePrice);
+    a.rivals.forEach(r => { if (r.status === 'in') { r.status = 'out'; a.log.push({ who: r.name, text: 'se retire' }); } });
+    a.price = price; a.leader = 'player';
+    return finishSportsAuction(a, 'won');
+  }
+  const price = Math.min(best.max, roundHalf(Math.max(minNext, ceiling + sportsIncrement(event, ceiling))));
+  a.price = price; a.leader = best.idx; best.lastBid = price;
+  a.log.push({ who: best.name, text: `surenchérit à ${nf1(price)} M€` });
+  return finishSportsAuction(a, 'lost');
+}
+// Les chaînes IA règlent l'enchère entre elles (le joueur passe ou se retire).
+function resolveSportsAmongRivals(a, result) {
+  const event = SPORT_RIGHTS_EVENTS[a.eventId];
+  const floor = a.price == null ? event.reservePrice : a.price;
+  const rivals = activeRivals(a).filter(r => r.max >= floor).sort((x, y) => y.max - x.max);
+  if (!rivals.length) { a.leader = null; return finishSportsAuction(a, result); }
+  const [top, second] = rivals;
+  a.price = second ? Math.min(top.max, roundHalf(Math.max(floor, second.max + sportsIncrement(event, second.max)))) : Math.max(floor, event.reservePrice);
+  a.leader = top.idx; top.lastBid = a.price;
+  return finishSportsAuction(a, result);
+}
+function sportsAuctionParticipate() {
+  const a = gameState.sportsRights.activeAuction;
+  if (!a || a.phase !== 'market') return;
+  const event = SPORT_RIGHTS_EVENTS[a.eventId];
+  a.phase = 'bidding';
+  // La chaîne la plus intéressée ouvre au prix de départ.
+  const opener = activeRivals(a).sort((x, y) => y.max - x.max)[0];
+  if (opener) {
+    a.price = event.reservePrice; a.leader = opener.idx; opener.lastBid = a.price;
+    a.log.push({ who: opener.name, text: `ouvre à ${nf1(a.price)} M€` });
+  }
+}
+function sportsAuctionPass() {
+  const a = gameState.sportsRights.activeAuction;
+  if (!a || a.phase !== 'market') return;
+  resolveSportsAmongRivals(a, 'declined');
+}
+function sportsAuctionWithdraw() {
+  const a = gameState.sportsRights.activeAuction;
+  if (!a || a.phase !== 'bidding' || a.leader === 'player') return;
+  a.log.push({ who: 'Vous', text: 'vous retirez' });
+  resolveSportsAmongRivals(a, 'withdrawn');
+}
+// Une offre (ou un plafond) du joueur ; les offres risquées passent par une confirmation.
+function sportsAuctionBid(kind, amount, confirmed = false) {
+  const a = gameState.sportsRights.activeAuction;
+  if (!a || a.phase !== 'bidding' || a.leader === 'player') return;
+  const event = SPORT_RIGHTS_EVENTS[a.eventId];
+  amount = roundHalf(amount);
+  if (amount < auctionMinNext(a, event) || !playerCanAfford(amount)) return;
+  if (!confirmed && sportsBidRisky(amount, event)) { a.pending = { kind, amount }; return; }
+  a.pending = null;
+  a.turn += 1;
+  if (kind === 'ceiling') { a.log.push({ who: 'Vous', text: `fixez un plafond privé` }); resolveSportsCeiling(a, amount); return; }
+  a.price = amount; a.leader = 'player'; a.playerLastBid = amount;
+  a.log.push({ who: 'Vous', text: `proposez ${nf1(amount)} M€` });
+  const next = roundHalf(amount + sportsIncrement(event, amount));
+  activeRivals(a).forEach(r => { if (r.max < next) { r.status = 'out'; a.log.push({ who: r.name, text: 'se retire' }); } });
+  const stay = activeRivals(a).sort((x, y) => y.max - x.max);
+  if (!stay.length) { finishSportsAuction(a, 'won'); return; }
+  const top = stay[0];
+  a.price = next; a.leader = top.idx; top.lastBid = next;
+  a.log.push({ who: top.name, text: `surenchérit à ${nf1(next)} M€` });
+  stay.slice(1).forEach(r => { if (r.max < roundHalf(next + sportsIncrement(event, next))) a.log.push({ who: r.name, text: 'hésite' }); });
+}
+function sportsAuctionCancelPending() {
+  const a = gameState.sportsRights.activeAuction;
+  if (a) a.pending = null;
+}
+function finishSportsAuction(a, outcome) {
+  const winner = a.leader === 'player' ? 'player' : Number.isInteger(a.leader) ? gameState.competitors[a.leader] : null;
+  a.phase = 'verdict';
+  a.result = { outcome: winner === 'player' ? 'won' : outcome, winnerName: winner === 'player' ? gameState.player.name : winner?.name || null,
+    price: winner ? a.price : null, playerLastBid: a.playerLastBid };
+  return a.result;
+}
+
+// Choix synthétique passé au circuit normal des dilemmes : seul le prix des droits est
+// débité (une fois), sans PDA ni recette ; aucune conséquence historique n'est appliquée.
+function buildSportsAuctionChoice(dilemma) {
+  const a = gameState.sportsRights.activeAuction;
+  const event = sportsEventOfDilemma(dilemma);
+  const won = a?.result?.outcome === 'won';
+  const price = won ? a.result.price : 0;
+  return {
+    l: won ? `Droits remportés : ${event.name}` : a?.result?.outcome === 'declined' ? 'Passer son tour' : 'Se retirer de l’enchère',
+    r: won ? `${event.name} rejoint vos droits. Diffusion la saison prochaine : il faudra rentabiliser l’investissement.`
+      : a?.result?.winnerName ? `${a.result.winnerName} remporte ${event.the}.` : `${event.name} ne trouve pas preneur.`,
+    finance: { recurring: 0, purchase: price, commercial: 0, category: won ? 'P' : 'N' },
+    pda: {}, pop: 0, audienceImpacts: [], sportsAuction: true
+  };
+}
+// Après passage par chooseDilemmaOption : propriété, historique et calendrier.
+function recordSportsAuctionOutcome(dilemma) {
+  const sr = gameState.sportsRights, a = sr.activeAuction, event = sportsEventOfDilemma(dilemma);
+  if (!a || !event || a.recorded) return;
+  a.recorded = true;
+  const r = a.result;
+  const winner = r.outcome === 'won' ? 'player' : Number.isInteger(a.leader) ? gameState.competitors[a.leader] : null;
+  if (winner) acquireSportsRight(event.id, { owner: winner, price: r.price });
+  sr.history.push({ type: 'sports_rights_auction', eventId: event.id, season: gameState.season, result: r.outcome,
+    playerLastBid: r.playerLastBid, finalBid: r.price, winnerId: winner === 'player' ? 'player' : winner ? winner.name : null,
+    competitors: a.rivals.filter(x => x.interest).map(x => x.name) });
+  sr.lastAuctionSeason = gameState.season;
+  sr.nextAuctionSeason = gameState.season + sportsChoice([2, 3]);
+}
+function acquireSportsRight(eventId, { owner, price }) {
+  const event = SPORT_RIGHTS_EVENTS[eventId];
+  const isPlayer = owner === 'player';
+  if (!isPlayer) owner.budget = Math.max(0, (owner.budget || 0) - price);
+  gameState.sportsRights.owned.push({
+    eventId, ownerId: isPlayer ? 'player' : 'competitor', ownerName: isPlayer ? gameState.player.name : owner.name,
+    acquiredSeason: gameState.season, broadcastSeason: gameState.season + event.duration,
+    acquisitionPrice: price, productionCost: event.productionCost, exclusive: event.exclusive,
+    status: 'owned', slots: [...event.preferredSlots], broadcasted: false, variance: null, pausedSlots: [], perf: null
+  });
+}
+
+// ---- Diffusion ----
+function sportsBroadcastsFor(channel) {
+  const sr = gameState.sportsRights;
+  if (!sr) return [];
+  const isPlayer = channel === gameState.player;
+  return sr.owned.filter(o => o.broadcastSeason === gameState.season && o.status === 'broadcast' && !o.suppressed
+    && (isPlayer ? o.ownerId === 'player' : o.ownerName === channel.name));
+}
+function sportsBroadcastOn(channel, slot) {
+  return sportsBroadcastsFor(channel).find(o => o.slots.includes(slot)) || null;
+}
+function calculateSportsEventAudience(event, channel, slot, record) {
+  const T = SPORT_RIGHTS_TUNING;
+  const fit = T.channelFit[channel.type]?.[event.sport] ?? 1;
+  const pop = channel === gameState.player ? 0.8 + (channel.popularite ?? 50) / 250 : 1;
+  const variance = record?.variance ?? 1;
+  const base = T.tierPower[event.tier] * (event.slotFit[slot] ?? 0) * fit * pop * variance;
+  return Object.fromEntries(Object.entries(event.audiencePower).map(([t, k]) => [t, base * k]));
+}
+// Programme « événement » qui occupe la case pendant sa saison de diffusion.
+function sportsEventContract(channel, slot) {
+  const rec = sportsBroadcastOn(channel, slot);
+  if (!rec) return null;
+  const event = SPORT_RIGHTS_EVENTS[rec.eventId];
+  return { id: `sport:${event.id}`, name: event.name, annual: 0, power: 0, target: channel.target, end: gameState.season,
+    talentAnnual: 0, investLevel: 3, isSportsEvent: true, eventId: event.id,
+    audienceDeltas: calculateSportsEventAudience(event, channel, slot, rec),
+    editorial: sportsEventEditorial(event, channel, slot) };
+}
+const SPORTS_EDITORIAL_CACHE = new Map();
+function sportsEventEditorial(event, channel, slot) {
+  const key = `${event.id}|${channel.type}|${slot}`;
+  if (!SPORTS_EDITORIAL_CACHE.has(key)) SPORTS_EDITORIAL_CACHE.set(key, programEditorialProfile({
+    name: event.name, kind: `Retransmission ${event.sport === 'multisports' ? 'multisport' : event.sport} en direct`,
+    channelType: channel.type, slot, format: 'sport', genre: 'sport' }));
+  return SPORTS_EDITORIAL_CACHE.get(key);
+}
+// Attractivité commerciale : agit comme un multiplicateur du moteur de recettes, pondéré
+// par le poids d'audience des cases occupées — jamais comme un montant crédité.
+function sportsAdFactor() {
+  const p = gameState.player;
+  if (!p) return 1;
+  return sportsBroadcastsFor(p).reduce((f, rec) => {
+    const event = SPORT_RIGHTS_EVENTS[rec.eventId];
+    const weight = rec.slots.reduce((s, slot) => s + (SLOT_AUDIENCE_WEIGHTS[slot] || 0), 0);
+    return f * (1 + (event.commercialAttractiveness - 1) * weight);
+  }, 1);
+}
+// Saison de diffusion : l'événement prend ses cases, les programmes sous contrat sont mis en
+// pause (sans coût cette saison) et prolongés d'une saison ; la production est débitée.
+function activateSportsBroadcasts() {
+  const sr = ensureSportsRightsState(), p = gameState.player;
+  sr.owned.filter(o => o.broadcastSeason === gameState.season && o.status === 'owned').forEach(rec => {
+    const event = SPORT_RIGHTS_EVENTS[rec.eventId];
+    rec.status = 'broadcast'; rec.broadcasted = true;
+    rec.variance = Math.round((0.9 + sportsRandom() * 0.2) * 1000) / 1000;
+    if (rec.ownerId === 'player') {
+      rec.pausedSlots = [];
+      rec.slots.forEach(slot => {
+        const c = p.contracts?.[slot];
+        if (!c || c.end < gameState.season || c.sportsPause === gameState.season) return;
+        c.sportsPause = gameState.season; c.end += 1;
+        p.coutGrilleEngageSaison = Math.max(0, p.coutGrilleEngageSaison - c.annual);
+        p.tresorerie += c.annual;
+        rec.pausedSlots.push({ slot, name: c.name, annual: c.annual, end: c.end });
+      });
+      applyFinance({ recurring: 0, purchase: rec.productionCost, commercial: 0, category: 'P' });
+      rec.popGain = SPORT_RIGHTS_TUNING.popularityOnAir[event.tier] || 0;
+      p.popularite = Math.min(100, p.popularite + rec.popGain);
+    } else {
+      const c = gameState.competitors.find(x => x.name === rec.ownerName);
+      if (c) c.budget = Math.max(0, (c.budget || 0) - rec.productionCost);
+    }
+  });
+}
+// Saison suivante : les programmes mis en pause reprennent et leur coût revient dans la grille.
+function restorePausedPrograms() {
+  const p = gameState.player;
+  Object.values(p.contracts || {}).forEach(c => {
+    if (c.sportsPause === gameState.season - 1) { p.coutGrilleEngageSaison += c.annual; c.sportsPausedDone = c.sportsPause; delete c.sportsPause; }
+  });
+}
+function pausedAnnualThisSeason() {
+  return Object.values(gameState.player.contracts || {}).filter(c => c.sportsPause === gameState.season).reduce((s, c) => s + c.annual, 0);
+}
+// Bilan de l'événement diffusé : écart d'audience et de recettes avec / sans l'événement.
+function evaluateSportsBroadcasts() {
+  const sr = gameState.sportsRights, p = gameState.player;
+  if (!sr) return;
+  sr.owned.filter(o => o.ownerId === 'player' && o.broadcastSeason === gameState.season && o.status === 'broadcast' && !o.perf).forEach(rec => {
+    const pdaWith = getCalculatedPDAs().find(r => r.channel === p).pda[p.target];
+    const revWith = computeRevenusPub(pdaWith, p.target, p.popularite, p.puissanceCommerciale);
+    rec.suppressed = true;
+    const pdaWithout = getCalculatedPDAs().find(r => r.channel === p).pda[p.target];
+    const revWithout = computeRevenusPub(pdaWithout, p.target, p.popularite - (rec.popGain || 0), p.puissanceCommerciale);
+    delete rec.suppressed;
+    const cost = rec.acquisitionPrice + rec.productionCost;
+    const revenueGain = Math.max(0, revWith - revWithout);
+    const pdaGain = pdaWith - pdaWithout;
+    const ratio = revenueGain / Math.max(0.1, cost);
+    const verdict = ratio >= 1 ? 'EXCELLENTE AFFAIRE' : (ratio >= 0.5 || pdaGain >= 1.5) ? 'PARI STRATÉGIQUE RÉUSSI' : 'DROITS SURPAYÉS';
+    rec.perf = { pdaGain, revenueGain, popGain: rec.popGain || 0, cost, verdict };
+    rec.status = 'done';
+  });
+  // Droits des concurrents : la diffusion est terminée.
+  sr.owned.filter(o => o.ownerId !== 'player' && o.broadcastSeason === gameState.season && o.status === 'broadcast').forEach(o => { o.status = 'done'; });
+}
+function sportsMarketOutlook() {
+  const sr = ensureSportsRightsState();
+  const next = gameState.season + 1;
+  const gap = sr.nextAuctionSeason - gameState.season;
+  if (gap <= 1) return 'Un grand événement sportif pourrait arriver sur le marché la saison prochaine.';
+  return `Prochaine mise sur le marché : dans ${gap} saisons.`;
+}
+// ---- Interface des enchères (dans la carte de dilemme) ----
+function sportsSlotsLabel(event) {
+  const labels = event.preferredSlots.map(s => TIME_SLOTS.find(t => t.key === s)?.label || s);
+  return labels.length > 2 ? `${labels[0]} → ${labels[labels.length - 1]}` : labels.join(' · ');
+}
+function sportsStars(n) {
+  const v = Math.max(1, Math.min(5, Math.round(n)));
+  return `<span class="mercato-stars" role="img" aria-label="${v} sur 5">${'★'.repeat(v)}<span class="off">${'★'.repeat(5 - v)}</span></span>`;
+}
+function renderSportsAuctionZone(dilemma) {
+  const event = sportsEventOfDilemma(dilemma);
+  const sr = ensureSportsRightsState();
+  let a = sr.activeAuction;
+  if (!a || a.eventId !== event.id || a.season !== gameState.season) a = startSportsRightsAuction(event.id, dilemma.id);
+  const p = gameState.player;
+  const ev = evaluateSportsRight(event, p);
+  const tierLabel = event.tier === 'mega' ? 'Méga-événement' : 'Événement premium';
+  const head = `<div class="sa-head"><span class="sa-kicker">📜 Droits sportifs</span><span class="sa-tier ${event.tier}">${tierLabel}</span></div>
+    <div class="sa-title"><span aria-hidden="true">${event.icon}</span> ${esc(event.name)}</div>`;
+  if (a.phase === 'market') {
+    const interested = a.rivals.filter(r => r.interest);
+    const riskLabel = { low: 'Faible', medium: 'Modéré', high: 'Élevé' }[ev.risk];
+    const audience = (Object.values(event.audiencePower).reduce((s, v) => s + v, 0) / 4) * (event.tier === 'mega' ? 3.6 : 3.2);
+    const pub = 2 + (event.commercialAttractiveness - 1) * 10;
+    return `<div class="sa-card" data-sa-zone>
+      ${head}
+      <div class="sa-stats">
+        <div class="sa-stat"><span>Prix de départ</span><b>${nf1(event.reservePrice)} M€</b></div>
+        <div class="sa-stat"><span>Valeur estimée</span><b>${nf1(ev.minValue)}–${nf1(ev.maxValue)} M€</b></div>
+        <div class="sa-stat"><span>Coût de production</span><b>${nf1(event.productionCost)} M€</b></div>
+        <div class="sa-stat"><span>Concurrents intéressés</span><b>${interested.length}</b></div>
+        <div class="sa-stat"><span>Potentiel audience</span>${sportsStars(audience)}</div>
+        <div class="sa-stat"><span>Potentiel publicitaire</span>${sportsStars(pub)}</div>
+        <div class="sa-stat"><span>Risque</span><b class="sa-risk ${ev.risk}">${riskLabel}</b></div>
+        <div class="sa-stat"><span>Diffusion S${gameState.season + 1}</span><b>${esc(sportsSlotsLabel(event))}</b></div>
+      </div>
+      ${interested.length ? `<div class="sa-rivals">${interested.map(r => `<span class="sa-rival ${r.interest.key}"><span aria-hidden="true">${r.interest.icon}</span> <b>${esc(r.name)}</b> ${r.interest.label}</span>`).join('')}</div>`
+        : '<p class="sa-note">Aucune chaîne ne semble décidée à se positionner.</p>'}
+      <div class="sa-budget"><span>Trésorerie <b>${nf1(p.tresorerie)} M€</b></span><span>Exposition maximale estimée <b>${nf1(ev.exposure)} M€</b></span></div>
+      <p class="sa-note">L’achat ne rapporte rien seul : l’événement occupera ses cases la saison prochaine (programmes en pause, contrats prolongés d’une saison) et c’est sa diffusion qui fera l’audience.</p>
+      <div class="sa-actions">
+        <button type="button" class="sa-btn primary" data-sa-action="participate">Participer</button>
+        <button type="button" class="sa-btn" data-sa-action="pass">Passer</button>
+      </div>
+    </div>`;
+  }
+  // Enchère en cours
+  const leaderName = a.leader === 'player' ? 'Vous menez' : Number.isInteger(a.leader) ? `${esc(a.rivals[a.leader].name)} mène l’enchère` : 'Aucune offre pour l’instant';
+  const inCount = activeRivals(a).length;
+  const opts = sportsBidOptions(a);
+  const finalTurn = a.turn >= SPORT_RIGHTS_TUNING.maxPlayerTurns - 1;
+  const log = a.log.slice(-4).map(l => `<li><b>${esc(l.who)}</b> ${esc(l.text)}</li>`).join('');
+  const pending = a.pending ? (() => {
+    const cashAfter = quoteFinance({ recurring: 0, purchase: a.pending.amount, commercial: 0, category: 'P' }).cash;
+    return `<div class="sa-confirm" role="alertdialog" aria-label="Offre risquée">
+      <span class="sa-confirm-title">⚠️ Offre risquée</span>
+      <p>${a.pending.kind === 'ceiling' ? 'Ce plafond' : 'Cette offre'} de <b>${nf1(a.pending.amount)} M€</b> laisserait seulement <b>${nf1(cashAfter)} M€</b> de trésorerie après acquisition des droits.<br>Production estimée : <b>+${nf1(event.productionCost)} M€</b> à la diffusion.</p>
+      <div class="sa-actions">
+        <button type="button" class="sa-btn primary" data-sa-action="confirm">Confirmer ${nf1(a.pending.amount)} M€</button>
+        <button type="button" class="sa-btn" data-sa-action="cancel">Annuler</button>
+      </div>
+    </div>`; })() : '';
+  return `<div class="sa-card" data-sa-zone>
+    ${head}
+    <div class="sa-current">
+      <span class="sa-current-label">Offre actuelle</span>
+      <span class="sa-current-value">${a.price == null ? '—' : `${nf1(a.price)} M€`}</span>
+      <span class="sa-current-leader">${leaderName}</span>
+    </div>
+    <div class="sa-sub">${inCount} ${inCount > 1 ? 'chaînes encore en lice' : inCount === 1 ? 'chaîne encore en lice' : 'concurrent en lice'} · tour ${Math.min(a.turn + 1, SPORT_RIGHTS_TUNING.maxPlayerTurns)}/${SPORT_RIGHTS_TUNING.maxPlayerTurns}</div>
+    ${log ? `<ul class="sa-log">${log}</ul>` : ''}
+    ${pending || `
+    <div class="sa-bids">
+      ${opts.map(o => `<button type="button" class="sa-bid${o.kind === 'ceiling' && o.label ? ' ceiling' : ''}" data-sa-action="${o.kind}" data-amount="${o.amount}" ${o.allowed ? '' : 'disabled'}>
+        <span class="sa-bid-amount">${o.label ? `${o.label} ` : ''}${nf1(o.amount)} M€</span>
+        <span class="sa-bid-sub">${!o.allowed ? 'Budget insuffisant' : o.label ? 'Enchère automatique, plafond privé' : finalTurn ? 'Offre finale' : 'Surenchérir'}${o.allowed && o.risky ? ' · risqué' : ''}</span>
+      </button>`).join('')}
+    </div>
+    <button type="button" class="sa-btn ghost" data-sa-action="withdraw">Se retirer</button>`}
+  </div>`;
+}
+function renderSportsVerdictZone(cq) {
+  const v = cq.sportsAuction, event = SPORT_RIGHTS_EVENTS[v.eventId];
+  let body;
+  if (v.outcome === 'won') {
+    body = `<span class="sa-verdict-kicker won">Droits remportés</span>
+      <div class="sa-title"><span aria-hidden="true">${event.icon}</span> ${esc(event.name)}</div>
+      <div class="sa-ledger">
+        <div><span>Offre gagnante</span><b>${nf1(v.price)} M€</b></div>
+        <div><span>Droits (débités)</span><b>${nf1(v.price)} M€</b></div>
+        <div><span>Production prévisionnelle</span><b>${nf1(event.productionCost)} M€</b></div>
+        <div class="total"><span>Engagement total prévisionnel</span><b>${nf1(v.price + event.productionCost)} M€</b></div>
+      </div>
+      <p class="sa-note">✅ Ajouté à vos droits · diffusion en saison ${v.season + 1} sur ${esc(sportsSlotsLabel(event))}. Aucun effet d’audience avant la diffusion.</p>`;
+  } else {
+    const est = evaluateSportsRight(event, gameState.player);
+    const msg = !v.winnerName ? 'Aucune chaîne n’a atteint le prix de départ.'
+      : v.price > est.maxValue ? 'Vous avez évité une dépense très importante.'
+      : 'Un concurrent vient de renforcer fortement son offre sportive.';
+    body = `<span class="sa-verdict-kicker lost">${v.outcome === 'declined' ? 'Vous passez votre tour' : 'Droits perdus'}</span>
+      <div class="sa-title"><span aria-hidden="true">${event.icon}</span> ${esc(event.name)}</div>
+      <p class="sa-verdict-line">${v.winnerName ? `<b>${esc(v.winnerName)}</b> remporte ${esc(event.the)}` : `${esc(event.name)} ne trouve pas preneur`}</p>
+      ${v.winnerName ? `<div class="sa-ledger">
+        <div><span>Offre gagnante</span><b>${nf1(v.price)} M€</b></div>
+        ${v.playerLastBid != null ? `<div><span>Votre dernière offre</span><b>${nf1(v.playerLastBid)} M€</b></div>` : ''}
+      </div>` : ''}
+      <p class="sa-note">${msg}</p>`;
+  }
+  return `<div class="slide-in-up consequence-wrap">
+    <div class="dilemma-card consequence-card"><div class="dc-body sa-verdict">${body}</div></div>
+    <button class="welcome-cta" id="btn-continue" style="margin-top: 14px;">
+      <span class="welcome-cta-shine"></span><span>Continuer</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+  </div>`;
+}
+function bindSportsAuctionZone(app) {
+  const zone = app.querySelector('[data-sa-zone]');
+  if (!zone) return;
+  zone.addEventListener('click', e => {
+    const btn = e.target.closest('[data-sa-action]');
+    if (!btn || btn.disabled) return;
+    const action = btn.dataset.saAction, a = gameState.sportsRights.activeAuction;
+    if (action === 'participate') sportsAuctionParticipate();
+    else if (action === 'pass') sportsAuctionPass();
+    else if (action === 'withdraw') sportsAuctionWithdraw();
+    else if (action === 'cancel') sportsAuctionCancelPending();
+    else if (action === 'confirm' && a?.pending) sportsAuctionBid(a.pending.kind, a.pending.amount, true);
+    else if (action === 'bid' || action === 'ceiling') sportsAuctionBid(action, parseFloat(btn.dataset.amount));
+    if (gameState.sportsRights.activeAuction?.phase === 'verdict') chooseDilemmaOption(0);
+    else render();
+  });
+}
+// ---- Bilan de saison : droits diffusés, droits à venir et calendrier du marché ----
+function renderSportsRightsBilanHtml() {
+  const sr = gameState.sportsRights;
+  if (!sr) return '';
+  const season = gameState.season;
+  const aired = sr.owned.filter(o => o.ownerId === 'player' && o.broadcastSeason === season && o.perf);
+  const upcoming = sr.owned.filter(o => o.broadcastSeason === season + 1);
+  const rows = aired.map(o => {
+    const e = SPORT_RIGHTS_EVENTS[o.eventId], f = o.perf;
+    const tone = f.verdict === 'DROITS SURPAYÉS' ? 'bad' : f.verdict === 'EXCELLENTE AFFAIRE' ? 'good' : 'warn';
+    return `<div class="sa-bilan-event">
+      <div class="sa-bilan-head"><b>${e.icon} ${esc(e.name)}</b><span class="sa-verdict-pill ${tone}">${f.verdict}</span></div>
+      <div class="sa-ledger compact">
+        <div><span>Droits</span><b>${nf1(o.acquisitionPrice)} M€</b></div>
+        <div><span>Production</span><b>${nf1(o.productionCost)} M€</b></div>
+        <div><span>Revenus générés (est.)</span><b>${nf1(f.revenueGain)} M€</b></div>
+        <div><span>Impact PDA cible</span><b>${fmtDelta(f.pdaGain, 1, ' pt')}</b></div>
+        <div><span>Popularité</span><b>${fmtDelta(f.popGain, 0, '')}</b></div>
+      </div>
+    </div>`;
+  }).join('');
+  const next = upcoming.map(o => {
+    const e = SPORT_RIGHTS_EVENTS[o.eventId];
+    return o.ownerId === 'player'
+      ? `<li>✅ <b>${esc(e.name)}</b> : diffusé chez vous en saison ${o.broadcastSeason} (${esc(sportsSlotsLabel(e))}).</li>`
+      : `<li>⚔️ <b>${esc(o.ownerName)}</b> diffusera <b>${esc(e.the)}</b> en saison ${o.broadcastSeason}.</li>`;
+  }).join('');
+  return `<div class="card bilan-card sa-bilan">
+    <div class="kicker-badge">🏆 MARCHÉ DES DROITS</div>
+    ${rows}
+    ${next ? `<ul class="sa-bilan-list">${next}</ul>` : ''}
+    <p class="sa-note">${sr.lastAuctionSeason === season ? 'Une enchère s’est tenue cette saison. ' : 'Aucun grand droit cette saison. '}${esc(sportsMarketOutlook())}</p>
+  </div>`;
+}
 const PROGRAM_CATALOG_DATA = [["p001","generaliste","matin","magazine","Matinale info","csp",7,0,2,2.33],["p002","generaliste","matin","magazine","Magazine conso","csp",1.5,0,2,1.36],["p003","generaliste","matin","magazine","Cuisine & recettes","csp",1.5,0,2,1.36],["p004","generaliste","matin","magazine","Santé & bien-être","csp",2,0,2,1.5],["p005","generaliste","matin","magazine","Témoignages & société","csp",1.5,0,2,1.36],["p006","generaliste","matin","magazine","Maison & décoration","csp",3,0,2,1.73],["p007","generaliste","matin","magazine","Emploi & vie pratique","csp",1.5,0,2,1.36],["p008","generaliste","matin","magazine","Parents Mode d'emploi","csp",1.5,0,2,1.36,"info"],["p009","generaliste","matin","jeu","Motus","s50",5,0,2,2.07],["p010","generaliste","matin","jeu","Les Z'amours","s50",10,0,2,2.47],["p011","generaliste","matin","magazine","Téléshopping","s50",3,0,2,1.73],["p012","generaliste","apresmidi","magazine","Attention à la marche !","a2549",15,0,2,2.2,null,null,"Jeu télévisé quotidien"],["p013","generaliste","apresmidi","magazine","Silence, ça tourne !","a2549",35,0,2,2.47,null,null,"Feuilleton français quotidien"],["p014","generaliste","apresmidi","magazine","C'est au programme","a2549",5,0,2,1.5,"info"],["p015","generaliste","apresmidi","magazine","Mariés au 1er date","a2549",5,0,2,1.5,null,null,"Dating quotidien"],["p016","generaliste","apresmidi","magazine","Les Z'Experts","a2549",3,0,2,1.25,null,null,"Les experts"],["p017","generaliste","apresmidi","magazine","Magazine conso & enquête","a2549",1.5,0,2,0.98],["p018","generaliste","apresmidi","magazine","Sueurs froides au resto !","a2549",9,0,2,1.84,null,null,"Docu-réalité"],["p019","generaliste","apresmidi","divertissement","Les lettres et les chiffres","a2549",4,0,2,1.39],["p020","generaliste","access","magazine","C à moi","a2549",40,0,2,2.82],["p021","generaliste","access","magazine","Questions pour un jambon","a2549",12,0,2,1.85],["p022","generaliste","access","divertissement","Love Story","a2549",25,0,2,2.39,null,null,"TV Réalité"],["p023","generaliste","access","magazine","Question Maison","a2549",15,0,2,2,"info"],["p024","generaliste","access","divertissement","Mokshû Patamû","a2549",10,0,2,1.74],["p025","generaliste","access","magazine","Panini Quiz","a2549",35,0,2,2.69],["p026","generaliste","access","magazine","Madmag","a2549",15,0,2,2],["p027","generaliste","access","magazine","Baby Boom-Boom","a2549",12,0,2,1.85,null,null,"Docu-réalité"],["p028","generaliste","prime","fiction","Douze pour cent","a2549",25,4,2,3.59,null,null,"Fiction française"],["p029","generaliste","prime","fiction","Navarron","a2549",30,4,2,3.82,null,null,"Série policière"],["p030","generaliste","prime","divertissement","Destination Express","a2549",15,4,2,3],["p031","generaliste","prime","divertissement","Talent show","a2549",15,4,2,3],["p032","generaliste","prime","divertissement","MasterCuisto","a2549",15,4,2,3,null,null,"Concours culinaire"],["p033","generaliste","prime","divertissement","Blind Date","a2549",15,4,2,3,null,null,"Dating événementiel"],["p034","generaliste","prime","divertissement","Koh Menta","a2549",25,4,2,3.59],["p035","generaliste","prime","magazine","La France en Questions","a2549",5,4,2,2.04,null,null,"Magazine société & témoignages"],["p036","generaliste","prime","divertissement","Chanteurs masqués","a2549",25,4,2,3.59],["p037","generaliste","prime","fiction","Ciné-max","a2549",20,4,2,3.32,null,null,"Cinéma Français"],["p038","generaliste","prime","fiction","Au Théatre ce Soir","a2549",4,4,2,1.95,null,null,"Théatre en live"],["p039","generaliste","nuit","magazine","After-show","csp",5,0,2,2.29],["p040","generaliste","nuit","magazine","Tout le monde en parle","csp",10,0,2,2.47,null,null,"Late-night talk-show"],["p041","generaliste","nuit","magazine","Enquête de sens","csp",1.5,0,2,1.5,null,null,"Documentaire société"],["p042","generaliste","nuit","magazine","Débat d'actualité","csp",1.5,0,2,1.5],["p043","generaliste","nuit","magazine","Libre antenne","csp",1.5,0,2,1.5],["p044","generaliste","nuit","magazine","Magazine culturel","csp",1.5,0,2,1.5],["p045","generaliste","nuit","magazine","Enquête & faits divers","csp",1.5,0,2,1.5],["p046","generaliste","nuit","magazine","La Nuit nous appartient","csp",1.5,0,2,1.5,null,null,"Rediffusion premium"],["p047","cinema","matin","fiction","Soap Opera","s50",2,4,2,2,null,null,"Séries patrimoniales"],["p048","cinema","matin","fiction","Sitcoms US","a2549",2,4,2,2,null,null,"Sitcoms classiques"],["p049","cinema","matin","fiction","Fauteuil Rouge","a2549",2,4,2,2,"culture"],["p050","cinema","matin","fiction","Coulisses de tournage","a2549",2,4,2,2],["p051","cinema","matin","fiction","Portraits d'acteurs","a2549",2,4,2,2],["p052","cinema","matin","fiction","Plus belle la life","a2549",2,4,2,2,null,null,"Séries familiales"],["p053","cinema","matin","fiction","Courts métrages","a2549",2,4,2,2],["p054","cinema","matin","fiction","Popcorn","a2549",2,4,2,2,"culture"],["p055","cinema","apresmidi","fiction","Marathon de séries","a2549",2,4,2,2.5],["p056","cinema","apresmidi","fiction","Demain commence aujourd’hui","a2549",2,4,2,2.5],["p057","cinema","apresmidi","fiction","Les Mulets","a2549",2,4,2,2.5,null,null,"Saga policière"],["p058","cinema","apresmidi","fiction","Cœurs Croisés","a2549",2,4,2,2.5,null,null,"Série procédurale"],["p059","cinema","apresmidi","fiction","Une Place au Soleil","a2549",2,4,2,2.5],["p060","cinema","apresmidi","fiction","Nos Belles Années","a2549",2,4,2,2.5],["p061","cinema","apresmidi","fiction","Ciné Club","a2549",2,4,2,2.5,null,null,"Film catalogue"],["p062","cinema","apresmidi","fiction","Mini-série","a2549",2,4,2,2.5],["p063","cinema","access","fiction","Sitcom","a2549",2,4,2,2.5],["p064","cinema","access","fiction","Le Bureau","a2549",2,4,2,2.5],["p065","cinema","access","fiction","Hollywood Boulevard","a2549",2,4,2,2.5,null,null,"Magazine du 7e art"],["p066","cinema","access","fiction","Le Gout des Autres","a2549",2,4,2,2.5,null,null,"Actualité séries & plateformes"],["p067","cinema","access","fiction","Le Ticket d'Or","a2549",2,4,2,2.5,null,null,"Quiz cinéma"],["p068","cinema","access","fiction","Hors Cadre","a2549",2,4,2,2.5,"culture"],["p069","cinema","access","fiction","Série culte","a2549",2,4,2,2.5],["p070","cinema","access","fiction","Plan Séquence","a2549",2,4,2,2.5,null,null,"Interview cinéma"],["p071","cinema","prime","fiction","Film blockbuster","a2549",2,4,2,3.5],["p072","cinema","prime","fiction","Saga cinéma","a2549",2,4,2,3.5],["p073","cinema","prime","fiction","Série premium","a2549",2,4,2,3.5],["p074","cinema","prime","fiction","Mini-série événement","a2549",2,4,2,3.5],["p075","cinema","prime","fiction","Franchise policière","a2549",2,4,2,3.5],["p076","cinema","prime","fiction","Film français récent","a2549",2,4,2,3.5],["p077","cinema","prime","fiction","Film de super-héros","a2549",2,4,2,3.5],["p078","cinema","prime","fiction","Thriller événement","a2549",2,4,2,3.5],["p079","cinema","prime","fiction","Comédie populaire","a2549",2,4,2,3.5],["p080","cinema","nuit","fiction","Thriller","a2549",2,4,2,2],["p081","cinema","nuit","fiction","Film d'horreur","a2549",2,4,2,2],["p082","cinema","nuit","fiction","Science-fiction","a2549",2,4,2,2],["p083","cinema","nuit","fiction","Cinéma d'auteur","a2549",2,4,2,2],["p084","cinema","nuit","fiction","Film culte","a2549",2,4,2,2],["p085","cinema","nuit","fiction","Série adulte","a2549",2,4,2,2],["p086","cinema","nuit","fiction","Cinéma international","a2549",2,4,2,2],["p087","cinema","nuit","fiction","Film indépendant","a2549",2,4,2,2],["p088","culture","matin","documentaire","Spectacle vivant","s50",1,2,3,1.5],["p089","culture","matin","documentaire","Musique classique","s50",1,2,3,1.5],["p090","culture","matin","documentaire","Le Musée Imaginaire","s50",1,2,3,1.5,null,null,"Découverte artistique"],["p091","culture","matin","documentaire","Patrimoine","s50",1,2,3,1.5],["p092","culture","matin","documentaire","Masterclass","s50",1,2,3,1.5],["p093","culture","matin","documentaire","Danse & ballet","s50",1,2,3,1.5],["p094","culture","matin","documentaire","Architecture","s50",1,2,3,1.5],["p095","culture","matin","documentaire","Archives culturelles","s50",1,2,3,1.5],["p096","culture","apresmidi","documentaire","Documentaire Histoire","s50",1,2,3,2],["p097","culture","apresmidi","documentaire","Archéologie","s50",1,2,3,2],["p098","culture","apresmidi","documentaire","Sciences","s50",1,2,3,2],["p099","culture","apresmidi","documentaire","Voyages & civilisations","s50",1,2,3,2],["p100","culture","apresmidi","documentaire","Beaux-Arts","s50",1,2,3,2],["p101","culture","apresmidi","documentaire","Les Trésors du Temps","s50",1,2,3,2,null,null,"Portrait de personnalité"],["p102","culture","apresmidi","documentaire","Nature & environnement","s50",1,2,3,2],["p103","culture","apresmidi","documentaire","Patrimoine mondial","s50",1,2,3,2],["p104","culture","access","magazine","Quiz culturel","csp",1.5,0,2,1.8],["p105","culture","access","magazine","Magazine littérature","csp",1.5,0,2,1.8],["p106","culture","access","magazine","Magazine cinéma","csp",1.5,0,2,1.8],["p107","culture","access","magazine","Débat culturel","csp",1.5,0,2,1.8],["p108","culture","access","magazine","Les Grandes Plumes","csp",1.5,0,2,1.8,null,null,"Découverte du patrimoine"],["p109","culture","access","magazine","On Refait l’Actu","csp",1.5,0,2,1.8,null,null,"Actualité artistique"],["p110","culture","access","magazine","Les Eclaireurs","csp",1.5,0,2,1.8,null,null,"Interview d'auteur"],["p111","culture","access","magazine","Magazine histoire","csp",1.5,0,2,1.8],["p112","culture","prime","documentaire","Grand documentaire historique","s50",1,2,3,2.5],["p113","culture","prime","documentaire","Investigation culturelle","s50",1,2,3,2.5],["p114","culture","prime","documentaire","Biopic documentaire","s50",1,2,3,2.5],["p115","culture","prime","documentaire","Captation événementielle","s50",1,2,3,2.5],["p116","culture","prime","documentaire","Documentaire + débat","s50",1,2,3,2.5],["p117","culture","prime","documentaire","Grande soirée sciences","s50",1,2,3,2.5],["p118","culture","prime","documentaire","Documentaire géopolitique","s50",1,2,3,2.5],["p119","culture","prime","documentaire","Soirée patrimoine","s50",1,2,3,2.5],["p120","culture","nuit","documentaire","Concert d'archives","s50",1,2,3,1.5],["p121","culture","nuit","documentaire","Festival live","s50",1,2,3,1.5],["p122","culture","nuit","documentaire","Opéra","s50",1,2,3,1.5],["p123","culture","nuit","documentaire","Cinéma patrimonial","s50",1,2,3,1.5],["p124","culture","nuit","documentaire","Jazz & musiques du monde","s50",1,2,3,1.5],["p125","culture","nuit","documentaire","Archives TV","s50",1,2,3,1.5],["p126","culture","nuit","documentaire","Théâtre","s50",1,2,3,1.5],["p127","culture","nuit","documentaire","Documentaire musical","s50",1,2,3,1.5],["p128","jeunesse","matin","animation","Animation préscolaire","j1524",1,3,2,3],["p129","jeunesse","matin","animation","Ludo-éducatif","j1524",1,3,2,3],["p130","jeunesse","matin","animation","Animation musicale","j1524",1,3,2,3],["p131","jeunesse","matin","animation","Éveil & découverte","j1524",1,3,2,3],["p132","jeunesse","matin","animation","Comptines","j1524",1,3,2,3],["p133","jeunesse","matin","animation","Aventures 3-5 ans","j1524",1,3,2,3],["p134","jeunesse","matin","animation","Animaux & nature","j1524",1,3,2,3],["p135","jeunesse","matin","animation","Apprentissage ludique","j1524",1,3,2,3],["p136","jeunesse","apresmidi","animation","Animation aventure","j1524",1,3,2,3],["p137","jeunesse","apresmidi","animation","Comédie animée","j1524",1,3,2,3],["p138","jeunesse","apresmidi","animation","Super-héros","j1524",1,3,2,3],["p139","jeunesse","apresmidi","animation","Fantasy","j1524",1,3,2,3],["p140","jeunesse","apresmidi","animation","Kids Quiz","j1524",1,3,2,3],["p141","jeunesse","apresmidi","animation","Animation sportive","j1524",1,3,2,3],["p142","jeunesse","apresmidi","animation","Série éducative","j1524",1,3,2,3],["p143","jeunesse","apresmidi","animation","Animation familiale","j1524",1,3,2,3],["p144","jeunesse","access","animation","Teen series","j1524",1,3,2,2.5],["p145","jeunesse","access","animation","Gaming","j1524",1,3,2,2.5],["p146","jeunesse","access","animation","Manga","j1524",1,3,2,2.5],["p147","jeunesse","access","animation","Créateurs & influence","j1524",1,3,2,2.5],["p148","jeunesse","access","animation","Compétition e-sport","j1524",1,3,2,2.5],["p149","jeunesse","access","animation","Animation Young Adult","j1524",1,3,2,2.5],["p150","jeunesse","access","animation","Magazine pop culture","j1524",1,3,2,2.5],["p151","jeunesse","access","animation","Série musicale","j1524",1,3,2,2.5],["p152","jeunesse","prime","animation","Grand film d'animation","j1524",1,3,2,3.5],["p153","jeunesse","prime","animation","Film familial","j1524",1,3,2,3.5],["p154","jeunesse","prime","animation","Spécial franchise","j1524",1,3,2,3.5],["p155","jeunesse","prime","animation","Grand jeu familial","j1524",1,3,2,3.5],["p156","jeunesse","prime","animation","Événement jeunesse","j1524",1,3,2,3.5],["p157","jeunesse","prime","animation","Comédie familiale","j1524",1,3,2,3.5],["p158","jeunesse","prime","animation","Téléfilm jeunesse","j1524",1,3,2,3.5],["p159","jeunesse","prime","animation","Soirée super-héros","j1524",1,3,2,3.5],["p160","jeunesse","nuit","animation","Anime japonais","j1524",1,3,2,2],["p161","jeunesse","nuit","animation","Animation adulte","j1524",1,3,2,2],["p162","jeunesse","nuit","animation","Manga culte","j1524",1,3,2,2],["p163","jeunesse","nuit","animation","Gaming & e-sport","j1524",1,3,2,2],["p164","jeunesse","nuit","animation","Série animée satirique","j1524",1,3,2,2],["p165","jeunesse","nuit","animation","Anime fantastique","j1524",1,3,2,2],["p166","jeunesse","nuit","animation","Anime action","j1524",1,3,2,2],["p167","jeunesse","nuit","animation","Pop culture japonaise","j1524",1,3,2,2],["p168","sport","matin","sport","Journal des sports","a2549",3,6,1,2.5],["p169","sport","matin","sport","Résumés & highlights","a2549",3,6,1,2.5],["p170","sport","matin","sport","Fitness","a2549",3,6,1,2.5],["p171","sport","matin","sport","Portraits de sportifs","a2549",3,6,1,2.5],["p172","sport","matin","sport","Matinale 100% Sport","a2549",3,6,1,2.5],["p173","sport","matin","sport","Actualité mercato","a2549",3,6,1,2.5],["p174","sport","matin","sport","Sport santé","a2549",3,6,1,2.5],["p175","sport","matin","sport","Archives sportives","a2549",3,6,1,2.5],["p176","sport","apresmidi","sport","Biathlon","a2549",3,6,1,3],["p177","sport","apresmidi","sport","Sports émergents","a2549",3,6,1,3],["p178","sport","apresmidi","sport","Matchs de légendes","a2549",3,6,1,3],["p179","sport","apresmidi","sport","Documentaires sportifs","a2549",3,6,1,3],["p180","sport","apresmidi","sport","Multisports","a2549",3,6,1,3],["p181","sport","apresmidi","sport","Sports mécaniques","a2549",3,6,1,3],["p182","sport","apresmidi","sport","Cyclisme","a2549",3,6,1,3],["p183","sport","apresmidi","sport","Surf","a2549",3,6,1,3],["p184","sport","access","sport","Téléfoot","a2549",3,6,1,3.5],["p185","sport","access","sport","100% Data","a2549",3,6,1,3.5],["p186","sport","access","sport","100% Mercato","a2549",3,6,1,3.5],["p187","sport","access","sport","Débat sportif","a2549",3,6,1,3.5],["p188","sport","access","sport","Le débrief","a2549",3,6,1,3.5],["p189","sport","access","sport","Légendes du football","a2549",3,6,1,3.5],["p190","sport","access","sport","Interview champion","a2549",3,6,1,3.5],["p191","sport","access","sport","Quiz sport","a2549",3,6,1,3.5],["p192","sport","prime","sport","Football total","a2549",3,6,1,4.5],["p193","sport","prime","sport","Rugby Européen","a2549",3,6,1,4.5],["p194","sport","prime","sport","Sports de combat","a2549",3,6,1,4.5],["p195","sport","prime","sport","Coupe Davis","a2549",3,6,1,4.5],["p196","sport","prime","sport","Basket Français","a2549",3,6,1,4.5],["p197","sport","prime","sport","Coupe d'Europe de Handball","a2549",3,6,1,4.5],["p198","sport","prime","sport","Grand prix F1","a2549",3,6,1,4.5],["p199","sport","prime","sport","Multiplex européen","a2549",3,6,1,4.5],["p200","sport","nuit","sport","Sports US en direct","a2549",3,6,1,2],["p201","sport","nuit","sport","Sports de combat en direct","a2549",3,6,1,2],["p202","sport","nuit","sport","Caisses à savon","a2549",3,6,1,2],["p203","sport","nuit","sport","Après-match","a2549",3,6,1,2],["p204","sport","nuit","sport","Highlights","a2549",3,6,1,2],["p205","sport","nuit","sport","Débrief","a2549",3,6,1,2],["p206","sport","nuit","sport","Basket US","a2549",3,6,1,2],["p207","sport","nuit","sport","Sports mécaniques nocturnes","a2549",3,6,1,2],["p208","info","matin","magazine","Matinale info","csp",1.5,0,2,2.5],["p209","info","matin","magazine","Tranche économie","csp",1.5,0,2,2.5],["p210","info","matin","magazine","Politique & interviews","csp",1.5,0,2,2.5],["p211","info","matin","magazine","Météo & trafic","csp",1.5,0,2,2.5],["p212","info","matin","magazine","Revue de presse","csp",1.5,0,2,2.5],["p213","info","matin","magazine","International","csp",1.5,0,2,2.5],["p214","info","matin","magazine","Chronique conso","csp",1.5,0,2,2.5],["p215","info","matin","magazine","Interview éco","csp",1.5,0,2,2.5],["p216","info","apresmidi","magazine","Fil d'actualité continu","csp",1.5,0,2,2],["p217","info","apresmidi","magazine","Breaking news","csp",1.5,0,2,2],["p218","info","apresmidi","magazine","Directs terrain","csp",1.5,0,2,2],["p219","info","apresmidi","magazine","Reportages","csp",1.5,0,2,2],["p220","info","apresmidi","magazine","Interviews","csp",1.5,0,2,2],["p221","info","apresmidi","magazine","Économie en direct","csp",1.5,0,2,2],["p222","info","apresmidi","magazine","International en continu","csp",1.5,0,2,2],["p223","info","apresmidi","magazine","Décryptage factuel","csp",1.5,0,2,2],["p224","info","access","magazine","Grand entretien","csp",1.5,0,2,3],["p225","info","access","magazine","Débat politique","csp",1.5,0,2,3],["p226","info","access","magazine","Décryptage","csp",1.5,0,2,3],["p227","info","access","magazine","Le Grand journal","csp",1.5,0,2,3],["p228","info","access","magazine","Ça se dispute","csp",1.5,0,2,3],["p229","info","access","magazine","Face à l'info","csp",1.5,0,2,3],["p230","info","access","magazine","Merci pour l'info","csp",1.5,0,2,3],["p231","info","access","magazine","Édition du soir","csp",1.5,0,2,3],["p232","info","prime","documentaire","Investigation","csp",1,2,3,2.5],["p233","info","prime","documentaire","Grand reportage","csp",1,2,3,2.5],["p234","info","prime","documentaire","Géopolitique","csp",1,2,3,2.5],["p235","info","prime","documentaire","Société","csp",1,2,3,2.5],["p236","info","prime","documentaire","Économie","csp",1,2,3,2.5],["p237","info","prime","documentaire","Documentaire d'actualité","csp",1,2,3,2.5],["p238","info","prime","documentaire","Enquête & faits divers","csp",1,2,3,2.5],["p239","info","prime","documentaire","Portrait politique & historique","csp",1,2,3,2.5],["p240","info","nuit","magazine","Journal de la nuit","csp",1.5,0,2,1.5],["p241","info","nuit","magazine","Débrief de l'actualité","csp",1.5,0,2,1.5],["p242","info","nuit","magazine","Débat politique","csp",1.5,0,2,1.5],["p243","info","nuit","magazine","Revue de presse","csp",1.5,0,2,1.5],["p244","info","nuit","magazine","Rediffusion grands entretiens","csp",1.5,0,2,1.5],["p245","info","nuit","magazine","Boucle d'information","csp",1.5,0,2,1.5],["p246","info","nuit","magazine","Archives du jour","csp",1.5,0,2,1.5],["p247","info","nuit","magazine","Édition internationale","csp",1.5,0,2,1.5],["p248","generaliste","prime","jeu","Le Prix de la Vérité","a2549",3.68,0.23,1,1.9],["p249","generaliste","prime","jeu","Undercover","a2549",4.8,0.3,1,2.07],["p250","generaliste","prime","jeu","L’Ultime Tentation","a2549",5.88,0.37,1,2.22],["p251","generaliste","prime","jeu","Déconnectés : seuls face au défi","a2549",7,0.44,1,2.35],["p252","generaliste","prime","jeu","Générations extrêmes","a2549",4.12,0.26,1,1.97],["p253","generaliste","prime","jeu","La ville est à vous !","a2549",5.44,0.34,1,2.16],["p254","generaliste","prime","jeu","Break the Limits","a2549",6.56,0.41,1,2.3],["p255","generaliste","prime","jeu","Attrapez le dernier train !","a2549",3.24,0.2,1,1.82],["p256","generaliste","prime","jeu","L'île de la trahison","a2549",5,0.31,1,2.1],["p257","generaliste","prime","jeu","Gare à la Chute !","a2549",6.12,0.38,1,2.25],["p258","generaliste","access","jeu","Remettez tout en ordre !","s50",3.5,0.01,1,1.23],["p259","generaliste","access","jeu","Ni Oui Ni Non","s50",5,0.02,1,1.39],["p260","generaliste","access","jeu","60 secondes pour tout gagner","s50",6.5,0.02,1,1.51],["p261","generaliste","access","jeu","Misez sur la bonne star !","s50",7.5,0.03,1,1.59],["p262","generaliste","access","jeu","Combien ça coûte vraiment ?","s50",4,0.01,1,1.29],["p263","generaliste","access","jeu","Le Maître des Ombres","s50",6,0.02,1,1.47],["p264","generaliste","access","jeu","Mon quartier va gagner !","s50",7,0.02,1,1.55],["p265","generaliste","access","jeu","Qui se cache derrière ?","s50",3,0.01,1,1.17],["p266","generaliste","access","jeu","Zone Rouge","s50",5.5,0.02,1,1.43],["p267","generaliste","access","jeu","Golden family","s50",6.5,0.02,1,1.51],["p268","generaliste","prime","divertissement","Ce soir, c’est leur soir !","a2549",2.64,0.15,1,1.7],["p269","generaliste","prime","divertissement","Ma famille fait le show","a2549",3.69,0.22,1,1.9],["p270","generaliste","prime","divertissement","La Nuit de Tous les Défis","a2549",4.74,0.28,1,2.07,null,null,"Le rire n’a pas d’âge"],["p271","generaliste","prime","divertissement","Jackpot","a2549",5.79,0.34,1,2.21],["p272","generaliste","prime","divertissement","À vous de faire les voix !","a2549",3.06,0.18,1,1.79],["p273","generaliste","prime","divertissement","La Piste aux étoiles","a2549",4.32,0.25,1,2],["p274","generaliste","prime","divertissement","Zéro de Conduite","a2549",5.37,0.31,1,2.15],["p275","generaliste","prime","divertissement","Avant que le rideau se lève","a2549",2.22,0.13,1,1.6],["p276","generaliste","prime","divertissement","La France a du Génie","a2549",3.9,0.23,1,1.94],["p277","generaliste","prime","divertissement","La meilleure fanfare de France","a2549",4.95,0.29,1,2.1],["p278","generaliste","prime","divertissement","10 euros, à table !","a2549",2.04,0.09,1,1.56],["p279","generaliste","prime","divertissement","Mes voisins ouvrent un resto","a2549",2.76,0.12,1,1.73],["p280","generaliste","prime","divertissement","Cap ou Pas Cap ?","a2549",3.52,0.15,1,1.87],["p281","generaliste","prime","divertissement","Le Défi des Générations","a2549",4.24,0.19,1,1.99],["p282","generaliste","prime","divertissement","Demain sera gourmand","a2549",2.32,0.1,1,1.63],["p283","generaliste","prime","divertissement","Les Grimoires de Mamie Gâteau & Moi !","a2549",3.2,0.14,1,1.81],["p284","generaliste","prime","divertissement","La Meilleure Patisserie","a2549",3.96,0.17,1,1.95,"diverti"],["p285","generaliste","prime","divertissement","Goûtez, devinez, cuisinez !","a2549",1.72,0.08,1,1.47],["p286","generaliste","prime","divertissement","Panique à la cantine","a2549",2.92,0.13,1,1.76,null,null,"Opération cantine"],["p287","generaliste","prime","divertissement","Un village à notre table","a2549",3.68,0.16,1,1.9],["p288","generaliste","prime","divertissement","Quitte ou Double","j1524",1.48,0.06,1,1.4],["p289","generaliste","prime","divertissement","L’amour à emporter","j1524",2.16,0.09,1,1.59],["p290","generaliste","prime","divertissement","10 jours pour tout changer","j1524",2.8,0.12,1,1.73],["p291","generaliste","prime","divertissement","Colocs : le choc des générations","j1524",3.48,0.15,1,1.86],["p292","generaliste","prime","divertissement","Panique dans l'oreillette","a2549",1.76,0.08,1,1.49],["p293","generaliste","prime","divertissement","Confessions dans l'Ascenseur","j1524",2.56,0.11,1,1.68],["p294","generaliste","prime","divertissement","Sacrée soirée","s50",3.2,0.14,1,1.81],["p295","generaliste","prime","divertissement","Tous à la ferme !","j1524",1.24,0.05,1,1.32],["p296","generaliste","prime","divertissement","Je change de métier !","j1524",2.28,0.1,1,1.62],["p297","generaliste","prime","divertissement","On a échangé nos papas","j1524",2.96,0.13,1,1.77],["p298","cinema","prime","fiction","Portés disparus","s50",3.72,0.14,1,3.46],["p299","cinema","prime","fiction","Panique à la mairie","s50",5.01,0.18,1,3.82],["p300","cinema","prime","fiction","Jusqu’au petit matin","s50",6.27,0.23,1,4.11],["p301","cinema","prime","fiction","Le port des secrets","s50",7.56,0.28,1,4.38],["p302","cinema","prime","fiction","Une classe à part","s50",4.23,0.16,1,3.61],["p303","cinema","prime","fiction","Sixième sans ascenseur","s50",5.76,0.21,1,4],["p304","cinema","prime","fiction","La faille","s50",7.05,0.26,1,4.28],["p305","cinema","prime","fiction","Au bord du vide","s50",3.21,0.12,1,3.29],["p306","cinema","prime","fiction","La maison des retrouvailles","s50",5.25,0.19,1,3.88],["p307","cinema","prime","fiction","Bienvenue demain","s50",6.54,0.24,1,4.17],["p308","culture","prime","documentaire","Sans eux, tout s’arrête","csp",0.66,0.04,1,1.87],["p309","culture","prime","documentaire","Sous la France, un autre monde","csp",0.99,0.06,1,2.14],["p310","culture","prime","documentaire","Si nos objets parlaient","csp",1.29,0.08,1,2.34],["p311","culture","prime","documentaire","De l’autre côté","csp",1.62,0.09,1,2.52],["p312","culture","prime","documentaire","Chantiers hors normes","csp",0.81,0.05,1,2.01],["p313","culture","prime","documentaire","Ma ville à hauteur d’enfant","csp",1.17,0.07,1,2.27],["p314","culture","prime","documentaire","Les paysages ont une histoire","csp",1.5,0.09,1,2.46],["p315","culture","prime","documentaire","Les mille vies d’un chef-d’œuvre","csp",0.54,0.03,1,1.75],["p316","culture","prime","documentaire","France 1900","csp",1.05,0.06,1,2.18,null,null,"Vivants : ceux qui protègent la nature"],["p317","culture","prime","documentaire","L’histoire passe à table","csp",1.38,0.08,1,2.39],["p318","info","nuit","magazine","On vous a dit que…","csp",1.8,0.02,1,1.6],["p319","info","nuit","magazine","Ce que vous payez vraiment","csp",2.55,0.03,1,1.8],["p320","info","nuit","magazine","Et si on essayait ?","csp",3.45,0.04,1,1.99],["p321","info","nuit","magazine","Le travail, version demain","csp",4.35,0.05,1,2.15],["p322","info","nuit","magazine","Sur place : l’enquête","csp",2.1,0.02,1,1.68],["p323","info","nuit","magazine","Ma ville tente le coup","csp",3.15,0.04,1,1.93],["p324","info","nuit","magazine","L’éco frappe à votre porte","csp",4.05,0.05,1,2.1],["p325","info","nuit","magazine","Deux vies, un face-à-face","csp",1.35,0.02,1,1.46],["p326","info","nuit","magazine","La science à l’épreuve","csp",2.85,0.03,1,1.86],["p327","info","nuit","magazine","Une semaine, trois clés","csp",3.6,0.04,1,2.02],["p328","sport","prime","sport","Mon quartier, mes champions","j1524",1.44,0.06,1,2.48],["p329","sport","prime","sport","Demain, champions","j1524",2.24,0.1,1,2.87],["p330","sport","prime","sport","Vous appelez ça du sport ?","j1524",3.04,0.13,1,3.18],["p331","sport","prime","sport","Capitaines : à vous de jouer !","j1524",3.84,0.17,1,3.44],["p332","sport","prime","sport","42 kilomètres pour se dépasser","j1524",1.76,0.08,1,2.65],["p333","sport","prime","sport","Sport : défiez l’impossible","j1524",2.72,0.12,1,3.06],["p334","sport","prime","sport","Campus contre campus","j1524",3.52,0.15,1,3.34],["p335","sport","prime","sport","Une saison pour y croire","j1524",1.12,0.05,1,2.28],["p336","sport","prime","sport","Pile dans le mille !","j1524",2.4,0.11,1,2.94],["p337","sport","prime","sport","Ensemble jusqu’au bout","j1524",3.2,0.14,1,3.23],["p338","generaliste","apresmidi","magazine","Poussez les murs !","s50",1.4,0.01,1,0.97],["p339","generaliste","apresmidi","magazine","C’est cassé ? C’est sauvé !","s50",2,0.02,1,1.1],["p340","generaliste","apresmidi","magazine","Petit jardin, grand bonheur","s50",2.8,0.02,1,1.23],["p341","generaliste","apresmidi","magazine","Vos envies ont un prix","s50",3.4,0.03,1,1.31],["p342","generaliste","apresmidi","magazine","Une maison, Une Histoire","s50",1.6,0.01,1,1.02,null,null,"Une maison, plusieurs générations"],["p343","generaliste","apresmidi","magazine","Ce meuble a de l’avenir !","s50",2.4,0.02,1,1.16],["p344","generaliste","apresmidi","magazine","La Folle Histoire de…","s50",3.2,0.03,1,1.28,null,null,"Du style sans tout racheter"],["p345","generaliste","apresmidi","magazine","L'ultime Razzia","s50",1,0.01,1,0.9],["p346","generaliste","apresmidi","magazine","La grande évasion","s50",2.2,0.02,1,1.13],["p347","generaliste","apresmidi","magazine","Un Jour, une Histoire","s50",3,0.03,1,1.25,null,null,"Moins de galères, plus de temps"],["p348","generaliste","prime","jeu","Chasse gardée","a2549",4.5,0.28,1,2.03],["p349","generaliste","prime","jeu","Survie à crédit","a2549",5.2,0.33,1,2.13],["p350","generaliste","prime","jeu","Objectif banquise","a2549",3.8,0.24,1,1.92],["p351","generaliste","prime","jeu","La nuit au musée","j1524",2.72,0.17,1,1.72],["p352","generaliste","access","jeu","City Express","a2549",10.2,0.64,1,1.76],["p353","generaliste","apresmidi","jeu","Compostelle Express","s50",1.6,0.1,1,1.02],["p354","generaliste","prime","jeu","Tous sur le pont","a2549",4.64,0.29,1,2.05],["p355","generaliste","access","jeu","Murder Party","a2549",1.8,0.11,1,0.99],["p356","generaliste","nuit","jeu","Nuit noire","j1524",0.7,0.04,1,1.18],["p357","generaliste","prime","jeu","À la force des mollets","a2549",6.56,0.41,1,2.3],["p358","generaliste","access","jeu","Case par case","a2549",14,0.88,1,1.95],["p359","generaliste","prime","jeu","Le faux ami","a2549",3.36,0.21,1,1.84],["p360","generaliste","apresmidi","jeu","À vue de nez","s50",4.8,0.3,1,1.47],["p361","generaliste","apresmidi","jeu","À une lettre près","s50",4.48,0.28,1,1.43],["p362","generaliste","access","jeu","Blind Test","a2549",17.1,1.07,1,2.09],["p363","generaliste","apresmidi","jeu","Témoin clé","s50",6.4,0.4,1,1.62],["p364","generaliste","access","jeu","Adjugé !","a2549",13.5,0.84,1,1.93],["p365","generaliste","prime","jeu","Face à France","a2549",3.9,0.24,1,1.94],["p366","generaliste","nuit","jeu","Brèves de comptoir","a2549",1.4,0.09,1,1.49],["p367","generaliste","prime","jeu","Le grand jeu de l’oie","a2549",3.6,0.23,1,1.89],["p368","generaliste","prime","divertissement","Tous en scène !","a2549",6,0.38,1,2.24],["p369","generaliste","prime","divertissement","Au chœur des villages","s50",3.64,0.23,1,1.89],["p370","generaliste","nuit","divertissement","Les coups d'humour","a2549",1.7,0.11,1,1.59],["p371","generaliste","access","divertissement","Cabaret !","a2549",1.6,0.1,1,0.95],["p372","generaliste","prime","divertissement","Stars circus !","a2549",11,0.69,1,2.74],["p373","generaliste","access","divertissement","Surprise, surprise","a2549",4.5,0.28,1,1.34],["p374","generaliste","apresmidi","divertissement","Fa Si La Chanter !","s50",3.6,0.23,1,1.33],["p375","generaliste","nuit","divertissement","Faites-les rire !","j1524",1.14,0.07,1,1.39],["p376","generaliste","prime","divertissement","Ce soir, vous décidez","a2549",3.9,0.24,1,1.94],["p377","generaliste","access","divertissement","Le chapeau d’or","a2549",1.2,0.07,1,0.9],["p378","generaliste","apresmidi","divertissement","Petit budget, grand chef","a2549",4.2,0.26,1,1.4],["p379","generaliste","access","divertissement","Rien dans le frigo","a2549",5.5,0.34,1,1.43],["p380","generaliste","prime","divertissement","La coupe des terroirs","s50",3.84,0.24,1,1.93],["p381","generaliste","prime","divertissement","48 heures pour ouvrir","a2549",3.04,0.19,1,1.78],["p382","generaliste","prime","divertissement","Sucre et vertige","a2549",3.6,0.23,1,1.89],["p383","generaliste","apresmidi","divertissement","Fins palais","s50",3.36,0.21,1,1.3],["p384","generaliste","access","divertissement","Tout feu, tout flamme","a2549",1.56,0.1,1,0.94],["p385","generaliste","access","divertissement","Mamie défie le chef","a2549",7.8,0.49,1,1.61],["p386","generaliste","nuit","divertissement","Service de nuit","a2549",1.08,0.07,1,1.36],["p387","generaliste","prime","divertissement","Le banquet des 500","a2549",2,0.12,1,1.55],["p388","generaliste","access","divertissement","Cupidon fait maison","a2549",6,0.38,1,1.47],["p389","generaliste","apresmidi","divertissement","Le deuxième printemps","s50",2.52,0.16,1,1.18],["p390","generaliste","prime","divertissement","La maison de nos parents","a2549",1.68,0.1,1,1.46],["p391","generaliste","apresmidi","divertissement","Bonjour voisin !","a2549",2.28,0.14,1,1.15],["p392","generaliste","prime","divertissement","Dans ta peau","a2549",2.08,0.13,1,1.57],["p393","generaliste","nuit","divertissement","On recommence ?","a2549",0.9,0.06,1,1.28],["p394","generaliste","access","divertissement","La coloc des âges","j1524",5.4,0.34,1,1.42],["p395","generaliste","prime","divertissement","Nos cousins d’ailleurs","a2549",2.08,0.13,1,1.57],["p396","generaliste","prime","divertissement","Le stagiaire, c’est le patron","a2549",2.4,0.15,1,1.65],["p397","generaliste","access","divertissement","Les ados font la loi","a2549",1.32,0.08,1,0.9],["p398","cinema","access","fiction","Prochain départ","a2549",30.8,1.93,1,4.5],["p399","cinema","prime","fiction","Le silence des cimes","a2549",8.4,0.53,1,4.5],["p400","cinema","prime","fiction","Sous la ville lumière","a2549",13.8,0.86,1,4.5],["p401","cinema","access","fiction","Bonne route !","j1524",4.4,0.28,1,2.63],["p402","cinema","prime","fiction","Docteur tout-terrain","s50",7.6,0.47,1,4.42],["p403","cinema","prime","fiction","Le casse du 14 Juillet","a2549",11.4,0.71,1,4.5],["p404","cinema","nuit","fiction","Il était une nuit","j1524",3.2,0.2,1,1.89],["p405","cinema","access","fiction","Un été en colo","j1524",7.8,0.49,1,3.19],["p406","cinema","prime","fiction","Point de bascule","a2549",10,0.62,1,4.5],["p407","cinema","apresmidi","fiction","Le domaine des trois sœurs","a2549",12.8,0.8,1,3.76],["p408","culture","apresmidi","documentaire","Ce que la terre cache","s50",1.6,0.1,1,2.01],["p409","culture","prime","documentaire","Histoire non classée","csp",1.92,0.12,1,2.67],["p410","culture","access","documentaire","Et si on essayait ?","a2549",1.8,0.11,1,1.95],["p411","culture","prime","documentaire","Les yeux de la forêt","a2549",1.92,0.12,1,2.67],["p412","culture","access","documentaire","Le détail qui change tout","csp",1.6,0.1,1,1.88],["p413","culture","nuit","documentaire","Mon cabinet de curiosités","csp",1.65,0.1,1,1.52],["p414","culture","prime","documentaire","Bâtisseurs d’un été","s50",2.16,0.14,1,2.78],["p415","culture","nuit","documentaire","Les secrets d’un tube","a2549",1.28,0.08,1,1.4],["p416","culture","prime","documentaire","Le ciel en direct","a2549",0.9,0.06,1,2.08],["p417","culture","apresmidi","documentaire","La France en tortillard","s50",1.28,0.08,1,1.87],["p418","info","access","magazine","Dix minutes pour comprendre","a2549",3.6,0.23,1,4.1],["p419","info","prime","magazine","Piège à arnaqueurs","s50",2.3,0.14,1,2.84],["p420","info","access","magazine","D’où ça vient ?","a2549",1.68,0.1,1,3.18],["p421","info","nuit","magazine","Terrain d’entente","csp",1.8,0.11,1,1.63],["p422","info","apresmidi","magazine","Votre ville à la une","s50",4.8,0.3,1,3.01],["p423","info","nuit","magazine","On vérifie tout","j1524",1.5,0.09,1,1.53],["p424","info","prime","magazine","Cent voix contre une","s50",1.52,0.1,1,2.48],["p425","info","nuit","magazine","Ceux qui veillent","a2549",1.32,0.08,1,1.47],["p426","info","apresmidi","magazine","Bien réveillés","a2549",19,1.19,1,4.5],["p427","info","prime","magazine","Dossier rouvert","a2549",1.76,0.11,1,2.6],["p428","sport","prime","sport","Le match de leur vie","a2549",3.25,0.2,1,3.27],["p429","sport","access","sport","Record à battre","a2549",6.4,0.4,1,3.19],["p430","sport","access","sport","Battle de bitume","j1524",1.2,0.07,1,1.82],["p431","sport","nuit","sport","Manette d’or","j1524",1.3,0.08,1,1.07],["p432","sport","apresmidi","sport","Esprit de club","a2549",1.26,0.08,1,1.59],["p433","sport","prime","sport","La récré des grands","a2549",4.8,0.3,1,3.72],["p434","sport","access","sport","Cap ou pas cap ?","a2549",1.5,0.09,1,1.96],["p435","sport","prime","sport","Au pied du mur","a2549",4.16,0.26,1,3.55],["p436","sport","apresmidi","sport","Tirer ou pointer","s50",0.9,0.06,1,1.42],["p437","sport","nuit","sport","Tribune libre","a2549",1.98,0.12,1,1.23],["p438","generaliste","apresmidi","magazine","Seconde vie","a2549",2.56,0.16,1,1.19],["p439","generaliste","access","magazine","Rien à me mettre","a2549",4.56,0.28,1,1.34],["p440","generaliste","access","magazine","Les comptes à rebours","a2549",0.9,0.06,1,0.9],["p441","generaliste","prime","magazine","Partir au vert","a2549",2.08,0.13,1,1.57],["p442","generaliste","apresmidi","magazine","Graines de quartier","s50",0.896,0.06,1,0.9],["p443","generaliste","access","magazine","Adieu passoire","a2549",4.8,0.3,1,1.37],["p444","generaliste","apresmidi","magazine","Coup de cœur au refuge","a2549",1.08,0.07,1,0.9],["p445","generaliste","apresmidi","magazine","SOS paperasse","s50",4,0.25,1,1.38],["p446","generaliste","prime","magazine","Toute la rue s’y met","a2549",3,0.19,1,1.77],["p447","generaliste","nuit","magazine","Rouler des mécaniques","a2549",1.2,0.07,1,1.41],["p448","generaliste","access","jeu","Qui est l'imposteur","j1524",5,0.31,1,1.39],["p449","generaliste","matin","jeu","Pyramide","j1524",5,0.31,1,2.05],["p450","generaliste","access","jeu","Qui veut gagner de l'argent en masse ?","a2549",5,0.31,1,1.39],["p451","generaliste","access","magazine","60 jours 60 nuits","j1524",5,0.75,1,4,"diverti","Des candidats partagent une villa pendant deux mois, sous l’œil des caméras."],["p452","generaliste","access","magazine","7 sur 7","csp",2,0.3,1,3,"info","Le grand entretien du dimanche avec une personnalité qui a marqué la semaine."],["p453","generaliste","access","jeu","Les Incollables","j1524",2,0.3,1,1,"diverti","Un quiz de culture générale où les jeunes candidats déjouent les questions pièges."],["p454","generaliste","nuit","magazine","Bas les masques","csp",1,0.15,1,2,"info","Des anonymes racontent face caméra le combat ou le secret qui a changé leur vie."],["p455","generaliste","matin","magazine","Bon appétit bien sûr","s50",1,0.15,1,2,"diverti","Un chef étoilé partage chaque matin une recette simple et gourmande."],["p456","generaliste","nuit","magazine","Bonsoir !","csp",3,0.44999999999999996,1,1,"info","Le talk-show de fin de soirée qui revient sur l’actualité avec ses invités."],["p457","generaliste","nuit","magazine","Bouillon de culture","csp",1,0.15,1,1,"culture","Écrivains, cinéastes et artistes débattent des œuvres qui font l’actualité."],["p458","generaliste","access","animation","Ça cartoon!","j1524",5,0.75,1,2,"jeunesse","Le meilleur des dessins animés classiques, présenté avec humour."],["p459","generaliste","apresmidi","animation","Canaille+","j1524",4,0.6,1,2,"jeunesse","Le rendez-vous jeunesse de l’après-midi : dessins animés et séries pour ados."],["p460","info","access","magazine","Ça se dispute","csp",3,0.44999999999999996,1,1,"info","Deux éditorialistes que tout oppose s’affrontent sur l’actualité de la semaine."],["p461","generaliste","prime","magazine","Cash-Cash Investigation","s50",5,0.75,1,3,"info","Une enquête au long cours qui démonte les coulisses des grandes entreprises."],["p462","generaliste","apresmidi","magazine","C'est pas très sorcier","a2549",1,0.15,1,3,"culture","Deux animateurs expliquent la science à bord de leur camion-laboratoire."],["p463","generaliste","apresmidi","magazine","C'est mon choix","s50",5,0.75,1,2.5,"info","Des invités défendent leurs choix de vie face au public du plateau."],["p464","generaliste","apresmidi","magazine","Conso Magazine","j1524",2,0.3,1,1,"info","Tests de produits, arnaques et bons plans pour mieux consommer."],["p465","generaliste","apresmidi","magazine","D'art d'art !","a2549",3,0.44999999999999996,1,1,"culture","En quelques minutes, l’histoire étonnante d’une œuvre d’art célèbre."],["p466","generaliste","nuit","magazine","Des mots de minuit","s50",1,0.15,1,1,"culture","Une conversation nocturne et libre avec des écrivains et des artistes."],["p467","generaliste","prime","magazine","Des paroles et des actes","s50",8,1.2,1,2,"info","Un responsable politique face aux citoyens, aux experts et à ses contradicteurs."],["p468","generaliste","access","magazine","E=MC2","a2549",4,0.6,1,1,"culture","Le magazine qui rend la science accessible avec expériences et invités."],["p469","generaliste","access","magazine","Exclusif","a2549",6,0.8999999999999999,1,2,"info","Tous les secrets des stars : tournages, coulisses et interviews exclusives."],["p470","generaliste","prime","magazine","Faites entrer le coupable","csp",9,1.3499999999999999,1,4,"info","Retour sur une grande affaire criminelle, de l’enquête jusqu’au procès."],["p471","generaliste","access","magazine","Farce Attaque","j1524",3,0.44999999999999996,1,3,"diverti","Caméras cachées et canulars : des célébrités piégées par leurs proches."],["p472","generaliste","access","magazine","Frou-frou","csp",4,0.6,1,2,"culture","Un talk-show au féminin, élégant et piquant, autour d’une invitée d’honneur."],["p473","generaliste","prime","jeu","Fred le millionnaire","a2549",12,1.7999999999999998,1,3,"diverti","Des célibataires séduisent un prétendu millionnaire… qui cache un lourd secret."],["p474","generaliste","matin","magazine","Gym Tonic","s50",2,0.3,1,2,"sport","Une séance de gym en musique pour bien commencer la journée."],["p475","generaliste","access","magazine","NPA","csp",15,2.25,1,3,"diverti","Le talk-show satirique de l’access : sketchs, chroniques et invités."],["p476","generaliste","access","jeu","La cible","a2549",7,1.05,1,2,"diverti","Un jeu de questions où chaque erreur rapproche le candidat de l’élimination."],["p477","generaliste","access","jeu","La Tête et les Jambes","s50",10,1.5,1,4,"diverti","Un duo allie culture générale et épreuves physiques pour remporter la cagnotte."],["p478","generaliste","access","jeu","Le Grodeal","a2549",10,1.5,1,3,"diverti","Des candidats déguisés acceptent ou refusent l’offre mystère de l’animateur."],["p479","generaliste","access","magazine","Le Grand Show","a2549",6,0.8999999999999999,1,1,"diverti","Une grande soirée de variétés autour d’un artiste et de ses amis."],["p480","generaliste","access","jeu","Le Juste Price","s50",8,1.2,1,4,"diverti","Les candidats doivent deviner le prix exact d’objets du quotidien."],["p481","generaliste","nuit","magazine","L'Émission impossible","j1524",1,0.15,1,1,"diverti","Un ovni télévisuel où tout peut arriver, surtout n’importe quoi."],["p482","generaliste","matin","magazine","Morning live","j1524",2,0.3,1,2,"diverti","La matinale déjantée : musique, invités et défis en direct."],["p483","generaliste","nuit","magazine","Les Niouzes","s50",1,0.15,1,1,"diverti","Un journal parodique qui détourne l’actualité à coups de sketchs."],["p484","generaliste","apresmidi","magazine","Les Reines des courses","j1524",3,0.44999999999999996,1,2,"diverti","Des candidates rivalisent pour faire les meilleurs achats avec un petit budget."],["p485","generaliste","access","jeu","L'argent à l'appel","j1524",7,1.05,1,3,"diverti","Des téléspectateurs appelés au hasard tentent de remporter la cagnotte en direct."],["p486","generaliste","access","jeu","Millionnaire","j1524",5,0.75,1,3,"diverti","Quinze questions et trois jokers pour tenter de décrocher le million."],["p487","generaliste","nuit","magazine","Strip-tease","s50",7,1.05,1,2,"info","Un documentaire sans commentaire qui montre la France telle qu’elle est."],["p488","generaliste","access","jeu","N'oubliez pas la chanson !","s50",12,1.7999999999999998,1,3,"diverti","Les candidats doivent chanter les paroles exactes des tubes d’hier et d’aujourd’hui."],["p489","generaliste","prime","jeu","Nouvelle étoile","j1524",15,2.25,1,4.5,"diverti","Un télé-crochet à la recherche de la future star de la chanson."],["p490","generaliste","prime","jeu","Qui veut épouser mon fiston ?","j1524",10,1.5,1,4,"diverti","Des mamans aident leur fils célibataire à choisir la femme de sa vie."],["p491","generaliste","prime","jeu","Sosie ! Or Not Sosie ?","j1524",3,0.44999999999999996,1,1,"diverti","Vrais sosies ou imposteurs ? Le public doit démasquer les faux."],["p492","generaliste","access","jeu","Qui est qui ?","j1524",7,1.05,1,4,"diverti","Des célébrités devinent le métier secret d’inconnus à partir d’indices."],["p493","generaliste","nuit","magazine","Tout vu tout lu","s50",1,0.15,1,1,"culture","Livres, films et expos passés au crible par une bande de critiques."],["p494","generaliste","nuit","magazine","All is possible","s50",1,0.15,1,1,"info","Des anonymes réalisent un rêve fou avec l’aide de l’émission."],["p495","generaliste","nuit","magazine","Chasse, pêche et saucisson","s50",1,0.15,1,3,"info","Les traditions du terroir racontées par ceux qui les font vivre."],["p496","generaliste","access","magazine","Union libre","s50",5,0.75,1,3,"culture","Des chroniqueurs de toute l’Europe confrontent leurs regards sur l’actualité."],["p497","generaliste","access","magazine","Vidéo Gag","j1524",4,0.6,1,2,"diverti","Les vidéos amateurs les plus drôles : chutes et fous rires garantis."],["p498","generaliste","access","magazine","Vis ma life","j1524",4,0.6,1,2,"info","Deux personnes échangent leur quotidien le temps d’une semaine."],["p499","generaliste","prime","magazine","Le Jeu de la vérité","s50",5,0.75,1,3,"diverti","Une personnalité répond sans détour aux questions du public en direct."],["p500","generaliste","access","magazine","Tous égaux","s50",1,0.15,1,1,"info","Un magazine de société qui donne la parole à ceux qu’on n’entend jamais."]];
 // Champs facultatifs en fin de ligne : genre éditorial imposé et résumé affiché sur les cartes.
 // Colonnes optionnelles : genre éditorial imposé, pitch, et nature du programme (libellé
@@ -8699,6 +9413,8 @@ const PROGRAM_CATALOG = PROGRAM_CATALOG_DATA.map(([id,channelType,slot,format,na
 }));
 
 function activeContract(channel, slot) {
+  const sportsEvent = gameState.sportsRights?.owned?.length ? sportsEventContract(channel, slot) : null;
+  if (sportsEvent) return sportsEvent;
   const contract = channel.contracts?.[slot];
   return contract && contract.end >= gameState.season ? contract : null;
 }
@@ -8984,7 +9700,7 @@ function quoteFinance(f, excludedSlot=null) {
   validateFinance(f);
   const p=gameState.player;
   const excluded=[].concat(excludedSlot||[]);
-  const floor=Object.entries(p.contracts||{}).reduce((sum,[slot,c])=>sum+(excluded.includes(slot)?0:c.annual),0);
+  const floor=Object.entries(p.contracts||{}).reduce((sum,[slot,c])=>sum+(excluded.includes(slot)||c.sportsPause===gameState.season?0:c.annual),0);
   const grille=Math.max(floor,p.coutGrilleEngageSaison+f.recurring);
   const recurring=grille-p.coutGrilleEngageSaison;
   return {grille,recurring,immediate:recurring+f.purchase-f.commercial,
@@ -9501,7 +10217,7 @@ function launchConfetti() {
 function nextSeasonCommitment() {
   const p=gameState.player;
   const expired=Object.values(p.contracts||{}).filter(c=>c.end<=gameState.season).reduce((sum,c)=>sum+c.annual,0);
-  const annual=Math.max(0,p.coutGrilleEngageSaison-expired);
+  const annual=Math.max(0,p.coutGrilleEngageSaison-expired)+pausedAnnualThisSeason();
   return {annual,expired,cash:p.tresorerie-annual};
 }
 function applyFinance(f, excludedSlot=null) {
@@ -10748,6 +11464,18 @@ function renderProgramManager(slot) {
   const catalog=availablePrograms(p.type,slot);
   const ordered=[...catalog.filter(x=>sameProgram(c,x)),...catalog.filter(x=>!sameProgram(c,x))];
   const note='<p class="program-manager-note">Modifications disponibles au début de la prochaine saison, avant le premier dilemme.</p>';
+  const sportOn=sportsBroadcastOn(p,slot);
+  if(sportOn) {
+    const e=SPORT_RIGHTS_EVENTS[sportOn.eventId], paused=sportOn.pausedSlots?.find(x=>x.slot===slot);
+    return `<section class="program-manager" aria-label="Diffusion exceptionnelle">
+      <div class="pm-overview sa-onair">
+        <span class="sa-kicker">📜 Diffusion exceptionnelle</span>
+        <span class="pm-ov-name">${e.icon} ${esc(e.name)}</span>
+        <p class="sa-note">L’événement occupe ce créneau toute la saison ${gameState.season} (${esc(sportsSlotsLabel(e))}). Droits payés ${nf1(sportOn.acquisitionPrice)} M€, production ${nf1(sportOn.productionCost)} M€.</p>
+        ${paused?`<p class="sa-note">« ${esc(paused.name)} » est en pause cette saison et reprend ensuite : son contrat est prolongé jusqu’en saison ${paused.end}.</p>`:''}
+      </div>
+    </section>`;
+  }
   return `<section class="program-manager${c?' has-current':(editable?' picking':'')}" aria-label="Modifier la programmation">
     ${c?programOverviewHtml(slot,c,editable):''}
     ${editable?`
