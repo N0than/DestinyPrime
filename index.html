@@ -411,14 +411,12 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .radar-mode .pg-head.sheet-open { margin-bottom: 10px; }
 .radar-slots { flex-shrink: 0; }
 .radar-slots .ga-target-btn { flex: 1 1 0; min-width: 0; padding: 4px 4px; text-align: center; }
-.radar-mode .pg-head:not(.sheet-open) { align-items: center; margin-bottom: 8px; }
+.radar-mode.radar-tight .pg-head:not(.sheet-open) { margin-bottom: 8px; }
 .radar-scroll {
   flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain;
   display: flex; flex-direction: column; gap: 8px; padding: 1px 1px 2px 0;
   scrollbar-width: thin; scrollbar-color: rgba(148,163,184,0.5) transparent;
 }
-.radar-card .career-stats-badges { flex-wrap: nowrap; overflow: hidden; }
-.radar-card .career-stats-badges > * { flex-shrink: 0; }
 .radar-weather { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
 .radar-weather-item {
   display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; border-radius: 12px;
@@ -431,50 +429,96 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .radar-weather-text { font-size: 11px; color: var(--gris); }
 .radar-slots { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; }
 .radar-slots::-webkit-scrollbar { display: none; }
-/* Liste compacte : une chaîne = deux lignes, les six tiennent dans la hauteur de la grille. */
-.radar-cards { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr); grid-auto-rows: minmax(min-content, 1fr); gap: 3px; }
-.radar-card {
-  display: flex; flex-direction: column; justify-content: center; gap: 2px; width: 100%; min-width: 0; min-height: 0; text-align: left; padding: 3px 9px;
-  border-radius: 12px; background: rgba(255,255,255,0.7); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255,255,255,0.85); box-shadow: 0 6px 16px -10px rgba(15,23,42,0.16);
-  font-family: 'Plus Jakarta Sans', sans-serif; color: var(--ink); cursor: pointer;
-  transition: transform 0.12s ease, box-shadow 0.12s ease;
+/* Liste Concurrence : même grammaire que la grille (lignes séparées, pastille à gauche,
+   badge PDA aux couleurs du créneau), deux lignes par chaîne pour tout tenir dans la hauteur. */
+.radar-panel { --acc: var(--rouge); --acc-rgb: 225,29,72; }
+.radar-panel.acc-vert { --acc: var(--vert); --acc-rgb: 5,150,105; }
+.radar-panel.acc-bleu { --acc: var(--bleu); --acc-rgb: 37,99,235; }
+.radar-panel.acc-gold { --acc: var(--gold); --acc-rgb: 217,119,6; }
+.radar-panel.acc-gris { --acc: var(--gris); --acc-rgb: 107,114,128; }
+.radar-slots .ga-target-btn.active.acc-vert { background: var(--vert); border-color: var(--vert); }
+.radar-slots .ga-target-btn.active.acc-bleu { background: var(--bleu); border-color: var(--bleu); }
+.radar-slots .ga-target-btn.active.acc-gold { background: var(--gold); border-color: var(--gold); }
+.radar-slots .ga-target-btn.active.acc-gris { background: var(--gris); border-color: var(--gris); }
+.radar-mode.radar-tight .radar-hint { display: none; }
+.radar-cards { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.radar-row {
+  flex: 1 0 auto; display: flex; align-items: center; gap: 8px; width: 100%; min-width: 0; text-align: left;
+  padding: 3px 6px; margin: 0; background: transparent; border: 0; border-bottom: 1px solid rgba(22,19,14,0.08);
+  border-radius: 10px; font-family: 'Plus Jakarta Sans', sans-serif; color: var(--ink); cursor: pointer;
+  transition: background 0.15s ease;
 }
-button.radar-card:hover { transform: translateY(-1px); box-shadow: 0 10px 24px -8px rgba(15,23,42,0.14); }
-.radar-card-player { background: rgba(37,99,235,0.08); border-color: rgba(37,99,235,0.3); cursor: default; }
+.radar-row:last-child { border-bottom-color: transparent; }
+button.radar-row:hover { background: rgba(22,19,14,0.03); }
+button.radar-row:focus-visible { outline: 2px solid var(--bleu); outline-offset: -2px; }
+.radar-row.is-player { cursor: default; background: rgba(var(--acc-rgb),0.07); border-radius: 12px; border-bottom-color: transparent; }
+.radar-rank-pill {
+  flex-shrink: 0; min-width: 26px; box-sizing: border-box; text-align: center;
+  font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 9.5px; letter-spacing: 0.2px;
+  color: var(--gris); background: var(--paper-dark); border: 1px solid var(--border); border-radius: 999px; padding: 3px 6px;
+}
+.radar-row.is-leader .radar-rank-pill { color: var(--gold); background: rgba(217,119,6,0.1); border-color: rgba(217,119,6,0.3); }
+.radar-row.is-player .radar-rank-pill { color: #fff; background: var(--acc); border-color: var(--acc); }
+.radar-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .radar-line { display: flex; align-items: center; gap: 6px; min-width: 0; line-height: 1.2; }
-.radar-rank { flex-shrink: 0; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 10px; color: var(--gris); }
 .radar-name { flex-shrink: 0; max-width: 45%; font-weight: 800; font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.radar-type { flex: 1; min-width: 0; font-size: 10.5px; font-weight: 500; color: var(--gris); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.radar-type { flex: 0 1 auto; min-width: 0; font-size: 10.5px; font-weight: 500; color: var(--gris); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .radar-type::before { content: '|'; margin-right: 6px; color: rgba(148,163,184,0.7); }
-.radar-you {
-  flex-shrink: 0; font-size: 8.5px; font-weight: 800; text-transform: uppercase;
-  color: #fff; background: var(--bleu); border-radius: 999px; padding: 2px 6px;
+.radar-spacer { flex: 1 0 0; min-width: 0; }
+.radar-tag {
+  flex-shrink: 0; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 8px; letter-spacing: 0.4px; line-height: 1.3;
+  text-transform: uppercase; border-radius: 5px; padding: 1px 5px; white-space: nowrap;
 }
-.radar-share { flex-shrink: 0; min-width: 40px; text-align: right; font-family: 'Anton', sans-serif; font-size: 14px; line-height: 1; font-variant-numeric: tabular-nums; }
-.radar-share small { font-size: 0.7em; margin-left: 1px; }
-.radar-program { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: 4px; font-size: 11.5px; font-weight: 700; white-space: nowrap; }
-/* Le genre cède sa place avant le titre du programme. */
-.radar-program-name { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
-.radar-genre { flex: 0 30 auto; min-width: 3.4em; overflow: hidden; text-overflow: ellipsis; font-weight: 500; color: var(--gris); }
-.radar-chip {
-  flex-shrink: 0; display: inline-flex; align-items: center; font-size: 9px; font-weight: 700; line-height: 1;
-  padding: 2px 6px; border-radius: 999px; white-space: nowrap;
-}
-.radar-riposte { color: #fff; background: var(--rouge); }
-@media (min-width: 600px) { .radar-chip { font-size: 10px; } .radar-program { font-size: 12.5px; } .radar-type { font-size: 11.5px; } .radar-name { font-size: 13.5px; } .radar-share { font-size: 15px; } }
-@media (max-width: 399px) { .radar-riposte-txt { display: none; } .radar-riposte { padding: 2px 4px; } }
+.radar-tag-you { color: var(--acc); background: rgba(var(--acc-rgb),0.12); border: 1px solid rgba(var(--acc-rgb),0.3); }
+.radar-tag-riposte { color: var(--rouge); background: rgba(225,29,72,0.1); border: 1px solid rgba(225,29,72,0.3); }
+@media (max-width: 399px) { .radar-riposte-txt { display: none; } }
+.radar-clash { flex-shrink: 0; font-size: 9px; font-weight: 800; line-height: 1; padding: 3px 6px; border-radius: 999px; white-space: nowrap; }
 .radar-clash.clash-high { color: var(--rouge); background: rgba(225,29,72,0.1); }
 .radar-clash.clash-mid { color: #b45309; background: rgba(217,119,6,0.13); }
-.radar-clash.clash-low { color: var(--gris); background: rgba(107,114,128,0.14); }
+.radar-clash.clash-low { color: var(--gris); background: rgba(107,114,128,0.12); }
 .radar-clash.clash-none { color: var(--vert); background: rgba(5,150,105,0.1); }
-.radar-invest { letter-spacing: -0.3px; color: rgba(148,163,184,0.55); background: rgba(107,114,128,0.1); }
+.radar-share-badge {
+  flex-shrink: 0; min-width: 44px; box-sizing: border-box; text-align: center; font-weight: 800; font-size: 10.5px; line-height: 1.2;
+  padding: 2px 8px; border-radius: 999px; white-space: nowrap; font-variant-numeric: tabular-nums;
+  color: var(--acc); background: rgba(var(--acc-rgb),0.12);
+}
+.radar-row.is-player .radar-share-badge { color: #fff; background: var(--acc); }
+.radar-pda-sfx { display: none; }
+.radar-program { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: 4px; font-size: 11px; color: var(--gris); white-space: nowrap; }
+.radar-program-name { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; font-weight: 600; color: #374151; }
+.radar-genre { flex: 0 30 auto; min-width: 3.4em; overflow: hidden; text-overflow: ellipsis; }
+.radar-strat {
+  flex-shrink: 0; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;
+  font-size: 9.5px; font-weight: 700; color: var(--sc);
+}
+.radar-strat::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+.radar-strat.strat-gris { --sc: var(--gris); }
+.radar-strat.strat-bleu { --sc: var(--bleu); }
+.radar-strat.strat-rouge { --sc: var(--rouge); }
+.radar-strat.strat-vert { --sc: var(--vert); }
+.radar-strat.strat-gold { --sc: #b45309; }
+.radar-invest { flex-shrink: 0; min-width: 44px; text-align: center; font-size: 10px; font-weight: 800; letter-spacing: -0.3px; color: rgba(148,163,184,0.5); }
 .radar-invest b { font-weight: 800; color: var(--gris); }
 .radar-invest.lvl-1 b { color: var(--bleu); }
 .radar-invest.lvl-2 b { color: #b45309; }
 .radar-invest.lvl-3 b { color: var(--rouge); }
-.radar-card .career-stats-badges, .radar-grid-row { gap: 4px; }
-.radar-card .pg-pda-badge, .radar-grid-row .pg-pda-badge { font-size: 9.5px; padding: 3px 7px; }
+.radar-chevron { transform: none; }
+.radar-chevron, .radar-chevron-slot { display: none; flex-shrink: 0; width: 14px; height: 14px; }
+@media (min-width: 480px) {
+  .radar-pda-sfx { display: inline; }
+  .radar-share-badge, .radar-invest { min-width: 62px; }
+  .radar-chevron, .radar-chevron-slot { display: block; }
+}
+@media (min-width: 600px) {
+  .radar-row { gap: 10px; }
+  .radar-name { font-size: 13px; }
+  .radar-type { font-size: 11.5px; }
+  .radar-program { font-size: 12px; }
+  .radar-clash { font-size: 9.5px; }
+  .radar-strat { font-size: 10.5px; }
+}
+.radar-grid-row { gap: 4px; }
+.radar-grid-row .pg-pda-badge { font-size: 9.5px; padding: 3px 7px; }
 .radar-section-title {
   font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 10.5px;
   text-transform: uppercase; letter-spacing: 0.4px; color: var(--gris); margin-bottom: 4px;
@@ -1957,6 +2001,7 @@ function renderProgramGrid(type, pdaCible, overrides) {
         <div class="pg-head pg-head-row${sheetOpen ? ' sheet-open' : ''}">
           <div>
             <div class="eh-title">${sheetOpen ? esc(gameState.competitors[radarState().sheet].name) : 'Concurrence'}</div>
+            ${sheetOpen ? '' : '<div class="eh-subtitle radar-hint">Touchez une chaîne pour sa fiche.</div>'}
 
           </div>
           <div class="radar-head-actions">
@@ -10174,6 +10219,7 @@ function renderRadarCards(slot) {
   ].map(r => ({ ...r, share: calc.find(x => x.channel === r.channel).slots[slot][target] }))
     .sort((a, b) => b.share - a.share);
   const typeName = ch => CHANNEL_TYPES[ch.type].label.replace(/^\S+\s+/, '');
+  const chevron = '<svg class="pg-chevron radar-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 6 15 12 9 18"></polyline></svg>';
   return rows.map((r, rank) => {
     const isPlayer = r.channel === p;
     const v = r.view;
@@ -10184,23 +10230,29 @@ function renderRadarCards(slot) {
     const investLabel = GAME_BALANCE.market.investLabels[v.level] || '—';
     const level = Number.isInteger(v.level) ? v.level : 0;
     const strategy = STRATEGY_TAGS[v.tag] || STRATEGY_TAGS.maintien;
+    const cls = `radar-row${isPlayer ? ' is-player' : ''}${rank === 0 ? ' is-leader' : ''}`;
     const inner = `
-      <span class="radar-line">
-        <span class="radar-rank">#${rank + 1}</span>
-        <span class="radar-name">${esc(r.channel.name)}</span>
-        <span class="radar-type">${esc(typeName(r.channel))}</span>
-        ${v.reaction ? `<span class="radar-chip radar-riposte" title="Riposte : ${esc(v.reaction)}">⚔️<span class="radar-riposte-txt"> Riposte</span></span>` : ''}
-        ${isPlayer ? '<span class="radar-you">Vous</span>' : `<span class="radar-chip radar-clash ${clashMeta.cls}" title="${esc(clash)}">${clashMeta.label}</span>`}
-        <span class="radar-share">${nf1(r.share)}<small>%</small></span>
+      <span class="radar-rank-pill"${rank === 0 ? ' title="Leader sur ce créneau"' : ''}>#${rank + 1}</span>
+      <span class="radar-info">
+        <span class="radar-line">
+          <span class="radar-name">${esc(r.channel.name)}</span>
+          <span class="radar-type">${esc(typeName(r.channel))}</span>
+          ${isPlayer ? '<span class="radar-tag radar-tag-you">Vous</span>' : ''}
+          ${v.reaction ? `<span class="radar-tag radar-tag-riposte" title="Riposte : ${esc(v.reaction)}">⚔<span class="radar-riposte-txt"> Riposte</span></span>` : ''}
+          <span class="radar-spacer"></span>
+          ${clashMeta ? `<span class="radar-clash ${clashMeta.cls}" title="${esc(clash)}">${clashMeta.label}</span>` : ''}
+          <span class="radar-share-badge" title="Part d'audience sur ce créneau">${nf1(r.share)}%<span class="radar-pda-sfx"> PDA</span></span>
+        </span>
+        <span class="radar-line">
+          <span class="radar-program"><span class="radar-program-name">${esc(programName)}</span><span class="radar-genre">· ${esc(genre)}</span></span>
+          <span class="radar-strat strat-${strategy.accent}" title="Stratégie : ${esc(strategy.label)}">${strategy.label}</span>
+          <span class="radar-invest lvl-${level}" title="Investissement ${esc(investLabel)}"><b>${'€'.repeat(level + 1)}</b>${'€'.repeat(3 - level)}</span>
+        </span>
       </span>
-      <span class="radar-line">
-        <span class="radar-program"><span class="radar-program-name">${esc(programName)}</span><span class="radar-genre">· ${esc(genre)}</span></span>
-        <span class="radar-chip pg-badge-${strategy.accent}" title="Stratégie : ${esc(strategy.label)}">${strategy.label}</span>
-        <span class="radar-chip radar-invest lvl-${level}" title="Investissement ${esc(investLabel)}"><b>${'€'.repeat(level + 1)}</b>${'€'.repeat(3 - level)}</span>
-      </span>`;
+      ${isPlayer ? '<span class="radar-chevron-slot" aria-hidden="true"></span>' : chevron}`;
     return isPlayer
-      ? `<div class="radar-card radar-card-player">${inner}</div>`
-      : `<button type="button" class="radar-card" data-radar-action="sheet" data-idx="${r.idx}" aria-label="Fiche stratégique de ${esc(r.channel.name)}">${inner}</button>`;
+      ? `<div class="${cls}">${inner}</div>`
+      : `<button type="button" class="${cls}" data-radar-action="sheet" data-idx="${r.idx}" aria-label="Fiche stratégique de ${esc(r.channel.name)}">${inner}</button>`;
   }).join('');
 }
 
@@ -10278,8 +10330,9 @@ function renderRadarPanel() {
   ensureCompetitorPlans();
   const radar = radarState();
   if (radar.sheet !== null && gameState.competitors[radar.sheet]) return renderCompetitorSheet(gameState.competitors[radar.sheet]);
-  const chips = TIME_SLOTS.map(s => `<button type="button" class="ga-target-btn${s.key === radar.slot ? ' active' : ''}" data-radar-action="slot" data-slot="${s.key}">${s.label}</button>`).join('');
-  return `<div class="radar-panel">
+  const chips = TIME_SLOTS.map(s => `<button type="button" class="ga-target-btn acc-${s.accent}${s.key === radar.slot ? ' active' : ''}" data-radar-action="slot" data-slot="${s.key}">${s.label}</button>`).join('');
+  const accent = TIME_SLOTS.find(s => s.key === radar.slot)?.accent || 'rouge';
+  return `<div class="radar-panel acc-${accent}">
     <div class="radar-slots" role="tablist" aria-label="Créneau comparé">${chips}</div>
     <div class="radar-scroll">
       <div class="radar-cards">${renderRadarCards(radar.slot)}</div>
@@ -10354,6 +10407,10 @@ function fitRadarToGridHeight() {
   const height = probe.firstElementChild.offsetHeight;
   probe.remove();
   if (height > 0) radarSlide.style.height = `${height}px`;
+  // Le sous-titre s'efface plutôt que de faire défiler la liste.
+  radarSlide.classList.remove('radar-tight');
+  const list = radarSlide.querySelector('.radar-scroll');
+  if (list && list.scrollHeight > list.clientHeight + 1) radarSlide.classList.add('radar-tight');
 }
 if (typeof window !== 'undefined') window.addEventListener('resize', () => { fitRadarToGridHeight(); fitTalentCards(); fitHudBrand(); });
 if (typeof document !== 'undefined' && document.fonts?.ready) document.fonts.ready.then(() => fitHudBrand());
