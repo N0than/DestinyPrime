@@ -8842,12 +8842,13 @@ const SPORT_RIGHTS_EVENTS = {
     illustration: { subgenre: 'football', palette: 'nuit' },
     id: 'world_cup', name: 'Coupe du monde', the: 'la Coupe du monde', sport: 'football', icon: '⚽', tier: 'mega',
     headline: 'La Coupe du monde change de diffuseur',
-    pitch: 'Les droits de la prochaine Coupe du monde de football arrivent sur le marché. Plusieurs chaînes préparent déjà leur offre.',
+    pitch: 'Les droits de la prochaine Coupe du monde de football arrivent sur le marché : avant-match, match et après-match occuperont toute la soirée. Plusieurs chaînes préparent déjà leur offre.',
     reservePrice: 12, estimatedValueMin: 18, estimatedValueMax: 25, productionCost: 4, exclusive: true, duration: 1,
     audiencePower: { j1524: 1.30, a2549: 1.45, s50: 1.30, csp: 1.20 },
     commercialAttractiveness: 1.35,
-    preferredSlots: ['prime'],
-    slotFit: { prime: 1 },
+    // Avant-match en access, match en prime, après-match et matchs tardifs en nuit.
+    preferredSlots: ['access', 'prime', 'nuit'],
+    slotFit: { access: 0.8, prime: 1, nuit: 0.6 },
     dilemmaIds: ['d2']
   },
   olympic_games: {
@@ -10798,7 +10799,7 @@ function computeMarketWeather() {
   const items = competitorSportsBroadcastsThisSeason().map(o => {
     const e = SPORT_RIGHTS_EVENTS[o.eventId];
     return { icon: e.icon, title: `${e.name} sur ${o.ownerName}`,
-      text: `Retransmission en direct ${e.preferredSlots.length > 1 ? `de l'après-midi à la nuit` : `en ${sportsSlotsLabel(e)}`} cette saison : attendez-vous à une forte pression sur ces créneaux.` };
+      text: `Retransmission en direct ${e.preferredSlots.length > 1 ? `sur ${sportsSlotsLabel(e)}` : `en ${sportsSlotsLabel(e)}`} cette saison : attendez-vous à une forte pression sur ces créneaux.` };
   }).slice(0, 1);
   const highBySlot = TIME_SLOTS.map(({ key, label, daypart }) => ({ key, label, daypart,
     high: views.filter(v => v.find(x => x.slot === key).level >= 2).length,

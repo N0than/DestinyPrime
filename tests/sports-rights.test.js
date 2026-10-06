@@ -152,6 +152,7 @@ gameState.season=2;gameState.player.tresorerie=50;gameState.player.coutGrilleEng
 const popBefore=gameState.player.popularite,factorBefore=sportsAdFactor();
 activateSportsBroadcasts();
 assert(rec.status==='broadcast'&&sportsBroadcastOn(gameState.player,'prime'),'broadcast next season on its slot');
+assert(['access','prime','nuit'].every(k=>activeContract(gameState.player,k)?.isSportsEvent)&&!sportsBroadcastOn(gameState.player,'apresmidi'),'world cup preempts access, prime and night');
 assert(gameState.player.contracts.prime.end===3&&gameState.player.contracts.prime.sportsPause===2,'program paused and extended');
 assert(Math.abs(gameState.player.tresorerie-(50+5-ev.productionCost))<1e-9&&gameState.player.coutGrilleEngageSaison===0,'paused program free, production debited');
 assert(gameState.player.achatsSaison===ev.productionCost,'production is a distinct cost');
@@ -180,7 +181,8 @@ gameState.season=2;rv.budget=1;planCompetitorSeasons();
 assert(rv.plan.slots.prime.tag==='evenement'&&rv.plan.slots.prime.isSportsEvent&&rv.plan.slots.prime.level===3,'event planned on the competitor prime');
 assert(rv.contracts.prime.name===pausedName&&rv.contracts.prime.sportsPause===2&&rv.contracts.prime.end===4,'competitor program paused and extended');
 const offView=competitorView(rv).find(v=>v.slot==='prime');assert(offView.name==='Coupe du monde'&&offView.icon&&offView.pausedName===pausedName,'competitor grid shows the event');
-assert(Object.keys(rv.plan.slots).filter(k=>k!=='prime').every(k=>rv.plan.slots[k].tag!=='evenement'),'other slots planned normally');
+const wcSlots=SPORT_RIGHTS_EVENTS.world_cup.preferredSlots;
+assert(wcSlots.every(k=>rv.plan.slots[k].tag==='evenement')&&Object.keys(rv.plan.slots).filter(k=>!wcSlots.includes(k)).every(k=>rv.plan.slots[k].tag!=='evenement'),'event slots preempted, other slots planned normally');
 rv.budget=10;activateSportsBroadcasts();assert(rv.budget===10-SPORT_RIGHTS_EVENTS.world_cup.productionCost,'competitor pays production on air');
 const offRec=sr().owned.find(o=>o.ownerName==='Off');
 const offPrime=()=>getCalculatedPDAs().find(r=>r.channel===rv).slots.prime[rv.target];
