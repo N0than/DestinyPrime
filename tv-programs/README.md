@@ -29,7 +29,7 @@ build avec ses propres couleurs (`$skin2`, `$top2`…).
 Genres : `aventure`, `jeu`, `divertissement`, `telerealite`, `dating`, `cuisine`, `talent`,
 `policier`, `drame`, `sport`, `documentaire`, `magazine`, `info`, `humour`, `jeunesse`, `generique`.
 Sous-genres : sport (`football`, `rugby`, `basket`, `handball`, `tennis`, `auto`, `velo`, `surf`,
-`combat`, `ski`, `fitness`), aventure (`survie`, `montagne`), documentaire (`nature`, `histoire`,
+`combat`, `ski`, `fitness`, `athletisme`), aventure (`survie`, `montagne`), documentaire (`nature`, `histoire`,
 `science`, `culture`).
 
 ## API (navigateur)

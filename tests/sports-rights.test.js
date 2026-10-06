@@ -170,6 +170,8 @@ assert(!sportsBroadcastOn(gameState.player,'prime'),'event over');
 // Droit gagné par un concurrent : diffusé sur sa chaîne.
 setup();acquireSportsRight('olympic_games',{owner:gameState.competitors[0],price:15});gameState.season=2;activateSportsBroadcasts();
 assert(activeContract(gameState.competitors[0],'apresmidi')?.isSportsEvent&&!sportsBroadcastOn(gameState.player,'apresmidi'),'competitor broadcasts its right');
+// Bilan : aucun bloc « Marché des droits » sans droit diffusé ni à venir.
+setup();assert(renderSportsRightsBilanHtml()==='','no rights card without rights');
 // Concurrent vainqueur : grille de la saison suivante, audiences et budget.
 setup();seededRandom=()=>.999;planCompetitorSeasons();
 const rv=gameState.competitors[0];rv.contracts.prime.end=3;const pausedName=rv.contracts.prime.name;
