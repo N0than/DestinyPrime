@@ -8974,15 +8974,33 @@ function selectNextSportsRightsEvent() {
   const pool = candidates.filter(c => lastSeen(c.event.id) === oldest);
   return sportsChoice(pool);
 }
-// Seules les chaînes généralistes et sportives sont concernées par les grands droits sportifs :
-// jeunesse, info en continu, culture / savoirs et cinéma / séries n'en reçoivent pas et n'enchérissent pas.
+// Côté joueur, seules les chaînes généralistes et sportives reçoivent les dilemmes de droits
+// sportifs. Les chaînes IA, elles, enchérissent quel que soit leur type : si le joueur n'est
+// pas concerné, le marché se tient entre elles (runCompetitorSportsAuction).
 const SPORTS_RIGHTS_CHANNEL_TYPES = ['generaliste', 'sport'];
 function sportsRightsEligibleChannel(channel) {
   return SPORTS_RIGHTS_CHANNEL_TYPES.includes(channel?.type);
 }
+// Marché entre chaînes IA (joueur non concerné) : même calendrier, même rotation des événements,
+// mêmes plafonds ; le vainqueur paie et diffuse la saison suivante comme après une enchère joueur.
+function runCompetitorSportsAuction() {
+  const sr = ensureSportsRightsState();
+  const free = Object.values(SPORT_RIGHTS_EVENTS).filter(e => !sportsRightBusy(e.id));
+  if (!free.length) { sr.nextAuctionSeason = gameState.season + 1; return null; }
+  const lastSeen = id => { const h = [...sr.history].reverse().find(x => x.eventId === id); return h ? h.season : -Infinity; };
+  const oldest = Math.min(...free.map(e => lastSeen(e.id)));
+  const event = sportsChoice(free.filter(e => lastSeen(e.id) === oldest));
+  sr.activeAuction = null;
+  const a = startSportsRightsAuction(event.id, null);
+  resolveSportsAmongRivals(a, 'ai_only');
+  recordSportsAuctionOutcome(null, event);
+  sr.activeAuction = null;
+  return a.result;
+}
 // Place une enchère dans la file de la saison (remplace un dilemme, jamais de quatrième).
 function scheduleSportsAuction(queue) {
-  if (queue.length < 2 || !sportsRightsEligibleChannel(gameState.player) || !sportsAuctionDue()) return false;
+  if (queue.length < 2 || !sportsAuctionDue()) return false;
+  if (!sportsRightsEligibleChannel(gameState.player)) { runCompetitorSportsAuction(); return false; }
   const sr = gameState.sportsRights;
   const pick = selectNextSportsRightsEvent();
   if (!pick) { sr.nextAuctionSeason = gameState.season + 1; return false; }
@@ -9007,7 +9025,6 @@ function evaluateSportsRight(event, player) {
 
 // Plafond privé d'une chaîne IA : valeur perçue de l'événement × profil, borné par le budget.
 function computeCompetitorSportsMaxBid(competitor, event) {
-  if (!sportsRightsEligibleChannel(competitor)) return 0;
   const profile = GAME_BALANCE.competitors.profiles[competitor.strategy] || GAME_BALANCE.competitors.profiles.rentable;
   const mid = (event.estimatedValueMin + event.estimatedValueMax) / 2;
   const typeFit = SPORT_RIGHTS_TUNING.channelFit[competitor.type]?.[event.sport] ?? 1;
@@ -9150,8 +9167,8 @@ function buildSportsAuctionChoice(dilemma) {
   };
 }
 // Après passage par chooseDilemmaOption : propriété, historique et calendrier.
-function recordSportsAuctionOutcome(dilemma) {
-  const sr = gameState.sportsRights, a = sr.activeAuction, event = sportsEventOfDilemma(dilemma);
+function recordSportsAuctionOutcome(dilemma, event = sportsEventOfDilemma(dilemma)) {
+  const sr = gameState.sportsRights, a = sr.activeAuction;
   if (!a || !event || a.recorded) return;
   a.recorded = true;
   const r = a.result;
@@ -10880,11 +10897,16 @@ function computeMarketWeather() {
   const p = gameState.player;
   const confirmed = gameState.competitors.every(c => c.plan?.confirmed);
   const views = gameState.competitors.map(competitorView);
+  const bought = (gameState.sportsRights?.owned || []).filter(o => o.ownerId !== 'player' && o.acquiredSeason === gameState.season).map(o => {
+    const e = SPORT_RIGHTS_EVENTS[o.eventId];
+    return { icon: '🏆', title: `${o.ownerName} s’offre ${e.the}`,
+      text: `Droits achetés ${nf1(o.acquisitionPrice)} M€ : diffusion en saison ${o.broadcastSeason} sur ${sportsSlotsLabel(e)}.` };
+  });
   const items = competitorSportsBroadcastsThisSeason().map(o => {
     const e = SPORT_RIGHTS_EVENTS[o.eventId];
     return { icon: e.icon, title: `${e.name} sur ${o.ownerName}`,
       text: `Retransmission en direct ${e.preferredSlots.length > 1 ? `sur ${sportsSlotsLabel(e)}` : `en ${sportsSlotsLabel(e)}`} cette saison : attendez-vous à une forte pression sur ces créneaux.` };
-  }).slice(0, 1);
+  }).concat(bought).slice(0, 1);
   const highBySlot = TIME_SLOTS.map(({ key, label, daypart }) => ({ key, label, daypart,
     high: views.filter(v => v.find(x => x.slot === key).level >= 2).length,
     total: views.reduce((s, v) => s + v.find(x => x.slot === key).level, 0) }));

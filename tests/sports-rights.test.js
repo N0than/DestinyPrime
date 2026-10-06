@@ -63,13 +63,18 @@ for(let s=1;s<=60;s++){
   } else assert(!q.some(d=>SPORT_RIGHTS_DILEMMA_IDS.includes(d.id)),'auction dilemma never drawn normally');
 }
 assert(['roland_garros','world_cup','olympic_games'].every(id=>seen.has(id)),'every event can be selected: '+[...seen]);
-// Jeunesse, info, culture et cinéma : jamais de dilemme de droits sportifs, jamais d'offre IA.
+// Joueur jeunesse, info, culture ou cinéma : jamais de dilemme de droits sportifs ; le marché
+// se tient alors entre chaînes IA, qui enchérissent librement quel que soit leur type.
 ['jeunesse','info','culture','cinema'].forEach(type=>{
-  setup(type);for(let s=1;s<=30;s++){gameState.season=s;gameState.seenDilemmaIds=[];gameState.player.eventsSeen=[];
-    assert(!pickDilemmaQueue().some(d=>d.type==='sports_rights_auction'),'no sports rights dilemma for '+type);}
-  assert(computeCompetitorSportsMaxBid({...mk('X','offensive',type),budget:200},SPORT_RIGHTS_EVENTS.world_cup)===0,'no sports bid from '+type);
+  setup(type);gameState.competitors.forEach(c=>c.budget=200);let aiSales=0;
+  for(let s=1;s<=30;s++){gameState.season=s;gameState.seenDilemmaIds=[];gameState.player.eventsSeen=[];
+    const before=sr().history.length;
+    assert(!pickDilemmaQueue().some(d=>d.type==='sports_rights_auction'),'no sports rights dilemma for '+type);
+    if(sr().history.length>before){const h=sr().history.at(-1);assert(h.result==='ai_only'&&h.playerLastBid==null,'AI-only auction');if(h.winnerId)aiSales++;}
+    pickDilemmaQueue();assert(sr().history.filter(h=>h.season===s).length<=1,'at most one AI auction per season');}
+  assert(aiSales>0&&sr().owned.every(o=>o.ownerId!=='player'),'AI channels still acquire rights when the player is not concerned');
 });
-['generaliste','sport'].forEach(type=>assert(computeCompetitorSportsMaxBid({...mk('X','offensive',type),budget:200},SPORT_RIGHTS_EVENTS.world_cup)>0,'bids from '+type));
+['generaliste','sport','jeunesse','info','culture','cinema'].forEach(type=>assert(computeCompetitorSportsMaxBid({...mk('X','offensive',type),budget:200},SPORT_RIGHTS_EVENTS.world_cup)>0,'AI bids from '+type));
 // Chaîne Sport : ses dilemmes dédiés (d89, d145) sont préférés.
 setup('sport');gameState.season=sr().nextAuctionSeason;const sq=pickDilemmaQueue().find(d=>d.type==='sports_rights_auction');
 assert(sq&&(['d89','d145','d2'].includes(sq.id)),'sport channel auction dilemma');
