@@ -1970,11 +1970,6 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
   text-shadow:0 2px 8px rgba(0,0,0,0.35); min-width:0; }
 .sa-illu-slot { flex:none; font-size:10.5px; font-weight:700; padding:4px 9px; border-radius:999px; background:rgba(255,255,255,0.18);
   border:1px solid rgba(255,255,255,0.35); white-space:nowrap; }
-.sa-illu-bid { flex:none; display:flex; flex-direction:column; align-items:flex-end; line-height:1.1; }
-.sa-illu-bid-label { font-family:'Space Grotesk', sans-serif; font-size:8.5px; font-weight:800; letter-spacing:.5px; text-transform:uppercase; opacity:.8; }
-.sa-illu-bid-value { font-family:'Anton', sans-serif; font-size:28px; color:#ffd166; font-variant-numeric:tabular-nums; }
-.sa-illu-bid.lead .sa-illu-bid-value { color:#6ee7b7; }
-.sa-illu-bid-leader { font-size:11px; font-weight:700; }
 .sa-illu-stamp { flex:none; font-family:'Space Grotesk', sans-serif; font-size:10px; font-weight:800; letter-spacing:.5px; text-transform:uppercase;
   padding:5px 10px; border-radius:999px; color:#fff; white-space:nowrap; }
 .sa-illu-stamp.won { background:var(--vert); }
@@ -2001,18 +1996,7 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
   font-family:'Anton', sans-serif; font-size:13px; letter-spacing:.4px; text-transform:uppercase; }
 .sa-btn.primary { background:var(--ink); border-color:var(--ink); color:#fff; }
 .sa-btn.ghost { flex:none; align-self:center; min-height:34px; padding:0 18px; color:var(--gris); }
-.sa-btn:focus-visible, .sa-bid:focus-visible { outline:2px solid var(--bleu); outline-offset:2px; }
-.sa-sub { text-align:center; font-size:11px; color:var(--gris); }
-.sa-log { margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:3px; font-size:11px; color:var(--gris); }
-.sa-log li::before { content:'•'; margin-right:6px; color:var(--rouge); }
-.sa-log b { color:var(--ink); }
-.sa-bids { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:6px; }
-.sa-bid { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; min-height:58px; padding:6px 4px; border-radius:12px;
-  border:1.5px solid var(--border); background:#fff; cursor:pointer; text-align:center; }
-.sa-bid.ceiling { border-color:rgba(37,99,235,0.45); background:rgba(37,99,235,0.06); }
-.sa-bid:disabled { opacity:.45; cursor:not-allowed; }
-.sa-bid-amount { font-family:'Anton', sans-serif; font-size:15px; color:var(--ink); line-height:1.1; }
-.sa-bid-sub { font-size:9px; font-weight:700; color:var(--gris); line-height:1.2; }
+.sa-btn:focus-visible, .sa-gauge-range:focus-visible { outline:2px solid var(--bleu); outline-offset:2px; }
 .sa-confirm { display:flex; flex-direction:column; gap:8px; padding:10px 12px; border-radius:12px; background:rgba(217,119,6,0.1); border:1px solid rgba(217,119,6,0.3); }
 .sa-confirm-title { font-family:'Anton', sans-serif; font-size:14px; text-transform:uppercase; color:#b45309; }
 .sa-confirm p { margin:0; font-size:12px; line-height:1.45; }
@@ -2034,7 +2018,66 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .sa-onair { gap:6px; justify-content:center; padding:12px; border-radius:14px; background:linear-gradient(160deg, rgba(217,119,6,0.08), rgba(255,255,255,0.9) 60%); }
 .pg-sport-tag { color:#b45309; background:rgba(217,119,6,0.12); border-color:rgba(217,119,6,0.3); }
 @media (min-width:600px) { .sa-illu { aspect-ratio:auto; height:280px; } .sa-illu-name { font-size:26px; } .sa-inline { gap:12px; } }
+/* Dynamique de l'enchère : apparitions en cascade, sorties avant l'étape suivante. */
+@keyframes saPop { from { opacity:0; transform:translateY(10px) scale(.98); } to { opacity:1; transform:none; } }
+@keyframes saLeave { to { opacity:0; transform:translateY(-8px) scale(.98); } }
+@keyframes saSwap { 0% { transform:scale(.92); opacity:.4; } 60% { transform:scale(1.04); opacity:1; } 100% { transform:none; } }
+@keyframes saBar { from { width:0; } to { width:var(--w); } }
+.sa-pop { animation:saPop .42s cubic-bezier(.2,.8,.2,1) both; animation-delay:var(--d, 0s); }
+.sa-leaving { animation:saLeave .24s ease-in forwards !important; pointer-events:none; }
+/* Jauge d'offre */
+.sa-gauge { display:flex; flex-direction:column; gap:8px; padding:12px 12px 10px; border-radius:14px; background:rgba(255,255,255,0.75);
+  border:1px solid rgba(22,19,14,0.07); }
+.sa-gauge.is-locked { opacity:.55; }
+.sa-gauge-head { display:flex; align-items:baseline; justify-content:space-between; gap:8px; }
+.sa-gauge-label { font-family:'Space Grotesk', sans-serif; font-size:9.5px; font-weight:800; letter-spacing:.5px; text-transform:uppercase; color:var(--gris); }
+.sa-gauge-value { font-family:'Anton', sans-serif; font-size:34px; line-height:1; color:var(--rouge); font-variant-numeric:tabular-nums; }
+.sa-gauge-range { -webkit-appearance:none; appearance:none; width:100%; height:30px; margin:0; background:transparent; cursor:pointer; touch-action:pan-y; }
+.sa-gauge-range:disabled { cursor:not-allowed; }
+.sa-gauge-range::-webkit-slider-runnable-track { height:10px; border-radius:999px;
+  background:linear-gradient(90deg, #d6d3d1 0, #d6d3d1 var(--est-a), #34d399 var(--est-a), #10b981 var(--est-b), #fb923c var(--est-b), #e11d48 100%); }
+.sa-gauge-range::-moz-range-track { height:10px; border-radius:999px;
+  background:linear-gradient(90deg, #d6d3d1 0, #d6d3d1 var(--est-a), #34d399 var(--est-a), #10b981 var(--est-b), #fb923c var(--est-b), #e11d48 100%); }
+.sa-gauge-range::-webkit-slider-thumb { -webkit-appearance:none; width:26px; height:26px; margin-top:-8px; border-radius:50%; background:#fff;
+  border:3px solid var(--ink); box-shadow:0 4px 10px -3px rgba(15,23,42,0.45); transition:transform .15s; }
+.sa-gauge-range::-moz-range-thumb { width:20px; height:20px; border-radius:50%; background:#fff; border:3px solid var(--ink); box-shadow:0 4px 10px -3px rgba(15,23,42,0.45); }
+.sa-gauge-range:active::-webkit-slider-thumb { transform:scale(1.12); }
+.sa-gauge-scale { display:flex; justify-content:space-between; gap:6px; font-size:10px; font-weight:700; color:var(--gris); font-variant-numeric:tabular-nums; }
+.sa-gauge-est { color:var(--vert); text-align:center; }
+.sa-gauge-flags { display:flex; flex-wrap:wrap; gap:6px; min-height:24px; }
+.sa-flag { display:inline-flex; align-items:center; font-size:11px; font-weight:700; padding:4px 10px; border-radius:999px; }
+.sa-flag.low { color:#475569; background:rgba(100,116,139,0.14); }
+.sa-flag.fair { color:var(--vert); background:rgba(5,150,105,0.12); }
+.sa-flag.high { color:#b45309; background:rgba(217,119,6,0.14); }
+.sa-flag.is-swap { animation:saSwap .32s ease-out; }
+.sa-flag.risk { color:var(--rouge); background:rgba(225,29,72,0.1); max-width:0; padding:4px 0; opacity:0; overflow:hidden; white-space:nowrap;
+  transform:scale(.8); transition:max-width .28s ease, padding .28s ease, opacity .2s ease, transform .28s ease; }
+.sa-flag.risk.is-on { max-width:200px; padding:4px 10px; opacity:1; transform:none; }
+.sa-gauge-cash { font-size:11.5px; color:var(--gris); }
+.sa-gauge-cash b { color:var(--ink); font-variant-numeric:tabular-nums; }
+.sa-envelope { display:inline-flex; align-items:center; gap:4px; font-size:11px; padding:4px 10px; border-radius:10px; background:#fff;
+  border:1px dashed rgba(22,19,14,0.22); color:var(--gris); }
+.sa-envelope b { color:var(--ink); }
+.dilemma-card .sa-inline .sa-warn { color:var(--rouge); font-weight:700; }
+/* Ouverture des plis */
+.sa-reveal { display:flex; flex-direction:column; gap:6px; }
+.sa-reveal-row { display:grid; grid-template-columns:minmax(0, 1.2fr) minmax(0, 1.4fr) auto; align-items:center; gap:8px; padding:7px 10px;
+  border-radius:10px; background:rgba(255,255,255,0.75); border:1px solid rgba(22,19,14,0.06); font-size:12px; }
+.sa-reveal-row.you { border-color:rgba(37,99,235,0.35); background:rgba(37,99,235,0.06); }
+.sa-reveal-row.win { border-color:rgba(217,119,6,0.45); background:linear-gradient(90deg, rgba(255,209,102,0.25), rgba(255,255,255,0.8)); }
+.sa-reveal-name { font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.sa-reveal-bar { height:6px; border-radius:999px; background:rgba(22,19,14,0.07); overflow:hidden; }
+.sa-reveal-bar > span { display:block; height:100%; width:var(--w); border-radius:inherit; background:#94a3b8;
+  animation:saBar .5s cubic-bezier(.2,.8,.2,1) both; animation-delay:var(--d, 0s); }
+.sa-reveal-row.win .sa-reveal-bar > span { background:#f59e0b; }
+.sa-reveal-row.you:not(.win) .sa-reveal-bar > span { background:var(--bleu); }
+.sa-reveal-amount { font-variant-numeric:tabular-nums; }
+.sa-tail { display:flex; flex-direction:column; gap:8px; }
 .sa-continue { margin-top:14px; }
+/* Pendant la jauge, l'accroche s'efface et l'illustration se resserre. */
+.sa-hero.sa-phase-bidding .dc-body > p { display:none; }
+.sa-hero.sa-phase-bidding .sa-illu { aspect-ratio:2.2 / 1; }
+@media (min-width:600px) { .sa-hero.sa-phase-bidding .sa-illu { height:220px; } }
 .dilemma-card .sa-inline p { margin:0; font-size:11.5px; line-height:1.45; color:var(--gris); }
 .dilemma-card .sa-inline .sa-verdict-line { font-size:14px; color:var(--ink); }
 .dilemma-card .sa-confirm p { font-size:12px; color:#44403c; }
@@ -2047,7 +2090,9 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
   .sa-illu-name { font-size:18px; }
   .sa-rival-txt { display:none; }
 }
-@media (prefers-reduced-motion: reduce) { .sa-inline, .sa-confirm { animation:none !important; transition:none !important; } }
+@media (prefers-reduced-motion: reduce) {
+  .sa-inline, .sa-confirm, .sa-pop, .sa-leaving, .sa-flag, .sa-reveal-bar > span { animation:none !important; transition:none !important; }
+}
 .pg-rows { position:relative; }
 .pg-rows.pg-focus { flex:none; }
 .pg-rows.pg-focus > .pg-slot-editor:not(.pg-focused) { position:absolute; left:0; right:0; opacity:0; visibility:hidden; pointer-events:none; }
@@ -8226,10 +8271,13 @@ function render() {
     let zoneHtml;
     const sportEvent = sportsEventOfDilemma(dilemma);
     const sportsResult = phase === 'result' && gameState.lastConsequence?.sportsAuction;
+    // Pendant l'enchère, la carte reste en place : seuls ses éléments apparaissent et disparaissent.
+    const auctionLive = phase === 'choosing' && sportEvent ? gameState.sportsRights?.activeAuction : null;
+    const auctionReplay = !!(auctionLive && auctionLive.eventId === sportEvent.id && auctionLive.cardShown);
     const sportsBlock = sportsResult ? renderSportsVerdictInline(gameState.lastConsequence)
       : phase === 'choosing' && sportEvent ? renderSportsAuctionZone(dilemma) : '';
     if (sportsResult) {
-      zoneHtml = renderSportsVerdictZone();
+      zoneHtml = renderSportsVerdictZone(gameState.lastConsequence);
     } else if (phase === 'choosing' && sportEvent) {
       zoneHtml = '';
     } else if (phase === 'result') {
@@ -8317,8 +8365,8 @@ function render() {
       ${renderMasthead("Saison " + gameState.season, "Audience Masters", true)}
       ${renderTicker()}
       ${renderCampaignPanel()}
-      <div class="dilemma-container${phase === 'choosing' ? ' slide-in' : ''}">
-        <div class="dilemma-card dilemma-hero${phase === 'result' ? ' is-result' : ''}${sportEvent ? ' sa-hero' : ''}">
+      <div class="dilemma-container${phase === 'choosing' && !auctionReplay ? ' slide-in' : ''}">
+        <div class="dilemma-card dilemma-hero${phase === 'result' ? ' is-result' : ''}${sportEvent ? ` sa-hero sa-phase-${phase === 'result' ? 'verdict' : gameState.sportsRights?.activeAuction?.phase || 'market'}` : ''}">
           <div class="dc-head">
             <span class="dc-head-left"><span class="dc-live-pill"><span class="dc-live-dot"></span>${sportEvent ? 'Droits sportifs' : 'Événement'}</span>${channelPillHtml()}</span>
             <span class="dc-season-pill">${seasonPillLabel()}</span>
@@ -8377,6 +8425,7 @@ function render() {
 
     bindTickerInteractions(app);
     bindRenewalCarousel(app);
+    if (phase === 'choosing' && sportEvent && gameState.sportsRights?.activeAuction) gameState.sportsRights.activeAuction.cardShown = true;
     if (phase === 'choosing' && (dilemma.isGridRenewal || dilemma.isTalentRenewal)) bindRenewalCards(app, dilemma);
     if (phase === 'choosing' && sportEvent) {
       bindSportsAuctionZone(app);
@@ -8868,7 +8917,6 @@ const SPORT_RIGHTS_TUNING = {
   // Puissance de case d'un événement avant affinités (même échelle que les boosts de programme).
   tierPower: { premium: 7, mega: 10 },
   popularityOnAir: { premium: 2, mega: 3 },
-  maxPlayerTurns: 3,
   // Affinité stratégique selon le type de chaîne (jamais d'interdiction, seulement une valeur).
   channelFit: {
     sport: { tennis: 1.15, football: 1.2, multisports: 1.2 },
@@ -8993,80 +9041,82 @@ function startSportsRightsAuction(eventId, dilemmaId) {
     return { idx, name: c.name, max, interest: sportsInterest(max, event), status: max >= event.reservePrice ? 'in' : 'out', lastBid: null };
   });
   sr.activeAuction = { eventId, dilemmaId, season: gameState.season, phase: 'market', price: null, leader: null,
-    playerLastBid: null, turn: 0, rivals, log: [], pending: null, result: null };
+    playerLastBid: null, rivals, draft: null, reveal: null, pending: null, result: null };
   return sr.activeAuction;
 }
 function sportsIncrement(event, price) {
   return Math.max(0.5, roundHalf((event.estimatedValueMax - event.estimatedValueMin) * 0.15 + (price || event.reservePrice) * 0.04));
 }
-function auctionMinNext(a, event) {
-  return a.price == null ? event.reservePrice : roundHalf(a.price + sportsIncrement(event, a.price));
-}
 function activeRivals(a) { return a.rivals.filter(r => r.status === 'in'); }
 function playerCanAfford(amount) {
   return quoteFinance({ recurring: 0, purchase: amount, commercial: 0, category: 'P' }).cash >= TRESORERIE_CRITIQUE;
 }
-function sportsBidOptions(a) {
+// Jauge de l'offre sous pli : du prix de départ jusqu'à ce que la trésorerie permet
+// (jamais sous le seuil critique), dans la limite de 1,5 × la valeur haute estimée.
+function sportsGaugeBounds(a) {
   const event = SPORT_RIGHTS_EVENTS[a.eventId];
-  const evalv = evaluateSportsRight(event, gameState.player);
-  const first = auctionMinNext(a, event);
-  const second = roundHalf(first + sportsIncrement(event, first));
-  const finalTurn = a.turn >= SPORT_RIGHTS_TUNING.maxPlayerTurns - 1;
-  let ceiling = roundHalf(Math.max(second + sportsIncrement(event, second), evalv.maxValue));
-  const opts = [
-    { kind: finalTurn ? 'ceiling' : 'bid', amount: first },
-    { kind: finalTurn ? 'ceiling' : 'bid', amount: second },
-    { kind: 'ceiling', amount: ceiling, label: 'Plafond' }
-  ];
-  return opts.map(o => ({ ...o, allowed: playerCanAfford(o.amount), risky: sportsBidRisky(o.amount, event) }));
+  const ev = evaluateSportsRight(event, gameState.player);
+  const min = event.reservePrice;
+  let max = roundHalf(Math.max(min, ev.maxValue * 1.5));
+  while (max > min && !playerCanAfford(max)) max = roundHalf(max - 0.5);
+  const canBid = playerCanAfford(min);
+  const suggested = Math.min(max, Math.max(min, roundHalf((ev.minValue + ev.maxValue) / 2)));
+  return { min, max, step: 0.5, canBid, suggested, estMin: ev.minValue, estMax: ev.maxValue };
 }
 function sportsBidRisky(amount, event) {
   const cashAfter = quoteFinance({ recurring: 0, purchase: amount, commercial: 0, category: 'P' }).cash;
   return cashAfter - event.productionCost < Math.max(5, gameState.player.tresorerie * 0.2);
 }
-
-// Résolution au plafond (enchère « proxy ») : le plus haut plafond l'emporte, au prix du
-// second plafond + un pas (sans dépasser le sien). À égalité, l'offre déjà en tête garde la main.
-function resolveSportsCeiling(a, ceiling) {
-  const event = SPORT_RIGHTS_EVENTS[a.eventId];
-  const minNext = auctionMinNext(a, event);
-  const rivals = activeRivals(a).filter(r => r.max >= minNext || (a.leader === r.idx));
-  const best = rivals.reduce((b, r) => (!b || r.max > b.max ? r : b), null);
-  a.playerLastBid = ceiling;
-  if (!best || ceiling > best.max || (ceiling === best.max && a.leader === 'player')) {
-    const floor = a.leader === 'player' ? a.price : minNext;
-    const price = best ? Math.min(ceiling, roundHalf(Math.max(floor, best.max + sportsIncrement(event, best.max)))) : Math.max(floor, event.reservePrice);
-    a.rivals.forEach(r => { if (r.status === 'in') { r.status = 'out'; a.log.push({ who: r.name, text: 'se retire' }); } });
-    a.price = price; a.leader = 'player';
-    return finishSportsAuction(a, 'won');
-  }
-  const price = Math.min(best.max, roundHalf(Math.max(minNext, ceiling + sportsIncrement(event, ceiling))));
-  a.price = price; a.leader = best.idx; best.lastBid = price;
-  a.log.push({ who: best.name, text: `surenchérit à ${nf1(price)} M€` });
+// Lecture en direct de la jauge : zone d'estimation, risque et trésorerie après achat.
+function sportsGaugeFeedback(a, amount) {
+  const event = SPORT_RIGHTS_EVENTS[a.eventId], b = sportsGaugeBounds(a);
+  const zone = amount < b.estMin ? 'low' : amount > b.estMax ? 'high' : 'fair';
+  const cashAfter = quoteFinance({ recurring: 0, purchase: amount, commercial: 0, category: 'P' }).cash;
+  return { zone, risky: sportsBidRisky(amount, event), cashAfter };
+}
+// Offre unique sous pli scellé : chaque chaîne intéressée dépose son offre maximale, la plus
+// haute l'emporte et paie juste ce qu'il faut pour battre la deuxième (sans dépasser son offre).
+// À égalité, l'offre concurrente l'emporte : il faut faire strictement mieux.
+function sportsAuctionSealedBid(amount, confirmed = false) {
+  const a = gameState.sportsRights.activeAuction;
+  if (!a || a.phase !== 'bidding') return;
+  const event = SPORT_RIGHTS_EVENTS[a.eventId], b = sportsGaugeBounds(a);
+  amount = roundHalf(amount);
+  if (!b.canBid || amount < b.min || amount > b.max || !playerCanAfford(amount)) return;
+  if (!confirmed && sportsBidRisky(amount, event)) { a.pending = { amount }; a.draft = amount; return; }
+  a.pending = null; a.draft = amount; a.playerLastBid = amount;
+  const bids = activeRivals(a).filter(r => r.max >= event.reservePrice).map(r => ({ idx: r.idx, name: r.name, amount: r.max }));
+  bids.forEach(x => { a.rivals.find(r => r.idx === x.idx).lastBid = x.amount; });
+  const all = [...bids, { idx: 'player', name: gameState.player.name, amount, isPlayer: true }]
+    .sort((x, y) => y.amount - x.amount || (x.isPlayer ? 1 : 0) - (y.isPlayer ? 1 : 0));
+  const [top, second] = all;
+  a.price = second ? Math.min(top.amount, roundHalf(Math.max(event.reservePrice, second.amount + sportsIncrement(event, second.amount)))) : event.reservePrice;
+  a.leader = top.isPlayer ? 'player' : top.idx;
+  a.reveal = all.map(x => ({ name: x.name, amount: x.amount, isPlayer: !!x.isPlayer }));
   return finishSportsAuction(a, 'lost');
+}
+function sportsAuctionCancelPending() {
+  const a = gameState.sportsRights.activeAuction;
+  if (a) a.pending = null;
 }
 // Les chaînes IA règlent l'enchère entre elles (le joueur passe ou se retire).
 function resolveSportsAmongRivals(a, result) {
   const event = SPORT_RIGHTS_EVENTS[a.eventId];
   const floor = a.price == null ? event.reservePrice : a.price;
   const rivals = activeRivals(a).filter(r => r.max >= floor).sort((x, y) => y.max - x.max);
+  a.reveal = rivals.map(r => ({ name: r.name, amount: r.max, isPlayer: false }));
   if (!rivals.length) { a.leader = null; return finishSportsAuction(a, result); }
   const [top, second] = rivals;
   a.price = second ? Math.min(top.max, roundHalf(Math.max(floor, second.max + sportsIncrement(event, second.max)))) : Math.max(floor, event.reservePrice);
   a.leader = top.idx; top.lastBid = a.price;
   return finishSportsAuction(a, result);
 }
+// Participer ouvre la jauge : un seul tour, offre sous pli.
 function sportsAuctionParticipate() {
   const a = gameState.sportsRights.activeAuction;
   if (!a || a.phase !== 'market') return;
-  const event = SPORT_RIGHTS_EVENTS[a.eventId];
   a.phase = 'bidding';
-  // La chaîne la plus intéressée ouvre au prix de départ.
-  const opener = activeRivals(a).sort((x, y) => y.max - x.max)[0];
-  if (opener) {
-    a.price = event.reservePrice; a.leader = opener.idx; opener.lastBid = a.price;
-    a.log.push({ who: opener.name, text: `ouvre à ${nf1(a.price)} M€` });
-  }
+  a.draft = sportsGaugeBounds(a).suggested;
 }
 function sportsAuctionPass() {
   const a = gameState.sportsRights.activeAuction;
@@ -9075,41 +9125,15 @@ function sportsAuctionPass() {
 }
 function sportsAuctionWithdraw() {
   const a = gameState.sportsRights.activeAuction;
-  if (!a || a.phase !== 'bidding' || a.leader === 'player') return;
-  a.log.push({ who: 'Vous', text: 'vous retirez' });
-  resolveSportsAmongRivals(a, 'withdrawn');
-}
-// Une offre (ou un plafond) du joueur ; les offres risquées passent par une confirmation.
-function sportsAuctionBid(kind, amount, confirmed = false) {
-  const a = gameState.sportsRights.activeAuction;
-  if (!a || a.phase !== 'bidding' || a.leader === 'player') return;
-  const event = SPORT_RIGHTS_EVENTS[a.eventId];
-  amount = roundHalf(amount);
-  if (amount < auctionMinNext(a, event) || !playerCanAfford(amount)) return;
-  if (!confirmed && sportsBidRisky(amount, event)) { a.pending = { kind, amount }; return; }
+  if (!a || a.phase !== 'bidding') return;
   a.pending = null;
-  a.turn += 1;
-  if (kind === 'ceiling') { a.log.push({ who: 'Vous', text: `fixez un plafond privé` }); resolveSportsCeiling(a, amount); return; }
-  a.price = amount; a.leader = 'player'; a.playerLastBid = amount;
-  a.log.push({ who: 'Vous', text: `proposez ${nf1(amount)} M€` });
-  const next = roundHalf(amount + sportsIncrement(event, amount));
-  activeRivals(a).forEach(r => { if (r.max < next) { r.status = 'out'; a.log.push({ who: r.name, text: 'se retire' }); } });
-  const stay = activeRivals(a).sort((x, y) => y.max - x.max);
-  if (!stay.length) { finishSportsAuction(a, 'won'); return; }
-  const top = stay[0];
-  a.price = next; a.leader = top.idx; top.lastBid = next;
-  a.log.push({ who: top.name, text: `surenchérit à ${nf1(next)} M€` });
-  stay.slice(1).forEach(r => { if (r.max < roundHalf(next + sportsIncrement(event, next))) a.log.push({ who: r.name, text: 'hésite' }); });
-}
-function sportsAuctionCancelPending() {
-  const a = gameState.sportsRights.activeAuction;
-  if (a) a.pending = null;
+  resolveSportsAmongRivals(a, 'withdrawn');
 }
 function finishSportsAuction(a, outcome) {
   const winner = a.leader === 'player' ? 'player' : Number.isInteger(a.leader) ? gameState.competitors[a.leader] : null;
   a.phase = 'verdict';
   a.result = { outcome: winner === 'player' ? 'won' : outcome, winnerName: winner === 'player' ? gameState.player.name : winner?.name || null,
-    price: winner ? a.price : null, playerLastBid: a.playerLastBid };
+    price: winner ? a.price : null, playerLastBid: a.playerLastBid, reveal: a.reveal || [] };
   return a.result;
 }
 
@@ -9340,7 +9364,9 @@ function sportsIllustrationHtml(event, { overlay = '', corner = '' } = {}) {
     </figcaption>
   </figure>`;
 }
-// Enchère intégrée au bloc dilemme : marché, puis tours d'enchère.
+// Enchère intégrée au bloc dilemme : marché, puis offre unique sous pli à la jauge.
+// Les éléments marqués data-sa-leave disparaissent en animation avant l'étape suivante ;
+// ceux de classe sa-pop apparaissent en cascade (--d = délai).
 function renderSportsAuctionZone(dilemma) {
   const event = sportsEventOfDilemma(dilemma);
   const sr = ensureSportsRightsState();
@@ -9348,15 +9374,16 @@ function renderSportsAuctionZone(dilemma) {
   if (!a || a.eventId !== event.id || a.season !== gameState.season) a = startSportsRightsAuction(event.id, dilemma.id);
   const p = gameState.player;
   const ev = evaluateSportsRight(event, p);
+  const pop = (d, extra = '') => `class="sa-pop${extra ? ` ${extra}` : ''}" style="--d:${d}s" data-sa-leave`;
   const slotCap = `<span class="sa-illu-slot">Diffusion S${gameState.season + 1} · ${esc(sportsSlotsLabel(event))}</span>`;
+  const interested = a.rivals.filter(r => r.interest);
   if (a.phase === 'market') {
-    const interested = a.rivals.filter(r => r.interest);
     const riskLabel = { low: 'Faible', medium: 'Modéré', high: 'Élevé' }[ev.risk];
     const audience = (Object.values(event.audiencePower).reduce((s, v) => s + v, 0) / 4) * (event.tier === 'mega' ? 3.6 : 3.2);
     const pub = 2 + (event.commercialAttractiveness - 1) * 10;
     return `<div class="sa-inline" data-sa-zone>
       ${sportsIllustrationHtml(event, { overlay: slotCap })}
-      <div class="sa-stats">
+      <div ${pop(0.05, 'sa-stats')}>
         <div class="sa-stat"><span>Prix de départ</span><b>${nf1(event.reservePrice)} M€</b></div>
         <div class="sa-stat"><span>Valeur estimée</span><b>${sportsAmount(ev.minValue)}–${sportsAmount(ev.maxValue)} M€</b></div>
         <div class="sa-stat"><span>Production</span><b>${nf1(event.productionCost)} M€</b></div>
@@ -9364,86 +9391,116 @@ function renderSportsAuctionZone(dilemma) {
         <div class="sa-stat"><span>Publicité</span>${sportsStars(pub)}</div>
         <div class="sa-stat"><span>Risque</span><b class="sa-risk ${ev.risk}">${riskLabel}</b></div>
       </div>
-      <div class="sa-row">
+      <div ${pop(0.15, 'sa-row')}>
         <span class="sa-row-label">${interested.length ? `${interested.length} ${interested.length > 1 ? 'chaînes intéressées' : 'chaîne intéressée'}` : 'Concurrence'}</span>
-        ${interested.length ? `<div class="sa-rivals">${interested.map(r => `<span class="sa-rival ${r.interest.key}" title="${esc(r.interest.label)}"><span aria-hidden="true">${r.interest.icon}</span> <b>${esc(r.name)}</b> <span class="sa-rival-txt">${r.interest.label}</span></span>`).join('')}</div>`
+        ${interested.length ? `<div class="sa-rivals">${interested.map((r, k) => `<span class="sa-rival sa-pop ${r.interest.key}" style="--d:${0.2 + k * 0.08}s" title="${esc(r.interest.label)}"><span aria-hidden="true">${r.interest.icon}</span> <b>${esc(r.name)}</b> <span class="sa-rival-txt">${r.interest.label}</span></span>`).join('')}</div>`
           : '<span class="sa-note">Aucune chaîne ne semble décidée à se positionner.</span>'}
       </div>
-      <div class="sa-budget"><span>Trésorerie <b>${nf1(p.tresorerie)} M€</b></span><span>Exposition max. <b>${nf1(ev.exposure)} M€</b></span></div>
-      <p class="sa-note">L’audience viendra de la diffusion en saison ${gameState.season + 1} : les programmes en place y seront mis en pause et prolongés d’une saison.</p>
-      <div class="sa-actions">
+      <div ${pop(0.25, 'sa-budget')}><span>Trésorerie <b>${nf1(p.tresorerie)} M€</b></span><span>Exposition max. <b>${nf1(ev.exposure)} M€</b></span></div>
+      <p ${pop(0.3, 'sa-note')}>Un seul tour, offre sous pli : l’audience viendra de la diffusion en saison ${gameState.season + 1}, les programmes en place y seront mis en pause et prolongés d’une saison.</p>
+      <div ${pop(0.35, 'sa-actions')}>
         <button type="button" class="sa-btn primary" data-sa-action="participate">Participer</button>
         <button type="button" class="sa-btn" data-sa-action="pass">Passer</button>
       </div>
     </div>`;
   }
-  // Enchère en cours : l'offre du moment s'affiche sur l'illustration.
-  const leaderName = a.leader === 'player' ? 'Vous menez' : Number.isInteger(a.leader) ? `${esc(a.rivals[a.leader].name)} mène` : 'Aucune offre';
-  const inCount = activeRivals(a).length;
-  const opts = sportsBidOptions(a);
-  const finalTurn = a.turn >= SPORT_RIGHTS_TUNING.maxPlayerTurns - 1;
-  const log = a.log.slice(-3).map(l => `<li><b>${esc(l.who)}</b> ${esc(l.text)}</li>`).join('');
-  const bidOverlay = `<span class="sa-illu-bid${a.leader === 'player' ? ' lead' : ''}">
-      <span class="sa-illu-bid-label">Offre actuelle</span>
-      <span class="sa-illu-bid-value">${a.price == null ? '—' : `${nf1(a.price)} M€`}</span>
-      <span class="sa-illu-bid-leader">${leaderName}</span>
-    </span>`;
-  const turn = `Tour ${Math.min(a.turn + 1, SPORT_RIGHTS_TUNING.maxPlayerTurns)}/${SPORT_RIGHTS_TUNING.maxPlayerTurns}`;
-  const pending = a.pending ? (() => {
-    const cashAfter = quoteFinance({ recurring: 0, purchase: a.pending.amount, commercial: 0, category: 'P' }).cash;
-    return `<div class="sa-confirm" role="alertdialog" aria-label="Offre risquée">
+  // Jauge : une seule offre, sous pli scellé.
+  const b = sportsGaugeBounds(a);
+  const value = Math.min(b.max, Math.max(b.min, a.draft ?? b.suggested));
+  const f = sportsGaugeFeedback(a, value);
+  const pct = v => b.max > b.min ? Math.max(0, Math.min(100, (v - b.min) / (b.max - b.min) * 100)) : 100;
+  const sealed = interested.length;
+  const confirm = a.pending ? `<div class="sa-confirm sa-pop" style="--d:0s" role="alertdialog" aria-label="Offre risquée">
       <span class="sa-confirm-title">⚠️ Offre risquée</span>
-      <p>${a.pending.kind === 'ceiling' ? 'Ce plafond' : 'Cette offre'} de <b>${nf1(a.pending.amount)} M€</b> laisserait seulement <b>${nf1(cashAfter)} M€</b> de trésorerie après acquisition des droits. Production estimée : <b>+${nf1(event.productionCost)} M€</b> à la diffusion.</p>
+      <p>Une offre de <b>${nf1(a.pending.amount)} M€</b> laisserait seulement <b>${nf1(sportsGaugeFeedback(a, a.pending.amount).cashAfter)} M€</b> de trésorerie si vous l’emportez. Production estimée : <b>+${nf1(event.productionCost)} M€</b> à la diffusion.</p>
       <div class="sa-actions">
         <button type="button" class="sa-btn primary" data-sa-action="confirm">Confirmer ${nf1(a.pending.amount)} M€</button>
-        <button type="button" class="sa-btn" data-sa-action="cancel">Annuler</button>
+        <button type="button" class="sa-btn" data-sa-action="cancel">Ajuster</button>
       </div>
-    </div>`; })() : '';
+    </div>` : '';
   return `<div class="sa-inline" data-sa-zone>
-    ${sportsIllustrationHtml(event, { overlay: bidOverlay, corner: turn })}
-    <div class="sa-sub">${inCount} ${inCount > 1 ? 'chaînes encore en lice' : inCount === 1 ? 'chaîne encore en lice' : 'concurrent en lice'}</div>
-    ${log ? `<ul class="sa-log">${log}</ul>` : ''}
-    ${pending || `
-    <div class="sa-bids">
-      ${opts.map(o => `<button type="button" class="sa-bid${o.kind === 'ceiling' && o.label ? ' ceiling' : ''}" data-sa-action="${o.kind}" data-amount="${o.amount}" ${o.allowed ? '' : 'disabled'}>
-        <span class="sa-bid-amount">${nf1(o.amount)} M€</span>
-        <span class="sa-bid-sub">${!o.allowed ? 'Budget insuffisant' : o.label ? `${o.label} automatique` : finalTurn ? 'Offre finale' : 'Surenchérir'}${o.allowed && o.risky ? ' · risqué' : ''}</span>
-      </button>`).join('')}
+    ${sportsIllustrationHtml(event, { overlay: slotCap, corner: 'Tour unique · sous pli' })}
+    ${b.canBid ? `<div ${pop(0.05, `sa-gauge${a.pending ? ' is-locked' : ''}`)}>
+      <div class="sa-gauge-head">
+        <span class="sa-gauge-label">Votre offre</span>
+        <output class="sa-gauge-value" data-sa-value>${nf1(value)} M€</output>
+      </div>
+      <input type="range" class="sa-gauge-range" data-sa-range min="${b.min}" max="${b.max}" step="${b.step}" value="${value}"
+        aria-label="Montant de votre offre" aria-valuetext="${nf1(value)} millions d’euros" ${a.pending ? 'disabled' : ''}
+        style="--est-a:${pct(b.estMin)}%;--est-b:${pct(b.estMax)}%;--pos:${pct(value)}%">
+      <div class="sa-gauge-scale">
+        <span>${nf1(b.min)} M€</span>
+        <span class="sa-gauge-est">Estimation ${sportsAmount(b.estMin)}–${sportsAmount(b.estMax)} M€</span>
+        <span>${nf1(b.max)} M€</span>
+      </div>
+      <div class="sa-gauge-flags">
+        <span class="sa-flag ${f.zone}" data-sa-zone-flag>${SPORTS_ZONE_LABELS[f.zone]}</span>
+        <span class="sa-flag risk${f.risky ? ' is-on' : ''}" data-sa-risk-flag aria-hidden="${!f.risky}">⚠️ Offre risquée</span>
+      </div>
+      <div class="sa-gauge-cash">Trésorerie si vous l’emportez <b data-sa-cash>${nf1(f.cashAfter)} M€</b><span> · production à prévoir ${nf1(event.productionCost)} M€</span></div>
+    </div>` : `<p ${pop(0.05, 'sa-note sa-warn')}>Votre trésorerie ne permet pas d’atteindre le prix de départ (${nf1(b.min)} M€).</p>`}
+    <div ${pop(0.15, 'sa-row')}>
+      <span class="sa-row-label">${sealed ? `${sealed} ${sealed > 1 ? 'offres concurrentes sous pli' : 'offre concurrente sous pli'}` : 'Aucune offre concurrente annoncée'}</span>
+      ${sealed ? `<div class="sa-rivals">${interested.map((r, k) => `<span class="sa-envelope sa-pop ${r.interest.key}" style="--d:${0.2 + k * 0.1}s"><span aria-hidden="true">✉️</span> <b>${esc(r.name)}</b> <span aria-hidden="true">${r.interest.icon}</span></span>`).join('')}</div>` : ''}
     </div>
-    <button type="button" class="sa-btn ghost" data-sa-action="withdraw">Se retirer</button>`}
+    ${confirm || `<p ${pop(0.3, 'sa-note')}>Vous ne paierez que ce qu’il faut pour battre la meilleure offre concurrente, dans la limite de la vôtre. À égalité, le concurrent l’emporte.</p>
+    <div ${pop(0.35, 'sa-actions')}>
+      ${b.canBid ? '<button type="button" class="sa-btn primary" data-sa-action="submit">Déposer mon offre</button>' : ''}
+      <button type="button" class="sa-btn${b.canBid ? '' : ' primary'}" data-sa-action="withdraw">Se retirer</button>
+    </div>`}
   </div>`;
 }
-// Verdict intégré au bloc dilemme ; la zone de choix ne garde que « Continuer ».
+const SPORTS_ZONE_LABELS = {
+  low: '🎯 Sous l’estimation : offre audacieuse',
+  fair: '✅ Dans la valeur estimée',
+  high: '🔥 Au-dessus de l’estimation'
+};
+// Verdict intégré au bloc dilemme : ouverture des plis en cascade, puis tampon et bilan.
 function renderSportsVerdictInline(cq) {
   const v = cq.sportsAuction, event = SPORT_RIGHTS_EVENTS[v.eventId];
-  const stamp = (cls, label) => `<span class="sa-illu-stamp ${cls}">${label}</span>`;
+  const reveal = v.reveal || [];
+  const top = Math.max(1, ...reveal.map(x => x.amount));
+  const step = 0.32, after = 0.25 + reveal.length * step;
+  const stamp = (cls, label) => `<span class="sa-illu-stamp sa-pop ${cls}" style="--d:${after}s">${label}</span>`;
+  const rows = reveal.length ? `<div class="sa-reveal">
+      <span class="sa-row-label sa-pop" style="--d:0.1s">Ouverture des plis</span>
+      ${reveal.map((x, k) => `<div class="sa-reveal-row sa-pop${k === 0 && v.winnerName ? ' win' : ''}${x.isPlayer ? ' you' : ''}" style="--d:${0.25 + k * step}s">
+        <span class="sa-reveal-name">${k === 0 && v.winnerName ? '👑 ' : ''}${esc(x.isPlayer ? `${x.name} (vous)` : x.name)}</span>
+        <span class="sa-reveal-bar"><span style="--w:${Math.round(x.amount / top * 100)}%;--d:${0.3 + k * step}s"></span></span>
+        <b class="sa-reveal-amount">${nf1(x.amount)} M€</b>
+      </div>`).join('')}
+    </div>` : `<p class="sa-note sa-pop" style="--d:0.1s">Aucune offre n’a été déposée.</p>`;
+  const tail = (html) => `<div class="sa-pop sa-tail" style="--d:${after + 0.1}s">${html}</div>`;
   if (v.outcome === 'won') {
     return `<div class="sa-inline sa-verdict">
       ${sportsIllustrationHtml(event, { overlay: stamp('won', 'Droits remportés') })}
-      <div class="sa-ledger">
+      ${rows}
+      ${tail(`<div class="sa-ledger">
         <div><span>Droits (débités)</span><b>${nf1(v.price)} M€</b></div>
         <div><span>Production prévisionnelle</span><b>${nf1(event.productionCost)} M€</b></div>
         <div class="total"><span>Engagement total</span><b>${nf1(v.price + event.productionCost)} M€</b></div>
       </div>
-      <p class="sa-note">✅ Diffusion en saison ${v.season + 1} · ${esc(sportsSlotsLabel(event))}. Aucun effet d’audience avant la diffusion.</p>
+      <p class="sa-note">✅ Prix payé : juste au-dessus de la deuxième offre${v.playerLastBid > v.price ? ` (vous aviez proposé ${nf1(v.playerLastBid)} M€)` : ''}. Diffusion en saison ${v.season + 1} · ${esc(sportsSlotsLabel(event))}.</p>`)}
     </div>`;
   }
   const est = evaluateSportsRight(event, gameState.player);
+  const gap = v.playerLastBid != null && reveal[0] ? reveal[0].amount - v.playerLastBid : null;
   const msg = !v.winnerName ? 'Aucune chaîne n’a atteint le prix de départ.'
+    : gap != null && gap <= 0 ? 'À égalité, l’offre concurrente l’emporte.'
+    : gap != null && gap <= 2 ? `Il vous manquait ${nf1(gap)} M€ pour passer devant.`
     : v.price > est.maxValue ? 'Vous avez évité une dépense très importante.'
     : 'Un concurrent vient de renforcer fortement son offre sportive.';
   return `<div class="sa-inline sa-verdict">
-    ${sportsIllustrationHtml(event, { overlay: stamp('lost', v.outcome === 'declined' ? 'Vous passez votre tour' : 'Droits perdus') })}
-    <p class="sa-verdict-line">${v.winnerName ? `<b>${esc(v.winnerName)}</b> remporte ${esc(event.the)}` : `${esc(event.name)} ne trouve pas preneur`}</p>
-    ${v.winnerName ? `<div class="sa-ledger">
-      <div><span>Offre gagnante</span><b>${nf1(v.price)} M€</b></div>
-      ${v.playerLastBid != null ? `<div><span>Votre dernière offre</span><b>${nf1(v.playerLastBid)} M€</b></div>` : ''}
-    </div>` : ''}
-    <p class="sa-note">${msg}</p>
+    ${sportsIllustrationHtml(event, { overlay: stamp('lost', v.outcome === 'declined' ? 'Vous passez votre tour' : v.outcome === 'withdrawn' ? 'Vous vous retirez' : 'Droits perdus') })}
+    ${rows}
+    ${tail(`<p class="sa-verdict-line">${v.winnerName ? `<b>${esc(v.winnerName)}</b> remporte ${esc(event.the)} pour ${nf1(v.price)} M€` : `${esc(event.name)} ne trouve pas preneur`}</p>
+    <p class="sa-note">${msg}</p>`)}
   </div>`;
 }
-function renderSportsVerdictZone() {
-  return `<div class="slide-in-up consequence-wrap sa-continue">
+// « Continuer » n'apparaît qu'une fois les plis ouverts.
+function renderSportsVerdictZone(cq) {
+  const delay = 0.45 + (cq?.sportsAuction?.reveal?.length || 0) * 0.32;
+  return `<div class="consequence-wrap sa-continue sa-pop" style="--d:${delay}s">
     <button class="welcome-cta" id="btn-continue">
       <span class="welcome-cta-shine"></span><span>Continuer</span>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -9453,18 +9510,53 @@ function renderSportsVerdictZone() {
 function bindSportsAuctionZone(app) {
   const zone = app.querySelector('[data-sa-zone]');
   if (!zone) return;
+  const a = gameState.sportsRights.activeAuction;
+  const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  // Les éléments de l'étape en cours s'effacent avant d'afficher la suivante.
+  let busy = false;
+  const leaveThen = fn => {
+    if (busy) return;
+    busy = true;
+    zone.querySelectorAll('[data-sa-leave]').forEach(el => el.classList.add('sa-leaving'));
+    setTimeout(fn, reduce ? 0 : 260);
+  };
+  const toVerdict = () => chooseDilemmaOption(0);
+  const range = zone.querySelector('[data-sa-range]');
+  if (range && a) {
+    const out = zone.querySelector('[data-sa-value]'), cash = zone.querySelector('[data-sa-cash]');
+    const zoneFlag = zone.querySelector('[data-sa-zone-flag]'), riskFlag = zone.querySelector('[data-sa-risk-flag]');
+    const b = sportsGaugeBounds(a);
+    const update = () => {
+      const v = parseFloat(range.value);
+      a.draft = v;
+      const f = sportsGaugeFeedback(a, v);
+      out.textContent = `${nf1(v)} M€`;
+      range.setAttribute('aria-valuetext', `${nf1(v)} millions d’euros`);
+      range.style.setProperty('--pos', `${b.max > b.min ? (v - b.min) / (b.max - b.min) * 100 : 100}%`);
+      cash.textContent = `${nf1(f.cashAfter)} M€`;
+      if (!zoneFlag.classList.contains(f.zone)) {
+        zoneFlag.className = `sa-flag ${f.zone} is-swap`;
+        zoneFlag.textContent = SPORTS_ZONE_LABELS[f.zone];
+      }
+      riskFlag.classList.toggle('is-on', f.risky);
+      riskFlag.setAttribute('aria-hidden', String(!f.risky));
+    };
+    range.addEventListener('input', update);
+  }
   zone.addEventListener('click', e => {
     const btn = e.target.closest('[data-sa-action]');
-    if (!btn || btn.disabled) return;
-    const action = btn.dataset.saAction, a = gameState.sportsRights.activeAuction;
-    if (action === 'participate') sportsAuctionParticipate();
-    else if (action === 'pass') sportsAuctionPass();
-    else if (action === 'withdraw') sportsAuctionWithdraw();
-    else if (action === 'cancel') sportsAuctionCancelPending();
-    else if (action === 'confirm' && a?.pending) sportsAuctionBid(a.pending.kind, a.pending.amount, true);
-    else if (action === 'bid' || action === 'ceiling') sportsAuctionBid(action, parseFloat(btn.dataset.amount));
-    if (gameState.sportsRights.activeAuction?.phase === 'verdict') chooseDilemmaOption(0);
-    else render();
+    if (!btn || btn.disabled || !a) return;
+    const action = btn.dataset.saAction;
+    if (action === 'participate') leaveThen(() => { sportsAuctionParticipate(); render(); });
+    else if (action === 'pass') leaveThen(() => { sportsAuctionPass(); toVerdict(); });
+    else if (action === 'withdraw') leaveThen(() => { sportsAuctionWithdraw(); toVerdict(); });
+    else if (action === 'cancel') { sportsAuctionCancelPending(); render(); }
+    else if (action === 'confirm' && a.pending) leaveThen(() => { sportsAuctionSealedBid(a.pending.amount, true); toVerdict(); });
+    else if (action === 'submit') {
+      sportsAuctionSealedBid(a.draft ?? sportsGaugeBounds(a).suggested);
+      if (a.pending) render();
+      else if (a.phase === 'verdict') leaveThen(toVerdict);
+    }
   });
 }
 // ---- Bilan de saison : droits diffusés, droits à venir et calendrier du marché ----
