@@ -418,6 +418,10 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .radar-panel, .radar-sheet { display: flex; flex-direction: column; gap: 8px; animation: pg-pushdown .24s cubic-bezier(.16,1,.3,1); }
 .radar-mode .radar-panel { flex: 1; min-height: 0; }
 .radar-mode .radar-sheet { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding-right: 2px; }
+/* Fiche chaîne : la grille de la chaîne s'étire pour occuper toute la hauteur restante. */
+.radar-sheet > * { flex-shrink: 0; }
+.radar-sheet > .radar-sheet-grid { flex: 1 0 auto; display: flex; flex-direction: column; }
+.radar-sheet-grid > .radar-grid-row { flex: 1 0 auto; }
 .radar-head-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
 .radar-mode .pg-head.sheet-open { margin-bottom: 10px; }
 .radar-slots { flex-shrink: 0; }
@@ -10422,7 +10426,7 @@ function renderCompetitorSheet(c) {
         <div class="radar-stat"><div class="radar-stat-value">${signed(gap)} pt</div><div class="radar-stat-label">Écart avec vous</div></div>
       </div>
     </div>
-    <div>
+    <div class="radar-sheet-grid">
       <div class="radar-section-title">Grille ${c.plan?.confirmed ? 'confirmée' : 'annoncée'}</div>
       ${view.map(v => `<div class="radar-grid-row">
         <span class="radar-grid-slot">${slotLabelOf(v.slot)}</span>
@@ -10438,7 +10442,6 @@ function renderCompetitorSheet(c) {
       <div class="radar-section-title">Talents sous contrat</div>
       ${list(c.talents.map(t => `${esc(t.name)} — ${esc(t.role)}`), '')}
     </div>` : ''}
-    <div class="radar-decryptage">${esc(competitorDecryptage(c))}</div>
   </div>`;
 }
 
