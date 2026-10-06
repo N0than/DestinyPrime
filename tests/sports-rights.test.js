@@ -63,6 +63,13 @@ for(let s=1;s<=60;s++){
   } else assert(!q.some(d=>SPORT_RIGHTS_DILEMMA_IDS.includes(d.id)),'auction dilemma never drawn normally');
 }
 assert(['roland_garros','world_cup','olympic_games'].every(id=>seen.has(id)),'every event can be selected: '+[...seen]);
+// Jeunesse, info, culture et cinéma : jamais de dilemme de droits sportifs, jamais d'offre IA.
+['jeunesse','info','culture','cinema'].forEach(type=>{
+  setup(type);for(let s=1;s<=30;s++){gameState.season=s;gameState.seenDilemmaIds=[];gameState.player.eventsSeen=[];
+    assert(!pickDilemmaQueue().some(d=>d.type==='sports_rights_auction'),'no sports rights dilemma for '+type);}
+  assert(computeCompetitorSportsMaxBid({...mk('X','offensive',type),budget:200},SPORT_RIGHTS_EVENTS.world_cup)===0,'no sports bid from '+type);
+});
+['generaliste','sport'].forEach(type=>assert(computeCompetitorSportsMaxBid({...mk('X','offensive',type),budget:200},SPORT_RIGHTS_EVENTS.world_cup)>0,'bids from '+type));
 // Chaîne Sport : ses dilemmes dédiés (d89, d145) sont préférés.
 setup('sport');gameState.season=sr().nextAuctionSeason;const sq=pickDilemmaQueue().find(d=>d.type==='sports_rights_auction');
 assert(sq&&(['d89','d145','d2'].includes(sq.id)),'sport channel auction dilemma');
@@ -172,10 +179,13 @@ const fitPrime=calculateSportsEventAudience(ev,gameState.player,'prime',rec),fit
 assert(fitPrime.a2549!==fitPrime.csp,'impact differs by target');
 assert(calculateSportsEventAudience(SPORT_RIGHTS_EVENTS.olympic_games,gameState.player,'prime',rec).a2549>fitNight.a2549,'impact differs by slot');
 // Bilan : performance mesurée avec / sans l'événement.
-evaluateSportsBroadcasts();assert(rec.perf&&rec.perf.pdaGain>0&&rec.perf.revenueGain>0&&rec.status==='done','broadcast evaluated');
+const pdaOnAir=getCalculatedPDAs().find(r=>r.channel===gameState.player).pda.a2549;
+evaluateSportsBroadcasts();assert(rec.perf&&rec.perf.pdaGain>0&&rec.perf.revenueGain>0,'broadcast evaluated');
+// L'événement reste à l'antenne jusqu'au lancement de la saison suivante : le bilan l'inclut.
+assert(rec.status==='broadcast'&&sportsBroadcastOn(gameState.player,'prime')&&Math.abs(getCalculatedPDAs().find(r=>r.channel===gameState.player).pda.a2549-pdaOnAir)<1e-9,'season-end audiences keep the event');
 assert(renderSportsRightsBilanHtml().includes(rec.perf.verdict),'season report shows verdict');
 // Saison suivante : le programme reprend et son coût revient dans la grille.
-gameState.season=3;restorePausedPrograms();assert(gameState.player.coutGrilleEngageSaison===5&&!gameState.player.contracts.prime.sportsPause,'program resumes');
+gameState.season=3;closeSportsBroadcasts();restorePausedPrograms();assert(rec.status==='done'&&gameState.player.coutGrilleEngageSaison===5&&!gameState.player.contracts.prime.sportsPause,'program resumes');
 assert(!sportsBroadcastOn(gameState.player,'prime'),'event over');
 // Droit gagné par un concurrent : diffusé sur sa chaîne.
 setup();acquireSportsRight('olympic_games',{owner:gameState.competitors[0],price:15});gameState.season=2;activateSportsBroadcasts();
@@ -201,11 +211,11 @@ assert(withEv>withoutEv+1&&playerWith<playerWithout,'competitor event lifts its 
 assert(sportsAdFactor(rv)>1&&sportsAdFactor(gameState.player)===1,'commercial attractiveness only for the broadcaster');
 assert(computeMarketWeather().items[0].title.includes('Off'),'market weather announces the competitor event');
 const budgetBefore=rv.budget;evaluateSportsBroadcasts();
-assert(offRec.status==='done'&&offRec.perf.pdaGain>0&&offRec.perf.revenueGain>0&&offRec.perf.playerImpact<0,'competitor broadcast evaluated');
+assert(offRec.status==='broadcast'&&activeContract(rv,'prime')?.isSportsEvent&&offRec.perf.pdaGain>0&&offRec.perf.revenueGain>0&&offRec.perf.playerImpact<0,'competitor broadcast evaluated');
 assert(Math.abs(rv.budget-budgetBefore-offRec.perf.revenueGain)<1e-9,'extra revenue credited to the competitor budget');
 assert(renderSportsRightsBilanHtml().includes('CONCURRENT'),'season report shows the competitor broadcast');
 const budgetAfter=rv.budget;evaluateSportsBroadcasts();assert(rv.budget===budgetAfter,'competitor revenue credited once');
-gameState.season=3;rv.budget=50;planCompetitorSeasons();
+gameState.season=3;closeSportsBroadcasts();assert(offRec.status==='done','competitor broadcast closed next season');rv.budget=50;planCompetitorSeasons();
 assert(rv.plan.slots.prime.tag!=='evenement'&&!activeContract(rv,'prime')?.isSportsEvent,'event over for the competitor');
 assert(rv.plan.slots.prime.name===pausedName||rv.contracts.prime.end>=3,'paused competitor program resumes');
 console.log('OK sports rights: frequency, selection, auction, economy, broadcast, competitors, state');

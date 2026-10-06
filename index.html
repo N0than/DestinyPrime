@@ -7494,6 +7494,7 @@ function startNewSeason() {
 
   // La nouvelle saison repart du coût de grille réellement arrêté à la fin de la
   // précédente ; il n'est donc pas recalculé ni remis à un budget théorique.
+  closeSportsBroadcasts();
   restorePausedPrograms();
   player.budgetGrilleAnnuel = player.coutGrilleEngageSaison;
   player.tresorerieDebutSaison = player.tresorerie;
@@ -8973,9 +8974,15 @@ function selectNextSportsRightsEvent() {
   const pool = candidates.filter(c => lastSeen(c.event.id) === oldest);
   return sportsChoice(pool);
 }
+// Seules les chaînes généralistes et sportives sont concernées par les grands droits sportifs :
+// jeunesse, info en continu, culture / savoirs et cinéma / séries n'en reçoivent pas et n'enchérissent pas.
+const SPORTS_RIGHTS_CHANNEL_TYPES = ['generaliste', 'sport'];
+function sportsRightsEligibleChannel(channel) {
+  return SPORTS_RIGHTS_CHANNEL_TYPES.includes(channel?.type);
+}
 // Place une enchère dans la file de la saison (remplace un dilemme, jamais de quatrième).
 function scheduleSportsAuction(queue) {
-  if (queue.length < 2 || !sportsAuctionDue()) return false;
+  if (queue.length < 2 || !sportsRightsEligibleChannel(gameState.player) || !sportsAuctionDue()) return false;
   const sr = gameState.sportsRights;
   const pick = selectNextSportsRightsEvent();
   if (!pick) { sr.nextAuctionSeason = gameState.season + 1; return false; }
@@ -9000,6 +9007,7 @@ function evaluateSportsRight(event, player) {
 
 // Plafond privé d'une chaîne IA : valeur perçue de l'événement × profil, borné par le budget.
 function computeCompetitorSportsMaxBid(competitor, event) {
+  if (!sportsRightsEligibleChannel(competitor)) return 0;
   const profile = GAME_BALANCE.competitors.profiles[competitor.strategy] || GAME_BALANCE.competitors.profiles.rentable;
   const mid = (event.estimatedValueMin + event.estimatedValueMax) / 2;
   const typeFit = SPORT_RIGHTS_TUNING.channelFit[competitor.type]?.[event.sport] ?? 1;
@@ -9261,6 +9269,8 @@ function pausedAnnualThisSeason() {
 function evaluateSportsBroadcasts() {
   const sr = gameState.sportsRights, p = gameState.player;
   if (!sr) return;
+  // L'événement reste à l'antenne jusqu'au lancement de la saison suivante : les audiences
+  // du bilan de fin de saison l'incluent (clôture dans closeSportsBroadcasts).
   sr.owned.filter(o => o.ownerId === 'player' && o.broadcastSeason === gameState.season && o.status === 'broadcast' && !o.perf).forEach(rec => {
     const pdaWith = getCalculatedPDAs().find(r => r.channel === p).pda[p.target];
     const revWith = computeRevenusPub(pdaWith, p.target, p.popularite, p.puissanceCommerciale);
@@ -9274,7 +9284,6 @@ function evaluateSportsBroadcasts() {
     const ratio = revenueGain / Math.max(0.1, cost);
     const verdict = ratio >= 1 ? 'EXCELLENTE AFFAIRE' : (ratio >= 0.5 || pdaGain >= 1.5) ? 'PARI STRATÉGIQUE RÉUSSI' : 'DROITS SURPAYÉS';
     rec.perf = { pdaGain, revenueGain, popGain: rec.popGain || 0, cost, verdict };
-    rec.status = 'done';
   });
   // Droits des concurrents : écart d'audience de la chaîne et du joueur avec / sans
   // l'événement ; les recettes supplémentaires abondent le budget du diffuseur.
@@ -9293,7 +9302,12 @@ function evaluateSportsBroadcasts() {
       rec.perf = { pdaGain: pdaWith - pdaWithout, revenueGain, cost: rec.acquisitionPrice + rec.productionCost,
         playerImpact: pdaOf(rowsWith, p, p.target) - pdaOf(rowsWithout, p, p.target) };
     }
-    rec.status = 'done';
+  });
+}
+// Lancement de la saison suivante : les diffusions de la saison écoulée sont closes.
+function closeSportsBroadcasts() {
+  (gameState.sportsRights?.owned || []).forEach(o => {
+    if (o.status === 'broadcast' && o.broadcastSeason < gameState.season) o.status = 'done';
   });
 }
 // Fiche d'une chaîne concurrente : ses droits sportifs à venir, en cours ou diffusés.
@@ -9305,7 +9319,7 @@ function competitorSportsRightsHtml(competitor, list) {
     const e = SPORT_RIGHTS_EVENTS[o.eventId];
     const where = esc(sportsSlotsLabel(e));
     if (o.broadcastSeason > gameState.season) return `${e.icon} <b>${esc(e.name)}</b> : diffusion en saison ${o.broadcastSeason} (${where}), droits payés ${nf1(o.acquisitionPrice)} M€.`;
-    if (o.broadcastSeason === gameState.season && o.status !== 'done') return `${e.icon} <b>${esc(e.name)}</b> : à l'antenne cette saison (${where}).`;
+    if (o.broadcastSeason === gameState.season && !o.perf) return `${e.icon} <b>${esc(e.name)}</b> : à l'antenne cette saison (${where}).`;
     return o.perf
       ? `${e.icon} <b>${esc(e.name)}</b> : ${fmtDelta(o.perf.pdaGain, 1, ' pt')} de PDA, ${nf1(o.perf.revenueGain)} M€ de recettes pour ${nf1(o.perf.cost)} M€ investis.`
       : `${e.icon} <b>${esc(e.name)}</b> : diffusé en saison ${o.broadcastSeason}.`;
