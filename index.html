@@ -1894,7 +1894,11 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .pg-slot-editor .program-manager.picking { padding-top:3px; padding-bottom:4px; }
 .program-manager.picking .pm-carousel { padding-bottom:3px; }
 .pm-pick-head span { font-family:'Space Grotesk', sans-serif; font-size:9px; font-weight:700; letter-spacing:.4px; text-transform:uppercase; color:var(--gris); }
-.pm-pick-cancel { border:0; background:none; padding:2px 0; font-size:10.5px; font-weight:700; color:var(--gris); cursor:pointer; }
+.pm-pick-cancel { border:0; background:none; padding:2px 0; cursor:pointer;
+  font-family:'Space Grotesk', sans-serif; font-size:9px; font-weight:700; letter-spacing:.4px; text-transform:uppercase; color:var(--gris); }
+.pm-pick-cancel:hover { color:var(--ink); }
+/* Créneau encore vide : un peu plus d'air au-dessus de « Choisir un programme ». */
+.pg-slot-editor .program-manager.picking:not(.has-current) { padding-top:9px; }
 .pm-overview { flex:1 0 auto; display:flex; flex-direction:column; gap:8px; min-height:170px; }
 .pm-ov-main { flex:1; min-height:84px; display:flex; overflow:hidden; border-radius:14px; background:var(--paper-card); border:1.5px solid var(--paper-dark); }
 .pm-ov-art { position:relative; flex:0 0 42%; background:linear-gradient(160deg, rgba(37,99,235,0.10), rgba(225,29,72,0.08)); }
