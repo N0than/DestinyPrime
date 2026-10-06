@@ -741,20 +741,54 @@ button.radar-card:hover { transform: translateY(-1px); box-shadow: 0 10px 24px -
 @media (min-width: 600px) { .ga-row { --ga-h: 15px; } }
 @media (prefers-reduced-motion: reduce) { .ga-animate .ga-bar-fill { animation: none; } }
 
-.stat-list { display: flex; flex-direction: column; }
-.stat-row { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px dashed rgba(22,19,14,0.12); }
-.stat-row:last-child { border-bottom: none; }
-.stat-row-label {
-  display: flex; align-items: center; gap: 5px; flex: 0 0 100px; min-width: 0;
-  font-family: 'Anton', sans-serif; font-size: 10px; text-transform: uppercase; letter-spacing: 0.3px; color: var(--ink);
+/* ---- INDICATEURS DE PERFORMANCE : 4 tuiles qui occupent toute la hauteur du slider ---- */
+.eh-slide.perf-slide-wrap { position: relative; }
+/* Positionné en absolu comme l'évolution : la slide prend la hauteur du slider sans jamais l'agrandir. */
+.perf-slide { position: absolute; inset: 0 0 2px; display: flex; flex-direction: column; min-width: 0; }
+.perf-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-shrink: 0; }
+.perf-head .eh-title { margin-bottom: 0; }
+.perf-slide .eh-subtitle { margin: 4px 0 10px; flex-shrink: 0; }
+.perf-overall {
+  flex-shrink: 0; white-space: nowrap; font-size: 10px; font-weight: 700; letter-spacing: 0.2px; color: var(--pf-c);
+  padding: 3px 9px; border-radius: 999px; background: rgba(var(--pf-rgb),0.1); border: 1px solid rgba(var(--pf-rgb),0.25);
 }
-.stat-row-stars { flex: 1; font-size: 16px; letter-spacing: 1.5px; }
-.stat-row-stars .star-filled { color: var(--gold); }
-.stat-row-stars .star-empty { color: rgba(22,19,14,0.2); }
-.stat-row-value { font-family: 'Anton', sans-serif; font-size: 10.5px; flex-shrink: 0; width: 56px; text-align: right; color: var(--gris); }
-.stat-row-value.good { color: var(--vert); }
-.stat-row-value.warn { color: #8a6d1a; }
-.stat-row-value.bad { color: var(--rouge); }
+.perf-overall b { font-family: 'Anton', sans-serif; font-weight: 400; font-size: 12px; }
+.perf-grid { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.perf-slide .good { --pf-c: var(--vert); --pf-rgb: 5,150,105; }
+.perf-slide .warn { --pf-c: #b45309; --pf-rgb: 217,119,6; }
+.perf-slide .bad { --pf-c: var(--rouge); --pf-rgb: 225,29,72; }
+.perf-tile {
+  position: relative; min-width: 0; min-height: 0; overflow: hidden; display: flex; flex-direction: column; container-type: size;
+  padding: 10px 11px; border-radius: 14px; background: linear-gradient(160deg, rgba(var(--pf-rgb),0.07) 0%, rgba(255,255,255,0.9) 55%);
+  border: 1px solid rgba(255,255,255,0.9); box-shadow: 0 0 0 1px rgba(226,223,215,0.7), 0 8px 18px -12px rgba(15,23,42,0.22);
+}
+.perf-tile-top { display: flex; align-items: center; justify-content: space-between; gap: 6px; flex-shrink: 0; }
+.perf-ic { font-size: 13px; display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 8px; flex-shrink: 0; }
+.perf-pop .perf-ic, .perf-treso .perf-ic { background: rgba(217,119,6,0.14); }
+.perf-perf .perf-ic { background: rgba(37,99,235,0.12); }
+.perf-arcom .perf-ic { background: rgba(124,58,237,0.12); }
+.perf-verdict {
+  min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-size: 8.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.3px; color: var(--pf-c);
+  padding: 2px 7px; border-radius: 999px; background: rgba(var(--pf-rgb),0.1); border: 1px solid rgba(var(--pf-rgb),0.22);
+}
+.perf-label {
+  margin-top: 6px; flex-shrink: 0; font-family: 'Space Grotesk', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.4px;
+  text-transform: uppercase; color: var(--gris); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.perf-value {
+  flex-shrink: 0; font-family: 'Anton', sans-serif; font-size: clamp(20px, min(24cqw, 24cqh), 34px); line-height: 1.12; color: var(--pf-c);
+  font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.perf-value small { font-size: 0.5em; color: var(--gris); margin-left: 1px; }
+.perf-foot { margin-top: auto; padding-top: 4px; display: flex; flex-direction: column; gap: 3px; min-width: 0; min-height: 0; overflow: hidden; }
+.perf-stars { font-size: 13px; letter-spacing: 1px; flex-shrink: 0; }
+.perf-hint { font-size: 10px; line-height: 1.25; color: var(--gris); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+@media (min-width: 600px) { .perf-stars { font-size: 15px; } .perf-hint { font-size: 11px; } }
+/* Tuile basse : l'explication passe sur une ligne, puis disparaît plutôt que d'être coupée. */
+@container (max-height: 114px) { .perf-hint { -webkit-line-clamp: 1; } }
+@container (max-height: 100px) { .perf-hint { display: none; } }
+@media (max-width: 360px) { .perf-tile { padding: 9px 9px; } .perf-verdict { font-size: 7.5px; padding: 2px 5px; } .perf-hint { font-size: 9px; } }
 
 /* ---- CONVENTION ARCOM ---- */
 .arcom-slide-wrap { display: flex; overflow: visible; }
@@ -2475,10 +2509,6 @@ function closeTalentDismissal() {
   document.body.classList.remove('mobile-picker-lock');
 }
 
-function starRowHtml(filled) {
-  return Array.from({ length: 5 }, (_, i) => `<span class="${i < filled ? 'star-filled' : 'star-empty'}">★</span>`).join('');
-}
-
 function renderStatStars(player, pdaCible, compliance) {
   const popFilled = Math.round((player.popularite / 100) * 5);
   const popClass = player.popularite >= 60 ? 'good' : (player.popularite >= 40 ? 'warn' : 'bad');
@@ -2502,29 +2532,42 @@ function renderStatStars(player, pdaCible, compliance) {
   const arcomFilled = Math.round((compliance.arcomScore / 100) * 5);
   const arcomClass = compliance.arcomScore >= 75 ? 'good' : (compliance.arcomScore >= 60 ? 'warn' : 'bad');
 
+  const verdict = { good: 'Solide', warn: 'À surveiller', bad: 'Critique' };
+  const runway = player.coutGrilleEngageSaison > 0 ? player.tresorerie / player.coutGrilleEngageSaison : 0;
+  const tiles = [
+    { key: 'pop', ic: '⭐', label: 'Popularité', value: `${Math.round(player.popularite)}%`, filled: popFilled, cls: popClass,
+      hint: 'Image auprès du public' },
+    { key: 'treso', ic: '💰', label: 'Trésorerie', value: `${nf1(player.tresorerie)} M€`, filled: tresoFilled, cls: tresoClass,
+      hint: player.tresorerie < 0 ? 'Caisse dans le rouge' : `Réserve : ${nf1(runway)} saison${runway >= 2 ? 's' : ''} de grille` },
+    { key: 'perf', ic: '📈', label: 'Performance', value: `${Math.round(efficacite * 100)}%`, filled: perfFilled, cls: perfClass,
+      hint: `${nf1(pdaCible)} pt PDA / ${nf1(player.coutGrilleEngageSaison)} M€ de grille` },
+    { key: 'arcom', ic: '⚖️', label: 'Conformité', value: `${compliance.arcomScore}<small>/100</small>`, filled: arcomFilled, cls: arcomClass,
+      hint: `ARCOM : ${compliance.status.label.toLowerCase()}` },
+  ];
+  const overall = tiles.reduce((sum, t) => sum + t.filled, 0) / tiles.length;
+  const overallCls = overall >= 3.5 ? 'good' : (overall >= 2.5 ? 'warn' : 'bad');
+
   return `
-    <div class="eh-title">Indicateurs de performance</div>
-    <div class="eh-subtitle">Popularité, trésorerie, efficacité et conformité éditoriale</div>
-    <div class="stat-list">
-      <div class="stat-row">
-        <div class="stat-row-label"><span class="ic">⭐</span>Popularité</div>
-        <div class="stat-row-stars">${starRowHtml(popFilled)}</div>
-        <div class="stat-row-value ${popClass}">${Math.round(player.popularite)}%</div>
+    <div class="perf-slide">
+      <div class="perf-head">
+        <div class="eh-title">Indicateurs de performance</div>
+        <div class="perf-overall ${overallCls}" title="Moyenne des quatre indicateurs">Note <b>${nf1(overall)}</b>/5</div>
       </div>
-      <div class="stat-row">
-        <div class="stat-row-label"><span class="ic">💰</span>Trésorerie</div>
-        <div class="stat-row-stars">${starRowHtml(tresoFilled)}</div>
-        <div class="stat-row-value ${tresoClass}">${nf1(player.tresorerie)} M€</div>
-      </div>
-      <div class="stat-row">
-        <div class="stat-row-label"><span class="ic">📈</span>Performance</div>
-        <div class="stat-row-stars">${starRowHtml(perfFilled)}</div>
-        <div class="stat-row-value ${perfClass}">${Math.round(efficacite * 100)}%</div>
-      </div>
-      <div class="stat-row">
-        <div class="stat-row-label"><span class="ic">⚖️</span>Conformité</div>
-        <div class="stat-row-stars">${starRowHtml(arcomFilled)}</div>
-        <div class="stat-row-value ${arcomClass}">${compliance.arcomScore}/100</div>
+      <div class="eh-subtitle">Popularité, trésorerie, efficacité et conformité éditoriale</div>
+      <div class="perf-grid">
+        ${tiles.map(t => `
+          <div class="perf-tile perf-${t.key} ${t.cls}">
+            <div class="perf-tile-top">
+              <span class="perf-ic">${t.ic}</span>
+              <span class="perf-verdict">${verdict[t.cls]}</span>
+            </div>
+            <div class="perf-label">${t.label}</div>
+            <div class="perf-value">${t.value}</div>
+            <div class="perf-foot">
+              <div class="mercato-stars perf-stars">${'★'.repeat(t.filled)}<span class="off">${'★'.repeat(5 - t.filled)}</span></div>
+              <div class="perf-hint">${esc(t.hint)}</div>
+            </div>
+          </div>`).join('')}
       </div>
     </div>
   `;
@@ -7248,7 +7291,7 @@ function renderTicker() {
               <div class="eh-slide">${ecoBilanSlideHtml}</div>
               <div class="eh-slide evo-slide">${evolutionChartHtml}</div>
               <div class="eh-slide talents-slide">${talentsSlideHtml}</div>
-              <div class="eh-slide">${statStarsHtml}</div>
+              <div class="eh-slide perf-slide-wrap">${statStarsHtml}</div>
               <div class="eh-slide arcom-slide-wrap">${arcomSlideHtml}</div>
             </div>
           </div>
