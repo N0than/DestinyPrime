@@ -10686,10 +10686,10 @@ function renderProgramManager(slot) {
   const catalog=availablePrograms(p.type,slot);
   const ordered=[...catalog.filter(x=>sameProgram(c,x)),...catalog.filter(x=>!sameProgram(c,x))];
   const note='<p class="program-manager-note">Modifications disponibles au début de la prochaine saison, avant le premier dilemme.</p>';
-  return `<section class="program-manager${c?' has-current':''}" aria-label="Modifier la programmation">
+  return `<section class="program-manager${c?' has-current':(editable?' picking':'')}" aria-label="Modifier la programmation">
     ${c?programOverviewHtml(slot,c,editable):''}
     ${editable?`
-    ${c?`<div class="pm-pick-head"><span>Choisir un programme</span><button type="button" class="pm-pick-cancel" data-pm-cancel>Annuler</button></div>`:''}
+    <div class="pm-pick-head"><span>Choisir un programme</span>${c?'<button type="button" class="pm-pick-cancel" data-pm-cancel>Annuler</button>':''}</div>
     <div class="pm-carousel" data-pm-carousel="${slot}" aria-label="Programmes disponibles">
       ${ordered.map(x=>programCardHtml(slot,x,c)).join('')}
     </div>
