@@ -332,6 +332,8 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .eh-slider-nav.nav-locked .eh-dot { opacity: 0.35; pointer-events: none; cursor: default; }
 
 .pg-slide { display: flex; flex-direction: column; height: 100%; overflow: hidden; }
+/* Même hauteur de grille sur mobile et ordinateur : les créneaux s'étirent pour l'occuper. */
+.pg-slide:not(.radar-mode) { min-height: 336px; }
 .pg-head { flex-shrink: 0; }
 .pg-rows { flex: 1; display: flex; flex-direction: column; min-height: 0; }
 .pg-rows .pg-row { flex: 1; }
@@ -389,7 +391,12 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .career-stats-badges { display: flex; flex-wrap: wrap; gap: 6px; }
 
 /* ---- RADAR CONCURRENCE ---- */
-.pg-head-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.pg-head-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.pg-head-row .eh-title { margin: 0; min-width: 0; }
+/* Sous-titre court, toujours sur une seule ligne sous le titre. */
+.pg-head-row .eh-title { white-space: nowrap; }
+@media (max-width: 359px) { .pg-toggle-long { display: none; } }
+.pg-sub { margin: 2px 0 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .radar-toggle {
   flex-shrink: 0; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 10px;
   text-transform: uppercase; letter-spacing: 0.4px; color: #334155; cursor: pointer; white-space: nowrap;
@@ -1998,16 +2005,15 @@ function renderProgramGrid(type, pdaCible, overrides) {
     const sheetOpen = radarState().sheet !== null && !!gameState.competitors[radarState().sheet];
     return `
       <div class="pg-slide radar-mode">
-        <div class="pg-head pg-head-row${sheetOpen ? ' sheet-open' : ''}">
-          <div>
+        <div class="pg-head${sheetOpen ? ' sheet-open' : ''}">
+          <div class="pg-head-row">
             <div class="eh-title">${sheetOpen ? esc(gameState.competitors[radarState().sheet].name) : 'Concurrence'}</div>
-            ${sheetOpen ? '' : '<div class="eh-subtitle radar-hint">Touchez une chaîne pour sa fiche.</div>'}
-
+            <div class="radar-head-actions">
+              ${sheetOpen ? '<button type="button" class="radar-toggle" data-radar-action="back">← Retour</button>' : ''}
+              <button type="button" class="radar-toggle active" data-radar-action="toggle">⚔️ Ma grille</button>
+            </div>
           </div>
-          <div class="radar-head-actions">
-            ${sheetOpen ? '<button type="button" class="radar-toggle" data-radar-action="back">← Retour</button>' : ''}
-            <button type="button" class="radar-toggle active" data-radar-action="toggle">⚔️ Ma grille</button>
-          </div>
+          ${sheetOpen ? '' : '<div class="eh-subtitle pg-sub radar-hint">Touchez une chaîne pour sa fiche.</div>'}
         </div>
         ${renderRadarPanel()}
       </div>
@@ -2050,12 +2056,12 @@ function renderProgramGrid(type, pdaCible, overrides) {
   }).join('');
   return `
     <div class="pg-slide">
-      <div class="pg-head pg-head-row">
-        <div>
+      <div class="pg-head">
+        <div class="pg-head-row">
           <div class="eh-title">Grille de la chaîne</div>
-          <div class="eh-subtitle">Cliquez sur un créneau pour choisir son programme et sa production.</div>
+          <button type="button" class="radar-toggle" data-radar-action="toggle">⚔️ <span class="pg-toggle-long">Voir la </span>concurrence</button>
         </div>
-        <button type="button" class="radar-toggle" data-radar-action="toggle">⚔️ Voir la concurrence</button>
+        <div class="eh-subtitle pg-sub">Touchez un créneau pour le modifier.</div>
       </div>
       <div class="pg-rows">${rows}</div>
     </div>
