@@ -12783,14 +12783,6 @@ function bindCampaignPanel(app) {
         if(q.finance.purchase>0) lines.push(`<span>Achat <b>${nf1(q.finance.purchase)} M€</b></span>`);
         if(q.termination>0) lines.push(`<span class="warn">dont pénalité ${nf1(q.termination)} M€</span>`);
         if(q.buyout>0) lines.push(`<span class="warn">dont rachat à ${esc(q.holder.competitor.name)} ${nf1(q.buyout)} M€</span>`);
-        const tv=q.holder?previewProgramBuyout(slot,card.dataset.pmCard,level.id):null;
-        if(tv&&!tv.pending){
-          const pts=v=>`${v>0?'+':''}${nf1(v)} point${Math.abs(v)>=2?'s':''}`;
-          lines.push(tv.sellerPda!=null?`<span>Audience chez le concurrent : <b>${nf1(tv.sellerPda)} %</b></span>`:'',
-            `<span>Potentiel sur votre chaîne : <b>${nf1(tv.habitual)} %</b></span>`,
-            `<span>Public transféré : <b>${pts(tv.transferred)}</b></span>`,
-            `<span>Audience estimée à l’arrivée : <b>${nf1(tv.arrival)} %</b></span>`);
-        }
         if(!q.allowed) lines.push('<span class="bad">Budget insuffisant</span>');
       }
       card.querySelector('[data-pm-quote]').innerHTML=lines.join('');
