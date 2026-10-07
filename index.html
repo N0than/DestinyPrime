@@ -3257,11 +3257,12 @@ const GAME_BALANCE = {
     alternativeBonus: 0.015, maxBonus: 0.05
   },
   franchise: { spinoffAnnualRate: 0.5, spinoffPowerRate: 0.6, consolidateCostRate: 0.15 },
-  // Rachat d'un programme concurrent : une partie de son public suit le programme.
-  // Apport transféré = apport propre positif chez le vendeur × taux (statut de carrière)
-  // × compatibilité avec la nouvelle chaîne × maintien du talent, plafonné une seule fois
-  // (à la première diffusion) à initialCapShare × l'apport habituel chez l'acheteur.
+  // Rachat d'un programme concurrent : une partie de son public le suit (même créneau,
+  // par cible). Public transféré = max(0, PDA chez le vendeur − PDA habituelle chez
+  // l'acheteur) × taux du statut × compatibilité × maintien du talent ; la PDA d'arrivée
+  // (habituelle + transférée) devient la PDA effective après normalisation.
   programTransfer: {
+    version: 2,
     rates: { recent: 0.25, installe: 0.5, culte: 0.75 },
     // Statuts de carrière existants (programLifeStage) → catégorie de transfert.
     statusCategory: { 'lancement': 'recent', 'croissance': 'installe', 'maturité': 'installe', 'usure': 'installe',
@@ -3269,8 +3270,7 @@ const GAME_BALANCE = {
     compatibility: { forte: 1, moyenne: 0.75, faible: 0.5 },
     // Score = affinité de genre avec la chaîne × affinité de cible (règles de contre-programmation).
     compatibilityThresholds: { forte: 0.8, moyenne: 0.3 },
-    talent: { kept: 1, lost: 0.8 },
-    initialCapShare: 0.5
+    talent: { kept: 1, lost: 0.8 }
   },
   // Exclusivité : un programme n'est diffusé que par une chaîne. Le racheter à un
   // concurrent coûte une indemnité (droits + part des annuités restantes), reversée
@@ -11011,18 +11011,22 @@ function applyFinance(f, excludedSlot=null) {
   p.tresorerie+=f.commercial-f.purchase-recurring;
   return recurring;
 }
-function signProgram(slot, programId, talentId) {
-  ensureCampaign(); const p=gameState.player;
-  if(gameState.step!==6 || gameState.dilemmaPhase!=='choosing' || gameState.currentDilemmaIndex!==0) return false;
-  const quote=quoteProgram(slot,programId,talentId);
-  if(!quote || !quote.allowed) return false;
+// Rachat / signature : modifications de l'état, partagées par la validation et la
+// prévisualisation (exécutée sur une copie isolée de l'état du jeu).
+function executeProgramSigning(slot, quote) {
+  const p=gameState.player;
   const {program,talent,annual,holder,buyout}=quote;
-  // 1. Instantané chez le vendeur, avant toute modification de sa grille.
+  // 1. Instantané chez le vendeur : dernière PDA calculée, avant toute modification des grilles.
   const transfer=holder && holder.slot===slot ? snapshotProgramTransfer(holder) : null;
   const previous=p.contracts[slot];
   delete p.contracts[slot];
   // 2. Rachat selon les règles financières actuelles (droits, indemnité, rachat d'exclusivité).
   applyFinance(quote.finance);
+  if(holder) {
+    // 3. Grille du vendeur : retrait du programme et remplacement par son IA.
+    releaseCompetitorProgram(holder.competitor,holder.slot,buyout);
+  }
+  // 4–5. Programme installé sur le même créneau ; l'ancien suit les règles de contrat.
   p.contracts[slot]={...program, annual, talent:talent.name, talentAnnual:talent.annual,
     power:program.power+talent.bonus*SLOT_AFFINITY[p.type][slot], end:gameState.season+program.years-1,
     career:createProgramCareer(program, slot)};
@@ -11032,13 +11036,45 @@ function signProgram(slot, programId, talentId) {
     p.contracts[slot].acquiredFrom=holder.competitor.name;
     p.contracts[slot].buyout=buyout;
     if(transfer) p.contracts[slot].transfer=transfer;
-    // 3. Grille du vendeur : retrait du programme et remplacement par son IA.
-    releaseCompetitorProgram(holder.competitor,holder.slot,buyout);
   }
-  // 4–6. Potentiel habituel, apport transféré plafonné, base d'audience (une seule fois).
+  // 6–8. PDA habituelle, PDA d'arrivée, état acquis et normalisation (une seule fois).
   applyProgramTransfer(slot);
   p.coutTalentsSaison+=talent.annual-(previous?.talentAnnual||0);
   p.grilleOverrides[slot]=program.name+' — '+talent.name;
+  return p.contracts[slot];
+}
+// Copie profonde de l'état (les fonctions des événements sont partagées, pas copiées).
+function cloneGameStateValue(v, seen = new Map()) {
+  if (v === null || typeof v !== 'object') return v;
+  if (seen.has(v)) return seen.get(v);
+  const out = Array.isArray(v) ? [] : {};
+  seen.set(v, out);
+  for (const k of Object.keys(v)) out[k] = cloneGameStateValue(v[k], seen);
+  return out;
+}
+// Prévisualisation d'un rachat : même exécution que la validation, sur une copie de l'état
+// (finances, grilles, tirages aléatoires compris), puis l'état réel est rétabli tel quel.
+function previewProgramBuyout(slot, programId, talentId) {
+  const quote=quoteProgram(slot,programId,talentId);
+  if(!quote?.holder) return null;
+  const real=gameState;
+  gameState=cloneGameStateValue(real);
+  try {
+    const q=quoteProgram(slot,programId,talentId);
+    const c=executeProgramSigning(slot,q);
+    const t=gameState.player.target, tr=c.transfer;
+    return tr?.applied && tr.view ? { target:t, ...tr.view[t] } : { target:t, pending:true };
+  } finally {
+    gameState=real;
+  }
+}
+function signProgram(slot, programId, talentId) {
+  ensureCampaign(); const p=gameState.player;
+  if(gameState.step!==6 || gameState.dilemmaPhase!=='choosing' || gameState.currentDilemmaIndex!==0) return false;
+  const quote=quoteProgram(slot,programId,talentId);
+  if(!quote || !quote.allowed) return false;
+  executeProgramSigning(slot, quote);
+  // 9–10. Locomotive et PDA globales recalculées par le moteur, puis recettes (écart seul).
   const audience=getCalculatedPDAs().find(c=>c.channel===p).pda[p.target];
   p.pdaHistorySeason=[audience]; p.pdaMoyenneSaison=audience; p.pdaFinSaison=audience;
   // Le nouveau programme modifie l'audience : les recettes pub sont réestimées tout de
@@ -11174,21 +11210,29 @@ function exclusivityFee(program, holder) {
 }
 
 // ---- Rachat : transfert de public -------------------------------------------------
-// Instantané pris chez le vendeur AVANT toute modification de sa grille : apport propre du
-// programme par cible (jamais l'audience totale du créneau ni la PDA du vendeur), statut de
-// carrière, talent éventuel. Un apport non calculable est noté null (transfert nul).
-function snapshotProgramTransfer(holder) {
+// PDA d'un créneau pour une chaîne, par cible, telle que le moteur la calcule (après
+// normalisation, contre-programmation et locomotive) : c'est la valeur affichée.
+function slotPdaByTarget(channel, slot, rows = getCalculatedPDAs()) {
+  const row = rows.find(r => r.channel === channel);
+  return Object.fromEntries(AUDIENCE_DEMOS.map(t => [t, row?.slots?.[slot]?.[t]]));
+}
+// Instantané pris chez le vendeur AVANT toute modification des grilles : dernière PDA
+// calculée du programme sur son créneau, par cible (null si elle n'est pas fiable : case
+// occupée par un événement, programme absent), statut de carrière, talent éventuel.
+function snapshotProgramTransfer(holder, rows = getCalculatedPDAs()) {
   const c = holder.contract, career = c.career || {};
   const historic = !!career.historic || c.strategyTag === 'franchise';
   const status = programLifeStage({ historic, seasonsCount: career.seasonsCount || 0, wear: career.wear || 0 });
-  const sellerContribution = Object.fromEntries(AUDIENCE_DEMOS.map(t => {
-    const v = programOwnContribution(c, t);
-    return [t, Number.isFinite(v) ? Math.round(v * 1000) / 1000 : null];
-  }));
+  const onAir = sameProgram(activeContract(holder.competitor, holder.slot), c);
+  const pda = slotPdaByTarget(holder.competitor, holder.slot, rows);
+  const sellerPda = Object.fromEntries(AUDIENCE_DEMOS.map(t =>
+    [t, onAir && Number.isFinite(pda[t]) ? pda[t] : null]));
   const talent = c.talent && !/interne|équipe/i.test(c.talent) ? c.talent : null;
-  return { programId: c.id, instanceId: `${holder.competitor.name}|${holder.slot}|${c.id}|${gameState.season}`,
+  return { version: GAME_BALANCE.programTransfer.version, programId: c.id,
+    instanceId: `${holder.competitor.name}|${holder.slot}|${c.id}|${gameState.season}`,
     sellerName: holder.competitor.name, slot: holder.slot, careerStatus: status, seasonsCount: career.seasonsCount || 0,
-    sellerContribution, talent, transferSeason: gameState.season, firstBroadcastSeason: null, applied: false };
+    sellerPda, talent, signatureSeason: gameState.season, transferSeason: gameState.season,
+    firstBroadcastSeason: null, applied: false };
 }
 // Compatibilité du programme avec la chaîne acheteuse : genre (affinités de contre-
 // programmation) × cible (affinité hors cible), classée selon des seuils centralisés.
@@ -11203,30 +11247,85 @@ function programTransferCompatibility(contract, channel) {
   const level = score >= th.forte ? 'forte' : score >= th.moyenne ? 'moyenne' : 'faible';
   return { score, level, factor: cfg.compatibility[level] };
 }
-// Application unique, à la première diffusion effective chez l'acheteur : l'apport transféré
-// (plafonné à ce moment-là seulement) rejoint la base du programme, qui évolue ensuite
-// normalement (carrière, usure, décisions). Rien n'est retiré au changement de saison ;
-// rien n'est réappliqué (drapeau sauvegardé avec le contrat).
+// Taux effectif = taux du statut × compatibilité × maintien du talent.
+function programTransferRate(contract, tr, channel = gameState.player) {
+  const cfg = GAME_BALANCE.programTransfer;
+  const category = cfg.statusCategory[tr.careerStatus] || 'recent';
+  const compat = programTransferCompatibility(contract, channel);
+  const talentFactor = tr.talent ? (contract.talent === tr.talent ? cfg.talent.kept : cfg.talent.lost) : 1;
+  return { category, rate: cfg.rates[category], compatibility: compat.level, compatibilityFactor: compat.factor,
+    talentFactor, effective: cfg.rates[category] * compat.factor * talentFactor };
+}
+// Plan par cible, en points de PDA comparables : PDA chez le vendeur, PDA habituelle chez
+// l'acheteur (créneau avec le programme acheté, sans transfert), public transféré et PDA
+// d'arrivée. Écart nul ou négatif, ou PDA vendeur non fiable : transfert nul.
+function programTransferPlan(contract, tr, slot, rows) {
+  const rate = programTransferRate(contract, tr);
+  const habitual = slotPdaByTarget(gameState.player, slot, rows);
+  const view = Object.fromEntries(AUDIENCE_DEMOS.map(t => {
+    const seller = tr.sellerPda?.[t];
+    const gap = Number.isFinite(seller) ? Math.max(0, seller - habitual[t]) : 0;
+    const transferred = gap * rate.effective;
+    return [t, { sellerPda: Number.isFinite(seller) ? seller : null, habitual: habitual[t], gap, transferred,
+      arrival: habitual[t] + transferred }];
+  }));
+  return { ...rate, view };
+}
+// Conversion inverse : puissance acquise (état du programme dans le moteur) qui amène la
+// PDA effective du créneau, après normalisation, à la PDA d'arrivée visée. La part attendue
+// est une fonction homographique de la puissance ajoutée, les autres chaînes gardant leurs
+// proportions : deux évaluations du moteur donnent la solution exacte, puis on vérifie sur
+// les PDA finales (affinage numérique si un plafond du moteur intervient).
+function solveAcquiredPower(slot, view) {
+  const p = gameState.player, c = p.contracts[slot], tr = c.transfer;
+  const want = AUDIENCE_DEMOS.filter(t => view[t].transferred > 1e-9);
+  tr.acquired = Object.fromEntries(AUDIENCE_DEMOS.map(t => [t, 0]));
+  tr.applied = true;
+  if (!want.length) return;
+  const row = () => getCalculatedPDAs().find(r => r.channel === p);
+  const r0 = row();
+  want.forEach(t => { tr.acquired[t] = 1; });
+  const r1 = row();
+  want.forEach(t => {
+    const e0 = r0.expectedSlots[slot][t], e1 = r1.expectedSlots[slot][t];
+    const offset = r0.slots[slot][t] - e0; // impacts persistés et locomotive, indépendants de la puissance
+    const goal = Math.min(99.8, view[t].arrival - offset);
+    const unit = (e1 - e0) / (100 - e1);
+    tr.acquired[t] = unit > 0 ? Math.max(0, ((goal - e0) / (100 - goal)) / unit) : 0;
+  });
+  // Vérification et affinage (sécante) sur la PDA finale.
+  for (let i = 0; i < 12; i++) {
+    const r = row();
+    const off = want.filter(t => Math.abs(r.slots[slot][t] - view[t].arrival) > 1e-7);
+    if (!off.length) break;
+    off.forEach(t => {
+      const x = tr.acquired[t], s = r.slots[slot][t], h = Math.max(1e-6, x * 1e-4);
+      tr.acquired[t] = x + h;
+      const s2 = row().slots[slot][t];
+      tr.acquired[t] = s2 > s ? Math.max(0, x + (view[t].arrival - s) * h / (s2 - s)) : x;
+    });
+  }
+}
+// Application unique, à la première diffusion effective chez l'acheteur : l'audience
+// d'arrivée devient l'état acquis du programme, qui évolue ensuite normalement (carrière,
+// usure, décisions). Rien n'est retiré au changement de saison ; rien n'est réappliqué.
 function applyProgramTransfer(slot) {
   const p = gameState.player, c = p.contracts?.[slot], tr = c?.transfer;
   if (!tr || tr.applied) return false;
   // Pas encore à l'antenne : case prise par un événement, ou contrat d'une saison future.
   if (activeContract(p, slot) !== c || (c.startSeason ?? -Infinity) > gameState.season) return false;
-  const cfg = GAME_BALANCE.programTransfer;
-  const category = cfg.statusCategory[tr.careerStatus] || 'recent';
-  const rate = cfg.rates[category];
-  const compat = programTransferCompatibility(c, p);
-  const talentFactor = tr.talent ? (c.talent === tr.talent ? cfg.talent.kept : cfg.talent.lost) : 1;
-  const habitual = {}, acquired = {};
-  AUDIENCE_DEMOS.forEach(t => {
-    const usual = programOwnContribution(c, t); // potentiel habituel, sans le transfert
-    const seller = tr.sellerContribution?.[t];
-    habitual[t] = Math.round(usual * 1000) / 1000;
-    acquired[t] = Number.isFinite(seller) && seller > 0 && usual > 0
-      ? Math.round(Math.min(seller * rate * compat.factor * talentFactor, usual * cfg.initialCapShare) * 1000) / 1000 : 0;
-  });
-  Object.assign(tr, { applied: true, firstBroadcastSeason: gameState.season, category, rate,
-    compatibility: compat.level, compatibilityFactor: compat.factor, talentFactor, habitual, acquired });
+  // Ancienne mécanique en attente (sauvegarde) : pas de nouveau calcul rétroactif.
+  if (tr.version !== GAME_BALANCE.programTransfer.version) {
+    Object.assign(tr, { applied: true, firstBroadcastSeason: gameState.season, acquired: tr.acquired || {} });
+    return true;
+  }
+  const plan = programTransferPlan(c, tr, slot, getCalculatedPDAs());
+  solveAcquiredPower(slot, plan.view);
+  const finalPda = slotPdaByTarget(p, slot);
+  AUDIENCE_DEMOS.forEach(t => { plan.view[t].final = finalPda[t]; });
+  Object.assign(tr, { firstBroadcastSeason: gameState.season, category: plan.category, rate: plan.rate,
+    compatibility: plan.compatibility, compatibilityFactor: plan.compatibilityFactor, talentFactor: plan.talentFactor,
+    effectiveRate: plan.effective, view: plan.view });
   return true;
 }
 function applyPendingProgramTransfers() {
@@ -12684,6 +12783,14 @@ function bindCampaignPanel(app) {
         if(q.finance.purchase>0) lines.push(`<span>Achat <b>${nf1(q.finance.purchase)} M€</b></span>`);
         if(q.termination>0) lines.push(`<span class="warn">dont pénalité ${nf1(q.termination)} M€</span>`);
         if(q.buyout>0) lines.push(`<span class="warn">dont rachat à ${esc(q.holder.competitor.name)} ${nf1(q.buyout)} M€</span>`);
+        const tv=q.holder?previewProgramBuyout(slot,card.dataset.pmCard,level.id):null;
+        if(tv&&!tv.pending){
+          const pts=v=>`${v>0?'+':''}${nf1(v)} point${Math.abs(v)>=2?'s':''}`;
+          lines.push(tv.sellerPda!=null?`<span>Audience chez le concurrent : <b>${nf1(tv.sellerPda)} %</b></span>`:'',
+            `<span>Potentiel sur votre chaîne : <b>${nf1(tv.habitual)} %</b></span>`,
+            `<span>Public transféré : <b>${pts(tv.transferred)}</b></span>`,
+            `<span>Audience estimée à l’arrivée : <b>${nf1(tv.arrival)} %</b></span>`);
+        }
         if(!q.allowed) lines.push('<span class="bad">Budget insuffisant</span>');
       }
       card.querySelector('[data-pm-quote]').innerHTML=lines.join('');
