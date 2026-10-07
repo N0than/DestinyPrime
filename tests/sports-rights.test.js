@@ -94,23 +94,51 @@ assert(f1rec.recurring&&f1rec.broadcastSeason===3&&f1rec.initialPrice===fa.resul
 assert(sr().recurring.f1.nextAuctionSeason===null&&sportsRightBusy('f1'),'F1 off the market while held');
 gameState.season=3;gameState.seenDilemmaIds=[];gameState.player.eventsSeen=[];
 const q3=pickDilemmaQueue();const ren=q3.at(-1);
-assert(ren.isSportsRenewal&&ren.rightsEventId==='f1'&&ren.c[0].finance.purchase===f1rec.initialPrice,'renewal offered at the initial price');
+assert(ren.isSportsRenewal&&ren.rightsEventId==='f1'&&ren.c[0].sportsRenewal==='renew'&&ren.c[0].finance.purchase===0&&ren.c[0].finance.recurring===0
+  &&ren.c[0].pillLabel.includes(nf1(f1rec.initialPrice)),'renewal offered at the initial price, in the grid cost (no one-off purchase)');
+assert(q3.length===3,'single right renewal replaces the last dilemma, like a program');
 assert(!q3.some(d=>d.type==='sports_rights_auction'&&d.rightsEventId==='f1'),'no F1 auction while held');
 activateSportsBroadcasts();assert(activeContract(gameState.player,'apresmidi')?.isSportsEvent&&!activeContract(gameState.player,'prime')?.isSportsEvent,'F1 airs in the afternoon');
 // Choix seul (un dilemme suit encore) : la clôture de saison n'intervient pas ici.
 gameState.dilemmaQueue=[ren,DILEMMA_BANK[0]];gameState.currentDilemmaIndex=0;gameState.dilemmaPhase='choosing';gameState.step=6;
-settle();const achR=gameState.player.achatsSaison;
+settle();const achR=gameState.player.achatsSaison,gridR=gameState.player.coutGrilleEngageSaison,cashR=gameState.player.tresorerie;
+const commitR=nextSeasonCommitment().annual;
 chooseDilemmaOption(0);
 const next=sr().owned.filter(o=>o.eventId==='f1'&&o.broadcastSeason===4);
 assert(next.length===1&&next[0].ownerId==='player'&&next[0].acquisitionPrice===f1rec.initialPrice&&next[0].renewal,'renewed for next season at the initial price');
-assert(Math.abs(gameState.player.achatsSaison-achR-f1rec.initialPrice)<1e-9,'renewal paid once');
+assert(gameState.player.achatsSaison===achR&&gameState.player.coutGrilleEngageSaison===gridR,'renewal is not a one-off purchase and leaves this season grid unchanged');
+assert(Math.abs(nextSeasonCommitment().annual-commitR-f1rec.initialPrice)<1e-9&&nextSeasonCommitment().sports===f1rec.initialPrice,'renewal price added to next season grid');
+// Ouverture de la saison de diffusion : le prix rejoint le coût de grille, une seule fois.
+gameState.season=4;const g4=gameState.player.coutGrilleEngageSaison;rollSportsRightsIntoGrid();rollSportsRightsIntoGrid();
+assert(gameState.player.coutGrilleEngageSaison===g4+f1rec.initialPrice&&sportsRightsGridAnnual()===f1rec.initialPrice,'renewed right in the grid cost of its broadcast season');
 // Saison suivante : lâcher les droits, ils reviennent sur le marché plus tard.
-gameState.season=4;const q4=pickDilemmaQueue();const ren4=q4.at(-1);assert(ren4.isSportsRenewal,'renewal offered again');
-assert(ren4.desc.includes('Après 2 saisons'),'seasons held shown');
-applySportsRenewalChoice(ren4,ren4.c[1]);
+const q4=pickDilemmaQueue();const ren4=q4.at(-1);assert(ren4.isSportsRenewal,'renewal offered again');
+assert(ren4.desc.includes('après 2 saisons'),'seasons held shown');
+assert(nextSeasonCommitment().expired>=f1rec.initialPrice&&nextSeasonCommitment().sports===0,'unrenewed right leaves next season grid');
+applySportsRenewalChoice('f1','release');
 assert([5,6].includes(sr().recurring.f1.nextAuctionSeason)&&!sr().owned.some(o=>o.eventId==='f1'&&o.broadcastSeason===5),'released right back on the market');
+const g5=gameState.player.coutGrilleEngageSaison;gameState.season=5;rollSportsRightsIntoGrid();
+assert(gameState.player.coutGrilleEngageSaison===g5-f1rec.initialPrice,'released right leaves the grid cost');gameState.season=4;
 gameState.season=sr().recurring.f1.nextAuctionSeason;gameState.seenDilemmaIds=[];
 assert(pickDilemmaQueue().some(d=>d.rightsEventId==='f1'),'F1 auctioned again later');
+// Programme à reconduire en même temps : le droit rejoint les cartes de la grille.
+{
+  setup();gameState.season=3;acquireSportsRight('f1',{owner:'player',price:9});sr().owned[0].broadcastSeason=3;sr().recurring.f1.nextAuctionSeason=null;
+  gameState.player.contracts={prime:{id:'pp',name:'Prime Show',annual:4,talentAnnual:0,power:2,target:'a2549',end:3}};
+  gameState.player.coutGrilleEngageSaison=4;
+  const gq=withRenewalDilemmas([DILEMMA_BANK[0],DILEMMA_BANK[1],DILEMMA_BANK[2]]);const gr=gq.at(-1);
+  assert(gr.isGridRenewal&&gr.gridSports.length===1&&gr.gridSports[0].key==='sport:f1'&&!gq.some(d=>d.isSportsRenewal),'F1 card inside the grid renewal');
+  assert(renewalDeck(gr).cards('sport:f1').length===2&&gridRenewalSummary(gr).includes('2 reconduits'),'F1 card choices, renewed by default');
+  gr.picks={'sport:f1':1};
+  const cc=buildGridRenewalCustomChoice(gr,gr.c[1]);
+  assert(cc.sportsPicks[0].choice.sportsRenewal==='release'&&cc.finance.purchase===0&&gridRenewalSummary(gr).includes('1 lâché'),'custom pick releases the right');
+  gr.picks={};
+  gameState.dilemmaQueue=[gr,DILEMMA_BANK[0]];gameState.currentDilemmaIndex=0;gameState.dilemmaPhase='choosing';
+  settle();const a0=gameState.player.achatsSaison;chooseDilemmaOption(0);
+  assert(sr().owned.some(o=>o.eventId==='f1'&&o.broadcastSeason===4&&o.gridAnnual===9)&&gameState.player.achatsSaison===a0
+    &&gameState.player.contracts.prime.end===4,'renew whole grid keeps the F1 right, priced in the grid');
+  gameState.season=4;
+}
 // Chaîne IA détentrice : reconduction ou abandon selon budget et profil.
 setup();gameState.season=3;const ai=gameState.competitors[0];ai.budget=100;
 acquireSportsRight('f1',{owner:ai,price:9});sr().owned[0].broadcastSeason=3;sr().recurring.f1.nextAuctionSeason=null;

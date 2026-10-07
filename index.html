@@ -6558,8 +6558,13 @@ function pickDilemmaQueue() {
 function withRenewalDilemmas(queue) {
   const pendingRenewals = selectCareerDecisions()
     .filter(pending => createCareerRenewalDilemma(pending));
-  if (pendingRenewals.length >= 2) {
-    queue[queue.length - 1] = createGridRenewalDilemma(pendingRenewals);
+  // Droit sportif annuel diffusé cette saison : il fait partie de la programmation et se
+  // reconduit (ou se lâche) avec la grille, sur sa propre carte.
+  const sportsRenewals = recurringRightsToRenew(o => o.ownerId === 'player');
+  if (pendingRenewals.length + sportsRenewals.length >= 2) {
+    queue[queue.length - 1] = createGridRenewalDilemma(pendingRenewals, sportsRenewals);
+  } else if (sportsRenewals.length) {
+    queue[queue.length - 1] = createSportsRenewalDilemma(sportsRenewals[0]);
   } else {
     pendingRenewals.forEach((pending, i) => {
       const careerDilemma = createCareerRenewalDilemma(pending);
@@ -6567,9 +6572,6 @@ function withRenewalDilemmas(queue) {
       else queue.push(careerDilemma);
     });
   }
-  // Droit sportif annuel diffusé cette saison : reconduire ou lâcher pour la suivante.
-  const sportsRenewal = createSportsRenewalDilemma();
-  if (sportsRenewal) queue.push(sportsRenewal);
   // Les talents en fin de contrat ferment la saison : un arbitrage de plus, après la grille.
   const talentDilemma = createTalentRenewalDilemma(pendingTalentRenewals());
   if (talentDilemma) queue.push(talentDilemma);
@@ -6583,12 +6585,12 @@ function withRenewalDilemmas(queue) {
 function refreshRenewalDilemmas() {
   if (gameState.step !== 6 || gameState.currentDilemmaIndex !== 0 || gameState.dilemmaPhase !== 'choosing') return;
   const base = gameState.dilemmaBaseQueue
-    || (gameState.dilemmaQueue || []).filter(d => !d.isCareerDilemma && !d.isGridRenewal && !d.isTalentRenewal);
+    || (gameState.dilemmaQueue || []).filter(d => !d.isCareerDilemma && !d.isGridRenewal && !d.isTalentRenewal && !d.isSportsRenewal);
   if (!base.length) return;
   gameState.dilemmaQueue = withRenewalDilemmas([...base]);
 }
 
-function createGridRenewalDilemma(pendingRenewals) {
+function createGridRenewalDilemma(pendingRenewals, sportsRenewals = []) {
   const p = gameState.player;
   const zeroPda = { j1524: 0, a2549: 0, s50: 0, csp: 0 };
   const programs = pendingRenewals.map(pending => {
@@ -6596,16 +6598,26 @@ function createGridRenewalDilemma(pendingRenewals) {
     const career = migrateProgramCareer(contract, pending.slot);
     return { slot: pending.slot, name: contract.name, awareness: Math.round(career.awareness), wear: Math.round(career.wear), historic: !!career.historic };
   });
+  const sports = sportsRenewals.map(rec => ({ key: `sport:${rec.eventId}`, eventId: rec.eventId, name: SPORT_RIGHTS_EVENTS[rec.eventId].name, price: rec.initialPrice }));
+  const plural = (n, word) => `${n} ${word}${n > 1 ? 's' : ''}`;
+  const count = [programs.length ? plural(programs.length, 'programme') : '', sports.length ? plural(sports.length, 'droit sportif').replace('droits sportif', 'droits sportifs') : '']
+    .filter(Boolean).join(' + ');
+  const sportsCost = sports.reduce((sum, x) => sum + x.price, 0);
+  const sportsNote = sports.length
+    ? ` ${sports.map(x => SPORT_RIGHTS_EVENTS[x.eventId].the).join(', ').replace(/^./, c => c.toUpperCase())} se reconduit au prix de l’enchère initiale : ${nf1(sportsCost)} M€ sur la grille de la saison prochaine.` : '';
   return {
-    id: `grid-renewal-${gameState.season}`, isGridRenewal: true, gridRenewals: pendingRenewals, gridPrograms: programs,
+    id: `grid-renewal-${gameState.season}`, isGridRenewal: true, gridRenewals: pendingRenewals, gridPrograms: programs, gridSports: sports,
     titre: 'Reconduire la grille ?',
-    desc: `Dernier arbitrage de la saison : ${programs.length} programmes arrivent à un moment clé. Reconduisez toute la grille à l'identique, ou touchez une carte pour décider de l'avenir de chaque programme.`,
+    desc: `Dernier arbitrage de la saison : ${count} arrivent à un moment clé. Reconduisez toute la grille à l'identique, ou touchez une carte pour décider de l'avenir de chaque programme.${sportsNote}`,
     picks: {},
     c: [
-      { l: 'Renouveler toute la grille à l’identique', gridRenewal: 'all', pillLabel: `${programs.length} programmes reconduits`,
+      { l: 'Renouveler toute la grille à l’identique', gridRenewal: 'all', pillLabel: sports.length ? `Grille : +${nf1(sportsCost)} M€/an` : `${programs.length} programmes reconduits`,
+        ...(sports.length ? { pillCls: 'cost' } : {}),
         pda: { ...zeroPda }, audienceImpacts: [], pop: 0, finance: { recurring: 0, purchase: 0, commercial: 0, category: 'N' },
-        r: 'La grille est reconduite telle quelle : vos programmes conservent leurs repères et leur public, mais leur usure continue.' },
-      { l: 'Valider mes choix', gridRenewal: 'custom', pillLabel: `${programs.length} programmes reconduits`,
+        r: sports.length
+          ? `La grille est reconduite telle quelle : vos programmes conservent leurs repères et leur public, mais leur usure continue. Les droits sportifs restent à l’antenne : ${nf1(sportsCost)} M€ s’ajoutent au coût de grille de la saison prochaine.`
+          : 'La grille est reconduite telle quelle : vos programmes conservent leurs repères et leur public, mais leur usure continue.' },
+      { l: 'Valider mes choix', gridRenewal: 'custom', pillLabel: `${count} reconduits`,
         pda: { ...zeroPda }, audienceImpacts: [], pop: 0, finance: { recurring: 0, purchase: 0, commercial: 0, category: 'N' },
         r: 'Chaque programme suit l’avenir choisi sur sa carte.' }
     ]
@@ -6616,15 +6628,19 @@ function applyGridRenewalChoice(dilemma, choice) {
   const pendings = dilemma.gridRenewals || [];
   if (choice.gridRenewal === 'custom') {
     (choice.gridPicks || []).forEach(({ sub, choice: subChoice }) => applyCareerDilemmaChoice(sub, subChoice));
+    (choice.sportsPicks || []).forEach(item => applySportsRenewalChoice(item.eventId, item.choice.sportsRenewal));
     return;
   }
   if (choice.gridRenewal === 'all') {
     pendings.forEach(pending => applyCareerDilemmaChoice(
       { careerSlot: pending.slot, programId: pending.programId }, { careerAction: 'renew' }));
+    (dilemma.gridSports || []).forEach(x => applySportsRenewalChoice(x.eventId, 'renew'));
     return;
   }
   // Arbitrage au cas par cas : les dilemmes de renouvellement s'insèrent juste après.
-  const next = pendings.map(pending => createCareerRenewalDilemma(pending)).filter(Boolean);
+  const next = pendings.map(pending => createCareerRenewalDilemma(pending))
+    .concat((dilemma.gridSports || []).map(x => createSportsRenewalDilemma(recurringRightsToRenew(o => o.ownerId === 'player' && o.eventId === x.eventId)[0])))
+    .filter(Boolean);
   gameState.dilemmaQueue.splice(gameState.currentDilemmaIndex + 1, 0, ...next);
 }
 
@@ -7305,7 +7321,7 @@ function chooseDilemmaOption(choiceIndex) {
   }
   player.decisionHistory.push({id:dilemma.id, choice:isSportsAuction ? -1 : choiceIndex, season:gameState.season, ...decisionQuote.finance});
   if (isSportsAuction) recordSportsAuctionOutcome(dilemma);
-  if (dilemma.isSportsRenewal) applySportsRenewalChoice(dilemma, choice);
+  if (dilemma.isSportsRenewal) applySportsRenewalChoice(dilemma.rightsEventId, choice.sportsRenewal);
   const talentCost = isSportsDeal ? null : DILEMMA_TALENT_COST[dilemma.id];
   if (talentCost) {
     player.coutTalentsSaison += talentCost[choiceIndex];
@@ -7507,6 +7523,7 @@ function startNewSeason() {
   // précédente ; il n'est donc pas recalculé ni remis à un budget théorique.
   closeSportsBroadcasts();
   restorePausedPrograms();
+  rollSportsRightsIntoGrid();
   player.budgetGrilleAnnuel = player.coutGrilleEngageSaison;
   player.tresorerieDebutSaison = player.tresorerie;
   // Le budget de grille est annuel : il revient chaque saison comme coût fixe de départ,
@@ -8350,7 +8367,7 @@ function render() {
             const icon = responseEmoji(dilemma, choice, i);
             const custom = choice.gridRenewal === 'custom' ? buildGridRenewalCustomChoice(dilemma, choice) : null;
             const badgeCls = choice.talentRenewal === 'custom' ? talentRenewalPillCls(dilemma) : choice.pillCls
-              || ((custom || choice).finance.purchase || (custom || choice).finance.recurring > 0 ? 'cost' : 'save');
+              || ((custom || choice).finance.purchase || (custom || choice).finance.recurring > 0 || custom?.sportsGrid > 0 ? 'cost' : 'save');
             const badgeText = custom ? gridRenewalSummary(dilemma)
               : choice.talentRenewal ? talentRenewalSummary(dilemma, choice.talentRenewal === 'all') : financeLabel(choice);
             return `
@@ -8378,15 +8395,15 @@ function render() {
       <div class="dilemma-container${phase === 'choosing' ? entrance : ''}">
         <div class="dilemma-card dilemma-hero${phase === 'result' ? ' is-result' : ''}${sportEvent ? ` sa-hero sa-phase-${phase === 'result' ? 'verdict' : gameState.sportsRights?.activeAuction?.phase || 'market'}` : ''}">
           <div class="dc-head">
-            <span class="dc-head-left"><span class="dc-live-pill"><span class="dc-live-dot"></span>${sportEvent || dilemma.isSportsRenewal ? 'Droits sportifs' : 'Événement'}</span>${channelPillHtml()}</span>
+            <span class="dc-head-left"><span class="dc-live-pill"><span class="dc-live-dot"></span>${sportEvent ? 'Droits sportifs' : 'Événement'}</span>${channelPillHtml()}</span>
             <span class="dc-season-pill">${seasonPillLabel()}</span>
           </div>
           <div class="dc-body">
-            <h2>${sportEvent ? esc(sportEvent.headline) : dilemma.isCareerDilemma || dilemma.isTalentRenewal ? dilemma.titre.replace(/« [^»]*»(?: \?)?/, m => `<span class="dc-title-keep">${m}</span>`) : dilemma.titre}</h2>
+            <h2>${sportEvent ? esc(sportEvent.headline) : dilemma.isCareerDilemma || dilemma.isTalentRenewal || dilemma.isSportsRenewal ? dilemma.titre.replace(/« [^»]*»(?: \?)?/, m => `<span class="dc-title-keep">${m}</span>`) : dilemma.titre}</h2>
             <p>${sportEvent ? esc(sportEvent.pitch) : dilemma.desc}</p>
             ${sportsBlock}
-            ${dilemma.isSportsRenewal ? (() => { const ev = SPORT_RIGHTS_EVENTS[dilemma.rightsEventId];
-              return `<div class="sa-inline">${sportsIllustrationHtml(ev, { overlay: `<span class="sa-illu-slot">Saison ${gameState.season + 1} · ${esc(sportsSlotsLabel(ev))}</span>`, corner: 'Renouvellement' })}</div>`; })() : ''}
+            ${dilemma.isSportsRenewal && playerRecurringRight(dilemma.rightsEventId) ? `
+            <div class="gr-cards gr-single" data-gr-cards="single">${sportsRenewalCardHtml(playerRecurringRight(dilemma.rightsEventId), { readonly: true, single: true })}</div>` : ''}
             ${dilemma.isCareerDilemma ? `
             <div class="gr-cards gr-single" data-gr-cards="single">${renewalCardHtml(dilemma.careerSlot,
               gameState.player.contracts[dilemma.careerSlot]?.name || '',
@@ -8405,11 +8422,12 @@ function render() {
                   { label: 'Notoriété', value: awareness },
                   { label: 'Usure', value: g.wear, wear: true }],
                   { choices: item ? careerChoiceCards(item.sub) : [], picked: item?.explicit ? item.index : null, readonly: phase !== 'choosing' });
-              }).join('')}
+              }).join('')}${gridSportsItems(dilemma).map(item => sportsRenewalCardHtml(item.rec,
+                  { choices: item.cards, picked: item.explicit ? item.index : null, readonly: phase !== 'choosing' })).join('')}
               </div>
               <button type="button" class="gr-nav prev" data-gr-nav="-1" aria-label="Programme précédent">‹</button>
               <button type="button" class="gr-nav next" data-gr-nav="1" aria-label="Programme suivant">›</button>
-              <div class="gr-dots" role="tablist">${dilemma.gridPrograms.map((g, i) => `<button type="button" class="gr-dot${i === 0 ? ' active' : ''}" data-gr-dot="${i}" aria-label="${esc(g.name)}"></button>`).join('')}</div>
+              <div class="gr-dots" role="tablist">${[...dilemma.gridPrograms, ...(dilemma.gridSports || [])].map((g, i) => `<button type="button" class="gr-dot${i === 0 ? ' active' : ''}" data-gr-dot="${i}" aria-label="${esc(g.name)}"></button>`).join('')}</div>
             </div>` : ''}
             ${dilemma.isTalentRenewal ? (() => {
               // Après le choix, les talents ne sont plus « en attente » : on garde leurs cartes à l'écran.
@@ -8547,7 +8565,7 @@ function render() {
       ${renderSportsRightsBilanHtml()}
       <div class="card bilan-card">
         <div class="kicker-badge">ENGAGEMENTS DE LA SAISON SUIVANTE</div>
-        <p>Grille à payer : <b>${nf1(nextSeasonCommitment().annual)} M€</b> · contrats arrivant à échéance : ${nf1(nextSeasonCommitment().expired)} M€ / an.</p>
+        <p>Grille à payer : <b>${nf1(nextSeasonCommitment().annual)} M€</b>${nextSeasonCommitment().sports>0?` (dont droits sportifs reconduits : ${nf1(nextSeasonCommitment().sports)} M€)`:''} · contrats arrivant à échéance : ${nf1(nextSeasonCommitment().expired)} M€ / an.</p>
         <p>Trésorerie après paiement : <b>${nf1(nextSeasonCommitment().cash)} M€</b>, avant nouvelles recettes et décisions.${nextSeasonCommitment().cash<TRESORERIE_CRITIQUE?' Ce paiement ferait franchir le seuil de faillite.':''}</p>
       </div>
       <button class="welcome-cta" id="btn-next-season" style="margin-top: 2px;" ${careerContract?'disabled title="Décidez d’abord de l’avenir du programme"':''}>
@@ -9260,11 +9278,15 @@ function sportsRightSeasonsHeld(rec) {
   return n;
 }
 // Reconduction au prix de l'enchère initiale : diffusion la saison suivante, mêmes cases.
-// Le joueur paie via son choix de dilemme ; une chaîne IA paie sur son budget.
+// Le joueur ne fait pas d'achat ponctuel : le droit reconduit fait partie de sa
+// programmation et son prix rejoint le coût de grille de la saison de diffusion (débité
+// avec la grille à l'ouverture de celle-ci). Une chaîne IA paie sur son budget.
 function renewSportsRight(rec) {
   rec.renewalDecided = 'renew';
-  const owner = rec.ownerId === 'player' ? 'player' : gameState.competitors.find(c => c.name === rec.ownerName);
+  const isPlayer = rec.ownerId === 'player';
+  const owner = isPlayer ? 'player' : gameState.competitors.find(c => c.name === rec.ownerName);
   acquireSportsRight(rec.eventId, { owner, price: rec.initialPrice, renewal: true, initialPrice: rec.initialPrice });
+  if (isPlayer) gameState.sportsRights.owned[gameState.sportsRights.owned.length - 1].gridAnnual = rec.initialPrice;
   gameState.sportsRights.history.push({ type: 'sports_rights_renewal', eventId: rec.eventId, season: gameState.season, owner: rec.ownerName, price: rec.initialPrice });
 }
 // Droits lâchés : ils reviennent sur le marché une à deux saisons plus tard, pour tous.
@@ -9273,6 +9295,26 @@ function releaseSportsRight(rec) {
   const sr = gameState.sportsRights;
   sr.recurring[rec.eventId].nextAuctionSeason = gameState.season + sportsChoice([1, 2]);
   sr.history.push({ type: 'sports_rights_release', eventId: rec.eventId, season: gameState.season, owner: rec.ownerName });
+}
+// Droits reconduits du joueur inscrits au coût de grille d'une saison donnée.
+function sportsRightsGridAnnual(season = gameState.season) {
+  return (gameState.sportsRights?.owned || []).filter(o => o.ownerId === 'player' && o.gridAnnual && o.broadcastSeason === season)
+    .reduce((sum, o) => sum + o.gridAnnual, 0);
+}
+// Ouverture de saison, avant le paiement de la grille : le droit reconduit entre dans le
+// coût de grille de sa saison de diffusion et en sort la saison suivante (comme un contrat).
+function rollSportsRightsIntoGrid() {
+  const p = gameState.player;
+  (gameState.sportsRights?.owned || []).forEach(o => {
+    if (o.ownerId !== 'player' || !o.gridAnnual) return;
+    if (o.inGrid && o.broadcastSeason < gameState.season) {
+      p.coutGrilleEngageSaison = Math.max(0, p.coutGrilleEngageSaison - o.gridAnnual);
+      o.inGrid = false;
+    } else if (!o.inGrid && !o.gridCharged && o.broadcastSeason === gameState.season) {
+      p.coutGrilleEngageSaison += o.gridAnnual;
+      o.inGrid = true; o.gridCharged = true;
+    }
+  });
 }
 // Chaînes IA : reconduction selon le profil, le budget, la rentabilité constatée et
 // l'ancienneté (plus les saisons passent, plus une chaîne est tentée de lâcher).
@@ -9289,9 +9331,49 @@ function resolveSportsRenewalsAtSeasonEnd() {
   // Filet de sécurité : un droit du joueur non arbitré est lâché.
   recurringRightsToRenew(o => o.ownerId === 'player').forEach(releaseSportsRight);
 }
-// Joueur : arbitrage de fin de saison, comme le renouvellement d'un programme.
-function createSportsRenewalDilemma() {
-  const rec = recurringRightsToRenew(o => o.ownerId === 'player')[0];
+// ---- Joueur : le droit annuel est arbitré dans le renouvellement de la grille ----
+// Droit du joueur diffusé cette saison, arbitré ou non (les cartes restent affichées
+// après le choix).
+function playerRecurringRight(eventId) {
+  return (gameState.sportsRights?.owned || []).find(o => o.recurring && o.ownerId === 'player'
+    && o.eventId === eventId && o.broadcastSeason === gameState.season) || null;
+}
+const SPORTS_RENEWAL_UI = {
+  renew: { label: 'Reconduire les droits', badge: '✔ Reconduit', action: 'renew' },
+  release: { label: 'Lâcher les droits', badge: '✖ Lâché', action: 'stop' }
+};
+// Choix au dos de la carte du droit : reconduire (prix ajouté à la grille suivante) ou lâcher.
+function sportsRenewalChoiceCards(rec) {
+  return [
+    { index: 0, sportsRenewal: 'renew', ...SPORTS_RENEWAL_UI.renew, cost: `+${nf1(rec.initialPrice)} M€ grille`, costCls: 'cost' },
+    { index: 1, sportsRenewal: 'release', ...SPORTS_RENEWAL_UI.release, cost: 'Sans frais', costCls: 'free' }
+  ];
+}
+// Carte illustrée du droit, au format des cartes de programmes à reconduire.
+function sportsRenewalCardHtml(rec, opts = {}) {
+  const event = SPORT_RIGHTS_EVENTS[rec.eventId];
+  const art = typeof TvPrograms !== 'undefined'
+    ? TvPrograms.dataUri({ seed: `sports-rights:${event.id}`, genre: 'sport', ...event.illustration }) : '';
+  const slot = rec.slots[0];
+  const slotMeta = TIME_SLOTS.find(s => s.key === slot);
+  const playerCalc = getCalculatedPDAs().find(c => c.channel === gameState.player);
+  const pda = playerCalc?.slots?.[slot]?.[gameState.player.target];
+  const held = sportsRightSeasonsHeld(rec);
+  const stats = [
+    { label: 'Prestige', stars: event.tier === 'mega' ? 5 : 4 },
+    { label: opts.single ? 'Attractivité pub' : 'Attractivité', title: 'Attractivité commerciale', stars: Math.round(1 + (event.commercialAttractiveness - 1) * 20) },
+    { label: 'Saisons', title: `${held} saison${held > 1 ? 's' : ''} à l’antenne`, stars: Math.min(5, held), wear: true }
+  ];
+  return flipCardHtml({ ...opts, key: `sport:${rec.eventId}`, name: event.name,
+    stats: opts.single ? stats : [stats[1], stats[2]],
+    pdaBadge: Number.isFinite(pda) ? `<span class="gr-pda pg-badge-${slotMeta?.accent || 'gris'}" title="PDA actuelle de l’événement">${nf1(pda)}% PDA</span>` : '',
+    artHtml: art ? `<img src="${art}" alt="" width="320" height="180" decoding="async">` : '',
+    ribbon: `${event.icon} Droit annuel`,
+    badge: `${slotMeta ? `${slotMeta.icon} ` : ''}${sportsSlotsLabel(event)}` });
+}
+// Un seul arbitrage en fin de saison et le droit sportif est seul concerné : dilemme
+// de renouvellement au format d'un programme.
+function createSportsRenewalDilemma(rec) {
   if (!rec) return null;
   const event = SPORT_RIGHTS_EVENTS[rec.eventId];
   const held = sportsRightSeasonsHeld(rec);
@@ -9299,22 +9381,22 @@ function createSportsRenewalDilemma() {
   const slots = sportsSlotsLabel(event).toLowerCase();
   return {
     id: `sports-renewal-${rec.eventId}-${gameState.season}`, isSportsRenewal: true, rightsEventId: rec.eventId,
-    titre: `Reconduire ${event.the} ?`,
-    desc: `${held > 1 ? `Après ${held} saisons` : 'Après une première saison'} à l’antenne (${slots}), les droits de la saison prochaine vous sont proposés au prix de l’enchère initiale. Lâchés, ils retournent sur le marché.`,
+    titre: `Quel avenir pour « ${event.name} » ?`,
+    desc: `Dernier arbitrage de la saison : ${held > 1 ? `après ${held} saisons` : 'après une première saison'} à l’antenne (${slots}), les droits de la saison prochaine vous sont proposés au prix de l’enchère initiale. Reconduits, ils rejoignent votre coût de grille ; lâchés, ils retournent sur le marché.`,
     c: [
-      { l: `Renouveler les droits (${nf1(rec.initialPrice)} M€)`, sportsRenewal: 'renew', icon: '🔁',
-        finance: { recurring: 0, purchase: rec.initialPrice, commercial: 0, category: 'P' }, pda: { ...zero }, audienceImpacts: [], pop: 0,
-        r: `${event.name} reste chez vous la saison prochaine (${slots}). Production à prévoir à la diffusion : ${nf1(event.productionCost)} M€.` },
-      { l: 'Lâcher les droits', sportsRenewal: 'release', icon: '🚪',
+      { l: 'Reconduire les droits', sportsRenewal: 'renew', icon: '🔁', pillLabel: `Grille : +${nf1(rec.initialPrice)} M€/an`, pillCls: 'cost',
+        finance: { recurring: 0, purchase: 0, commercial: 0, category: 'N' }, pda: { ...zero }, audienceImpacts: [], pop: 0,
+        r: `${event.name} reste dans votre programmation la saison prochaine (${slots}) : ${nf1(rec.initialPrice)} M€ s’ajoutent au coût de grille, payé à l’ouverture de la saison. Production à prévoir à la diffusion : ${nf1(event.productionCost)} M€.` },
+      { l: 'Lâcher les droits', sportsRenewal: 'release', icon: '🚪', pillLabel: 'Droits libérés', pillCls: 'save',
         finance: { recurring: 0, purchase: 0, commercial: 0, category: 'N' }, pda: { ...zero }, audienceImpacts: [], pop: 0,
         r: 'Les droits retournent sur le marché : une chaîne concurrente pourra s’en emparer lors d’une prochaine enchère.' }
     ]
   };
 }
-function applySportsRenewalChoice(dilemma, choice) {
-  const rec = recurringRightsToRenew(o => o.ownerId === 'player' && o.eventId === dilemma.rightsEventId)[0];
+function applySportsRenewalChoice(eventId, action) {
+  const rec = recurringRightsToRenew(o => o.ownerId === 'player' && o.eventId === eventId)[0];
   if (!rec) return;
-  if (choice.sportsRenewal === 'renew') renewSportsRight(rec); else releaseSportsRight(rec);
+  if (action === 'renew') renewSportsRight(rec); else releaseSportsRight(rec);
 }
 function acquireSportsRight(eventId, { owner, price, renewal = false, initialPrice = null }) {
   const event = SPORT_RIGHTS_EVENTS[eventId];
@@ -10194,10 +10276,25 @@ function gridRenewalItems(dilemma) {
     return { slot: pending.slot, sub, index, choice: sub.c[index], explicit: Number.isInteger(pick) };
   }).filter(Boolean);
 }
+// Droits sportifs annuels de la grille : reconduits par défaut, comme les programmes.
+function gridSportsItems(dilemma) {
+  return (dilemma.gridSports || []).map(x => {
+    const rec = playerRecurringRight(x.eventId);
+    if (!rec) return null;
+    const cards = sportsRenewalChoiceCards(rec);
+    const pick = dilemma.picks?.[x.key];
+    const index = Number.isInteger(pick) && cards[pick] ? pick : 0;
+    return { key: x.key, eventId: x.eventId, rec, cards, index, choice: cards[index], explicit: Number.isInteger(pick) };
+  }).filter(Boolean);
+}
 function gridRenewalSummary(dilemma) {
   const counts = {};
   gridRenewalItems(dilemma).forEach(item => {
     const key = item.choice.careerAction === 'stop' ? 'arrêté' : ['renew', 'consolidate'].includes(item.choice.careerAction) ? 'reconduit' : 'retravaillé';
+    counts[key] = (counts[key] || 0) + 1;
+  });
+  gridSportsItems(dilemma).forEach(item => {
+    const key = item.choice.sportsRenewal === 'renew' ? 'reconduit' : 'lâché';
     counts[key] = (counts[key] || 0) + 1;
   });
   return Object.entries(counts).map(([k, n]) => `${n} ${k}${n > 1 ? 's' : ''}`).join(' · ');
@@ -10223,9 +10320,14 @@ function buildGridRenewalCustomChoice(dilemma, base) {
     const label = (CAREER_ACTION_UI[choice.careerAction]?.badge || '✔').replace(/^\S+\s/, '');
     (groups[label] ||= []).push(gameState.player.contracts[sub.careerSlot]?.name || '');
   });
-  return { ...base, finance, pop, audienceImpacts, gridPicks: items,
+  // Droits sportifs : aucun flux immédiat, le prix reconduit rejoint la grille suivante.
+  const sportsPicks = gridSportsItems(dilemma);
+  sportsPicks.forEach(({ eventId, choice }) => (groups[choice.badge.replace(/^\S+\s/, '')] ||= []).push(SPORT_RIGHTS_EVENTS[eventId].name));
+  const sportsGrid = sportsPicks.filter(i => i.choice.sportsRenewal === 'renew').reduce((sum, i) => sum + i.rec.initialPrice, 0);
+  return { ...base, finance, pop, audienceImpacts, gridPicks: items, sportsPicks, sportsGrid,
     excludedSlots: items.filter(i => i.choice.careerAction === 'stop').map(i => i.slot),
-    r: Object.entries(groups).map(([label, names]) => `${label} : ${names.join(', ')}`).join('. ') + '.' };
+    r: Object.entries(groups).map(([label, names]) => `${label} : ${names.join(', ')}`).join('. ') + '.'
+      + (sportsGrid > 0 ? ` Droits sportifs reconduits : ${nf1(sportsGrid)} M€ ajoutés au coût de grille de la saison prochaine.` : '') };
 }
 // Cartes de renouvellement retournables : le dos propose l'avenir du programme. Grille :
 // le choix est mémorisé sur la carte et résumé sur « Valider mes choix » ; programme seul :
@@ -10247,10 +10349,14 @@ function renewalDeck(dilemma) {
   };
   const custom = dilemma.c.findIndex(c => c.gridRenewal === 'custom');
   return {
-    cards: key => { const item = gridRenewalItems(dilemma).find(i => i.slot === key); return item ? careerChoiceCards(item.sub) : []; },
+    cards: key => {
+      const sport = gridSportsItems(dilemma).find(i => i.key === key);
+      if (sport) return sport.cards;
+      const item = gridRenewalItems(dilemma).find(i => i.slot === key); return item ? careerChoiceCards(item.sub) : [];
+    },
     custom,
     summary: () => gridRenewalSummary(dilemma),
-    pillCls: () => buildGridRenewalCustomChoice(dilemma, dilemma.c[custom]).finance.purchase > 0 ? 'cost' : 'save'
+    pillCls: () => { const c = buildGridRenewalCustomChoice(dilemma, dilemma.c[custom]); return c.finance.purchase > 0 || c.sportsGrid > 0 ? 'cost' : 'save'; }
   };
 }
 function bindRenewalCards(root, dilemma) {
@@ -10568,8 +10674,11 @@ function launchConfetti() {
 function nextSeasonCommitment() {
   const p=gameState.player;
   const expired=Object.values(p.contracts||{}).filter(c=>c.end<=gameState.season).reduce((sum,c)=>sum+c.annual,0);
-  const annual=Math.max(0,p.coutGrilleEngageSaison-expired)+pausedAnnualThisSeason();
-  return {annual,expired,cash:p.tresorerie-annual};
+  // Droits sportifs reconduits : ceux de la saison sortent de la grille, ceux de la
+  // saison prochaine y entrent.
+  const sportsNow=sportsRightsGridAnnual(), sports=sportsRightsGridAnnual(gameState.season+1);
+  const annual=Math.max(0,p.coutGrilleEngageSaison-expired-sportsNow)+pausedAnnualThisSeason()+sports;
+  return {annual,expired:expired+sportsNow,sports,cash:p.tresorerie-annual};
 }
 function applyFinance(f, excludedSlot=null) {
   ensureCampaign(); const p=gameState.player;
