@@ -53,16 +53,75 @@ for(let s=1;s<=60;s++){
   assert(q.length===3,'still three dilemmas');
   assert(auctions.length<=1,'max one auction per season');
   if(auctions.length){
-    assert(s===sr().nextAuctionSeason,'auction only on scheduled season');
+    const evA=SPORT_RIGHTS_EVENTS[auctions[0].rightsEventId];
+    if(evA.recurring) assert(s>=sr().recurring[evA.id].nextAuctionSeason,'annual right auctioned on its own calendar');
+    else {
+      assert(s===sr().nextAuctionSeason,'auction only on scheduled season');
+      const last=[...sr().history].reverse().find(h=>h.type==='sports_rights_auction'&&!SPORT_RIGHTS_EVENTS[h.eventId].recurring);
+      if(last) assert(last.eventId!==auctions[0].rightsEventId,'no immediate repeat');
+    }
     seen.add(auctions[0].rightsEventId);
-    const last=[...sr().history].reverse()[0];
-    if(last) assert(last.eventId!==auctions[0].rightsEventId,'no immediate repeat');
     // Résolution sans le joueur pour avancer le calendrier.
     gameState.dilemmaQueue=q;gameState.currentDilemmaIndex=1;startSportsRightsAuction(auctions[0].rightsEventId,auctions[0].id);
     sportsAuctionPass();recordSportsAuctionOutcome(auctions[0]);
   } else assert(!q.some(d=>SPORT_RIGHTS_DILEMMA_IDS.includes(d.id)),'auction dilemma never drawn normally');
 }
-assert(['roland_garros','world_cup','olympic_games'].every(id=>seen.has(id)),'every event can be selected: '+[...seen]);
+assert(['roland_garros','world_cup','olympic_games','f1'].every(id=>seen.has(id)),'every event can be selected: '+[...seen]);
+
+// ---------- Championnat du monde de F1 : droit annuel ----------
+const f1=SPORT_RIGHTS_EVENTS.f1;
+assert(f1.recurring&&f1.preferredSlots.join()==='apresmidi','F1 on the afternoon slot');
+const d92=DILEMMA_BANK.find(d=>d.id==='d92');
+assert(d92.type==='sports_rights_auction'&&d92.rightsEventId==='f1'&&!/vingt-quatre dimanches/.test(d92.titre),'old F1 dilemma replaced by the auction');
+assert(!pickDilemmaQueue.toString().includes('d92'),'no hard-coded F1 dilemma');
+// Première enchère F1 tirée au hasard dans les premières saisons.
+const firsts=new Set();for(let k=1;k<=40;k++){setup('generaliste',1000+k);firsts.add(sr().recurring.f1.nextAuctionSeason);}
+assert([...firsts].every(v=>v>=1&&v<=3)&&firsts.size>1,'first F1 auction in seasons 1-3: '+[...firsts]);
+// Généraliste et Sport la reçoivent ; une seule enchère par saison, le marché ordinaire attend.
+['generaliste','sport'].forEach(type=>{
+  setup(type);gameState.season=sr().recurring.f1.nextAuctionSeason;sr().nextAuctionSeason=gameState.season;
+  const q=pickDilemmaQueue();const auc=q.filter(d=>d.type==='sports_rights_auction');
+  assert(auc.length===1&&auc[0].rightsEventId==='f1'&&sr().nextAuctionSeason===gameState.season+1,'F1 auction first, ordinary market postponed for '+type);
+});
+// Joueur gagnant : diffusion l'après-midi la saison suivante, puis reconduction au prix initial.
+setup();seededRandom=()=>.999;gameState.season=2;sr().recurring.f1.nextAuctionSeason=2;
+gameState.dilemmaQueue=[d92,DILEMMA_BANK[0],DILEMMA_BANK[2]];gameState.currentDilemmaIndex=0;
+let fa=startSportsRightsAuction('f1','d92');fa.rivals.forEach((r,i)=>{r.max=[8,6,0,0,0][i];r.status=r.max>=f1.reservePrice?'in':'out';});
+sportsAuctionParticipate();sportsAuctionSealedBid(10);assert(fa.result.outcome==='won'&&fa.result.price>8&&fa.result.price<=10,'player wins F1');
+chooseDilemmaOption(0);
+const f1rec=sr().owned.find(o=>o.eventId==='f1');
+assert(f1rec.recurring&&f1rec.broadcastSeason===3&&f1rec.initialPrice===fa.result.price&&f1rec.slots.join()==='apresmidi','F1 right recorded');
+assert(sr().recurring.f1.nextAuctionSeason===null&&sportsRightBusy('f1'),'F1 off the market while held');
+gameState.season=3;gameState.seenDilemmaIds=[];gameState.player.eventsSeen=[];
+const q3=pickDilemmaQueue();const ren=q3.at(-1);
+assert(ren.isSportsRenewal&&ren.rightsEventId==='f1'&&ren.c[0].finance.purchase===f1rec.initialPrice,'renewal offered at the initial price');
+assert(!q3.some(d=>d.type==='sports_rights_auction'&&d.rightsEventId==='f1'),'no F1 auction while held');
+activateSportsBroadcasts();assert(activeContract(gameState.player,'apresmidi')?.isSportsEvent&&!activeContract(gameState.player,'prime')?.isSportsEvent,'F1 airs in the afternoon');
+// Choix seul (un dilemme suit encore) : la clôture de saison n'intervient pas ici.
+gameState.dilemmaQueue=[ren,DILEMMA_BANK[0]];gameState.currentDilemmaIndex=0;gameState.dilemmaPhase='choosing';gameState.step=6;
+settle();const achR=gameState.player.achatsSaison;
+chooseDilemmaOption(0);
+const next=sr().owned.filter(o=>o.eventId==='f1'&&o.broadcastSeason===4);
+assert(next.length===1&&next[0].ownerId==='player'&&next[0].acquisitionPrice===f1rec.initialPrice&&next[0].renewal,'renewed for next season at the initial price');
+assert(Math.abs(gameState.player.achatsSaison-achR-f1rec.initialPrice)<1e-9,'renewal paid once');
+// Saison suivante : lâcher les droits, ils reviennent sur le marché plus tard.
+gameState.season=4;const q4=pickDilemmaQueue();const ren4=q4.at(-1);assert(ren4.isSportsRenewal,'renewal offered again');
+assert(ren4.desc.includes('Après 2 saisons'),'seasons held shown');
+applySportsRenewalChoice(ren4,ren4.c[1]);
+assert([5,6].includes(sr().recurring.f1.nextAuctionSeason)&&!sr().owned.some(o=>o.eventId==='f1'&&o.broadcastSeason===5),'released right back on the market');
+gameState.season=sr().recurring.f1.nextAuctionSeason;gameState.seenDilemmaIds=[];
+assert(pickDilemmaQueue().some(d=>d.rightsEventId==='f1'),'F1 auctioned again later');
+// Chaîne IA détentrice : reconduction ou abandon selon budget et profil.
+setup();gameState.season=3;const ai=gameState.competitors[0];ai.budget=100;
+acquireSportsRight('f1',{owner:ai,price:9});sr().owned[0].broadcastSeason=3;sr().recurring.f1.nextAuctionSeason=null;
+const sRand=sportsRandom;sportsRandom=()=>0;resolveSportsRenewalsAtSeasonEnd();
+assert(sr().owned.some(o=>o.ownerName===ai.name&&o.broadcastSeason===4&&o.acquisitionPrice===9)&&ai.budget===100-9-9,'AI renews at the initial price');
+gameState.season=4;ai.budget=5;resolveSportsRenewalsAtSeasonEnd();
+assert(!sr().owned.some(o=>o.broadcastSeason===5)&&[5,6].includes(sr().recurring.f1.nextAuctionSeason),'AI without budget releases the right');
+sportsRandom=sRand;
+// Joueur hors Généraliste / Sport : la F1 se vend entre chaînes IA.
+setup('culture');gameState.competitors.forEach(c=>c.budget=200);gameState.season=sr().recurring.f1.nextAuctionSeason;
+assert(!pickDilemmaQueue().some(d=>d.rightsEventId==='f1')&&sr().history.some(h=>h.eventId==='f1'&&h.result==='ai_only'),'F1 auction among AI channels');
 // Joueur jeunesse, info, culture ou cinéma : jamais de dilemme de droits sportifs ; le marché
 // se tient alors entre chaînes IA, qui enchérissent librement quel que soit leur type.
 ['jeunesse','info','culture','cinema'].forEach(type=>{
@@ -76,10 +135,10 @@ assert(['roland_garros','world_cup','olympic_games'].every(id=>seen.has(id)),'ev
 });
 ['generaliste','sport','jeunesse','info','culture','cinema'].forEach(type=>assert(computeCompetitorSportsMaxBid({...mk('X','offensive',type),budget:200},SPORT_RIGHTS_EVENTS.world_cup)>0,'AI bids from '+type));
 // Chaîne Sport : ses dilemmes dédiés (d89, d145) sont préférés.
-setup('sport');gameState.season=sr().nextAuctionSeason;const sq=pickDilemmaQueue().find(d=>d.type==='sports_rights_auction');
+setup('sport');gameState.season=sr().nextAuctionSeason;sr().recurring.f1.nextAuctionSeason=99;const sq=pickDilemmaQueue().find(d=>d.type==='sports_rights_auction');
 assert(sq&&(['d89','d145','d2'].includes(sq.id)),'sport channel auction dilemma');
 // Un dilemme sport éditorial ou de production n'est pas converti.
-['d79','d165','d20','d244','d76','d77','d92','d148'].forEach(id=>assert(!DILEMMA_BANK.find(d=>d.id===id).type,'not converted '+id));
+['d79','d165','d20','d244','d76','d77','d148'].forEach(id=>assert(!DILEMMA_BANK.find(d=>d.id===id).type,'not converted '+id));
 assert(DILEMMA_BANK.find(d=>d.id==='d2').titre.includes('Coupe du monde'),'d2 rewritten as World Cup');
 
 // ---------- Moteur d'enchère ----------

@@ -4147,12 +4147,13 @@ const DILEMMA_BANK = [
     ]
   },
   {
-    id: 'd92', titre: "Formule 1 : vingt-quatre dimanches",
-    desc: "La F1 se vend en bloc et coûte le prix d'une saison entière de football. Ton public, lui, ne rate jamais un départ.",
-    types: ['sport'],
+    id: 'd92', titre: "La Formule 1 cherche un diffuseur",
+    desc: "Les droits du Championnat du monde de F1 sont mis aux enchères : vingt-quatre Grands Prix l'après-midi, renouvelables chaque saison au prix remporté.",
+    types: ['generaliste', 'sport'],
+    type: 'sports_rights_auction', rightsEventId: 'f1',
     c: [
-      { l: "Acheter les droits complets de la saison", finance: {"recurring":0,"purchase":32,"commercial":0,"category":"P"}, pda: { j1524: +9, a2549: +8, s50: +4, csp: +5 }, r: "Les scores explosent sur toutes les cibles : chèque massif signé sans trembler. Les réseaux sociaux s'enflamment positivement.", pop: 3 },
-      { l: "Prendre les Grands Prix les plus populaires", finance: {"recurring":0,"purchase":14,"commercial":0,"category":"P"}, pda: { j1524: +6, a2549: +5, s50: +3, csp: +4 }, r: "Mise conséquente sur la table, le public suit en nombre. La confiance du public progresse.", pop: 2 }
+      { l: "Participer à l'enchère", finance: {"recurring":0,"purchase":0,"commercial":0,"category":"N"}, pda: { j1524: 0, a2549: 0, s50: 0, csp: 0 }, r: "L'enchère se joue sous pli.", pop: 0 },
+      { l: "Laisser passer", finance: {"recurring":0,"purchase":0,"commercial":0,"category":"N"}, pda: { j1524: 0, a2549: 0, s50: 0, csp: 0 }, r: "La F1 part chez un concurrent.", pop: 0 }
     ]
   },
   {
@@ -6566,6 +6567,9 @@ function withRenewalDilemmas(queue) {
       else queue.push(careerDilemma);
     });
   }
+  // Droit sportif annuel diffusé cette saison : reconduire ou lâcher pour la suivante.
+  const sportsRenewal = createSportsRenewalDilemma();
+  if (sportsRenewal) queue.push(sportsRenewal);
   // Les talents en fin de contrat ferment la saison : un arbitrage de plus, après la grille.
   const talentDilemma = createTalentRenewalDilemma(pendingTalentRenewals());
   if (talentDilemma) queue.push(talentDilemma);
@@ -7228,7 +7232,8 @@ function chooseDilemmaOption(choiceIndex) {
   const player = gameState.player;
   const popAvant = player.popularite;
 
-  if (!isSportsAuction) applyDilemmaEditoImpact(dilemma, choiceIndex, choice);
+  const isSportsDeal = isSportsAuction || !!dilemma.isSportsRenewal;
+  if (!isSportsDeal) applyDilemmaEditoImpact(dilemma, choiceIndex, choice);
 
   const decisionQuote = choice.careerAction ? quoteCareerDilemma(choice)
     : choice.excludedSlots ? { ...quoteFinance(choice.finance, choice.excludedSlots), finance: { ...choice.finance }, termination: 0, replacedTalent: 0 }
@@ -7300,7 +7305,8 @@ function chooseDilemmaOption(choiceIndex) {
   }
   player.decisionHistory.push({id:dilemma.id, choice:isSportsAuction ? -1 : choiceIndex, season:gameState.season, ...decisionQuote.finance});
   if (isSportsAuction) recordSportsAuctionOutcome(dilemma);
-  const talentCost = isSportsAuction ? null : DILEMMA_TALENT_COST[dilemma.id];
+  if (dilemma.isSportsRenewal) applySportsRenewalChoice(dilemma, choice);
+  const talentCost = isSportsDeal ? null : DILEMMA_TALENT_COST[dilemma.id];
   if (talentCost) {
     player.coutTalentsSaison += talentCost[choiceIndex];
   }
@@ -7422,6 +7428,7 @@ function chooseDilemmaOption(choiceIndex) {
       rentabiliteGrille: player.rentabiliteGrille
     });
     evaluateSportsBroadcasts();
+    resolveSportsRenewalsAtSeasonEnd();
     evolveProgramCareers();
     pushArcomSeasonResult();
     // Les bonus/malus ARCOM sont des flux de clôture : l'historique doit refléter
@@ -8371,13 +8378,15 @@ function render() {
       <div class="dilemma-container${phase === 'choosing' ? entrance : ''}">
         <div class="dilemma-card dilemma-hero${phase === 'result' ? ' is-result' : ''}${sportEvent ? ` sa-hero sa-phase-${phase === 'result' ? 'verdict' : gameState.sportsRights?.activeAuction?.phase || 'market'}` : ''}">
           <div class="dc-head">
-            <span class="dc-head-left"><span class="dc-live-pill"><span class="dc-live-dot"></span>${sportEvent ? 'Droits sportifs' : 'Événement'}</span>${channelPillHtml()}</span>
+            <span class="dc-head-left"><span class="dc-live-pill"><span class="dc-live-dot"></span>${sportEvent || dilemma.isSportsRenewal ? 'Droits sportifs' : 'Événement'}</span>${channelPillHtml()}</span>
             <span class="dc-season-pill">${seasonPillLabel()}</span>
           </div>
           <div class="dc-body">
             <h2>${sportEvent ? esc(sportEvent.headline) : dilemma.isCareerDilemma || dilemma.isTalentRenewal ? dilemma.titre.replace(/« [^»]*»(?: \?)?/, m => `<span class="dc-title-keep">${m}</span>`) : dilemma.titre}</h2>
             <p>${sportEvent ? esc(sportEvent.pitch) : dilemma.desc}</p>
             ${sportsBlock}
+            ${dilemma.isSportsRenewal ? (() => { const ev = SPORT_RIGHTS_EVENTS[dilemma.rightsEventId];
+              return `<div class="sa-inline">${sportsIllustrationHtml(ev, { overlay: `<span class="sa-illu-slot">Saison ${gameState.season + 1} · ${esc(sportsSlotsLabel(ev))}</span>`, corner: 'Renouvellement' })}</div>`; })() : ''}
             ${dilemma.isCareerDilemma ? `
             <div class="gr-cards gr-single" data-gr-cards="single">${renewalCardHtml(dilemma.careerSlot,
               gameState.player.contracts[dilemma.careerSlot]?.name || '',
@@ -8902,6 +8911,20 @@ const SPORT_RIGHTS_EVENTS = {
     slotFit: { access: 0.8, prime: 1, nuit: 0.6 },
     dilemmaIds: ['d2']
   },
+  // Droit annuel (recurring) : diffusé l'après-midi la saison suivante, puis renouvelable à
+  // chaque fin de saison au prix de l'enchère initiale, ou lâché et remis sur le marché.
+  f1: {
+    illustration: { subgenre: 'auto', palette: 'jour' },
+    id: 'f1', name: 'Championnat du monde de F1', the: 'le Championnat du monde de F1', sport: 'automobile', icon: '🏎️', tier: 'premium',
+    headline: 'La Formule 1 cherche un diffuseur',
+    pitch: 'Vingt-quatre Grands Prix, presque tous l’après-midi. Les droits du championnat du monde sont à prendre pour la saison prochaine, puis renouvelables chaque année au prix remporté.',
+    reservePrice: 5, estimatedValueMin: 7, estimatedValueMax: 11, productionCost: 1.5, exclusive: true, duration: 1, recurring: true,
+    audiencePower: { j1524: 1.20, a2549: 1.30, s50: 1.15, csp: 1.20 },
+    commercialAttractiveness: 1.15,
+    preferredSlots: ['apresmidi'],
+    slotFit: { apresmidi: 1 },
+    dilemmaIds: ['d92']
+  },
   olympic_games: {
     illustration: { subgenre: 'athletisme', palette: 'jour' },
     id: 'olympic_games', name: 'Jeux olympiques', the: 'les Jeux olympiques', sport: 'multisports', icon: '🏅', tier: 'mega',
@@ -8921,12 +8944,12 @@ const SPORT_RIGHTS_TUNING = {
   popularityOnAir: { premium: 2, mega: 3 },
   // Affinité stratégique selon le type de chaîne (jamais d'interdiction, seulement une valeur).
   channelFit: {
-    sport: { tennis: 1.15, football: 1.2, multisports: 1.2 },
-    generaliste: { tennis: 1.0, football: 1.05, multisports: 1.05 },
-    jeunesse: { tennis: 0.8, football: 1.05, multisports: 0.95 },
-    cinema: { tennis: 0.8, football: 0.9, multisports: 0.85 },
-    culture: { tennis: 0.9, football: 0.75, multisports: 0.85 },
-    info: { tennis: 0.85, football: 0.85, multisports: 0.95 }
+    sport: { tennis: 1.15, football: 1.2, multisports: 1.2, automobile: 1.15 },
+    generaliste: { tennis: 1.0, football: 1.05, multisports: 1.05, automobile: 1.0 },
+    jeunesse: { tennis: 0.8, football: 1.05, multisports: 0.95, automobile: 0.9 },
+    cinema: { tennis: 0.8, football: 0.9, multisports: 0.85, automobile: 0.85 },
+    culture: { tennis: 0.9, football: 0.75, multisports: 0.85, automobile: 0.8 },
+    info: { tennis: 0.85, football: 0.85, multisports: 0.95, automobile: 0.85 }
   }
 };
 const SPORT_RIGHTS_DILEMMA_IDS = Object.values(SPORT_RIGHTS_EVENTS).flatMap(e => e.dilemmaIds);
@@ -8940,6 +8963,12 @@ function ensureSportsRightsState() {
   sr.seed ??= (Math.floor(Math.random() * 4294967295) >>> 0) || 2463534242;
   // Partie sans calendrier (nouvelle ou ancienne) : première mise sur le marché dans 1 ou 2 saisons.
   if (sr.nextAuctionSeason == null) sr.nextAuctionSeason = (gameState.season || 1) + sportsChoice([1, 2]);
+  // Droits annuels (F1) : calendrier à part, première enchère tirée au hasard dans les
+  // premières saisons ; null tant qu'un diffuseur détient les droits.
+  sr.recurring ??= {};
+  Object.values(SPORT_RIGHTS_EVENTS).filter(e => e.recurring).forEach(e => {
+    sr.recurring[e.id] ??= { nextAuctionSeason: (gameState.season || 1) + sportsChoice([0, 1, 2]) };
+  });
   return sr;
 }
 // Flux déterministe propre aux droits sportifs (même générateur que les autres flux) :
@@ -8971,7 +9000,7 @@ function sportsAuctionDue() {
 function selectNextSportsRightsEvent() {
   const sr = ensureSportsRightsState();
   const eligible = getEligibleDilemmas();
-  const candidates = Object.values(SPORT_RIGHTS_EVENTS)
+  const candidates = Object.values(SPORT_RIGHTS_EVENTS).filter(event => !event.recurring)
     .map(event => ({ event, dilemma: eligible.find(d => event.dilemmaIds.includes(d.id) && d.types?.includes(gameState.player.type))
       || eligible.find(d => event.dilemmaIds.includes(d.id)) }))
     .filter(c => c.dilemma && !sportsRightBusy(c.event.id));
@@ -8990,13 +9019,16 @@ function sportsRightsEligibleChannel(channel) {
 }
 // Marché entre chaînes IA (joueur non concerné) : même calendrier, même rotation des événements,
 // mêmes plafonds ; le vainqueur paie et diffuse la saison suivante comme après une enchère joueur.
-function runCompetitorSportsAuction() {
+function runCompetitorSportsAuction(forcedEvent = null) {
   const sr = ensureSportsRightsState();
-  const free = Object.values(SPORT_RIGHTS_EVENTS).filter(e => !sportsRightBusy(e.id));
-  if (!free.length) { sr.nextAuctionSeason = gameState.season + 1; return null; }
-  const lastSeen = id => { const h = [...sr.history].reverse().find(x => x.eventId === id); return h ? h.season : -Infinity; };
-  const oldest = Math.min(...free.map(e => lastSeen(e.id)));
-  const event = sportsChoice(free.filter(e => lastSeen(e.id) === oldest));
+  let event = forcedEvent;
+  if (!event) {
+    const free = Object.values(SPORT_RIGHTS_EVENTS).filter(e => !e.recurring && !sportsRightBusy(e.id));
+    if (!free.length) { sr.nextAuctionSeason = gameState.season + 1; return null; }
+    const lastSeen = id => { const h = [...sr.history].reverse().find(x => x.eventId === id); return h ? h.season : -Infinity; };
+    const oldest = Math.min(...free.map(e => lastSeen(e.id)));
+    event = sportsChoice(free.filter(e => lastSeen(e.id) === oldest));
+  }
   sr.activeAuction = null;
   const a = startSportsRightsAuction(event.id, null);
   resolveSportsAmongRivals(a, 'ai_only');
@@ -9005,8 +9037,29 @@ function runCompetitorSportsAuction() {
   return a.result;
 }
 // Place une enchère dans la file de la saison (remplace un dilemme, jamais de quatrième).
+// Droit annuel remis sur le marché (première vente ou droits lâchés) dont l'enchère est due.
+function dueRecurringSportsEvent() {
+  const sr = ensureSportsRightsState();
+  if (sr.lastAuctionSeason === gameState.season) return null;
+  return Object.values(SPORT_RIGHTS_EVENTS).find(e => e.recurring && sr.recurring[e.id]?.nextAuctionSeason != null
+    && gameState.season >= sr.recurring[e.id].nextAuctionSeason && !sportsRightBusy(e.id)) || null;
+}
 function scheduleSportsAuction(queue) {
-  if (queue.length < 2 || !sportsAuctionDue()) return false;
+  if (queue.length < 2) return false;
+  // Une seule enchère par saison : un droit annuel dû passe en priorité et le marché
+  // ordinaire attend la saison suivante.
+  const recurringEvent = dueRecurringSportsEvent();
+  if (recurringEvent) {
+    const sr = gameState.sportsRights;
+    if (sportsAuctionDue()) sr.nextAuctionSeason = gameState.season + 1;
+    if (!sportsRightsEligibleChannel(gameState.player)) { runCompetitorSportsAuction(recurringEvent); return false; }
+    const dilemma = DILEMMA_BANK.find(d => recurringEvent.dilemmaIds.includes(d.id));
+    if (!dilemma) return false;
+    queue[1] = dilemma;
+    sr.activeAuction = null;
+    return true;
+  }
+  if (!sportsAuctionDue()) return false;
   if (!sportsRightsEligibleChannel(gameState.player)) { runCompetitorSportsAuction(); return false; }
   const sr = gameState.sportsRights;
   const pick = selectNextSportsRightsEvent();
@@ -9185,13 +9238,90 @@ function recordSportsAuctionOutcome(dilemma, event = sportsEventOfDilemma(dilemm
     playerLastBid: r.playerLastBid, finalBid: r.price, winnerId: winner === 'player' ? 'player' : winner ? winner.name : null,
     competitors: a.rivals.filter(x => x.interest).map(x => x.name) });
   sr.lastAuctionSeason = gameState.season;
-  sr.nextAuctionSeason = gameState.season + sportsChoice([2, 3]);
+  if (event.recurring) {
+    // Droit annuel : plus de vente tant qu'un diffuseur le détient ; sans preneur, il
+    // revient sur le marché une à deux saisons plus tard.
+    sr.recurring[event.id].nextAuctionSeason = winner ? null : gameState.season + sportsChoice([1, 2]);
+  } else {
+    sr.nextAuctionSeason = gameState.season + sportsChoice([2, 3]);
+  }
 }
-function acquireSportsRight(eventId, { owner, price }) {
+// ---- Droits annuels (F1) : reconduction en fin de saison ----
+// Droit annuel diffusé cette saison et pas encore arbitré pour la saison suivante.
+function recurringRightsToRenew(filter = () => true) {
+  const sr = gameState.sportsRights;
+  if (!sr) return [];
+  return sr.owned.filter(o => o.recurring && o.broadcastSeason === gameState.season && !o.renewalDecided && filter(o));
+}
+// Saisons consécutives de diffusion par le même détenteur, saison en cours comprise.
+function sportsRightSeasonsHeld(rec) {
+  let n = 0, season = rec.broadcastSeason;
+  while (gameState.sportsRights.owned.some(o => o.eventId === rec.eventId && o.ownerName === rec.ownerName && o.broadcastSeason === season)) { n++; season--; }
+  return n;
+}
+// Reconduction au prix de l'enchère initiale : diffusion la saison suivante, mêmes cases.
+// Le joueur paie via son choix de dilemme ; une chaîne IA paie sur son budget.
+function renewSportsRight(rec) {
+  rec.renewalDecided = 'renew';
+  const owner = rec.ownerId === 'player' ? 'player' : gameState.competitors.find(c => c.name === rec.ownerName);
+  acquireSportsRight(rec.eventId, { owner, price: rec.initialPrice, renewal: true, initialPrice: rec.initialPrice });
+  gameState.sportsRights.history.push({ type: 'sports_rights_renewal', eventId: rec.eventId, season: gameState.season, owner: rec.ownerName, price: rec.initialPrice });
+}
+// Droits lâchés : ils reviennent sur le marché une à deux saisons plus tard, pour tous.
+function releaseSportsRight(rec) {
+  rec.renewalDecided = 'release';
+  const sr = gameState.sportsRights;
+  sr.recurring[rec.eventId].nextAuctionSeason = gameState.season + sportsChoice([1, 2]);
+  sr.history.push({ type: 'sports_rights_release', eventId: rec.eventId, season: gameState.season, owner: rec.ownerName });
+}
+// Chaînes IA : reconduction selon le profil, le budget, la rentabilité constatée et
+// l'ancienneté (plus les saisons passent, plus une chaîne est tentée de lâcher).
+function resolveSportsRenewalsAtSeasonEnd() {
+  recurringRightsToRenew(o => o.ownerId !== 'player').forEach(rec => {
+    const c = gameState.competitors.find(x => x.name === rec.ownerName);
+    if (!c) { releaseSportsRight(rec); return; }
+    const keep = { offensive: 0.85, premium: 0.8, jeune: 0.75, rentable: 0.6 }[c.strategy] ?? 0.7;
+    const profitable = rec.perf && rec.perf.revenueGain >= rec.perf.cost * 0.6 ? 0.1 : 0;
+    const chance = keep + profitable - 0.12 * (sportsRightSeasonsHeld(rec) - 1);
+    if ((c.budget || 0) >= rec.initialPrice * 1.1 && sportsRandom() < chance) renewSportsRight(rec);
+    else releaseSportsRight(rec);
+  });
+  // Filet de sécurité : un droit du joueur non arbitré est lâché.
+  recurringRightsToRenew(o => o.ownerId === 'player').forEach(releaseSportsRight);
+}
+// Joueur : arbitrage de fin de saison, comme le renouvellement d'un programme.
+function createSportsRenewalDilemma() {
+  const rec = recurringRightsToRenew(o => o.ownerId === 'player')[0];
+  if (!rec) return null;
+  const event = SPORT_RIGHTS_EVENTS[rec.eventId];
+  const held = sportsRightSeasonsHeld(rec);
+  const zero = { j1524: 0, a2549: 0, s50: 0, csp: 0 };
+  const slots = sportsSlotsLabel(event).toLowerCase();
+  return {
+    id: `sports-renewal-${rec.eventId}-${gameState.season}`, isSportsRenewal: true, rightsEventId: rec.eventId,
+    titre: `Reconduire ${event.the} ?`,
+    desc: `${held > 1 ? `Après ${held} saisons` : 'Après une première saison'} à l’antenne (${slots}), les droits de la saison prochaine vous sont proposés au prix de l’enchère initiale. Lâchés, ils retournent sur le marché.`,
+    c: [
+      { l: `Renouveler les droits (${nf1(rec.initialPrice)} M€)`, sportsRenewal: 'renew', icon: '🔁',
+        finance: { recurring: 0, purchase: rec.initialPrice, commercial: 0, category: 'P' }, pda: { ...zero }, audienceImpacts: [], pop: 0,
+        r: `${event.name} reste chez vous la saison prochaine (${slots}). Production à prévoir à la diffusion : ${nf1(event.productionCost)} M€.` },
+      { l: 'Lâcher les droits', sportsRenewal: 'release', icon: '🚪',
+        finance: { recurring: 0, purchase: 0, commercial: 0, category: 'N' }, pda: { ...zero }, audienceImpacts: [], pop: 0,
+        r: 'Les droits retournent sur le marché : une chaîne concurrente pourra s’en emparer lors d’une prochaine enchère.' }
+    ]
+  };
+}
+function applySportsRenewalChoice(dilemma, choice) {
+  const rec = recurringRightsToRenew(o => o.ownerId === 'player' && o.eventId === dilemma.rightsEventId)[0];
+  if (!rec) return;
+  if (choice.sportsRenewal === 'renew') renewSportsRight(rec); else releaseSportsRight(rec);
+}
+function acquireSportsRight(eventId, { owner, price, renewal = false, initialPrice = null }) {
   const event = SPORT_RIGHTS_EVENTS[eventId];
   const isPlayer = owner === 'player';
   if (!isPlayer) owner.budget = Math.max(0, (owner.budget || 0) - price);
   gameState.sportsRights.owned.push({
+    ...(event.recurring ? { recurring: true, initialPrice: initialPrice ?? price, renewal } : {}),
     eventId, ownerId: isPlayer ? 'player' : 'competitor', ownerName: isPlayer ? gameState.player.name : owner.name,
     acquiredSeason: gameState.season, broadcastSeason: gameState.season + event.duration,
     acquisitionPrice: price, productionCost: event.productionCost, exclusive: event.exclusive,
@@ -9424,7 +9554,7 @@ function renderSportsAuctionZone(dilemma) {
           : '<span class="sa-note">Aucune chaîne ne semble décidée à se positionner.</span>'}
       </div>
       <div ${pop(0.25, 'sa-budget')}><span>Trésorerie <b>${nf1(p.tresorerie)} M€</b></span><span>Exposition max. <b>${nf1(ev.exposure)} M€</b></span></div>
-      <p ${pop(0.3, 'sa-note')}>Un seul tour, offre sous pli : l’audience viendra de la diffusion en saison ${gameState.season + 1}, les programmes en place y seront mis en pause et prolongés d’une saison.</p>
+      <p ${pop(0.3, 'sa-note')}>Un seul tour, offre sous pli : l’audience viendra de la diffusion en saison ${gameState.season + 1}, les programmes en place y seront mis en pause et prolongés d’une saison.${event.recurring ? ' Droit annuel : renouvelable à chaque fin de saison au prix remporté.' : ''}</p>
       <div ${pop(0.35, 'sa-actions')}>
         <button type="button" class="sa-btn primary" data-sa-action="participate">Participer</button>
         <button type="button" class="sa-btn" data-sa-action="pass">Passer</button>
@@ -9499,7 +9629,7 @@ function renderSportsVerdictInline(cq) {
         <div><span>Production prévisionnelle</span><b>${nf1(event.productionCost)} M€</b></div>
         <div class="total"><span>Engagement total</span><b>${nf1(v.price + event.productionCost)} M€</b></div>
       </div>
-      <p class="sa-note">✅ Prix payé : juste au-dessus de la deuxième offre${v.playerLastBid > v.price ? ` (vous aviez proposé ${nf1(v.playerLastBid)} M€)` : ''}. Diffusion en saison ${v.season + 1} · ${esc(sportsSlotsLabel(event))}.</p>`)}
+      <p class="sa-note">✅ Prix payé : juste au-dessus de la deuxième offre${v.playerLastBid > v.price ? ` (vous aviez proposé ${nf1(v.playerLastBid)} M€)` : ''}. Diffusion en saison ${v.season + 1} · ${esc(sportsSlotsLabel(event))}.${event.recurring ? ` Droit annuel : renouvelable chaque fin de saison à ${nf1(v.price)} M€.` : ''}</p>`)}
     </div>`;
   }
   const est = evaluateSportsRight(event, gameState.player);
@@ -10906,7 +11036,9 @@ function computeMarketWeather() {
   const views = gameState.competitors.map(competitorView);
   const bought = (gameState.sportsRights?.owned || []).filter(o => o.ownerId !== 'player' && o.acquiredSeason === gameState.season).map(o => {
     const e = SPORT_RIGHTS_EVENTS[o.eventId];
-    return { icon: '🏆', title: `${o.ownerName} s’offre ${e.the}`,
+    return o.renewal
+      ? { icon: '🔁', title: `${o.ownerName} reconduit ${e.the}`, text: `Droits renouvelés ${nf1(o.acquisitionPrice)} M€ : diffusion en saison ${o.broadcastSeason} sur ${sportsSlotsLabel(e)}.` }
+      : { icon: '🏆', title: `${o.ownerName} s’offre ${e.the}`,
       text: `Droits achetés ${nf1(o.acquisitionPrice)} M€ : diffusion en saison ${o.broadcastSeason} sur ${sportsSlotsLabel(e)}.` };
   });
   const items = competitorSportsBroadcastsThisSeason().map(o => {

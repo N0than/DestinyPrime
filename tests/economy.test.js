@@ -45,7 +45,11 @@ const t406=p.tresorerie;
 getCalculatedPDAs=realCalc;
 // Saison 1 complète puis passage en saison 2 : le coût réel de grille est reconduit.
 gameState.seasonKickoffPending=false;
-let guard=0; while(gameState.step===6&&guard++<12){ if(gameState.dilemmaPhase==='choosing') chooseDilemmaOption(0); continueAfterConsequence(); }
+let guard=0; while(gameState.step===6&&guard++<12){
+  const cur=gameState.dilemmaQueue[gameState.currentDilemmaIndex];
+  // Enchère de droits sportifs (F1 possible dès la S1) : le joueur passe son tour.
+  if(gameState.dilemmaPhase==='choosing'&&cur?.type==='sports_rights_auction'){ startSportsRightsAuction(cur.rightsEventId,cur.id); sportsAuctionPass(); }
+  if(gameState.dilemmaPhase==='choosing') chooseDilemmaOption(0); continueAfterConsequence(); }
 ok(gameState.step===7,'end of S1');
 const h=gameState.history.at(-1);
 ok(near(p.coutGrilleCumul,h.coutGrille),'grid counted once in cumul');
