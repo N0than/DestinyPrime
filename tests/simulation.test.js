@@ -70,6 +70,22 @@ gameState.player.coutGrilleEngageSaison=10;gameState.season++;expireTalents();
 assert(gameState.player.talents.length===2&&!gameState.player.talents.some(t=>t.id===tc.id)&&xa.annual===2.2&&Math.abs(gameState.player.coutGrilleEngageSaison-9.5)<1e-9,'season rollover applies talent decisions');
 gameState.season--;
 const solo=createTalentRenewalDilemma([mkTalent(ta,0,2)]);assert(solo.c.length===3&&solo.c[2].talentAction==='leave','single talent renewal options');
+// Rachat d'un programme concurrent : la nouvelle programmation de la chaîne lésée est
+// visible, mais pas sa stratégie (badge, décryptage, mouvements de programmation).
+{
+  render=()=>{};resetGame();const pb=gameState.player;pb.name='Rachat';pb.type='generaliste';pb.target='a2549';finalizeChannelSetup();launchFirstSeason();
+  gameState.seasonKickoffPending=false;gameState.mercatoPending=false;pb.tresorerie=500;
+  let deal=null;
+  for(const prog of PROGRAM_CATALOG){const h=programHolder(prog);if(h){pb.type=prog.channelType;if(signProgram(prog.slot,prog.id,'interne')){deal=h;break;}}}
+  assert(deal,'a competitor program can be bought');
+  const bv=competitorView(deal.competitor).find(x=>x.slot===deal.slot);
+  assert(bv.buyout&&bv.isNew&&bv.name!==deal.contract.name,'replacement programme shown, flagged as a buyout');
+  const row=renderRadarCards(deal.slot).split('class="radar-row').find(r=>r.includes('<span class="radar-name">'+esc(deal.competitor.name)+'</span>'));
+  assert(row&&!row.includes('radar-strat'),'no strategy badge in the radar');
+  const sheetRow=renderCompetitorSheet(deal.competitor).split('radar-grid-row').find(r=>r.includes(esc(bv.name)));
+  assert(sheetRow&&!Object.values(STRATEGY_TAGS).some(t=>sheetRow.includes('>'+t.label+'<')),'no strategy badge in the competitor sheet');
+  assert(!computeChannelBattle().moves.some(m=>m.c===deal.competitor&&m.key===deal.slot),'not listed as a strategic move');
+}
 console.log('OK lead-in, competitors, careers, interaction, revenue, talents'+(typeof persistGameState==='function'?', persistence':''));
 
 `;

@@ -11158,7 +11158,9 @@ function releaseCompetitorProgram(competitor, slot, fee) {
   if (competitor.plan?.slots) {
     const prevLevel = competitor.plan.slots[slot]?.level ?? null;
     competitor.plan.slots[slot] = { programId: program.id, name: program.name, genre: program.editorial.genre,
-      format: program.format, target: program.target, level, tag, isNew: true, prevName: lost.name, prevLevel };
+      format: program.format, target: program.target, level, tag, isNew: true, prevName: lost.name, prevLevel,
+      // Programme de remplacement après un rachat du joueur : sa stratégie n'est pas affichée.
+      buyout: true };
     competitor.plan.announced ??= {};
     competitor.plan.announced[slot] = { level, masked: false };
   }
@@ -11395,7 +11397,7 @@ function competitorView(competitor) {
     const a = plan.announced?.[key] || {};
     const reaction = competitor.slotInvestments?.[key];
     return { slot: key, name: d.name, genre: d.genre, format: d.format, target: d.target, tag: d.tag, isNew: d.isNew,
-      prevName: d.prevName, prevLevel: d.prevLevel, isSportsEvent: !!d.isSportsEvent, icon: d.icon || null, pausedName: d.pausedName || null,
+      prevName: d.prevName, prevLevel: d.prevLevel, isSportsEvent: !!d.isSportsEvent, buyout: !!d.buyout, icon: d.icon || null, pausedName: d.pausedName || null,
       level: confirmed ? d.level : a.level ?? d.level,
       masked: !confirmed && !!a.masked,
       reaction: reaction && reaction.expires >= gameState.season ? reaction.action : null };
@@ -11489,12 +11491,12 @@ function competitorDecryptage(competitor) {
   const verbs = { offensive: 'passe à l’offensive en', renforcement: 'renforce son', nouveaute: 'renouvelle son',
     maintien: 'maintient son', economie: 'allège son', franchise: 'décline une franchise en', riposte: 'riposte en',
     evenement: 'frappe un grand coup en' };
-  const verb = verbs[lead.tag] || 'mise sur son';
+  const verb = lead.buyout ? 'reprogramme son' : verbs[lead.tag] || 'mise sur son';
   let sentence = `${competitor.name} ${verb} ${slotLabel(lead.slot)} avec ${lead.masked ? 'un projet encore confidentiel' : `« ${lead.name} » (${genre})`}`;
   const prio = GAME_BALANCE.competitors.profiles[competitor.strategy]?.targetPriority;
   const focused = view.filter(x => x.target === prio && x.level >= 2).length;
-  const savings = view.filter(x => x.tag === 'economie');
-  const kept = view.filter(x => x.tag === 'maintien' && x.slot !== lead.slot);
+  const savings = view.filter(x => x.tag === 'economie' && !x.buyout);
+  const kept = view.filter(x => x.tag === 'maintien' && !x.buyout && x.slot !== lead.slot);
   if (focused >= 2) {
     sentence += ` et concentre ses investissements sur les ${AUDIENCE_TARGETS.find(t => t.key === prio)?.full || prio}.`;
   } else if (savings.length >= 2) {
@@ -11924,7 +11926,7 @@ function renderRadarCards(slot) {
         </span>
         <span class="radar-line">
           <span class="radar-program"><span class="radar-program-name">${v.icon ? `${v.icon} ` : ''}${esc(programName)}</span><span class="radar-genre">· ${esc(genre)}</span></span>
-          <span class="radar-strat strat-${strategy.accent}" title="Stratégie : ${esc(strategy.label)}">${strategy.label}</span>
+          ${v.buyout ? '' : `<span class="radar-strat strat-${strategy.accent}" title="Stratégie : ${esc(strategy.label)}">${strategy.label}</span>`}
           <span class="radar-invest lvl-${level}" title="Investissement ${esc(investLabel)}"><b>${'€'.repeat(level + 1)}</b>${'€'.repeat(3 - level)}</span>
         </span>
       </span>
@@ -11993,7 +11995,7 @@ function renderCompetitorSheet(c) {
       ${view.map(v => `<div class="radar-grid-row">
         <span class="radar-grid-slot">${slotLabelOf(v.slot)}</span>
         <span class="radar-grid-program">${v.icon ? `${v.icon} ` : ''}${esc(v.masked ? 'Projet en développement' : v.name)}</span>
-        ${investBadge(v.level)}${strategyBadge(v.tag)}
+        ${investBadge(v.level)}${v.buyout ? '' : strategyBadge(v.tag)}
       </div>`).join('')}
     </div>
     ${firstSeason ? '' : `<div>
@@ -12137,7 +12139,7 @@ function computeChannelBattle() {
   const tagWeight = { evenement: 6, riposte: 5, offensive: 4, franchise: 3, nouveaute: 2, renforcement: 1 };
   const moves = gameState.competitors.flatMap(c => TIME_SLOTS.map(({ key }) => {
     const d = c.plan?.season === gameState.season ? c.plan.slots[key] : null;
-    return d && tagWeight[d.tag] ? { c, key, d, w: tagWeight[d.tag] * 10 + d.level } : null;
+    return d && !d.buyout && tagWeight[d.tag] ? { c, key, d, w: tagWeight[d.tag] * 10 + d.level } : null;
   }).filter(Boolean)).sort((a, b) => b.w - a.w).slice(0, 3);
 
   const best = [...slots].sort((a, b) => b.playerDelta - a.playerDelta)[0];
@@ -12145,7 +12147,7 @@ function computeChannelBattle() {
   const sentences = [];
   if (best.playerDelta > 0.05) {
     const rival = best.strong.sort((a, b) => b.plan.slots[best.key].level - a.plan.slots[best.key].level)[0];
-    sentences.push(`Votre chaîne progresse ${best.daypart}${rival ? ` malgré les investissements ${rival.plan.slots[best.key].tag === 'offensive' ? 'offensifs' : 'soutenus'} de ${rival.name}` : ''}.`);
+    sentences.push(`Votre chaîne progresse ${best.daypart}${rival ? ` malgré les investissements ${rival.plan.slots[best.key].tag === 'offensive' && !rival.plan.slots[best.key].buyout ? 'offensifs' : 'soutenus'} de ${rival.name}` : ''}.`);
   } else {
     sentences.push(`Votre chaîne peine à gagner du terrain sur les ${targetFull} cette saison.`);
   }
