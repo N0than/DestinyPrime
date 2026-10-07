@@ -134,6 +134,7 @@ for (const comp of ['scene', 'prop', 'accessory', 'decor', 'handheld']) {
 const SUB_SCENES = {
   'sport/football': ['stade'], 'sport/rugby': ['rugby'], 'sport/basket': ['parquet'], 'sport/handball': ['parquet'], 'sport/tennis': ['tennis'],
   'sport/auto': ['circuit'], 'sport/velo': ['col'], 'sport/surf': ['surf'], 'sport/combat': ['ring'], 'sport/ski': ['piste'], 'sport/fitness': ['salleSport'], 'sport/athletisme': ['pisteAthle'],
+  'cinema/ceremonie': ['ceremonie'], 'cinema/festival': ['tapisRouge'], 'cinema/film': ['salleCinema'], 'cinema/serie': ['plateauTournage'],
   'aventure/montagne': ['montagne'], 'documentaire/science': ['espace', 'bibliotheque'],
   'documentaire/histoire': ['musee', 'bibliotheque', 'carteMonde'], 'documentaire/nature': ['savane', 'ocean', 'montagne', 'canyon', 'foret']
 };

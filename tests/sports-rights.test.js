@@ -66,7 +66,8 @@ for(let s=1;s<=60;s++){
     sportsAuctionPass();recordSportsAuctionOutcome(auctions[0]);
   } else assert(!q.some(d=>SPORT_RIGHTS_DILEMMA_IDS.includes(d.id)),'auction dilemma never drawn normally');
 }
-assert(['roland_garros','world_cup','olympic_games','f1'].every(id=>seen.has(id)),'every event can be selected: '+[...seen]);
+assert(['roland_garros','world_cup','olympic_games','f1','oscars','cannes','cesars','premiere_clair','saga','serie_phenomene'].every(id=>seen.has(id)),'every event can be selected: '+[...seen]);
+assert(![...seen].some(id=>['emmys','golden_globes','venise','berlinale','deauville','series_mania'].includes(id)),'cinema-only events never offered to a generalist channel');
 
 // ---------- Championnat du monde de F1 : droit annuel ----------
 const f1=SPORT_RIGHTS_EVENTS.f1;
@@ -150,9 +151,35 @@ sportsRandom=sRand;
 // Joueur hors Généraliste / Sport : la F1 se vend entre chaînes IA.
 setup('culture');gameState.competitors.forEach(c=>c.budget=200);gameState.season=sr().recurring.f1.nextAuctionSeason;
 assert(!pickDilemmaQueue().some(d=>d.rightsEventId==='f1')&&sr().history.some(h=>h.eventId==='f1'&&h.result==='ai_only'),'F1 auction among AI channels');
-// Joueur jeunesse, info, culture ou cinéma : jamais de dilemme de droits sportifs ; le marché
-// se tient alors entre chaînes IA, qui enchérissent librement quel que soit leur type.
-['jeunesse','info','culture','cinema'].forEach(type=>{
+// Droits cinéma & séries : la chaîne Cinéma reçoit les 12 événements (jamais de sport), la
+// chaîne Sport jamais de cinéma ; les droits hors de portée du joueur se vendent entre IA.
+{
+  const cine=Object.values(SPORT_RIGHTS_EVENTS).filter(e=>e.category==='cinema');
+  assert(cine.length===12&&cine.every(e=>DILEMMA_BANK.some(d=>d.id===e.dilemmaIds[0]&&d.type==='sports_rights_auction'&&d.rightsEventId===e.id)),'12 cinema events with their auction dilemma');
+  assert(cine.every(e=>e.illustration.genre==='cinema'&&e.stars>=2&&e.power>0&&e.preferredSlots.every(sl=>e.slotFit[sl]>0)),'cinema events complete');
+  for(const [type,ok] of [['cinema',e=>e.category==='cinema'],['sport',e=>e.category!=='cinema']]){
+    setup(type);gameState.competitors.forEach(c=>c.budget=200);const got=new Set();let parallel=0;
+    for(let s=1;s<=60;s++){gameState.season=s;gameState.seenDilemmaIds=[];gameState.player.eventsSeen=[];gameState.player.lastRegieOpportunity=s;
+      const before=sr().history.length;const q=pickDilemmaQueue();const auc=q.find(d=>d.type==='sports_rights_auction');
+      parallel+=sr().history.slice(before).filter(h=>h.result==='ai_only'&&!ok(SPORT_RIGHTS_EVENTS[h.eventId])).length;
+      if(auc){got.add(auc.rightsEventId);gameState.dilemmaQueue=q;gameState.currentDilemmaIndex=1;startSportsRightsAuction(auc.rightsEventId,auc.id);sportsAuctionPass();recordSportsAuctionOutcome(auc);}}
+    assert(got.size>3&&[...got].every(id=>ok(SPORT_RIGHTS_EVENTS[id])),type+' channel gets only its own rights: '+[...got]);
+    assert(parallel>0,'rights out of reach of a '+type+' player are sold among AI channels');
+  }
+  // Diffusion : cases de l'événement, éditorial culture / fiction, popularité selon le potentiel.
+  setup('cinema');gameState.season=3;acquireSportsRight('cannes',{owner:'player',price:10});sr().owned[0].broadcastSeason=3;
+  const pop0=gameState.player.popularite;activateSportsBroadcasts();
+  const cAccess=activeContract(gameState.player,'access'),cPrime=activeContract(gameState.player,'prime');
+  assert(cAccess?.isSportsEvent&&cPrime?.isSportsEvent&&!activeContract(gameState.player,'nuit')?.isSportsEvent,'Cannes airs in access and prime');
+  assert(cPrime.editorial.genre==='culture'&&cPrime.editorial.mix.prodFR===100&&cPrime.editorial.mix.direct===100&&cPrime.editorial.mix.sport!==100,'Cannes counts as French live culture');
+  assert(gameState.player.popularite===pop0+2,'5-star event popularity');
+  const film=cinemaEventEditorial(SPORT_RIGHTS_EVENTS.saga,gameState.player,'prime');
+  assert(film.genre==='fiction'&&film.mix.prodFR===0&&film.mix.direct===0,'saga counts as international fiction');
+  assert(calculateSportsEventAudience(SPORT_RIGHTS_EVENTS.deauville,gameState.player,'access',{variance:1}).a2549<calculateSportsEventAudience(SPORT_RIGHTS_EVENTS.oscars,gameState.player,'nuit',{variance:1}).a2549,'audience follows the stars');
+}
+// Joueur jeunesse, info ou culture : jamais de dilemme de droits ; le marché se tient
+// alors entre chaînes IA, qui enchérissent librement quel que soit leur type.
+['jeunesse','info','culture'].forEach(type=>{
   setup(type);gameState.competitors.forEach(c=>c.budget=200);let aiSales=0;
   for(let s=1;s<=30;s++){gameState.season=s;gameState.seenDilemmaIds=[];gameState.player.eventsSeen=[];
     const before=sr().history.length;

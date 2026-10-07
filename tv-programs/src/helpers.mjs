@@ -95,6 +95,12 @@ export const curtains = (fill = '$accentAlt') =>
   + `<path d="M0 0h320v18q-40 10 -80 0q-40 10 -80 0q-40 10 -80 0q-40 10 -80 0z" fill="${fill}"/>`
   + `<path d="M0 18q40 10 80 0q40 10 80 0q40 10 80 0q40 10 80 0" stroke="$ink" stroke-opacity="0.18" stroke-width="2" fill="none"/>`;
 
+// Statuette dorée (cérémonies) posée sur son socle ; (x, y) = bas du socle, hauteur ≈ 50 × s.
+export const statuette = (x, y, s = 1, fill = '#ffc83d') =>
+  `<g transform="translate(${x} ${y}) scale(${s})"><rect x="-9" y="-8" width="18" height="8" rx="1.5" fill="#3e2723"/><rect x="-9" y="-8" width="18" height="2" fill="${fill}"/>`
+  + `<path d="M-4 -8L-6 -36Q-6 -40 -2 -40H2Q6 -40 6 -36L4 -8Z" fill="${fill}"/><path d="M0 -10V-36M-6 -30h12" stroke="#e0a800" stroke-width="1.5"/>`
+  + `<circle cx="0" cy="-45" r="4.6" fill="${fill}"/></g>`;
+
 export const floor = (y = 150, fill = '$ground', edge = '$groundAlt') =>
   `<rect x="0" y="${y}" width="320" height="${180 - y}" fill="${fill}"/><rect x="0" y="${y}" width="320" height="4" fill="${edge}"/>`;
 

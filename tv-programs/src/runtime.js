@@ -50,6 +50,7 @@
     info:          { label: 'Information',        palettes: ['cobalt', 'jour', 'nuit'] },
     humour:        { label: 'Humour',             palettes: ['neon', 'corail', 'studio'] },
     jeunesse:      { label: 'Jeunesse',           palettes: ['pastel', 'jour', 'corail', 'menthe'] },
+    cinema:        { label: 'Cinéma',             palettes: ['nuit', 'studio', 'neon', 'aube'] },
     generique:     { label: 'Programme',          palettes: ['jour', 'pastel', 'cobalt', 'corail'] }
   };
 
@@ -58,7 +59,8 @@
   const SUBGENRES = {
     aventure: ['survie', 'montagne'],
     sport: ['football', 'rugby', 'basket', 'handball', 'tennis', 'auto', 'velo', 'surf', 'combat', 'ski', 'fitness', 'athletisme'],
-    documentaire: ['nature', 'histoire', 'science', 'culture']
+    documentaire: ['nature', 'histoire', 'science', 'culture'],
+    cinema: ['ceremonie', 'festival', 'film', 'serie']
   };
 
   // Palettes de scène : chaque couleur alimente une couleur nommée du style.

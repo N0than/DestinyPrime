@@ -1,7 +1,7 @@
 // Objets centraux (boîte 120 × 100, posés sur y = 100, centrés en x = 60).
 // Ce sont les éléments qui « racontent » le genre : coffre au trésor, pupitre de jeu,
 // plan de travail, bureau du JT, buts de football…
-import { r, star, heart, plantPot } from './helpers.mjs';
+import { r, star, heart, plantPot, statuette } from './helpers.mjs';
 
 const g = (...genres) => genres.map(x => `genre:${x}`);
 const ground = (w = 50) => `<ellipse cx="60" cy="99" rx="${w}" ry="4" fill="$ink" fill-opacity="0.12"/>`;
@@ -104,6 +104,20 @@ export const prop = {
     toboggan: { tags: g('jeunesse'), svg: ground(56) + `<path d="M20 100V30M40 100V30" stroke="$accent" stroke-width="5"/><path d="M20 46h20M20 62h20M20 78h20" stroke="$accent" stroke-width="3"/><rect x="16" y="26" width="28" height="6" rx="3" fill="$accentAlt"/><path d="M40 30q20 0 34 30t40 36v6q-30 0-44-32t-30-32z" fill="$accentAlt"/>` + `<path d="M24 26l6-16 6 16" fill="$accent"/>` },
 
     // --- Générique ----------------------------------------------------------
-    televiseur: { tags: g('generique', 'magazine', 'humour'), svg: ground(40) + `<rect x="18" y="20" width="84" height="64" rx="10" fill="$accent"/><rect x="26" y="28" width="56" height="48" rx="8" fill="$skyAlt"/><path d="M34 64l12-12 10 8 16-16" stroke="$accentAlt" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="92" cy="38" r="4" fill="$ink"/><circle cx="92" cy="52" r="4" fill="$ink"/>` + `<path d="M48 20L38 4M72 20L82 4" stroke="$ink" stroke-width="2.5"/><path d="M30 84l-6 16M90 84l6 16" stroke="$ink" stroke-width="4"/>` }
+    televiseur: { tags: g('generique', 'magazine', 'humour'), svg: ground(40) + `<rect x="18" y="20" width="84" height="64" rx="10" fill="$accent"/><rect x="26" y="28" width="56" height="48" rx="8" fill="$skyAlt"/><path d="M34 64l12-12 10 8 16-16" stroke="$accentAlt" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="92" cy="38" r="4" fill="$ink"/><circle cx="92" cy="52" r="4" fill="$ink"/>` + `<path d="M48 20L38 4M72 20L82 4" stroke="$ink" stroke-width="2.5"/><path d="M30 84l-6 16M90 84l6 16" stroke="$ink" stroke-width="4"/>` },
+
+    // --- Cinéma -------------------------------------------------------------
+    cameraCine: { tags: g('cinema'), svg: ground(34) + `<path d="M60 64L40 100M60 64L80 100M60 64v36" stroke="$ink" stroke-width="3.5" stroke-linecap="round"/>`
+      + `<circle cx="46" cy="28" r="12" fill="$ink"/><circle cx="46" cy="28" r="4" fill="#9aa5b1"/><circle cx="71" cy="30" r="10" fill="$ink"/><circle cx="71" cy="30" r="3.5" fill="#9aa5b1"/>`
+      + `<rect x="36" y="40" width="44" height="24" rx="4" fill="$ink"/><rect x="80" y="46" width="14" height="12" rx="2" fill="#546e7a"/><rect x="92" y="43" width="7" height="18" rx="1.5" fill="$ink"/><circle cx="43" cy="47" r="2.2" fill="#e53935"/>` },
+    pupitreStatuette: { tags: [...g('cinema'), 'sub:ceremonie'], svg: ground(48) + `<path d="M28 46h44l-7 54H35z" fill="$accent"/><path d="M28 46h44l-1 8H29z" fill="$light" fill-opacity="0.25"/><rect x="24" y="40" width="52" height="8" rx="3" fill="$ink"/>`
+      + star(50, 72, 1.5, '#ffc83d') + `<path d="M64 40l7 -14" stroke="$ink" stroke-width="2"/><circle cx="72" cy="24" r="3.6" fill="#9aa5b1"/>` + statuette(98, 100, 1.05) },
+    cordons: { tags: [...g('cinema'), 'sub:festival'], svg: ground(54) + [16, 60, 104].map(x => `<rect x="${x - 2.5}" y="56" width="5" height="40" fill="#ffc83d"/><rect x="${x - 8}" y="94" width="16" height="6" rx="3" fill="#e0a800"/><circle cx="${x}" cy="54" r="4.5" fill="#ffc83d"/>`).join('')
+      + `<path d="M16 58q22 18 44 0q22 18 44 0" stroke="#c62828" stroke-width="5" fill="none" stroke-linecap="round"/>` },
+    projecteurFilm: { tags: [...g('cinema'), 'sub:film'], svg: ground(42) + `<rect x="30" y="70" width="56" height="6" rx="2" fill="$ink"/><path d="M36 76l-6 24M80 76l6 24" stroke="$ink" stroke-width="3"/>`
+      + `<path d="M90 58L120 40v36z" fill="$light" fill-opacity="0.4"/><circle cx="44" cy="30" r="13" fill="$ink"/><circle cx="44" cy="30" r="4" fill="#cfd8dc"/><circle cx="70" cy="32" r="11" fill="$ink"/><circle cx="70" cy="32" r="3.5" fill="#cfd8dc"/>`
+      + `<rect x="34" y="46" width="46" height="24" rx="4" fill="#78909c"/><rect x="80" y="52" width="11" height="12" rx="2" fill="$ink"/><path d="M40 52h20" stroke="$light" stroke-opacity="0.4" stroke-width="2"/>` },
+    chaiseRealisateur: { tags: [...g('cinema'), 'sub:serie', 'sub:film'], svg: ground(30) + `<path d="M40 100L80 66M80 100L40 66" stroke="#8d6e63" stroke-width="4"/><path d="M40 66V26M80 66V26" stroke="#8d6e63" stroke-width="4"/>`
+      + `<rect x="36" y="28" width="48" height="16" rx="2" fill="$accentAlt"/><path d="M46 36h28" stroke="$light" stroke-width="2.5"/><path d="M33 52h54" stroke="#8d6e63" stroke-width="3.5"/><rect x="36" y="62" width="48" height="6" rx="2" fill="$accentAlt"/>` }
   }
 };

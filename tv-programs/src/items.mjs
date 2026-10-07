@@ -2,7 +2,7 @@
 // Les variantes sont étiquetées par genre (« genre:… ») et éventuellement sous-genre
 // (« sub:… ») : le filtre de tags de DiceBear ne retient que celles du programme.
 import { HAND } from './characters.mjs';
-import { star, heart, confettiField, cloud, r } from './helpers.mjs';
+import { star, heart, confettiField, cloud, r, statuette } from './helpers.mjs';
 
 const g = (...genres) => genres.map(x => `genre:${x}`);
 const H = HAND;
@@ -29,7 +29,7 @@ const at = (svg, dx = 0, dy = 0) => `<g transform="translate(${H.x + dx} ${H.y +
 export const handheld = {
   width: 60, height: 110, probability: 85,
   variants: {
-    mic: { tags: g('talent', 'divertissement', 'humour', 'info', 'magazine', 'generique', 'jeu', 'telerealite'), svg: at('<rect x="-2" y="-2" width="4" height="14" rx="2" fill="$ink"/><circle cx="0" cy="-6" r="5" fill="#9aa5b1"/><path d="M-4 -8h8M-4.5 -5h9M-4 -2.5h8" stroke="$ink" stroke-opacity="0.3" stroke-width="0.8"/>', 0, -4) },
+    mic: { tags: g('talent', 'divertissement', 'humour', 'info', 'magazine', 'generique', 'jeu', 'telerealite', 'cinema'), svg: at('<rect x="-2" y="-2" width="4" height="14" rx="2" fill="$ink"/><circle cx="0" cy="-6" r="5" fill="#9aa5b1"/><path d="M-4 -8h8M-4.5 -5h9M-4 -2.5h8" stroke="$ink" stroke-opacity="0.3" stroke-width="0.8"/>', 0, -4) },
     cue: { tags: g('info', 'magazine', 'jeu'), svg: at('<rect x="-5" y="-14" width="13" height="17" rx="2" fill="$light" transform="rotate(12)"/><path d="M-2 -10h8M-2 -6h8M-2 -2h5" stroke="$ink" stroke-opacity="0.3" stroke-width="1.2" transform="rotate(12)"/>', 0, 0) },
     magnifier: { tags: g('policier', 'documentaire'), svg: at('<path d="M0 2l6 10" stroke="#6d4c41" stroke-width="3.5" stroke-linecap="round"/><circle cx="-3" cy="-6" r="8" fill="$skyAlt" fill-opacity="0.6" stroke="$ink" stroke-width="2.4"/><path d="M-7 -9q2-3 5-3" stroke="$light" stroke-width="1.6" fill="none" stroke-linecap="round"/>', 0, 0) },
     notebook: { tags: g('policier', 'info', 'documentaire'), svg: at('<rect x="-4" y="-16" width="14" height="18" rx="2" fill="$accent"/><rect x="-1" y="-13" width="9" height="12" rx="1" fill="$light"/><path d="M1 -10h5M1 -7h5M1 -4h3" stroke="$ink" stroke-opacity="0.35" stroke-width="1"/>', 0, 2) },
@@ -52,11 +52,13 @@ export const handheld = {
     glass: { tags: g('dating', 'divertissement'), svg: at('<path d="M-4 -18h8l-1 8q-3 3-6 0z" fill="$skyAlt" fill-opacity="0.7" stroke="$ink" stroke-opacity="0.4" stroke-width="0.8"/><path d="M-3.4 -14h6.8l-0.6 4q-2.8 2.4-5.6 0z" fill="$accentAlt" fill-opacity="0.75"/><path d="M0 -10v9M-3 -1h6" stroke="$ink" stroke-opacity="0.45" stroke-width="1.2"/>', 0, 2) },
     camera: { tags: g('documentaire', 'telerealite', 'aventure'), svg: at('<rect x="-8" y="-14" width="18" height="12" rx="3" fill="$ink"/><circle cx="2" cy="-8" r="4" fill="#9aa5b1"/><circle cx="2" cy="-8" r="2" fill="$skyAlt"/><rect x="-6" y="-17" width="6" height="3" rx="1" fill="$ink"/>', 0, 2) },
     phone: { tags: g('telerealite', 'magazine', 'jeunesse', 'humour'), svg: at('<rect x="-4" y="-16" width="9" height="16" rx="2" fill="$ink"/><rect x="-2.6" y="-14" width="6.2" height="11" rx="1" fill="$skyAlt"/>', 0, 2) },
-    clapper: { tags: g('drame'), svg: at('<rect x="-8" y="-12" width="17" height="11" rx="1.5" fill="$ink"/><path d="M-8 -12l16-5 1.5 4-16 5z" fill="$light"/><path d="M-4 -13.5l2 3.6M1 -15l2 3.6M5.5 -16.4l2 3.6" stroke="$ink" stroke-width="1.6"/>', 0, 2) },
+    clapper: { tags: g('drame', 'cinema'), svg: at('<rect x="-8" y="-12" width="17" height="11" rx="1.5" fill="$ink"/><path d="M-8 -12l16-5 1.5 4-16 5z" fill="$light"/><path d="M-4 -13.5l2 3.6M1 -15l2 3.6M5.5 -16.4l2 3.6" stroke="$ink" stroke-width="1.6"/>', 0, 2) },
     script: { tags: g('drame', 'magazine'), svg: at('<rect x="-5" y="-17" width="13" height="17" rx="1.5" fill="$light" transform="rotate(-8)"/><path d="M-2 -13h7M-2 -10h7M-2 -7h5M-2 -4h7" stroke="$ink" stroke-opacity="0.3" stroke-width="1" transform="rotate(-8)"/>', 0, 2) },
     balloon: { tags: g('jeunesse', 'divertissement'), svg: at('<path d="M0 0q-3 -10 1 -18" stroke="$ink" stroke-opacity="0.5" stroke-width="0.8" fill="none"/><ellipse cx="1" cy="-26" rx="7" ry="8.5" fill="$accentAlt"/><path d="M-2 -30q1-3 4-3" stroke="$light" stroke-opacity="0.7" stroke-width="1.4" fill="none" stroke-linecap="round"/>', 0, 0) },
     lollipop: { tags: g('jeunesse'), svg: at('<rect x="-1" y="-6" width="2" height="14" fill="$light"/><circle cx="0" cy="-12" r="7" fill="$accent"/><path d="M0 -12m-4 0a4 4 0 1 1 4 4" stroke="$accentAlt" stroke-width="2" fill="none"/>', 0, 0) },
     mug: { tags: g('magazine', 'info', 'generique'), svg: at('<rect x="-5" y="-12" width="10" height="11" rx="2" fill="$accent"/><path d="M5 -9q4 0 4 3t-4 3" stroke="$accent" stroke-width="2" fill="none"/><path d="M-2 -15q1-2 0-4M2 -15q1-2 0-4" stroke="$ink" stroke-opacity="0.25" stroke-width="1" fill="none" stroke-linecap="round"/>', 0, 2) },
+    statuette: { tags: g('cinema'), svg: at(statuette(0, 4, 0.44), 0, 0) },
+    popcorn: { tags: g('cinema'), svg: at('<path d="M-6 -12h12l-2 14h-8z" fill="#ffffff"/><path d="M-6 -12h3l1 14h-2zM1 -12h3l-0.6 14h-2z" fill="#e53935"/><circle cx="-4" cy="-14" r="3" fill="#fff3c4"/><circle cx="0" cy="-15.5" r="3.2" fill="#fff3c4"/><circle cx="4" cy="-14" r="3" fill="#fff3c4"/>', 0, 2) },
     buzzer: { tags: g('jeu'), svg: at('<rect x="-7" y="-6" width="14" height="6" rx="2" fill="$ink"/><path d="M-5 -6q0-6 5-6t5 6z" fill="$accentAlt"/>', 0, 2) }
   }
 };
@@ -78,11 +80,13 @@ export const accessory = {
     speaker: { tags: g('talent', 'divertissement', 'humour', 'jeunesse'), svg: '<rect x="12" y="12" width="26" height="38" rx="4" fill="$ink"/><circle cx="25" cy="38" r="7" fill="#546e7a"/><circle cx="25" cy="38" r="3" fill="$ink"/><circle cx="25" cy="22" r="4" fill="#546e7a"/>' },
     plant: { tags: g('magazine', 'info', 'generique', 'drame', 'documentaire'), svg: '<path d="M25 34q-14-14-12-30 10 10 12 30z" fill="$groundAlt"/><path d="M25 34q14-12 10-28-10 10-10 28z" fill="$groundAlt" fill-opacity="0.8"/><path d="M25 34q-3-18 3-32 2 18-3 32z" fill="$groundAlt" fill-opacity="0.9"/><path d="M15 33h20l-3 17h-14z" fill="$accent"/>' },
     toys: { tags: g('jeunesse'), svg: '<rect x="6" y="34" width="16" height="16" rx="2" fill="$accent"/><rect x="24" y="34" width="16" height="16" rx="2" fill="$accentAlt"/><rect x="15" y="18" width="16" height="16" rx="2" fill="$skyAlt" stroke="$ink" stroke-opacity="0.2"/><circle cx="23" cy="26" r="3" fill="$ink" fill-opacity="0.3"/>' },
-    clapperGround: { tags: g('drame'), svg: '<rect x="8" y="30" width="34" height="20" rx="2" fill="$ink"/><path d="M8 30l32-10 3 7-32 10z" fill="$light"/><path d="M15 27.5l4 7M24 24.8l4 7M33 22l4 7" stroke="$ink" stroke-width="3"/>' },
+    clapperGround: { tags: g('drame', 'cinema'), svg: '<rect x="8" y="30" width="34" height="20" rx="2" fill="$ink"/><path d="M8 30l32-10 3 7-32 10z" fill="$light"/><path d="M15 27.5l4 7M24 24.8l4 7M33 22l4 7" stroke="$ink" stroke-width="3"/>' },
     hydrant: { tags: g('policier'), svg: '<rect x="18" y="22" width="14" height="24" rx="3" fill="#d62828"/><rect x="15" y="44" width="20" height="6" rx="2" fill="#9d0208"/><path d="M18 22q7-10 14 0z" fill="#d62828"/><rect x="11" y="30" width="7" height="6" rx="2" fill="#9d0208"/><rect x="32" y="30" width="7" height="6" rx="2" fill="#9d0208"/>' },
     buzzerStand: { tags: g('jeu'), svg: '<rect x="18" y="26" width="14" height="22" fill="$ink"/><rect x="12" y="46" width="26" height="4" rx="2" fill="$ink"/><rect x="10" y="20" width="30" height="8" rx="3" fill="$accent"/><path d="M15 20q0-10 10-10t10 10z" fill="$accentAlt"/><ellipse cx="22" cy="13" rx="4" ry="1.5" fill="$light" fill-opacity="0.6"/>' },
     moneyBag: { tags: g('jeu', 'divertissement'), svg: '<path d="M17 22q-12 10-10 20 2 8 18 8t18-8q2-10-10-20z" fill="#c9a46a"/><path d="M18 22l-4-10q5 3 11 0 6 3 11 0l-4 10z" fill="#b08850"/><rect x="17" y="20" width="16" height="4" rx="2" fill="#8a5a33"/><circle cx="25" cy="37" r="7" fill="#ffc83d"/><path d="M25 32v10M22 34.5h5a2 2 0 0 1 0 4h-4a2 2 0 0 0 0 4h5" stroke="#8a5a33" stroke-width="1.4" fill="none"/>' },
-    books: { tags: g('documentaire', 'info', 'magazine'), svg: '<rect x="8" y="40" width="34" height="10" rx="2" fill="$accent"/><rect x="11" y="31" width="30" height="9" rx="2" fill="$accentAlt"/><rect x="9" y="23" width="28" height="8" rx="2" fill="$skyAlt" stroke="$ink" stroke-opacity="0.2"/>' }
+    books: { tags: g('documentaire', 'info', 'magazine'), svg: '<rect x="8" y="40" width="34" height="10" rx="2" fill="$accent"/><rect x="11" y="31" width="30" height="9" rx="2" fill="$accentAlt"/><rect x="9" y="23" width="28" height="8" rx="2" fill="$skyAlt" stroke="$ink" stroke-opacity="0.2"/>' },
+    popcornSeau: { tags: g('cinema'), svg: '<path d="M13 24h24l-3 26h-18z" fill="#ffffff"/><path d="M13 24h5l2 26h-4zM23 24h4l-0.5 26h-3zM32 24h5l-3 26h-4z" fill="#e53935"/><circle cx="17" cy="21" r="5" fill="#fff3c4"/><circle cx="25" cy="18" r="6" fill="#fff3c4"/><circle cx="33" cy="21" r="5" fill="#fff3c4"/>' },
+    bobine: { tags: g('cinema'), svg: '<path d="M30 46h18" stroke="$ink" stroke-width="5"/><circle cx="22" cy="34" r="15" fill="$ink"/><circle cx="22" cy="34" r="4" fill="#cfd8dc"/><circle cx="22" cy="25" r="3.5" fill="#546e7a"/><circle cx="22" cy="43" r="3.5" fill="#546e7a"/><circle cx="13" cy="34" r="3.5" fill="#546e7a"/><circle cx="31" cy="34" r="3.5" fill="#546e7a"/>' }
   }
 };
 
@@ -100,7 +104,7 @@ export const decor = {
   variants: {
     confetti: { tags: g('divertissement', 'jeu', 'talent', 'jeunesse', 'humour', 'telerealite'), svg: confettiField(1, [20, 300, 8, 70]) },
     confetti2: { tags: g('divertissement', 'jeu', 'talent', 'jeunesse'), svg: confettiField(4, [30, 290, 6, 60]) },
-    sparkles: { tags: g('talent', 'divertissement', 'generique', 'jeunesse', 'magazine', 'dating'), svg: sparkle(42, 34) + sparkle(276, 28, 0.8, '$light') + sparkle(250, 62, 0.6) + sparkle(70, 70, 0.5, '$light') + star(160, 20, 0.8, '$light', 0.9) },
+    sparkles: { tags: g('talent', 'divertissement', 'generique', 'jeunesse', 'magazine', 'dating', 'cinema'), svg: sparkle(42, 34) + sparkle(276, 28, 0.8, '$light') + sparkle(250, 62, 0.6) + sparkle(70, 70, 0.5, '$light') + star(160, 20, 0.8, '$light', 0.9) },
     hearts: { tags: g('dating'), svg: heart(48, 36, 1.1) + heart(270, 30, 0.9, '$accent') + heart(240, 64, 0.6) + heart(84, 70, 0.5, '$light') },
     birds: { tags: g('aventure', 'documentaire', 'drame', 'sport'), svg: birds(60, 34) + birds(84, 24) + birds(250, 40) },
     notes: { tags: g('talent', 'jeunesse', 'divertissement', 'humour'), svg: note(56, 44) + note(268, 36, 0.8) + note(240, 66, 0.6) + note(84, 72, 0.55) },
@@ -108,6 +112,7 @@ export const decor = {
     steam: { tags: g('cuisine'), svg: steam(70, 60) + steam(244, 54) },
     bokeh: { tags: g('policier', 'drame', 'dating', 'info'), svg: bokeh(40, 30, 10, '$accent') + bokeh(280, 26, 14, '$accentAlt') + bokeh(250, 64, 7, '$light') + bokeh(70, 70, 6, '$light') },
     clouds: { tags: g('aventure', 'sport', 'documentaire', 'generique', 'magazine', 'telerealite', 'jeunesse'), svg: cloud(40, 40, 1, '$light', 0.85) + cloud(250, 30, 1.2, '$light', 0.85) },
-    stars: { tags: g('policier', 'drame', 'talent', 'humour', 'info', 'dating'), svg: star(38, 26, 0.6) + star(80, 50, 0.4) + star(244, 20, 0.7) + star(282, 54, 0.45) + star(200, 34, 0.35) }
+    stars: { tags: g('policier', 'drame', 'talent', 'humour', 'info', 'dating', 'cinema'), svg: star(38, 26, 0.6) + star(80, 50, 0.4) + star(244, 20, 0.7) + star(282, 54, 0.45) + star(200, 34, 0.35) },
+    flashs: { tags: g('cinema'), svg: [[46, 30, 1], [270, 24, 1.2], [236, 62, 0.7], [84, 66, 0.6]].map(([x, y, k]) => `<circle cx="${x}" cy="${y}" r="${r(9 * k)}" fill="$light" fill-opacity="0.3"/><path d="M${x} ${r(y - 8 * k)}l${r(2 * k)} ${r(6 * k)} ${r(6 * k)} ${r(2 * k)} ${r(-6 * k)} ${r(2 * k)} ${r(-2 * k)} ${r(6 * k)} ${r(-2 * k)} ${r(-6 * k)} ${r(-6 * k)} ${r(-2 * k)} ${r(6 * k)} ${r(-2 * k)}z" fill="$light"/>`).join('') }
   }
 };

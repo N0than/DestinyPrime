@@ -4,7 +4,7 @@
 // étiquette « sub » reste disponible pour tous les sous-genres de son genre.
 import {
   r, rectD, circleD, blob, cloud, sun, moon, star, heart, palm, roundTree, pine, bush, plantPot, mountain,
-  building, spotlightBeam, spot, curtains, floor, stage, windowFrame, tiles, bulbs
+  building, spotlightBeam, spot, curtains, floor, stage, windowFrame, tiles, bulbs, statuette
 } from './helpers.mjs';
 
 const g = (...genres) => genres.map(x => `genre:${x}`);
@@ -175,6 +175,34 @@ export const scene = {
     salon: { tags: g('drame', 'magazine', 'generique'), svg: wall(148, '$skyAlt') + `<rect x="0" y="0" width="320" height="18" fill="$ink" fill-opacity="0.05"/>` + windowFrame(36, 28, 64, 72) + frame(132, 34, 56, 40) + frame(204, 44, 34, 30, '$accentAlt') + lamp(272, 52) + plantPot(286, 148, 1.3) + plank(148) },
     fenetreVille: { tags: g('drame', 'policier', 'info'), svg: wall(148, '$skyAlt') + `<rect x="30" y="18" width="260" height="100" rx="4" fill="$light"/><rect x="36" y="24" width="248" height="88" rx="2" fill="$sky"/>` + `<g transform="translate(36 24) scale(0.775 0.6)">${cityline(146, '$skyAlt', '$accent', 0.8)}</g>` + `<path d="M160 24v88M36 68h248" stroke="$light" stroke-width="4"/>` + plank(148) },
     pluie: { tags: g('drame'), svg: sky('$sky') + `<rect width="320" height="180" fill="$ink" fill-opacity="0.15"/>` + cloud(30, 30, 1.6, '$skyAlt', 1) + cloud(200, 24, 2, '$skyAlt', 1) + cityline(148, '$skyAlt', '$accent', 0.6) + rain() + floor(148) + `<ellipse cx="80" cy="166" rx="30" ry="4" fill="$light" fill-opacity="0.25"/><ellipse cx="250" cy="170" rx="24" ry="3" fill="$light" fill-opacity="0.25"/>` },
+
+    // --- Cinéma (droits cinéma & séries) -----------------------------------
+    ceremonie: { tags: [...g('cinema'), 'sub:ceremonie'], svg: sky('$sky') + `<rect width="320" height="180" fill="$ink" fill-opacity="0.35"/>`
+      + `<path d="M112 146V66q0-40 48-40t48 40v80z" fill="$skyAlt" fill-opacity="0.3"/>` + star(160, 56, 2.2, '#ffc83d')
+      + spotlightBeam(112, 0, 46, 148, '$accent', 0.16) + spotlightBeam(208, 0, 46, 148, '$accentAlt', 0.16)
+      + statuette(96, 140, 1.8) + statuette(224, 140, 1.8) + curtains() + stage(146) + bulbs(80, 240, 172, 16, '#ffc83d') },
+    tapisRouge: { tags: [...g('cinema'), 'sub:festival'], svg: sky()
+      + `<rect x="40" y="34" width="240" height="10" fill="$accent"/><rect x="44" y="44" width="232" height="66" fill="$light" fill-opacity="0.92"/>`
+      + Array.from({ length: 8 }, (_, i) => `<rect x="${56 + i * 28}" y="54" width="14" height="22" rx="7" fill="$skyAlt"/>`).join('')
+      + `<path d="M44 84h232" stroke="$ink" stroke-opacity="0.08" stroke-width="3"/>`
+      + Array.from({ length: 5 }, (_, i) => `<rect x="${92 - i * 10}" y="${110 + i * 7}" width="${136 + i * 20}" height="7" fill="$light"/><rect x="${92 - i * 10}" y="${116 + i * 7}" width="${136 + i * 20}" height="1.5" fill="$ink" fill-opacity="0.12"/>`).join('')
+      + floor(145, '$ground', '$groundAlt') + `<path d="M138 110h44l34 70H104z" fill="#c62828"/><path d="M138 110h44l2 4h-48z" fill="$ink" fill-opacity="0.15"/>`
+      + palm(20, 150, 84) + palm(298, 150, 76)
+      + `<path d="M100 146l-14 34M220 146l14 34" stroke="#ffc83d" stroke-width="3"/><path d="M100 150q-10 10 -8 18M220 150q10 10 8 18" stroke="#c62828" stroke-width="3" fill="none"/>`
+      + [[58, 98, 1], [262, 92, 1.2], [36, 126, 0.8], [286, 124, 0.9]].map(([x, y, k]) => `<circle cx="${x}" cy="${y}" r="${r(10 * k)}" fill="$light" fill-opacity="0.35"/><path d="M${x} ${r(y - 9 * k)}l${r(2 * k)} ${r(7 * k)} ${r(7 * k)} ${r(2 * k)} ${r(-7 * k)} ${r(2 * k)} ${r(-2 * k)} ${r(7 * k)} ${r(-2 * k)} ${r(-7 * k)} ${r(-7 * k)} ${r(-2 * k)} ${r(7 * k)} ${r(-2 * k)}z" fill="$light"/>`).join('') },
+    salleCinema: { tags: [...g('cinema'), 'sub:film'], svg: `<rect width="320" height="180" fill="$ink"/><rect width="320" height="180" fill="$sky" fill-opacity="0.18"/>`
+      + `<path d="M150 180h20L280 26H40z" fill="$light" fill-opacity="0.06"/>`
+      + `<rect x="18" y="8" width="26" height="120" fill="$accentAlt"/><rect x="276" y="8" width="26" height="120" fill="$accentAlt"/><path d="M26 8v120M36 8v120M284 8v120M294 8v120" stroke="$ink" stroke-opacity="0.2" stroke-width="2"/>`
+      + `<rect x="48" y="14" width="224" height="102" rx="3" fill="$light"/><rect x="54" y="20" width="212" height="90" fill="$skyAlt"/>`
+      + `<circle cx="226" cy="44" r="12" fill="$accent"/><path d="M54 110l52-46 30 24 42-40 48 42 40-24v44z" fill="$groundAlt" fill-opacity="0.85"/>`
+      + [148, 164].map((y, row) => Array.from({ length: 13 }, (_, i) => `<rect x="${(row ? 0 : 12) + i * 26}" y="${y}" width="22" height="20" rx="6" fill="$accentAlt"/>`).join('') + `<rect x="0" y="${y + 12}" width="320" height="3" fill="$ink" fill-opacity="0.25"/>`).join('') },
+    plateauTournage: { tags: [...g('cinema'), 'sub:serie'], svg: wall(148, '$skyAlt')
+      + `<rect x="0" y="0" width="320" height="148" fill="$ink" fill-opacity="0.1"/><rect x="0" y="6" width="320" height="6" fill="$ink" fill-opacity="0.55"/><path d="M0 12l10 -6 10 6 10 -6 10 6 10 -6 10 6 10 -6 10 6 10 -6 10 6 10 -6 10 6 10 -6 10 6 10 -6 10 6 10 -6 10 6 10 -6 10 6 10 -6 10 6 10 -6 10 6 10 -6 10 6 10 -6 10 6 10 -6 10 6 10 -6 10 6" stroke="$ink" stroke-opacity="0.35" stroke-width="1" fill="none"/>`
+      + `<rect x="96" y="30" width="128" height="96" fill="$light" fill-opacity="0.55"/>` + windowFrame(112, 40, 50, 52) + frame(178, 46, 32, 26, '$accentAlt')
+      + spot(70, 18) + spot(250, 18, true) + spotlightBeam(70, 24, 40, 148, '$light', 0.12) + spotlightBeam(250, 24, 40, 148, '$light', 0.12)
+      + `<rect x="14" y="54" width="32" height="40" rx="3" fill="$light" fill-opacity="0.92"/><rect x="14" y="54" width="32" height="40" rx="3" fill="none" stroke="$ink" stroke-width="2"/><path d="M30 94v54M22 148l8 -12 8 12" stroke="$ink" stroke-width="2.5" fill="none"/>`
+      + `<path d="M320 36L240 56" stroke="$ink" stroke-width="3"/><rect x="226" y="52" width="20" height="10" rx="5" fill="#9aa5b1"/>`
+      + plank(148) + `<path d="M136 166h14v-7M196 160h14M196 160v7" stroke="$accent" stroke-width="2.5" fill="none"/>` },
 
     // --- Sport --------------------------------------------------------------
     stade: { tags: [...g('sport'), 'sub:football'], svg: sky() + floodlight(30, 30) + floodlight(290, 30) + grandstand(112) + `<rect x="0" y="112" width="320" height="68" fill="#5cb85c"/>` + stripes(112, 180, '$light', 0.08, 32) + `<path d="M0 140h320M160 112v68" stroke="$light" stroke-opacity="0.7" stroke-width="2"/><ellipse cx="160" cy="146" rx="40" ry="10" fill="none" stroke="$light" stroke-opacity="0.7" stroke-width="2"/>` + `<g transform="translate(268 96)">${net(0, 0, 44, 28)}</g>` },
