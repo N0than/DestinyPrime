@@ -1847,7 +1847,6 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .grid-renewal-name { flex: 1; min-width: 0; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .program-manager-exclusivity { display:block; margin-top:3px; color:var(--gold); font-size:9.5px; font-weight:700; }
 .program-manager-exclusivity:empty { display:none; }
-.program-manager-notice { display:block; margin-top:4px; padding:6px 8px; border-radius:10px; font-size:10px; line-height:1.35; color:var(--ink); background:rgba(217,119,6,0.1); border:1px solid rgba(217,119,6,0.25); }
 .programming-slide { display:flex; overflow:visible; padding-right:6px; }
 .programming-slide .pg-slide { flex:1; height:auto; }
 .pg-slot-editor { flex:1 0 auto; display:flex; flex-direction:column; }
@@ -6627,7 +6626,6 @@ let gameState = {
   seasonKickoffProposal: null,
   competitorEvents: [],
   radar: { open: false, slot: 'prime', sheet: null },
-  exclusivityNotice: null,
   mercato: null,
   mercatoPending: false
 };
@@ -7808,7 +7806,6 @@ function resetGame() {
   gameState.seasonKickoffProposal = null;
   gameState.competitorEvents = [];
   gameState.radar = { open: false, slot: 'prime', sheet: null };
-  gameState.exclusivityNotice = null;
   gameState.mercato = null;
   gameState.mercatoPending = false;
   render();
@@ -11031,25 +11028,15 @@ function signProgram(slot, programId, talentId) {
     career:createProgramCareer(program, slot)};
   // Même programme reconduit (autre talent) : le public déjà acquis le reste, sans nouveau transfert.
   if(!holder && previous?.transfer && sameProgram(previous, program)) p.contracts[slot].transfer=previous.transfer;
-  let notice='';
   if(holder) {
     p.contracts[slot].acquiredFrom=holder.competitor.name;
     p.contracts[slot].buyout=buyout;
     if(transfer) p.contracts[slot].transfer=transfer;
     // 3. Grille du vendeur : retrait du programme et remplacement par son IA.
-    const released=releaseCompetitorProgram(holder.competitor,holder.slot,buyout);
-    notice=`« ${program.name} » racheté à ${holder.competitor.name} (${nf1(buyout)} M€). La chaîne le déprogramme et lance « ${released.program.name} » ${TIME_SLOTS.find(t=>t.key===holder.slot)?.daypart||''}.`;
+    releaseCompetitorProgram(holder.competitor,holder.slot,buyout);
   }
   // 4–6. Potentiel habituel, apport transféré plafonné, base d'audience (une seule fois).
-  if(applyProgramTransfer(slot)) {
-    const tr=p.contracts[slot].transfer;
-    notice+=tr.acquired[p.target]>0
-      ? ` Une partie de son public le suit (programme ${({recent:'récent',installe:'installé',culte:'culte'})[tr.category]}, compatibilité ${tr.compatibility}).`
-      : ' Son public ne le suit pas sur votre antenne.';
-  } else if(p.contracts[slot].transfer && !p.contracts[slot].transfer.applied) {
-    notice+=' Son public le rejoindra à sa première diffusion sur votre antenne.';
-  }
-  if(holder) gameState.exclusivityNotice={slot,season:gameState.season,text:notice};
+  applyProgramTransfer(slot);
   p.coutTalentsSaison+=talent.annual-(previous?.talentAnnual||0);
   p.grilleOverrides[slot]=program.name+' — '+talent.name;
   const audience=getCalculatedPDAs().find(c=>c.channel===p).pda[p.target];
@@ -12364,7 +12351,6 @@ function renderProgramManager(slot) {
   ensureCampaign(); const p=gameState.player;
   const editable=gameState.step===6&&gameState.dilemmaPhase==='choosing'&&gameState.currentDilemmaIndex===0;
   const c=p.contracts[slot];
-  const notice=gameState.exclusivityNotice?.slot===slot&&gameState.exclusivityNotice.season===gameState.season?gameState.exclusivityNotice:null;
   // Carrousel : le programme à l'antenne d'abord, puis le reste du catalogue du créneau.
   const catalog=availablePrograms(p.type,slot);
   const ordered=[...catalog.filter(x=>sameProgram(c,x)),...catalog.filter(x=>!sameProgram(c,x))];
@@ -12388,8 +12374,7 @@ function renderProgramManager(slot) {
     <div class="pm-carousel" data-pm-carousel="${slot}" aria-label="Programmes disponibles">
       ${ordered.map(x=>programCardHtml(slot,x,c)).join('')}
     </div>
-    <span class="program-manager-feedback" aria-live="polite"></span>
-    ${notice?`<span class="program-manager-notice">${esc(notice.text)}</span>`:''}`:(c?'':note)}
+    <span class="program-manager-feedback" aria-live="polite"></span>`:(c?'':note)}
     </section>`;
 }
 // Fiche du programme à l'antenne : illustration, contrat, production et indicateurs, puis « Modifier ».
