@@ -69,22 +69,13 @@ body::after {
   position: relative;
   z-index: 1;
 }
-.step-body-container { position: relative; overflow: hidden; }
-.step-body-container.resizing { transition: height 0.34s cubic-bezier(0.16, 1, 0.3, 1); }
+/* Transition d'écran (mobile) : l'ancien contenu, figé en surimpression, sort à gauche
+   pendant que le nouveau entre par la droite, animé en place (voir goToStepAnimated). */
+#app.step-sliding { overflow-x: clip; }
 .step-slide-old {
-  display: flex; flex-direction: column;
-  width: 100%;
-  transform: translateX(0);
-  transition: transform 0.34s cubic-bezier(0.16, 1, 0.3, 1);
+  position: absolute; display: flex; flex-direction: column;
+  pointer-events: none; will-change: transform;
 }
-.step-slide-old.leaving { transform: translateX(-100%); }
-.step-slide-new {
-  display: flex; flex-direction: column;
-  position: absolute; top: 0; left: 0; right: 0; box-sizing: border-box;
-  transform: translateX(100%);
-  transition: transform 0.34s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.step-slide-new.entering { transform: translateX(0); }
 
 h1, h2, h3, .display {
   font-family: 'Anton', Impact, sans-serif;
@@ -7912,64 +7903,55 @@ function bindTickerInteractions(app) {
 function goToStepAnimated(mutate) {
   const app = document.getElementById('app');
   const isMobile = window.matchMedia('(max-width: 540px)').matches;
-  if (!isMobile) { mutate(); render(); return; }
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!isMobile || reduce || typeof app.animate !== 'function') { mutate(); render(); return; }
 
   const prevMasthead = app.querySelector('.masthead');
   const prevHudWrap = app.querySelector('.hud-wrap');
-  const prevBodyNodesLive = Array.from(app.children).filter(el => el !== prevMasthead && el !== prevHudWrap);
-  const oldHeight = prevBodyNodesLive.length
-    ? prevBodyNodesLive[prevBodyNodesLive.length - 1].getBoundingClientRect().bottom - prevBodyNodesLive[0].getBoundingClientRect().top
-    : 0;
-  const prevBodyHTML = prevBodyNodesLive.map(el => el.outerHTML).join('');
+  const prevBodyHTML = Array.from(app.children)
+    .filter(el => el !== prevMasthead && el !== prevHudWrap && !el.classList.contains('step-slide-old'))
+    .map(el => el.outerHTML).join('');
 
   mutate();
   render();
 
   // Le header (bandeau + ligne mire) ET le HUD (tableau de bord) restent en
-  // place, rendus instantanément par le render() ci-dessus ; seul le contenu
-  // sous la mire (dilemme / conférence de rentrée) glisse.
+  // place ; seul le contenu sous la mire (dilemme / conférence de rentrée) glisse.
+  // Le nouveau contenu est animé là où render() l'a posé, sans jamais être déplacé
+  // dans le DOM : un déplacement relancerait ses animations d'entrée (second
+  // glissement, « flottement » visible à la fin de la transition).
   const newMasthead = app.querySelector('.masthead');
   const newHudWrap = app.querySelector('.hud-wrap');
   const newBodyNodes = Array.from(app.children).filter(el => el !== newMasthead && el !== newHudWrap);
+  if (!newBodyNodes.length) return;
+  // Le glissement d'écran tient lieu d'entrée : pas de seconde animation par-dessus.
+  newBodyNodes.forEach(el => el.classList.remove('slide-in'));
 
-  const newWrap = document.createElement('div');
-  newWrap.className = 'step-slide-new';
-  newBodyNodes.forEach(n => newWrap.appendChild(n));
-
+  const first = newBodyNodes[0];
   const oldWrap = document.createElement('div');
   oldWrap.className = 'step-slide-old';
+  oldWrap.setAttribute('aria-hidden', 'true');
+  oldWrap.inert = true;
+  oldWrap.style.top = `${first.offsetTop}px`;
+  oldWrap.style.left = `${first.offsetLeft}px`;
+  oldWrap.style.width = `${first.offsetWidth}px`;
   oldWrap.innerHTML = prevBodyHTML;
+  app.appendChild(oldWrap);
+  app.classList.add('step-sliding');
 
-  const bodyContainer = document.createElement('div');
-  bodyContainer.className = 'step-body-container';
-  bodyContainer.style.height = oldHeight + 'px';
-  bodyContainer.appendChild(oldWrap);
-  bodyContainer.appendChild(newWrap);
-  app.appendChild(bodyContainer);
-
-  // Hauteur naturelle du nouvel écran, mesurée pendant qu'il est encore hors
-  // champ (position absolute), pour animer le conteneur vers cette hauteur
-  // en même temps que le glissement et éviter tout saut de mise en page.
-  const newHeight = newWrap.offsetHeight;
-
-  void oldWrap.offsetWidth;
-
-  requestAnimationFrame(() => {
-    bodyContainer.classList.add('resizing');
-    bodyContainer.style.height = newHeight + 'px';
-    oldWrap.classList.add('leaving');
-    newWrap.classList.add('entering');
-  });
+  const timing = { duration: 340, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' };
+  const anims = newBodyNodes.map(el => el.animate([{ transform: 'translateX(100%)' }, { transform: 'translateX(0)' }], timing));
+  anims.push(oldWrap.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(-100%)' }], { ...timing, fill: 'forwards' }));
 
   let finished = false;
   const finish = () => {
     if (finished) return;
     finished = true;
-    while (newWrap.firstChild) app.appendChild(newWrap.firstChild);
-    bodyContainer.remove();
+    oldWrap.remove();
+    app.classList.remove('step-sliding');
   };
-  newWrap.addEventListener('transitionend', finish, { once: true });
-  setTimeout(finish, 450);
+  Promise.all(anims.map(a => a.finished)).then(finish, finish);
+  setTimeout(finish, 500);
 }
 
 function render() {
