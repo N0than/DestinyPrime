@@ -148,6 +148,33 @@ assert(sr().owned.some(o=>o.ownerName===ai.name&&o.broadcastSeason===4&&o.acquis
 gameState.season=4;ai.budget=5;resolveSportsRenewalsAtSeasonEnd();
 assert(!sr().owned.some(o=>o.broadcastSeason===5)&&[5,6].includes(sr().recurring.f1.nextAuctionSeason),'AI without budget releases the right');
 sportsRandom=sRand;
+// ---------- Courses hippiques : droit annuel du matin, même mécanique que la F1 ----------
+{
+  const ch=SPORT_RIGHTS_EVENTS.courses_hippiques;
+  assert(ch.recurring&&ch.preferredSlots.join()==='matin'&&ch.sport==='hippisme'&&!ch.channelTypes,'horse racing: annual right on the morning slot, generalist and sport');
+  const dch=DILEMMA_BANK.find(d=>d.id==='d_droits_courses_hippiques');
+  assert(dch&&dch.type==='sports_rights_auction'&&dch.rightsEventId==='courses_hippiques'&&dch.types.join()==='generaliste,sport','horse racing auction dilemma');
+  const firstsH=new Set();for(let k=1;k<=40;k++){setup('generaliste',2000+k);firstsH.add(sr().recurring.courses_hippiques.nextAuctionSeason);}
+  assert([...firstsH].every(v=>v>=1&&v<=3)&&firstsH.size>1,'first horse racing auction in seasons 1-3');
+  for(const type of ['generaliste','sport']){
+    setup(type);sr().recurring.f1.nextAuctionSeason=99;gameState.season=sr().recurring.courses_hippiques.nextAuctionSeason;
+    const auc=pickDilemmaQueue().filter(d=>d.type==='sports_rights_auction');
+    assert(auc.length===1&&auc[0].rightsEventId==='courses_hippiques','horse racing auction for '+type);
+  }
+  // Une seule enchère par saison : F1 et courses dues en même temps → l'une attend.
+  setup();gameState.season=3;sr().recurring.f1.nextAuctionSeason=2;sr().recurring.courses_hippiques.nextAuctionSeason=2;
+  const both=pickDilemmaQueue().filter(d=>d.type==='sports_rights_auction');assert(both.length===1,'one auction per season');
+  // Diffusion le matin, reconduction dans la grille au prix initial.
+  setup();gameState.season=3;acquireSportsRight('courses_hippiques',{owner:'player',price:5});sr().owned[0].broadcastSeason=3;sr().recurring.courses_hippiques.nextAuctionSeason=null;
+  activateSportsBroadcasts();
+  assert(activeContract(gameState.player,'matin')?.isSportsEvent&&!activeContract(gameState.player,'apresmidi')?.isSportsEvent,'horse racing airs in the morning');
+  const rq=withRenewalDilemmas([DILEMMA_BANK[0],DILEMMA_BANK[1],DILEMMA_BANK[2]]).at(-1);
+  assert(rq.isSportsRenewal&&rq.rightsEventId==='courses_hippiques','horse racing renewal offered');
+  applySportsRenewalChoice('courses_hippiques','renew');
+  assert(sr().owned.some(o=>o.eventId==='courses_hippiques'&&o.broadcastSeason===4&&o.gridAnnual===5&&o.ownerId==='player'),'renewed at the initial price, in next season grid');
+  setup('culture');gameState.competitors.forEach(c=>c.budget=200);sr().recurring.f1.nextAuctionSeason=99;gameState.season=sr().recurring.courses_hippiques.nextAuctionSeason;
+  assert(!pickDilemmaQueue().some(d=>d.rightsEventId==='courses_hippiques')&&sr().history.some(h=>h.eventId==='courses_hippiques'&&h.result==='ai_only'),'horse racing auction among AI channels');
+}
 // Joueur hors Généraliste / Sport : la F1 se vend entre chaînes IA.
 setup('culture');gameState.competitors.forEach(c=>c.budget=200);gameState.season=sr().recurring.f1.nextAuctionSeason;
 assert(!pickDilemmaQueue().some(d=>d.rightsEventId==='f1')&&sr().history.some(h=>h.eventId==='f1'&&h.result==='ai_only'),'F1 auction among AI channels');
@@ -198,7 +225,7 @@ assert(!pickDilemmaQueue().some(d=>d.rightsEventId==='f1')&&sr().history.some(h=
 });
 ['generaliste','sport','jeunesse','info','culture','cinema'].forEach(type=>assert(computeCompetitorSportsMaxBid({...mk('X','offensive',type),budget:200},SPORT_RIGHTS_EVENTS.world_cup)>0,'AI bids from '+type));
 // Chaîne Sport : ses dilemmes dédiés (d89, d145) sont préférés.
-setup('sport');gameState.season=sr().nextAuctionSeason;sr().recurring.f1.nextAuctionSeason=99;const sq=pickDilemmaQueue().find(d=>d.type==='sports_rights_auction');
+setup('sport');gameState.season=sr().nextAuctionSeason;sr().recurring.f1.nextAuctionSeason=99;sr().recurring.courses_hippiques.nextAuctionSeason=99;const sq=pickDilemmaQueue().find(d=>d.type==='sports_rights_auction');
 assert(sq&&(['d89','d145','d2'].includes(sq.id)),'sport channel auction dilemma');
 // Un dilemme sport éditorial ou de production n'est pas converti.
 ['d79','d165','d20','d244','d76','d77','d148'].forEach(id=>assert(!DILEMMA_BANK.find(d=>d.id===id).type,'not converted '+id));

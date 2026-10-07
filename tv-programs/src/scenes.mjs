@@ -48,6 +48,10 @@ const grandstand = (y = 112, fill = '$skyAlt') => {
   return `<rect x="0" y="${y - 30}" width="320" height="34" fill="$ink" fill-opacity="0.22"/>`
     + ['$accent', '$accentAlt', '$light', fill].map((c, i) => `<path d="${ds[i]}" fill="${c}" fill-opacity="0.85"/>`).join('');
 };
+const horse = (x, y, s = 1, fill = '$ink') => `<g transform="translate(${x} ${y}) scale(${s})" fill="${fill}" fill-opacity="0.8">`
+  + '<ellipse cx="0" cy="0" rx="16" ry="7"/><path d="M9 -4L18 -16L23 -13L14 1Z"/><ellipse cx="25" cy="-14" rx="5.5" ry="3" transform="rotate(25 25 -14)"/>'
+  + `<path d="M-11 4L-14 18M-6 5L-4 18M8 5L6 18M12 4L16 17" stroke="${fill}" stroke-width="2.6" stroke-linecap="round"/><path d="M-15 -3Q-24 1 -21 10" stroke="${fill}" stroke-width="2.4" fill="none" stroke-linecap="round"/>`
+  + '<path d="M-1 -6L4 -13" stroke="$accent" stroke-width="4" stroke-linecap="round"/><circle cx="5" cy="-16" r="3" fill="$accentAlt" fill-opacity="1"/></g>';
 const floodlight = (x, y) =>
   `<rect x="${x - 1.5}" y="${y}" width="3" height="${112 - y}" fill="$ink" fill-opacity="0.4"/><rect x="${x - 10}" y="${y - 8}" width="20" height="10" rx="2" fill="$ink" fill-opacity="0.6"/>`
   + `<circle cx="${x - 5}" cy="${y - 3}" r="2.5" fill="$light"/><circle cx="${x + 5}" cy="${y - 3}" r="2.5" fill="$light"/>`;
@@ -220,6 +224,12 @@ export const scene = {
       + `<rect x="0" y="108" width="320" height="14" fill="#66bb6a"/><rect x="0" y="122" width="320" height="58" fill="#d0643e"/>`
       + `<path d="M0 122h320M0 136h320M0 150h320M0 164h320" stroke="$light" stroke-opacity="0.75" stroke-width="1.6"/>`
       + `<path d="M58 122l-6 58" stroke="$light" stroke-opacity="0.9" stroke-width="3"/>` },
+    hippodrome: { tags: [...g('sport'), 'sub:hippisme'], svg: sky() + cloud(60, 34) + cloud(230, 26, 0.8)
+      + `<path d="M150 64h170v44H150z" fill="$skyAlt"/><path d="M140 64l10 -14h170v14z" fill="$accent"/>` + `<g transform="translate(150 0)">${grandstand(108)}</g>`
+      + `<rect x="0" y="108" width="320" height="72" fill="#5cb85c"/>` + stripes(108, 180, '$light', 0.07, 36)
+      + `<path d="M0 118h320M0 150h320" stroke="$light" stroke-width="3"/>` + Array.from({ length: 17 }, (_, i) => `<rect x="${i * 20}" y="114" width="2.5" height="8" fill="$light"/><rect x="${i * 20}" y="146" width="2.5" height="8" fill="$light"/>`).join('')
+      + horse(34, 136, 1.15, '#5d4037') + horse(298, 140, 1.05, '#263238')
+      + `<rect x="262" y="84" width="4" height="34" fill="$ink"/><circle cx="264" cy="82" r="6" fill="$light" stroke="$ink" stroke-width="2"/><rect x="270" y="122" width="4" height="26" fill="#e53935"/>` },
     salleSport: { tags: [...g('sport'), 'sub:fitness'], svg: wall(148, '$skyAlt') + windowFrame(30, 24, 80, 66) + windowFrame(210, 24, 80, 66) + `<rect x="130" y="40" width="60" height="6" rx="3" fill="$ink" fill-opacity="0.5"/><rect x="124" y="32" width="10" height="22" rx="3" fill="$accentAlt"/><rect x="186" y="32" width="10" height="22" rx="3" fill="$accentAlt"/>` + `<rect x="0" y="140" width="320" height="8" fill="$accent" fill-opacity="0.5"/>` + plank(148, '$ground') },
     arene: { tags: [...g('sport'), 'sub:general'], svg: sky() + floodlight(30, 26) + floodlight(290, 26) + grandstand(112) + `<rect x="0" y="112" width="320" height="68" fill="$groundAlt"/>` + stripes(112, 180, '$light', 0.08, 30) + `<path d="M0 140h320" stroke="$light" stroke-opacity="0.6" stroke-width="2"/>` },
 

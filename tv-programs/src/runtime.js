@@ -58,7 +58,7 @@
   // inconnu est ignoré (le genre seul s'applique) pour ne jamais vider un calque.
   const SUBGENRES = {
     aventure: ['survie', 'montagne'],
-    sport: ['football', 'rugby', 'basket', 'handball', 'tennis', 'auto', 'velo', 'surf', 'combat', 'ski', 'fitness', 'athletisme'],
+    sport: ['football', 'rugby', 'basket', 'handball', 'tennis', 'auto', 'velo', 'surf', 'combat', 'ski', 'fitness', 'athletisme', 'hippisme'],
     documentaire: ['nature', 'histoire', 'science', 'culture'],
     cinema: ['ceremonie', 'festival', 'film', 'serie']
   };
@@ -227,6 +227,7 @@
     [/basket/, 'sport', 'basket'],
     [/handball/, 'sport', 'handball'],
     [/tennis|davis/, 'sport', 'tennis'],
+    [/hippi|turf|tierce|quinte|course de chevaux|galop|trot/, 'sport', 'hippisme'],
     [/f1|grand prix|mecanique|automobile|caisses a savon/, 'sport', 'auto'],
     [/cyclisme|velo|tour de france/, 'sport', 'velo'],
     [/surf/, 'sport', 'surf'],
