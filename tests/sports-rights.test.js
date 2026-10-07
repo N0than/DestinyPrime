@@ -176,6 +176,14 @@ assert(!pickDilemmaQueue().some(d=>d.rightsEventId==='f1')&&sr().history.some(h=
   const film=cinemaEventEditorial(SPORT_RIGHTS_EVENTS.saga,gameState.player,'prime');
   assert(film.genre==='fiction'&&film.mix.prodFR===0&&film.mix.direct===0,'saga counts as international fiction');
   assert(calculateSportsEventAudience(SPORT_RIGHTS_EVENTS.deauville,gameState.player,'access',{variance:1}).a2549<calculateSportsEventAudience(SPORT_RIGHTS_EVENTS.oscars,gameState.player,'nuit',{variance:1}).a2549,'audience follows the stars');
+  // Incident aux César (d26) : réservé à la chaîne qui diffuse la cérémonie cette saison.
+  for(const type of ['generaliste','cinema','culture']){setup(type);gameState.season=4;
+    assert(!getEligibleDilemmas().some(d=>d.id==='d26'),'no César incident without the rights for '+type);}
+  setup('generaliste');gameState.season=4;acquireSportsRight('cesars',{owner:gameState.competitors[0],price:8});sr().owned[0].broadcastSeason=4;
+  assert(!getEligibleDilemmas().some(d=>d.id==='d26'),'no César incident when a rival airs the ceremony');
+  setup('generaliste');gameState.season=4;acquireSportsRight('cesars',{owner:'player',price:8});sr().owned[0].broadcastSeason=4;
+  const cq=pickDilemmaQueue();assert(cq[0].id==='d26'&&cq.length===3,'César broadcaster gets the live incident dilemma');
+  gameState.season=5;gameState.seenDilemmaIds=[];assert(!getEligibleDilemmas().some(d=>d.id==='d26'),'César incident only during the broadcast season');
 }
 // Joueur jeunesse, info ou culture : jamais de dilemme de droits ; le marché se tient
 // alors entre chaînes IA, qui enchérissent librement quel que soit leur type.
@@ -227,16 +235,16 @@ assert(sportsRightBusy('world_cup')&&!selectNextSportsRightsEventIds().includes(
 function selectNextSportsRightsEventIds(){const out=new Set();for(let i=0;i<30;i++){const p=selectNextSportsRightsEvent();if(p)out.add(p.event.id);}return [...out];}
 // Offre unique sous pli : un seul tour ; gagner = un seul débit, aucune PDA, aucune recette.
 const setMax=(a,maxes)=>a.rivals.forEach((r,i)=>{r.max=maxes[i];r.status=r.max>=ev.reservePrice?'in':'out';});
-a=auctionSetup([80,80,0,0,0]);setMax(a,[15,13,0,0,0]);
+a=auctionSetup([80,80,0,0,0]);setMax(a,[17,15,0,0,0]);
 sportsAuctionParticipate();assert(a.phase==='bidding'&&a.price===null&&a.leader===null,'single sealed round opens');
 let gb=sportsGaugeBounds(a);assert(gb.min===ev.reservePrice&&gb.max>gb.estMax&&gb.canBid&&a.draft===gb.suggested&&gb.suggested>=gb.estMin&&gb.suggested<=gb.estMax,'gauge bounds and suggestion');
 assert(sportsGaugeFeedback(a,gb.min).zone==='low'&&sportsGaugeFeedback(a,gb.estMax+1).zone==='high'&&sportsGaugeFeedback(a,gb.suggested).zone==='fair','gauge zones');
 settle();const pdaBefore=getCalculatedPDAs().find(r=>r.channel===gameState.player).pda.a2549;
 const revBefore=gameState.player.revenusPubPrevisionnels;
-sportsAuctionSealedBid(18);
+sportsAuctionSealedBid(20);
 assert(a.phase==='verdict'&&a.result.outcome==='won','player wins in one round');
-assert(a.result.price>15&&a.result.price<=18&&a.result.playerLastBid===18,'pays just above the second offer');
-assert(a.result.reveal.length===3&&a.result.reveal[0].isPlayer&&a.result.reveal[1].amount===15&&a.result.reveal[2].amount===13,'sealed offers revealed in order');
+assert(a.result.price>17&&a.result.price<=20&&a.result.playerLastBid===20,'pays just above the second offer');
+assert(a.result.reveal.length===3&&a.result.reveal[0].isPlayer&&a.result.reveal[1].amount===17&&a.result.reveal[2].amount===15,'sealed offers revealed in order');
 cash0=gameState.player.tresorerie;const achats0=gameState.player.achatsSaison;
 chooseDilemmaOption(0);
 assert(Math.abs(gameState.player.tresorerie-(cash0-a.result.price))<1e-9,'rights debited once');
@@ -254,9 +262,9 @@ sportsAuctionParticipate();sportsAuctionSealedBid(20);assert(a.result.outcome===
 a=auctionSetup([80,80,0,0,0]);setMax(a,[20,0,0,0,0]);
 sportsAuctionParticipate();sportsAuctionSealedBid(20);assert(a.result.outcome==='lost'&&a.result.price===20,'tie goes to the rival');
 // Offres concurrentes jamais exposées avant l'ouverture des plis.
-a=auctionSetup([80,80,0,0,0]);setMax(a,[13.5,0,0,0,0]);sportsAuctionParticipate();
+a=auctionSetup([80,80,0,0,0]);setMax(a,[15.5,0,0,0,0]);sportsAuctionParticipate();
 const zoneHtml=renderSportsAuctionZone(DILEMMA_BANK.find(x=>x.id==='d2'));
-assert(zoneHtml.includes('data-sa-range')&&!zoneHtml.includes('13,5'),'gauge shown, rival offers sealed');
+assert(zoneHtml.includes('data-sa-range')&&!zoneHtml.includes('15,5'),'gauge shown, rival offers sealed');
 // Hors des bornes de la jauge : ignoré.
 const sealedBefore=JSON.stringify(a);sportsAuctionSealedBid(sportsGaugeBounds(a).max+5);sportsAuctionSealedBid(ev.reservePrice-1);
 assert(JSON.stringify(a)===sealedBefore,'out of range offer ignored');

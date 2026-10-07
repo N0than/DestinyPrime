@@ -3600,8 +3600,10 @@ const DILEMMA_BANK = [
     ]
   },
   {
-    id: 'd26', titre: "Incidents en direct aux Césars",
-    desc: "Un acteur utilise son discours de remise de prix pour une charge politique violente.",
+    id: 'd26', titre: "Incidents en direct aux César",
+    desc: "En pleine retransmission de la cérémonie des César sur votre antenne, un acteur utilise son discours de remise de prix pour une charge politique violente.",
+    // Réservé à la chaîne qui diffuse la cérémonie cette saison (droits remportés aux enchères).
+    requiresRight: 'cesars',
     c: [
       { l: "Couper le micro de l'artiste", finance: {"recurring":0,"purchase":2,"commercial":0,"category":"P"}, pda: { j1524: -3, a2549: 0, s50: +2, csp: -3 }, r: "Accusations de censure culturelle immédiates.", pop: 0 },
       { l: "Laisser le discours se dérouler jusqu'au bout", finance: {"recurring":0,"purchase":0,"commercial":0,"category":"N"}, pda: { j1524: +4, a2549: +2, s50: -3, csp: +4 }, r: "Sequence virale assurée et buzz dans le milieu de l'art.", pop: 0 }
@@ -6623,6 +6625,10 @@ const SPORT_RELATED_UNIVERSAL_IDS = ['d2', 'd6', 'd14', 'd20', 'd42', 'd65', 'd6
   'd_pub12', 'd_pub13', 'd_pub14', 'd_pub15', 'd_pub16', 'd_pub17', 'd_pub18', 'd_pub19', 'd_pub20',
   'd_pub21', 'd_pub22', 'd_pub23', 'd_pub24', 'd_pub25', 'd_pub27', 'd_pub28', 'd_pub29', 'd_pub30'];
 
+// Le joueur diffuse ce droit cette saison (acquis aux enchères la saison précédente).
+function playerBroadcastsRight(eventId) {
+  return (gameState.sportsRights?.owned || []).some(o => o.ownerId === 'player' && o.eventId === eventId && o.broadcastSeason === gameState.season);
+}
 function getEligibleDilemmas() {
   const type = gameState.player.type;
   return DILEMMA_BANK.filter(d => {
@@ -6634,6 +6640,8 @@ function getEligibleDilemmas() {
     // il n'est pas reproposé, sinon sa recette annuelle serait comptée deux fois.
     if (REGIE_INVESTMENT_IDS.includes(d.id)
       && (gameState.player.decisionHistory || []).some(h => h.id === d.id && h.commercial > 0)) return false;
+    // Dilemme lié à un droit (cérémonie, événement) : seulement pour la chaîne qui le diffuse.
+    if (d.requiresRight) return playerBroadcastsRight(d.requiresRight);
     if (d.types) return d.types.includes(type);
     if (type === 'sport') return SPORT_RELATED_UNIVERSAL_IDS.includes(d.id);
     return true;
@@ -6651,6 +6659,10 @@ function pickDilemmaQueue() {
     const remainingPool = pool.filter(d => !usedIds.has(d.id));
     queue = queue.concat(shuffle(remainingPool).slice(0, 3 - queue.length));
   }
+  // Dilemme lié à un droit diffusé cette saison (incident aux César…) : il fait partie de
+  // la saison de diffusion et prend la place du premier dilemme.
+  const rightDilemma = pool.find(d => d.requiresRight && !queue.includes(d));
+  if (rightDilemma) queue[0] = rightDilemma;
   gameState.seenDilemmaIds.push(...queue.map(d => d.id));
   ensureCampaign();
   const event = STORY_EVENTS.find(e=>e.eligible(gameState.player)&&!gameState.player.eventsSeen.includes(e.id));
@@ -9030,7 +9042,7 @@ const SPORT_RIGHTS_EVENTS = {
     id: 'roland_garros', name: 'Roland-Garros', the: 'Roland-Garros', sport: 'tennis', icon: '🎾', tier: 'premium',
     headline: 'Roland-Garros cherche un diffuseur',
     pitch: 'Les droits du tournoi sur terre battue arrivent sur le marché : quinze jours de direct, de l’après-midi jusqu’aux sessions de nuit.',
-    reservePrice: 8, estimatedValueMin: 11, estimatedValueMax: 16, productionCost: 2, exclusive: true, duration: 1,
+    reservePrice: 9, estimatedValueMin: 12.5, estimatedValueMax: 18.5, productionCost: 2, exclusive: true, duration: 1,
     audiencePower: { j1524: 1.05, a2549: 1.20, s50: 1.30, csp: 1.25 },
     commercialAttractiveness: 1.20,
     preferredSlots: ['apresmidi', 'access', 'prime', 'nuit'],
@@ -9042,7 +9054,7 @@ const SPORT_RIGHTS_EVENTS = {
     id: 'world_cup', name: 'Coupe du monde', the: 'la Coupe du monde', sport: 'football', icon: '⚽', tier: 'mega',
     headline: 'La Coupe du monde change de diffuseur',
     pitch: 'Les droits de la prochaine Coupe du monde de football arrivent sur le marché : avant-match, match et après-match occuperont toute la soirée. Plusieurs chaînes préparent déjà leur offre.',
-    reservePrice: 12, estimatedValueMin: 18, estimatedValueMax: 25, productionCost: 4, exclusive: true, duration: 1,
+    reservePrice: 14, estimatedValueMin: 20.5, estimatedValueMax: 28.5, productionCost: 4, exclusive: true, duration: 1,
     audiencePower: { j1524: 1.30, a2549: 1.45, s50: 1.30, csp: 1.20 },
     commercialAttractiveness: 1.35,
     // Avant-match en access, match en prime, après-match et matchs tardifs en nuit.
@@ -9057,7 +9069,7 @@ const SPORT_RIGHTS_EVENTS = {
     id: 'f1', name: 'Championnat du monde de F1', the: 'le Championnat du monde de F1', sport: 'automobile', icon: '🏎️', tier: 'premium',
     headline: 'La Formule 1 cherche un diffuseur',
     pitch: 'Vingt-quatre Grands Prix, presque tous l’après-midi. Les droits du championnat du monde sont à prendre pour la saison prochaine, puis renouvelables chaque année au prix remporté.',
-    reservePrice: 5, estimatedValueMin: 7, estimatedValueMax: 11, productionCost: 1.5, exclusive: true, duration: 1, recurring: true,
+    reservePrice: 4.5, estimatedValueMin: 6.5, estimatedValueMax: 10, productionCost: 1.5, exclusive: true, duration: 1, recurring: true,
     audiencePower: { j1524: 1.20, a2549: 1.30, s50: 1.15, csp: 1.20 },
     commercialAttractiveness: 1.15,
     preferredSlots: ['apresmidi'],
@@ -9069,7 +9081,7 @@ const SPORT_RIGHTS_EVENTS = {
     id: 'olympic_games', name: 'Jeux olympiques', the: 'les Jeux olympiques', sport: 'multisports', icon: '🏅', tier: 'mega',
     headline: 'Les Jeux olympiques sont mis aux enchères',
     pitch: 'Quinze jours de compétitions en continu, de l’après-midi jusqu’à la nuit. Le package complet est sur la table.',
-    reservePrice: 10, estimatedValueMin: 15, estimatedValueMax: 22, productionCost: 4, exclusive: true, duration: 1,
+    reservePrice: 13.5, estimatedValueMin: 20, estimatedValueMax: 29, productionCost: 4, exclusive: true, duration: 1,
     audiencePower: { j1524: 1.20, a2549: 1.30, s50: 1.35, csp: 1.25 },
     commercialAttractiveness: 1.25,
     preferredSlots: ['apresmidi', 'access', 'prime', 'nuit'],
@@ -9086,21 +9098,21 @@ const SPORT_RIGHTS_EVENTS = {
     kindLabel: 'Cérémonie live', airLabel: 'Nuit des Oscars en direct', origin: 'international', live: true, channelTypes: ['cinema', 'generaliste'],
     headline: 'Les Oscars cherchent un diffuseur',
     pitch: 'Tapis rouge en prime, puis la cérémonie en direct de Los Angeles toute la nuit : la soirée la plus glamour du cinéma mondial est à prendre.',
-    reservePrice: 6, estimatedValueMin: 9, estimatedValueMax: 14, productionCost: 1.5,
+    reservePrice: 7, estimatedValueMin: 10.5, estimatedValueMax: 16, productionCost: 1.5,
     audiencePower: { j1524: 1.20, a2549: 1.25, s50: 1.10, csp: 1.35 }, commercialAttractiveness: 1.25,
     preferredSlots: ['prime', 'nuit'], slotFit: { prime: 0.7, nuit: 1 }, illustration: { subgenre: 'ceremonie', palette: 'nuit' } }),
   cannes: cinemaRightsEvent({ id: 'cannes', name: 'Festival de Cannes', the: 'le Festival de Cannes', icon: '🎬', sport: 'festival', stars: 5,
     kindLabel: 'Cérémonies + tapis rouge', airLabel: 'Montée des marches et cérémonies en direct', origin: 'FR', live: true, channelTypes: ['cinema', 'generaliste'],
     headline: 'Le Festival de Cannes ouvre ses droits',
     pitch: 'Douze jours de Croisette : montée des marches en access, cérémonies d’ouverture et de clôture en prime. Le festival le plus médiatisé du monde.',
-    reservePrice: 7, estimatedValueMin: 11, estimatedValueMax: 17, productionCost: 2,
+    reservePrice: 8, estimatedValueMin: 12.5, estimatedValueMax: 19.5, productionCost: 2,
     audiencePower: { j1524: 1.05, a2549: 1.20, s50: 1.25, csp: 1.40 }, commercialAttractiveness: 1.30,
     preferredSlots: ['access', 'prime'], slotFit: { access: 0.85, prime: 1 }, illustration: { subgenre: 'festival', palette: 'aube' } }),
   cesars: cinemaRightsEvent({ id: 'cesars', name: 'Cérémonie des César', the: 'la cérémonie des César', icon: '🏆', sport: 'ceremonie', stars: 4,
     kindLabel: 'Cérémonie live', airLabel: 'Cérémonie en direct', origin: 'FR', live: true, channelTypes: ['cinema', 'generaliste'],
     headline: 'Les César changent de diffuseur',
     pitch: 'La grande soirée du cinéma français, en direct de l’Olympia : discours, palmarès et moments d’antenne qui font parler le lendemain.',
-    reservePrice: 4, estimatedValueMin: 6, estimatedValueMax: 9.5, productionCost: 1.2,
+    reservePrice: 4.5, estimatedValueMin: 7, estimatedValueMax: 11, productionCost: 1.2,
     audiencePower: { j1524: 0.95, a2549: 1.15, s50: 1.25, csp: 1.35 }, commercialAttractiveness: 1.15,
     preferredSlots: ['prime'], slotFit: { prime: 1 }, illustration: { subgenre: 'ceremonie', palette: 'studio' } }),
   emmys: cinemaRightsEvent({ id: 'emmys', name: 'Emmy Awards', the: 'les Emmy Awards', icon: '📺', sport: 'ceremonie', stars: 3,
@@ -9121,49 +9133,49 @@ const SPORT_RIGHTS_EVENTS = {
     kindLabel: 'Festival', airLabel: 'Festival : magazine et films de la sélection', origin: 'EU', live: false, channelTypes: ['cinema'],
     headline: 'La Mostra de Venise cherche un diffuseur',
     pitch: 'Le plus ancien festival du monde : un magazine quotidien en access et les films de la sélection en fin de soirée.',
-    reservePrice: 2.5, estimatedValueMin: 3.5, estimatedValueMax: 6, productionCost: 0.8,
+    reservePrice: 3, estimatedValueMin: 4, estimatedValueMax: 7, productionCost: 0.8,
     audiencePower: { j1524: 0.80, a2549: 1.00, s50: 1.15, csp: 1.40 }, commercialAttractiveness: 1.05,
     preferredSlots: ['access', 'nuit'], slotFit: { access: 0.7, nuit: 1 }, illustration: { subgenre: 'festival', palette: 'aube' } }),
   berlinale: cinemaRightsEvent({ id: 'berlinale', name: 'Festival de Berlin', the: 'le Festival de Berlin', icon: '🎞️', sport: 'festival', stars: 2,
     kindLabel: 'Festival', airLabel: 'Festival : magazine et films de la sélection', origin: 'EU', live: false, channelTypes: ['cinema'],
     headline: 'La Berlinale ouvre ses droits',
     pitch: 'Ours d’or, cinéma d’auteur et grandes premières européennes : un magazine en access et les films primés en fin de soirée.',
-    reservePrice: 2.5, estimatedValueMin: 3.5, estimatedValueMax: 6, productionCost: 0.8,
+    reservePrice: 3, estimatedValueMin: 4, estimatedValueMax: 7, productionCost: 0.8,
     audiencePower: { j1524: 0.85, a2549: 1.00, s50: 1.10, csp: 1.40 }, commercialAttractiveness: 1.05,
     preferredSlots: ['access', 'nuit'], slotFit: { access: 0.7, nuit: 1 }, illustration: { subgenre: 'festival', palette: 'nuit' } }),
   deauville: cinemaRightsEvent({ id: 'deauville', name: 'Festival de Deauville', the: 'le Festival de Deauville', icon: '🇫🇷', sport: 'festival', stars: 2,
     kindLabel: 'Festival', airLabel: 'Festival : magazine quotidien', origin: 'FR', live: false, channelTypes: ['cinema'],
     headline: 'Le Festival de Deauville cherche un diffuseur',
     pitch: 'Le cinéma américain sur les planches normandes : un magazine quotidien en access, peu coûteux et très identifiant.',
-    reservePrice: 1.5, estimatedValueMin: 2, estimatedValueMax: 3.5, productionCost: 0.5,
+    reservePrice: 1.5, estimatedValueMin: 2.5, estimatedValueMax: 4, productionCost: 0.5,
     audiencePower: { j1524: 0.90, a2549: 1.05, s50: 1.10, csp: 1.25 }, commercialAttractiveness: 1.05,
     preferredSlots: ['access'], slotFit: { access: 1 }, illustration: { subgenre: 'festival', palette: 'jour' } }),
   series_mania: cinemaRightsEvent({ id: 'series_mania', name: 'Festival Séries Mania', the: 'le Festival Séries Mania', icon: '📺', sport: 'serie', stars: 3,
     kindLabel: 'Festival séries', airLabel: 'Festival : avant-premières de séries', origin: 'FR', live: false, channelTypes: ['cinema'],
     headline: 'Séries Mania cherche un diffuseur',
     pitch: 'Le grand festival des séries à Lille : avant-premières en prime, coulisses et rencontres en fin de soirée.',
-    reservePrice: 3, estimatedValueMin: 5, estimatedValueMax: 8, productionCost: 1,
+    reservePrice: 3.5, estimatedValueMin: 6, estimatedValueMax: 9, productionCost: 1,
     audiencePower: { j1524: 1.30, a2549: 1.20, s50: 0.90, csp: 1.15 }, commercialAttractiveness: 1.10,
     preferredSlots: ['prime', 'nuit'], slotFit: { prime: 0.8, nuit: 1 }, illustration: { subgenre: 'serie', palette: 'neon' } }),
   premiere_clair: cinemaRightsEvent({ id: 'premiere_clair', name: 'Blockbuster en 1re diffusion en clair', the: 'la première diffusion en clair du blockbuster de l’année', icon: '🍿', sport: 'film', stars: 4,
     kindLabel: 'Film', airLabel: 'Première diffusion en clair', origin: 'international', live: false, channelTypes: ['cinema', 'generaliste'],
     headline: 'Le blockbuster de l’année arrive en clair',
     pitch: 'Le plus gros succès du box-office récent, jamais diffusé gratuitement : une soirée événement en prime, avec ses rediffusions.',
-    reservePrice: 4.5, estimatedValueMin: 7, estimatedValueMax: 11, productionCost: 0.3,
+    reservePrice: 5, estimatedValueMin: 8, estimatedValueMax: 12.5, productionCost: 0.3,
     audiencePower: { j1524: 1.35, a2549: 1.30, s50: 1.05, csp: 1.05 }, commercialAttractiveness: 1.20,
     preferredSlots: ['prime'], slotFit: { prime: 1 }, illustration: { subgenre: 'film', palette: 'nuit' } }),
   saga: cinemaRightsEvent({ id: 'saga', name: 'Saga culte (007, War Stars, Barry Poter…)', the: 'le package de la saga culte', icon: '🎬', sport: 'saga', stars: 5,
     kindLabel: 'Package de films', airLabel: 'Saga culte : un film chaque semaine', origin: 'international', live: false, channelTypes: ['cinema', 'generaliste'],
     headline: 'Une saga culte est mise aux enchères',
     pitch: 'L’intégrale d’une franchise légendaire — espions, sabres laser ou sorciers — en exclusivité : un film chaque semaine en prime, rediffusions le week-end après-midi.',
-    reservePrice: 7, estimatedValueMin: 11, estimatedValueMax: 17.5, productionCost: 0.5,
+    reservePrice: 8, estimatedValueMin: 12.5, estimatedValueMax: 20, productionCost: 0.5,
     audiencePower: { j1524: 1.40, a2549: 1.30, s50: 1.10, csp: 1.05 }, commercialAttractiveness: 1.30,
     preferredSlots: ['apresmidi', 'prime'], slotFit: { apresmidi: 0.75, prime: 1 }, illustration: { subgenre: 'film', palette: 'studio' } }),
   serie_phenomene: cinemaRightsEvent({ id: 'serie_phenomene', name: 'Série phénomène', the: 'la série phénomène', icon: '📺', sport: 'serie', stars: 5,
     kindLabel: 'Série', airLabel: 'Série phénomène en exclusivité', origin: 'international', live: false, channelTypes: ['cinema', 'generaliste'],
     headline: 'La série phénomène cherche une chaîne en clair',
     pitch: 'La série dont tout le monde parle, en exclusivité en clair : deux épisodes chaque semaine en prime, puis l’intégrale en fin de soirée.',
-    reservePrice: 6.5, estimatedValueMin: 10.5, estimatedValueMax: 16, productionCost: 0.5,
+    reservePrice: 7.5, estimatedValueMin: 12, estimatedValueMax: 18.5, productionCost: 0.5,
     audiencePower: { j1524: 1.45, a2549: 1.35, s50: 1.00, csp: 1.15 }, commercialAttractiveness: 1.25,
     preferredSlots: ['prime', 'nuit'], slotFit: { prime: 1, nuit: 0.6 }, illustration: { subgenre: 'serie', palette: 'nuit' } })
 };
@@ -9177,6 +9189,10 @@ function cinemaRightsEvent(e) {
 const SPORT_RIGHTS_TUNING = {
   // Puissance de case d'un événement avant affinités (même échelle que les boosts de programme).
   tierPower: { premium: 7, mega: 10 },
+  // Rentabilité globale des droits (sport et cinéma) : part de la puissance de case
+  // effectivement captée par l'événement. Abaissée pour qu'un droit au prix estimé reste un
+  // pari (rentabilité moyenne < 1) plutôt qu'une affaire assurée.
+  audienceScale: 0.8,
   popularityOnAir: { premium: 2, mega: 3 },
   // Affinité stratégique selon le type de chaîne (jamais d'interdiction, seulement une valeur).
   channelFit: {
@@ -9678,7 +9694,7 @@ function calculateSportsEventAudience(event, channel, slot, record) {
   const fit = T.channelFit[channel.type]?.[event.sport] ?? 1;
   const pop = channel === gameState.player ? 0.8 + (channel.popularite ?? 50) / 250 : 1;
   const variance = record?.variance ?? 1;
-  const base = rightsEventPower(event) * (event.slotFit[slot] ?? 0) * fit * pop * variance;
+  const base = rightsEventPower(event) * T.audienceScale * (event.slotFit[slot] ?? 0) * fit * pop * variance;
   return Object.fromEntries(Object.entries(event.audiencePower).map(([t, k]) => [t, base * k]));
 }
 // Programme « événement » qui occupe la case pendant sa saison de diffusion.
