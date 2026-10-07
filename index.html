@@ -1545,6 +1545,7 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .grid-table td { background: rgba(255,255,255,0.3); }
 .grid-table tr:nth-child(even) td { background: rgba(255,255,255,0.5); }
 
+.launch-eco-note { margin: 0 0 12px; font-size: 13px; line-height: 1.45; color: #475569; }
 .badge {
   display: inline-flex; align-items: center;
   background: rgba(217,119,6,0.12); color: var(--gold); border: 1px solid rgba(217,119,6,0.25);
@@ -2207,7 +2208,7 @@ const shuffle = arr => {
 const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
 const GRP_COST = { j1524: 0.8, a2549: 1.2, s50: 0.7, csp: 1.5 };
-const VOLUME_PUB = 2; // M€ par point de PDA moyenne de saison (base annuelle, calibrée pour que les revenus restent proportionnés au budget de grille)
+const VOLUME_PUB = 3; // M€ par point de PDA sur la cible, avant GRP de la cible (1 % sur les 25-49 = 1 × 1,2 × 3 = 3,6 M€ à popularité 50)
 const TRESORERIE_CRITIQUE = -60; // seuil de mise sous tutelle (M€)
 
 const nf1 = n => n.toLocaleString('fr-FR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
@@ -3115,17 +3116,18 @@ function reevaluateAdRevenue() {
 }
 
 function computeNextBudgetGrille(player) {
-  // baseBudget est le capital de départ de la chaîne. La grille de départ est
-  // calibrée à 30 % de ce capital : conserver ce même socle évite un saut de
-  // 15 M€ à 50 M€ entre les saisons 1 et 2.
+  // Socle : le coût de la grille de lancement propre au format (initialGridCost),
+  // pour éviter tout saut de budget entre la saison 1 et les suivantes.
   const capitalInitial = CHANNEL_TYPES[player.type].baseBudget;
-  const base = capitalInitial * 0.30;
+  const base = CHANNEL_TYPES[player.type].initialGridCost;
   const bonusTresorerie = Math.max(0, (player.tresorerie - capitalInitial) * 0.12);
   const bonusPerformance = Math.max(0, player.rentabiliteGrille * 0.08);
   const raw = base + bonusTresorerie + bonusPerformance;
   return Math.max(base * 0.5, Math.min(raw, base * 2.5));
 }
 
+// baseBudget : capital de départ de la chaîne. initialGridCost : coût annuel de la grille de
+// lancement (M€), payé dès l'ouverture de la saison 1 puis reconduit, ajusté par les contrats.
 const CHANNEL_TYPES = {
   generaliste: {
     label: "📺 Généraliste",
@@ -3133,6 +3135,7 @@ const CHANNEL_TYPES = {
     forces: "Audience globale, événementiel.",
     faiblesses: "Coûts élevés, concurrence forte.",
     baseBudget: 50,
+    initialGridCost: 13,
     pdaMods: { j1524: 10, a2549: 15, s50: 20, csp: 12 }
   },
   cinema: {
@@ -3141,6 +3144,7 @@ const CHANNEL_TYPES = {
     forces: "Fidélisation, catalogue.",
     faiblesses: "Coûts des droits.",
     baseBudget: 40,
+    initialGridCost: 11,
     pdaMods: { j1524: 12, a2549: 22, s50: 18, csp: 10 }
   },
   culture: {
@@ -3149,6 +3153,7 @@ const CHANNEL_TYPES = {
     forces: "CSP+, fidélité.",
     faiblesses: "Audience de masse plus difficile.",
     baseBudget: 25,
+    initialGridCost: 7,
     pdaMods: { j1524: 5, a2549: 10, s50: 18, csp: 30 }
   },
   jeunesse: {
@@ -3157,6 +3162,7 @@ const CHANNEL_TYPES = {
     forces: "Fidélité, consommation régulière.",
     faiblesses: "Cible plus spécifique.",
     baseBudget: 25,
+    initialGridCost: 6.5,
     pdaMods: { j1524: 25, a2549: 18, s50: 5, csp: 8 }
   },
   sport: {
@@ -3165,6 +3171,7 @@ const CHANNEL_TYPES = {
     forces: "Pics d'audience, forte valeur publicitaire.",
     faiblesses: "Droits extrêmement coûteux.",
     baseBudget: 35,
+    initialGridCost: 8.5,
     pdaMods: { j1524: 15, a2549: 25, s50: 12, csp: 18 }
   },
   info: {
@@ -3173,6 +3180,7 @@ const CHANNEL_TYPES = {
     forces: "Consommation quotidienne, actualité.",
     faiblesses: "Dépendance à l'actualité et forte volatilité.",
     baseBudget: 25,
+    initialGridCost: 8,
     pdaMods: { j1524: 5, a2549: 18, s50: 22, csp: 25 }
   }
 };
@@ -6767,7 +6775,7 @@ function initCompetitors() {
 
 function finalizeChannelSetup() {
   gameState.player.tresorerie = CHANNEL_TYPES[gameState.player.type].baseBudget;
-  // Le coût de grille de départ représente 30% de la trésorerie disponible en début de partie.
+  // Le coût annuel de la grille de lancement dépend du format (CHANNEL_TYPES.initialGridCost).
   // Le cumul ne contient que les coûts réellement arrêtés. Le coût de la saison en
   // cours est suivi séparément dans coutGrilleEngageSaison.
   gameState.player.coutGrilleCumul = 0;
@@ -6796,7 +6804,7 @@ function finalizeChannelSetup() {
 
   const player = gameState.player;
   player.puissanceCommerciale = 1;
-  player.budgetGrilleAnnuel = 0.30 * player.tresorerie;
+  player.budgetGrilleAnnuel = CHANNEL_TYPES[player.type].initialGridCost;
   player.coutGrilleEngageSaison = player.budgetGrilleAnnuel;
   player.revenusPubPrevisionnels = 0;
   player.revenusPubFinals = 0;
@@ -7239,9 +7247,8 @@ function chooseDilemmaOption(choiceIndex) {
 
   const competitorReactions = strategicCompetitors();
 
-  // À partir de la saison 2, la grille est provisionnée à l'ouverture. Les choix
-  // ajustent ensuite immédiatement la trésorerie ; en saison 1, seul le surcoût
-  // ou l'économie lié au choix affecte le capital de lancement.
+  // La grille est payée à l'ouverture de chaque saison (saison 1 comprise). Les choix
+  // ajustent ensuite immédiatement la trésorerie du surcoût ou de l'économie qu'ils créent.
   // Les flux sont explicites. Les économies respectent les contrats actifs ;
   // un remplacement inclut l'indemnité et retire l'ancien engagement annuel.
   if (choice.grille && !choice.careerAction) delete player.contracts[choice.grille.slot];
@@ -7459,8 +7466,14 @@ function launchFirstSeason() {
   player.pdaHistorySeason = [seed]; player.pdaMoyenneSaison = seed; player.pdaFinSaison = seed;
   gameState.dilemmaQueue = pickDilemmaQueue();
   gameState.currentDilemmaIndex = 0;
-  // La première saison sert de lancement : son coût de grille est un apport
-  // initial déjà couvert par le capital de départ, sans débit de trésorerie.
+  // Comme à chaque saison, la grille est payée à l'ouverture, une seule fois : trésorerie
+  // de début de saison mémorisée, puis débit du coût de grille (dépense annuelle de grille,
+  // hors achats ponctuels), puis crédit des recettes publicitaires prévisionnelles.
+  if (player.grillePayeeSaison !== gameState.season) {
+    player.tresorerieDebutSaison = player.tresorerie;
+    player.tresorerie -= player.coutGrilleEngageSaison;
+    player.grillePayeeSaison = gameState.season;
+  }
   gameState.step = 6;
   // Le crédit intégral intervient dès l'ouverture de la saison, avant même le choix de
   // programmation : la proposition ne fera plus qu'ajuster l'écart, comme un dilemme.
@@ -7494,6 +7507,7 @@ function startNewSeason() {
   // Il n'alimente le cumul qu'une fois la saison effectivement clôturée.
   player.coutGrilleEngageSaison = player.budgetGrilleAnnuel;
   player.tresorerie -= player.coutGrilleEngageSaison;
+  player.grillePayeeSaison = gameState.season;
   player.revenusPubPrevisionnels = 0;
   player.revenusPubFinals = 0;
   player.regieRecettesSaison = 0;
@@ -8221,10 +8235,12 @@ function render() {
         <h3>CONDITIONS DE DÉPART</h3>
         <ul style="margin: 8px 0 14px 18px; font-size: 14px;">
           <li><b>Capital de départ :</b> ${nf1(gameState.player.tresorerie)} M€</li>
+          <li><b>Coût annuel de la grille :</b> ${nf1(gameState.player.coutGrilleEngageSaison)} M€</li>
           <li><b>Audience sur cible :</b> 1,0 % (Nouvel entrant)</li>
           <li><b>Le challenge :</b> S'imposer face à cinq chaînes historiques, dotées de budgets conséquents.</li>
         </ul>
 
+        <p class="launch-eco-note">La grille est payée à chaque début de saison. Les recettes publicitaires estimées sont ensuite créditées et évoluent selon vos performances.</p>
         <div class="badge">Objectif Année 1 : Passer le cap des 3% PDA</div>
       </div>
       <button class="welcome-cta" id="btn-launch">
