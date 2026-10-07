@@ -1449,7 +1449,7 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
   content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 4px;
   background: linear-gradient(90deg, var(--rouge), #d6d3d1 50%, var(--gold));
 }
-#choice-zone > .slide-in-up { margin-top: -14px; }
+#choice-zone > .consequence-wrap { margin-top: -14px; }
 .dilemma-card-attached {
   border-top: none; border-top-left-radius: 0; border-top-right-radius: 0;
 }
@@ -1747,7 +1747,7 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 @media (hover: hover) and (pointer: fine) { .gr-nav { display: flex; } }
 .gr-carousel.no-scroll .gr-dots, .gr-carousel.no-scroll .gr-nav { display: none; }
 @media (min-width: 640px) { .gr-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-#choice-zone > .slide-in-up.consequence-wrap { margin-top: -14px; }
+#choice-zone > .consequence-wrap { margin-top: -14px; }
 /* À l'affichage des conséquences, l'en-tête et la carte de résultat ne forment
    plus qu'un seul bloc (angles, bordure et ombre raccordés). */
 .dilemma-card.dilemma-hero.is-result {
@@ -7900,6 +7900,16 @@ function bindTickerInteractions(app) {
   ehSlider.addEventListener('pointerleave', endDrag);
 }
 
+// Animation d'entrée (glissement de la carte, résultat) : jouée seulement à l'arrivée
+// d'un nouvel écran. Un réaffichage du même écran (achat d'un programme, choix sur une
+// carte, enchère, talent…) ne la relance pas, sinon la carte glisse à nouveau.
+let lastEntranceKey = null;
+function entranceClass(key, cls) {
+  const fresh = key !== lastEntranceKey;
+  lastEntranceKey = key;
+  return fresh ? ` ${cls}` : '';
+}
+
 function goToStepAnimated(mutate) {
   const app = document.getElementById('app');
   const isMobile = window.matchMedia('(max-width: 540px)').matches;
@@ -8248,9 +8258,9 @@ function render() {
     let zoneHtml;
     const sportEvent = sportsEventOfDilemma(dilemma);
     const sportsResult = phase === 'result' && gameState.lastConsequence?.sportsAuction;
-    // Pendant l'enchère, la carte reste en place : seuls ses éléments apparaissent et disparaissent.
-    const auctionLive = phase === 'choosing' && sportEvent ? gameState.sportsRights?.activeAuction : null;
-    const auctionReplay = !!(auctionLive && auctionLive.eventId === sportEvent.id && auctionLive.cardShown);
+    // Pendant l'enchère comme lors de tout réaffichage du même dilemme, la carte reste en
+    // place : seuls ses éléments apparaissent et disparaissent.
+    const entrance = entranceClass(`dilemma|${gameState.season}|${dilemmaIndex}|${phase}|${dilemma?.id}`, phase === 'choosing' ? 'slide-in' : 'slide-in-up');
     const sportsBlock = sportsResult ? renderSportsVerdictInline(gameState.lastConsequence)
       : phase === 'choosing' && sportEvent ? renderSportsAuctionZone(dilemma) : '';
     if (sportsResult) {
@@ -8294,7 +8304,7 @@ function render() {
       }).join('');
 
       zoneHtml = `
-        <div class="slide-in-up consequence-wrap">
+        <div class="consequence-wrap${entrance}">
           <div class="dilemma-card consequence-card">
             <div class="dc-body">
               <p>${esc(cq.resultat)}</p>
@@ -8342,7 +8352,7 @@ function render() {
       ${renderMasthead("Saison " + gameState.season, "Audience Masters", true)}
       ${renderTicker()}
       ${renderCampaignPanel()}
-      <div class="dilemma-container${phase === 'choosing' && !auctionReplay ? ' slide-in' : ''}">
+      <div class="dilemma-container${phase === 'choosing' ? entrance : ''}">
         <div class="dilemma-card dilemma-hero${phase === 'result' ? ' is-result' : ''}${sportEvent ? ` sa-hero sa-phase-${phase === 'result' ? 'verdict' : gameState.sportsRights?.activeAuction?.phase || 'market'}` : ''}">
           <div class="dc-head">
             <span class="dc-head-left"><span class="dc-live-pill"><span class="dc-live-dot"></span>${sportEvent ? 'Droits sportifs' : 'Événement'}</span>${channelPillHtml()}</span>
@@ -8402,7 +8412,6 @@ function render() {
 
     bindTickerInteractions(app);
     bindRenewalCarousel(app);
-    if (phase === 'choosing' && sportEvent && gameState.sportsRights?.activeAuction) gameState.sportsRights.activeAuction.cardShown = true;
     if (phase === 'choosing' && (dilemma.isGridRenewal || dilemma.isTalentRenewal)) bindRenewalCards(app, dilemma);
     if (phase === 'choosing' && sportEvent) {
       bindSportsAuctionZone(app);
@@ -10215,7 +10224,7 @@ function renderSeasonKickoff(app) {
   app.innerHTML = `
     ${renderMasthead("Saison " + gameState.season, "Audience Masters", true)}
     ${renderTicker()}
-    <div class="dilemma-container slide-in">
+    <div class="dilemma-container${entranceClass(`kickoff|${gameState.season}`, 'slide-in')}">
       <header class="kickoff-head">
         <div class="kickoff-head-pills">
           <span class="dc-head-left"><span class="dc-live-pill"><span class="dc-live-dot"></span>Programmation</span>${channelPillHtml()}</span>
@@ -10358,7 +10367,7 @@ function renderMercato(app) {
   app.innerHTML = `
     ${renderMasthead("Saison " + gameState.season, "Audience Masters", true)}
     ${renderTicker()}
-    <div class="dilemma-container slide-in">
+    <div class="dilemma-container${entranceClass(`mercato|${gameState.season}|${m.result ? 'result' : 'pick'}`, 'slide-in')}">
       ${m.result && m.outcomes ? '' : `<div class="dilemma-card dilemma-hero">
         <div class="dc-head">
           <span class="dc-head-left"><span class="dc-live-pill"><span class="dc-live-dot"></span>Mercato</span>${channelPillHtml()}</span>
