@@ -9881,6 +9881,9 @@ function evolveProgramCareers() {
   const calc = getCalculatedPDAs().find(row => row.channel === p);
   for (const [slot, contract] of Object.entries(p.contracts || {})) {
     const career = migrateProgramCareer(contract, slot);
+    // Programme en pause (case prise par un événement sportif) : il n'a pas été diffusé,
+    // sa carrière n'évolue pas et l'audience de l'événement ne lui est pas attribuée.
+    if (contract.sportsPause === gameState.season) continue;
     const performance = calc.slots[slot][p.target];
     const expected = calc.expectedSlots[slot][p.target];
     const success = Math.max(-4, Math.min(4, performance - expected));
@@ -10193,15 +10196,31 @@ function programWearStars(wear) {
 // programme) : chaque statistique sur 100 est traduite en 1 à 5 étoiles.
 // opts.choices : choix proposés au dos de la carte (la carte devient retournable) ;
 // opts.picked : index du choix retenu, affiché en badge sur la face avant.
+// PDA du programme de la case sur la cible de la chaîne. Si un événement sportif occupe
+// la case cette saison, le programme (en pause) est jugé sur sa dernière saison diffusée,
+// ou à défaut sur l'audience qu'il ferait sans l'événement — jamais sur celle de l'événement.
+function programSlotPda(slot) {
+  const p = gameState.player, contract = p.contracts?.[slot];
+  const slotPda = () => getCalculatedPDAs().find(c => c.channel === p)?.slots?.[slot]?.[p.target];
+  const rec = contract?.sportsPause === gameState.season ? sportsBroadcastOn(p, slot) : null;
+  if (!rec) return { pda: slotPda() };
+  const event = SPORT_RIGHTS_EVENTS[rec.eventId];
+  const last = [...(contract.career?.history || [])].reverse().find(h => h.season < gameState.season && Number.isFinite(h.performance));
+  if (last) return { pda: last.performance, season: last.season, pausedBy: event };
+  rec.suppressed = true;
+  try { return { pda: slotPda(), pausedBy: event }; } finally { delete rec.suppressed; }
+}
 function renewalCardHtml(slot, name, historic, stats, opts = {}) {
   const contract = gameState.player.contracts[slot];
   const art = contract && typeof TvPrograms !== 'undefined' ? TvPrograms.forProgram(contract) : '';
   const slotMeta = TIME_SLOTS.find(s => s.key === slot);
-  // PDA actuelle du créneau sur la cible de la chaîne, comme dans la grille.
-  const playerCalc = getCalculatedPDAs().find(c => c.channel === gameState.player);
-  const pda = playerCalc?.slots?.[slot]?.[gameState.player.target];
+  // PDA réelle du programme sur la cible de la chaîne, comme dans la grille.
+  const { pda, season, pausedBy } = programSlotPda(slot);
+  const pdaTitle = !pausedBy ? 'PDA actuelle du programme'
+    : season != null ? `PDA du programme en saison ${season}, sa dernière saison diffusée` : 'PDA estimée du programme hors événement';
   return flipCardHtml({ ...opts, key: slot, name, stats,
-    pdaBadge: Number.isFinite(pda) ? `<span class="gr-pda pg-badge-${slotMeta?.accent || 'gris'}" title="PDA actuelle du programme">${nf1(pda)}% PDA</span>` : '',
+    ...(pausedBy ? { sub: `En pause cette saison : ${pausedBy.icon} ${pausedBy.name}` } : {}),
+    pdaBadge: Number.isFinite(pda) ? `<span class="gr-pda pg-badge-${slotMeta?.accent || 'gris'}" title="${esc(pdaTitle)}">${nf1(pda)}% PDA${season != null ? ` · S${season}` : ''}</span>` : '',
     artHtml: art ? `<img src="${art}" alt="" width="320" height="180" decoding="async">` : '',
     ribbon: historic ? '⭐ Historique' : '',
     badge: `${slotMeta ? `${slotMeta.icon} ` : ''}${slotLabelOf(slot)}` });

@@ -310,6 +310,23 @@ const budgetAfter=rv.budget;evaluateSportsBroadcasts();assert(rv.budget===budget
 gameState.season=3;closeSportsBroadcasts();assert(offRec.status==='done','competitor broadcast closed next season');rv.budget=50;planCompetitorSeasons();
 assert(rv.plan.slots.prime.tag!=='evenement'&&!activeContract(rv,'prime')?.isSportsEvent,'event over for the competitor');
 assert(rv.plan.slots.prime.name===pausedName||rv.contracts.prime.end>=3,'paused competitor program resumes');
+// Programme mis en pause par un événement : sa PDA de renouvellement est la sienne, pas
+// celle de l'événement, et sa carrière n'évolue pas pendant la pause.
+{
+  setup();gameState.season=2;const pp=gameState.player;
+  const prog=PROGRAM_CATALOG.find(x=>x.channelType===pp.type&&x.slot==='prime');
+  pp.contracts.prime={...prog,end:2,talentAnnual:0,career:createProgramCareer(prog,'prime')};pp.coutGrilleEngageSaison=prog.annual;
+  pp.contracts.prime.career.history=[{season:1,performance:4.4}];
+  acquireSportsRight('world_cup',{owner:'player',price:20});sr().owned.at(-1).broadcastSeason=2;activateSportsBroadcasts();
+  const slotNow=getCalculatedPDAs().find(r=>r.channel===pp).slots.prime[pp.target];
+  const real=programSlotPda('prime');
+  assert(real.pda===4.4&&real.season===1&&real.pausedBy?.id==='world_cup'&&slotNow>real.pda,'paused program judged on its last aired season, not the event');
+  pp.contracts.prime.career.history=[];
+  const est=programSlotPda('prime');
+  assert(Number.isFinite(est.pda)&&est.pda<slotNow&&!sr().owned.some(o=>o.suppressed),'paused program never aired: estimate without the event');
+  const car={...pp.contracts.prime.career};evolveProgramCareers();
+  assert(pp.contracts.prime.career.seasonsCount===car.seasonsCount&&pp.contracts.prime.career.awareness===car.awareness,'no career evolution while paused');
+}
 console.log('OK sports rights: frequency, selection, auction, economy, broadcast, competitors, state');
 `;
 const source = scripts.slice(0, -1).join('\n') + '\n' + tests;
