@@ -3258,6 +3258,21 @@ const GAME_BALANCE = {
     alternativeBonus: 0.015, maxBonus: 0.05
   },
   franchise: { spinoffAnnualRate: 0.5, spinoffPowerRate: 0.6, consolidateCostRate: 0.15 },
+  // Rachat d'un programme concurrent : une partie de son public suit le programme.
+  // Apport transféré = apport propre positif chez le vendeur × taux (statut de carrière)
+  // × compatibilité avec la nouvelle chaîne × maintien du talent, plafonné une seule fois
+  // (à la première diffusion) à initialCapShare × l'apport habituel chez l'acheteur.
+  programTransfer: {
+    rates: { recent: 0.25, installe: 0.5, culte: 0.75 },
+    // Statuts de carrière existants (programLifeStage) → catégorie de transfert.
+    statusCategory: { 'lancement': 'recent', 'croissance': 'installe', 'maturité': 'installe', 'usure': 'installe',
+      'franchise historique': 'culte' },
+    compatibility: { forte: 1, moyenne: 0.75, faible: 0.5 },
+    // Score = affinité de genre avec la chaîne × affinité de cible (règles de contre-programmation).
+    compatibilityThresholds: { forte: 0.8, moyenne: 0.3 },
+    talent: { kept: 1, lost: 0.8 },
+    initialCapShare: 0.5
+  },
   // Exclusivité : un programme n'est diffusé que par une chaîne. Le racheter à un
   // concurrent coûte une indemnité (droits + part des annuités restantes), reversée
   // à la chaîne qui le déprogramme.
@@ -7021,6 +7036,10 @@ function channelSlotProfile(channel, slot) {
   return { genre: cachedSlotGenre(channel.type, slot, name), target: channel.target, level: 1, contract: null };
 }
 
+// Genre éditorial naturel de chaque type de chaîne (la généraliste n'en a pas : tous lui vont).
+const CHANNEL_CORE_GENRE = { cinema: 'fiction', culture: 'culture', jeunesse: 'jeunesse', sport: 'sport', info: 'info' };
+const AUDIENCE_DEMOS = ['j1524', 'a2549', 's50', 'csp'];
+
 function genreOverlap(a, b) {
   if (a === b) return 1;
   return GAME_BALANCE.counterProgramming.genreOverlap[[a, b].sort().join('|')] ?? 0.1;
@@ -7064,14 +7083,11 @@ function getCalculatedPDAs() {
       const pressures = profiles.map((_, i) => counterProgrammingFactor(profiles, i, target));
       const powers = channels.map((c, i) => {
         const contract = activeContract(c, slot);
-        const boost = contract?.audienceDeltas
-          ? (contract.audienceDeltas[target] || 0)
-          : contract ? contract.power * (contract.target === target ? 1 : 0.2) : 0;
-        const careerBoost = contract ? programCareerPower(contract) * (contract.target === target ? 1 : 0.25) : 0;
+        const own = programOwnContribution(contract, target);
         const investment = c.slotInvestments?.[slot];
         const competitorBoost = investment && investment.expires >= gameState.season ? (investment.targets?.[target] || 0) : 0;
         const talentBoost = channelTalentBoost(c, profiles[i].genre) * (profiles[i].target === target ? 1 : 0.35);
-        return Math.max(0.1, (c.pda[target] * SLOT_AFFINITY[c.type][slot] + boost + careerBoost + competitorBoost + talentBoost)
+        return Math.max(0.1, (c.pda[target] * SLOT_AFFINITY[c.type][slot] + own + competitorBoost + talentBoost)
           * pressures[i].factor);
       });
       const total = powers.reduce((sum,v) => sum+v,0);
@@ -7105,6 +7121,20 @@ function getCalculatedPDAs() {
     r.globalPda = demos.reduce((sum,d) => sum+r.pda[d],0)/demos.length;
   });
   return results;
+}
+
+// Apport propre d'un programme à la puissance de son créneau, pour une cible : potentiel
+// du programme, carrière (notoriété, fidélité, usure) et audience acquise lors d'un rachat
+// (public transféré, intégré une fois pour toutes à sa base). Il ne comprend ni l'assise de
+// la chaîne, ni la pression concurrente, ni les talents de chaîne : c'est la part que le
+// programme emporte avec lui et qui disparaît avec lui.
+function programOwnContribution(contract, target) {
+  if (!contract) return 0;
+  const onTarget = contract.target === target;
+  const boost = contract.audienceDeltas ? (contract.audienceDeltas[target] || 0) : contract.power * (onTarget ? 1 : 0.2);
+  const careerBoost = programCareerPower(contract) * (onTarget ? 1 : 0.25);
+  const acquired = contract.transfer?.applied ? (contract.transfer.acquired?.[target] || 0) : 0;
+  return boost + careerBoost + acquired;
 }
 
 function programCareerPower(contract) {
@@ -7677,6 +7707,8 @@ function startNewSeason() {
   player.coutTalentsSaison = Object.values(player.contracts).reduce((sum,c)=>sum+c.talentAnnual,0)
     + (player.talents || []).filter(t => t.until >= gameState.season).reduce((sum, t) => sum + t.annual, 0);
   activateSportsBroadcasts();
+  // Programme racheté dont la première diffusion intervient cette saison.
+  applyPendingProgramTransfers();
   player.lastArcomResult = null;
   player.rentabiliteGrille = player.coutGrilleEngageSaison > 0 ? -100 : 0;
   const seedPdaCible = getCalculatedPDAs().find(item => item.channel === player).pda[player.target];
@@ -10312,7 +10344,7 @@ function programEditorialProfile(program) {
   const type = program.channelType;
   let genre = ({fiction:'fiction',documentaire:'culture',animation:'jeunesse',sport:'sport',
     divertissement:'diverti',jeu:'diverti',magazine:'diverti'})[program.format]
-    || ({cinema:'fiction',culture:'culture',jeunesse:'jeunesse',sport:'sport',info:'info'})[type] || 'diverti';
+    || CHANNEL_CORE_GENRE[type] || 'diverti';
   if (/serie|film|fiction|sitcom|feuilleton|thriller|comedie|saga/.test(name)) genre='fiction';
   if (/documentaire|patrimoine|theatre|opera|concert|ballet|archeologie|sciences|beaux-arts|musique classique/.test(name)) genre='culture';
   if (/magazine|making-of|coulisses|portrait|interview|debat|entretien/.test(name)) genre=type==='cinema'||type==='culture'?'culture':type==='sport'?'sport':'info';
@@ -10988,19 +11020,36 @@ function signProgram(slot, programId, talentId) {
   const quote=quoteProgram(slot,programId,talentId);
   if(!quote || !quote.allowed) return false;
   const {program,talent,annual,holder,buyout}=quote;
+  // 1. Instantané chez le vendeur, avant toute modification de sa grille.
+  const transfer=holder && holder.slot===slot ? snapshotProgramTransfer(holder) : null;
   const previous=p.contracts[slot];
   delete p.contracts[slot];
+  // 2. Rachat selon les règles financières actuelles (droits, indemnité, rachat d'exclusivité).
   applyFinance(quote.finance);
   p.contracts[slot]={...program, annual, talent:talent.name, talentAnnual:talent.annual,
     power:program.power+talent.bonus*SLOT_AFFINITY[p.type][slot], end:gameState.season+program.years-1,
     career:createProgramCareer(program, slot)};
+  // Même programme reconduit (autre talent) : le public déjà acquis le reste, sans nouveau transfert.
+  if(!holder && previous?.transfer && sameProgram(previous, program)) p.contracts[slot].transfer=previous.transfer;
+  let notice='';
   if(holder) {
     p.contracts[slot].acquiredFrom=holder.competitor.name;
     p.contracts[slot].buyout=buyout;
+    if(transfer) p.contracts[slot].transfer=transfer;
+    // 3. Grille du vendeur : retrait du programme et remplacement par son IA.
     const released=releaseCompetitorProgram(holder.competitor,holder.slot,buyout);
-    gameState.exclusivityNotice={slot,season:gameState.season,
-      text:`« ${program.name} » racheté à ${holder.competitor.name} (${nf1(buyout)} M€). La chaîne le déprogramme et lance « ${released.program.name} » ${TIME_SLOTS.find(t=>t.key===holder.slot)?.daypart||''}.`};
+    notice=`« ${program.name} » racheté à ${holder.competitor.name} (${nf1(buyout)} M€). La chaîne le déprogramme et lance « ${released.program.name} » ${TIME_SLOTS.find(t=>t.key===holder.slot)?.daypart||''}.`;
   }
+  // 4–6. Potentiel habituel, apport transféré plafonné, base d'audience (une seule fois).
+  if(applyProgramTransfer(slot)) {
+    const tr=p.contracts[slot].transfer;
+    notice+=tr.acquired[p.target]>0
+      ? ` Une partie de son public le suit (programme ${({recent:'récent',installe:'installé',culte:'culte'})[tr.category]}, compatibilité ${tr.compatibility}).`
+      : ' Son public ne le suit pas sur votre antenne.';
+  } else if(p.contracts[slot].transfer && !p.contracts[slot].transfer.applied) {
+    notice+=' Son public le rejoindra à sa première diffusion sur votre antenne.';
+  }
+  if(holder) gameState.exclusivityNotice={slot,season:gameState.season,text:notice};
   p.coutTalentsSaison+=talent.annual-(previous?.talentAnnual||0);
   p.grilleOverrides[slot]=program.name+' — '+talent.name;
   const audience=getCalculatedPDAs().find(c=>c.channel===p).pda[p.target];
@@ -11135,6 +11184,66 @@ function exclusivityFee(program, holder) {
   const level = contractInvestLevel(holder.contract);
   const fee = (ex.baseFee + program.rights * ex.rightsRate + program.annual * ex.annualRate * remaining) * (1 + ex.levelPremium * level);
   return Math.round(fee * 10) / 10;
+}
+
+// ---- Rachat : transfert de public -------------------------------------------------
+// Instantané pris chez le vendeur AVANT toute modification de sa grille : apport propre du
+// programme par cible (jamais l'audience totale du créneau ni la PDA du vendeur), statut de
+// carrière, talent éventuel. Un apport non calculable est noté null (transfert nul).
+function snapshotProgramTransfer(holder) {
+  const c = holder.contract, career = c.career || {};
+  const historic = !!career.historic || c.strategyTag === 'franchise';
+  const status = programLifeStage({ historic, seasonsCount: career.seasonsCount || 0, wear: career.wear || 0 });
+  const sellerContribution = Object.fromEntries(AUDIENCE_DEMOS.map(t => {
+    const v = programOwnContribution(c, t);
+    return [t, Number.isFinite(v) ? Math.round(v * 1000) / 1000 : null];
+  }));
+  const talent = c.talent && !/interne|équipe/i.test(c.talent) ? c.talent : null;
+  return { programId: c.id, instanceId: `${holder.competitor.name}|${holder.slot}|${c.id}|${gameState.season}`,
+    sellerName: holder.competitor.name, slot: holder.slot, careerStatus: status, seasonsCount: career.seasonsCount || 0,
+    sellerContribution, talent, transferSeason: gameState.season, firstBroadcastSeason: null, applied: false };
+}
+// Compatibilité du programme avec la chaîne acheteuse : genre (affinités de contre-
+// programmation) × cible (affinité hors cible), classée selon des seuils centralisés.
+function programTransferCompatibility(contract, channel) {
+  const cfg = GAME_BALANCE.programTransfer;
+  const core = CHANNEL_CORE_GENRE[channel.type];
+  const genre = contract.editorial?.genre || core || 'diverti';
+  const genreFit = core ? genreOverlap(genre, core) : 1;
+  const targetFit = contract.target === channel.target ? 1 : GAME_BALANCE.counterProgramming.offTargetAffinity;
+  const score = genreFit * targetFit;
+  const th = cfg.compatibilityThresholds;
+  const level = score >= th.forte ? 'forte' : score >= th.moyenne ? 'moyenne' : 'faible';
+  return { score, level, factor: cfg.compatibility[level] };
+}
+// Application unique, à la première diffusion effective chez l'acheteur : l'apport transféré
+// (plafonné à ce moment-là seulement) rejoint la base du programme, qui évolue ensuite
+// normalement (carrière, usure, décisions). Rien n'est retiré au changement de saison ;
+// rien n'est réappliqué (drapeau sauvegardé avec le contrat).
+function applyProgramTransfer(slot) {
+  const p = gameState.player, c = p.contracts?.[slot], tr = c?.transfer;
+  if (!tr || tr.applied) return false;
+  // Pas encore à l'antenne : case prise par un événement, ou contrat d'une saison future.
+  if (activeContract(p, slot) !== c || (c.startSeason ?? -Infinity) > gameState.season) return false;
+  const cfg = GAME_BALANCE.programTransfer;
+  const category = cfg.statusCategory[tr.careerStatus] || 'recent';
+  const rate = cfg.rates[category];
+  const compat = programTransferCompatibility(c, p);
+  const talentFactor = tr.talent ? (c.talent === tr.talent ? cfg.talent.kept : cfg.talent.lost) : 1;
+  const habitual = {}, acquired = {};
+  AUDIENCE_DEMOS.forEach(t => {
+    const usual = programOwnContribution(c, t); // potentiel habituel, sans le transfert
+    const seller = tr.sellerContribution?.[t];
+    habitual[t] = Math.round(usual * 1000) / 1000;
+    acquired[t] = Number.isFinite(seller) && seller > 0 && usual > 0
+      ? Math.round(Math.min(seller * rate * compat.factor * talentFactor, usual * cfg.initialCapShare) * 1000) / 1000 : 0;
+  });
+  Object.assign(tr, { applied: true, firstBroadcastSeason: gameState.season, category, rate,
+    compatibility: compat.level, compatibilityFactor: compat.factor, talentFactor, habitual, acquired });
+  return true;
+}
+function applyPendingProgramTransfers() {
+  return Object.keys(gameState.player.contracts || {}).filter(slot => applyProgramTransfer(slot)).length;
 }
 
 // Le concurrent perd un programme racheté par le joueur : il est indemnisé, puis
