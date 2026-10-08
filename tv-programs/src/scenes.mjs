@@ -246,6 +246,52 @@ export const scene = {
     plateauJT: { tags: g('info'), svg: sky('$sky') + `<rect x="20" y="16" width="280" height="96" rx="6" fill="$ink" fill-opacity="0.35"/><rect x="26" y="22" width="268" height="84" rx="4" fill="$skyAlt"/>` + `<g transform="translate(26 22) scale(0.8375 0.55)">${cityline(150, '$sky', '$accent', 0.6)}</g>` + globe(250, 56, 20) + `<rect x="26" y="90" width="268" height="16" fill="$accentAlt"/><rect x="34" y="95" width="70" height="6" rx="3" fill="$light" fill-opacity="0.7"/>` + stage(146, '$groundAlt') },
     carteMonde: { tags: [...g('info', 'documentaire'), 'sub:histoire', 'sub:culture'], svg: sky('$sky') + `<rect x="30" y="18" width="260" height="104" rx="8" fill="$skyAlt"/>` + `<path d="M60 50q20 -14 46 -6t14 22q-8 18 -26 14t-26 10q-14 -12 -10 -24t2 -16zM140 40q30 -8 54 4t40 -2q24 4 26 22t-22 18q-18 -6 -30 10t-30 -6q-20 -6 -26 -20t-12 -26zM200 92q14 -6 26 2t-4 18q-16 0 -22 -20zM96 86q12 -2 16 12t-10 18q-10 -10 -6 -30z" fill="$accent" fill-opacity="0.6"/>` + `<circle cx="96" cy="58" r="4" fill="$accentAlt"/><circle cx="214" cy="62" r="4" fill="$accentAlt"/><path d="M96 58q60 -40 118 4" stroke="$accentAlt" stroke-width="1.5" stroke-dasharray="4 3" fill="none"/>` + stage(146, '$groundAlt') },
 
+    // --- Grands événements d'information (enchères des chaînes Information) ---
+    // Chaque décor porte son sous-genre : un événement n'emprunte jamais celui d'un autre.
+    debat: { tags: [...g('evenement'), 'sub:debat'], svg: sky('$sky') + `<rect width="320" height="180" fill="$ink" fill-opacity="0.45"/>`
+      + `<rect x="26" y="18" width="130" height="92" rx="6" fill="$accent" fill-opacity="0.8"/><rect x="164" y="18" width="130" height="92" rx="6" fill="$accentAlt" fill-opacity="0.8"/>`
+      + [91, 229].map(x => `<circle cx="${x}" cy="54" r="18" fill="$light" fill-opacity="0.35"/><path d="M${x - 30} 110q30 -38 60 0z" fill="$light" fill-opacity="0.35"/>`).join('')
+      + `<rect x="138" y="88" width="44" height="18" rx="4" fill="$ink"/><path d="M146 97h12M162 97h12" stroke="$light" stroke-width="3" stroke-linecap="round"/>`
+      + spotlightBeam(60, 0, 40, 148, '$light', 0.1) + spotlightBeam(260, 0, 40, 148, '$light', 0.1) + stage(146, '$groundAlt') },
+    espaceMars: { tags: [...g('evenement'), 'sub:espace'], svg: `<rect width="320" height="180" fill="#141a33"/>`
+      + [[24, 20, 0.5], [70, 46, 0.35], [120, 16, 0.45], [168, 40, 0.3], [300, 100, 0.4], [196, 12, 0.5], [40, 92, 0.3], [284, 20, 0.35]].map(([x, y, k]) => star(x, y, k, '$light', 0.85)).join('')
+      + `<circle cx="244" cy="58" r="36" fill="#d1603d"/><path d="M212 44q30 -8 62 2M210 66q34 6 68 -4" stroke="#a8442a" stroke-width="5" fill="none" stroke-opacity="0.6"/><circle cx="232" cy="78" r="6" fill="#a8442a" fill-opacity="0.7"/><circle cx="262" cy="40" r="4" fill="#a8442a" fill-opacity="0.7"/>`
+      + `<path d="M58 34l-6 -10" stroke="$light" stroke-opacity="0.3" stroke-width="1"/><path d="M84 148V60l12 -22 12 22v88z" fill="#eceff1"/><path d="M84 96l-12 20v32h12zM108 96l12 20v32h-12z" fill="$accentAlt"/><circle cx="96" cy="72" r="6" fill="#4fc3f7" stroke="#90a4ae" stroke-width="2"/>`
+      + `<path d="M26 148V54h6v94M26 70h30M26 92h30M26 114h30" stroke="#90a4ae" stroke-width="3" fill="none"/>`
+      + `<rect x="0" y="148" width="320" height="32" fill="#8d4a32"/><path d="M0 156q80 -6 160 2t160 -4V180H0z" fill="#a85a3c"/>` },
+    vatican: { tags: [...g('evenement'), 'sub:vatican'], svg: sky() + cloud(40, 30, 0.8)
+      + `<path d="M108 74q52 -70 104 0z" fill="#cfd8dc"/><rect x="152" y="14" width="16" height="16" rx="3" fill="#cfd8dc"/><path d="M160 4v12M155 9h10" stroke="#ffc83d" stroke-width="2.5"/>`
+      + `<rect x="92" y="74" width="136" height="62" fill="#eceff1"/><path d="M86 74h148l-8 -10H94z" fill="#cfd8dc"/>`
+      + Array.from({ length: 8 }, (_, i) => `<rect x="${100 + i * 16}" y="82" width="7" height="54" fill="#cfd8dc"/>`).join('')
+      + `<rect x="196" y="40" width="8" height="34" fill="#8d6e63"/>` + cloud(200, 20, 0.7, '$light', 1) + cloud(214, 6, 0.55, '$light', 0.9)
+      + [18, 48, 254, 284].map(x => `<rect x="${x}" y="96" width="14" height="40" fill="#e0e0e0"/><rect x="${x - 3}" y="92" width="20" height="5" fill="#cfd8dc"/>`).join('')
+      + `<rect x="0" y="136" width="320" height="44" fill="#d7ccc8"/><path d="M160 136L60 180M160 136l100 44M160 136v44" stroke="$light" stroke-opacity="0.55" stroke-width="2"/>` },
+    soireeElectorale: { tags: [...g('evenement'), 'sub:election'], svg: sky('$sky') + `<rect width="320" height="180" fill="$ink" fill-opacity="0.5"/>`
+      + `<rect x="24" y="14" width="272" height="104" rx="6" fill="$ink"/><rect x="30" y="20" width="260" height="92" rx="4" fill="#1c2541"/>`
+      + Array.from({ length: 24 }, (_, i) => `<rect x="${42 + (i % 8) * 18}" y="${30 + Math.floor(i / 8) * 18}" width="15" height="15" rx="2" fill="${(i * 7) % 5 < 2 ? '#e53935' : (i * 7) % 5 < 4 ? '#1e88e5' : '#90a4ae'}"/>`).join('')
+      + `<rect x="196" y="82" width="20" height="22" fill="#1e88e5"/><rect x="222" y="66" width="20" height="38" fill="#e53935"/><rect x="248" y="74" width="20" height="30" fill="#1e88e5"/>`
+      + `<path d="M196 104h76" stroke="$light" stroke-opacity="0.5" stroke-width="1.5"/><path d="M42 98h120" stroke="$light" stroke-opacity="0.35" stroke-width="4" stroke-linecap="round"/>`
+      + star(14, 140, 0.4, '$light', 0.6) + star(306, 132, 0.5, '$light', 0.6) + stage(146, '$groundAlt') },
+    palaisRoyal: { tags: [...g('evenement'), 'sub:royal'], svg: sky() + cloud(54, 26) + cloud(250, 18, 0.8)
+      + `<rect x="40" y="58" width="240" height="90" fill="#f5e6c8"/><path d="M30 58h260l-16 -14H46z" fill="#d7c29a"/><path d="M130 44l30 -22 30 22z" fill="#d7c29a"/>`
+      + [56, 264].map(x => `<rect x="${x - 14}" y="30" width="28" height="118" fill="#efdcb5"/><path d="M${x - 18} 30l18 -16 18 16z" fill="#4a6fa5"/><path d="M${x} 14v-12" stroke="$ink" stroke-width="1.5"/><path d="M${x} 2l12 4 -12 4z" fill="$accent"/>`).join('')
+      + Array.from({ length: 6 }, (_, i) => `<rect x="${88 + i * 26}" y="70" width="14" height="22" rx="7" fill="#9fb6d4"/><rect x="${88 + i * 26}" y="104" width="14" height="22" rx="7" fill="#9fb6d4"/>`).join('')
+      + `<rect x="126" y="92" width="68" height="6" fill="#d7c29a"/><path d="M140 148v-30q20 -16 40 0v30z" fill="#8d6e63"/>`
+      + `<path d="M40 60q20 12 40 0t40 0 40 0 40 0 40 0 40 0" stroke="$accentAlt" stroke-width="2" fill="none"/>`
+      + floor(148, '#cfd8dc', '#b0bec5') + `<path d="M144 148h32l20 32h-72z" fill="#c62828"/>` },
+    enquete: { tags: [...g('evenement'), 'sub:enquete'], svg: wall(148, '$skyAlt') + `<rect width="320" height="148" fill="$ink" fill-opacity="0.18"/>`
+      + windowFrame(232, 22, 66, 70, '#2f3b6e') + `<path d="M232 76h66" stroke="$ink" stroke-opacity="0.2" stroke-width="2"/>` + star(254, 40, 0.35, '$light') + star(282, 54, 0.3, '$light')
+      + `<rect x="24" y="18" width="186" height="106" rx="3" fill="#b08b5b"/><rect x="30" y="24" width="174" height="94" fill="#c8a06d"/>`
+      + [[40, 32, 34, 26], [92, 30, 28, 34], [134, 36, 38, 24], [52, 74, 32, 30], [108, 78, 26, 22], [152, 72, 36, 32]].map(([x, y, w, h], i) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${i % 3 === 1 ? '$light' : '#fff8e1'}" transform="rotate(${(i % 2 ? 4 : -3)} ${x + w / 2} ${y + h / 2})"/><path d="M${x + 4} ${y + 8}h${w - 10}M${x + 4} ${y + 14}h${w - 14}" stroke="$ink" stroke-opacity="0.3" stroke-width="1.5"/><circle cx="${x + w / 2}" cy="${y + 2}" r="2.5" fill="#e53935"/>`).join('')
+      + `<path d="M57 34L106 32 153 38M106 32L68 76 121 80 170 74" stroke="#e53935" stroke-width="1.5" fill="none"/>`
+      + `<path d="M250 148v-30M240 118h20l-6 -14h-8z" stroke="$ink" stroke-width="3" fill="$accent"/>` + plank(148) },
+    commission: { tags: [...g('evenement'), 'sub:commission'], svg: wall(148, '#8d6e63') + `<rect width="320" height="148" fill="$ink" fill-opacity="0.1"/>`
+      + Array.from({ length: 9 }, (_, i) => `<rect x="${8 + i * 35}" y="10" width="30" height="96" rx="2" fill="#a1887f" fill-opacity="0.6"/>`).join('')
+      + `<rect x="128" y="18" width="64" height="40" rx="3" fill="#5d4037"/><circle cx="160" cy="38" r="12" fill="#ffc83d" fill-opacity="0.8"/>`
+      + [[0, 112, 320], [20, 124, 280]].map(([x, y, w]) => `<rect x="${x}" y="${y}" width="${w}" height="10" rx="5" fill="$accentAlt"/>`).join('')
+      + `<rect x="40" y="96" width="240" height="8" rx="2" fill="#4e342e"/>` + [70, 120, 200, 250].map(x => `<path d="M${x} 96v-10l6 -6" stroke="$ink" stroke-width="2" fill="none"/><rect x="${x - 10}" y="88" width="18" height="8" rx="1" fill="$light"/>`).join('')
+      + floor(148, '$ground', '$groundAlt') },
+
     // --- Jeunesse -----------------------------------------------------------
     parcArcEnCiel: { tags: g('jeunesse'), svg: sky() + rainbow(160, 120, 110) + cloud(40, 120, 1.4, '$light', 1) + cloud(236, 120, 1.4, '$light', 1) + roundTree(30, 152, 1.3) + roundTree(292, 152, 1.1, '$accent') + floor(150) + `<circle cx="80" cy="162" r="3" fill="$accentAlt"/><circle cx="240" cy="166" r="3" fill="$accent"/><circle cx="200" cy="160" r="2.5" fill="$light"/>` },
     chambre: { tags: g('jeunesse'), svg: wall(148, '$sky') + Array.from({ length: 8 }, (_, i) => `<circle cx="${20 + i * 40}" cy="${20 + (i % 2) * 14}" r="6" fill="$light" fill-opacity="0.5"/>`).join('') + windowFrame(30, 30, 64, 64) + moon(60, 56, 9) + `<rect x="220" y="80" width="70" height="68" rx="6" fill="$accent"/><rect x="226" y="88" width="58" height="16" rx="3" fill="$light" fill-opacity="0.5"/><rect x="226" y="110" width="58" height="16" rx="3" fill="$light" fill-opacity="0.5"/>` + `<path d="M120 20l10 18 10 -18" stroke="$accentAlt" stroke-width="2" fill="none"/><path d="M150 20l10 18 10 -18" stroke="$accent" stroke-width="2" fill="none"/>` + plank(148) },

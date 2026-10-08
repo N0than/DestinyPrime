@@ -51,6 +51,7 @@
     humour:        { label: 'Humour',             palettes: ['neon', 'corail', 'studio'] },
     jeunesse:      { label: 'Jeunesse',           palettes: ['pastel', 'jour', 'corail', 'menthe'] },
     cinema:        { label: 'Cinéma',             palettes: ['nuit', 'studio', 'neon', 'aube'] },
+    evenement:     { label: 'Grand événement',    palettes: ['jour', 'nuit', 'cobalt'] },
     generique:     { label: 'Programme',          palettes: ['jour', 'pastel', 'cobalt', 'corail'] }
   };
 
@@ -60,7 +61,8 @@
     aventure: ['survie', 'montagne'],
     sport: ['football', 'rugby', 'basket', 'handball', 'tennis', 'auto', 'velo', 'surf', 'combat', 'ski', 'fitness', 'athletisme', 'hippisme'],
     documentaire: ['nature', 'histoire', 'science', 'culture'],
-    cinema: ['ceremonie', 'festival', 'film', 'serie']
+    cinema: ['ceremonie', 'festival', 'film', 'serie'],
+    evenement: ['debat', 'espace', 'vatican', 'election', 'royal', 'enquete', 'commission']
   };
 
   // Palettes de scène : chaque couleur alimente une couleur nommée du style.

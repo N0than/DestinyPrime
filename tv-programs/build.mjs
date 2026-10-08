@@ -135,6 +135,8 @@ const SUB_SCENES = {
   'sport/football': ['stade'], 'sport/rugby': ['rugby'], 'sport/basket': ['parquet'], 'sport/handball': ['parquet'], 'sport/tennis': ['tennis'],
   'sport/auto': ['circuit'], 'sport/velo': ['col'], 'sport/surf': ['surf'], 'sport/combat': ['ring'], 'sport/ski': ['piste'], 'sport/fitness': ['salleSport'], 'sport/athletisme': ['pisteAthle'], 'sport/hippisme': ['hippodrome'],
   'cinema/ceremonie': ['ceremonie'], 'cinema/festival': ['tapisRouge'], 'cinema/film': ['salleCinema'], 'cinema/serie': ['plateauTournage'],
+  'evenement/debat': ['debat'], 'evenement/espace': ['espaceMars'], 'evenement/vatican': ['vatican'], 'evenement/election': ['soireeElectorale'],
+  'evenement/royal': ['palaisRoyal'], 'evenement/enquete': ['enquete'], 'evenement/commission': ['commission'],
   'aventure/montagne': ['montagne'], 'documentaire/science': ['espace', 'bibliotheque'],
   'documentaire/histoire': ['musee', 'bibliotheque', 'carteMonde'], 'documentaire/nature': ['savane', 'ocean', 'montagne', 'canyon', 'foret']
 };

@@ -248,9 +248,40 @@ assert(!pickDilemmaQueue().some(d=>d.rightsEventId==='f1')&&sr().history.some(h=
   const cq=pickDilemmaQueue();assert(cq[0].id==='d26'&&cq.length===3,'César broadcaster gets the live incident dilemma');
   gameState.season=5;gameState.seenDilemmaIds=[];assert(!getEligibleDilemmas().some(d=>d.id==='d26'),'César incident only during the broadcast season');
 }
-// Joueur jeunesse, info ou culture : jamais de dilemme de droits ; le marché se tient
+// Grands événements d'information : sept événements, réservés côté joueur aux chaînes
+// Information, sur leurs seules cases (affectedSlots).
+{
+  const infoEv=Object.values(SPORT_RIGHTS_EVENTS).filter(e=>e.category==='info');
+  const slots={debat_presidentiel:'prime',objectif_mars:'apresmidi,access,prime,nuit',habemus_papam:'apresmidi,access',nuit_americaine:'nuit',dossiers_secrets:'access,prime',mariage_du_siecle:'matin,apresmidi',sous_serment:'apresmidi'};
+  assert(infoEv.length===7&&infoEv.every(e=>e.channelTypes.join()==='info'&&e.affectedSlots.join()===slots[e.id]&&e.preferredSlots.join()===slots[e.id]
+    &&DILEMMA_BANK.some(d=>d.id===e.dilemmaIds[0]&&d.type==='sports_rights_auction'&&d.rightsEventId===e.id&&d.types.join()==='info')),'7 info events with their slots and auction dilemma');
+  assert(infoEv.every(e=>e.illustration.genre==='evenement'&&e.illustration.subgenre)&&new Set(infoEv.map(e=>e.illustration.subgenre)).size===7,'one illustration per info event');
+  for(const type of ['info','generaliste','sport','cinema']){
+    setup(type);Object.values(sr().recurring).forEach(r=>r.nextAuctionSeason=99);const seen=[];
+    for(let k=1;k<=30;k++){gameState.season=k;gameState.seenDilemmaIds=[];gameState.player.eventsSeen=[];
+      pickDilemmaQueue().filter(d=>d.type==='sports_rights_auction').forEach(d=>seen.push(SPORT_RIGHTS_EVENTS[d.rightsEventId].category||'sport'));}
+    if(type==='info') assert(seen.length>0&&seen.every(c=>c==='info'),'news channel gets info auctions only');
+    else assert(!seen.includes('info'),'no info auction for '+type);
+  }
+  // Diffusion : seules les cases de l'événement sont occupées, les autres restent intactes.
+  setup('info');gameState.season=3;const pi=gameState.player;
+  TIME_SLOTS.forEach(({key})=>{const prog=availablePrograms('info',key)[0];if(prog)pi.contracts[key]={...prog,end:9,career:createProgramCareer(prog,key)};});
+  const before=getCalculatedPDAs().find(r=>r.channel===pi);
+  acquireSportsRight('nuit_americaine',{owner:'player',price:5});sr().owned.at(-1).broadcastSeason=3;activateSportsBroadcasts();
+  const after=getCalculatedPDAs().find(r=>r.channel===pi);
+  assert(activeContract(pi,'nuit')?.isSportsEvent&&TIME_SLOTS.filter(t=>t.key!=='nuit').every(t=>!activeContract(pi,t.key)?.isSportsEvent&&pi.contracts[t.key]?.sportsPause!==3),'only the night slot is taken');
+  assert(TIME_SLOTS.filter(t=>t.key!=='nuit').every(t=>Math.abs(after.intrinsicSlots[t.key][pi.target]-before.intrinsicSlots[t.key][pi.target])<1e-9),'no direct impact outside the event slot');
+  assert(after.slots.nuit[pi.target]>before.slots.nuit[pi.target],'the night audience jumps');
+  const ed=sportsEventEditorial(SPORT_RIGHTS_EVENTS.debat_presidentiel,pi,'prime');
+  assert(ed.genre==='info'&&ed.mix.info===100&&ed.mix.direct===100&&ed.mix.debat===100,'info event counts as live news and debate');
+  // Aléa (report de la mission, révélations décevantes) : l'audience est rabotée.
+  setup('info');gameState.season=3;acquireSportsRight('objectif_mars',{owner:'player',price:12});sr().owned.at(-1).broadcastSeason=3;
+  const sRand2=sportsRandom;sportsRandom=()=>0;activateSportsBroadcasts();sportsRandom=sRand2;
+  const mars=sr().owned.at(-1);assert(mars.riskHit&&Math.abs(mars.variance-0.9*0.6)<1e-9,'Mars risk lowers the audience');
+}
+// Joueur jeunesse ou culture : jamais de dilemme de droits ; le marché se tient
 // alors entre chaînes IA, qui enchérissent librement quel que soit leur type.
-['jeunesse','info','culture'].forEach(type=>{
+['jeunesse','culture'].forEach(type=>{
   setup(type);gameState.competitors.forEach(c=>c.budget=200);let aiSales=0;
   for(let s=1;s<=30;s++){gameState.season=s;gameState.seenDilemmaIds=[];gameState.player.eventsSeen=[];
     const before=sr().history.length;

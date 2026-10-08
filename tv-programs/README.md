@@ -27,10 +27,12 @@ ne retient que celles du programme. Le second personnage (`character2`, `legs2`�
 build avec ses propres couleurs (`$skin2`, `$top2`…).
 
 Genres : `aventure`, `jeu`, `divertissement`, `telerealite`, `dating`, `cuisine`, `talent`,
-`policier`, `drame`, `sport`, `documentaire`, `magazine`, `info`, `humour`, `jeunesse`, `cinema`, `generique`.
+`policier`, `drame`, `sport`, `documentaire`, `magazine`, `info`, `humour`, `jeunesse`, `cinema`, `evenement`, `generique`.
 Sous-genres : sport (`football`, `rugby`, `basket`, `handball`, `tennis`, `auto`, `velo`, `surf`,
 `combat`, `ski`, `fitness`, `athletisme`, `hippisme`), aventure (`survie`, `montagne`), documentaire (`nature`, `histoire`,
-`science`, `culture`), cinema (`ceremonie`, `festival`, `film`, `serie` — droits cinéma & séries du jeu).
+`science`, `culture`), cinema (`ceremonie`, `festival`, `film`, `serie` — droits cinéma & séries du jeu),
+evenement (`debat`, `espace`, `vatican`, `election`, `royal`, `enquete`, `commission` — grands événements
+d'information du jeu, un décor dédié par sous-genre).
 
 ## API (navigateur)
 
