@@ -54,10 +54,10 @@ for(let s=1;s<=60;s++){
   assert(auctions.length<=1,'max one auction per season');
   if(auctions.length){
     const evA=SPORT_RIGHTS_EVENTS[auctions[0].rightsEventId];
-    if(evA.recurring) assert(s>=sr().recurring[evA.id].nextAuctionSeason,'annual right auctioned on its own calendar');
+    if(hasOwnAuctionCalendar(evA)) assert(s>=sr().recurring[evA.id].nextAuctionSeason,'annual right auctioned on its own calendar');
     else {
       assert(s===sr().nextAuctionSeason,'auction only on scheduled season');
-      const last=[...sr().history].reverse().find(h=>h.type==='sports_rights_auction'&&!SPORT_RIGHTS_EVENTS[h.eventId].recurring);
+      const last=[...sr().history].reverse().find(h=>h.type==='sports_rights_auction'&&!hasOwnAuctionCalendar(SPORT_RIGHTS_EVENTS[h.eventId]));
       if(last) assert(last.eventId!==auctions[0].rightsEventId,'no immediate repeat');
     }
     seen.add(auctions[0].rightsEventId);
@@ -202,7 +202,7 @@ sportsRandom=sRand;
   }
   // JO d'hiver : proposés au marché ordinaire de la chaîne Sport.
   setup('sport');Object.values(sr().recurring).forEach(r=>r.nextAuctionSeason=99);gameState.season=sr().nextAuctionSeason;
-  Object.values(SPORT_RIGHTS_EVENTS).filter(e=>!e.recurring&&e.id!=='winter_olympics').forEach(e=>sr().history.push({eventId:e.id,season:0}));
+  Object.values(SPORT_RIGHTS_EVENTS).filter(e=>!hasOwnAuctionCalendar(e)&&e.id!=='winter_olympics').forEach(e=>sr().history.push({eventId:e.id,season:0}));
   const wq=pickDilemmaQueue().find(d=>d.type==='sports_rights_auction');
   assert(wq&&wq.id==='d_droits_jo_hiver','winter olympics auction for a sport channel');
   // Chaîne Cinéma : un championnat dû se vend entre IA sans lui retirer son enchère de la saison.
@@ -264,6 +264,37 @@ sportsRandom=sRand;
   }
   setup('generaliste');gameState.season=3;acquireSportsRight('ligue_champions',{owner:'player',price:9});sr().owned[0].broadcastSeason=4;
   assert(recurringSlotClash(edf,gameState.player),'France team shares the prime with the other annual rights');
+}
+// ---------- Miss France (grand divertissement, enchère tous les 4 à 5 saisons) ----------
+{
+  const mf=SPORT_RIGHTS_EVENTS.miss_france;
+  assert(mf.name==='Miss France'&&!mf.recurring&&mf.cycle.join()==='4,5'&&mf.preferredSlots.join()==='prime'&&mf.channelTypes.join()==='generaliste'&&isThemedRight(mf),'Miss France: cyclic entertainment event on prime');
+  const d=DILEMMA_BANK.find(x=>x.id==='d_droits_miss_france');
+  assert(d&&d.type==='sports_rights_auction'&&d.rightsEventId==='miss_france'&&d.types.join()==='generaliste','Miss France auction dilemma');
+  const firsts=new Set();for(let k=1;k<=40;k++){setup('generaliste',(k*2246822519)>>>0);firsts.add(sr().recurring.miss_france.nextAuctionSeason);}
+  assert([...firsts].every(v=>v>=2&&v<=5)&&firsts.size>2,'Miss France first sold in seasons 2-5');
+  // Calendrier : une enchère tous les 4 à 5 saisons, que le joueur la remporte ou non.
+  setup('generaliste');gameState.competitors.forEach(c=>c.budget=200);Object.entries(sr().recurring).forEach(([id,r])=>{if(id!=='miss_france') r.nextAuctionSeason=999;});
+  const mseasons=[];
+  for(let s=1;s<=40;s++){
+    gameState.season=s;gameState.seenDilemmaIds=[];gameState.player.eventsSeen=[];gameState.player.lastRegieOpportunity=s;sr().nextAuctionSeason=999;
+    const q=pickDilemmaQueue();const auc=q.find(x=>x.rightsEventId==='miss_france');
+    if(auc){mseasons.push(s);gameState.dilemmaQueue=q;gameState.currentDilemmaIndex=1;startSportsRightsAuction('miss_france',auc.id);sportsAuctionPass();recordSportsAuctionOutcome(auc);}
+  }
+  assert(mseasons.length>=7&&mseasons.slice(1).every((v,i)=>[4,5].includes(v-mseasons[i])),'Miss France every 4-5 seasons: '+mseasons);
+  // Hors Généraliste : vendue entre chaînes IA, au même rythme.
+  setup('sport');gameState.competitors.forEach(c=>c.budget=200);Object.entries(sr().recurring).forEach(([id,r])=>r.nextAuctionSeason=id==='miss_france'?2:999);gameState.season=2;
+  assert(!pickDilemmaQueue().some(x=>x.rightsEventId==='miss_france')&&sr().history.some(h=>h.eventId==='miss_france'&&h.result==='ai_only')&&[6,7].includes(sr().recurring.miss_france.nextAuctionSeason),'Miss France sold among AIs for a sport channel');
+  // Diffusion en prime, pas de reconduction ; le dilemme des Miss (d30) n'existe que pour le diffuseur.
+  const d30=DILEMMA_BANK.find(x=>x.id==='d30');
+  setup('generaliste');gameState.season=3;
+  assert(d30.requiresRight==='miss_france'&&!getEligibleDilemmas().includes(d30),'no Miss dilemma without the broadcast');
+  acquireSportsRight('miss_france',{owner:'player',price:10});sr().owned[0].broadcastSeason=3;activateSportsBroadcasts();
+  assert(activeContract(gameState.player,'prime')?.isSportsEvent&&!sr().owned[0].recurring,'Miss France airs on prime, one-off');
+  assert(getEligibleDilemmas().includes(d30),'Miss dilemma for the broadcaster');
+  gameState.seenDilemmaIds=[];gameState.player.eventsSeen=[];gameState.player.lastRegieOpportunity=3;Object.values(sr().recurring).forEach(r=>r.nextAuctionSeason=999);sr().nextAuctionSeason=999;
+  assert(pickDilemmaQueue()[0].id==='d30','Miss dilemma in the broadcast season');
+  assert(!withRenewalDilemmas([DILEMMA_BANK[0],DILEMMA_BANK[1],DILEMMA_BANK[2]]).some(x=>x.isSportsRenewal),'no renewal for Miss France');
 }
 // Joueur hors Généraliste / Sport : la F1 se vend entre chaînes IA.
 setup('culture');gameState.competitors.forEach(c=>c.budget=200);gameState.season=sr().recurring.f1.nextAuctionSeason;

@@ -63,7 +63,7 @@
     documentaire: ['nature', 'histoire', 'science', 'culture'],
     cinema: ['ceremonie', 'festival', 'film', 'serie'],
     evenement: ['debat', 'espace', 'vatican', 'election', 'royal', 'enquete', 'commission', 'eurovision', 'esport', 'concertweb', 'noel', 'animation',
-      'vienne', 'toureiffel', 'theatre', 'opera', 'quatorze', 'goncourt', 'eclipse', 'victoires']
+      'vienne', 'toureiffel', 'theatre', 'opera', 'quatorze', 'goncourt', 'eclipse', 'victoires', 'miss']
   };
 
   // Palettes de scène : chaque couleur alimente une couleur nommée du style.

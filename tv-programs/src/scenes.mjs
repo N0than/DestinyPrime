@@ -382,6 +382,16 @@ export const scene = {
       + [0, 1, 2, 3, 4].map(i => `<path d="M${258 + i * 8} 40l${i % 2 ? 6 : -6} 14" stroke="#ffe082" stroke-width="2"/><circle cx="${258 + i * 8}" cy="38" r="3" fill="#ffe082"/>`).join('')
       + curtains('#4a148c') + stage(146) + bulbs(70, 250, 150, 14, '#ffc83d') },
 
+    // --- Grand divertissement (enchères des chaînes généralistes) ------------
+    missFrance: { tags: [...g('evenement'), 'sub:miss'], svg: sky('$sky') + `<rect width="320" height="180" fill="$ink" fill-opacity="0.5"/>`
+      + ledWall(80, 14, 240, 92)
+      + `<path d="M132 76l8 -26 12 14 8 -22 8 22 12 -14 8 26z" fill="#ffc83d" stroke="#e0a800" stroke-width="2"/><rect x="132" y="76" width="56" height="8" rx="2" fill="#e0a800"/>`
+      + `<circle cx="160" cy="40" r="4" fill="#e53935"/><circle cx="140" cy="48" r="3" fill="#4fc3f7"/><circle cx="180" cy="48" r="3" fill="#4fc3f7"/>`
+      + star(104, 34, 0.6, '$light') + star(216, 30, 0.7, '$light') + star(122, 92, 0.4, '$light') + star(200, 90, 0.45, '$light')
+      + [[96, 118], [136, 112], [176, 112], [216, 118]].map(([x, y]) => `<rect x="${x}" y="${y}" width="10" height="${146 - y}" rx="1" fill="#f8bbd0"/><path d="M${x - 2} ${y + 4}l14 14" stroke="#ffffff" stroke-width="3"/>`).join('')
+      + spotlightBeam(40, 0, 44, 148, '#f48fb1', 0.18) + spotlightBeam(280, 0, 44, 148, '#ffe082', 0.18)
+      + curtains('#ad1457') + stage(146) + bulbs(60, 260, 150, 14, '#ffc83d') },
+
     // --- Jeunesse -----------------------------------------------------------
     parcArcEnCiel: { tags: g('jeunesse'), svg: sky() + rainbow(160, 120, 110) + cloud(40, 120, 1.4, '$light', 1) + cloud(236, 120, 1.4, '$light', 1) + roundTree(30, 152, 1.3) + roundTree(292, 152, 1.1, '$accent') + floor(150) + `<circle cx="80" cy="162" r="3" fill="$accentAlt"/><circle cx="240" cy="166" r="3" fill="$accent"/><circle cx="200" cy="160" r="2.5" fill="$light"/>` },
     chambre: { tags: g('jeunesse'), svg: wall(148, '$sky') + Array.from({ length: 8 }, (_, i) => `<circle cx="${20 + i * 40}" cy="${20 + (i % 2) * 14}" r="6" fill="$light" fill-opacity="0.5"/>`).join('') + windowFrame(30, 30, 64, 64) + moon(60, 56, 9) + `<rect x="220" y="80" width="70" height="68" rx="6" fill="$accent"/><rect x="226" y="88" width="58" height="16" rx="3" fill="$light" fill-opacity="0.5"/><rect x="226" y="110" width="58" height="16" rx="3" fill="$light" fill-opacity="0.5"/>` + `<path d="M120 20l10 18 10 -18" stroke="$accentAlt" stroke-width="2" fill="none"/><path d="M150 20l10 18 10 -18" stroke="$accent" stroke-width="2" fill="none"/>` + plank(148) },

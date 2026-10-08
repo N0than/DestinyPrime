@@ -140,7 +140,7 @@ const SUB_SCENES = {
   'evenement/eurovision': ['eurovisionJunior'], 'evenement/esport': ['esportArena'], 'evenement/concertweb': ['concertWeb'],
   'evenement/noel': ['spectacleNoel'], 'evenement/animation': ['animationGeant'],
   'evenement/vienne': ['concertVienne'], 'evenement/toureiffel': ['toureiffel'], 'evenement/theatre': ['comedieFrancaise'], 'evenement/opera': ['operaBallet'],
-  'evenement/quatorze': ['quatorzeJuillet'], 'evenement/goncourt': ['goncourt'], 'evenement/eclipse': ['eclipse'], 'evenement/victoires': ['victoiresClassique'],
+  'evenement/quatorze': ['quatorzeJuillet'], 'evenement/goncourt': ['goncourt'], 'evenement/eclipse': ['eclipse'], 'evenement/victoires': ['victoiresClassique'], 'evenement/miss': ['missFrance'],
   'aventure/montagne': ['montagne'], 'documentaire/science': ['espace', 'bibliotheque'],
   'documentaire/histoire': ['musee', 'bibliotheque', 'carteMonde'], 'documentaire/nature': ['savane', 'ocean', 'montagne', 'canyon', 'foret']
 };
