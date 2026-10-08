@@ -321,9 +321,22 @@ chooseDilemmaOption(0);assert(sr().owned.filter(o=>o.ownerId==='player').length=
 // Défaite : l'offre la plus haute gagne et paie juste au-dessus de la nôtre.
 a=auctionSetup([80,80,0,0,0]);setMax(a,[24,0,0,0,0]);
 sportsAuctionParticipate();sportsAuctionSealedBid(20);assert(a.result.outcome==='lost'&&a.result.price>20&&a.result.price<=24&&a.result.playerLastBid===20,'lower offer loses');
-// Égalité : le concurrent l'emporte.
-a=auctionSetup([80,80,0,0,0]);setMax(a,[20,0,0,0,0]);
-sportsAuctionParticipate();sportsAuctionSealedBid(20);assert(a.result.outcome==='lost'&&a.result.price===20,'tie goes to the rival');
+// Égalité d'offre : la plus forte PDA 4+ (moyenne des quatre cibles) l'emporte.
+{
+  const realCalc=getCalculatedPDAs;
+  const withPda=(playerPda,rivalPda)=>{getCalculatedPDAs=()=>realCalc().map(r=>({...r,globalPda:r.channel===gameState.player?playerPda:r.channel===gameState.competitors[0]?rivalPda:0}));};
+  a=auctionSetup([80,80,0,0,0]);setMax(a,[20,0,0,0,0]);withPda(5,8);
+  sportsAuctionParticipate();sportsAuctionSealedBid(20);assert(a.result.outcome==='lost'&&a.result.price===20&&a.result.tieBreak,'tie goes to the stronger 4+ audience (rival)');
+  a=auctionSetup([80,80,0,0,0]);setMax(a,[20,0,0,0,0]);withPda(9,8);
+  sportsAuctionParticipate();sportsAuctionSealedBid(20);assert(a.result.outcome==='won'&&a.result.price===20&&a.result.tieBreak,'tie goes to the stronger 4+ audience (player)');
+  a=auctionSetup([80,80,0,0,0]);setMax(a,[20,0,0,0,0]);withPda(9,8);
+  sportsAuctionParticipate();sportsAuctionSealedBid(19.5);assert(a.result.outcome==='lost'&&!a.result.tieBreak,'the highest offer still wins first');
+  // Entre chaînes IA aussi : à offre égale, la plus forte sur les 4 ans et plus.
+  a=auctionSetup([80,80,0,0,0]);setMax(a,[20,20,0,0,0]);
+  getCalculatedPDAs=()=>realCalc().map(r=>({...r,globalPda:r.channel===gameState.competitors[1]?9:r.channel===gameState.competitors[0]?3:0}));
+  sportsAuctionPass();assert(a.result.winnerName===gameState.competitors[1].name&&a.result.price===20&&a.result.tieBreak,'AI tie goes to the stronger 4+ audience');
+  getCalculatedPDAs=realCalc;
+}
 // Offres concurrentes jamais exposées avant l'ouverture des plis.
 a=auctionSetup([80,80,0,0,0]);setMax(a,[15.5,0,0,0,0]);sportsAuctionParticipate();
 const zoneHtml=renderSportsAuctionZone(DILEMMA_BANK.find(x=>x.id==='d2'));

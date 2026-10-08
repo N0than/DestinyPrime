@@ -674,6 +674,28 @@ button.radar-row:focus-visible { outline: 2px solid var(--bleu); outline-offset:
 .tl-slot-add:hover:not(:disabled) .tl-plus { transform: rotate(90deg); border-color: var(--tl-dash-hover); color: var(--tl-dash-hover); }
 .tl-plus-label { font-size: 9.5px; font-weight: 700; line-height: 1.25; text-align: center; color: var(--gris); }
 .tl-none { display: flex; align-items: center; justify-content: center; padding: 8px; }
+/* Six places (chaîne d'info) : deux rangées de cartes deux fois moins hautes, dans la même
+   hauteur de slider ; la carte garde l'essentiel (visage, nom, genre, salaire, durée). */
+.tl-cards-dense { grid-template-rows: repeat(2, minmax(0, 1fr)); gap: 6px; }
+.tl-cards-dense .tl-face { gap: 2px; padding: 6px 5px; }
+.tl-cards-dense .tl-role, .tl-cards-dense .tl-criteria, .tl-cards-dense .tl-programs,
+.tl-cards-dense .tl-effect, .tl-cards-dense .tl-flip-hint, .tl-cards-dense .tl-back-avatar,
+.tl-cards-dense .tl-back-sub, .tl-cards-dense .tl-action-note, .tl-cards-dense .tl-action-sub { display: none; }
+.tl-cards-dense .mercato-avatar.tl-avatar { width: 32px; height: 32px; }
+.tl-cards-dense .mercato-avatar.tl-avatar img { width: 29px; height: 29px; }
+.tl-cards-dense .tl-avatar-wrap { margin-bottom: 9px; }
+/* Un seul badge sous le visage : l'échéance du contrat prime sur « Nouvelle recrue ». */
+.tl-cards-dense .tl-badge-new:not(:only-child) { display: none; }
+.tl-cards-dense .tl-badge { font-size: 7px; }
+.tl-cards-dense .tl-name { font-size: 10.5px; }
+.tl-cards-dense .tl-genre { margin: 0; }
+.tl-cards-dense .tl-back { gap: 4px; }
+.tl-cards-dense .tl-action { padding-top: 4px; padding-bottom: 4px; }
+.tl-cards-dense .tl-back-close { top: 4px; right: 4px; }
+.tl-cards-dense .tl-slot-add { gap: 5px; padding: 4px; }
+.tl-cards-dense .tl-plus { width: 30px; height: 30px; }
+.tl-cards-dense .tl-plus::before { width: 12px; }
+.tl-cards-dense .tl-plus::after { height: 12px; }
 /* Profils proposés : distribution, attente, verdict */
 .tl-cand.deal { animation: tl-deal .45s cubic-bezier(.2,.75,.25,1.15) both; animation-delay: calc(var(--i) * 90ms); }
 @keyframes tl-deal { from { opacity: 0; transform: translateY(14px) rotate(-3deg) scale(.94); } to { opacity: 1; transform: none; } }
@@ -2419,6 +2441,11 @@ function renderGlobalAudienceShare(animate = false) {
 // ---------------------------------------------------------------------------
 // Trois places de talent : chaque talent occupe la place où il a été recruté.
 const TALENT_SLOTS = 3;
+// La chaîne d'information continue tient une rédaction plus large : six places.
+const TALENT_SLOTS_BY_TYPE = { info: 6 };
+function talentSlotCount(channel = gameState.player) {
+  return TALENT_SLOTS_BY_TYPE[channel?.type] || TALENT_SLOTS;
+}
 // Recrutement à tout moment : délai de réponse du profil, puis affichage du verdict.
 const TALENT_WAIT_MS = 1800;
 const TALENT_REVEAL_MS = 1100;
@@ -2475,10 +2502,11 @@ function talentRoleHtml(t) {
 // Répartition des talents actifs dans les places ; un talent sans place (ou en
 // conflit) reçoit la première place libre.
 function talentSlotLayout() {
-  const slots = Array(TALENT_SLOTS).fill(null);
+  const count = talentSlotCount();
+  const slots = Array(count).fill(null);
   const rest = [];
   activePlayerTalents().forEach(t => {
-    if (Number.isInteger(t.slot) && t.slot >= 0 && t.slot < TALENT_SLOTS && !slots[t.slot]) slots[t.slot] = t;
+    if (Number.isInteger(t.slot) && t.slot >= 0 && t.slot < count && !slots[t.slot]) slots[t.slot] = t;
     else rest.push(t);
   });
   rest.forEach(t => {
@@ -2888,7 +2916,7 @@ function renderTalentsSlide() {
         <span class="tl-dot" aria-hidden="true">·</span>
         <span>Masse salariale <b>${nf1(payroll)} M€</b>/saison</span>`}
       </div>
-      <div class="tl-cards">${cards}</div>
+      <div class="tl-cards${!(sc && market) && slots.length > TALENT_SLOTS ? ' tl-cards-dense' : ''}">${cards}</div>
     </div>`;
 }
 
@@ -8552,7 +8580,6 @@ function render() {
           <li><b>Le challenge :</b> S'imposer face à cinq chaînes historiques, dotées de budgets conséquents.</li>
         </ul>
 
-        <p class="launch-eco-note">La grille est payée à chaque début de saison. Les recettes publicitaires estimées sont ensuite créditées et évoluent selon vos performances.</p>
         <div class="badge">Objectif Année 1 : Passer le cap des 3% PDA</div>
       </div>
       <button class="welcome-cta" id="btn-launch">
@@ -9654,8 +9681,17 @@ function sportsGaugeFeedback(a, amount) {
 }
 // Offre unique sous pli scellé : chaque chaîne intéressée dépose son offre maximale, la plus
 // haute l'emporte et paie juste ce qu'il faut pour battre la deuxième (sans dépasser son offre).
-// À égalité, l'offre concurrente l'emporte : il faut faire strictement mieux. L'offre
-// positionnée sur la jauge est déposée sans confirmation (le risque est signalé en direct).
+// À égalité d'offre, la chaîne qui a la plus forte PDA sur l'ensemble du public (4+)
+// l'emporte. L'offre positionnée sur la jauge est déposée sans confirmation (le risque
+// est signalé en direct).
+function sportsTieBreakPda() {
+  const rows = getCalculatedPDAs();
+  return x => rows.find(r => r.channel === (x.isPlayer ? gameState.player : gameState.competitors[x.idx]))?.globalPda ?? 0;
+}
+function sportsBidOrder(list) {
+  const pda4 = sportsTieBreakPda();
+  return list.sort((x, y) => y.amount - x.amount || pda4(y) - pda4(x));
+}
 function sportsAuctionSealedBid(amount) {
   const a = gameState.sportsRights.activeAuction;
   if (!a || a.phase !== 'bidding') return;
@@ -9665,9 +9701,9 @@ function sportsAuctionSealedBid(amount) {
   a.draft = amount; a.playerLastBid = amount;
   const bids = activeRivals(a).filter(r => r.max >= event.reservePrice).map(r => ({ idx: r.idx, name: r.name, amount: r.max }));
   bids.forEach(x => { a.rivals.find(r => r.idx === x.idx).lastBid = x.amount; });
-  const all = [...bids, { idx: 'player', name: gameState.player.name, amount, isPlayer: true }]
-    .sort((x, y) => y.amount - x.amount || (x.isPlayer ? 1 : 0) - (y.isPlayer ? 1 : 0));
+  const all = sportsBidOrder([...bids, { idx: 'player', name: gameState.player.name, amount, isPlayer: true }]);
   const [top, second] = all;
+  a.tieBreak = !!second && second.amount === top.amount;
   a.price = second ? Math.min(top.amount, roundHalf(Math.max(event.reservePrice, second.amount + sportsIncrement(event, second.amount)))) : event.reservePrice;
   a.leader = top.isPlayer ? 'player' : top.idx;
   a.reveal = all.map(x => ({ name: x.name, amount: x.amount, isPlayer: !!x.isPlayer }));
@@ -9677,10 +9713,12 @@ function sportsAuctionSealedBid(amount) {
 function resolveSportsAmongRivals(a, result) {
   const event = SPORT_RIGHTS_EVENTS[a.eventId];
   const floor = a.price == null ? event.reservePrice : a.price;
-  const rivals = activeRivals(a).filter(r => r.max >= floor).sort((x, y) => y.max - x.max);
+  const order = sportsBidOrder(activeRivals(a).filter(r => r.max >= floor).map(r => ({ idx: r.idx, amount: r.max })));
+  const rivals = order.map(x => a.rivals.find(r => r.idx === x.idx));
   a.reveal = rivals.map(r => ({ name: r.name, amount: r.max, isPlayer: false }));
   if (!rivals.length) { a.leader = null; return finishSportsAuction(a, result); }
   const [top, second] = rivals;
+  a.tieBreak = !!second && second.max === top.max;
   a.price = second ? Math.min(top.max, roundHalf(Math.max(floor, second.max + sportsIncrement(event, second.max)))) : Math.max(floor, event.reservePrice);
   a.leader = top.idx; top.lastBid = a.price;
   return finishSportsAuction(a, result);
@@ -9706,7 +9744,7 @@ function finishSportsAuction(a, outcome) {
   const winner = a.leader === 'player' ? 'player' : Number.isInteger(a.leader) ? gameState.competitors[a.leader] : null;
   a.phase = 'verdict';
   a.result = { outcome: winner === 'player' ? 'won' : outcome, winnerName: winner === 'player' ? gameState.player.name : winner?.name || null,
-    price: winner ? a.price : null, playerLastBid: a.playerLastBid, reveal: a.reveal || [] };
+    price: winner ? a.price : null, playerLastBid: a.playerLastBid, reveal: a.reveal || [], tieBreak: !!a.tieBreak };
   return a.result;
 }
 
@@ -10167,7 +10205,7 @@ function renderSportsAuctionZone(dilemma) {
       <span class="sa-row-label">${sealed ? `${sealed} ${sealed > 1 ? 'offres concurrentes sous pli' : 'offre concurrente sous pli'}` : 'Aucune offre concurrente annoncée'}</span>
       ${sealed ? `<div class="sa-rivals">${interested.map((r, k) => `<span class="sa-envelope sa-pop ${r.interest.key}" style="--d:${0.2 + k * 0.1}s"><span aria-hidden="true">✉️</span> <b>${esc(r.name)}</b> <span aria-hidden="true">${r.interest.icon}</span></span>`).join('')}</div>` : ''}
     </div>
-    <p ${pop(0.3, 'sa-note')}>Vous ne paierez que ce qu’il faut pour battre la meilleure offre concurrente, dans la limite de la vôtre. À égalité, le concurrent l’emporte.</p>
+    <p ${pop(0.3, 'sa-note')}>Vous ne paierez que ce qu’il faut pour battre la meilleure offre concurrente, dans la limite de la vôtre. À offre égale, la chaîne la plus forte sur les 4 ans et plus l’emporte.</p>
     <div ${pop(0.35, 'sa-actions')}>
       ${b.canBid ? '<button type="button" class="sa-btn primary" data-sa-action="submit">Déposer mon offre</button>' : ''}
       <button type="button" class="sa-btn${b.canBid ? '' : ' primary'}" data-sa-action="withdraw">Se retirer</button>
@@ -10204,13 +10242,13 @@ function renderSportsVerdictInline(cq) {
         <div><span>Production prévisionnelle</span><b>${nf1(event.productionCost)} M€</b></div>
         <div class="total"><span>Engagement total</span><b>${nf1(v.price + event.productionCost)} M€</b></div>
       </div>
-      <p class="sa-note">✅ Prix payé : juste au-dessus de la deuxième offre${v.playerLastBid > v.price ? ` (vous aviez proposé ${nf1(v.playerLastBid)} M€)` : ''}. Diffusion en saison ${v.season + 1} · ${esc(sportsSlotsLabel(event))}.${event.recurring ? ` Droit annuel : renouvelable chaque fin de saison à ${nf1(v.price)} M€.` : ''}</p>`)}
+      <p class="sa-note">✅ ${v.tieBreak ? 'À offre égale, vous l’emportez grâce à votre part d’audience plus forte sur les 4 ans et plus' : 'Prix payé : juste au-dessus de la deuxième offre'}${v.playerLastBid > v.price ? ` (vous aviez proposé ${nf1(v.playerLastBid)} M€)` : ''}. Diffusion en saison ${v.season + 1} · ${esc(sportsSlotsLabel(event))}.${event.recurring ? ` Droit annuel : renouvelable chaque fin de saison à ${nf1(v.price)} M€.` : ''}</p>`)}
     </div>`;
   }
   const est = evaluateSportsRight(event, gameState.player);
   const gap = v.playerLastBid != null && reveal[0] ? reveal[0].amount - v.playerLastBid : null;
   const msg = !v.winnerName ? 'Aucune chaîne n’a atteint le prix de départ.'
-    : gap != null && gap <= 0 ? 'À égalité, l’offre concurrente l’emporte.'
+    : gap != null && gap <= 0 ? `À offre égale, ${v.winnerName} l’emporte grâce à sa part d’audience plus forte sur les 4 ans et plus.`
     : gap != null && gap <= 2 ? `Il vous manquait ${nf1(gap)} M€ pour passer devant.`
     : v.price > est.maxValue ? 'Vous avez évité une dépense très importante.'
     : 'Un concurrent vient de renforcer fortement son offre sportive.';
@@ -12221,7 +12259,7 @@ function resolveMercato(offerIndex) {
         return;
       }
       lines.push({ won: false, text: affordable ? `Votre offre pour ${offer.name} n’a pas convaincu.`
-        : slot < 0 ? `Offre impossible : vos ${TALENT_SLOTS} places de talent sont occupées.`
+        : slot < 0 ? `Offre impossible : vos ${talentSlotCount()} places de talent sont occupées.`
         : `Offre impossible : votre trésorerie ne permet pas d’accueillir ${offer.name}.` });
       outcomes[i] = { status: affordable ? 'refused' : 'unaffordable' };
     }

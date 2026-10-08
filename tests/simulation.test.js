@@ -117,6 +117,15 @@ const solo=createTalentRenewalDilemma([mkTalent(ta,0,2)]);assert(solo.c.length==
   const mk1=generateMercato();assert(mk1&&mk1.offers.length===1,'mercato with the only free talent');
   gameState.competitors.forEach(c=>{c.talents=[];});
 }
+// Chaîne d'information continue : six places de talent (trois pour les autres formats).
+{
+  const pi=gameState.player,prevType=pi.type,prevTalents=pi.talents;
+  pi.type='generaliste';assert(talentSlotCount()===3&&talentSlotLayout().length===3,'three talent slots by default');
+  pi.type='info';pi.talents=[0,1,2].map(i=>({...MERCATO_TALENTS[i+3],annual:1,bonus:.5,until:gameState.season+1,since:gameState.season,slot:i}));
+  assert(talentSlotCount()===6&&talentSlotLayout().length===6&&firstFreeTalentSlot()===3,'six talent slots for the news channel');
+  assert(renderTalentsSlide().includes('tl-cards-dense'),'six slots shown as two compact rows');
+  pi.type=prevType;pi.talents=prevTalents;
+}
 // Conférence de rentrée : jamais sur une case d'événement ; grille faite d'événements, aucune.
 {
   render=()=>{};resetGame();const pk=gameState.player;pk.name='Rentree';pk.type='generaliste';pk.target='a2549';finalizeChannelSetup();launchFirstSeason();
