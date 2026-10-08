@@ -175,6 +175,42 @@ sportsRandom=sRand;
   setup('culture');gameState.competitors.forEach(c=>c.budget=200);sr().recurring.f1.nextAuctionSeason=99;gameState.season=sr().recurring.courses_hippiques.nextAuctionSeason;
   assert(!pickDilemmaQueue().some(d=>d.rightsEventId==='courses_hippiques')&&sr().history.some(h=>h.eventId==='courses_hippiques'&&h.result==='ai_only'),'horse racing auction among AI channels');
 }
+// ---------- Ligue 1 et Top 14 (droits annuels), Jeux olympiques d'hiver ----------
+{
+  const l1=SPORT_RIGHTS_EVENTS.ligue1,t14=SPORT_RIGHTS_EVENTS.top14,wo=SPORT_RIGHTS_EVENTS.winter_olympics;
+  assert(l1.recurring&&l1.preferredSlots.join()==='prime'&&l1.sport==='football'&&!l1.channelTypes,'Ligue 1: annual right on prime, generalist and sport');
+  assert(t14.recurring&&t14.preferredSlots.join()==='access'&&t14.sport==='rugby'&&!t14.channelTypes,'Top 14: annual right on access, generalist and sport');
+  assert(!wo.recurring&&wo.sport==='hiver'&&!wo.channelTypes&&wo.preferredSlots.join()==='matin,apresmidi,access','winter olympics: one-off right');
+  [['d_droits_ligue1','ligue1'],['d_droits_top14','top14'],['d_droits_jo_hiver','winter_olympics']].forEach(([id,ev])=>{
+    const d=DILEMMA_BANK.find(x=>x.id===id);
+    assert(d&&d.type==='sports_rights_auction'&&d.rightsEventId===ev&&d.types.join()==='generaliste,sport','auction dilemma '+id);
+  });
+  ['generaliste','sport','cinema','culture','jeunesse','info'].forEach(t=>['rugby','hiver'].forEach(k=>assert(SPORT_RIGHTS_TUNING.channelFit[t][k]>0,'channel fit '+t+'/'+k)));
+  const firsts=new Set();for(let k=1;k<=40;k++){setup('generaliste',3000+k);firsts.add(sr().recurring.ligue1.nextAuctionSeason);firsts.add(sr().recurring.top14.nextAuctionSeason);}
+  assert([...firsts].every(v=>v>=2&&v<=5)&&firsts.size>2,'championships first sold in seasons 2-5');
+  for(const [ev,slot] of [['ligue1','prime'],['top14','access']]) for(const type of ['generaliste','sport']){
+    setup(type);Object.entries(sr().recurring).forEach(([id,r])=>{if(id!==ev) r.nextAuctionSeason=99;});gameState.season=sr().recurring[ev].nextAuctionSeason;
+    const auc=pickDilemmaQueue().filter(d=>d.type==='sports_rights_auction');
+    assert(auc.length===1&&auc[0].rightsEventId===ev,ev+' auction for '+type);
+    setup(type);gameState.season=3;acquireSportsRight(ev,{owner:'player',price:6});sr().owned[0].broadcastSeason=3;sr().recurring[ev].nextAuctionSeason=null;
+    activateSportsBroadcasts();
+    assert(activeContract(gameState.player,slot)?.isSportsEvent,ev+' airs on '+slot);
+    const rq=withRenewalDilemmas([DILEMMA_BANK[0],DILEMMA_BANK[1],DILEMMA_BANK[2]]).at(-1);
+    assert(rq.isSportsRenewal&&rq.rightsEventId===ev,ev+' renewal offered');
+    applySportsRenewalChoice(ev,'renew');
+    assert(sr().owned.some(o=>o.eventId===ev&&o.broadcastSeason===4&&o.gridAnnual===6&&o.ownerId==='player'),ev+' renewed at the initial price');
+  }
+  // JO d'hiver : proposés au marché ordinaire de la chaîne Sport.
+  setup('sport');Object.values(sr().recurring).forEach(r=>r.nextAuctionSeason=99);gameState.season=sr().nextAuctionSeason;
+  Object.values(SPORT_RIGHTS_EVENTS).filter(e=>!e.recurring&&e.id!=='winter_olympics').forEach(e=>sr().history.push({eventId:e.id,season:0}));
+  const wq=pickDilemmaQueue().find(d=>d.type==='sports_rights_auction');
+  assert(wq&&wq.id==='d_droits_jo_hiver','winter olympics auction for a sport channel');
+  // Chaîne Cinéma : un championnat dû se vend entre IA sans lui retirer son enchère de la saison.
+  setup('cinema');gameState.competitors.forEach(c=>c.budget=200);Object.entries(sr().recurring).forEach(([id,r])=>r.nextAuctionSeason=id==='ligue1'?2:99);
+  gameState.season=2;sr().nextAuctionSeason=2;
+  const cq=pickDilemmaQueue().filter(d=>d.type==='sports_rights_auction');
+  assert(sr().history.some(h=>h.eventId==='ligue1'&&h.result==='ai_only')&&cq.length===1&&SPORT_RIGHTS_EVENTS[cq[0].rightsEventId].category==='cinema','championship sold among AIs, cinema auction kept');
+}
 // Joueur hors Généraliste / Sport : la F1 se vend entre chaînes IA.
 setup('culture');gameState.competitors.forEach(c=>c.budget=200);gameState.season=sr().recurring.f1.nextAuctionSeason;
 assert(!pickDilemmaQueue().some(d=>d.rightsEventId==='f1')&&sr().history.some(h=>h.eventId==='f1'&&h.result==='ai_only'),'F1 auction among AI channels');
@@ -225,8 +261,8 @@ assert(!pickDilemmaQueue().some(d=>d.rightsEventId==='f1')&&sr().history.some(h=
 });
 ['generaliste','sport','jeunesse','info','culture','cinema'].forEach(type=>assert(computeCompetitorSportsMaxBid({...mk('X','offensive',type),budget:200},SPORT_RIGHTS_EVENTS.world_cup)>0,'AI bids from '+type));
 // Chaîne Sport : ses dilemmes dédiés (d89, d145) sont préférés.
-setup('sport');gameState.season=sr().nextAuctionSeason;sr().recurring.f1.nextAuctionSeason=99;sr().recurring.courses_hippiques.nextAuctionSeason=99;const sq=pickDilemmaQueue().find(d=>d.type==='sports_rights_auction');
-assert(sq&&(['d89','d145','d2'].includes(sq.id)),'sport channel auction dilemma');
+setup('sport');gameState.season=sr().nextAuctionSeason;Object.values(sr().recurring).forEach(r=>r.nextAuctionSeason=99);const sq=pickDilemmaQueue().find(d=>d.type==='sports_rights_auction');
+assert(sq&&(['d89','d145','d2','d_droits_jo_hiver'].includes(sq.id)),'sport channel auction dilemma');
 // Un dilemme sport éditorial ou de production n'est pas converti.
 ['d79','d165','d20','d244','d76','d77','d148'].forEach(id=>assert(!DILEMMA_BANK.find(d=>d.id===id).type,'not converted '+id));
 assert(DILEMMA_BANK.find(d=>d.id==='d2').titre.includes('Coupe du monde'),'d2 rewritten as World Cup');

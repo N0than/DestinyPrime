@@ -86,6 +86,46 @@ const solo=createTalentRenewalDilemma([mkTalent(ta,0,2)]);assert(solo.c.length==
   assert(sheetRow&&!Object.values(STRATEGY_TAGS).some(t=>sheetRow.includes('>'+t.label+'<')),'no strategy badge in the competitor sheet');
   assert(!computeChannelBattle().moves.some(m=>m.c===deal.competitor&&m.key===deal.slot),'not listed as a strategic move');
 }
+// Retraite des talents : contrat plafonné, aucune prolongation, plus de recrutement.
+{
+  render=()=>{};resetGame();const pr=gameState.player;pr.name='Retraite';pr.type='generaliste';pr.target='a2549';finalizeChannelSetup();launchFirstSeason();
+  gameState.seasonKickoffPending=false;gameState.mercatoPending=false;gameState.mercato=null;pr.tresorerie=500;pr.talents=[];
+  const vet=MERCATO_TALENTS.find(t=>t.id==='t_gilles'),last=talentRetireSeason(vet);
+  assert(Math.abs(last-TALENT_RETIREMENT.t_gilles)<=1&&talentRetireSeason(vet)===last,'retirement season drawn once per game');
+  assert(talentRetireSeason(MERCATO_TALENTS.find(t=>TALENT_RETIREMENT[t.id]==null))===null,'not every talent retires');
+  gameState.season=last;
+  const offer=buildTalentOffer(vet);assert(offer.seasons===1&&offer.retiresAfter===last,'offer capped by the retirement');
+  signTalent(offer,0);const signedVet=pr.talents.find(t=>t.id===vet.id);
+  assert(signedVet.until===last&&talentRetiring(signedVet),'contract ends with the career');
+  const rq=quoteTalentExtension(signedVet);assert(rq.retiring&&!rq.allowed,'no extension before the retirement');
+  assert(!pendingTalentRenewals().some(t=>t.id===vet.id),'no season-end renewal for a retiring talent');
+  gameState.season=last+1;expireTalents();
+  assert(!pr.talents.some(t=>t.id===vet.id)&&talentRetired(vet),'talent retires');
+  for(let k=0;k<20;k++){gameState.talentMarket=null;assert(!talentMarket().offers.some(o=>o.id===vet.id),'retired talent never offered');}
+  // Deux saisons avant la retraite : la prolongation est ramenée à une saison, sans option courte.
+  const vet2=MERCATO_TALENTS.find(t=>t.id==='t_claire'),last2=talentRetireSeason(vet2);
+  gameState.season=last2-1;pr.talents=[{...vet2,annual:2,bonus:.8,until:last2-1,since:last2-2,slot:0}];
+  const opts=talentRenewalOptions(pr.talents[0]);
+  assert(opts.length===2&&opts[0].seasons===1&&opts[1].action==='leave','extension capped at the retirement season');
+  // Mercato : aucune place libre, ou plus aucun talent libre, pas de mercato.
+  pr.talents=[0,1,2].map(i=>({...MERCATO_TALENTS[i+3],annual:1,bonus:.5,until:gameState.season+1,since:gameState.season,slot:i}));
+  assert(generateMercato()===null,'no mercato when every talent slot is taken');
+  pr.talents=[];const nC=gameState.competitors.length;
+  gameState.competitors.forEach((c,i)=>{c.talents=MERCATO_TALENTS.filter((_,k)=>k%nC===i).map(t=>({...t,until:gameState.season+1}));});
+  assert(generateMercato()===null,'no mercato when every talent is under contract');
+  gameState.competitors[0].talents.shift();
+  const mk1=generateMercato();assert(mk1&&mk1.offers.length===1,'mercato with the only free talent');
+  gameState.competitors.forEach(c=>{c.talents=[];});
+}
+// Conférence de rentrée : jamais sur une case d'événement ; grille faite d'événements, aucune.
+{
+  render=()=>{};resetGame();const pk=gameState.player;pk.name='Rentree';pk.type='generaliste';pk.target='a2549';finalizeChannelSetup();launchFirstSeason();
+  gameState.season=2;ensureSportsRightsState();
+  acquireSportsRight('courses_hippiques',{owner:'player',price:5});gameState.sportsRights.owned.at(-1).broadcastSeason=2;activateSportsBroadcasts();
+  for(let k=0;k<30;k++){const kp=generateSeasonKickoffProposal();assert(!kp||kp.slot!=='matin','no kickoff on an event slot');}
+  acquireSportsRight('olympic_games',{owner:'player',price:20});gameState.sportsRights.owned.at(-1).broadcastSeason=2;activateSportsBroadcasts();
+  assert(TIME_SLOTS.every(s=>sportsBroadcastOn(pk,s.key))&&generateSeasonKickoffProposal()===null,'no kickoff when the grid is only events');
+}
 console.log('OK lead-in, competitors, careers, interaction, revenue, talents'+(typeof persistGameState==='function'?', persistence':''));
 
 `;
