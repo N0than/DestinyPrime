@@ -369,8 +369,9 @@ assert(!pickDilemmaQueue().some(d=>d.rightsEventId==='f1')&&sr().history.some(h=
 setup('sport');gameState.season=sr().nextAuctionSeason;Object.values(sr().recurring).forEach(r=>r.nextAuctionSeason=99);const sq=pickDilemmaQueue().find(d=>d.type==='sports_rights_auction');
 assert(sq&&(['d89','d145','d2','d_droits_jo_hiver'].includes(sq.id)),'sport channel auction dilemma');
 // Un dilemme sport éditorial ou de production n'est pas converti.
-['d79','d165','d20','d244','d76','d148'].forEach(id=>assert(!DILEMMA_BANK.find(d=>d.id===id).type,'not converted '+id));
-assert(!DILEMMA_BANK.some(d=>d.id==='d77'||d.id==='d133'),'obsolete Champions League and Grand Prix dilemmas removed');
+['d79','d165','d148'].forEach(id=>assert(!DILEMMA_BANK.find(d=>d.id===id).type,'not converted '+id));
+assert(['d77','d133','d76','d86','d20','d280','d8','d244'].every(id=>!DILEMMA_BANK.some(d=>d.id===id)),'dilemmas superseded by the rights auctions removed');
+assert(DILEMMA_BANK.find(d=>d.id==='d54').types.join()==='generaliste'&&!DILEMMA_BANK.find(d=>d.id==='d6').types.includes('jeunesse'),'news and youth auctions replace d54 / d6 there');
 assert(DILEMMA_BANK.find(d=>d.id==='d2').titre.includes('Coupe du monde'),'d2 rewritten as World Cup');
 
 // ---------- Moteur d'enchère ----------

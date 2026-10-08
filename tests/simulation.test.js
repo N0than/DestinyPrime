@@ -137,10 +137,10 @@ const solo=createTalentRenewalDilemma([mkTalent(ta,0,2)]);assert(solo.c.length==
   }
   const eligibleFor=type=>{resetGame();const pa=gameState.player;pa.name='Audit';pa.type=type;pa.target='a2549';finalizeChannelSetup();return new Set(getEligibleDilemmas().map(d=>d.id));};
   const info=eligibleFor('info'),youth=eligibleFor('jeunesse'),cine=eligibleFor('cinema'),cult=eligibleFor('culture');
-  ['d8','d15','d57','d58','d61','d73','d5','d16','d30','d43'].forEach(id=>assert(!info.has(id),'no fiction / entertainment dilemma on a news channel: '+id));
+  ['d15','d57','d58','d61','d73','d5','d16','d30','d43'].forEach(id=>assert(!info.has(id),'no fiction / entertainment dilemma on a news channel: '+id));
   ['d57','d16','d5','d37','d39','d45','d74'].forEach(id=>assert(!youth.has(id),'no adult dilemma on a youth channel: '+id));
-  ['d4','d13','d21','d54','d60'].forEach(id=>assert(!cine.has(id)&&!cult.has(id)&&!youth.has(id),'no newsroom dilemma outside news formats: '+id));
-  assert(info.has('d1')&&info.has('d4')&&info.has('d54'),'news dilemmas kept for the news channel');
+  ['d4','d13','d21','d60'].forEach(id=>assert(!cine.has(id)&&!cult.has(id)&&!youth.has(id),'no newsroom dilemma outside news formats: '+id));
+  assert(info.has('d1')&&info.has('d4')&&info.has('d13'),'news dilemmas kept for the news channel');
   // Téléréalité : seulement si une émission de téléréalité est à l'antenne, sur sa case.
   resetGame();const pg=gameState.player;pg.name='Audit';pg.type='generaliste';pg.target='a2549';finalizeChannelSetup();launchFirstSeason();pg.tresorerie=500;
   assert(!getEligibleDilemmas().some(d=>d.id==='d5'||d.id==='d16'),'no reality-show dilemma without a reality show');
