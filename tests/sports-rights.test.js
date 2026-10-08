@@ -242,6 +242,29 @@ sportsRandom=sRand;
   const la=startSportsRightsAuction('ligue_champions','d_droits_ligue_champions');
   assert(la.rivals[0].max===0&&la.rivals[0].status==='out'&&la.rivals.slice(1).some(r=>r.max>0),'rival holding Ligue 1 stays out');
 }
+// ---------- Matchs de l'équipe de France (droit annuel du prime) ----------
+{
+  const edf=SPORT_RIGHTS_EVENTS.equipe_de_france;
+  assert(edf.recurring&&edf.name==='Matchs de l’équipe de France'&&edf.preferredSlots.join()==='prime'&&edf.sport==='football'&&!edf.channelTypes,'France team: annual right on prime');
+  const d=DILEMMA_BANK.find(x=>x.id==='d_droits_equipe_de_france');
+  assert(d&&d.type==='sports_rights_auction'&&d.rightsEventId==='equipe_de_france'&&d.types.join()==='generaliste,sport','France team auction dilemma');
+  const firsts=new Set();for(let k=1;k<=40;k++){setup('generaliste',(k*2654435761)>>>0);firsts.add(sr().recurring.equipe_de_france.nextAuctionSeason);}
+  assert([...firsts].every(v=>v>=2&&v<=5)&&firsts.size>2,'France team first sold in seasons 2-5');
+  for(const type of ['generaliste','sport']){
+    setup(type);Object.entries(sr().recurring).forEach(([id,r])=>{if(id!=='equipe_de_france') r.nextAuctionSeason=99;});gameState.season=sr().recurring.equipe_de_france.nextAuctionSeason;
+    const auc=pickDilemmaQueue().filter(x=>x.type==='sports_rights_auction');
+    assert(auc.length===1&&auc[0].rightsEventId==='equipe_de_france','France team auction for '+type);
+    setup(type);gameState.season=3;acquireSportsRight('equipe_de_france',{owner:'player',price:8});sr().owned[0].broadcastSeason=3;sr().recurring.equipe_de_france.nextAuctionSeason=null;
+    activateSportsBroadcasts();
+    assert(activeContract(gameState.player,'prime')?.isSportsEvent,'France team airs on prime');
+    const rq=withRenewalDilemmas([DILEMMA_BANK[0],DILEMMA_BANK[1],DILEMMA_BANK[2]]).at(-1);
+    assert(rq.isSportsRenewal&&rq.rightsEventId==='equipe_de_france','France team renewal offered');
+    applySportsRenewalChoice('equipe_de_france','renew');
+    assert(sr().owned.some(o=>o.eventId==='equipe_de_france'&&o.broadcastSeason===4&&o.gridAnnual===8&&o.ownerId==='player'),'France team renewed at the initial price');
+  }
+  setup('generaliste');gameState.season=3;acquireSportsRight('ligue_champions',{owner:'player',price:9});sr().owned[0].broadcastSeason=4;
+  assert(recurringSlotClash(edf,gameState.player),'France team shares the prime with the other annual rights');
+}
 // Joueur hors Généraliste / Sport : la F1 se vend entre chaînes IA.
 setup('culture');gameState.competitors.forEach(c=>c.budget=200);gameState.season=sr().recurring.f1.nextAuctionSeason;
 assert(!pickDilemmaQueue().some(d=>d.rightsEventId==='f1')&&sr().history.some(h=>h.eventId==='f1'&&h.result==='ai_only'),'F1 auction among AI channels');
@@ -370,7 +393,7 @@ setup('sport');gameState.season=sr().nextAuctionSeason;Object.values(sr().recurr
 assert(sq&&(['d89','d145','d2','d_droits_jo_hiver'].includes(sq.id)),'sport channel auction dilemma');
 // Un dilemme sport éditorial ou de production n'est pas converti.
 ['d79','d165','d148'].forEach(id=>assert(!DILEMMA_BANK.find(d=>d.id===id).type,'not converted '+id));
-assert(['d77','d133','d76','d86','d20','d280','d8','d244'].every(id=>!DILEMMA_BANK.some(d=>d.id===id)),'dilemmas superseded by the rights auctions removed');
+assert(['d77','d133','d76','d86','d20','d280','d8','d244','d72','d78'].every(id=>!DILEMMA_BANK.some(d=>d.id===id)),'dilemmas superseded by the rights auctions removed');
 assert(DILEMMA_BANK.find(d=>d.id==='d54').types.join()==='generaliste'&&!DILEMMA_BANK.find(d=>d.id==='d6').types.includes('jeunesse'),'news and youth auctions replace d54 / d6 there');
 assert(DILEMMA_BANK.find(d=>d.id==='d2').titre.includes('Coupe du monde'),'d2 rewritten as World Cup');
 

@@ -4067,14 +4067,6 @@ const DILEMMA_BANK = [
     ]
   },
   {
-    id: 'd72', titre: "Matchs de qualification des Bleus",
-    desc: "Les matchs de l'Équipe de France de football sont mis aux enchères.",
-    c: [
-      { l: "Mettre un prix fou pour garder l'exclusivité des Bleus", finance: {"recurring":0,"purchase":20,"commercial":0,"category":"P"}, pda: { j1524: +5, a2549: +8, s50: +6, csp: +3 }, r: "Leader absolu des audiences les soirs de match !", pop: 4 },
-      { l: "Laisser les matchs à la chaîne publique", finance: {"recurring":0,"purchase":0,"commercial":0,"category":"N"}, pda: { j1524: -3, a2549: -4, s50: -3, csp: -1 }, r: "Économie majeure, mais perte de statut d'antenne majeure.", pop: -2 }
-    ]
-  },
-  {
     id: 'd73', titre: "Téléfilms de Noël dès le mois de novembre",
     desc: "Programmer des téléfilms romantiques enneigés chaque après-midi.",
     c: [
@@ -4099,15 +4091,6 @@ const DILEMMA_BANK = [
     ]
   }
 ,
-  {
-    id: 'd78', titre: "Les Bleus jouent, tu suis ou tu regardes ?",
-    desc: "L'équipe de France entre en scène. Ton dispositif peut sentir la pelouse ou sentir la moquette du studio.",
-    types: ['sport'],
-    c: [
-      { l: "Délocaliser toute l'antenne sur place", finance: {"recurring":0,"purchase":5,"commercial":0,"category":"P"}, pda: { j1524: +5, a2549: +6, s50: +5, csp: +5 }, r: "Le public suit en nombre : budget maîtrisé. La confiance du public progresse.", pop: 2 },
-      { l: "Commenter depuis le studio, au chaud", finance: {"recurring":0,"purchase":1,"commercial":0,"category":"P"}, pda: { j1524: +2, a2549: +3, s50: +3, csp: +3 }, r: "L'audience progresse doucement : budget maîtrisé. Bon retour côté opinion publique.", pop: 1 }
-    ]
-  },
   {
     id: 'd79', titre: "Finale de Coupe : le show ou la sobriété",
     desc: "Une finale, une seule soirée, et une production qui peut virer au spectacle. Ton réalisateur te tend un devis avec beaucoup de zéros.",
@@ -4255,6 +4238,16 @@ const DILEMMA_BANK = [
     c: [
       { l: "Participer à l'enchère", finance: {"recurring":0,"purchase":0,"commercial":0,"category":"N"}, pda: { j1524: 0, a2549: 0, s50: 0, csp: 0 }, r: "L'enchère se joue sous pli.", pop: 0 },
       { l: "Laisser passer", finance: {"recurring":0,"purchase":0,"commercial":0,"category":"N"}, pda: { j1524: 0, a2549: 0, s50: 0, csp: 0 }, r: "La Ligue des champions part chez un concurrent.", pop: 0 }
+    ]
+  },
+  {
+    id: 'd_droits_equipe_de_france', titre: "Les matchs de l'équipe de France cherchent un diffuseur",
+    desc: "Les droits des matchs de l'équipe de France de football sont mis aux enchères : les soirées des Bleus en prime, renouvelables chaque saison au prix remporté.",
+    types: ['generaliste', 'sport'],
+    type: 'sports_rights_auction', rightsEventId: 'equipe_de_france',
+    c: [
+      { l: "Participer à l'enchère", finance: {"recurring":0,"purchase":0,"commercial":0,"category":"N"}, pda: { j1524: 0, a2549: 0, s50: 0, csp: 0 }, r: "L'enchère se joue sous pli.", pop: 0 },
+      { l: "Laisser passer", finance: {"recurring":0,"purchase":0,"commercial":0,"category":"N"}, pda: { j1524: 0, a2549: 0, s50: 0, csp: 0 }, r: "Les Bleus partent chez un concurrent.", pop: 0 }
     ]
   },
   {
@@ -6592,11 +6585,9 @@ const DILEMMA_FLAVOR = {
   d69: [{ jeunesse: 4, prodFR: 4, creation: 2 }, { jeunesse: -2, prodEU: -2 }],
   d70: [{ culture: 2, diverti: 2 }, { renouveles: 2, culture: -2 }],
   d71: [{ culture: 4, protection: 4 }, { diverti: 2, protection: -4 }],
-  d72: [{ sport: 6, direct: 4, prodFR: 2, discipline: 'football' }, { sport: -4 }],
   d73: [{ diverti: 4, fiction: 2 }, { renouveles: 2, fiction: 2 }],
   d74: [{ info: 2, diverti: 2, culture: -2 }, { info: 2, culture: 2, pluralisme: 2 }],
   d75: [{ creation: 4, culture: 2 }, { creation: -2, renouveles: 2 }],
-  d78: [{ sport: +3, direct: +1, prodFR: +3, discipline: 'football' }, { sport: +2, direct: +1, prodFR: +3, discipline: 'football' }],
   d79: [{ sport: +4, direct: +3, discipline: 'football' }, { sport: +2, direct: +3, discipline: 'football' }],
   d80: [{ sport: +4, direct: +1, discipline: 'football' }, { sport: +3, direct: +1, discipline: 'football' }],
   d81: [{ sport: +4, direct: +3, discipline: 'football' }, { sport: +3, direct: +3, discipline: 'football' }],
@@ -6906,7 +6897,7 @@ let gameState = {
 // pour une chaîne Sport, seuls ceux-ci sont piochés parmi les dilemmes universels, en plus des
 // dilemmes réservés au type 'sport'. Les autres types de chaîne continuent de voir tous les
 // dilemmes universels comme avant.
-const SPORT_RELATED_UNIVERSAL_IDS = ['d2', 'd6', 'd14', 'd42', 'd65', 'd66', 'd72',
+const SPORT_RELATED_UNIVERSAL_IDS = ['d2', 'd6', 'd14', 'd42', 'd65', 'd66',
   'd_pub1', 'd_pub2', 'd_pub3', 'd_pub4', 'd_pub5', 'd_pub6', 'd_pub7', 'd_pub9', 'd_pub10',
   'd_pub12', 'd_pub13', 'd_pub14', 'd_pub15', 'd_pub16', 'd_pub17', 'd_pub18', 'd_pub19', 'd_pub20',
   'd_pub21', 'd_pub22', 'd_pub23', 'd_pub24', 'd_pub25', 'd_pub27', 'd_pub28', 'd_pub29', 'd_pub30'];
@@ -6927,7 +6918,7 @@ const DILEMMA_CHANNEL_TYPES = (() => {
   d40: [G], d41: [G, I], d42: [G], d43: [G], d44: [G, I, CU], d45: [G, I], d46: [G], d47: [G],
   d48: [G, I, CU], d49: [G], d51: [G], d52: [G], d53: [G, I], d54: [G], d55: [G], d56: [G, CU],
   d57: [G, C], d58: [G, C], d59: [G, I], d60: [G, I], d61: [G, C], d62: [G], d63: [G], d64: [G],
-  d65: [G], d66: [G, J], d68: [G], d69: [G, J], d70: [G, CU], d71: [G], d72: [G], d73: [G, C],
+  d65: [G], d66: [G, J], d68: [G], d69: [G, J], d70: [G, CU], d71: [G], d73: [G, C],
   d74: [G, I], d_pub22: [G, I]
   };
 })();
@@ -9522,6 +9513,19 @@ const SPORT_RIGHTS_EVENTS = {
     slotFit: { prime: 1 },
     firstAuction: [1, 2, 3, 4],
     dilemmaIds: ['d_droits_ligue_champions']
+  },
+  equipe_de_france: {
+    illustration: { subgenre: 'football', palette: 'neon' },
+    id: 'equipe_de_france', name: 'Matchs de l’équipe de France', the: 'les matchs de l’équipe de France', sport: 'football', icon: '🇫🇷', tier: 'mega',
+    headline: 'Les matchs de l’équipe de France cherchent un diffuseur',
+    pitch: 'Qualifications, Ligue des nations et matchs amicaux : les soirées des Bleus en prime sont à prendre pour la saison prochaine, puis renouvelables chaque année au prix remporté.',
+    reservePrice: 5.5, estimatedValueMin: 8, estimatedValueMax: 12, productionCost: 1.5, exclusive: true, duration: 1, recurring: true,
+    audiencePower: { j1524: 1.10, a2549: 1.25, s50: 1.30, csp: 1.05 },
+    commercialAttractiveness: 1.10,
+    preferredSlots: ['prime'],
+    slotFit: { prime: 1 },
+    firstAuction: [1, 2, 3, 4],
+    dilemmaIds: ['d_droits_equipe_de_france']
   },
   top14: {
     illustration: { subgenre: 'rugby', palette: 'jour' },
