@@ -8,6 +8,21 @@ import {
 } from './helpers.mjs';
 
 const g = (...genres) => genres.map(x => `genre:${x}`);
+// Tour Eiffel stylisée (base = sol, h = hauteur), pour les concerts parisiens.
+const eiffel = (x, base, h, fill = '$ink', opacity = 0.85) => {
+  const k = h / 120, P = (dx, dy) => `${r(x + dx * k)} ${r(base - 120 * k + dy * k)}`;
+  return `<path d="M${P(0, 0)}L${P(6, 42)}L${P(18, 82)}L${P(36, 120)}H${P(22, 120).split(' ')[0]}Q${P(0, 92)} ${P(-22, 120)}H${P(-36, 120).split(' ')[0]}L${P(-18, 82)}L${P(-6, 42)}Z" fill="${fill}" fill-opacity="${opacity}"/>`
+    + `<path d="M${P(-10, 42)}H${P(10, 42).split(' ')[0]}M${P(-22, 82)}H${P(22, 82).split(' ')[0]}" stroke="${fill}" stroke-opacity="${opacity}" stroke-width="${r(3 * k)}"/>`;
+};
+// Gerbe de feu d'artifice.
+const firework = (cx, cy, rad, color) => Array.from({ length: 12 }, (_, i) => {
+  const a = i * Math.PI / 6, x1 = cx + Math.cos(a) * rad * 0.35, y1 = cy + Math.sin(a) * rad * 0.35, x2 = cx + Math.cos(a) * rad, y2 = cy + Math.sin(a) * rad;
+  return `<path d="M${r(x1)} ${r(y1)}L${r(x2)} ${r(y2)}" stroke="${color}" stroke-width="2" stroke-linecap="round"/><circle cx="${r(x2)}" cy="${r(y2)}" r="1.6" fill="${color}"/>`;
+}).join('');
+// Lustre de salle de concert.
+const chandelier = (x, y, s = 1) => `<path d="M${x} 0v${y - 8 * s}" stroke="#c9a227" stroke-width="1.5"/><path d="M${r(x - 18 * s)} ${y}q${r(18 * s)} ${r(14 * s)} ${r(36 * s)} 0" stroke="#c9a227" stroke-width="${r(2.5 * s)}" fill="none"/>`
+  + [-18, -9, 0, 9, 18].map(d => `<circle cx="${r(x + d * s)}" cy="${r(y + (Math.abs(d) < 10 ? 6 : 0) * s)}" r="${r(3 * s)}" fill="#ffe082"/>`).join('');
+
 const sky = (fill = '$sky') => `<rect width="320" height="180" fill="${fill}"/>`;
 const hills = (y, fill = '$groundAlt', opacity = 1) =>
   `<path d="M0 ${y}q60 -26 120 -6t110 -10t90 4V180H0z" fill="${fill}"${opacity < 1 ? ` fill-opacity="${opacity}"` : ''}/>`;
@@ -321,6 +336,51 @@ export const scene = {
       + rainbow(160, 112, 70) + `<circle cx="112" cy="84" r="20" fill="#ffb4a2"/><circle cx="104" cy="80" r="4" fill="$ink"/><circle cx="120" cy="80" r="4" fill="$ink"/><path d="M104 92q8 6 16 0" stroke="$ink" stroke-width="2" fill="none"/><circle cx="96" cy="66" r="7" fill="#ffb4a2"/><circle cx="128" cy="66" r="7" fill="#ffb4a2"/>`
       + `<circle cx="214" cy="88" r="14" fill="#cdb4db"/><circle cx="209" cy="85" r="3" fill="$ink"/><circle cx="220" cy="85" r="3" fill="$ink"/>` + cloud(230, 30, 0.7, '$light', 1)
       + [148, 164].map((y, row) => Array.from({ length: 13 }, (_, i) => `<rect x="${(row ? 0 : 12) + i * 26}" y="${y}" width="22" height="20" rx="6" fill="$accentAlt"/>`).join('') + `<rect x="0" y="${y + 12}" width="320" height="3" fill="$ink" fill-opacity="0.25"/>`).join('') },
+
+    // --- Grands événements culture (enchères des chaînes Culture / Savoir) ---
+    concertVienne: { tags: [...g('evenement'), 'sub:vienne'], svg: wall(148, '#f3e5c0') + `<rect width="320" height="148" fill="#c9a227" fill-opacity="0.18"/>`
+      + Array.from({ length: 7 }, (_, i) => `<rect x="${14 + i * 46}" y="14" width="20" height="134" fill="#e8d39a"/><rect x="${10 + i * 46}" y="10" width="28" height="8" fill="#c9a227"/>`).join('')
+      + `<rect x="0" y="70" width="320" height="10" fill="#c9a227" fill-opacity="0.6"/>` + chandelier(90, 34) + chandelier(230, 34)
+      + Array.from({ length: 10 }, (_, i) => `<rect x="${40 + i * 25}" y="96" width="5" height="34" fill="#8d6e63"/><path d="M${42 + i * 25} 96q-8 -10 -2 -16" stroke="$ink" stroke-width="1.5" fill="none"/>`).join('')
+      + Array.from({ length: 12 }, (_, i) => `<circle cx="${30 + i * 24}" cy="${118 + (i % 2) * 6}" r="5" fill="#f48fb1"/><circle cx="${36 + i * 24}" cy="${114 + (i % 2) * 6}" r="4" fill="#fff59d"/>`).join('')
+      + stage(146, '#a1887f') },
+    toureiffel: { tags: [...g('evenement'), 'sub:toureiffel'], svg: `<rect width="320" height="180" fill="#1f2a55"/>` + moon(270, 30, 12)
+      + [[30, 20, 0.4], [80, 44, 0.3], [130, 14, 0.35], [200, 30, 0.3], [300, 70, 0.35]].map(([x, y, k]) => star(x, y, k, '$light', 0.8)).join('')
+      + eiffel(160, 120, 112, '#c9a227', 0.9) + spotlightBeam(160, 10, 70, 120, '#ffe082', 0.1)
+      + `<rect x="40" y="104" width="240" height="16" fill="$ink"/><rect x="40" y="100" width="240" height="6" fill="$accent"/>` + spotlightBeam(70, 104, 30, 148, '$light', 0.12) + spotlightBeam(250, 104, 30, 148, '$light', 0.12)
+      + Array.from({ length: 16 }, (_, i) => `<circle cx="${10 + i * 20}" cy="${152 + (i % 2) * 4}" r="8" fill="#141a33"/>`).join('') + `<rect x="0" y="160" width="320" height="20" fill="#141a33"/>` },
+    comedieFrancaise: { tags: [...g('evenement'), 'sub:theatre'], svg: `<rect width="320" height="180" fill="#5d1a1a"/>`
+      + [0, 1, 2].map(row => Array.from({ length: 8 }, (_, i) => `<path d="M${8 + i * 40} ${20 + row * 30}q16 10 32 0v12h-32z" fill="#c9a227" fill-opacity="${0.75 - row * 0.15}"/>`).join('')).join('')
+      + `<path d="M70 150V60q90 -46 180 0v90z" fill="#2b0d0d"/><path d="M78 150V66q82 -40 164 0v84z" fill="#f3e5c0" fill-opacity="0.35"/>`
+      + spotlightBeam(120, 60, 34, 150, '$light', 0.15) + spotlightBeam(200, 60, 34, 150, '$light', 0.15)
+      + `<path d="M70 60q90 -46 180 0" stroke="#c9a227" stroke-width="5" fill="none"/>` + curtains('#b71c1c') + stage(146, '#6d4c41') },
+    operaBallet: { tags: [...g('evenement'), 'sub:opera'], svg: `<rect width="320" height="180" fill="#1a2440"/>`
+      + `<rect x="40" y="16" width="240" height="118" fill="#2d4a7a"/><circle cx="230" cy="44" r="16" fill="#e3f2fd" fill-opacity="0.85"/>`
+      + `<path d="M40 110q60 -18 120 0t120 0v24H40z" fill="#4a6fa5"/>`
+      + [[100, 104, 1], [150, 108, 0.8], [204, 102, 0.9]].map(([x, y, k]) => `<path d="M${x} ${y}q${r(-10 * k)} ${r(-4 * k)} ${r(-12 * k)} ${r(-12 * k)}q${r(4 * k)} ${r(8 * k)} ${r(12 * k)} ${r(6 * k)}q${r(4 * k)} ${r(-14 * k)} ${r(10 * k)} ${r(-20 * k)}q${r(2 * k)} ${r(6 * k)} ${r(-4 * k)} ${r(10 * k)}q${r(10 * k)} 0 ${r(14 * k)} ${r(8 * k)}z" fill="#ffffff"/>`).join('')
+      + curtains('#8e1b2e') + spotlightBeam(160, 0, 60, 148, '#e3f2fd', 0.14) + stage(146, '#3e2723') + bulbs(60, 260, 150, 14, '#ffe082') },
+    quatorzeJuillet: { tags: [...g('evenement'), 'sub:quatorze'], svg: `<rect width="320" height="180" fill="#141a3a"/>`
+      + firework(70, 40, 26, '#e53935') + firework(250, 34, 30, '#ffffff') + firework(160, 26, 22, '#1e88e5') + firework(210, 74, 18, '#ffc83d') + firework(110, 78, 16, '#ffffff')
+      + eiffel(290, 148, 96, '#ffe082', 0.55)
+      + `<rect x="20" y="112" width="200" height="12" fill="$ink"/>` + [0, 1, 2].map(i => `<rect x="${92 + i * 18}" y="96" width="18" height="16" fill="${['#1e88e5', '#ffffff', '#e53935'][i]}"/>`).join('')
+      + Array.from({ length: 16 }, (_, i) => `<circle cx="${10 + i * 20}" cy="${154 + (i % 2) * 4}" r="8" fill="#0b0f24"/>`).join('') + `<rect x="0" y="160" width="320" height="20" fill="#0b0f24"/>` },
+    goncourt: { tags: [...g('evenement'), 'sub:goncourt'], svg: wall(148, '#e8dcc0') + `<rect width="320" height="148" fill="#8d6e63" fill-opacity="0.12"/>`
+      + [0, 1, 2, 3].map(row => `<rect x="14" y="${18 + row * 30}" width="92" height="4" fill="#5d4037"/>` + Array.from({ length: 11 }, (_, i) => `<rect x="${16 + i * 8}" y="${18 + row * 30 - 22 + (i % 3)}" width="6" height="${22 - (i % 3)}" fill="${['#8e1b2e', '#2d4a7a', '#c9a227', '#2e7d32'][(i + row) % 4]}"/>`).join('')).join('')
+      + `<rect x="214" y="18" width="92" height="120" fill="#5d4037" fill-opacity="0.2"/>` + windowFrame(222, 24, 76, 92, '#cfe3f5')
+      + chandelier(160, 30, 1.2) + `<rect x="122" y="96" width="76" height="8" rx="2" fill="#5d4037"/><rect x="146" y="84" width="28" height="12" rx="1" fill="#ffffff"/><path d="M160 84v12" stroke="$ink" stroke-opacity="0.3"/><rect x="152" y="80" width="16" height="4" fill="#e53935"/>`
+      + plank(148, '#8d6e63') },
+    eclipse: { tags: [...g('evenement'), 'sub:eclipse'], svg: `<rect width="320" height="180" fill="#0d1230"/>`
+      + `<circle cx="200" cy="58" r="40" fill="#ffe082" fill-opacity="0.18"/><circle cx="200" cy="58" r="30" fill="#ffe082" fill-opacity="0.35"/><circle cx="200" cy="58" r="24" fill="#ffb300"/><circle cx="200" cy="58" r="23" fill="#0d1230"/>`
+      + `<circle cx="223" cy="50" r="2.5" fill="#fff8e1"/>`
+      + [[30, 24, 0.4], [90, 50, 0.3], [130, 18, 0.35], [280, 30, 0.35], [300, 96, 0.3], [60, 90, 0.3]].map(([x, y, k]) => star(x, y, k, '$light', 0.85)).join('')
+      + mountain(60, 150, 200, 60, '#1c2541') + mountain(250, 150, 220, 70, '#1c2541')
+      + `<rect x="0" y="146" width="320" height="34" fill="#141a33"/>` + Array.from({ length: 12 }, (_, i) => `<circle cx="${18 + i * 26}" cy="${150 + (i % 2) * 4}" r="7" fill="#0b0f24"/><rect x="${12 + i * 26}" y="${140 + (i % 2) * 4}" width="12" height="4" rx="2" fill="#263238"/>`).join('') },
+    victoiresClassique: { tags: [...g('evenement'), 'sub:victoires'], svg: sky('$sky') + `<rect width="320" height="180" fill="$ink" fill-opacity="0.45"/>`
+      + `<path d="M100 146V70q0 -44 60 -44t60 44v76z" fill="#c9a227" fill-opacity="0.25"/>` + statuette(160, 120, 2.4)
+      + spotlightBeam(80, 0, 40, 148, '#ffe082', 0.16) + spotlightBeam(240, 0, 40, 148, '#ffe082', 0.16)
+      + [0, 1, 2, 3, 4].map(i => `<path d="M${30 + i * 8} 40l${i % 2 ? 6 : -6} 14" stroke="#ffe082" stroke-width="2"/><circle cx="${30 + i * 8}" cy="38" r="3" fill="#ffe082"/>`).join('')
+      + [0, 1, 2, 3, 4].map(i => `<path d="M${258 + i * 8} 40l${i % 2 ? 6 : -6} 14" stroke="#ffe082" stroke-width="2"/><circle cx="${258 + i * 8}" cy="38" r="3" fill="#ffe082"/>`).join('')
+      + curtains('#4a148c') + stage(146) + bulbs(70, 250, 150, 14, '#ffc83d') },
 
     // --- Jeunesse -----------------------------------------------------------
     parcArcEnCiel: { tags: g('jeunesse'), svg: sky() + rainbow(160, 120, 110) + cloud(40, 120, 1.4, '$light', 1) + cloud(236, 120, 1.4, '$light', 1) + roundTree(30, 152, 1.3) + roundTree(292, 152, 1.1, '$accent') + floor(150) + `<circle cx="80" cy="162" r="3" fill="$accentAlt"/><circle cx="240" cy="166" r="3" fill="$accent"/><circle cx="200" cy="160" r="2.5" fill="$light"/>` },

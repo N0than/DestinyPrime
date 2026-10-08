@@ -32,7 +32,8 @@ Sous-genres : sport (`football`, `rugby`, `basket`, `handball`, `tennis`, `auto`
 `combat`, `ski`, `fitness`, `athletisme`, `hippisme`), aventure (`survie`, `montagne`), documentaire (`nature`, `histoire`,
 `science`, `culture`), cinema (`ceremonie`, `festival`, `film`, `serie` — droits cinéma & séries du jeu),
 evenement (`debat`, `espace`, `vatican`, `election`, `royal`, `enquete`, `commission` pour les grands événements
-d'information, `eurovision`, `esport`, `concertweb`, `noel`, `animation` pour ceux des chaînes Jeunesse —
+d'information, `eurovision`, `esport`, `concertweb`, `noel`, `animation` pour ceux des chaînes Jeunesse, `vienne`, `toureiffel`, `theatre`,
+`opera`, `quatorze`, `goncourt`, `eclipse`, `victoires` pour ceux des chaînes Culture —
 un décor dédié par sous-genre).
 
 ## API (navigateur)

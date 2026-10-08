@@ -304,17 +304,35 @@ assert(!pickDilemmaQueue().some(d=>d.rightsEventId==='f1')&&sr().history.some(h=
   const ye=sportsEventEditorial(SPORT_RIGHTS_EVENTS.finale_esport,pj,'prime');
   assert(ye.genre==='jeunesse'&&ye.mix.jeunesse===100&&ye.mix.direct===100,'youth event counts as live youth programming');
 }
-// Joueur culture : jamais de dilemme de droits ; le marché se tient
-// alors entre chaînes IA, qui enchérissent librement quel que soit leur type.
-['culture'].forEach(type=>{
-  setup(type);gameState.competitors.forEach(c=>c.budget=200);let aiSales=0;
-  for(let s=1;s<=30;s++){gameState.season=s;gameState.seenDilemmaIds=[];gameState.player.eventsSeen=[];
-    const before=sr().history.length;
-    assert(!pickDilemmaQueue().some(d=>d.type==='sports_rights_auction'),'no sports rights dilemma for '+type);
-    if(sr().history.length>before){const h=sr().history.at(-1);assert(h.result==='ai_only'&&h.playerLastBid==null,'AI-only auction');if(h.winnerId)aiSales++;}
-    pickDilemmaQueue();assert(sr().history.filter(h=>h.season===s).length<=1,'at most one AI auction per season');}
-  assert(aiSales>0&&sr().owned.every(o=>o.ownerId!=='player'),'AI channels still acquire rights when the player is not concerned');
-});
+// Grands événements culture : huit événements réservés côté joueur aux chaînes Culture.
+{
+  const cult=Object.values(SPORT_RIGHTS_EVENTS).filter(e=>e.category==='culture');
+  const slots={concert_vienne:'matin,apresmidi',concert_tour_eiffel:'access,prime',comedie_francaise:'access,prime',lac_des_cygnes:'access,prime',
+    concert_14_juillet:'access,prime',prix_goncourt:'access',eclipse_siecle:'apresmidi,access,prime',victoires_classique:'access,prime'};
+  const stars={concert_vienne:5,concert_tour_eiffel:5,comedie_francaise:4,lac_des_cygnes:5,concert_14_juillet:5,prix_goncourt:3,eclipse_siecle:5,victoires_classique:4};
+  assert(cult.length===8&&cult.every(e=>e.channelTypes.join()==='culture'&&e.affectedSlots.join()===slots[e.id]&&e.preferredSlots.join()===slots[e.id]&&e.stars===stars[e.id]
+    &&DILEMMA_BANK.some(d=>d.id===e.dilemmaIds[0]&&d.type==='sports_rights_auction'&&d.rightsEventId===e.id&&d.types.join()==='culture')),'8 culture events with their slots, stars and auction dilemma');
+  assert(new Set(cult.map(e=>e.illustration.subgenre)).size===8&&cult.every(e=>e.illustration.genre==='evenement'),'one illustration per culture event');
+  for(const type of ['culture','generaliste','jeunesse','info']){
+    setup(type);gameState.competitors.forEach(c=>c.budget=200);Object.values(sr().recurring).forEach(r=>r.nextAuctionSeason=99);const seen=[];
+    for(let k=1;k<=30;k++){gameState.season=k;gameState.seenDilemmaIds=[];gameState.player.eventsSeen=[];
+      pickDilemmaQueue().filter(d=>d.type==='sports_rights_auction').forEach(d=>seen.push(SPORT_RIGHTS_EVENTS[d.rightsEventId].category||'sport'));}
+    if(type==='culture'){
+      assert(seen.length>0&&seen.every(c=>c==='culture'),'culture channel gets culture auctions only');
+      // Les droits hors de sa portée se vendent toujours entre chaînes IA.
+      assert(sr().history.some(h=>h.result==='ai_only'&&h.winnerId&&SPORT_RIGHTS_EVENTS[h.eventId].category!=='culture'),'AI channels still sell the other rights');
+    } else assert(!seen.includes('culture'),'no culture auction for '+type);
+  }
+  setup('culture');gameState.season=3;const pc=gameState.player;
+  TIME_SLOTS.forEach(({key})=>{const prog=availablePrograms('culture',key)[0];if(prog)pc.contracts[key]={...prog,end:9,career:createProgramCareer(prog,key)};});
+  const before=getCalculatedPDAs().find(r=>r.channel===pc);
+  acquireSportsRight('prix_goncourt',{owner:'player',price:4});sr().owned.at(-1).broadcastSeason=3;activateSportsBroadcasts();
+  const after=getCalculatedPDAs().find(r=>r.channel===pc);
+  assert(activeContract(pc,'access')?.isSportsEvent&&TIME_SLOTS.filter(t=>t.key!=='access').every(t=>!activeContract(pc,t.key)?.isSportsEvent),'only the access slot is taken');
+  assert(TIME_SLOTS.filter(t=>t.key!=='access').every(t=>Math.abs(after.intrinsicSlots[t.key][pc.target]-before.intrinsicSlots[t.key][pc.target])<1e-9),'no direct impact outside the culture event slot');
+  const ce=sportsEventEditorial(SPORT_RIGHTS_EVENTS.comedie_francaise,pc,'prime');
+  assert(ce.genre==='culture'&&ce.mix.culture===100&&ce.mix.direct===100&&ce.mix.prodFR===100,'culture event counts as live French culture');
+}
 ['generaliste','sport','jeunesse','info','culture','cinema'].forEach(type=>assert(computeCompetitorSportsMaxBid({...mk('X','offensive',type),budget:200},SPORT_RIGHTS_EVENTS.world_cup)>0,'AI bids from '+type));
 // Chaîne Sport : ses dilemmes dédiés (d89, d145) sont préférés.
 setup('sport');gameState.season=sr().nextAuctionSeason;Object.values(sr().recurring).forEach(r=>r.nextAuctionSeason=99);const sq=pickDilemmaQueue().find(d=>d.type==='sports_rights_auction');

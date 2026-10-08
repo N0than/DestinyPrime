@@ -62,7 +62,8 @@
     sport: ['football', 'rugby', 'basket', 'handball', 'tennis', 'auto', 'velo', 'surf', 'combat', 'ski', 'fitness', 'athletisme', 'hippisme'],
     documentaire: ['nature', 'histoire', 'science', 'culture'],
     cinema: ['ceremonie', 'festival', 'film', 'serie'],
-    evenement: ['debat', 'espace', 'vatican', 'election', 'royal', 'enquete', 'commission', 'eurovision', 'esport', 'concertweb', 'noel', 'animation']
+    evenement: ['debat', 'espace', 'vatican', 'election', 'royal', 'enquete', 'commission', 'eurovision', 'esport', 'concertweb', 'noel', 'animation',
+      'vienne', 'toureiffel', 'theatre', 'opera', 'quatorze', 'goncourt', 'eclipse', 'victoires']
   };
 
   // Palettes de scène : chaque couleur alimente une couleur nommée du style.
