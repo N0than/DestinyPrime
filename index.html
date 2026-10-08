@@ -4291,6 +4291,16 @@ const DILEMMA_BANK = [
     ]
   },
   {
+    id: 'd_droits_ligue_champions', titre: "La Ligue des champions cherche un diffuseur",
+    desc: "Les droits de la Ligue des champions sont mis aux enchères : les soirées européennes en prime, renouvelables chaque saison au prix remporté.",
+    types: ['generaliste', 'sport'],
+    type: 'sports_rights_auction', rightsEventId: 'ligue_champions',
+    c: [
+      { l: "Participer à l'enchère", finance: {"recurring":0,"purchase":0,"commercial":0,"category":"N"}, pda: { j1524: 0, a2549: 0, s50: 0, csp: 0 }, r: "L'enchère se joue sous pli.", pop: 0 },
+      { l: "Laisser passer", finance: {"recurring":0,"purchase":0,"commercial":0,"category":"N"}, pda: { j1524: 0, a2549: 0, s50: 0, csp: 0 }, r: "La Ligue des champions part chez un concurrent.", pop: 0 }
+    ]
+  },
+  {
     id: 'd_droits_top14', titre: "Le Top 14 cherche un diffuseur",
     desc: "Les droits du championnat de Top 14 sont mis aux enchères : les affiches de rugby en fin de journée, renouvelables chaque saison au prix remporté.",
     types: ['generaliste', 'sport'],
@@ -9579,6 +9589,21 @@ const SPORT_RIGHTS_EVENTS = {
     firstAuction: [1, 2, 3, 4],
     dilemmaIds: ['d_droits_ligue1']
   },
+  // Coupe d'Europe annuelle sur le prime, comme la Ligue 1 : une chaîne ne peut tenir
+  // qu'un seul droit annuel par case (voir recurringSlotClash).
+  ligue_champions: {
+    illustration: { subgenre: 'football', palette: 'nuit' },
+    id: 'ligue_champions', name: 'Ligue des champions', the: 'la Ligue des champions', sport: 'football', icon: '🏆', tier: 'mega',
+    headline: 'La Ligue des champions cherche un diffuseur',
+    pitch: 'Les soirées européennes du mardi et du mercredi, jusqu’à la finale : les grandes affiches de la Ligue des champions en prime sont à prendre pour la saison prochaine, puis renouvelables chaque année au prix remporté.',
+    reservePrice: 7, estimatedValueMin: 10, estimatedValueMax: 15, productionCost: 2, exclusive: true, duration: 1, recurring: true,
+    audiencePower: { j1524: 1.30, a2549: 1.45, s50: 1.10, csp: 1.30 },
+    commercialAttractiveness: 1.35,
+    preferredSlots: ['prime'],
+    slotFit: { prime: 1 },
+    firstAuction: [1, 2, 3, 4],
+    dilemmaIds: ['d_droits_ligue_champions']
+  },
   top14: {
     illustration: { subgenre: 'rugby', palette: 'jour' },
     id: 'top14', name: 'Championnat de Top 14', the: 'le Top 14', sport: 'rugby', icon: '🏉', tier: 'premium',
@@ -10011,6 +10036,16 @@ function runCompetitorSportsAuction(forcedEvent = null, { parallel = false } = {
 }
 // Place une enchère dans la file de la saison (remplace un dilemme, jamais de quatrième).
 // Droit annuel remis sur le marché (première vente ou droits lâchés) dont l'enchère est due.
+// Un seul droit annuel par case : une chaîne qui tient (ou diffuse) déjà un droit annuel
+// sur l'une des cases de l'événement ne peut pas l'acquérir en plus (Ligue 1 et Ligue des
+// champions se disputent le même prime).
+function recurringSlotClash(event, channel) {
+  if (!event?.recurring) return false;
+  const isPlayer = channel === gameState.player;
+  return (gameState.sportsRights?.owned || []).some(o => o.recurring && o.eventId !== event.id
+    && o.broadcastSeason >= gameState.season && (isPlayer ? o.ownerId === 'player' : o.ownerName === channel.name)
+    && o.slots.some(slot => event.preferredSlots.includes(slot)));
+}
 function dueRecurringSportsEvent() {
   const sr = ensureSportsRightsState();
   if (sr.lastAuctionSeason === gameState.season) return null;
@@ -10024,7 +10059,7 @@ function scheduleSportsAuction(queue) {
   let recurringEvent = dueRecurringSportsEvent();
   // Droit annuel hors de portée du joueur : vendu entre chaînes IA, sans prendre la place
   // de l'enchère de la saison (le marché ordinaire peut se tenir).
-  while (recurringEvent && !rightsEventEligible(recurringEvent, gameState.player)) {
+  while (recurringEvent && (!rightsEventEligible(recurringEvent, gameState.player) || recurringSlotClash(recurringEvent, gameState.player))) {
     runCompetitorSportsAuction(recurringEvent, { parallel: true });
     recurringEvent = dueRecurringSportsEvent();
   }
@@ -10097,7 +10132,7 @@ function startSportsRightsAuction(eventId, dilemmaId) {
   if (!event) return null;
   if (sr.activeAuction?.eventId === eventId && sr.activeAuction.season === gameState.season) return sr.activeAuction;
   const rivals = gameState.competitors.map((c, idx) => {
-    const max = computeCompetitorSportsMaxBid(c, event);
+    const max = recurringSlotClash(event, c) ? 0 : computeCompetitorSportsMaxBid(c, event);
     return { idx, name: c.name, max, interest: sportsInterest(max, event), status: max >= event.reservePrice ? 'in' : 'out', lastBid: null };
   });
   sr.activeAuction = { eventId, dilemmaId, season: gameState.season, phase: 'market', price: null, leader: null,

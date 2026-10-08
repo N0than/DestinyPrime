@@ -211,6 +211,37 @@ sportsRandom=sRand;
   const cq=pickDilemmaQueue().filter(d=>d.type==='sports_rights_auction');
   assert(sr().history.some(h=>h.eventId==='ligue1'&&h.result==='ai_only')&&cq.length===1&&SPORT_RIGHTS_EVENTS[cq[0].rightsEventId].category==='cinema','championship sold among AIs, cinema auction kept');
 }
+// ---------- Ligue des champions (droit annuel du prime) ----------
+{
+  const ldc=SPORT_RIGHTS_EVENTS.ligue_champions;
+  assert(ldc.recurring&&ldc.name==='Ligue des champions'&&ldc.preferredSlots.join()==='prime'&&ldc.sport==='football'&&!ldc.channelTypes,'Champions League: annual right on prime');
+  const d=DILEMMA_BANK.find(x=>x.id==='d_droits_ligue_champions');
+  assert(d&&d.type==='sports_rights_auction'&&d.rightsEventId==='ligue_champions'&&d.types.join()==='generaliste,sport','Champions League auction dilemma');
+  const firsts=new Set();for(let k=1;k<=40;k++){setup('generaliste',4000+k);firsts.add(sr().recurring.ligue_champions.nextAuctionSeason);}
+  assert([...firsts].every(v=>v>=2&&v<=5)&&firsts.size>2,'Champions League first sold in seasons 2-5');
+  for(const type of ['generaliste','sport']){
+    setup(type);Object.entries(sr().recurring).forEach(([id,r])=>{if(id!=='ligue_champions') r.nextAuctionSeason=99;});gameState.season=sr().recurring.ligue_champions.nextAuctionSeason;
+    const auc=pickDilemmaQueue().filter(x=>x.type==='sports_rights_auction');
+    assert(auc.length===1&&auc[0].rightsEventId==='ligue_champions','Champions League auction for '+type);
+    setup(type);gameState.season=3;acquireSportsRight('ligue_champions',{owner:'player',price:9});sr().owned[0].broadcastSeason=3;sr().recurring.ligue_champions.nextAuctionSeason=null;
+    activateSportsBroadcasts();
+    assert(activeContract(gameState.player,'prime')?.isSportsEvent,'Champions League airs on prime');
+    const rq=withRenewalDilemmas([DILEMMA_BANK[0],DILEMMA_BANK[1],DILEMMA_BANK[2]]).at(-1);
+    assert(rq.isSportsRenewal&&rq.rightsEventId==='ligue_champions','Champions League renewal offered');
+    applySportsRenewalChoice('ligue_champions','renew');
+    assert(sr().owned.some(o=>o.eventId==='ligue_champions'&&o.broadcastSeason===4&&o.gridAnnual===9&&o.ownerId==='player'),'Champions League renewed at the initial price');
+  }
+  // Un seul droit annuel par case : le détenteur de la Ligue 1 ne concourt pas pour la Ligue des champions.
+  setup('generaliste');gameState.competitors.forEach(c=>c.budget=200);gameState.season=3;
+  acquireSportsRight('ligue1',{owner:'player',price:6});sr().owned[0].broadcastSeason=4;
+  assert(recurringSlotClash(SPORT_RIGHTS_EVENTS.ligue_champions,gameState.player)&&!recurringSlotClash(SPORT_RIGHTS_EVENTS.top14,gameState.player),'one annual right per slot');
+  Object.entries(sr().recurring).forEach(([id,r])=>r.nextAuctionSeason=id==='ligue_champions'?3:99);
+  assert(!pickDilemmaQueue().some(x=>x.rightsEventId==='ligue_champions')&&sr().history.some(h=>h.eventId==='ligue_champions'&&h.result==='ai_only'),'Champions League sold among AIs when the player holds Ligue 1');
+  setup('generaliste');gameState.competitors.forEach(c=>c.budget=200);gameState.season=3;
+  acquireSportsRight('ligue1',{owner:gameState.competitors[0],price:6});sr().owned[0].broadcastSeason=4;
+  const la=startSportsRightsAuction('ligue_champions','d_droits_ligue_champions');
+  assert(la.rivals[0].max===0&&la.rivals[0].status==='out'&&la.rivals.slice(1).some(r=>r.max>0),'rival holding Ligue 1 stays out');
+}
 // Joueur hors Généraliste / Sport : la F1 se vend entre chaînes IA.
 setup('culture');gameState.competitors.forEach(c=>c.budget=200);gameState.season=sr().recurring.f1.nextAuctionSeason;
 assert(!pickDilemmaQueue().some(d=>d.rightsEventId==='f1')&&sr().history.some(h=>h.eventId==='f1'&&h.result==='ai_only'),'F1 auction among AI channels');
