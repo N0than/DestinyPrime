@@ -157,6 +157,7 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .hud-channel-type.short .tb-long { display: none; }
 .hud-channel-type.short .tb-short { display: inline; }
 .hud-panel-head-right { display: flex; align-items: center; align-self: center; gap: 8px; flex-shrink: 0; }
+.hud-head-only .hud-panel-head { padding-bottom: 0; margin-bottom: 0; background-image: none; box-shadow: none; }
 .hud-type-badge {
   flex-shrink: 0; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 10.5px;
   padding: 4px 9px; border-radius: 999px; white-space: nowrap;
@@ -7952,6 +7953,39 @@ function renderStepDots(active, total) {
   `;
 }
 
+// Ligne de tête du HUD : marque, type de chaîne, cible et, au besoin, bouton du slider.
+function renderHudHead(p, { toggle = true, open = false } = {}) {
+  return `
+        <div class="hud-panel-head">
+          <button type="button" class="hud-brand-badge" id="hud-brand" title="Retour à l’accueil"><span class="dot"></span><span class="hud-brand-text">Audience Masters</span></button>
+          <div class="hud-panel-head-right">
+            ${(() => {
+              // Le type de chaîne reste toujours écrit ; s'il manque de place (cf. fitHudBrand),
+              // il perd son emoji puis passe à son libellé court. La cible perd « ans » sur mobile.
+              const typeLabel = CHANNEL_TYPES[p.type].label.replace(/\s*\/\s*Famille\b/, '');
+              const [typeIcon, ...typeWords] = typeLabel.split(' ');
+              const typeName = typeWords.join(' ');
+              const typeShort = typeName.split(/\s*\/\s*|\s+en\s+/)[0];
+              const targetLabel = (TARGET_STRATEGIES[p.target]?.nom || p.target).replace(/\s*\([^)]*\)/, '');
+              const targetShort = targetLabel.replace(/\s+ans\b/, '');
+              return `<span class="hud-type-badge hud-channel-type" title="${esc(typeLabel)}"><span class="tb-icon">${typeIcon} </span><span class="tb-long">${esc(typeName)}</span><span class="tb-short">${esc(typeShort)}</span></span>
+            <span class="hud-type-badge hud-target-badge" title="Cible : ${esc(TARGET_STRATEGIES[p.target]?.nom || p.target)}"><span class="tb-icon">🎯 </span><span class="hud-badge-long">${esc(targetLabel)}</span><span class="hud-badge-short">${esc(targetShort)}</span></span>`;
+            })()}
+            ${toggle ? `<button class="hud-toggle${open ? ' open' : ''}" id="hud-toggle" aria-label="Détail des indicateurs" aria-expanded="${open}">
+              <svg class="hud-toggle-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </button>` : ''}
+          </div>
+        </div>
+  `;
+}
+// Bilan de saison : seule la ligne de tête du HUD, sans indicateurs ni bouton du slider.
+function renderHudHeadOnly() {
+  return `
+    <div class="hud-wrap hud-head-only">
+      <div class="hud-panel">${renderHudHead(gameState.player, { toggle: false })}</div>
+    </div>`;
+}
+
 function renderTicker() {
   ensureCompetitorPlans();
   const p = gameState.player;
@@ -7987,26 +8021,7 @@ function renderTicker() {
   return `
     <div class="hud-wrap">
       <div class="hud-panel">
-        <div class="hud-panel-head">
-          <button type="button" class="hud-brand-badge" id="hud-brand" title="Retour à l’accueil"><span class="dot"></span><span class="hud-brand-text">Audience Masters</span></button>
-          <div class="hud-panel-head-right">
-            ${(() => {
-              // Le type de chaîne reste toujours écrit ; s'il manque de place (cf. fitHudBrand),
-              // il perd son emoji puis passe à son libellé court. La cible perd « ans » sur mobile.
-              const typeLabel = CHANNEL_TYPES[p.type].label.replace(/\s*\/\s*Famille\b/, '');
-              const [typeIcon, ...typeWords] = typeLabel.split(' ');
-              const typeName = typeWords.join(' ');
-              const typeShort = typeName.split(/\s*\/\s*|\s+en\s+/)[0];
-              const targetLabel = (TARGET_STRATEGIES[p.target]?.nom || p.target).replace(/\s*\([^)]*\)/, '');
-              const targetShort = targetLabel.replace(/\s+ans\b/, '');
-              return `<span class="hud-type-badge hud-channel-type" title="${esc(typeLabel)}"><span class="tb-icon">${typeIcon} </span><span class="tb-long">${esc(typeName)}</span><span class="tb-short">${esc(typeShort)}</span></span>
-            <span class="hud-type-badge hud-target-badge" title="Cible : ${esc(TARGET_STRATEGIES[p.target]?.nom || p.target)}"><span class="tb-icon">🎯 </span><span class="hud-badge-long">${esc(targetLabel)}</span><span class="hud-badge-short">${esc(targetShort)}</span></span>`;
-            })()}
-            <button class="hud-toggle${open ? ' open' : ''}" id="hud-toggle" aria-label="Détail des indicateurs" aria-expanded="${open}">
-              <svg class="hud-toggle-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-            </button>
-          </div>
-        </div>
+        ${renderHudHead(p, { toggle: true, open })}
         <div class="hud">
           <div class="hud-cell hero${tresorerieLive < 0 ? ' alert' : ''}">
             <div class="lab"><span class="ic">💰</span>Trésorerie</div>
@@ -8788,6 +8803,7 @@ function render() {
 
     app.innerHTML = `
       ${renderMasthead("Fin de saison", "Audience Masters", true)}
+      ${renderHudHeadOnly()}
       <div class="card bilan-card">
         <div class="kicker-row bilan-kicker-row">
           <div class="kicker-badge">BILAN DE LA SAISON ${gameState.season}</div>
@@ -8857,6 +8873,9 @@ function render() {
       button.onclick = () => applyCareerDecision(button.dataset.careerAction);
     });
     bindBilanFolds(app);
+    fitHudBrand();
+    const bilanBrand = document.getElementById('hud-brand');
+    if (bilanBrand) bilanBrand.onclick = goHome;
     app.querySelector('.masthead').onclick = goHome;
     return;
   }
