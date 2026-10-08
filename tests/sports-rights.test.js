@@ -279,9 +279,34 @@ assert(!pickDilemmaQueue().some(d=>d.rightsEventId==='f1')&&sr().history.some(h=
   const sRand2=sportsRandom;sportsRandom=()=>0;activateSportsBroadcasts();sportsRandom=sRand2;
   const mars=sr().owned.at(-1);assert(mars.riskHit&&Math.abs(mars.variance-0.9*0.6)<1e-9,'Mars risk lowers the audience');
 }
-// Joueur jeunesse ou culture : jamais de dilemme de droits ; le marché se tient
+// Grands événements jeunesse : cinq événements réservés côté joueur aux chaînes Jeunesse.
+{
+  const youth=Object.values(SPORT_RIGHTS_EVENTS).filter(e=>e.category==='jeunesse');
+  const slots={eurovision_junior:'apresmidi,access',finale_esport:'apresmidi,access,prime',concert_youtubeurs:'access,prime',spectacle_noel:'apresmidi,prime',blockbuster_animation:'prime'};
+  const stars={eurovision_junior:5,finale_esport:5,concert_youtubeurs:5,spectacle_noel:4,blockbuster_animation:5};
+  assert(youth.length===5&&youth.every(e=>e.channelTypes.join()==='jeunesse'&&e.affectedSlots.join()===slots[e.id]&&e.preferredSlots.join()===slots[e.id]&&e.stars===stars[e.id]
+    &&DILEMMA_BANK.some(d=>d.id===e.dilemmaIds[0]&&d.type==='sports_rights_auction'&&d.rightsEventId===e.id&&d.types.join()==='jeunesse')),'5 youth events with their slots, stars and auction dilemma');
+  assert(new Set(youth.map(e=>e.illustration.subgenre)).size===5&&youth.every(e=>e.illustration.genre==='evenement'),'one illustration per youth event');
+  for(const type of ['jeunesse','generaliste','info','cinema']){
+    setup(type);Object.values(sr().recurring).forEach(r=>r.nextAuctionSeason=99);const seen=[];
+    for(let k=1;k<=30;k++){gameState.season=k;gameState.seenDilemmaIds=[];gameState.player.eventsSeen=[];
+      pickDilemmaQueue().filter(d=>d.type==='sports_rights_auction').forEach(d=>seen.push(SPORT_RIGHTS_EVENTS[d.rightsEventId].category||'sport'));}
+    if(type==='jeunesse') assert(seen.length>0&&seen.every(c=>c==='jeunesse'),'youth channel gets youth auctions only');
+    else assert(!seen.includes('jeunesse'),'no youth auction for '+type);
+  }
+  setup('jeunesse');gameState.season=3;const pj=gameState.player;
+  TIME_SLOTS.forEach(({key})=>{const prog=availablePrograms('jeunesse',key)[0];if(prog)pj.contracts[key]={...prog,end:9,career:createProgramCareer(prog,key)};});
+  const before=getCalculatedPDAs().find(r=>r.channel===pj);
+  acquireSportsRight('blockbuster_animation',{owner:'player',price:10});sr().owned.at(-1).broadcastSeason=3;activateSportsBroadcasts();
+  const after=getCalculatedPDAs().find(r=>r.channel===pj);
+  assert(activeContract(pj,'prime')?.isSportsEvent&&TIME_SLOTS.filter(t=>t.key!=='prime').every(t=>!activeContract(pj,t.key)?.isSportsEvent),'only the prime slot is taken');
+  assert(TIME_SLOTS.filter(t=>t.key!=='prime').every(t=>Math.abs(after.intrinsicSlots[t.key][pj.target]-before.intrinsicSlots[t.key][pj.target])<1e-9),'no direct impact outside the youth event slot');
+  const ye=sportsEventEditorial(SPORT_RIGHTS_EVENTS.finale_esport,pj,'prime');
+  assert(ye.genre==='jeunesse'&&ye.mix.jeunesse===100&&ye.mix.direct===100,'youth event counts as live youth programming');
+}
+// Joueur culture : jamais de dilemme de droits ; le marché se tient
 // alors entre chaînes IA, qui enchérissent librement quel que soit leur type.
-['jeunesse','culture'].forEach(type=>{
+['culture'].forEach(type=>{
   setup(type);gameState.competitors.forEach(c=>c.budget=200);let aiSales=0;
   for(let s=1;s<=30;s++){gameState.season=s;gameState.seenDilemmaIds=[];gameState.player.eventsSeen=[];
     const before=sr().history.length;

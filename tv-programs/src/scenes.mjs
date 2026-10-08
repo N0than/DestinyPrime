@@ -292,6 +292,36 @@ export const scene = {
       + `<rect x="40" y="96" width="240" height="8" rx="2" fill="#4e342e"/>` + [70, 120, 200, 250].map(x => `<path d="M${x} 96v-10l6 -6" stroke="$ink" stroke-width="2" fill="none"/><rect x="${x - 10}" y="88" width="18" height="8" rx="1" fill="$light"/>`).join('')
       + floor(148, '$ground', '$groundAlt') },
 
+    // --- Grands événements jeunesse (enchères des chaînes Jeunesse) -----------
+    eurovisionJunior: { tags: [...g('evenement'), 'sub:eurovision'], svg: sky('$sky') + `<rect width="320" height="180" fill="$ink" fill-opacity="0.45"/>`
+      + ledWall(70, 16, 250, 104) + heart(160, 58, 1.6, '$accent') + star(110, 40, 0.7, '$light') + star(212, 44, 0.6, '$light')
+      + Array.from({ length: 16 }, (_, i) => `<path d="M${i * 20} 4h20l-10 14z" fill="${['#e53935', '#1e88e5', '#ffc83d', '#43a047', '#ffffff', '#8e24aa'][i % 6]}"/>`).join('')
+      + spotlightBeam(40, 0, 44, 148, '$accent', 0.16) + spotlightBeam(280, 0, 44, 148, '$accentAlt', 0.16) + stage(146) + bulbs(60, 260, 150, 14, '$light') },
+    esportArena: { tags: [...g('evenement'), 'sub:esport'], svg: `<rect width="320" height="180" fill="#11142b"/>`
+      + `<rect x="64" y="10" width="192" height="96" rx="5" fill="$ink"/><rect x="70" y="16" width="180" height="84" rx="3" fill="#1d2a6b"/>`
+      + `<rect x="92" y="52" width="16" height="24" fill="#4fc3f7"/><rect x="88" y="44" width="24" height="10" fill="#4fc3f7"/><rect x="212" y="52" width="16" height="24" fill="#ef476f"/><rect x="208" y="44" width="24" height="10" fill="#ef476f"/>`
+      + `<path d="M120 62h80" stroke="#ffd166" stroke-width="3" stroke-dasharray="6 5"/><rect x="132" y="22" width="56" height="10" rx="3" fill="#ffd166"/><rect x="78" y="84" width="60" height="6" rx="3" fill="#4fc3f7"/><rect x="182" y="84" width="60" height="6" rx="3" fill="#ef476f"/>`
+      + spotlightBeam(30, 0, 40, 148, '#4fc3f7', 0.16) + spotlightBeam(290, 0, 40, 148, '#ef476f', 0.16)
+      + Array.from({ length: 16 }, (_, i) => `<circle cx="${10 + i * 20}" cy="${128 + (i % 2) * 4}" r="7" fill="$ink" fill-opacity="0.8"/>`).join('')
+      + `<rect x="0" y="146" width="320" height="34" fill="#1a1f3d"/><path d="M0 146h320" stroke="#4fc3f7" stroke-width="2"/>` },
+    concertWeb: { tags: [...g('evenement'), 'sub:concertweb'], svg: sky('$sky') + `<rect width="320" height="180" fill="$ink" fill-opacity="0.5"/>`
+      + `<path d="M20 20h280v6H20z" fill="$ink"/>` + spot(70, 26) + spot(160, 26) + spot(250, 26, true)
+      + spotlightBeam(70, 30, 40, 140, '$accent', 0.18) + spotlightBeam(160, 30, 46, 140, '$light', 0.14) + spotlightBeam(250, 30, 40, 140, '$accentAlt', 0.18)
+      + `<rect x="110" y="40" width="100" height="62" rx="16" fill="$accentAlt"/><path d="M150 56v30l24 -15z" fill="$light"/>`
+      + Array.from({ length: 14 }, (_, i) => `<circle cx="${12 + i * 23}" cy="${150 + (i % 3) * 3}" r="9" fill="$ink"/><path d="M${8 + i * 23} ${142 + (i % 3) * 3}l-4 -16" stroke="$ink" stroke-width="4" stroke-linecap="round"/>${i % 3 === 0 ? `<rect x="${1 + i * 23}" y="${118 + (i % 3) * 3}" width="6" height="9" rx="1" fill="$light" fill-opacity="0.9"/>` : ''}`).join('')
+      + `<rect x="0" y="160" width="320" height="20" fill="$ink"/>` },
+    spectacleNoel: { tags: [...g('evenement'), 'sub:noel'], svg: `<rect width="320" height="180" fill="#1f3a5f"/>`
+      + Array.from({ length: 26 }, (_, i) => `<circle cx="${(i * 47) % 320}" cy="${(i * 29) % 130 + 6}" r="${1.5 + (i % 3)}" fill="#ffffff" fill-opacity="0.85"/>`).join('')
+      + `<path d="M160 12l52 70h-24l36 50H96l36 -50h-24z" fill="#2e7d32"/>` + star(160, 12, 1.3, '#ffc83d')
+      + [[140, 60, '#e53935'], [176, 74, '#ffc83d'], [150, 100, '#4fc3f7'], [186, 110, '#e53935'], [128, 116, '#ffc83d']].map(([x, y, c]) => `<circle cx="${x}" cy="${y}" r="5" fill="${c}"/>`).join('')
+      + curtains('#c62828') + stage(146, '#8d6e63') + bulbs(70, 250, 150, 12, '#ffc83d') },
+    animationGeant: { tags: [...g('evenement'), 'sub:animation'], svg: `<rect width="320" height="180" fill="$ink"/><rect width="320" height="180" fill="$sky" fill-opacity="0.2"/>`
+      + `<path d="M150 180h20L280 26H40z" fill="$light" fill-opacity="0.06"/>`
+      + `<rect x="48" y="12" width="224" height="106" rx="3" fill="$light"/><rect x="54" y="18" width="212" height="94" fill="#bde0fe"/>`
+      + rainbow(160, 112, 70) + `<circle cx="112" cy="84" r="20" fill="#ffb4a2"/><circle cx="104" cy="80" r="4" fill="$ink"/><circle cx="120" cy="80" r="4" fill="$ink"/><path d="M104 92q8 6 16 0" stroke="$ink" stroke-width="2" fill="none"/><circle cx="96" cy="66" r="7" fill="#ffb4a2"/><circle cx="128" cy="66" r="7" fill="#ffb4a2"/>`
+      + `<circle cx="214" cy="88" r="14" fill="#cdb4db"/><circle cx="209" cy="85" r="3" fill="$ink"/><circle cx="220" cy="85" r="3" fill="$ink"/>` + cloud(230, 30, 0.7, '$light', 1)
+      + [148, 164].map((y, row) => Array.from({ length: 13 }, (_, i) => `<rect x="${(row ? 0 : 12) + i * 26}" y="${y}" width="22" height="20" rx="6" fill="$accentAlt"/>`).join('') + `<rect x="0" y="${y + 12}" width="320" height="3" fill="$ink" fill-opacity="0.25"/>`).join('') },
+
     // --- Jeunesse -----------------------------------------------------------
     parcArcEnCiel: { tags: g('jeunesse'), svg: sky() + rainbow(160, 120, 110) + cloud(40, 120, 1.4, '$light', 1) + cloud(236, 120, 1.4, '$light', 1) + roundTree(30, 152, 1.3) + roundTree(292, 152, 1.1, '$accent') + floor(150) + `<circle cx="80" cy="162" r="3" fill="$accentAlt"/><circle cx="240" cy="166" r="3" fill="$accent"/><circle cx="200" cy="160" r="2.5" fill="$light"/>` },
     chambre: { tags: g('jeunesse'), svg: wall(148, '$sky') + Array.from({ length: 8 }, (_, i) => `<circle cx="${20 + i * 40}" cy="${20 + (i % 2) * 14}" r="6" fill="$light" fill-opacity="0.5"/>`).join('') + windowFrame(30, 30, 64, 64) + moon(60, 56, 9) + `<rect x="220" y="80" width="70" height="68" rx="6" fill="$accent"/><rect x="226" y="88" width="58" height="16" rx="3" fill="$light" fill-opacity="0.5"/><rect x="226" y="110" width="58" height="16" rx="3" fill="$light" fill-opacity="0.5"/>` + `<path d="M120 20l10 18 10 -18" stroke="$accentAlt" stroke-width="2" fill="none"/><path d="M150 20l10 18 10 -18" stroke="$accent" stroke-width="2" fill="none"/>` + plank(148) },

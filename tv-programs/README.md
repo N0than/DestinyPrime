@@ -31,8 +31,9 @@ Genres : `aventure`, `jeu`, `divertissement`, `telerealite`, `dating`, `cuisine`
 Sous-genres : sport (`football`, `rugby`, `basket`, `handball`, `tennis`, `auto`, `velo`, `surf`,
 `combat`, `ski`, `fitness`, `athletisme`, `hippisme`), aventure (`survie`, `montagne`), documentaire (`nature`, `histoire`,
 `science`, `culture`), cinema (`ceremonie`, `festival`, `film`, `serie` — droits cinéma & séries du jeu),
-evenement (`debat`, `espace`, `vatican`, `election`, `royal`, `enquete`, `commission` — grands événements
-d'information du jeu, un décor dédié par sous-genre).
+evenement (`debat`, `espace`, `vatican`, `election`, `royal`, `enquete`, `commission` pour les grands événements
+d'information, `eurovision`, `esport`, `concertweb`, `noel`, `animation` pour ceux des chaînes Jeunesse —
+un décor dédié par sous-genre).
 
 ## API (navigateur)
 
