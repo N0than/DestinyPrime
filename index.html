@@ -4125,15 +4125,6 @@ const DILEMMA_BANK = [
     ]
   },
   {
-    id: 'd77', titre: "Ligue des Champions : le mardi soir t'appelle",
-    desc: "L'Europe se joue à 21h et le marché sait ce que tu es prêt à payer. Ton programmateur rêve de plusieurs matchs en parallèle. Le CFO, lui, ne rêve plus du tout.",
-    types: ['sport'],
-    c: [
-      { l: "Verrouiller plusieurs créneaux, être partout", finance: {"recurring":0,"purchase":28,"commercial":0,"category":"P"}, pda: { j1524: +8, a2549: +9, s50: +6, csp: +6 }, r: "Chèque massif signé sans trembler, les scores explosent sur toutes les cibles. L'image de la chaîne y gagne beaucoup.", pop: 3 },
-      { l: "Se concentrer sur les clubs français", finance: {"recurring":0,"purchase":10,"commercial":0,"category":"P"}, pda: { j1524: +5, a2549: +6, s50: +4, csp: +4 }, r: "Effort budgétaire conséquent, l'audience progresse nettement. L'accueil est positif.", pop: 2 }
-    ]
-  },
-  {
     id: 'd78', titre: "Les Bleus jouent, tu suis ou tu regardes ?",
     desc: "L'équipe de France entre en scène. Ton dispositif peut sentir la pelouse ou sentir la moquette du studio.",
     types: ['sport'],
@@ -5002,15 +4993,6 @@ const DILEMMA_BANK = [
     c: [
       { l: "Investir dans un inside chez les Bleus", finance: {"recurring":0,"purchase":7,"commercial":0,"category":"P"}, pda: { j1524: +8, a2549: +8, s50: +6, csp: +5 }, r: "Le public répond présent en masse : budget maîtrisé. L'image de la chaîne y gagne beaucoup.", pop: 3 },
       { l: "Se concentrer uniquement sur les matchs", finance: {"recurring":0,"purchase":1,"commercial":0,"category":"P"}, pda: { j1524: +3, a2549: +4, s50: +4, csp: +4 }, r: "Budget maîtrisé, les courbes d'audience grimpent. La confiance du public progresse.", pop: 1 }
-    ]
-  },
-  {
-    id: 'd133', titre: "Grand Prix : envoyer ou recevoir",
-    desc: "Le signal international est propre, gratuit et impersonnel. Ta propre équipe dans le paddock, c'est autre chose.",
-    types: ['sport'],
-    c: [
-      { l: "Envoyer une équipe dédiée dans le paddock", finance: {"recurring":5,"purchase":0,"commercial":0,"category":"R"}, pda: { j1524: +9, a2549: +7, s50: +3, csp: +5 }, r: "Effort financier contenu, l'audience s'envole. L'accueil est positif.", pop: 2 },
-      { l: "Se contenter du signal international", finance: {"recurring":0,"purchase":1,"commercial":0,"category":"P"}, pda: { j1524: +4, a2549: +4, s50: +2, csp: +3 }, r: "Les courbes d'audience grimpent : dépense raisonnable. Bon retour côté opinion publique.", pop: 1 }
     ]
   },
   {
@@ -6669,7 +6651,6 @@ const DILEMMA_FLAVOR = {
   d74: [{ info: 2, diverti: 2, culture: -2 }, { info: 2, culture: 2, pluralisme: 2 }],
   d75: [{ creation: 4, culture: 2 }, { creation: -2, renouveles: 2 }],
   d76: [{ sport: +4, direct: +3, discipline: 'football' }, { sport: +2, direct: +3, discipline: 'football' }],
-  d77: [{ sport: +4, direct: +3, prodFR: +3, discipline: 'football' }, { sport: +3, direct: +3, prodFR: +3, discipline: 'football' }],
   d78: [{ sport: +3, direct: +1, prodFR: +3, discipline: 'football' }, { sport: +2, direct: +1, prodFR: +3, discipline: 'football' }],
   d79: [{ sport: +4, direct: +3, discipline: 'football' }, { sport: +2, direct: +3, discipline: 'football' }],
   d80: [{ sport: +4, direct: +1, discipline: 'football' }, { sport: +3, direct: +1, discipline: 'football' }],
@@ -6725,7 +6706,6 @@ const DILEMMA_FLAVOR = {
   d130: [{ sport: +4, direct: +3 }, { sport: +2, direct: +3 }],
   d131: [{ sport: +4, direct: +1 }, { sport: +2, direct: +1 }],
   d132: [{ sport: +4, direct: +3, prodFR: +3, discipline: 'football' }, { sport: +2, direct: +3, prodFR: +3, discipline: 'football' }],
-  d133: [{ sport: +4, direct: +1, discipline: 'f1' }, { sport: +2, direct: +1, discipline: 'f1' }],
   d134: [{ sport: +3, direct: +1 }, { sport: +2, direct: +1 }],
   d135: [{ sport: +3, direct: +3 }, { sport: +2, direct: +3 }],
   d136: [{ sport: +2, direct: +3 }, { sport: +2, direct: +3 }],
@@ -7037,14 +7017,11 @@ const DILEMMA_PROGRAM_NEEDS = {
   d55: { family: 'humour' }, d57: { family: 'fiction', slots: ['nuit'] }, d62: { family: 'jeu' },
   d63: { family: 'relooking' }, d71: { family: 'telerealite' }
 };
-// Dilemmes liés à un droit diffusé cette saison.
-const DILEMMA_RIGHT_NEEDS = { d133: 'f1' };
 DILEMMA_BANK.forEach(d => {
   if (DILEMMA_CHANNEL_TYPES[d.id] && !d.types) {
     d.types = [...DILEMMA_CHANNEL_TYPES[d.id], ...(SPORT_RELATED_UNIVERSAL_IDS.includes(d.id) ? ['sport'] : [])];
   }
   if (DILEMMA_PROGRAM_NEEDS[d.id]) d.requiresProgram = DILEMMA_PROGRAM_NEEDS[d.id];
-  if (DILEMMA_RIGHT_NEEDS[d.id] && !d.requiresRight) d.requiresRight = DILEMMA_RIGHT_NEEDS[d.id];
 });
 // Programmes de la grille (contrat ou intitulé de base), normalisés pour la reconnaissance.
 function gridProgramsOf(channel = gameState.player) {

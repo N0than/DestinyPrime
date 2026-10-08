@@ -148,11 +148,6 @@ const solo=createTalentRenewalDilemma([mkTalent(ta,0,2)]);assert(solo.c.length==
   const d5=DILEMMA_BANK.find(d=>d.id==='d5');
   assert(getEligibleDilemmas().includes(d5)&&dilemmaProgramMatch(d5)?.slot==='prime','reality-show dilemma once the show airs');
   assert(resolveDilemmaAudienceImpacts(d5,d5.c[0]).every(x=>x.slot==='prime'),'the dilemma hits the show slot');
-  // Grand Prix (d133) : seulement pour le diffuseur de la F1.
-  resetGame();const ps=gameState.player;ps.name='Audit';ps.type='sport';ps.target='a2549';finalizeChannelSetup();ensureSportsRightsState();
-  assert(!getEligibleDilemmas().some(d=>d.id==='d133'),'no Grand Prix dilemma without the F1');
-  acquireSportsRight('f1',{owner:'player',price:6});gameState.sportsRights.owned.at(-1).broadcastSeason=gameState.season;
-  assert(getEligibleDilemmas().some(d=>d.id==='d133'),'Grand Prix dilemma for the F1 broadcaster');
 }
 // Conférence de rentrée : jamais sur une case d'événement ; grille faite d'événements, aucune.
 {
