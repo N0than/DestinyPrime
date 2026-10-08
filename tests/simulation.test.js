@@ -126,6 +126,34 @@ const solo=createTalentRenewalDilemma([mkTalent(ta,0,2)]);assert(solo.c.length==
   assert(renderTalentsSlide().includes('tl-cards-dense'),'six slots shown as two compact rows');
   pi.type=prevType;pi.talents=prevTalents;
 }
+// Audit des dilemmes : thème cohérent avec le format, programme requis bien à l'antenne.
+{
+  render=()=>{};const pools={};
+  for(const type of ['generaliste','cinema','culture','jeunesse','info','sport']){
+    resetGame();const pa=gameState.player;pa.name='Audit';pa.type=type;pa.target='a2549';finalizeChannelSetup();
+    const ids=getEligibleDilemmas().filter(d=>d.type!=='sports_rights_auction').map(d=>d.id);pools[type]=ids.length;
+    assert(ids.length>=30,'enough dilemmas for '+type+' ('+ids.length+')');
+    assert(ids.every(id=>{const d=DILEMMA_BANK.find(x=>x.id===id);return !d.types||d.types.includes(type);}),'only dilemmas of the format for '+type);
+  }
+  const eligibleFor=type=>{resetGame();const pa=gameState.player;pa.name='Audit';pa.type=type;pa.target='a2549';finalizeChannelSetup();return new Set(getEligibleDilemmas().map(d=>d.id));};
+  const info=eligibleFor('info'),youth=eligibleFor('jeunesse'),cine=eligibleFor('cinema'),cult=eligibleFor('culture');
+  ['d8','d15','d57','d58','d61','d73','d5','d16','d30','d43'].forEach(id=>assert(!info.has(id),'no fiction / entertainment dilemma on a news channel: '+id));
+  ['d57','d16','d5','d37','d39','d45','d74'].forEach(id=>assert(!youth.has(id),'no adult dilemma on a youth channel: '+id));
+  ['d4','d13','d21','d54','d60'].forEach(id=>assert(!cine.has(id)&&!cult.has(id)&&!youth.has(id),'no newsroom dilemma outside news formats: '+id));
+  assert(info.has('d1')&&info.has('d4')&&info.has('d54'),'news dilemmas kept for the news channel');
+  // Téléréalité : seulement si une émission de téléréalité est à l'antenne, sur sa case.
+  resetGame();const pg=gameState.player;pg.name='Audit';pg.type='generaliste';pg.target='a2549';finalizeChannelSetup();launchFirstSeason();pg.tresorerie=500;
+  assert(!getEligibleDilemmas().some(d=>d.id==='d5'||d.id==='d16'),'no reality-show dilemma without a reality show');
+  const koh=PROGRAM_CATALOG.find(x=>x.name==='Koh Menta');assert(koh&&signProgram('prime',koh.id,'interne'),'sign a reality show');
+  const d5=DILEMMA_BANK.find(d=>d.id==='d5');
+  assert(getEligibleDilemmas().includes(d5)&&dilemmaProgramMatch(d5)?.slot==='prime','reality-show dilemma once the show airs');
+  assert(resolveDilemmaAudienceImpacts(d5,d5.c[0]).every(x=>x.slot==='prime'),'the dilemma hits the show slot');
+  // Grand Prix (d133) : seulement pour le diffuseur de la F1.
+  resetGame();const ps=gameState.player;ps.name='Audit';ps.type='sport';ps.target='a2549';finalizeChannelSetup();ensureSportsRightsState();
+  assert(!getEligibleDilemmas().some(d=>d.id==='d133'),'no Grand Prix dilemma without the F1');
+  acquireSportsRight('f1',{owner:'player',price:6});gameState.sportsRights.owned.at(-1).broadcastSeason=gameState.season;
+  assert(getEligibleDilemmas().some(d=>d.id==='d133'),'Grand Prix dilemma for the F1 broadcaster');
+}
 // Conférence de rentrée : jamais sur une case d'événement ; grille faite d'événements, aucune.
 {
   render=()=>{};resetGame();const pk=gameState.player;pk.name='Rentree';pk.type='generaliste';pk.target='a2549';finalizeChannelSetup();launchFirstSeason();

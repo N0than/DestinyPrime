@@ -6979,6 +6979,82 @@ const SPORT_RELATED_UNIVERSAL_IDS = ['d2', 'd6', 'd14', 'd20', 'd42', 'd65', 'd6
   'd_pub12', 'd_pub13', 'd_pub14', 'd_pub15', 'd_pub16', 'd_pub17', 'd_pub18', 'd_pub19', 'd_pub20',
   'd_pub21', 'd_pub22', 'd_pub23', 'd_pub24', 'd_pub25', 'd_pub27', 'd_pub28', 'd_pub29', 'd_pub30'];
 
+// ---------------------------------------------------------------------------
+// AUDIT DES DILEMMES — cohérence avec le format de la chaîne et sa grille
+// ---------------------------------------------------------------------------
+// Formats concernés par chaque dilemme universel au thème marqué (fiction, JT, téléréalité…).
+// Les dilemmes absents de la table (régie, technique, actionnariat, grève, fréquence…)
+// restent communs à tous les formats. Un dilemme sportif reste aussi proposé à la chaîne Sport.
+const DILEMMA_CHANNEL_TYPES = (() => {
+  const G = 'generaliste', C = 'cinema', CU = 'culture', J = 'jeunesse', I = 'info';
+  return {
+  d1: [G, I], d3: [G, I, CU], d4: [G, I], d5: [G], d6: [G, J], d7: [G, I], d8: [G, C], d10: [G, I],
+  d11: [G, I], d12: [G], d13: [G, I], d15: [G, C], d16: [G], d18: [G, J], d19: [G, I], d20: [G],
+  d21: [G, I], d22: [G], d23: [G], d24: [G], d25: [G, C, CU, J], d27: [G], d28: [G, I, CU], d29: [G],
+  d30: [G], d31: [G], d33: [G], d34: [G], d35: [G], d36: [G, J], d37: [G], d38: [G, CU], d39: [G],
+  d40: [G], d41: [G, I], d42: [G], d43: [G], d44: [G, I, CU], d45: [G, I], d46: [G], d47: [G],
+  d48: [G, I, CU], d49: [G], d51: [G], d52: [G], d53: [G, I], d54: [G, I], d55: [G], d56: [G, CU],
+  d57: [G, C], d58: [G, C], d59: [G, I], d60: [G, I], d61: [G, C], d62: [G], d63: [G], d64: [G],
+  d65: [G], d66: [G, J], d68: [G], d69: [G, J], d70: [G, CU], d71: [G], d72: [G], d73: [G, C],
+  d74: [G, I], d_pub22: [G, I]
+  };
+})();
+// Programme de la grille correspondant à une famille : contrat signé sur la case, sinon
+// intitulé de la grille de base (« Jeu quotidien », « Débat / analyse »…).
+const PROGRAM_FAMILIES = {
+  telerealite: { label: 'une émission de téléréalité', test: p => p.kind === 'telerealite'
+    || /realite|enfermement|ile de la trahison|undercover|koh|60 jours|village|ferme|coloc|epouser|fred le millionnaire|survie|confessions|blind date|love story|amour a emporter|echange nos|dans ta peau|tentation|deconnectes|banquise|cupidon/.test(p.name) },
+  jeu: { label: 'un jeu', test: p => p.format === 'jeu' || p.kind === 'jeu' || /\bjeux?\b|quiz/.test(p.name) },
+  aventure: { label: 'un jeu d’aventure', test: p => p.kind === 'aventure' || /koh|survie|fort boyard|banquise|destination express|carte aux tresors/.test(p.name) },
+  talent: { label: 'un télé-crochet ou un concours de talents', test: p => p.kind === 'talent' || /talent|etoile|chanteur|faire les voix|tous en scene|crochet|chanson|stars circus|sosie/.test(p.name) },
+  cuisine: { label: 'un concours de cuisine', test: p => p.kind === 'cuisine' || /cuisin|cuisto|chef(?!-d)|patisserie|gourmand|resto|terroir|banquet|10 euros, a table|fins palais/.test(p.name) },
+  investigation: { label: 'une émission d’investigation', test: p => /investigation|enquete|cash|faites entrer|revelation|dossier|piece|complement|coupable/.test(p.name) },
+  talk: { label: 'un talk-show', test: p => /talk|debat|chroniq|tout le monde en parle|bonsoir|c a moi|libre antenne|7 sur 7|des paroles|niouzes|after|tout vu tout lu|morning|grand show|bas les masques|des mots de minuit|bouillon|interview|plateau/.test(p.name) },
+  animation: { label: 'des dessins animés', test: p => p.format === 'animation' || /animation|anime|dessin|cartoon|canaille/.test(p.name) },
+  humour: { label: 'une émission d’humour', test: p => p.format !== 'jeu' && (p.kind === 'humour' || /humour|rire|vanne|sketch|niouzes|farce|stand.?up|gag|cabaret|patamu/.test(p.name)) },
+  relooking: { label: 'une émission de relooking', test: p => /relook|rien a me mettre|dans ta peau/.test(p.name) },
+  fiction: { label: 'un film ou une fiction', test: p => p.format === 'fiction' || /\b(film|cine|fiction|series?|polar|telefilm|theatre|sitcom|soap|thriller)/.test(p.name) },
+  divertissement: { label: 'un grand divertissement', test: p => p.format === 'divertissement' || /divertissement|show|soiree|variete/.test(p.name) }
+};
+// Dilemmes qui supposent un programme précis à l'antenne : famille et, si besoin, cases.
+const DILEMMA_PROGRAM_NEEDS = {
+  d1: { family: 'talk', slots: ['access'] }, d3: { family: 'investigation' }, d5: { family: 'telerealite' },
+  d12: { family: 'talent' }, d16: { family: 'telerealite' }, d18: { family: 'jeu' }, d19: { family: 'talk' },
+  d22: { family: 'aventure' }, d24: { family: 'jeu' }, d28: { family: 'investigation' }, d29: { family: 'aventure' },
+  d31: { family: 'talent' }, d33: { family: 'telerealite' }, d36: { family: 'animation' },
+  d37: { family: 'divertissement', slots: ['prime'] }, d39: { family: 'telerealite' }, d43: { family: 'cuisine' },
+  d44: { family: 'talk', slots: ['nuit'] }, d46: { family: 'telerealite' }, d49: { family: 'jeu' },
+  d55: { family: 'humour' }, d57: { family: 'fiction', slots: ['nuit'] }, d62: { family: 'jeu' },
+  d63: { family: 'relooking' }, d71: { family: 'telerealite' }
+};
+// Dilemmes liés à un droit diffusé cette saison.
+const DILEMMA_RIGHT_NEEDS = { d133: 'f1' };
+DILEMMA_BANK.forEach(d => {
+  if (DILEMMA_CHANNEL_TYPES[d.id] && !d.types) {
+    d.types = [...DILEMMA_CHANNEL_TYPES[d.id], ...(SPORT_RELATED_UNIVERSAL_IDS.includes(d.id) ? ['sport'] : [])];
+  }
+  if (DILEMMA_PROGRAM_NEEDS[d.id]) d.requiresProgram = DILEMMA_PROGRAM_NEEDS[d.id];
+  if (DILEMMA_RIGHT_NEEDS[d.id] && !d.requiresRight) d.requiresRight = DILEMMA_RIGHT_NEEDS[d.id];
+});
+// Programmes de la grille (contrat ou intitulé de base), normalisés pour la reconnaissance.
+function gridProgramsOf(channel = gameState.player) {
+  return TIME_SLOTS.map(({ key }) => {
+    const contract = activeContract(channel, key);
+    if (contract?.isSportsEvent) return { slot: key, name: '', format: '', kind: '', contract };
+    const label = contract?.name || channel.grilleOverrides?.[key] || PROGRAM_GRID[channel.type]?.[key] || '';
+    const kind = contract && typeof TvPrograms !== 'undefined'
+      ? TvPrograms.classify({ name: contract.name, format: contract.format, channelType: channel.type }).genre : '';
+    return { slot: key, name: normalizeAudienceText(label), format: contract?.format || '', kind, contract };
+  });
+}
+// Programme qui rend le dilemme jouable (null si la grille n'en a pas).
+function dilemmaProgramMatch(dilemma, channel = gameState.player) {
+  const need = dilemma.requiresProgram;
+  if (!need) return null;
+  const family = PROGRAM_FAMILIES[need.family];
+  return gridProgramsOf(channel).find(p => (!need.slots || need.slots.includes(p.slot)) && family.test(p)) || null;
+}
+
 // Le joueur diffuse ce droit cette saison (acquis aux enchères la saison précédente).
 function playerBroadcastsRight(eventId) {
   return (gameState.sportsRights?.owned || []).some(o => o.ownerId === 'player' && o.eventId === eventId && o.broadcastSeason === gameState.season);
@@ -6994,6 +7070,8 @@ function getEligibleDilemmas() {
     // il n'est pas reproposé, sinon sa recette annuelle serait comptée deux fois.
     if (REGIE_INVESTMENT_IDS.includes(d.id)
       && (gameState.player.decisionHistory || []).some(h => h.id === d.id && h.commercial > 0)) return false;
+    // Dilemme lié à un programme de la grille (téléréalité, jeu, talk…) : seulement s'il est à l'antenne.
+    if (d.requiresProgram && !dilemmaProgramMatch(d)) return false;
     // Dilemme lié à un droit (cérémonie, événement) : seulement pour la chaîne qui le diffuse.
     if (d.requiresRight) return playerBroadcastsRight(d.requiresRight);
     if (d.types) return d.types.includes(type);
@@ -7500,6 +7578,10 @@ function resolveDilemmaAudienceImpacts(dilemma, choice) {
   if (Array.isArray(choice.audienceImpacts)) return choice.audienceImpacts.map(impact => ({ ...impact, explicit: true }));
   if (choice.audienceImpact) return [{ ...choice.audienceImpact, explicit: true }];
   if (choice.grille?.slot) return [{ slot: choice.grille.slot, targets: choice.pda }];
+
+  // Dilemme lié à un programme de la grille : c'est sa case qui est touchée.
+  const required = dilemmaProgramMatch(dilemma);
+  if (required) return [{ slot: required.slot, targets: choice.pda, programId: required.contract?.id || null }];
 
   const text = normalizeAudienceText(`${dilemma.titre} ${dilemma.desc} ${choice.l} ${choice.r}`);
   const contracts = Object.entries(gameState.player.contracts || {});
