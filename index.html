@@ -1233,13 +1233,45 @@ button.radar-row:focus-visible { outline: 2px solid var(--bleu); outline-offset:
 }
 .sanction-treso-toggle::after { transform: rotate(90deg); }
 .sanction-card.treso-open .sanction-treso-toggle::after { transform: rotate(0deg); }
-.sanction-treso-chart { display: none; position: relative; height: 230px; margin-top: 12px; text-align: left; }
+.treso-budget-head, .sanction-treso-chart { display: none; }
 .sanction-card.treso-open .sanction-lead,
 .sanction-card.treso-open .sanction-note,
 .sanction-card.treso-open .sanction-stat:not(.sanction-treso) { display: none; }
-.sanction-card.treso-open .sanction-treso { grid-column: 1 / -1; }
-.sanction-card.treso-open .sanction-treso-chart { display: block; }
 .sanction-card.treso-open .sanction-stats { margin-bottom: 0; }
+.sanction-card.treso-open .sanction-treso {
+  grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 4px 12px;
+  padding: 12px; text-align: left;
+}
+.sanction-card.treso-open .treso-budget-head { display: block; min-width: 0; }
+.treso-budget-head .eh-subtitle { margin: 4px 0 0; }
+.sanction-card.treso-open .treso-figure { text-align: right; padding-right: 32px; }
+.sanction-card.treso-open .sanction-treso-chart {
+  grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; margin-top: 10px;
+}
+@media (min-width: 560px) {
+  .sanction-card.treso-open .sanction-treso-chart { grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: 18px; }
+}
+.treso-evo { position: relative; height: 230px; min-width: 0; }
+.evo-panel.bare .evo-legend { justify-content: flex-end; margin-bottom: 8px; flex-shrink: 0; }
+/* Décomposition des dépenses de la dernière saison. */
+.spend-panel { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.spend-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.3px; color: #334155; }
+.spend-head b { font-family: 'Anton', sans-serif; font-size: 15px; font-weight: 400; color: var(--ink); letter-spacing: 0; }
+.spend-rows { display: flex; flex-direction: column; gap: 8px; }
+.spend-row-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 11.5px; color: #334155; }
+.spend-row-top span { display: inline-flex; align-items: center; gap: 6px; }
+.spend-row-top i { width: 9px; height: 9px; border-radius: 50%; background: var(--sp-c); }
+.spend-row-top b { font-family: 'Anton', sans-serif; font-weight: 400; font-size: 12.5px; color: var(--ink); }
+.spend-bar { height: 7px; margin-top: 4px; border-radius: 999px; background: rgba(15,23,42,0.07); overflow: hidden; }
+.spend-bar span { display: block; height: 100%; border-radius: 999px; background: var(--sp-c); }
+.spend-row.prog { --sp-c: #3b82f6; }
+.spend-row.tal { --sp-c: #8b5cf6; }
+.spend-row.rights { --sp-c: #f59e0b; }
+.spend-row.buy { --sp-c: #64748b; }
+.spend-foot { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; padding-top: 8px; border-top: 1px dashed rgba(15,23,42,0.15); font-size: 11.5px; color: #334155; }
+.spend-foot b { font-family: 'Anton', sans-serif; font-weight: 400; font-size: 12.5px; color: var(--ink); }
+.spend-foot .neg b { color: var(--rouge); }
+.spend-foot .pos b { color: #059669; }
 .sanction-note-title {
   font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 10.5px;
   text-transform: uppercase; letter-spacing: 0.4px; color: var(--rouge);
@@ -2290,6 +2322,7 @@ function fmtDelta(val, decimals, suffix) {
 // Fenêtre du graphique d'évolution : les cinq dernières saisons, soit la durée d'une
 // convention ARCOM (le module de renouvellement chiffre la même période).
 const EVOLUTION_SEASONS = 5;
+const evolutionSubtitle = points => `En M€, sur ${points.length > 1 ? `les ${points.length} dernières saisons` : 'la saison en cours'}.`;
 // Saisons clôturées, plus la saison en cours (prévisionnel) si elle n'est pas encore à l'historique.
 function evolutionChartPoints(p, pdaCible) {
   const lastHistorySeason = gameState.history.length ? gameState.history[gameState.history.length - 1].season : null;
@@ -2300,7 +2333,63 @@ function evolutionChartPoints(p, pdaCible) {
     popularite: p.popularite
   }];
 }
-function renderEvolutionChart(allPoints, title = 'Évolution de votre chaîne', { showNow = true } = {}) {
+// Faillite : tuile trésorerie dépliable. Fermée, elle reste une tuile du bilan ; ouverte,
+// titre et sous-titre à gauche, trésorerie à droite, dépenses de la dernière saison à
+// gauche et histogramme des 5 dernières saisons à droite.
+function sanctionBudgetTile(st, points) {
+  const p = gameState.player;
+  return `<div class="sanction-stat alert sanction-treso">
+            <button type="button" class="sanction-treso-toggle" aria-expanded="false" aria-controls="sanction-treso-chart" aria-label="Déplier l'évolution budgétaire"></button>
+            <div class="treso-budget-head">
+              <div class="eh-title">Évolution budgétaire</div>
+              <div class="eh-subtitle">${evolutionSubtitle(points.slice(-EVOLUTION_SEASONS))}</div>
+            </div>
+            <div class="treso-figure">
+              <div class="sanction-stat-value">${st.value}</div>
+              <div class="sanction-stat-label">${st.label}</div>
+            </div>
+            <div class="sanction-treso-chart" id="sanction-treso-chart">
+              ${seasonSpendingHtml(p)}
+              <div class="treso-evo">${renderEvolutionChart(points, 'Évolution budgétaire', { showNow: false, head: false })}</div>
+            </div>
+          </div>`;
+}
+// Faillite : dépenses de la dernière saison, réparties entre programmes, talents, droits
+// annuels reconduits (intégrés au coût de grille) et achats ponctuels.
+function seasonSpendingBreakdown(p) {
+  const grid = Math.max(0, p.coutGrilleEngageSaison || 0);
+  const rights = Math.min(grid, (gameState.sportsRights?.owned || [])
+    .filter(o => o.ownerId === 'player' && o.inGrid && o.broadcastSeason === gameState.season)
+    .reduce((sum, o) => sum + (o.gridAnnual || 0), 0));
+  const talents = Math.min(grid - rights, Math.max(0, p.coutTalentsSaison || 0));
+  const items = [
+    { key: 'prog', label: 'Programmes', value: grid - rights - talents },
+    { key: 'tal', label: 'Talents', value: talents },
+    { key: 'rights', label: 'Droits annuels', value: rights },
+    { key: 'buy', label: 'Achats ponctuels', value: Math.max(0, p.achatsSaison || 0) }
+  ];
+  return { items, total: items.reduce((sum, it) => sum + it.value, 0) };
+}
+function seasonSpendingHtml(p) {
+  const { items, total } = seasonSpendingBreakdown(p);
+  const pub = p.revenusPubPrevisionnels || 0;
+  const share = v => total > 0 ? Math.round(v / total * 100) : 0;
+  return `
+    <div class="spend-panel">
+      <div class="spend-head"><span>Dépenses de la saison ${gameState.season}</span><b>${nf1(total)} M€</b></div>
+      <div class="spend-rows">${items.filter(it => it.key === 'prog' || it.value > 0).map(it => `
+        <div class="spend-row ${it.key}">
+          <div class="spend-row-top"><span><i></i>${it.label}</span><b>${nf1(it.value)} M€</b></div>
+          <div class="spend-bar"><span style="width:${share(it.value)}%"></span></div>
+        </div>`).join('')}
+      </div>
+      <div class="spend-foot">
+        <span>Revenus pub <b>${nf1(pub)} M€</b></span>
+        <span class="${pub - total >= 0 ? 'pos' : 'neg'}">Solde <b>${pub - total >= 0 ? '+' : '−'}${nf1(Math.abs(pub - total))} M€</b></span>
+      </div>
+    </div>`;
+}
+function renderEvolutionChart(allPoints, title = 'Évolution de votre chaîne', { showNow = true, head = true } = {}) {
   // Saison en cours comprise (valeurs prévisionnelles).
   const points = allPoints.slice(-EVOLUTION_SEASONS);
   const series = [
@@ -2328,15 +2417,23 @@ function renderEvolutionChart(allPoints, title = 'Évolution de votre chaîne', 
         </div>`;
   }).join('');
 
+  const legend = `<div class="evo-legend">
+          ${series.map(s => `<span class="evo-legend-item ${s.cls}"><i></i>${s.label}</span>`).join('')}
+        </div>`;
+  // Sans en-tête : la légende seule, le titre étant porté par le conteneur.
+  if (!head) return `
+    <div class="evo-panel bare${dense ? ' dense' : ''}">
+      ${legend}
+      <div class="evo-chart">${groups}</div>
+    </div>
+  `;
   return `
     <div class="evo-panel${dense ? ' dense' : ''}">
       <div class="evo-head">
         <div class="eh-title">${title}</div>
-        <div class="evo-legend">
-          ${series.map(s => `<span class="evo-legend-item ${s.cls}"><i></i>${s.label}</span>`).join('')}
-        </div>
+        ${legend}
       </div>
-      <div class="eh-subtitle">En M€, sur ${points.length > 1 ? `les ${points.length} dernières saisons` : 'la saison en cours'}.</div>
+      <div class="eh-subtitle">${evolutionSubtitle(points)}</div>
       <div class="evo-chart">${groups}</div>
     </div>
   `;
@@ -9180,11 +9277,9 @@ function render() {
           ? "L'ARCOM a refusé le renouvellement de votre convention : les manquements répétés à vos obligations éditoriales ont eu raison de votre autorisation d'émettre."
           : `La trésorerie de la chaîne est tombée à ${nf1(p.tresorerie)} M€, sous le seuil critique de ${nf1(TRESORERIE_CRITIQUE)} M€.`}</p>
         <div class="sanction-stats">
-          ${stats.map(st => `<div class="sanction-stat${st.alert ? ' alert' : ''}${st.budget ? ' sanction-treso' : ''}">
-            ${st.budget ? `<button type="button" class="sanction-treso-toggle" aria-expanded="false" aria-controls="sanction-treso-chart" aria-label="Déplier l'évolution budgétaire"></button>` : ''}
+          ${stats.map(st => st.budget ? sanctionBudgetTile(st, evolutionChartPoints(p, pdaCibleFinale)) : `<div class="sanction-stat${st.alert ? ' alert' : ''}">
             <div class="sanction-stat-value">${st.value}</div>
             <div class="sanction-stat-label">${st.label}</div>
-            ${st.budget ? `<div class="sanction-treso-chart" id="sanction-treso-chart">${renderEvolutionChart(evolutionChartPoints(p, pdaCibleFinale), 'Évolution budgétaire', { showNow: false })}</div>` : ''}
           </div>`).join('')}
         </div>
         <div class="sanction-note">
