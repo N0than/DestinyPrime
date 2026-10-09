@@ -1757,6 +1757,14 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .gr-card.flippable .gr-front { cursor: pointer; }
 .gr-card.flippable .gr-front:focus-visible, .gr-opt:focus-visible { outline: 2px solid var(--bleu); outline-offset: 2px; }
 .gr-back { transform: rotateY(180deg); padding: 10px; gap: 6px; }
+/* Safari (iOS) laisse transparaître, à l'envers, les éléments positionnés de la face
+   cachée (badge PDA, ruban…) malgré backface-visibility : la face qui passe derrière est
+   masquée à mi-rotation, et réaffichée au même instant au retour. */
+.gr-front, .gr-back, .pm-front, .pm-back, .tl-front, .tl-back { transition: visibility 0s .22s; }
+.gr-card:not(.flipped) .gr-back, .gr-card.flipped .gr-front,
+.pm-card:not(.flipped) .pm-back, .pm-card.flipped .pm-front,
+.tl-card:not(.flipped) .tl-back, .tl-card.flipped .tl-front { visibility: hidden; }
+.tl-front { transition: box-shadow .2s ease, border-color .2s ease, visibility 0s .22s; }
 .gr-flip-hint { position: absolute; top: 6px; right: 6px; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
   font-size: 12px; color: var(--ink); background: rgba(255,255,255,0.92); box-shadow: 0 1px 4px rgba(0,0,0,.15); }
 .gr-pda { flex-shrink: 0; padding: 3px 8px; border-radius: 999px; font-size: 9.5px; font-weight: 800; white-space: nowrap; font-variant-numeric: tabular-nums; }
