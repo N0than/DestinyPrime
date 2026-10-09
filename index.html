@@ -90,7 +90,7 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 
 /* ---- MASTHEAD ---- */
 .masthead { text-align: center; padding: 10px 0 8px; margin-bottom: 14px; cursor: pointer; transition: opacity 0.15s; }
-.masthead:hover { opacity: 0.75; }
+@media (hover: hover) { .masthead:hover { opacity: 0.75; } }
 .masthead .over { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--gris); }
 .header-brand { display: inline-flex; align-items: center; gap: 6px; vertical-align: middle; }
 .header-brand .dot {
@@ -1093,12 +1093,14 @@ button.radar-row:focus-visible { outline: 2px solid var(--bleu); outline-offset:
   background: linear-gradient(90deg, transparent, rgba(255,255,255,0.55), transparent);
   opacity: 0;
 }
-.btn-dice:hover::before { opacity: 1; animation: btnDiceShine 1.3s infinite; }
+@media (hover: hover) { .btn-dice:hover::before { opacity: 1; animation: btnDiceShine 1.3s infinite; } }
 @keyframes btnDiceShine { 0% { left: -100%; } 100% { left: 100%; } }
 .btn-dice .dice-icon { display: inline-block; position: relative; z-index: 1; transition: transform 0.15s ease-out; }
 .btn-dice .dice-label { position: relative; z-index: 1; }
-.btn-dice:hover { background: rgba(255,255,255,0.85); box-shadow: 0 6px 16px rgba(15,23,42,0.1); }
-.btn-dice:hover .dice-icon { transform: rotate(-14deg) scale(1.15); }
+@media (hover: hover) {
+  .btn-dice:hover { background: rgba(255,255,255,0.85); box-shadow: 0 6px 16px rgba(15,23,42,0.1); }
+  .btn-dice:hover .dice-icon { transform: rotate(-14deg) scale(1.15); }
+}
 .btn-dice:active { transform: scale(0.96); }
 .btn-dice:active .dice-icon { transform: rotate(14deg) scale(0.9); }
 .card {
@@ -1334,20 +1336,22 @@ button.radar-row:focus-visible { outline: 2px solid var(--bleu); outline-offset:
   box-shadow: 0 12px 24px -6px rgba(15,23,42,0.3);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
-.welcome-cta:hover { transform: translateY(-1px); box-shadow: 0 16px 30px -6px rgba(15,23,42,0.4); }
+/* Survol réservé aux appareils qui en ont un : au doigt, l'état :hover reste collé après
+   le tap et laissait le bouton suivant légèrement soulevé (effet de flottement). */
+@media (hover: hover) { .welcome-cta:hover { transform: translateY(-1px); box-shadow: 0 16px 30px -6px rgba(15,23,42,0.4); } }
 .welcome-cta:disabled { opacity: 0.5; cursor: not-allowed; }
 .welcome-cta:disabled:hover { transform: none; box-shadow: 0 12px 24px -6px rgba(15,23,42,0.3); }
 .welcome-cta:disabled:hover .welcome-cta-shine { transform: skewX(-12deg) translateX(-150%); }
 .welcome-cta:active { transform: scale(0.98); }
 .welcome-cta svg { width: 16px; height: 16px; transition: transform 0.2s ease; }
-.welcome-cta:hover svg { transform: translateX(3px); }
+@media (hover: hover) { .welcome-cta:hover svg { transform: translateX(3px); } }
 .welcome-cta-shine {
   position: absolute; inset: 0; width: 50%; pointer-events: none;
   background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
   transform: skewX(-12deg) translateX(-150%);
   transition: transform 1s ease-out;
 }
-.welcome-cta:hover .welcome-cta-shine { transform: skewX(-12deg) translateX(350%); }
+@media (hover: hover) { .welcome-cta:hover .welcome-cta-shine { transform: skewX(-12deg) translateX(350%); } }
 
 .resume-kicker {
   display: inline-flex; align-items: center; gap: 6px;
@@ -1368,7 +1372,7 @@ button.radar-row:focus-visible { outline: 2px solid var(--bleu); outline-offset:
   color: var(--bleu); letter-spacing: 0.3px;
 }
 .resume-glass .welcome-cta { margin-top: 16px; background: var(--bleu); box-shadow: 0 12px 24px -6px rgba(37,99,235,0.35); }
-.resume-glass .welcome-cta:hover { box-shadow: 0 16px 30px -6px rgba(37,99,235,0.45); }
+@media (hover: hover) { .resume-glass .welcome-cta:hover { box-shadow: 0 16px 30px -6px rgba(37,99,235,0.45); } }
 
 .optgrid { display: grid; grid-template-columns: 1fr; gap: 10px; margin: 12px 0 20px; }
 @media(min-width: 520px) { .optgrid { grid-template-columns: 1fr 1fr; } }
@@ -1409,7 +1413,7 @@ button.radar-row:focus-visible { outline: 2px solid var(--bleu); outline-offset:
   font-family: 'Plus Jakarta Sans', sans-serif;
   transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease, background 0.12s ease;
 }
-.opt-format:hover { transform: translateY(-1px); box-shadow: 0 10px 24px -8px rgba(15,23,42,0.14); }
+@media (hover: hover) { .opt-format:hover { transform: translateY(-1px); box-shadow: 0 10px 24px -8px rgba(15,23,42,0.14); } }
 .opt-format-head { display: flex; align-items: center; gap: 7px; margin-bottom: 5px; }
 .opt-format-icon {
   flex-shrink: 0; width: 24px; height: 24px; border-radius: 8px;
@@ -8753,10 +8757,11 @@ function render() {
       </button>
       ${renderStepDots(1, 4)}
     `;
+    // Sélection sur place : pas de nouveau rendu, la page ne remonte pas en haut.
     app.querySelectorAll('.opt-format').forEach(b => {
       b.onclick = () => {
         gameState.player.type = b.dataset.type;
-        render();
+        app.querySelectorAll('.opt-format').forEach(x => x.classList.toggle('sel', x === b));
       };
     });
     document.getElementById('btn-next-2').onclick = () => { goToStepAnimated(() => { gameState.step = 3; }); };
@@ -8810,7 +8815,7 @@ function render() {
     app.querySelectorAll('.opt-format').forEach(b => {
       b.onclick = () => {
         gameState.player.target = b.dataset.target;
-        render();
+        app.querySelectorAll('.opt-format').forEach(x => x.classList.toggle('sel', x === b));
       };
     });
     document.getElementById('btn-next-3').onclick = () => { goToStepAnimated(() => { gameState.step = 4; }); };
