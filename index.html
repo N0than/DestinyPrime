@@ -14042,6 +14042,18 @@ var TV_PROGRAMS_LIBRARY = {"meta":{"creator":{"name":"Audience Masters — tv-pr
 })(typeof globalThis !== 'undefined' ? globalThis : this);
 </script>
 <!-- tv-programs:end -->
-<script>render();</script>
+<script>
+// Premier affichage : on attend les polices du jeu (3 s au plus). Dessiné avec les polices
+// de secours, l'écran se recomposait à leur arrivée (titres et boutons qui se déplacent).
+(function boot() {
+  let started = false;
+  const start = () => { if (started) return; started = true; render(); };
+  const faces = ['400 1em "Anton"', '500 1em "Space Grotesk"', '700 1em "Space Grotesk"', '400 1em "Plus Jakarta Sans"',
+    '800 1em "Plus Jakarta Sans"', 'italic 400 1em "Plus Jakarta Sans"', '400 1em "VT323"'];
+  if (!document.fonts?.load) { start(); return; }
+  Promise.all(faces.map(face => document.fonts.load(face).catch(() => null))).then(start, start);
+  setTimeout(start, 3000);
+})();
+</script>
 </body>
 </html>
