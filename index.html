@@ -1219,6 +1219,27 @@ button.radar-row:focus-visible { outline: 2px solid var(--bleu); outline-offset:
   display: flex; flex-direction: column; gap: 3px; font-size: 12.5px; line-height: 1.45; color: #334155;
   padding: 10px 12px; border-radius: 12px; background: rgba(225,29,72,0.06); border-left: 3px solid var(--rouge);
 }
+/* Faillite : la tuile trésorerie se déplie sur l'évolution budgétaire, le reste du bilan s'efface. */
+.sanction-treso { position: relative; }
+.sanction-treso-toggle {
+  position: absolute; top: 6px; right: 6px; width: 24px; height: 24px; padding: 0; margin: 0; border-radius: 50%; cursor: pointer;
+  background: rgba(255,255,255,0.75); border: 1px solid rgba(225,29,72,0.25); box-shadow: 0 3px 10px rgba(15,23,42,0.06);
+  -webkit-appearance: none; appearance: none; transition: transform 0.1s ease;
+}
+.sanction-treso-toggle:active { transform: scale(0.94); }
+.sanction-treso-toggle::before, .sanction-treso-toggle::after {
+  content: ''; position: absolute; left: 50%; top: 50%; width: 10px; height: 2px; margin: -1px 0 0 -5px;
+  border-radius: 2px; background: #334155; transition: transform 0.22s ease;
+}
+.sanction-treso-toggle::after { transform: rotate(90deg); }
+.sanction-card.treso-open .sanction-treso-toggle::after { transform: rotate(0deg); }
+.sanction-treso-chart { display: none; position: relative; height: 230px; margin-top: 12px; text-align: left; }
+.sanction-card.treso-open .sanction-lead,
+.sanction-card.treso-open .sanction-note,
+.sanction-card.treso-open .sanction-stat:not(.sanction-treso) { display: none; }
+.sanction-card.treso-open .sanction-treso { grid-column: 1 / -1; }
+.sanction-card.treso-open .sanction-treso-chart { display: block; }
+.sanction-card.treso-open .sanction-stats { margin-bottom: 0; }
 .sanction-note-title {
   font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 10.5px;
   text-transform: uppercase; letter-spacing: 0.4px; color: var(--rouge);
@@ -2269,7 +2290,17 @@ function fmtDelta(val, decimals, suffix) {
 // Fenêtre du graphique d'évolution : les cinq dernières saisons, soit la durée d'une
 // convention ARCOM (le module de renouvellement chiffre la même période).
 const EVOLUTION_SEASONS = 5;
-function renderEvolutionChart(allPoints) {
+// Saisons clôturées, plus la saison en cours (prévisionnel) si elle n'est pas encore à l'historique.
+function evolutionChartPoints(p, pdaCible) {
+  const lastHistorySeason = gameState.history.length ? gameState.history[gameState.history.length - 1].season : null;
+  if (lastHistorySeason === gameState.season) return gameState.history;
+  return [...gameState.history, {
+    season: gameState.season, tresorerie: p.tresorerie, pdaCible,
+    coutGrille: p.coutGrilleEngageSaison, revenusPub: p.revenusPubPrevisionnels,
+    popularite: p.popularite
+  }];
+}
+function renderEvolutionChart(allPoints, title = 'Évolution de votre chaîne', { showNow = true } = {}) {
   // Saison en cours comprise (valeurs prévisionnelles).
   const points = allPoints.slice(-EVOLUTION_SEASONS);
   const series = [
@@ -2292,7 +2323,7 @@ function renderEvolutionChart(allPoints) {
     }).join('');
     return `
         <div class="evo-group${current ? ' current' : ''}">
-          <div class="evo-pills">${pills}${current ? '<span class="evo-now">En cours</span>' : ''}</div>
+          <div class="evo-pills">${pills}${current && showNow ? '<span class="evo-now">En cours</span>' : ''}</div>
           <div class="evo-label"${current ? ' title="Saison en cours : valeurs prévisionnelles"' : ''}><span class="evo-label-long">Saison </span><span class="evo-label-short">S</span>${pt.season}</div>
         </div>`;
   }).join('');
@@ -2300,7 +2331,7 @@ function renderEvolutionChart(allPoints) {
   return `
     <div class="evo-panel${dense ? ' dense' : ''}">
       <div class="evo-head">
-        <div class="eh-title">Évolution de votre chaîne</div>
+        <div class="eh-title">${title}</div>
         <div class="evo-legend">
           ${series.map(s => `<span class="evo-legend-item ${s.cls}"><i></i>${s.label}</span>`).join('')}
         </div>
@@ -8244,13 +8275,7 @@ function renderTicker() {
   // revenus pub sont comptabilisés au fil des dilemmes.
   const tresorerieLive = p.tresorerie;
 
-  const lastHistorySeason = gameState.history.length ? gameState.history[gameState.history.length - 1].season : null;
-  const currentPoint = {
-    season: gameState.season, tresorerie: p.tresorerie, pdaCible,
-    coutGrille: p.coutGrilleEngageSaison, revenusPub: p.revenusPubPrevisionnels,
-    popularite: p.popularite
-  };
-  const chartPoints = lastHistorySeason === gameState.season ? gameState.history : [...gameState.history, currentPoint];
+  const chartPoints = evolutionChartPoints(p, pdaCible);
 
   const programGridHtml = renderProgramGrid(p.type, pdaCible, p.grilleOverrides);
   const globalAudienceShareHtml = renderGlobalAudienceShare();
@@ -9138,7 +9163,7 @@ function render() {
           { value: `${nf1(p.tresorerie)} M€`, label: 'Trésorerie', alert: p.tresorerie < 0 }
         ]
       : [
-          { value: `${nf1(p.tresorerie)} M€`, label: 'Trésorerie', alert: true },
+          { value: `${nf1(p.tresorerie)} M€`, label: 'Trésorerie', alert: true, budget: true },
           { value: `${nf1(pdaCibleFinale)} %`, label: `PDA ${targetShort}` },
           { value: `S${gameState.season}`, label: 'Saison atteinte' },
           { value: `${Math.round(p.popularite)}/100`, label: 'Popularité finale' }
@@ -9155,9 +9180,11 @@ function render() {
           ? "L'ARCOM a refusé le renouvellement de votre convention : les manquements répétés à vos obligations éditoriales ont eu raison de votre autorisation d'émettre."
           : `La trésorerie de la chaîne est tombée à ${nf1(p.tresorerie)} M€, sous le seuil critique de ${nf1(TRESORERIE_CRITIQUE)} M€.`}</p>
         <div class="sanction-stats">
-          ${stats.map(st => `<div class="sanction-stat${st.alert ? ' alert' : ''}">
+          ${stats.map(st => `<div class="sanction-stat${st.alert ? ' alert' : ''}${st.budget ? ' sanction-treso' : ''}">
+            ${st.budget ? `<button type="button" class="sanction-treso-toggle" aria-expanded="false" aria-controls="sanction-treso-chart" aria-label="Déplier l'évolution budgétaire"></button>` : ''}
             <div class="sanction-stat-value">${st.value}</div>
             <div class="sanction-stat-label">${st.label}</div>
+            ${st.budget ? `<div class="sanction-treso-chart" id="sanction-treso-chart">${renderEvolutionChart(evolutionChartPoints(p, pdaCibleFinale), 'Évolution budgétaire', { showNow: false })}</div>` : ''}
           </div>`).join('')}
         </div>
         <div class="sanction-note">
@@ -9175,6 +9202,16 @@ function render() {
     `;
     document.getElementById('btn-restart').onclick = () => {
       resetGame();
+    };
+    // Faillite : le « + » de la trésorerie remplace le bilan par l'évolution budgétaire
+    // (coûts de grille et revenus pub des 5 dernières saisons) ; le « − » le rétablit.
+    const tresoToggle = app.querySelector('.sanction-treso-toggle');
+    if (tresoToggle) tresoToggle.onclick = () => {
+      const card = tresoToggle.closest('.sanction-card');
+      const open = !card.classList.contains('treso-open');
+      card.classList.toggle('treso-open', open);
+      tresoToggle.setAttribute('aria-expanded', String(open));
+      tresoToggle.setAttribute('aria-label', `${open ? 'Replier' : 'Déplier'} l'évolution budgétaire`);
     };
     return;
   }
