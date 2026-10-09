@@ -89,14 +89,18 @@ setup();seededRandom=()=>.999;gameState.season=2;sr().recurring.f1.nextAuctionSe
 gameState.dilemmaQueue=[d92,DILEMMA_BANK[0],DILEMMA_BANK[2]];gameState.currentDilemmaIndex=0;
 let fa=startSportsRightsAuction('f1','d92');fa.rivals.forEach((r,i)=>{r.max=[8,6,0,0,0][i];r.status=r.max>=f1.reservePrice?'in':'out';});
 sportsAuctionParticipate();sportsAuctionSealedBid(10);assert(fa.result.outcome==='won'&&fa.result.price>8&&fa.result.price<=10,'player wins F1');
+const ach2=gameState.player.achatsSaison;
 chooseDilemmaOption(0);
 const f1rec=sr().owned.find(o=>o.eventId==='f1');
+assert(gameState.player.achatsSaison===ach2&&f1rec.gridAnnual===fa.result.price,'annual right not paid at the auction: its price goes to the broadcast season grid');
 assert(f1rec.recurring&&f1rec.broadcastSeason===3&&f1rec.initialPrice===fa.result.price&&f1rec.slots.join()==='apresmidi','F1 right recorded');
 assert(sr().recurring.f1.nextAuctionSeason===null&&sportsRightBusy('f1'),'F1 off the market while held');
 gameState.season=3;gameState.seenDilemmaIds=[];gameState.player.eventsSeen=[];
+const g3=gameState.player.coutGrilleEngageSaison;rollSportsRightsIntoGrid();rollSportsRightsIntoGrid();
+assert(gameState.player.coutGrilleEngageSaison===g3+f1rec.initialPrice&&sportsRightsGridAnnual()===f1rec.initialPrice,'auction price in the grid cost of the broadcast season, once');
 const q3=pickDilemmaQueue();const ren=q3.at(-1);
 assert(ren.isSportsRenewal&&ren.rightsEventId==='f1'&&ren.c[0].sportsRenewal==='renew'&&ren.c[0].finance.purchase===0&&ren.c[0].finance.recurring===0
-  &&ren.c[0].pillLabel.includes(nf1(f1rec.initialPrice)),'renewal offered at the initial price, in the grid cost (no one-off purchase)');
+  &&ren.c[0].pillLabel==='Grille inchangée'&&ren.c[1].pillLabel.includes(nf1(f1rec.initialPrice)),'renewal leaves the grid unchanged, release takes the price out');
 assert(q3.length===3,'single right renewal replaces the last dilemma, like a program');
 assert(!q3.some(d=>d.type==='sports_rights_auction'&&d.rightsEventId==='f1'),'no F1 auction while held');
 activateSportsBroadcasts();assert(activeContract(gameState.player,'apresmidi')?.isSportsEvent&&!activeContract(gameState.player,'prime')?.isSportsEvent,'F1 airs in the afternoon');
@@ -108,10 +112,10 @@ chooseDilemmaOption(0);
 const next=sr().owned.filter(o=>o.eventId==='f1'&&o.broadcastSeason===4);
 assert(next.length===1&&next[0].ownerId==='player'&&next[0].acquisitionPrice===f1rec.initialPrice&&next[0].renewal,'renewed for next season at the initial price');
 assert(gameState.player.achatsSaison===achR&&gameState.player.coutGrilleEngageSaison===gridR,'renewal is not a one-off purchase and leaves this season grid unchanged');
-assert(Math.abs(nextSeasonCommitment().annual-commitR-f1rec.initialPrice)<1e-9&&nextSeasonCommitment().sports===f1rec.initialPrice,'renewal price added to next season grid');
-// Ouverture de la saison de diffusion : le prix rejoint le coût de grille, une seule fois.
+assert(Math.abs(nextSeasonCommitment().annual-commitR-f1rec.initialPrice)<1e-9&&nextSeasonCommitment().sports===f1rec.initialPrice,'renewed right kept in next season grid');
+// Ouverture de la saison suivante : le droit reconduit remplace le précédent, la grille ne bouge pas.
 gameState.season=4;const g4=gameState.player.coutGrilleEngageSaison;rollSportsRightsIntoGrid();rollSportsRightsIntoGrid();
-assert(gameState.player.coutGrilleEngageSaison===g4+f1rec.initialPrice&&sportsRightsGridAnnual()===f1rec.initialPrice,'renewed right in the grid cost of its broadcast season');
+assert(gameState.player.coutGrilleEngageSaison===g4&&sportsRightsGridAnnual()===f1rec.initialPrice,'renewal leaves the grid cost unchanged');
 // Saison suivante : lâcher les droits, ils reviennent sur le marché plus tard.
 const q4=pickDilemmaQueue();const ren4=q4.at(-1);assert(ren4.isSportsRenewal,'renewal offered again');
 assert(ren4.desc.includes('après 2 saisons'),'seasons held shown');
