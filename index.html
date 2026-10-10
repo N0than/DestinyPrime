@@ -7,7 +7,7 @@
 <title>AUDIENCE MASTERS — Devenez le Roi de l'Audimat</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@500;600;700&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=VT323&display=swap" rel="stylesheet">
+<link id="game-fonts" href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@500;600;700&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=VT323&display=swap" rel="stylesheet">
 <style>
 :root {
   --ink: #121316;
@@ -1500,6 +1500,23 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
   .opt-format:active, .btn-config-back:active, .btn-dice:active, .welcome-cta:active { transform: none; }
 }
 @keyframes optCheckFade { from { opacity: 0; } to { opacity: 1; } }
+/* Configuration tactile : les contrôles gardent leur géométrie dès l'affichage,
+   y compris au relâchement du doigt sur Safari. Le retour reste visuel (couleur). */
+#app.configuring .kicker-row { min-height: 30px; }
+@media (hover: none) and (pointer: coarse) {
+  #app.configuring .opt-format,
+  #app.configuring .btn-config-back,
+  #app.configuring .btn-dice,
+  #app.configuring .btn-dice .dice-icon,
+  #app.configuring .welcome-cta {
+    transform: none;
+    transition-property: color, background-color, border-color, box-shadow;
+  }
+  #app.configuring .opt-format.sel .opt-format-check { animation: none; }
+  #app.configuring .btn-config-back:active,
+  #app.configuring .btn-dice:active { background-color: #e2e8f0; }
+  #app.configuring .welcome-cta:active { background-color: #334155; }
+}
 @media (prefers-reduced-transparency: reduce) {
   .opt-format, .btn-dice, .btn-config-back, .kicker-badge, .welcome-glass { background: #fff; backdrop-filter: none; -webkit-backdrop-filter: none; border-color: rgba(15,23,42,0.12); }
   .opt-format.sel { background: var(--ink); }
@@ -21164,6 +21181,11 @@ function goToStepAnimated(mutate, dir = 1) {
   mutate();
   render();
 
+  // Pendant la configuration, afficher directement la géométrie définitive :
+  // pas de calque transformé à retirer après l'arrivée des cartes (Safari iOS).
+  // Les transitions vers le jeu conservent leur glissement.
+  if (gameState.step >= 1 && gameState.step <= 5) return;
+
   // Le header (bandeau + ligne mire) ET le HUD (tableau de bord) restent en
   // place ; seul le contenu sous la mire (dilemme / conférence de rentrée) glisse.
   // Le nouveau contenu est animé là où render() l'a posé, sans jamais être déplacé
@@ -21208,6 +21230,7 @@ function goToStepAnimated(mutate, dir = 1) {
 function render() {
   if (gameState.step >= 5) refreshEconomy();
   const app = document.getElementById('app');
+  app.classList.toggle('configuring', gameState.step >= 1 && gameState.step <= 5);
   window.scrollTo(0, 0);
 
   if (gameState.step === 1) {
@@ -26626,16 +26649,27 @@ var TV_PROGRAMS_LIBRARY = {"meta":{"creator":{"name":"Audience Masters — tv-pr
 </script>
 <!-- tv-programs:end -->
 <script>
-// Premier affichage : on attend les polices du jeu (3 s au plus). Dessiné avec les polices
-// de secours, l'écran se recomposait à leur arrivée (titres et boutons qui se déplacent).
+// Premier affichage : charger toutes les graisses avant de mesurer les textes.
+// Après 3 s ou un échec, conserver les polices système pour toute cette page :
+// une police réseau tardive ne doit jamais recomposer un écran déjà affiché.
 (function boot() {
   let started = false;
-  const start = () => { if (started) return; started = true; render(); };
-  const faces = ['400 1em "Anton"', '500 1em "Space Grotesk"', '700 1em "Space Grotesk"', '400 1em "Plus Jakarta Sans"',
-    '800 1em "Plus Jakarta Sans"', 'italic 400 1em "Plus Jakarta Sans"', '400 1em "VT323"'];
+  let timeout;
+  const start = (fontsReady = false) => {
+    if (started) return;
+    started = true;
+    clearTimeout(timeout);
+    if (!fontsReady) document.getElementById('game-fonts').disabled = true;
+    render();
+  };
+  const faces = ['400 1em "Anton"', '500 1em "Space Grotesk"', '600 1em "Space Grotesk"', '700 1em "Space Grotesk"',
+    '400 1em "Plus Jakarta Sans"', '500 1em "Plus Jakarta Sans"', '600 1em "Plus Jakarta Sans"',
+    '700 1em "Plus Jakarta Sans"', '800 1em "Plus Jakarta Sans"', 'italic 400 1em "Plus Jakarta Sans"', '400 1em "VT323"'];
+  const sample = 'Audience Masters ÉTAPE chaîne ÀÂÆÇÉÈÊËÎÏÔŒÙÛÜŸ àâæçéèêëîïôœùûüÿ €';
   if (!document.fonts?.load) { start(); return; }
-  Promise.all(faces.map(face => document.fonts.load(face).catch(() => null))).then(start, start);
-  setTimeout(start, 3000);
+  timeout = setTimeout(() => start(), 3000);
+  Promise.all(faces.map(face => document.fonts.load(face, sample)))
+    .then(loaded => start(loaded.every(fonts => fonts.length > 0)), () => start());
 })();
 </script>
 </body>
