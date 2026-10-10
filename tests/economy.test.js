@@ -63,6 +63,21 @@ const pda2=getCalculatedPDAs().find(r=>r.channel===p).pda[p.target];
 ok(near(p.tresorerie,p.tresorerieDebutSaison-s2Grid+p.revenusPubPrevisionnels),'S2 open: one debit + credit');
 ok(p.grillePayeeSaison===2,'S2 grid flagged paid');
 out.push({S1_fin_grille:gridEnd,S2_grille_payee:s2Grid,lancement:13,S2_reprend_du_reel:s2Grid!==13||gridEnd===13});
-console.log('OK economy: grid per format, S1 grid paid once, ad revenue credited once, reevaluation delta, S2 carry-over, single count');
+// Seuil de faillite à l'ouverture : jugé après le crédit des recettes publicitaires.
+function openWithCash(target){
+  const q=nextSeasonCommitment();
+  ok(q.adRevenue>0,'recettes attendues positives');
+  p.tresorerie+=target(q)-q.cash;
+  if(!gameState.history.some(h=>h.season===gameState.season)) gameState.history.push({season:gameState.season});
+  startNewSeason();
+}
+openWithCash(q=>TRESORERIE_CRITIQUE-q.adRevenue/2);
+ok(p.tresorerie-p.revenusPubPrevisionnels<TRESORERIE_CRITIQUE,'sous le seuil après paiement de la grille');
+ok(gameState.step===6&&p.tresorerie>=TRESORERIE_CRITIQUE,'pas de faillite : recettes pub créditées avant le contrôle');
+ok(p.revenusPubPrevisionnels>0,'recettes pub créditées');
+gameState.step=6;
+openWithCash(q=>TRESORERIE_CRITIQUE-q.adRevenue*2);
+ok(gameState.step===8&&gameState.gameOverReason==='tresorerie','faillite si les recettes ne suffisent pas');
+console.log('OK economy: grid per format, S1 grid paid once, ad revenue credited once, reevaluation delta, S2 carry-over, single count, bankruptcy after ad revenue');
 `;
 vm.runInNewContext(scripts.slice(0,-1).join('\n')+'\n'+tests,{console},{filename:'eco.js'});

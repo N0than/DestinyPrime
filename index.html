@@ -9097,12 +9097,14 @@ function startNewSeason() {
   // de la nouvelle saison repartent de zéro.
   resetSeasonEditoMix();
   player.coutParPointPDA = seedPdaCible > 0 ? player.coutGrilleEngageSaison / seedPdaCible : 0;
+  // Le crédit intégral intervient dès l'ouverture de la saison, avant même le choix de
+  // programmation : la proposition ne fera plus qu'ajuster l'écart, comme un dilemme.
+  // Le seuil de faillite n'est évalué qu'ensuite : la grille payée et les recettes
+  // publicitaires de la saison créditées, jamais la seule dépense.
+  creditInitialAdRevenue();
   gameState.step = player.tresorerie < TRESORERIE_CRITIQUE ? 8 : 6;
   if (gameState.step === 8) gameState.gameOverReason = 'tresorerie';
   if (gameState.step === 6) {
-    // Le crédit intégral intervient dès l'ouverture de la saison, avant même le choix de
-    // programmation : la proposition ne fera plus qu'ajuster l'écart, comme un dilemme.
-    creditInitialAdRevenue();
     // Mercato des talents : une phase de décision unique, tous les deux ans.
     gameState.mercato = isMercatoSeason() ? generateMercato() : null;
     gameState.mercatoPending = !!gameState.mercato;
@@ -10128,9 +10130,9 @@ function render() {
       ${renderCampaignPanel()}
       ${careerDecisionHtml}
       ${renderSportsRightsBilanHtml()}
-      ${bilanFoldHtml('engagements', `📅 ENGAGEMENTS${nextSeasonCommitment().cash < TRESORERIE_CRITIQUE ? ' ⚠️' : ''}<span class="bilan-fold-long">&nbsp;DE LA SAISON SUIVANTE</span>`, 'les engagements de la saison suivante', `
+      ${bilanFoldHtml('engagements', `📅 ENGAGEMENTS${nextSeasonCommitment().cashAfterRevenue < TRESORERIE_CRITIQUE ? ' ⚠️' : ''}<span class="bilan-fold-long">&nbsp;DE LA SAISON SUIVANTE</span>`, 'les engagements de la saison suivante', `
         <p>Grille à payer : <b>${nf1(nextSeasonCommitment().annual)} M€</b>${nextSeasonCommitment().sports>0?` (dont droits sportifs reconduits : ${nf1(nextSeasonCommitment().sports)} M€)`:''} · contrats arrivant à échéance : ${nf1(nextSeasonCommitment().expired)} M€ / an.</p>
-        <p>Trésorerie après paiement : <b>${nf1(nextSeasonCommitment().cash)} M€</b>, avant nouvelles recettes et décisions.${nextSeasonCommitment().cash<TRESORERIE_CRITIQUE?' Ce paiement ferait franchir le seuil de faillite.':''}</p>`)}
+        <p>Trésorerie après paiement : <b>${nf1(nextSeasonCommitment().cash)} M€</b>, puis <b>${nf1(nextSeasonCommitment().cashAfterRevenue)} M€</b> une fois les recettes publicitaires attendues créditées (${nf1(nextSeasonCommitment().adRevenue)} M€ à audience constante), avant décisions.${nextSeasonCommitment().cashAfterRevenue<TRESORERIE_CRITIQUE?' La saison s’ouvrirait sous le seuil de faillite.':''}</p>`)}
       <button class="welcome-cta" id="btn-next-season" style="margin-top: 2px;" ${careerContract?'disabled title="Décidez d’abord de l’avenir du programme"':''}>
         <span class="welcome-cta-shine"></span>
         <span>${careerContract ? 'Choisissez l’avenir du programme ci-dessus' : gameState.renewalDue ? 'Voir le renouvellement de convention' : `Lancer la Saison ${gameState.season + 1}`}</span>
@@ -12781,7 +12783,12 @@ function nextSeasonCommitment() {
   // saison prochaine y entrent.
   const sportsNow=sportsRightsGridAnnual(), sports=sportsRightsGridAnnual(gameState.season+1);
   const annual=Math.max(0,p.coutGrilleEngageSaison-expired-sportsNow)+pausedAnnualThisSeason()+sports;
-  return {annual,expired:expired+sportsNow,sports,cash:p.tresorerie-annual};
+  // Recettes pub attendues à l'ouverture (audience actuelle, régie reconduite) : le seuil de
+  // faillite se juge après leur crédit, comme au lancement de la saison.
+  const pda=getCalculatedPDAs().find(r=>r.channel===p).pda[p.target];
+  const adRevenue=computeRevenusPub(pda,p.target,p.popularite,p.puissanceCommerciale)+(p.regieInvestissementsAnnuel||0);
+  const cash=p.tresorerie-annual;
+  return {annual,expired:expired+sportsNow,sports,cash,adRevenue,cashAfterRevenue:cash+adRevenue};
 }
 function applyFinance(f, excludedSlot=null) {
   ensureCampaign(); const p=gameState.player;
