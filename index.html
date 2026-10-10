@@ -8690,6 +8690,485 @@ const PROGRAM_STORY_BANK = [
         r: 'La thématique crée un petit rendez-vous.' },
       { l: 'Ne rien changer', icon: '😴', career: { loyalty: -1, wear: 4 },
         r: 'Les fidèles s’endorment sur des rediffusions.' }
+    ] },
+  // — Soap Opera (p047) · cinema, matin —
+  { id: 'ps_p047_les_episodes_perdus', programId: 'p047', family: 'economie', phase: 1,
+    titre: 'Les épisodes perdus',
+    desc: 'Les ayants droit de {programme} ont retrouvé une saison entière jamais diffusée en France. Ils en demandent un prix élevé.',
+    c: [
+      { l: 'Acheter la saison inédite', icon: '🗝️', cost: { purchase: 0.3 }, boost: 0.1, career: { awareness: 3, loyalty: 4 },
+        r: 'Les fidèles découvrent des épisodes jamais vus : un événement pour la case.' },
+      { l: 'Continuer les rediffusions connues', icon: '🔁', career: { loyalty: 1, wear: 5 },
+        r: 'Les habitués s’en contentent, sans surprise.' },
+      { l: 'Acheter seulement les épisodes clés', icon: '🎞️', cost: { purchase: 0.1 }, boost: 0.04, career: { loyalty: 2 },
+        r: 'Une sélection appréciée, à moindre coût.' }
+    ] },
+  { id: 'ps_p047_doublage_vieillit_mal', programId: 'p047', family: 'audience', phase: 2, when: { minSeasons: 1 },
+    titre: 'Le doublage vieillit mal',
+    desc: 'Les doublages d’origine de {programme} font sourire les plus jeunes et agacent certains fidèles. Un studio propose de redoubler la série.',
+    c: [
+      { l: 'Redoubler la série avec des voix actuelles', icon: '🎙️', cost: { purchase: 0.25 }, career: { awareness: 4, loyalty: -4, wear: -10 },
+        r: 'La série retrouve une jeunesse, les puristes regrettent les voix d’origine.' },
+      { l: 'Garder les voix d’origine', icon: '📻', career: { awareness: -2, loyalty: 3 },
+        r: 'La nostalgie est intacte, le public ne se renouvelle pas.' },
+      { l: 'Proposer la version originale sous-titrée en option', icon: '🔤', cost: { purchase: 0.04 }, career: { awareness: 2, loyalty: 1 },
+        r: 'Chacun choisit sa version.' }
+    ] },
+
+  // — Sitcoms US (p048) · cinema, matin —
+  { id: 'ps_p048_des_blagues_autre', programId: 'p048', family: 'image', phase: 2,
+    titre: 'Des blagues d’un autre temps',
+    desc: 'Certaines répliques de {programme} sont jugées sexistes ou racistes par une partie du public. Des voix réclament la suppression des épisodes concernés.',
+    c: [
+      { l: 'Ajouter un avertissement de contexte', icon: '⚠️', cost: { purchase: 0.02 }, career: { loyalty: 1 }, pop: 1,
+        r: 'Les épisodes restent visibles, remis dans leur époque.' },
+      { l: 'Retirer les épisodes problématiques', icon: '🗑️', boost: -0.02, career: { loyalty: -3 }, pop: 1,
+        r: 'La polémique s’éteint, les fans dénoncent la censure.' },
+      { l: 'Ne rien changer', icon: '🤷', career: { loyalty: 2 }, pop: -2,
+        r: 'Les fans sont satisfaits, la critique continue.' }
+    ] },
+  { id: 'ps_p048_reunion_des_acteurs', programId: 'p048', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'La réunion des acteurs',
+    desc: 'Les acteurs de {programme} se retrouvent pour un épisode spécial anniversaire produit aux États-Unis. La chaîne peut en acheter la première diffusion.',
+    c: [
+      { l: 'Acheter l’épisode de retrouvailles', icon: '🎉', cost: { purchase: 0.4 }, boost: 0.15, career: { awareness: 5, loyalty: 2 },
+        r: 'Les retrouvailles font le bonheur des fans de toujours.' },
+      { l: 'Diffuser un best-of des meilleurs épisodes', icon: '⭐', cost: { purchase: 0.02 }, career: { loyalty: 2, wear: 3 },
+        r: 'Un best-of plaisant, sans exclusivité.' },
+      { l: 'Laisser l’épisode à une plateforme', icon: '🙅', career: { awareness: -2, loyalty: -1 },
+        r: 'Les fans vont voir l’épisode ailleurs.' }
+    ] },
+
+  // — Fauteuil Rouge (p049) · cinema, matin —
+  { id: 'ps_p049_critique_qui_mache', programId: 'p049', family: 'editorial', phase: 1,
+    titre: 'Le critique qui ne mâche pas ses mots',
+    desc: 'Le critique principal de {programme} a démoli un film produit par un partenaire de la chaîne. Le producteur menace de retirer ses films du catalogue.',
+    c: [
+      { l: 'Soutenir le critique', icon: '🖋️', boost: -0.02, career: { awareness: 1, loyalty: 4 }, pop: 1,
+        r: 'L’indépendance de l’émission est saluée par les cinéphiles.' },
+      { l: 'Lui demander plus de mesure', icon: '🤐', boost: 0.02, career: { loyalty: -3 },
+        r: 'Le producteur est rassuré, les fidèles déçus.' },
+      { l: 'Inviter le producteur à débattre en plateau', icon: '⚔️', cost: { purchase: 0.02 }, career: { awareness: 4, loyalty: 1 },
+        r: 'Le débat est vif et passionnant.' }
+    ] },
+  { id: 'ps_p049_les_fauteuils_salle', programId: 'p049', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Les fauteuils en salle',
+    desc: 'Un réseau de cinémas propose à {programme} d’organiser des avant-premières en salle avec ses téléspectateurs. Le projet rapprocherait l’émission de son public, mais il a un coût.',
+    c: [
+      { l: 'Lancer des avant-premières mensuelles', icon: '🍿', cost: { purchase: 0.15 }, lasting: 0.04, career: { awareness: 5, loyalty: 2 },
+        r: 'Les avant-premières deviennent un rendez-vous de cinéphiles.' },
+      { l: 'Organiser une seule soirée de prestige', icon: '🎟️', cost: { purchase: 0.05 }, boost: 0.03, career: { awareness: 2 },
+        r: 'Une soirée réussie, sans suite.' },
+      { l: 'Décliner', icon: '🙅', career: { loyalty: 1, wear: 2 },
+        r: 'L’émission reste en studio.' }
+    ] },
+
+  // — Coulisses de tournage (p050) · cinema, matin —
+  { id: 'ps_p050_tournage_sous_tension', programId: 'p050', family: 'image', phase: 2,
+    titre: 'Un tournage sous tension',
+    desc: 'Les images d’un tournage montrées dans {programme} révèlent un réalisateur insultant son équipe. La production du film demande de ne pas les diffuser.',
+    c: [
+      { l: 'Diffuser les images et ouvrir le débat', icon: '🎬', cost: { purchase: 0.02 }, career: { awareness: 5, loyalty: 1 }, pop: 1,
+        r: 'L’émission ouvre un débat salué sur les conditions de tournage.' },
+      { l: 'Renoncer à diffuser', icon: '🙈', career: { loyalty: -2 }, pop: -1,
+        r: 'L’émission est accusée de complaisance.' },
+      { l: 'Diffuser en floutant les visages', icon: '🌫️', cost: { purchase: 0.01 }, career: { awareness: 1, loyalty: 2, wear: 2 },
+        r: 'Un compromis prudent.' }
+    ] },
+  { id: 'ps_p050_tournage_blockbuster', programId: 'p050', family: 'strategie', phase: 1, when: { minSeasons: 1 },
+    titre: 'Le tournage d’un blockbuster',
+    desc: 'Une grande production internationale tourne en France et propose à {programme} un accès exclusif à son plateau. Une occasion rare, qui mobiliserait l’équipe toute la saison.',
+    c: [
+      { l: 'Suivre le tournage sur toute la saison', icon: '🎥', cost: { purchase: 0.2 }, boost: 0.05, lasting: 0.04, career: { awareness: 6 },
+        r: 'Le feuilleton du tournage passionne les cinéphiles.' },
+      { l: 'Un seul reportage exceptionnel', icon: '📸', cost: { purchase: 0.05 }, boost: 0.05, career: { awareness: 2 },
+        r: 'Un beau reportage, sans fil rouge.' },
+      { l: 'Laisser l’exclusivité à un concurrent', icon: '🙅', career: { awareness: -2, loyalty: 1 },
+        r: 'Le concurrent s’en empare.' }
+    ] },
+
+  // — Portraits d'acteurs (p051) · cinema, matin —
+  { id: 'ps_p051_actrice_refuse_parler', programId: 'p051', family: 'editorial', phase: 2,
+    titre: 'L’actrice refuse de parler de sa vie privée',
+    desc: 'L’actrice qui fait l’objet du prochain portrait de {programme} refuse que l’on évoque son divorce, pourtant très médiatisé. Sans cette question, le portrait perd une part de son intérêt.',
+    c: [
+      { l: 'Respecter son souhait', icon: '🤝', boost: -0.03, career: { loyalty: 3 },
+        r: 'Le portrait est élégant, moins accrocheur.' },
+      { l: 'Évoquer le divorce malgré tout', icon: '📰', boost: 0.04, career: { awareness: 4 }, pop: -2,
+        r: 'Le portrait fait parler, l’actrice refuse tout futur entretien.' },
+      { l: 'Remplacer par un portrait d’un autre acteur', icon: '🔄', cost: { purchase: 0.03 }, career: { loyalty: 1, wear: 3 },
+        r: 'Le changement passe inaperçu.' }
+    ] },
+  { id: 'ps_p051_une_collection_legendes', programId: 'p051', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Une collection de légendes',
+    desc: 'La production de {programme} propose une collection de portraits des grandes figures du cinéma français, avec des archives rares. Les droits d’archives sont élevés, mais la collection pourrait faire date.',
+    c: [
+      { l: 'Produire la collection complète', icon: '🏛️', cost: { purchase: 0.25 }, lasting: 0.05, career: { awareness: 5, loyalty: 2 },
+        r: 'La collection devient une référence, revendue à l’étranger.' },
+      { l: 'Trois portraits seulement', icon: '🎞️', cost: { purchase: 0.08 }, boost: 0.03, career: { awareness: 2 },
+        r: 'Un beau triptyque, sans effet durable.' },
+      { l: 'Rester sur les acteurs du moment', icon: '📅', career: { loyalty: 1, wear: 3 },
+        r: 'L’émission reste dans l’actualité.' }
+    ] },
+
+  // — Plus belle la life (p052) · cinema, matin —
+  { id: 'ps_p052_mort_personnage_culte', programId: 'p052', family: 'editorial', phase: 1,
+    titre: 'La mort d’un personnage culte',
+    desc: 'Les scénaristes de {programme} veulent faire mourir un personnage adoré du public pour relancer l’intrigue. L’actrice concernée accepte de partir.',
+    c: [
+      { l: 'Faire mourir le personnage', icon: '🕯️', boost: 0.06, career: { awareness: 4, loyalty: -4, wear: -6 },
+        r: 'L’émotion est immense, certains fidèles ne pardonnent pas.' },
+      { l: 'Le faire partir en voyage', icon: '🧳', career: { loyalty: 2, wear: 2 },
+        r: 'Une sortie douce qui laisse une porte ouverte.' },
+      { l: 'Organiser un épisode d’adieu en prime', icon: '💐', cost: { purchase: 0.06 }, boost: 0.08, career: { awareness: 2, loyalty: 2 },
+        r: 'L’épisode d’adieu réunit tous les fidèles.' }
+    ] },
+  { id: 'ps_p052_serie_coute_trop', programId: 'p052', family: 'economie', phase: 3, when: { minSeasons: 2 },
+    titre: 'La série coûte trop cher',
+    desc: 'Après {saisons}, {programme} coûte de plus en plus cher à produire. La production propose de tourner deux épisodes par jour au lieu d’un.',
+    c: [
+      { l: 'Accélérer le tournage', icon: '⏩', cost: { saving: 0.15 }, career: { loyalty: -3, wear: 6 },
+        r: 'Les économies sont réelles, la qualité baisse.' },
+      { l: 'Maintenir le rythme actuel', icon: '🎬', career: { loyalty: 2, wear: 3 },
+        r: 'La qualité reste, le coût aussi.' },
+      { l: 'Réduire le nombre de décors', icon: '🏚️', cost: { saving: 0.06 }, career: { loyalty: -1, wear: 3 },
+        r: 'Une économie discrète.' }
+    ] },
+
+  // — Courts métrages (p053) · cinema, matin —
+  { id: 'ps_p053_festival_court', programId: 'p053', family: 'strategie', phase: 1,
+    titre: 'Le festival du court',
+    desc: 'Le grand festival du court métrage propose à {programme} de diffuser en exclusivité son palmarès. Les droits sont modestes mais la visibilité est réelle.',
+    c: [
+      { l: 'Diffuser le palmarès en exclusivité', icon: '🏅', cost: { purchase: 0.15 }, career: { awareness: 5, loyalty: 3 },
+        r: 'Les meilleurs courts de l’année séduisent les curieux.' },
+      { l: 'Diffuser une sélection gratuite', icon: '🎞️', career: { loyalty: 1, wear: 3 },
+        r: 'Une sélection agréable mais déjà vue.' },
+      { l: 'Créer un prix du public', icon: '🗳️', cost: { purchase: 0.06 }, lasting: 0.03, career: { awareness: 4 },
+        r: 'Le prix du public crée un lien fort avec les spectateurs.' }
+    ] },
+  { id: 'ps_p053_court_metrage_attire', programId: 'p053', family: 'audience', phase: 2, when: { form: 'difficulte' },
+    titre: 'Le court métrage n’attire plus',
+    desc: 'Les audiences de {programme} sont faibles et la chaîne envisage de réduire la case. Les jeunes réalisateurs s’en inquiètent.',
+    c: [
+      { l: 'Thématiser chaque semaine', icon: '🗂️', cost: { purchase: 0.04 }, boost: 0.03, career: { awareness: 3, wear: -6 },
+        r: 'Les thèmes guident le public et relancent la curiosité.' },
+      { l: 'Réduire la case de moitié', icon: '✂️', cost: { saving: 0.1 }, boost: -0.05, career: { loyalty: -3 },
+        r: 'La chaîne économise, les réalisateurs protestent.' },
+      { l: 'Maintenir la case', icon: '🎬', career: { loyalty: 2, wear: 3 },
+        r: 'Le soutien à la création est salué.' }
+    ] },
+
+  // — Popcorn (p054) · cinema, matin —
+  { id: 'ps_p054_box_office_loupe', programId: 'p054', family: 'editorial', phase: 2,
+    titre: 'Le box-office à la loupe',
+    desc: 'Les chroniqueurs de {programme} veulent publier chaque semaine les vrais chiffres du box-office, quitte à fâcher les distributeurs. L’émission gagnerait en crédibilité, au risque de perdre des invités.',
+    c: [
+      { l: 'Publier les chiffres sans filtre', icon: '📊', career: { awareness: 3, loyalty: 2 }, pop: -1,
+        r: 'L’émission gagne en crédibilité, les distributeurs grincent.' },
+      { l: 'Rester sur les critiques', icon: '🍿', career: { loyalty: 1, wear: 3 },
+        r: 'Le ton reste léger.' },
+      { l: 'Inviter des distributeurs à commenter les chiffres', icon: '🎤', cost: { purchase: 0.02 }, career: { awareness: 2, loyalty: 1, wear: -2 },
+        r: 'Le décryptage passionne les initiés.' }
+    ] },
+  { id: 'ps_p054_les_popcorn', programId: 'p054', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Les Popcorn d’or',
+    desc: 'La production de {programme} propose une cérémonie de récompenses votées par les téléspectateurs. Une soirée festive, qui demande un vrai budget.',
+    c: [
+      { l: 'Organiser la cérémonie', icon: '🏆', cost: { purchase: 0.2 }, boost: 0.1, career: { awareness: 6 },
+        r: 'La cérémonie devient un rendez-vous ludique de l’année.' },
+      { l: 'Faire voter en ligne sans cérémonie', icon: '🗳️', cost: { purchase: 0.03 }, career: { awareness: 2, loyalty: 1 },
+        r: 'Le vote intéresse les fans les plus engagés.' },
+      { l: 'Renoncer', icon: '🙅', career: { loyalty: 1, wear: 2 },
+        r: 'L’émission reste telle quelle.' }
+    ] },
+
+  // — Marathon de séries (p055) · cinema, apresmidi —
+  { id: 'ps_p055_marathon_interminable', programId: 'p055', family: 'audience', phase: 2,
+    titre: 'Le marathon interminable',
+    desc: 'Les téléspectateurs de {programme} se plaignent de voir les mêmes séries tourner en boucle. La programmation peine à se renouveler.',
+    c: [
+      { l: 'Acheter trois nouvelles séries', icon: '🛒', cost: { purchase: 0.3 }, boost: 0.05, career: { awareness: 4, wear: -12 },
+        r: 'Le marathon retrouve de la fraîcheur.' },
+      { l: 'Organiser des marathons thématiques', icon: '🗂️', cost: { purchase: 0.03 }, career: { loyalty: 2, wear: -4 },
+        r: 'Les thèmes donnent un nouvel intérêt aux séries connues.' },
+      { l: 'Garder la programmation', icon: '🔁', career: { loyalty: -1, wear: 5 },
+        r: 'La lassitude gagne.' }
+    ] },
+  { id: 'ps_p055_une_plateforme_rafle', programId: 'p055', family: 'economie', phase: 1, when: { minSeasons: 1 },
+    titre: 'Une plateforme rafle les séries',
+    desc: 'Une plateforme de streaming rachète l’exclusivité d’une série phare de {programme}. Il faudra la remplacer à la rentrée.',
+    c: [
+      { l: 'Surenchérir pour garder la série', icon: '💰', cost: { recurring: 0.15 }, boost: 0.05, career: { loyalty: 4 },
+        r: 'La série reste, à un prix bien plus élevé.' },
+      { l: 'La remplacer par une série inédite moins connue', icon: '🎲', cost: { purchase: 0.06 }, career: { awareness: 2, loyalty: -2, wear: -6 },
+        r: 'Un pari qui peut révéler une pépite.' },
+      { l: 'Laisser partir la série', icon: '👋', boost: -0.04, career: { loyalty: -3 },
+        r: 'Les fans suivent la série sur la plateforme.' }
+    ] },
+
+  // — Demain commence aujourd’hui (p056) · cinema, apresmidi —
+  { id: 'ps_p056_saut_dans_temps', programId: 'p056', family: 'editorial', phase: 1,
+    titre: 'Le saut dans le temps',
+    desc: 'Les scénaristes de {programme} proposent un saut de dix ans dans l’intrigue. Les personnages vieilliraient d’un coup et de nouvelles intrigues s’ouvriraient.',
+    c: [
+      { l: 'Faire le saut dans le temps', icon: '⏳', cost: { purchase: 0.04 }, career: { awareness: 3, loyalty: -4, wear: -15 },
+        r: 'La série se réinvente et surprend tout le monde.' },
+      { l: 'Poursuivre l’intrigue au présent', icon: '📆', career: { loyalty: 2, wear: 4 },
+        r: 'La continuité rassure les fidèles.' },
+      { l: 'Introduire des flash-forwards ponctuels', icon: '🔮', cost: { purchase: 0.02 }, career: { awareness: 2, wear: -5 },
+        r: 'Les flash-forwards intriguent sans tout bouleverser.' }
+    ] },
+  { id: 'ps_p056_acteur_une_affaire', programId: 'p056', family: 'image', phase: 2, when: { minSeasons: 1 },
+    titre: 'Un acteur au cœur d’une affaire',
+    desc: 'Un acteur principal de {programme} est mis en cause dans une affaire judiciaire. Les associations réclament son retrait de la série.',
+    c: [
+      { l: 'Écrire sa sortie rapidement', icon: '✍️', cost: { purchase: 0.05 }, career: { loyalty: -3, wear: -3 }, pop: 2,
+        r: 'Le personnage disparaît, la série tourne la page.' },
+      { l: 'Suspendre l’acteur en attendant la justice', icon: '⏸️', boost: -0.03, pop: 1,
+        r: 'Une décision prudente, l’intrigue est mise entre parenthèses.' },
+      { l: 'Le maintenir', icon: '📺', career: { loyalty: 1 }, pop: -3,
+        r: 'La chaîne est vivement critiquée.' }
+    ] },
+
+  // — Les Mulets (p057) · cinema, apresmidi —
+  { id: 'ps_p057_mechant_trop_populaire', programId: 'p057', family: 'editorial', phase: 1,
+    titre: 'Le méchant trop populaire',
+    desc: 'Le méchant de {programme} est devenu le personnage préféré du public. Les scénaristes devaient le faire arrêter à la fin de la saison.',
+    c: [
+      { l: 'Le laisser s’échapper pour une nouvelle saison', icon: '🦹', cost: { purchase: 0.03 }, boost: 0.06, career: { awareness: 4, wear: -5 },
+        r: 'Le public jubile de retrouver son méchant favori.' },
+      { l: 'Respecter le scénario prévu', icon: '🚔', career: { loyalty: 1, wear: 3 },
+        r: 'L’intrigue se clôt proprement, mais le public est frustré.' },
+      { l: 'Lui consacrer un épisode spécial vu de son côté', icon: '🎭', cost: { purchase: 0.06 }, career: { awareness: 5, loyalty: 2 },
+        r: 'L’épisode inversé est salué comme un coup de maître.' }
+    ] },
+  { id: 'ps_p057_saga_essouffle', programId: 'p057', family: 'audience', phase: 3, when: { minSeasons: 2 },
+    titre: 'La saga s’essouffle',
+    desc: 'Après {saisons}, {programme} recycle les mêmes ressorts et le public s’en lasse. Les auteurs proposent de clore la saga en beauté.',
+    c: [
+      { l: 'Annoncer une ultime saison', icon: '🏁', cost: { purchase: 0.08 }, boost: 0.1, career: { loyalty: 3, wear: -8 },
+        r: 'L’annonce de la fin relance la curiosité.' },
+      { l: 'Renouveler l’équipe d’auteurs', icon: '✍️', cost: { recurring: 0.05 }, lasting: 0.03, career: { loyalty: -2, wear: -12 },
+        r: 'De nouveaux auteurs rebattent les cartes.' },
+      { l: 'Continuer tel quel', icon: '🔁', career: { loyalty: 1, wear: 5 },
+        r: 'La saga continue sur sa lancée.' }
+    ] },
+
+  // — Cœurs Croisés (p058) · cinema, apresmidi —
+  { id: 'ps_p058_une_affaire_inspiree', programId: 'p058', family: 'editorial', phase: 2,
+    titre: 'Une affaire inspirée d’un vrai drame',
+    desc: 'Un épisode de {programme} s’inspire d’un fait divers récent. La famille de la victime dénonce une exploitation de son histoire.',
+    c: [
+      { l: 'Déprogrammer l’épisode', icon: '🚫', boost: -0.04, career: { loyalty: -1 }, pop: 2,
+        r: 'La chaîne fait preuve de respect, l’épisode est perdu.' },
+      { l: 'Modifier l’épisode pour s’éloigner des faits', icon: '✂️', cost: { purchase: 0.05 }, career: { loyalty: 1 }, pop: 1,
+        r: 'L’épisode est diffusé sans heurter la famille.' },
+      { l: 'Diffuser tel quel', icon: '📺', boost: 0.03, career: { awareness: 3 }, pop: -3,
+        r: 'L’épisode fait polémique.' }
+    ] },
+  { id: 'ps_p058_consultant_police_judiciaire', programId: 'p058', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Un consultant de la police judiciaire',
+    desc: 'Un ancien commissaire propose de devenir consultant de {programme} pour rendre les enquêtes plus réalistes. Les auteurs craignent de perdre leur liberté romanesque.',
+    c: [
+      { l: 'L’embaucher comme consultant', icon: '👮', cost: { recurring: 0.04 }, lasting: 0.03, career: { loyalty: 3, wear: -4 },
+        r: 'Les enquêtes gagnent en crédibilité.' },
+      { l: 'Organiser une seule journée de formation des auteurs', icon: '📋', cost: { purchase: 0.01 }, career: { loyalty: 1, wear: -2 },
+        r: 'Quelques corrections bienvenues.' },
+      { l: 'Garder l’écriture actuelle', icon: '✍️', career: { awareness: 1, wear: 3 },
+        r: 'Les intrigues restent romanesques.' }
+    ] },
+
+  // — Une Place au Soleil (p059) · cinema, apresmidi —
+  { id: 'ps_p059_tournage_plein_ete', programId: 'p059', family: 'editorial', phase: 1,
+    titre: 'Le tournage en plein été',
+    desc: 'Les scénaristes de {programme} veulent tourner une semaine d’épisodes dans un village du Sud pendant le festival local. Le cadre est superbe, mais la logistique coûte cher.',
+    c: [
+      { l: 'Délocaliser le tournage', icon: '☀️', cost: { purchase: 0.1 }, boost: 0.05, career: { awareness: 3, wear: -5 },
+        r: 'Les paysages ensoleillés donnent un coup de jeune au feuilleton.' },
+      { l: 'Rester dans les décors habituels', icon: '🏠', career: { loyalty: 2, wear: 3 },
+        r: 'Le feuilleton garde ses repères.' },
+      { l: 'Tourner seulement quelques extérieurs', icon: '🎬', cost: { purchase: 0.03 }, career: { loyalty: 1, wear: -2 },
+        r: 'Un peu d’air frais, à petit prix.' }
+    ] },
+  { id: 'ps_p059_feuilleton_concurrent', programId: 'p059', family: 'audience', phase: 2, when: { minSeasons: 1, pressure: true },
+    titre: 'Le feuilleton concurrent',
+    desc: '{rival} diffuse {rivalProgramme} à la même heure que {programme}. Les intrigues se ressemblent et le public hésite.',
+    c: [
+      { l: 'Lancer une intrigue choc sur trois semaines', icon: '💥', cost: { purchase: 0.05 }, boost: 0.08, career: { awareness: 3, wear: 3 },
+        r: 'L’intrigue choc retient les téléspectateurs.' },
+      { l: 'Miser sur les personnages historiques', icon: '👥', career: { loyalty: 3, wear: 3 },
+        r: 'Les fidèles restent attachés à leurs personnages.' },
+      { l: 'Introduire un personnage venu d’une série célèbre', icon: '🌟', cost: { purchase: 0.08 }, boost: 0.04, career: { awareness: 5 },
+        r: 'L’arrivée de la vedette crée l’événement.' }
+    ] },
+
+  // — Nos Belles Années (p060) · cinema, apresmidi —
+  { id: 'ps_p060_serie_epoque', programId: 'p060', family: 'editorial', phase: 1,
+    titre: 'La série d’époque',
+    desc: 'Les décors et costumes de {programme} coûtent cher à reconstituer. La production propose de transposer l’intrigue dans les années 1990.',
+    c: [
+      { l: 'Transposer dans les années 1990', icon: '📼', cost: { saving: 0.1 }, career: { awareness: 2, loyalty: -3, wear: -6 },
+        r: 'L’économie est réelle, la nostalgie change de décennie.' },
+      { l: 'Garder l’époque d’origine', icon: '🎩', career: { loyalty: 3, wear: 3 },
+        r: 'Les fidèles retrouvent l’ambiance qu’ils aiment.' },
+      { l: 'Mutualiser les décors avec une autre production', icon: '🤝', cost: { purchase: 0.02 }, career: { loyalty: 1, wear: -2 },
+        r: 'Un accord astucieux.' }
+    ] },
+  { id: 'ps_p060_exposition_des_costumes', programId: 'p060', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'L’exposition des costumes',
+    desc: 'Un musée propose d’exposer les costumes de {programme}. La série gagnerait en prestige et les fans pourraient les voir de près.',
+    c: [
+      { l: 'Monter l’exposition avec un making-of', icon: '🖼️', cost: { purchase: 0.06 }, career: { awareness: 5, loyalty: 2 },
+        r: 'L’exposition attire les fans et la presse.' },
+      { l: 'Prêter les costumes sans communication', icon: '📦', career: { awareness: 1, wear: 2 },
+        r: 'L’exposition passe inaperçue.' },
+      { l: 'Vendre aux enchères les costumes de la saison passée', icon: '🔨', cost: { commercial: 0.08 }, career: { awareness: 2, loyalty: -2 },
+        r: 'Les enchères rapportent, certains fans s’en offusquent.' }
+    ] },
+
+  // — Ciné Club (p061) · cinema, apresmidi —
+  { id: 'ps_p061_copie_restauree', programId: 'p061', family: 'editorial', phase: 2,
+    titre: 'La copie restaurée',
+    desc: 'Un laboratoire propose de restaurer en 4K le grand classique prévu dans {programme}. La copie actuelle est abîmée.',
+    c: [
+      { l: 'Financer la restauration', icon: '✨', cost: { purchase: 0.15 }, career: { awareness: 3, loyalty: 4 },
+        r: 'Le film retrouve son éclat et la soirée est saluée.' },
+      { l: 'Diffuser la copie actuelle', icon: '📼', career: { loyalty: -1, wear: 3 },
+        r: 'Les cinéphiles regrettent la qualité de l’image.' },
+      { l: 'Diffuser la copie avec une présentation par un historien', icon: '🎙️', cost: { purchase: 0.02 }, career: { awareness: 1, loyalty: 2 },
+        r: 'La présentation donne du sens à la projection.' }
+    ] },
+  { id: 'ps_p061_cine_club_rajeunit', programId: 'p061', family: 'audience', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le ciné-club rajeunit',
+    desc: 'Le public de {programme} vieillit. La production propose de choisir chaque mois un film plébiscité par les jeunes sur les réseaux.',
+    c: [
+      { l: 'Adopter les choix des réseaux', icon: '📱', cost: { purchase: 0.03 }, career: { awareness: 5, loyalty: -3, wear: -6 },
+        r: 'La case gagne de jeunes cinéphiles.' },
+      { l: 'Garder les grands classiques', icon: '🎞️', career: { loyalty: 3, wear: 3 },
+        r: 'Les fidèles sont comblés.' },
+      { l: 'Alterner classiques et cultes récents', icon: '🔀', cost: { purchase: 0.02 }, career: { awareness: 2, loyalty: 1, wear: -3 },
+        r: 'Un équilibre qui plaît à tous.' }
+    ] },
+
+  // — Mini-série (p062) · cinema, apresmidi —
+  { id: 'ps_p062_une_saison_non', programId: 'p062', family: 'editorial', phase: 1,
+    titre: 'Une saison 2 non prévue',
+    desc: 'Le succès de {programme} pousse le producteur à proposer une deuxième saison, alors que l’histoire devait se terminer. Prolonger peut fidéliser le public, ou trahir l’œuvre.',
+    c: [
+      { l: 'Commander une deuxième saison', icon: '📺', cost: { recurring: 0.15 }, lasting: 0.04, career: { awareness: 4, wear: -6 },
+        r: 'La suite prolonge l’histoire et fidélise le public.' },
+      { l: 'Respecter la fin prévue', icon: '🏁', career: { awareness: -1, loyalty: 3 },
+        r: 'La mini-série reste un objet unique et salué.' },
+      { l: 'Commander un épisode spécial', icon: '🎁', cost: { purchase: 0.06 }, boost: 0.06, career: { loyalty: 1 },
+        r: 'Un épilogue apprécié.' }
+    ] },
+  { id: 'ps_p062_une_adaptation_contestee', programId: 'p062', family: 'image', phase: 2, when: { minSeasons: 1 },
+    titre: 'Une adaptation contestée',
+    desc: 'L’auteur du roman adapté dans {programme} renie publiquement la série, qu’il trouve trop éloignée de son livre. Ses déclarations circulent largement dans la presse.',
+    c: [
+      { l: 'Inviter l’auteur à une discussion avec le réalisateur', icon: '🗣️', cost: { purchase: 0.02 }, career: { awareness: 3 }, pop: 1,
+        r: 'Le débat éclaire les choix d’adaptation.' },
+      { l: 'Ignorer la critique', icon: '🤷', career: { awareness: 2, loyalty: -1 },
+        r: 'La polémique fait connaître la série.' },
+      { l: 'Ajouter un documentaire sur l’adaptation', icon: '🎥', cost: { purchase: 0.05 }, career: { awareness: 2, loyalty: 2 },
+        r: 'Le documentaire enrichit l’expérience.' }
+    ] },
+
+  // — Sitcom (p063) · cinema, access —
+  { id: 'ps_p063_les_rires_enregistres', programId: 'p063', family: 'audience', phase: 2,
+    titre: 'Les rires enregistrés',
+    desc: 'Le public de {programme} trouve les rires enregistrés datés. La production propose de tourner devant un vrai public.',
+    c: [
+      { l: 'Tourner devant un public', icon: '👏', cost: { recurring: 0.06 }, career: { awareness: 2, loyalty: 2, wear: -8 },
+        r: 'Les rires sincères donnent une nouvelle énergie à la sitcom.' },
+      { l: 'Supprimer les rires', icon: '🔇', career: { awareness: 2, loyalty: -2, wear: -3 },
+        r: 'La sitcom gagne en modernité, certains la trouvent plus froide.' },
+      { l: 'Garder les rires enregistrés', icon: '😂', career: { loyalty: 1, wear: 4 },
+        r: 'Rien ne change.' }
+    ] },
+  { id: 'ps_p063_spin_off_pour', programId: 'p063', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Un spin-off pour le personnage fétiche',
+    desc: 'Le voisin farfelu de {programme} est devenu la coqueluche du public. La production propose une série dérivée centrée sur lui.',
+    c: [
+      { l: 'Produire le spin-off', icon: '🏠', cost: { purchase: 0.2 }, lasting: 0.04, career: { awareness: 6, wear: 2 },
+        r: 'Le spin-off élargit l’univers et attire de nouveaux fans.' },
+      { l: 'Lui donner plus de place dans la série', icon: '📈', cost: { purchase: 0.02 }, boost: 0.04, career: { loyalty: 2 },
+        r: 'Le personnage s’épanouit sans série dérivée.' },
+      { l: 'Ne rien changer', icon: '🙅', career: { loyalty: 1, wear: 3 },
+        r: 'L’équilibre de la sitcom est préservé.' }
+    ] },
+
+  // — Le Bureau (p064) · cinema, access —
+  { id: 'ps_p064_les_vrais_employes', programId: 'p064', family: 'image', phase: 2,
+    titre: 'Les vrais employés de bureau protestent',
+    desc: 'Un syndicat juge que {programme} ridiculise les employés de bureau. La série est citée dans une tribune sur la souffrance au travail.',
+    c: [
+      { l: 'Écrire un épisode sur le burn-out', icon: '😓', cost: { purchase: 0.03 }, career: { awareness: 4, loyalty: 1 }, pop: 1,
+        r: 'L’épisode est salué pour sa justesse.' },
+      { l: 'Assumer la satire', icon: '🎭', career: { loyalty: 2 }, pop: -1,
+        r: 'Les fans défendent la série.' },
+      { l: 'Inviter des salariés à une émission spéciale', icon: '🎙️', cost: { purchase: 0.04 }, career: { awareness: 2 }, pop: 2,
+        r: 'L’émission spéciale montre l’envers du décor.' }
+    ] },
+  { id: 'ps_p064_patron_quitte_serie', programId: 'p064', family: 'editorial', phase: 1, when: { minSeasons: 1 },
+    titre: 'Le patron quitte la série',
+    desc: 'L’acteur qui joue le patron de {programme} veut partir. Son personnage est le cœur comique de la série.',
+    c: [
+      { l: 'Le remplacer par une nouvelle patronne', icon: '👩‍💼', career: { awareness: 3, loyalty: -4, wear: -10 },
+        r: 'La série se réinvente autour d’une nouvelle figure.' },
+      { l: 'Revaloriser son contrat pour le retenir', icon: '💶', cost: { recurring: 0.1 }, career: { loyalty: 4 },
+        r: 'La série garde son pilier.' },
+      { l: 'Organiser son départ en apothéose', icon: '🎉', cost: { purchase: 0.06 }, boost: 0.08, career: { loyalty: 1, wear: -4 },
+        r: 'L’épisode d’adieu marque les esprits.' }
+    ] },
+
+  // — Hollywood Boulevard (p065) · cinema, access —
+  { id: 'ps_p065_accreditation_grand_festival', programId: 'p065', family: 'strategie', phase: 1,
+    titre: 'Accréditation au grand festival',
+    desc: 'Le grand festival de cinéma de Cannes propose à {programme} une place de choix sur la Croisette pour l’édition à venir. La présence sur place coûte cher, mais attire les stars.',
+    c: [
+      { l: 'Installer un plateau sur la Croisette', icon: '🌴', cost: { purchase: 0.3 }, boost: 0.1, career: { awareness: 6 },
+        r: 'Le magazine vit le festival de l’intérieur et attire les stars.' },
+      { l: 'Envoyer une équipe légère', icon: '🎒', cost: { purchase: 0.06 }, career: { awareness: 2, loyalty: 1 },
+        r: 'Quelques sujets du festival, sans plateau.' },
+      { l: 'Couvrir le festival depuis Paris', icon: '🏙️', career: { loyalty: -1, wear: 3 },
+        r: 'Le festival est traité de loin.' }
+    ] },
+  { id: 'ps_p065_les_relations_presse', programId: 'p065', family: 'image', phase: 2, when: { minSeasons: 1 },
+    titre: 'Les relations presse trop présentes',
+    desc: 'Les studios imposent à {programme} des questions validées à l’avance pour leurs stars. La rédaction s’en agace.',
+    c: [
+      { l: 'Refuser les entretiens encadrés', icon: '🚫', boost: -0.04, career: { loyalty: 3 },
+        r: 'L’émission gagne en crédibilité, perd quelques stars.' },
+      { l: 'Accepter les conditions', icon: '✅', career: { awareness: 2, loyalty: -3 },
+        r: 'Les stars défilent, les entretiens sonnent creux.' },
+      { l: 'Compenser par des enquêtes sur l’industrie', icon: '🔍', cost: { purchase: 0.05 }, career: { awareness: 2, loyalty: 2 },
+        r: 'Les enquêtes équilibrent les entretiens promotionnels.' }
+    ] },
+
+  // — Le Gout des Autres (p066) · cinema, access —
+  { id: 'ps_p066_spoiler_antenne', programId: 'p066', family: 'editorial', phase: 2,
+    titre: 'Spoiler à l’antenne',
+    desc: 'Un chroniqueur de {programme} a dévoilé la fin d’une série très attendue. Les fans sont furieux sur les réseaux.',
+    c: [
+      { l: 'Présenter des excuses et instaurer une alerte spoiler', icon: '⚠️', cost: { purchase: 0.01 }, career: { loyalty: 2 }, pop: 1,
+        r: 'Les fans apprécient la règle.' },
+      { l: 'Défendre la liberté de ton', icon: '🗣️', career: { awareness: 3, loyalty: -3 },
+        r: 'La polémique fait parler, les fans boudent.' },
+      { l: 'Écarter le chroniqueur', icon: '🚪', career: { loyalty: -1, wear: -3 }, pop: 1,
+        r: 'La sanction calme les fans, le plateau perd une voix.' }
+    ] },
+  { id: 'ps_p066_partenariat_avec_une', programId: 'p066', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Partenariat avec une plateforme',
+    desc: 'Une plateforme de streaming propose de sponsoriser {programme} en échange de la mise en avant de ses séries. La recette serait bienvenue, l’indépendance moins.',
+    c: [
+      { l: 'Accepter le sponsoring', icon: '🤝', cost: { commercial: 0.15 }, career: { awareness: 2, loyalty: -4 },
+        r: 'Le budget augmente, l’indépendance est mise en doute.' },
+      { l: 'Refuser pour rester indépendant', icon: '🛡️', career: { loyalty: 3, wear: 2 },
+        r: 'L’émission garde sa liberté de ton.' },
+      { l: 'Accepter un partenariat ponctuel et affiché', icon: '📢', cost: { commercial: 0.04 }, career: { awareness: 1, loyalty: -1 },
+        r: 'Un partenariat transparent.' }
     ] }
 ];
 // ---------------------------------------------------------------------------
