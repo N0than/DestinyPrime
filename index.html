@@ -7756,6 +7756,413 @@ const PROGRAM_STORY_BANK = [
         r: 'Moins de primes, moins de dépenses : la case recule un peu.' },
       { l: 'Garder la formule et miser sur un jury de stars', icon: '🌟', cost: { recurring: 0.1 }, boost: 0.08, career: { awareness: 6 },
         r: 'Les stars du jury attirent la lumière, sans régler l’usure du format.' }
+    ] },
+  // — Magazine conso (p002) · generaliste, matin —
+  { id: 'ps_p002_fabricant_porte_plainte', programId: 'p002', family: 'image', phase: 2,
+    titre: 'Le fabricant porte plainte',
+    desc: 'Un sujet de {programme} sur des aspirateurs défaillants vaut à la chaîne une mise en demeure du fabricant. Ses avocats exigent le retrait de la séquence en replay.',
+    c: [
+      { l: 'Maintenir le sujet et publier les tests complets', icon: '🔬', cost: { purchase: 0.15 }, career: { awareness: 3, loyalty: 4 }, pop: 1,
+        r: 'Les tests détaillés donnent raison à la rédaction : la crédibilité du magazine grimpe.' },
+      { l: 'Retirer la séquence du replay', icon: '🗑️', career: { loyalty: -4 }, pop: -1,
+        r: 'Le fabricant obtient gain de cause et les fidèles y voient une reculade.' },
+      { l: 'Inviter le fabricant à répondre en plateau', icon: '🎙️', cost: { purchase: 0.05 }, career: { awareness: 2, loyalty: 1, wear: 2 },
+        r: 'Le droit de réponse apaise le conflit, sans éclat particulier.' }
+    ] },
+  { id: 'ps_p002_label_teste_par', programId: 'p002', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Un label « testé par l’émission »',
+    desc: 'Plusieurs marques proposent de payer pour afficher « testé par {programme} » sur leurs emballages. La recette serait réelle, mais l’indépendance du magazine est en jeu.',
+    c: [
+      { l: 'Créer un label payant encadré', icon: '🏷️', cost: { commercial: 0.2 }, career: { awareness: 4, loyalty: -5 }, pop: -1,
+        r: 'Le label rapporte et fait connaître l’émission, mais les associations crient au mélange des genres.' },
+      { l: 'Refuser toute association commerciale', icon: '🛡️', career: { loyalty: 3, wear: 3 },
+        r: 'L’indépendance est préservée, sans nouvelle visibilité.' },
+      { l: 'Lancer un palmarès annuel gratuit et indépendant', icon: '🏆', cost: { purchase: 0.1 }, lasting: 0.03, career: { awareness: 5 },
+        r: 'Le palmarès devient une référence attendue chaque année.' }
+    ] },
+
+  // — Cuisine & recettes (p003) · generaliste, matin —
+  { id: 'ps_p003_chef_matinale_veut', programId: 'p003', family: 'editorial', phase: 1,
+    titre: 'Le chef de la matinale veut son restaurant',
+    desc: 'Le cuisinier de {programme} ouvre un restaurant et souhaite y tourner une partie des recettes. Le décor serait plus vivant, mais l’émission deviendrait sa vitrine.',
+    c: [
+      { l: 'Tourner chez lui une semaine sur deux', icon: '🍽️', cost: { purchase: 0.05 }, career: { awareness: 4, loyalty: -1, wear: -6 },
+        r: 'Le décor change et rafraîchit l’émission, même si certains y voient une publicité déguisée.' },
+      { l: 'Garder la cuisine du studio', icon: '🏠', career: { loyalty: 2, wear: 4 },
+        r: 'Rien ne change : les habitués retrouvent leurs repères.' },
+      { l: 'Lui consacrer une série de portraits de producteurs', icon: '🧺', cost: { purchase: 0.12 }, lasting: 0.03, career: { awareness: 3, loyalty: 1 },
+        r: 'Les portraits enrichissent l’émission et renforcent son ancrage local.' }
+    ] },
+  { id: 'ps_p003_les_recettes_font', programId: 'p003', family: 'audience', phase: 2, when: { form: 'difficulte' },
+    titre: 'Les recettes ne font plus recette',
+    desc: 'Les téléspectateurs de {programme} trouvent les plats trop sophistiqués pour un matin de semaine. Les audiences fléchissent et la production propose de simplifier.',
+    c: [
+      { l: 'Passer aux recettes en 15 minutes avec des produits du quotidien', icon: '⏱️', cost: { purchase: 0.05 }, boost: 0.06, career: { awareness: -1, loyalty: 3 },
+        r: 'Les recettes express séduisent les actifs pressés.' },
+      { l: 'Garder l’ambition gastronomique', icon: '👨‍🍳', career: { awareness: 2, loyalty: -2 },
+        r: 'L’émission garde son prestige mais continue de perdre du monde.' },
+      { l: 'Lancer un défi « petit budget » chaque vendredi', icon: '💶', cost: { purchase: 0.08 }, boost: 0.04, career: { awareness: 4, wear: -4 },
+        r: 'Le défi du vendredi devient un rendez-vous apprécié.' }
+    ] },
+
+  // — Santé & bien-être (p004) · generaliste, matin —
+  { id: 'ps_p004_medecin_complement_miracle', programId: 'p004', family: 'image', phase: 2,
+    titre: 'Le médecin et le complément miracle',
+    desc: 'Le médecin de {programme} est soupçonné de liens avec un laboratoire de compléments alimentaires qu’il a vantés à l’antenne. Une enquête de presse le met en cause.',
+    c: [
+      { l: 'Suspendre le médecin le temps d’une enquête interne', icon: '⏸️', boost: -0.03, career: { loyalty: -3 }, pop: 2,
+        r: 'La chaîne montre sa rigueur, au prix de l’absence d’un visage familier.' },
+      { l: 'Le maintenir en lui faisant déclarer ses liens d’intérêt', icon: '📋', career: { awareness: 1, loyalty: 1 }, pop: -1,
+        r: 'La transparence affichée calme une partie des critiques.' },
+      { l: 'Créer un comité médical indépendant pour valider les sujets', icon: '🩺', cost: { recurring: 0.1 }, lasting: 0.03, career: { loyalty: 4 }, pop: 2,
+        r: 'Le comité devient un gage de sérieux régulièrement cité.' }
+    ] },
+  { id: 'ps_p004_une_semaine_speciale', programId: 'p004', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Une semaine spéciale prévention',
+    desc: 'Le ministère de la Santé propose à {programme} de s’associer à une campagne de dépistage. Une semaine spéciale renforcerait l’utilité de l’émission, mais bouleverserait son rythme.',
+    c: [
+      { l: 'Monter une semaine spéciale avec dépistages en direct', icon: '🏥', cost: { purchase: 0.25 }, boost: 0.1, career: { awareness: 6 }, pop: 2,
+        r: 'La semaine fait date et la chaîne est saluée pour son utilité publique.' },
+      { l: 'Relayer la campagne par de courtes chroniques', icon: '📢', cost: { purchase: 0.04 }, career: { awareness: 1 }, pop: 1,
+        r: 'Un relais discret, utile sans faire événement.' },
+      { l: 'Décliner pour préserver la ligne éditoriale', icon: '🙅', career: { loyalty: 1 }, pop: -1,
+        r: 'L’émission reste fidèle à son format mais passe à côté d’un rendez-vous fédérateur.' }
+    ] },
+
+  // — Témoignages & société (p005) · generaliste, matin —
+  { id: 'ps_p005_temoignage_qui_derange', programId: 'p005', family: 'image', phase: 2,
+    titre: 'Un témoignage qui dérange',
+    desc: 'Une invitée de {programme} raconte en détail un conflit familial, nommant des proches qui n’ont pas donné leur accord. La famille menace de poursuites.',
+    c: [
+      { l: 'Flouter les noms et couper les passages litigieux', icon: '✂️', cost: { purchase: 0.04 }, career: { loyalty: 1 }, pop: 1,
+        r: 'La diffusion est sécurisée et le témoignage garde sa force.' },
+      { l: 'Diffuser intégralement au nom du droit à la parole', icon: '🗣️', boost: 0.06, career: { awareness: 3 }, pop: -2,
+        r: 'L’émission fait parler d’elle, mais l’affaire finit devant les tribunaux.' },
+      { l: 'Déprogrammer le numéro', icon: '🚫', boost: -0.04, career: { loyalty: -1 }, pop: 1,
+        r: 'Le risque est écarté, l’émission perd un numéro attendu.' }
+    ] },
+  { id: 'ps_p005_faire_temoigner_les', programId: 'p005', family: 'editorial', phase: 1, when: { minSeasons: 1 },
+    titre: 'Faire témoigner les téléspectateurs',
+    desc: 'La production de {programme} propose de recevoir chaque jour des témoignages filmés par les téléspectateurs eux-mêmes. Le dispositif est économique mais la qualité risque d’être inégale.',
+    c: [
+      { l: 'Adopter les témoignages filmés', icon: '📱', cost: { saving: 0.1 }, career: { awareness: 3, loyalty: -2, wear: -4 },
+        r: 'L’émission gagne en proximité et réduit ses coûts, mais certains sujets paraissent bâclés.' },
+      { l: 'Garder les invités en plateau', icon: '🛋️', career: { loyalty: 2, wear: 3 },
+        r: 'Le format reste soigné, sans renouvellement.' },
+      { l: 'Mélanger plateau et reportages chez les témoins', icon: '🏡', cost: { purchase: 0.1 }, boost: 0.03, career: { loyalty: 2, wear: -6 },
+        r: 'Les reportages au domicile donnent de la chair aux témoignages.' }
+    ] },
+
+  // — Maison & décoration (p006) · generaliste, matin —
+  { id: 'ps_p006_enseigne_bricolage_veut', programId: 'p006', family: 'economie', phase: 1,
+    titre: 'L’enseigne de bricolage veut le décor',
+    desc: 'Une grande enseigne de bricolage propose de fournir gratuitement tout le mobilier et les matériaux de {programme}, en échange d’une visibilité de sa marque à l’écran. L’économie serait réelle, mais l’émission risque de ressembler à un catalogue.',
+    c: [
+      { l: 'Accepter le partenariat', icon: '🔨', cost: { commercial: 0.15 }, career: { awareness: 2, loyalty: -3 },
+        r: 'Le budget respire, mais les téléspectateurs remarquent les logos un peu partout.' },
+      { l: 'Refuser et garder des fournisseurs variés', icon: '🧰', career: { loyalty: 2, wear: 2 },
+        r: 'L’émission reste neutre, à budget constant.' },
+      { l: 'Accepter un parrainage discret en générique', icon: '🎬', cost: { commercial: 0.05 }, career: { awareness: 1, loyalty: -1 },
+        r: 'Une petite recette, sans dénaturer l’émission.' }
+    ] },
+  { id: 'ps_p006_maison_temoin_emission', programId: 'p006', family: 'strategie', phase: 3, when: { form: ['succes', 'stable'], minSeasons: 1 },
+    titre: 'La maison témoin de l’émission',
+    desc: 'La production de {programme} propose de rénover entièrement une maison abandonnée au fil de la saison, puis de la faire gagner à une famille. Un feuilleton fédérateur, mais un chantier coûteux et risqué.',
+    c: [
+      { l: 'Lancer le grand chantier de la saison', icon: '🏚️', cost: { purchase: 0.35 }, boost: 0.15, career: { awareness: 7 }, pop: 1,
+        r: 'Le chantier feuilletonnant tient le public en haleine jusqu’à la remise des clés.' },
+      { l: 'Rester sur les conseils déco classiques', icon: '🖼️', career: { loyalty: 2, wear: 4 },
+        r: 'Les fidèles sont satisfaits, sans événement.' },
+      { l: 'Rénover une seule pièce par mois chez des téléspectateurs', icon: '🛠️', cost: { purchase: 0.12 }, career: { awareness: 4, loyalty: 2, wear: -3 },
+        r: 'La proximité séduit et l’émission se renouvelle à petit prix.' }
+    ] },
+
+  // — Emploi & vie pratique (p007) · generaliste, matin —
+  { id: 'ps_p007_chomage_remonte', programId: 'p007', family: 'audience', phase: 2,
+    titre: 'Le chômage remonte',
+    desc: 'Les chiffres du chômage repartent à la hausse et les demandes d’aide affluent au courrier de {programme}. La rédaction propose une opération spéciale en direct avec des recruteurs.',
+    c: [
+      { l: 'Organiser un forum de l’emploi en direct', icon: '🤝', cost: { purchase: 0.2 }, boost: 0.1, career: { awareness: 5 }, pop: 2,
+        r: 'Des dizaines d’embauches sont signées en direct : l’émission prouve son utilité.' },
+      { l: 'Ajouter une rubrique d’offres d’emploi', icon: '📋', cost: { purchase: 0.03 }, career: { awareness: 1, loyalty: 2 },
+        r: 'La rubrique rend service au quotidien.' },
+      { l: 'Traiter le sujet sans dispositif particulier', icon: '📰', career: { loyalty: -1, wear: 3 },
+        r: 'Le sujet est traité, sans plus.' }
+    ] },
+  { id: 'ps_p007_coach_star_pour', programId: 'p007', family: 'editorial', phase: 1, when: { minSeasons: 1 },
+    titre: 'Un coach star pour l’émission',
+    desc: 'Un coach en reconversion très suivi sur les réseaux propose de rejoindre {programme}. Son ton motivant plaît aux jeunes, mais ses méthodes sont jugées simplistes par des spécialistes.',
+    c: [
+      { l: 'Le recruter comme chroniqueur régulier', icon: '💪', cost: { recurring: 0.08 }, career: { awareness: 6, loyalty: -2, wear: -5 },
+        r: 'Le coach dynamise l’émission et rajeunit son public.' },
+      { l: 'Garder des conseillers d’orientation reconnus', icon: '🎓', career: { awareness: -1, loyalty: 3 },
+        r: 'Le sérieux de l’émission est préservé, sans nouvel élan.' },
+      { l: 'L’inviter pour une série de débats contradictoires', icon: '⚖️', cost: { purchase: 0.05 }, boost: 0.03, career: { awareness: 3 },
+        r: 'Les débats animés font découvrir l’émission à un nouveau public.' }
+    ] },
+
+  // — Parents Mode d'emploi (p008) · generaliste, matin —
+  { id: 'ps_p008_conseil_qui_fache', programId: 'p008', family: 'image', phase: 2,
+    titre: 'Le conseil qui fâche',
+    desc: 'Une chroniqueuse de {programme} a recommandé une méthode d’éducation jugée trop stricte par des pédiatres. Les réseaux s’enflamment et des parents réclament un rectificatif.',
+    c: [
+      { l: 'Organiser un débat avec des pédiatres', icon: '👶', cost: { purchase: 0.05 }, career: { loyalty: 3 }, pop: 1,
+        r: 'Le débat nuance le propos et rassure les parents.' },
+      { l: 'Défendre la chroniqueuse', icon: '🛡️', career: { awareness: 3 }, pop: -2,
+        r: 'La polémique entretient l’audience mais divise les parents.' },
+      { l: 'Retirer la chronique de la saison', icon: '🗑️', career: { loyalty: -2, wear: 2 }, pop: 1,
+        r: 'La polémique s’éteint, l’émission perd une voix appréciée.' }
+    ] },
+  { id: 'ps_p008_une_application_pour', programId: 'p008', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Une application pour les parents',
+    desc: 'La production propose de décliner {programme} en application mobile : fiches pratiques, questions aux experts et vidéos courtes. Le projet demande un vrai investissement technique.',
+    c: [
+      { l: 'Développer l’application', icon: '📲', cost: { purchase: 0.3 }, lasting: 0.05, career: { awareness: 6, wear: 2 },
+        r: 'L’application fidélise les jeunes parents et renvoie vers l’émission.' },
+      { l: 'Se contenter d’une page sur le site de la chaîne', icon: '🌐', cost: { purchase: 0.03 }, career: { awareness: 1, loyalty: 1 },
+        r: 'Un complément utile, sans réelle visibilité.' },
+      { l: 'Laisser passer l’idée', icon: '🙅', career: { awareness: -2, loyalty: 1 },
+        r: 'Une concurrente lance une application similaire.' }
+    ] },
+
+  // — Motus (p009) · generaliste, matin —
+  { id: 'ps_p009_les_mots_huit', programId: 'p009', family: 'editorial', phase: 1, when: { minSeasons: 1 },
+    titre: 'Les mots de huit lettres',
+    desc: 'Les fidèles de {programme} trouvent le jeu trop facile depuis quelques semaines. La production propose de passer à des mots de huit lettres et d’ajouter une manche de rapidité.',
+    c: [
+      { l: 'Corser le jeu avec mots longs et manche éclair', icon: '🔠', cost: { purchase: 0.05 }, career: { awareness: 2, loyalty: -2, wear: -10 },
+        r: 'Le jeu retrouve du piquant ; quelques habitués trouvent la marche haute.' },
+      { l: 'Garder les règles classiques', icon: '🟦', career: { loyalty: 3, wear: 4 },
+        r: 'Les fidèles retrouvent leur jeu tel qu’ils l’aiment.' },
+      { l: 'Organiser un tournoi des champions une fois par mois', icon: '🏆', cost: { purchase: 0.1 }, boost: 0.06, career: { awareness: 3, loyalty: 1 },
+        r: 'Le tournoi mensuel crée un rendez-vous attendu.' }
+    ] },
+  { id: 'ps_p009_boule_noire_coute', programId: 'p009', family: 'economie', phase: 2,
+    titre: 'La boule noire coûte cher',
+    desc: 'Les gains de {programme} n’ont pas été revalorisés depuis des années et les candidats se font rares. La production demande une hausse de la cagnotte.',
+    c: [
+      { l: 'Doubler la cagnotte', icon: '💰', cost: { recurring: 0.1 }, boost: 0.05, career: { awareness: 4 },
+        r: 'Les candidats affluent et les parties gagnent en tension.' },
+      { l: 'Garder les gains actuels', icon: '🪙', career: { loyalty: 1, wear: 4 },
+        r: 'Le jeu continue, avec des candidats moins motivés.' },
+      { l: 'Ajouter un super-jackpot mis en jeu une fois par semaine', icon: '🎰', cost: { purchase: 0.06 }, boost: 0.04, career: { awareness: 2, loyalty: 1 },
+        r: 'Le jackpot hebdomadaire crée de petits pics d’audience.' }
+    ] },
+
+  // — Les Z'amours (p010) · generaliste, matin —
+  { id: 'ps_p010_couple_trop_parfait', programId: 'p010', family: 'image', phase: 2,
+    titre: 'Un couple trop parfait',
+    desc: 'Un couple de candidats de {programme} aurait été recruté parmi des comédiens. Le soupçon circule sur les réseaux et ternit l’image du jeu.',
+    c: [
+      { l: 'Faire vérifier le casting par un huissier', icon: '📜', cost: { recurring: 0.04 }, career: { loyalty: 3 }, pop: 1,
+        r: 'Le contrôle rassure les fidèles et coupe court aux rumeurs.' },
+      { l: 'Ignorer la rumeur', icon: '🤷', career: { awareness: 1, loyalty: -3 },
+        r: 'La rumeur s’installe et fait parler du jeu, pas en bien.' },
+      { l: 'Inviter le couple à raconter sa vraie histoire', icon: '💑', cost: { purchase: 0.03 }, boost: 0.04, career: { awareness: 2, loyalty: 1 },
+        r: 'Le témoignage sincère fait taire les sceptiques et émeut le public.' }
+    ] },
+  { id: 'ps_p010_speciale_noces', programId: 'p010', family: 'strategie', phase: 3, when: { minSeasons: 2 },
+    titre: 'Spéciale noces d’or',
+    desc: 'La production propose une semaine spéciale de {programme} réservée aux couples mariés depuis plus de cinquante ans. Les fidèles adorent l’idée, mais le jeu risque de paraître vieillissant.',
+    c: [
+      { l: 'Programmer la semaine noces d’or', icon: '💍', cost: { purchase: 0.08 }, boost: 0.08, career: { awareness: 2, loyalty: 4 },
+        r: 'Les couples seniors émeuvent et ravissent les fidèles.' },
+      { l: 'Ouvrir une semaine aux jeunes couples', icon: '💞', cost: { purchase: 0.08 }, career: { awareness: 5, loyalty: -3, wear: -4 },
+        r: 'Un public plus jeune découvre le jeu ; les fidèles sont surpris.' },
+      { l: 'Conserver le casting habituel', icon: '📺', career: { loyalty: 1, wear: 4 },
+        r: 'Le jeu poursuit sa route sans changement.' }
+    ] },
+
+  // — Téléshopping (p011) · generaliste, matin —
+  { id: 'ps_p011_produit_defectueux', programId: 'p011', family: 'image', phase: 2,
+    titre: 'Un produit défectueux',
+    desc: 'Un appareil vendu dans {programme} provoque de nombreuses plaintes de clients. La répression des fraudes demande des explications à la chaîne.',
+    c: [
+      { l: 'Rembourser les clients et retirer le produit', icon: '💸', cost: { purchase: 0.15 }, career: { loyalty: 4 }, pop: 2,
+        r: 'La chaîne protège ses clients et sauve l’image de l’émission.' },
+      { l: 'Renvoyer les clients vers le fabricant', icon: '📞', career: { loyalty: -4 }, pop: -2,
+        r: 'Les clients mécontents se retournent contre l’émission.' },
+      { l: 'Créer une charte qualité avec tests préalables', icon: '✅', cost: { recurring: 0.06 }, lasting: 0.02, career: { loyalty: 2 }, pop: 1,
+        r: 'Les produits sont désormais testés : la confiance revient peu à peu.' }
+    ] },
+  { id: 'ps_p011_vente_direct_sur', programId: 'p011', family: 'economie', phase: 1,
+    titre: 'La vente en direct sur les réseaux',
+    desc: 'Une plateforme propose à {programme} de diffuser ses démonstrations en direct sur les réseaux sociaux, avec achat en un clic. La commission promet d’être importante.',
+    c: [
+      { l: 'Lancer la vente en direct sur les réseaux', icon: '🛒', cost: { commercial: 0.2 }, career: { awareness: 4, loyalty: -2, wear: 3 },
+        r: 'Les ventes explosent sur les réseaux, l’émission télé paraît un peu datée.' },
+      { l: 'Rester sur la vente par téléphone', icon: '☎️', career: { awareness: -2, loyalty: 2 },
+        r: 'Les fidèles gardent leurs habitudes ; les plus jeunes ne découvrent pas l’émission.' },
+      { l: 'Tester le direct une fois par semaine', icon: '📱', cost: { commercial: 0.06 }, career: { awareness: 2, loyalty: -1 },
+        r: 'Un test prudent qui rapporte un peu.' }
+    ] },
+
+  // — Attention à la marche ! (p012) · generaliste, apresmidi —
+  { id: 'ps_p012_parcours_trop_dangereux', programId: 'p012', family: 'editorial', phase: 1,
+    titre: 'Le parcours trop dangereux',
+    desc: 'Plusieurs candidats de {programme} se sont blessés sur la nouvelle épreuve de l’escalier mouvant. L’assureur exige des modifications.',
+    c: [
+      { l: 'Reconstruire l’épreuve avec des protections', icon: '🦺', cost: { purchase: 0.12 }, career: { loyalty: 3 }, pop: 1,
+        r: 'L’épreuve reste spectaculaire et devient sûre.' },
+      { l: 'Supprimer l’épreuve', icon: '🚧', boost: -0.03, career: { wear: 5 },
+        r: 'Le jeu perd un temps fort, mais le risque est écarté.' },
+      { l: 'Remplacer par une épreuve de réflexion', icon: '🧩', cost: { purchase: 0.05 }, career: { awareness: 2, loyalty: -1, wear: -6 },
+        r: 'Le jeu change de rythme, ce qui surprend agréablement certains.' }
+    ] },
+  { id: 'ps_p012_rival_apres_midi', programId: 'p012', family: 'audience', phase: 2, when: { pressure: true },
+    titre: 'Le rival de l’après-midi',
+    desc: '{rival} programme {rivalProgramme} face à {programme} et attire le public des actifs en télétravail. La production propose de muscler le jeu.',
+    c: [
+      { l: 'Ajouter une finale en direct avec un gros lot', icon: '🎁', cost: { purchase: 0.15 }, boost: 0.1, career: { awareness: 4 },
+        r: 'La finale en direct reprend des téléspectateurs à la concurrence.' },
+      { l: 'Faire jouer les téléspectateurs depuis chez eux', icon: '📲', cost: { purchase: 0.06 }, lasting: 0.02, career: { awareness: 5, loyalty: -1 },
+        r: 'Le jeu interactif séduit un public nouveau.' },
+      { l: 'Tenir la formule', icon: '🪨', career: { loyalty: 3, wear: 4 },
+        r: 'Les habitués restent, le rival continue d’avancer.' }
+    ] },
+
+  // — C'est au programme (p014) · generaliste, apresmidi —
+  { id: 'ps_p014_presentateur_veut_parler', programId: 'p014', family: 'editorial', phase: 2,
+    titre: 'Le présentateur veut parler politique',
+    desc: 'L’animateur de {programme} souhaite inviter des responsables politiques pour parler de vie quotidienne. Le magazine gagnerait en poids, mais perdrait de sa légèreté.',
+    c: [
+      { l: 'Accepter une interview politique par semaine', icon: '🏛️', cost: { purchase: 0.04 }, boost: 0.03, career: { awareness: 4, loyalty: -3 },
+        r: 'L’émission gagne en notoriété, au prix d’un ton plus sérieux.' },
+      { l: 'Rester sur la vie pratique', icon: '🧺', career: { loyalty: 3, wear: 3 },
+        r: 'L’émission garde son identité de proximité.' },
+      { l: 'Inviter des élus locaux sur des sujets concrets', icon: '🏘️', cost: { purchase: 0.02 }, career: { awareness: 1, loyalty: 2, wear: -2 },
+        r: 'Les élus de terrain apportent un éclairage utile.' }
+    ] },
+  { id: 'ps_p014_magazine_tournee', programId: 'p014', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le magazine en tournée',
+    desc: 'La production propose que {programme} sillonne la France pendant un mois, une ville différente chaque jour. Une belle vitrine, mais une logistique lourde.',
+    c: [
+      { l: 'Lancer la grande tournée', icon: '🚐', cost: { purchase: 0.25 }, boost: 0.08, career: { awareness: 6, wear: -8 },
+        r: 'La tournée rapproche l’émission des régions et booste sa notoriété.' },
+      { l: 'Faire venir une ville par semaine en plateau', icon: '🏙️', cost: { purchase: 0.06 }, career: { awareness: 2, loyalty: 2 },
+        r: 'Une ouverture régulière, sans logistique lourde.' },
+      { l: 'Rester en studio', icon: '🎬', career: { loyalty: 1, wear: 3 },
+        r: 'L’émission reste fidèle à elle-même.' }
+    ] },
+
+  // — Mariés au 1er date (p015) · generaliste, apresmidi —
+  { id: 'ps_p015_mariage_annule_antenne', programId: 'p015', family: 'image', phase: 2,
+    titre: 'Un mariage annulé à l’antenne',
+    desc: 'Une candidate de {programme} a dit non devant le maire, en pleine diffusion. Les images font le tour des réseaux et la famille du marié dénonce une humiliation.',
+    c: [
+      { l: 'Diffuser la scène et proposer un accompagnement', icon: '🫂', cost: { purchase: 0.03 }, boost: 0.08, career: { awareness: 5 }, pop: -1,
+        r: 'L’épisode bat des records, mais le procédé est critiqué.' },
+      { l: 'Couper la scène au montage', icon: '✂️', boost: -0.03, career: { loyalty: 1 }, pop: 1,
+        r: 'La dignité des candidats est préservée, l’épisode passe inaperçu.' },
+      { l: 'En faire un débat sur la pression du programme', icon: '💬', cost: { purchase: 0.05 }, career: { awareness: 2, loyalty: 2 },
+        r: 'Le débat montre une production attentive à ses candidats.' }
+    ] },
+  { id: 'ps_p015_apres', programId: 'p015', family: 'strategie', phase: 3, when: { form: 'succes', minSeasons: 1 },
+    titre: 'Un an après',
+    desc: 'Les couples formés par {programme} suscitent une curiosité intense. La production propose une émission spéciale qui les retrouve un an plus tard.',
+    c: [
+      { l: 'Produire une spéciale « un an après »', icon: '📆', cost: { purchase: 0.1 }, boost: 0.1, career: { awareness: 4, loyalty: 2 },
+        r: 'Les retrouvailles passionnent et prolongent les histoires.' },
+      { l: 'Proposer un suivi en ligne seulement', icon: '📱', cost: { purchase: 0.03 }, career: { awareness: 2, loyalty: -1 },
+        r: 'Le suivi intéresse les fans les plus investis.' },
+      { l: 'Laisser les couples tranquilles', icon: '🕊️', career: { awareness: -2, loyalty: 1 },
+        r: 'Les couples sont préservés, la curiosité retombe.' }
+    ] },
+
+  // — Les Z'Experts (p016) · generaliste, apresmidi —
+  { id: 'ps_p016_des_experts_trop', programId: 'p016', family: 'editorial', phase: 1,
+    titre: 'Des experts trop pointus',
+    desc: 'Les spécialistes de {programme} multiplient le jargon et les téléspectateurs décrochent. La production propose de recruter des vulgarisateurs.',
+    c: [
+      { l: 'Recruter deux vulgarisateurs connus', icon: '🧑‍🏫', cost: { recurring: 0.1 }, career: { awareness: 5, loyalty: 2, wear: -4 },
+        r: 'Les sujets deviennent clairs et vivants.' },
+      { l: 'Former les experts à la télévision', icon: '🎓', cost: { purchase: 0.04 }, career: { loyalty: 2, wear: -3 },
+        r: 'Les experts gagnent en aisance, progressivement.' },
+      { l: 'Garder les spécialistes tels quels', icon: '🧪', career: { awareness: 1, loyalty: -2 },
+        r: 'L’exigence reste, l’audience continue de s’éroder.' }
+    ] },
+  { id: 'ps_p016_expert_contredit_par', programId: 'p016', family: 'image', phase: 2, when: { minSeasons: 1 },
+    titre: 'L’expert contredit par un collègue',
+    desc: 'Un expert de {programme} a affirmé une contre-vérité scientifique. Un collègue le contredit publiquement dans une tribune très partagée.',
+    c: [
+      { l: 'Diffuser un rectificatif et inviter le contradicteur', icon: '🔎', cost: { purchase: 0.02 }, career: { loyalty: 3 }, pop: 1,
+        r: 'L’émission reconnaît son erreur et gagne en crédibilité.' },
+      { l: 'Défendre l’expert', icon: '🛡️', career: { awareness: 2, loyalty: -3 }, pop: -1,
+        r: 'La polémique dure et écorne la réputation de l’émission.' },
+      { l: 'Créer une séquence « l’expert a-t-il raison ? »', icon: '🧐', cost: { purchase: 0.05 }, career: { awareness: 4, wear: -4 },
+        r: 'La vérification en direct devient un moment attendu.' }
+    ] },
+
+  // — Magazine conso & enquête (p017) · generaliste, apresmidi —
+  { id: 'ps_p017_enquete_sur_grande', programId: 'p017', family: 'image', phase: 2,
+    titre: 'L’enquête sur la grande surface',
+    desc: 'Une enquête de {programme} sur les prix d’une enseigne nationale est prête. L’enseigne est aussi l’un des principaux annonceurs de la chaîne.',
+    c: [
+      { l: 'Diffuser l’enquête', icon: '📣', boost: -0.03, career: { loyalty: 4 }, pop: 2,
+        r: 'L’enquête fait du bruit et rend service aux consommateurs.' },
+      { l: 'Reporter la diffusion', icon: '⏳', boost: 0.02, career: { loyalty: -3 }, pop: -1,
+        r: 'Le report passe pour une concession à l’annonceur.' },
+      { l: 'Élargir l’enquête à toutes les enseignes', icon: '🛒', cost: { purchase: 0.1 }, career: { awareness: 3, loyalty: 3 },
+        r: 'Le comparatif complet fait référence et désamorce le conflit.' }
+    ] },
+  { id: 'ps_p017_panier_mois', programId: 'p017', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le panier du mois',
+    desc: 'La rédaction de {programme} propose de suivre chaque mois l’évolution du prix d’un panier de courses dans plusieurs villes. L’idée est utile, mais elle mobilise durablement la rédaction.',
+    c: [
+      { l: 'Lancer le panier mensuel avec des familles témoins', icon: '🧺', cost: { recurring: 0.06 }, lasting: 0.03, career: { awareness: 4, loyalty: 2 },
+        r: 'Le panier devient un indicateur cité par d’autres médias.' },
+      { l: 'Publier le panier en ligne seulement', icon: '🌐', cost: { purchase: 0.02 }, career: { awareness: 1, loyalty: 1 },
+        r: 'L’initiative passe un peu inaperçue.' },
+      { l: 'Ne pas lancer de nouvelle rubrique', icon: '🙅', career: { loyalty: 1, wear: 3 },
+        r: 'Le magazine reste tel quel.' }
+    ] },
+
+  // — Sueurs froides au resto ! (p018) · generaliste, apresmidi —
+  { id: 'ps_p018_restaurateur_humilie', programId: 'p018', family: 'image', phase: 2,
+    titre: 'Le restaurateur humilié',
+    desc: 'Un restaurateur filmé dans {programme} affirme que le montage l’a ridiculisé et que son établissement a perdu la moitié de sa clientèle. Il réclame réparation.',
+    c: [
+      { l: 'Retourner le voir pour un épisode de rachat', icon: '🔁', cost: { purchase: 0.06 }, career: { awareness: 2, loyalty: 3 }, pop: 1,
+        r: 'L’épisode de suivi montre ses progrès et apaise le conflit.' },
+      { l: 'Maintenir le montage', icon: '🎞️', career: { awareness: 2 }, pop: -2,
+        r: 'L’affaire alimente les critiques sur le docu-réalité.' },
+      { l: 'Négocier un dédommagement discret', icon: '🤝', cost: { purchase: 0.04 }, career: { loyalty: 1 },
+        r: 'L’affaire se clôt sans bruit.' }
+    ] },
+  { id: 'ps_p018_version_grandes_tables', programId: 'p018', family: 'audience', phase: 2, when: { form: 'succes', minSeasons: 1 },
+    titre: 'La version grandes tables',
+    desc: '{programme} cartonne. La production propose de s’attaquer aux restaurants étoilés en difficulté, avec un chef triplement étoilé.',
+    c: [
+      { l: 'Lancer la version grandes tables', icon: '⭐', cost: { recurring: 0.12 }, boost: 0.06, career: { awareness: 6, loyalty: -1 },
+        r: 'Le format monte en gamme et séduit un public plus aisé.' },
+      { l: 'Rester sur les restaurants de quartier', icon: '🍝', career: { loyalty: 3, wear: 4 },
+        r: 'L’émission garde sa simplicité, au risque de se répéter.' },
+      { l: 'Alterner avec des food-trucks', icon: '🚚', cost: { purchase: 0.06 }, career: { awareness: 3, wear: -6 },
+        r: 'Les food-trucks apportent fraîcheur et diversité.' }
+    ] },
+
+  // — Les lettres et les chiffres (p019) · generaliste, apresmidi —
+  { id: 'ps_p019_compte_est_bon', programId: 'p019', family: 'editorial', phase: 1,
+    titre: 'Le compte est bon… trop souvent',
+    desc: 'Les candidats de {programme} trouvent presque toujours le compte exact et la tension retombe. La production propose de nouvelles règles.',
+    c: [
+      { l: 'Ajouter une manche de calcul mental chronométrée', icon: '⏱️', cost: { purchase: 0.03 }, career: { awareness: 2, loyalty: -1, wear: -8 },
+        r: 'Le jeu retrouve du suspense.' },
+      { l: 'Garder les règles historiques', icon: '🔢', career: { loyalty: 3, wear: 4 },
+        r: 'Les puristes sont ravis, la routine s’installe.' },
+      { l: 'Introduire un duel des champions chaque semaine', icon: '🥇', cost: { purchase: 0.06 }, boost: 0.05, career: { awareness: 2, loyalty: 1 },
+        r: 'Le duel hebdomadaire crée l’événement.' }
+    ] },
+  { id: 'ps_p019_jeu_ecole', programId: 'p019', family: 'strategie', phase: 3, when: { minSeasons: 2 },
+    titre: 'Le jeu à l’école',
+    desc: 'Le ministère de l’Éducation propose d’utiliser {programme} dans les classes de collège pour stimuler le calcul et l’orthographe. Une belle reconnaissance, qui demande d’adapter le jeu.',
+    c: [
+      { l: 'Créer une édition scolaire', icon: '🏫', cost: { purchase: 0.15 }, lasting: 0.04, career: { awareness: 6 }, pop: 2,
+        r: 'Le jeu entre dans les classes et gagne une nouvelle génération de fans.' },
+      { l: 'Céder les droits pour un usage pédagogique', icon: '📚', cost: { commercial: 0.04 }, career: { awareness: 2, wear: 2 },
+        r: 'Le jeu circule dans les écoles sans effort de production.' },
+      { l: 'Refuser', icon: '🙅', career: { awareness: -2, loyalty: 1 },
+        r: 'L’émission reste confidentielle chez les plus jeunes.' }
     ] }
 ];
 // ---------------------------------------------------------------------------
