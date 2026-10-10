@@ -9169,6 +9169,485 @@ const PROGRAM_STORY_BANK = [
         r: 'L’émission garde sa liberté de ton.' },
       { l: 'Accepter un partenariat ponctuel et affiché', icon: '📢', cost: { commercial: 0.04 }, career: { awareness: 1, loyalty: -1 },
         r: 'Un partenariat transparent.' }
+    ] },
+  // — Le Ticket d'Or (p067) · cinema, access —
+  { id: 'ps_p067_question_piege', programId: 'p067', family: 'editorial', phase: 1,
+    titre: 'La question piège',
+    desc: 'Une question de {programme} sur un film culte s’est révélée fausse, et un candidat a été éliminé à tort. Les cinéphiles s’en donnent à cœur joie sur les réseaux.',
+    c: [
+      { l: 'Réintégrer le candidat et rejouer la manche', icon: '🔁', cost: { purchase: 0.02 }, career: { loyalty: 3 }, pop: 1,
+        r: 'Le fair-play de l’émission est salué.' },
+      { l: 'Reconnaître l’erreur sans rejouer', icon: '🙏', career: { loyalty: -1, wear: 2 }, pop: 1,
+        r: 'L’excuse passe, le candidat reste lésé.' },
+      { l: 'Recruter un vérificateur cinéphile', icon: '🔎', cost: { recurring: 0.04 }, lasting: 0.02, career: { loyalty: 2 },
+        r: 'Les questions deviennent irréprochables.' }
+    ] },
+  { id: 'ps_p067_ticket_pour_hollywood', programId: 'p067', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le ticket pour Hollywood',
+    desc: 'Un studio américain propose d’offrir au champion de {programme} un voyage sur un tournage hollywoodien. En échange, il demande des questions sur ses films.',
+    c: [
+      { l: 'Accepter le partenariat', icon: '✈️', cost: { commercial: 0.08 }, boost: 0.06, career: { awareness: 3, loyalty: -3 },
+        r: 'Le gros lot attire, le quiz devient un peu promotionnel.' },
+      { l: 'Refuser pour rester indépendant', icon: '🛡️', career: { loyalty: 2, wear: 2 },
+        r: 'Le quiz garde sa neutralité.' },
+      { l: 'Financer soi-même un voyage au festival', icon: '🎟️', cost: { purchase: 0.06 }, boost: 0.04, career: { awareness: 2, loyalty: 1 },
+        r: 'Un beau lot, sans contrepartie publicitaire.' }
+    ] },
+
+  // — Hors Cadre (p068) · cinema, access —
+  { id: 'ps_p068_court_metrage_censure', programId: 'p068', family: 'editorial', phase: 2,
+    titre: 'Le court métrage censuré',
+    desc: 'Un film expérimental prévu dans {programme} contient des scènes de nudité artistique. La régie publicitaire craint la réaction des annonceurs.',
+    c: [
+      { l: 'Diffuser avec une signalétique adaptée', icon: '🔞', career: { awareness: 2, loyalty: 3 }, pop: -1,
+        r: 'Les cinéphiles saluent l’audace de la case.' },
+      { l: 'Remplacer le film', icon: '🔄', career: { loyalty: -2, wear: 3 },
+        r: 'La case perd un peu de sa singularité.' },
+      { l: 'Diffuser plus tard dans la nuit', icon: '🌙', cost: { purchase: 0.01 }, boost: -0.02, career: { loyalty: 1 },
+        r: 'Un compromis prudent.' }
+    ] },
+  { id: 'ps_p068_residence_artistes', programId: 'p068', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'La résidence d’artistes',
+    desc: 'La production de {programme} propose de financer une résidence de jeunes cinéastes, dont les films seraient diffusés en exclusivité. Le pari est risqué mais valorisant.',
+    c: [
+      { l: 'Financer la résidence', icon: '🏠', cost: { purchase: 0.25 }, lasting: 0.05, career: { awareness: 4 }, pop: 1,
+        r: 'Les films de la résidence deviennent la signature de la case.' },
+      { l: 'Acheter un film par an issu d’une école', icon: '🎓', cost: { purchase: 0.05 }, career: { awareness: 2, loyalty: 1 },
+        r: 'Un soutien modeste mais régulier.' },
+      { l: 'Rester sur l’achat de films', icon: '🛒', career: { loyalty: 1, wear: 3 },
+        r: 'La case continue sans prise de risque.' }
+    ] },
+
+  // — Série culte (p069) · cinema, access —
+  { id: 'ps_p069_les_fans_reclament', programId: 'p069', family: 'audience', phase: 2,
+    titre: 'Les fans réclament la VO',
+    desc: 'Les fans de {programme} réclament la version originale sous-titrée. Le grand public, lui, préfère la version française.',
+    c: [
+      { l: 'Proposer la VO en option', icon: '🔤', cost: { purchase: 0.03 }, career: { awareness: 1, loyalty: 3 },
+        r: 'Chacun choisit sa version : les fans sont comblés.' },
+      { l: 'Passer en VO uniquement', icon: '🎧', boost: -0.05, career: { awareness: 2, loyalty: 2 },
+        r: 'Les puristes applaudissent, une partie du public décroche.' },
+      { l: 'Garder la VF', icon: '🇫🇷', career: { loyalty: -2, wear: 2 },
+        r: 'Le grand public est satisfait, les fans râlent.' }
+    ] },
+  { id: 'ps_p069_convention_des_fans', programId: 'p069', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'La convention des fans',
+    desc: 'Les fans de {programme} organisent une grande convention et proposent à la chaîne d’y diffuser un épisode inédit en avant-première. Les acteurs historiques seraient présents.',
+    c: [
+      { l: 'Organiser l’avant-première avec les acteurs', icon: '🎉', cost: { purchase: 0.15 }, boost: 0.1, career: { awareness: 5, loyalty: 2 },
+        r: 'La convention fait vibrer les fans et la presse.' },
+      { l: 'Envoyer une équipe de tournage', icon: '🎥', cost: { purchase: 0.03 }, career: { awareness: 2, loyalty: 1 },
+        r: 'Un reportage sympathique.' },
+      { l: 'Ne pas participer', icon: '🙅', career: { loyalty: -2, wear: 1 },
+        r: 'Les fans regrettent l’absence de la chaîne.' }
+    ] },
+
+  // — Plan Séquence (p070) · cinema, access —
+  { id: 'ps_p070_interview_fleuve', programId: 'p070', family: 'editorial', phase: 1,
+    titre: 'L’interview fleuve',
+    desc: 'Un grand réalisateur accorde à {programme} un entretien de trois heures, au lieu des vingt minutes prévues. Le matériau est exceptionnel mais long.',
+    c: [
+      { l: 'Diffuser l’entretien en trois épisodes', icon: '🎞️', cost: { purchase: 0.02 }, career: { awareness: 3, loyalty: 3, wear: -4 },
+        r: 'L’entretien devient un événement pour les cinéphiles.' },
+      { l: 'Monter vingt minutes', icon: '✂️', boost: 0.02, career: { wear: 2 },
+        r: 'Un bel entretien, frustrant pour les passionnés.' },
+      { l: 'Publier la version intégrale en ligne', icon: '🌐', boost: -0.02, career: { awareness: 2, loyalty: 1 },
+        r: 'Les passionnés découvrent l’intégrale sur le web.' }
+    ] },
+  { id: 'ps_p070_invite_conteste', programId: 'p070', family: 'image', phase: 2, when: { minSeasons: 1 },
+    titre: 'L’invité contesté',
+    desc: 'Un réalisateur accusé de harcèlement doit être reçu dans {programme} pour son nouveau film. Plusieurs collectifs demandent l’annulation.',
+    c: [
+      { l: 'Annuler l’entretien', icon: '🚫', boost: -0.03, career: { loyalty: -1 }, pop: 2,
+        r: 'La chaîne prend position et est saluée.' },
+      { l: 'Maintenir en abordant les accusations', icon: '🎙️', career: { awareness: 4 }, pop: -1,
+        r: 'L’entretien est tendu et très commenté.' },
+      { l: 'Remplacer par un débat sur le cinéma et #MeToo', icon: '💬', cost: { purchase: 0.03 }, career: { awareness: 2, loyalty: 1 }, pop: 1,
+        r: 'Le débat est salué pour sa pertinence.' }
+    ] },
+
+  // — Saga cinéma (p072) · cinema, prime —
+  { id: 'ps_p072_dernier_volet_saga', programId: 'p072', family: 'economie', phase: 1,
+    titre: 'Le dernier volet de la saga',
+    desc: 'Le dernier film de la saga diffusée dans {programme} sort en salle cette année. Ses droits télé seront très disputés.',
+    c: [
+      { l: 'Préacheter les droits du dernier volet', icon: '💰', cost: { purchase: 0.5 }, lasting: 0.05, career: { awareness: 4, loyalty: 3 },
+        r: 'La case garantit la fin de la saga à ses fans.' },
+      { l: 'Attendre le prix du marché', icon: '⏳', career: { loyalty: -1, wear: 3 },
+        r: 'Le risque de perdre le film demeure.' },
+      { l: 'Proposer une coproduction au distributeur', icon: '🤝', cost: { purchase: 0.2 }, lasting: 0.02, career: { awareness: 2 },
+        r: 'Un accord équilibré qui sécurise une diffusion.' }
+    ] },
+  { id: 'ps_p072_marathon_saga', programId: 'p072', family: 'audience', phase: 2, when: { minSeasons: 1 },
+    titre: 'Le marathon de la saga',
+    desc: 'Les fans de {programme} réclament un marathon de tous les volets, d’une seule traite. La chaîne pourrait y consacrer un week-end entier.',
+    c: [
+      { l: 'Organiser le marathon du week-end', icon: '🍿', cost: { purchase: 0.05 }, boost: 0.08, career: { awareness: 3, wear: 3 },
+        r: 'Le marathon devient un rendez-vous de fans.' },
+      { l: 'Diffuser un volet par semaine', icon: '📆', career: { loyalty: 2, wear: 2 },
+        r: 'La saga s’étale tranquillement.' },
+      { l: 'Proposer un vote des fans pour l’ordre de diffusion', icon: '🗳️', cost: { purchase: 0.02 }, career: { awareness: 2, loyalty: 1 },
+        r: 'Le vote implique la communauté.' }
+    ] },
+
+  // — Série premium (p073) · cinema, prime —
+  { id: 'ps_p073_serie_premium_coute', programId: 'p073', family: 'economie', phase: 1,
+    titre: 'La série premium coûte une fortune',
+    desc: 'La nouvelle saison de {programme} est proposée à un prix record. Le distributeur menace de la vendre à une plateforme.',
+    c: [
+      { l: 'Payer le prix record', icon: '💎', cost: { recurring: 0.2 }, boost: 0.05, career: { awareness: 3, loyalty: 4 },
+        r: 'La série reste sur la chaîne et fidélise ses abonnés du dimanche.' },
+      { l: 'Négocier une diffusion décalée moins chère', icon: '⏳', cost: { recurring: 0.05 }, career: { awareness: 1, loyalty: -2 },
+        r: 'La série arrive après la plateforme, avec moins d’impact.' },
+      { l: 'Laisser partir la série', icon: '👋', boost: -0.06, career: { loyalty: -3, wear: -4 },
+        r: 'La case doit se réinventer.' }
+    ] },
+  { id: 'ps_p073_une_scene_tres', programId: 'p073', family: 'image', phase: 2, when: { minSeasons: 1 },
+    titre: 'Une scène très violente',
+    desc: 'Un épisode de {programme} contient une scène d’une violence rare. L’Arcom pourrait demander une signalétique plus stricte.',
+    c: [
+      { l: 'Adopter la signalétique -16 et décaler l’horaire', icon: '🔞', boost: -0.04, career: { loyalty: 1 }, pop: 1,
+        r: 'La chaîne anticipe et rassure le régulateur.' },
+      { l: 'Couper la scène', icon: '✂️', cost: { purchase: 0.01 }, career: { loyalty: -2 }, pop: 1,
+        r: 'Les fans dénoncent une version édulcorée.' },
+      { l: 'Diffuser tel quel', icon: '📺', career: { awareness: 3 }, pop: -2,
+        r: 'La scène fait parler, l’Arcom aussi.' }
+    ] },
+
+  // — Mini-série événement (p074) · cinema, prime —
+  { id: 'ps_p074_une_histoire_vraie', programId: 'p074', family: 'strategie', phase: 1,
+    titre: 'Une histoire vraie à adapter',
+    desc: 'Un producteur propose une mini-série sur une affaire criminelle célèbre pour {programme}. Les protagonistes sont encore vivants.',
+    c: [
+      { l: 'Produire en consultant les protagonistes', icon: '🤝', cost: { purchase: 0.4 }, lasting: 0.04, career: { awareness: 6 }, pop: 1,
+        r: 'La série est saluée pour sa justesse.' },
+      { l: 'Produire sans leur accord', icon: '⚖️', cost: { purchase: 0.3 }, boost: 0.06, career: { awareness: 7 }, pop: -2,
+        r: 'La série fait sensation, les procès aussi.' },
+      { l: 'Renoncer au projet', icon: '🙅', career: { awareness: -2, loyalty: 1 },
+        r: 'Une plateforme réalise la série.' }
+    ] },
+  { id: 'ps_p074_diffusion_une_soiree', programId: 'p074', family: 'audience', phase: 3, when: { minSeasons: 1 },
+    titre: 'Diffusion en une soirée',
+    desc: 'La chaîne hésite à diffuser {programme} en une seule soirée ou sur trois semaines. Les deux stratégies ont leurs partisans.',
+    c: [
+      { l: 'Une seule soirée événement', icon: '🌙', boost: 0.1, career: { loyalty: -1, wear: 4 },
+        r: 'Une soirée très suivie mais vite oubliée.' },
+      { l: 'Trois soirées consécutives', icon: '3️⃣', boost: 0.03, career: { loyalty: 3, wear: 2 },
+        r: 'Le suspense fidélise le public.' },
+      { l: 'Mise en ligne intégrale avant l’antenne', icon: '📲', cost: { purchase: 0.03 }, boost: -0.03, career: { awareness: 4 },
+        r: 'Les plus impatients regardent en ligne.' }
+    ] },
+
+  // — Franchise policière (p075) · cinema, prime —
+  { id: 'ps_p075_nouveau_commissaire', programId: 'p075', family: 'editorial', phase: 1,
+    titre: 'Le nouveau commissaire',
+    desc: 'La franchise de {programme} change de héros cette saison. La production hésite entre une star du cinéma et un acteur révélé par une série.',
+    c: [
+      { l: 'Engager la star du cinéma', icon: '⭐', cost: { recurring: 0.15 }, boost: 0.05, career: { awareness: 6 },
+        r: 'La star attire un public nouveau.' },
+      { l: 'Miser sur l’acteur de série', icon: '📺', cost: { recurring: 0.04 }, career: { awareness: 2, loyalty: 2, wear: -6 },
+        r: 'Un choix plus sûr, qui fidélise.' },
+      { l: 'Promouvoir un personnage secondaire', icon: '🔼', career: { awareness: -2, loyalty: 3, wear: -4 },
+        r: 'Les fans apprécient la continuité.' }
+    ] },
+  { id: 'ps_p075_franchise_use', programId: 'p075', family: 'audience', phase: 2, when: { minSeasons: 2 },
+    titre: 'La franchise s’use',
+    desc: 'Après {saisons}, {programme} perd des téléspectateurs. Les intrigues policières se ressemblent.',
+    c: [
+      { l: 'Lancer un crossover avec une autre franchise', icon: '🔀', cost: { purchase: 0.1 }, boost: 0.1, career: { awareness: 4, wear: -6 },
+        r: 'Le crossover relance l’intérêt.' },
+      { l: 'Changer d’époque pour une saison', icon: '🕰️', cost: { purchase: 0.15 }, lasting: 0.03, career: { loyalty: -3, wear: -15 },
+        r: 'Le saut dans le passé surprend et séduit.' },
+      { l: 'Continuer tel quel', icon: '🔁', career: { loyalty: 1, wear: 5 },
+        r: 'La franchise poursuit sa route.' }
+    ] },
+
+  // — Film français récent (p076) · cinema, prime —
+  { id: 'ps_p076_fenetre_diffusion', programId: 'p076', family: 'economie', phase: 1,
+    titre: 'La fenêtre de diffusion',
+    desc: 'Un film français récent prévu dans {programme} pourrait être diffusé plus tôt, contre une contribution accrue au cinéma. Les exploitants de salles protestent.',
+    c: [
+      { l: 'Payer pour une diffusion anticipée', icon: '⏩', cost: { purchase: 0.25 }, boost: 0.1, career: { awareness: 3 }, pop: -1,
+        r: 'Le film arrive vite à l’antenne et attire un large public.' },
+      { l: 'Respecter la chronologie classique', icon: '📅', career: { loyalty: 2, wear: 2 }, pop: 1,
+        r: 'Les exploitants sont satisfaits, le film arrive plus tard.' },
+      { l: 'Financer une avant-première en salle', icon: '🎟️', cost: { purchase: 0.08 }, career: { awareness: 3 }, pop: 1,
+        r: 'Le geste envers les salles est salué.' }
+    ] },
+  { id: 'ps_p076_preachat_films_francais', programId: 'p076', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Préachat de films français',
+    desc: 'Des producteurs proposent à la chaîne de préacheter des films français pour {programme}, avec une diffusion garantie dans deux ans. L’engagement sécurise l’avenir, mais immobilise du budget.',
+    c: [
+      { l: 'Préacheter trois films', icon: '🎬', cost: { purchase: 0.5 }, lasting: 0.06, career: { awareness: 3 }, pop: 1,
+        r: 'La case s’assure des exclusivités pour l’avenir.' },
+      { l: 'Préacheter un seul film', icon: '🎞️', cost: { purchase: 0.15 }, lasting: 0.02, career: { awareness: 1 },
+        r: 'Un engagement prudent.' },
+      { l: 'Acheter seulement des films déjà sortis', icon: '🛒', career: { loyalty: 1, wear: 3 },
+        r: 'Pas de risque, pas d’exclusivité.' }
+    ] },
+
+  // — Film de super-héros (p077) · cinema, prime —
+  { id: 'ps_p077_trop_violent_pour', programId: 'p077', family: 'image', phase: 2,
+    titre: 'Trop violent pour les enfants ?',
+    desc: 'Le film de super-héros prévu dans {programme} attire beaucoup d’enfants. Des parents trouvent certaines scènes trop violentes pour un début de soirée.',
+    c: [
+      { l: 'Ajouter une signalétique et un avertissement', icon: '⚠️', boost: -0.02, career: { loyalty: 1 }, pop: 1,
+        r: 'Les parents sont informés.' },
+      { l: 'Programmer le film plus tard', icon: '🌙', boost: -0.05, career: { loyalty: 1 }, pop: 2,
+        r: 'Le film perd une partie de son public familial.' },
+      { l: 'Diffuser une version adaptée', icon: '✂️', cost: { purchase: 0.03 }, boost: 0.02, career: { loyalty: -2 }, pop: 1,
+        r: 'Les fans dénoncent les coupes.' }
+    ] },
+  { id: 'ps_p077_soiree_univers_etendu', programId: 'p077', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'La soirée de l’univers étendu',
+    desc: 'Un studio propose à {programme} une soirée complète autour de son univers de super-héros, avec un making-of inédit. Les droits du making-of sont chers.',
+    c: [
+      { l: 'Acheter la soirée complète', icon: '🦸', cost: { purchase: 0.4 }, boost: 0.15, career: { awareness: 5 },
+        r: 'Une soirée spectaculaire très suivie.' },
+      { l: 'Diffuser le film seul', icon: '🎬', career: { loyalty: 1, wear: 3 },
+        r: 'Une soirée classique.' },
+      { l: 'Ajouter un débat avec des fans de comics', icon: '💬', cost: { purchase: 0.04 }, career: { awareness: 3, loyalty: 2 },
+        r: 'Le débat ravit les passionnés.' }
+    ] },
+
+  // — Thriller événement (p078) · cinema, prime —
+  { id: 'ps_p078_twist_devoile', programId: 'p078', family: 'audience', phase: 1,
+    titre: 'Le twist dévoilé',
+    desc: 'La fin du thriller prévu dans {programme} a été révélée par un magazine la veille de la diffusion. La soirée risque de perdre de son intérêt.',
+    c: [
+      { l: 'Remplacer par un autre thriller inédit', icon: '🔄', cost: { purchase: 0.15 }, boost: 0.05, career: { loyalty: 2 },
+        r: 'La soirée garde son suspense.' },
+      { l: 'Diffuser quand même', icon: '📺', boost: -0.05, career: { wear: 2 },
+        r: 'Le public connaît déjà la fin.' },
+      { l: 'Ajouter un débat sur les spoilers', icon: '💬', cost: { purchase: 0.02 }, boost: -0.02, career: { awareness: 3 },
+        r: 'Le débat amuse, sans sauver tout à fait la soirée.' }
+    ] },
+  { id: 'ps_p078_thriller_interactif', programId: 'p078', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le thriller interactif',
+    desc: 'Un studio propose à {programme} un thriller interactif dont les téléspectateurs choisissent la fin par vote. L’expérience est inédite à la télévision.',
+    c: [
+      { l: 'Diffuser le thriller interactif', icon: '🎮', cost: { purchase: 0.3 }, boost: 0.12, career: { awareness: 6, loyalty: -2 },
+        r: 'L’expérience fait parler, certains préfèrent la fiction classique.' },
+      { l: 'Proposer l’interactivité en ligne seulement', icon: '📲', cost: { purchase: 0.06 }, career: { awareness: 3 },
+        r: 'Une expérience pour les curieux.' },
+      { l: 'Rester sur les thrillers classiques', icon: '🎬', career: { loyalty: 2, wear: 3 },
+        r: 'La case garde sa formule.' }
+    ] },
+
+  // — Comédie populaire (p079) · cinema, prime —
+  { id: 'ps_p079_une_comedie_qui', programId: 'p079', family: 'image', phase: 2,
+    titre: 'Une comédie qui ne fait plus rire',
+    desc: 'La comédie culte prévue dans {programme} contient des blagues jugées blessantes aujourd’hui. Des associations demandent sa déprogrammation.',
+    c: [
+      { l: 'Diffuser avec une présentation de contexte', icon: '🎙️', cost: { purchase: 0.02 }, career: { loyalty: 1 }, pop: 1,
+        r: 'La comédie est remise dans son époque.' },
+      { l: 'Déprogrammer le film', icon: '🚫', boost: -0.03, career: { loyalty: -3 }, pop: 1,
+        r: 'Les fans crient à la censure.' },
+      { l: 'Diffuser sans commentaire', icon: '📺', career: { loyalty: 2 }, pop: -2,
+        r: 'Les fans sont ravis, la polémique enfle.' }
+    ] },
+  { id: 'ps_p079_suite_tant_attendue', programId: 'p079', family: 'audience', phase: 3, when: { minSeasons: 1 },
+    titre: 'La suite tant attendue',
+    desc: 'La suite d’une comédie populaire diffusée dans {programme} sort au cinéma. La chaîne peut rediffuser le premier volet la veille de la sortie.',
+    c: [
+      { l: 'Rediffuser avec une interview des acteurs', icon: '🎤', cost: { purchase: 0.06 }, boost: 0.08, career: { awareness: 3 },
+        r: 'La soirée surfe sur l’actualité.' },
+      { l: 'Rediffuser simplement le film', icon: '📼', boost: 0.03, career: { wear: 3 },
+        r: 'Une soirée sympathique.' },
+      { l: 'Négocier un partenariat avec le distributeur', icon: '🤝', cost: { commercial: 0.06 }, boost: 0.04, career: { loyalty: -2 },
+        r: 'Le partenariat rapporte, la soirée sent la promotion.' }
+    ] },
+
+  // — Thriller (p080) · cinema, nuit —
+  { id: 'ps_p080_les_insomniaques_adorent', programId: 'p080', family: 'audience', phase: 2,
+    titre: 'Les insomniaques adorent les frissons',
+    desc: 'Les thrillers de {programme} réunissent un public fidèle de noctambules. La chaîne envisage de les avancer en début de soirée.',
+    c: [
+      { l: 'Garder la case de nuit', icon: '🌙', career: { loyalty: 3, wear: 3 },
+        r: 'Les noctambules restent fidèles.' },
+      { l: 'Créer un cycle thématique mensuel', icon: '🗂️', cost: { purchase: 0.03 }, career: { awareness: 3, wear: -4 },
+        r: 'Les cycles relancent l’intérêt.' },
+      { l: 'Acheter des thrillers scandinaves inédits', icon: '❄️', cost: { purchase: 0.1 }, boost: 0.05, career: { awareness: 4, loyalty: 1 },
+        r: 'Les polars nordiques séduisent les amateurs.' }
+    ] },
+  { id: 'ps_p080_catalogue_epuise', programId: 'p080', family: 'economie', phase: 1, when: { minSeasons: 1 },
+    titre: 'Le catalogue s’épuise',
+    desc: 'Le stock de thrillers disponibles pour {programme} s’épuise. Il faut racheter un catalogue ou recourir aux rediffusions.',
+    c: [
+      { l: 'Racheter un catalogue de vingt films', icon: '📦', cost: { purchase: 0.3 }, career: { loyalty: 2, wear: -12 },
+        r: 'La case est approvisionnée pour longtemps.' },
+      { l: 'Recourir aux rediffusions', icon: '🔁', career: { loyalty: -2, wear: 6 },
+        r: 'Les fidèles connaissent déjà les films.' },
+      { l: 'Louer les films à la séance', icon: '🎟️', cost: { recurring: 0.05 }, career: { loyalty: 1, wear: -4 },
+        r: 'Une solution souple mais plus chère à terme.' }
+    ] },
+
+  // — Film d'horreur (p081) · cinema, nuit —
+  { id: 'ps_p081_film_horreur_trop', programId: 'p081', family: 'image', phase: 2,
+    titre: 'Un film d’horreur trop gore',
+    desc: 'Le film d’horreur prévu dans {programme} est jugé trop gore par l’Arcom, qui recommande une interdiction aux moins de 18 ans. Les amateurs du genre attendent pourtant le film avec impatience.',
+    c: [
+      { l: 'Diffuser plus tard avec la signalétique -18', icon: '🔞', boost: -0.04, career: { loyalty: 1 }, pop: 1,
+        r: 'La chaîne respecte la recommandation.' },
+      { l: 'Diffuser une version coupée', icon: '✂️', cost: { purchase: 0.02 }, boost: 0.02, career: { loyalty: -3 },
+        r: 'Les amateurs dénoncent la censure.' },
+      { l: 'Remplacer par un classique de l’épouvante', icon: '🧛', cost: { purchase: 0.03 }, career: { loyalty: 2, wear: 3 },
+        r: 'Un choix sûr qui plaît aux amateurs.' }
+    ] },
+  { id: 'ps_p081_nuit_halloween', programId: 'p081', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'La nuit d’Halloween',
+    desc: 'La production de {programme} propose une nuit spéciale Halloween avec trois films d’horreur et des invités maquillés. L’idée plaît aux fans, mais demande un vrai dispositif.',
+    c: [
+      { l: 'Organiser la nuit spéciale', icon: '🎃', cost: { purchase: 0.15 }, boost: 0.12, career: { awareness: 5 },
+        r: 'La nuit d’Halloween devient un rendez-vous culte.' },
+      { l: 'Diffuser un seul film thématique', icon: '👻', cost: { purchase: 0.03 }, boost: 0.04, career: { loyalty: 1 },
+        r: 'Une soirée simple et efficace.' },
+      { l: 'Ne rien prévoir', icon: '🙅', career: { loyalty: -1, wear: 2 },
+        r: 'Les fans regrettent l’absence d’événement.' }
+    ] },
+
+  // — Science-fiction (p082) · cinema, nuit —
+  { id: 'ps_p082_classique_science_fiction', programId: 'p082', family: 'editorial', phase: 1,
+    titre: 'Le classique de la science-fiction',
+    desc: 'Un classique de la science-fiction sort en version restaurée. Les ayants droit le proposent à {programme} à un prix élevé.',
+    c: [
+      { l: 'Acheter la version restaurée', icon: '🚀', cost: { purchase: 0.2 }, boost: 0.08, career: { awareness: 2, loyalty: 3 },
+        r: 'La soirée ravit les amateurs du genre.' },
+      { l: 'Diffuser l’ancienne version', icon: '📼', career: { loyalty: -1, wear: 3 },
+        r: 'Les amateurs regrettent l’image d’époque.' },
+      { l: 'Organiser une soirée avec un astrophysicien', icon: '🔭', cost: { purchase: 0.06 }, career: { awareness: 4, loyalty: 2 },
+        r: 'La soirée mêle cinéma et science avec succès.' }
+    ] },
+  { id: 'ps_p082_les_fans_veulent', programId: 'p082', family: 'audience', phase: 2, when: { minSeasons: 1 },
+    titre: 'Les fans de SF veulent des séries',
+    desc: 'Le public de {programme} réclame des séries de science-fiction plutôt que des films. Une série britannique est disponible.',
+    c: [
+      { l: 'Acheter la série britannique', icon: '🛸', cost: { recurring: 0.1 }, career: { awareness: 4, loyalty: 2, wear: -8 },
+        r: 'La série fidélise les amateurs chaque semaine.' },
+      { l: 'Alterner films et séries', icon: '🔀', cost: { purchase: 0.04 }, career: { awareness: 2, wear: -3 },
+        r: 'Un équilibre apprécié.' },
+      { l: 'Rester sur les films', icon: '🎬', career: { loyalty: 1, wear: 3 },
+        r: 'Les fans de séries vont voir ailleurs.' }
+    ] },
+
+  // — Cinéma d'auteur (p083) · cinema, nuit —
+  { id: 'ps_p083_film_auteur_boude', programId: 'p083', family: 'image', phase: 2,
+    titre: 'Le film d’auteur boudé',
+    desc: 'Le film primé à Cannes diffusé dans {programme} a réalisé une audience très faible. La direction de la chaîne s’interroge sur la case.',
+    c: [
+      { l: 'Défendre la case et sa mission culturelle', icon: '🛡️', boost: -0.03, career: { loyalty: 3 }, pop: 1,
+        r: 'La chaîne affirme son engagement culturel.' },
+      { l: 'Ajouter une présentation pour guider le public', icon: '🎙️', cost: { purchase: 0.02 }, boost: 0.02, career: { awareness: 2, loyalty: 1 },
+        r: 'La présentation aide à entrer dans les films.' },
+      { l: 'Réduire la case', icon: '✂️', cost: { saving: 0.1 }, career: { loyalty: -4 }, pop: -1,
+        r: 'La chaîne économise, les cinéphiles protestent.' }
+    ] },
+  { id: 'ps_p083_parrainage_festival', programId: 'p083', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le parrainage d’un festival',
+    desc: 'Un festival de cinéma d’auteur propose à {programme} de parrainer sa compétition. La case diffuserait le film lauréat en exclusivité.',
+    c: [
+      { l: 'Parrainer le festival', icon: '🏆', cost: { purchase: 0.15 }, lasting: 0.04, career: { awareness: 5 }, pop: 1,
+        r: 'Le parrainage donne du prestige à la case.' },
+      { l: 'Acheter seulement le film lauréat', icon: '🎞️', cost: { purchase: 0.05 }, career: { awareness: 2 },
+        r: 'Un film primé sans engagement.' },
+      { l: 'Ne pas participer', icon: '🙅', career: { loyalty: -1, wear: 2 },
+        r: 'La case passe à côté.' }
+    ] },
+
+  // — Film culte (p084) · cinema, nuit —
+  { id: 'ps_p084_film_culte_version', programId: 'p084', family: 'audience', phase: 2,
+    titre: 'Le film culte en version longue',
+    desc: 'Une version longue inédite du film culte prévu dans {programme} vient d’être restaurée. Elle dure quarante minutes de plus.',
+    c: [
+      { l: 'Diffuser la version longue', icon: '🎞️', cost: { purchase: 0.06 }, boost: -0.02, career: { awareness: 2, loyalty: 4 },
+        r: 'Les fans découvrent des scènes inédites.' },
+      { l: 'Diffuser la version cinéma', icon: '📺', career: { loyalty: -1, wear: 3 },
+        r: 'Les fans regrettent de ne pas voir la version longue.' },
+      { l: 'Proposer la version longue en ligne', icon: '🌐', cost: { purchase: 0.02 }, career: { awareness: 2, loyalty: 1 },
+        r: 'Les passionnés y trouvent leur compte.' }
+    ] },
+  { id: 'ps_p084_cine_concert', programId: 'p084', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le ciné-concert',
+    desc: 'Un orchestre propose de jouer en direct la bande originale du film culte de {programme}, pendant la projection. La captation serait spectaculaire.',
+    c: [
+      { l: 'Diffuser le ciné-concert en direct', icon: '🎻', cost: { purchase: 0.25 }, boost: 0.12, career: { awareness: 5, loyalty: 2 },
+        r: 'Une soirée unique, saluée par la critique.' },
+      { l: 'Diffuser le film classique', icon: '🎬', career: { loyalty: 1, wear: 3 },
+        r: 'Une soirée sans surprise.' },
+      { l: 'Diffuser un extrait du concert en bonus', icon: '🎶', cost: { purchase: 0.04 }, career: { awareness: 2, loyalty: 1 },
+        r: 'Un bonus apprécié.' }
+    ] },
+
+  // — Série adulte (p085) · cinema, nuit —
+  { id: 'ps_p085_des_scenes_trop', programId: 'p085', family: 'image', phase: 2,
+    titre: 'Des scènes trop explicites',
+    desc: 'La série adulte diffusée dans {programme} contient des scènes de sexe très explicites. Des associations familiales saisissent l’Arcom.',
+    c: [
+      { l: 'Respecter strictement la signalétique -16', icon: '🔞', boost: -0.02, career: { loyalty: 1 }, pop: 1,
+        r: 'La chaîne reste dans les clous.' },
+      { l: 'Couper les scènes les plus explicites', icon: '✂️', cost: { purchase: 0.02 }, career: { loyalty: -3 }, pop: 1,
+        r: 'La série perd en audace.' },
+      { l: 'Défendre l’œuvre publiquement', icon: '🗣️', career: { awareness: 3, loyalty: 1 }, pop: -2,
+        r: 'La polémique attire des curieux.' }
+    ] },
+  { id: 'ps_p085_deuxieme_saison', programId: 'p085', family: 'economie', phase: 1, when: { minSeasons: 1 },
+    titre: 'La deuxième saison',
+    desc: 'La deuxième saison de la série adulte de {programme} est disponible, mais son prix a doublé. Les fans attendent la suite avec impatience.',
+    c: [
+      { l: 'Acheter la deuxième saison', icon: '💰', cost: { recurring: 0.12 }, career: { awareness: 2, loyalty: 4 },
+        r: 'Les fans suivent la suite de l’intrigue.' },
+      { l: 'Remplacer par une série européenne', icon: '🇪🇺', cost: { purchase: 0.05 }, career: { awareness: 2, loyalty: -2, wear: -6 },
+        r: 'Une découverte pour les curieux.' },
+      { l: 'Rediffuser la première saison', icon: '🔁', career: { loyalty: -1, wear: 5 },
+        r: 'Les fans s’impatientent.' }
+    ] },
+
+  // — Cinéma international (p086) · cinema, nuit —
+  { id: 'ps_p086_cinema_coreen_vogue', programId: 'p086', family: 'editorial', phase: 1,
+    titre: 'Le cinéma coréen en vogue',
+    desc: 'Le cinéma coréen séduit de plus en plus de jeunes téléspectateurs. La programmatrice de {programme} propose un cycle dédié.',
+    c: [
+      { l: 'Lancer un cycle coréen', icon: '🇰🇷', cost: { purchase: 0.12 }, career: { awareness: 5, loyalty: 1, wear: -6 },
+        r: 'Le cycle attire un public jeune et curieux.' },
+      { l: 'Glisser un film coréen par mois', icon: '🎞️', cost: { purchase: 0.03 }, career: { awareness: 2, wear: -2 },
+        r: 'Une ouverture progressive.' },
+      { l: 'Rester sur le cinéma américain et européen', icon: '🌍', career: { loyalty: 2, wear: 3 },
+        r: 'Les fidèles retrouvent leurs repères.' }
+    ] },
+  { id: 'ps_p086_version_originale_doublee', programId: 'p086', family: 'audience', phase: 2, when: { minSeasons: 1 },
+    titre: 'Version originale ou doublée',
+    desc: 'Les films étrangers de {programme} sont diffusés en VO, ce qui rebute une partie du public. Doubler coûte cher.',
+    c: [
+      { l: 'Doubler les films', icon: '🎙️', cost: { purchase: 0.15 }, boost: 0.06, career: { awareness: 2, loyalty: -2 },
+        r: 'Le public s’élargit, les cinéphiles regrettent la VO.' },
+      { l: 'Garder la VO sous-titrée', icon: '🔤', boost: -0.03, career: { loyalty: 3 },
+        r: 'Les cinéphiles sont comblés.' },
+      { l: 'Proposer les deux versions', icon: '🔀', cost: { purchase: 0.05 }, career: { awareness: 2, loyalty: 1 },
+        r: 'Chacun choisit sa version.' }
+    ] },
+
+  // — Film indépendant (p087) · cinema, nuit —
+  { id: 'ps_p087_film_revelation_sundance', programId: 'p087', family: 'strategie', phase: 1,
+    titre: 'Le film révélation de Sundance',
+    desc: 'Un film indépendant américain a triomphé à Sundance. Son distributeur propose à {programme} une exclusivité télé.',
+    c: [
+      { l: 'Acheter l’exclusivité', icon: '🌟', cost: { purchase: 0.15 }, career: { awareness: 4, loyalty: 3 },
+        r: 'La case offre un film dont tout le monde parle.' },
+      { l: 'Attendre qu’il soit moins cher', icon: '⏳', career: { loyalty: -1, wear: 3 },
+        r: 'Une concurrente l’achète.' },
+      { l: 'Proposer une coacquisition avec une plateforme', icon: '🤝', cost: { purchase: 0.06 }, career: { awareness: 2, loyalty: 1 },
+        r: 'Le film est partagé, à moindre coût.' }
+    ] },
+  { id: 'ps_p087_realisateur_independant_difficulte', programId: 'p087', family: 'economie', phase: 2, when: { minSeasons: 1 },
+    titre: 'Le réalisateur indépendant en difficulté',
+    desc: 'Un jeune réalisateur dont le film est passé dans {programme} cherche des fonds pour le suivant. Il propose à la chaîne de coproduire en échange d’une exclusivité.',
+    c: [
+      { l: 'Coproduire son prochain film', icon: '🎥', cost: { purchase: 0.2 }, lasting: 0.04, career: { awareness: 3 }, pop: 1,
+        r: 'La chaîne soutient un talent émergent.' },
+      { l: 'Décliner', icon: '🙅', career: { loyalty: -1, wear: 2 },
+        r: 'Le réalisateur trouve un autre partenaire.' },
+      { l: 'Acheter seulement les droits de diffusion', icon: '📝', cost: { purchase: 0.06 }, career: { awareness: 1, loyalty: 1 },
+        r: 'Un soutien modeste.' }
     ] }
 ];
 // ---------------------------------------------------------------------------
