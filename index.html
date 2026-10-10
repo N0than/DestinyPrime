@@ -18581,6 +18581,485 @@ const PROGRAM_STORY_BANK = [
         r: 'Le format libre fait débat.' },
       { l: 'Laisser à une autre chaîne', icon: '🙅', career: { awareness: -2, loyalty: 1 },
         r: 'L’émission perd son aura.' }
+    ] },
+  // — E=MC2 (p468) · generaliste, access —
+  { id: 'ps_p468_experience_contestee', programId: 'p468', family: 'editorial', phase: 1,
+    titre: 'L’expérience contestée',
+    desc: 'Un physicien conteste une démonstration présentée dans {programme}. Il publie une tribune moqueuse.',
+    c: [
+      { l: 'L’inviter à corriger', icon: '🎓', career: { awareness: -1, loyalty: 2 },
+        r: 'La correction enrichit l’émission.' },
+      { l: 'Engager un comité scientifique', icon: '🔬', cost: { recurring: 0.01 }, career: { loyalty: 1, wear: -1 }, pop: 1,
+        r: 'L’émission gagne en rigueur.' },
+      { l: 'Ignorer', icon: '🙈', career: { awareness: 1 }, pop: -2,
+        r: 'La tribune circule.' }
+    ] },
+  { id: 'ps_p468_nuit_des_sciences', programId: 'p468', family: 'audience', phase: 2, when: { minSeasons: 1 },
+    titre: 'La nuit des sciences',
+    desc: 'La production de {programme} propose une soirée en direct d’un observatoire. Le dispositif technique serait lourd.',
+    c: [
+      { l: 'Organiser la soirée', icon: '🔭', cost: { purchase: 0.05 }, lasting: 0.03, career: { awareness: 4 },
+        r: 'La soirée émerveille.' },
+      { l: 'Un duplex court', icon: '📡', cost: { purchase: 0.01 }, career: { awareness: 1, loyalty: -1 },
+        r: 'Le duplex est trop bref.' },
+      { l: 'Renoncer', icon: '🙅', career: { awareness: -2, loyalty: 1 },
+        r: 'L’émission reste en studio.' }
+    ] },
+
+  // — Exclusif (p469) · generaliste, access —
+  { id: 'ps_p469_les_photos_volees', programId: 'p469', family: 'image', phase: 1,
+    titre: 'Les photos volées',
+    desc: 'Des photos d’une star publiées par {programme} auraient été prises à son insu. Son avocat menace de poursuites.',
+    c: [
+      { l: 'Retirer les photos', icon: '🗑️', career: { awareness: -1, loyalty: 2 },
+        r: 'L’affaire s’éteint.' },
+      { l: 'Maintenir la publication', icon: '📸', career: { awareness: 3 }, pop: -2,
+        r: 'Le procès s’annonce.' },
+      { l: 'Négocier une interview', icon: '🎙️', cost: { purchase: 0.02 }, career: { awareness: 1, loyalty: 1, wear: 1 },
+        r: 'La star accepte de se confier.' }
+    ] },
+  { id: 'ps_p469_exclusivite_mariage', programId: 'p469', family: 'strategie', phase: 2, when: { minSeasons: 1 },
+    titre: 'L’exclusivité mariage',
+    desc: 'Une star propose à {programme} l’exclusivité de son mariage contre un cachet élevé. La concurrence surenchérit.',
+    c: [
+      { l: 'Payer l’exclusivité', icon: '💍', cost: { purchase: 0.06 }, lasting: 0.02, career: { awareness: 5 },
+        r: 'Le mariage fait un carton.' },
+      { l: 'Couvrir sans exclusivité', icon: '📷', career: { awareness: 1, loyalty: -1, wear: 1 },
+        r: 'La couverture est banale.' },
+      { l: 'Laisser filer', icon: '🙅', career: { awareness: -2, loyalty: 1 },
+        r: 'La concurrence triomphe.' }
+    ] },
+
+  // — Faites entrer le coupable (p470) · generaliste, prime —
+  { id: 'ps_p470_famille_victime', programId: 'p470', family: 'editorial', phase: 1,
+    titre: 'La famille de la victime',
+    desc: 'La famille d’une victime évoquée dans {programme} n’a pas été prévenue de la diffusion. Elle dénonce un manque de respect.',
+    c: [
+      { l: 'Présenter des excuses publiques', icon: '🙏', career: { awareness: -1, loyalty: 2 },
+        r: 'La famille accepte les excuses.' },
+      { l: 'Instaurer une consultation systématique', icon: '📋', cost: { recurring: 0.01 }, career: { loyalty: 1, wear: 1 }, pop: 1,
+        r: 'Les familles sont désormais associées.' },
+      { l: 'Maintenir la diffusion', icon: '📺', career: { awareness: 2 }, pop: -2,
+        r: 'La famille saisit la justice.' }
+    ] },
+  { id: 'ps_p470_affaire_non_resolue', programId: 'p470', family: 'audience', phase: 3, when: { minSeasons: 1, form: 'success' },
+    titre: 'L’affaire non résolue',
+    desc: 'Le succès de {programme} pousse la production à rouvrir une affaire non élucidée. Les enquêteurs à la retraite acceptent de participer.',
+    c: [
+      { l: 'Mener une vraie contre-enquête', icon: '🕵️', cost: { purchase: 0.04 }, career: { awareness: 5, loyalty: 1 },
+        r: 'L’enquête relance l’affaire.' },
+      { l: 'Un épisode classique', icon: '📼', career: { awareness: 2, loyalty: -1, wear: 1 },
+        r: 'L’épisode reste convenu.' },
+      { l: 'Renoncer', icon: '🙅', career: { awareness: -2, loyalty: 1 },
+        r: 'L’affaire reste close.' }
+    ] },
+
+  // — Farce Attaque (p471) · generaliste, access —
+  { id: 'ps_p471_blague_trop', programId: 'p471', family: 'image', phase: 1,
+    titre: 'La blague de trop',
+    desc: 'Un sketch de {programme} moque un handicap. Les associations demandent des excuses.',
+    c: [
+      { l: 'Présenter des excuses', icon: '🙏', career: { awareness: -1, loyalty: 2 },
+        r: 'Les excuses sont acceptées.' },
+      { l: 'Défendre l’humour noir', icon: '😈', career: { awareness: 2 }, pop: -2,
+        r: 'La polémique fait vendre.' },
+      { l: 'Inviter les associations à écrire un sketch', icon: '✍️', cost: { purchase: 0.01 }, career: { loyalty: 1, wear: 1 }, pop: 1,
+        r: 'Le sketch commun est réussi.' }
+    ] },
+  { id: 'ps_p471_tournee_des_humoristes', programId: 'p471', family: 'strategie', phase: 2, when: { minSeasons: 1 },
+    titre: 'La tournée des humoristes',
+    desc: 'Les humoristes de {programme} veulent partir en tournée sous la bannière de l’émission. Un producteur de spectacles se propose.',
+    c: [
+      { l: 'Coproduire la tournée', icon: '🎪', cost: { purchase: 0.04 }, lasting: 0.02, career: { awareness: 4 },
+        r: 'La tournée fait salle comble.' },
+      { l: 'Céder la marque', icon: '📝', cost: { commercial: 0.03 }, career: { awareness: 1, loyalty: -1 },
+        r: 'La tournée est inégale.' },
+      { l: 'Refuser', icon: '🙅', career: { awareness: -2, loyalty: 1 },
+        r: 'Les humoristes partent seuls.' }
+    ] },
+
+  // — Frou-frou (p472) · generaliste, access —
+  { id: 'ps_p472_mannequin_trop_maigre', programId: 'p472', family: 'editorial', phase: 1,
+    titre: 'La mannequin trop maigre',
+    desc: 'Une mannequin présentée dans {programme} est jugée dangereusement maigre. Des médecins dénoncent l’émission.',
+    c: [
+      { l: 'Adopter une charte santé', icon: '📜', cost: { purchase: 0.01 }, career: { loyalty: 2 }, pop: 1,
+        r: 'La charte est saluée.' },
+      { l: 'Défendre le casting', icon: '🛡️', career: { awareness: 1 }, pop: -2,
+        r: 'La polémique dure.' },
+      { l: 'Inviter des médecins', icon: '🩺', career: { awareness: -1, loyalty: 1, wear: 1 },
+        r: 'Le débat est instructif.' }
+    ] },
+  { id: 'ps_p472_maison_couture', programId: 'p472', family: 'economie', phase: 2, when: { minSeasons: 1 },
+    titre: 'La maison de couture',
+    desc: 'Une maison de couture veut parrainer {programme}. Elle demande l’exclusivité des défilés.',
+    c: [
+      { l: 'Accepter l’exclusivité', icon: '👗', cost: { commercial: 0.05 }, career: { awareness: 1, loyalty: -2 },
+        r: 'Les autres créateurs boycottent.' },
+      { l: 'Parrainage non exclusif', icon: '🧵', cost: { commercial: 0.02 }, career: { awareness: -1, loyalty: 1 },
+        r: 'Le compromis tient.' },
+      { l: 'Refuser', icon: '🙅', career: { awareness: -2, loyalty: 2 },
+        r: 'L’émission reste indépendante.' }
+    ] },
+
+  // — Fred le millionnaire (p473) · generaliste, prime —
+  { id: 'ps_p473_millionnaire_imposteur', programId: 'p473', family: 'editorial', phase: 1,
+    titre: 'Le millionnaire imposteur',
+    desc: 'Le millionnaire de {programme} serait en réalité criblé de dettes. La presse publie des révélations.',
+    c: [
+      { l: 'Révéler la vérité à l’antenne', icon: '📢', career: { awareness: 1, loyalty: 2 }, pop: -1,
+        r: 'Le rebondissement fait sensation.' },
+      { l: 'Couper la saison', icon: '✂️', career: { awareness: -2, loyalty: 1 },
+        r: 'Le public est frustré.' },
+      { l: 'Maintenir le mythe', icon: '🎭', cost: { purchase: 0.02 }, career: { awareness: 2, loyalty: -2 },
+        r: 'Le mensonge éclate.' }
+    ] },
+  { id: 'ps_p473_saison_soleil', programId: 'p473', family: 'audience', phase: 2, when: { minSeasons: 1 },
+    titre: 'La saison au soleil',
+    desc: 'La production de {programme} propose de tourner la prochaine saison à Saint-Tropez. Les coûts seraient élevés.',
+    c: [
+      { l: 'Partir à Saint-Tropez', icon: '🌞', cost: { purchase: 0.06 }, lasting: 0.03, career: { awareness: 5 },
+        r: 'Le décor fait rêver.' },
+      { l: 'Tourner sur la côte bretonne', icon: '🌊', cost: { purchase: 0.02 }, career: { awareness: 2, loyalty: 1, wear: 1 },
+        r: 'Le décor surprend.' },
+      { l: 'Rester à Paris', icon: '🗼', career: { awareness: -2, loyalty: 1 },
+        r: 'Le décor lasse.' }
+    ] },
+
+  // — Gym Tonic (p474) · generaliste, matin —
+  { id: 'ps_p474_coach_blessee', programId: 'p474', family: 'editorial', phase: 1,
+    titre: 'La coach blessée',
+    desc: 'La coach vedette de {programme} s’est blessée en direct. Les réseaux sociaux s’inquiètent pour elle.',
+    c: [
+      { l: 'Lui offrir un congé', icon: '🛏️', cost: { purchase: 0.02 }, career: { loyalty: 2 }, pop: 1,
+        r: 'La coach revient en pleine forme.' },
+      { l: 'La remplacer temporairement', icon: '🔄', career: { awareness: -1, loyalty: -1 },
+        r: 'Le public boude la remplaçante.' },
+      { l: 'La faire coacher assise', icon: '🪑', career: { awareness: 2, wear: 2 }, pop: -1,
+        r: 'La séquence est inattendue.' }
+    ] },
+  { id: 'ps_p474_salle_sport', programId: 'p474', family: 'economie', phase: 2, when: { minSeasons: 1 },
+    titre: 'La salle de sport',
+    desc: 'Une chaîne de salles de sport veut décliner {programme} en cours collectifs. Elle propose des royalties.',
+    c: [
+      { l: 'Signer la licence', icon: '🏋️', cost: { commercial: 0.05 }, career: { awareness: 2, loyalty: -1 },
+        r: 'Les cours remplissent les salles.' },
+      { l: 'Créer des cours en ligne', icon: '💻', cost: { purchase: 0.03 }, lasting: 0.02, career: { awareness: 3 },
+        r: 'Les cours en ligne cartonnent.' },
+      { l: 'Refuser', icon: '🙅', career: { awareness: -2, loyalty: 1 },
+        r: 'L’émission reste à l’écran.' }
+    ] },
+
+  // — NPA (p475) · generaliste, access —
+  { id: 'ps_p475_caricature_qui_blesse', programId: 'p475', family: 'editorial', phase: 1,
+    titre: 'La caricature qui blesse',
+    desc: 'Une caricature de {programme} vise la famille d’un homme politique. Celui-ci dénonce une attaque personnelle.',
+    c: [
+      { l: 'Présenter des excuses', icon: '🙏', career: { awareness: -1, loyalty: 1 },
+        r: 'Les excuses calment le jeu.' },
+      { l: 'Défendre la satire', icon: '🗽', career: { awareness: 2, loyalty: 1 }, pop: -1,
+        r: 'Le monde culturel soutient l’émission.' },
+      { l: 'Retirer la séquence', icon: '✂️', career: { awareness: -1, loyalty: -1 }, pop: 1,
+        r: 'Les auteurs crient à la censure.' }
+    ] },
+  { id: 'ps_p475_emission_public', programId: 'p475', family: 'strategie', phase: 2, when: { minSeasons: 1 },
+    titre: 'L’émission en public',
+    desc: 'La production de {programme} propose d’enregistrer avec un public. Le plateau devrait être agrandi.',
+    c: [
+      { l: 'Agrandir le plateau', icon: '🏗️', cost: { purchase: 0.04 }, lasting: 0.02, career: { awareness: 4 },
+        r: 'Le public apporte de l’énergie.' },
+      { l: 'Un public restreint', icon: '👥', cost: { purchase: 0.01 }, career: { awareness: 1, loyalty: -1 },
+        r: 'L’effet est limité.' },
+      { l: 'Rester sans public', icon: '⏸️', career: { awareness: -2, loyalty: 1 },
+        r: 'L’émission reste intimiste.' }
+    ] },
+
+  // — La cible (p476) · generaliste, access —
+  { id: 'ps_p476_candidat_elimine_injustement', programId: 'p476', family: 'editorial', phase: 1,
+    titre: 'Le candidat éliminé injustement',
+    desc: 'Un candidat de {programme} a été éliminé sur une erreur de buzzer. La vidéo le prouve.',
+    c: [
+      { l: 'Le réintégrer', icon: '🔁', career: { awareness: -1, loyalty: 2 },
+        r: 'Le candidat revient et gagne.' },
+      { l: 'Lui offrir un lot', icon: '🎁', cost: { purchase: 0.01 }, career: { loyalty: 1 }, pop: 1,
+        r: 'Le candidat est apaisé.' },
+      { l: 'Maintenir l’élimination', icon: '🙈', career: { awareness: 1 }, pop: -2,
+        r: 'La polémique enfle.' }
+    ] },
+  { id: 'ps_p476_application_jeu', programId: 'p476', family: 'economie', phase: 2, when: { minSeasons: 1 },
+    titre: 'L’application du jeu',
+    desc: 'Un éditeur propose de développer l’application officielle de {programme}. Il demande une part des recettes.',
+    c: [
+      { l: 'Coproduire l’application', icon: '📱', cost: { purchase: 0.03 }, lasting: 0.02, career: { awareness: 3 },
+        r: 'L’application fidélise les joueurs.' },
+      { l: 'Céder la licence', icon: '📝', cost: { commercial: 0.03 }, career: { awareness: 1, loyalty: -1 },
+        r: 'L’application est médiocre.' },
+      { l: 'Refuser', icon: '🙅', career: { awareness: -2, loyalty: 1 },
+        r: 'Le jeu reste à l’écran.' }
+    ] },
+
+  // — La Tête et les Jambes (p477) · generaliste, access —
+  { id: 'ps_p477_epreuve_physique_trop', programId: 'p477', family: 'editorial', phase: 1,
+    titre: 'L’épreuve physique trop dure',
+    desc: 'Un candidat âgé de {programme} s’est blessé lors d’une épreuve physique. Sa famille dénonce l’émission.',
+    c: [
+      { l: 'Adapter les épreuves', icon: '⚖️', cost: { purchase: 0.01 }, career: { loyalty: 2 }, pop: 1,
+        r: 'Les épreuves deviennent accessibles.' },
+      { l: 'Maintenir les épreuves', icon: '🏃', career: { awareness: 2 }, pop: -2,
+        r: 'La polémique dure.' },
+      { l: 'Présenter des excuses', icon: '🙏', career: { awareness: -1, loyalty: 1, wear: 1 },
+        r: 'La famille accepte les excuses.' }
+    ] },
+  { id: 'ps_p477_version_famille', programId: 'p477', family: 'audience', phase: 2, when: { minSeasons: 1 },
+    titre: 'La version famille',
+    desc: 'La production de {programme} propose une version où grands-parents et petits-enfants jouent ensemble. Le casting serait complexe.',
+    c: [
+      { l: 'Lancer la version famille', icon: '👨‍👩‍👧', cost: { purchase: 0.04 }, lasting: 0.02, career: { awareness: 4 },
+        r: 'Les familles adorent.' },
+      { l: 'Un numéro spécial', icon: '🎁', cost: { purchase: 0.01 }, career: { awareness: 1, loyalty: -1 },
+        r: 'Le spécial est apprécié.' },
+      { l: 'Garder la formule', icon: '⏸️', career: { awareness: -2, loyalty: 1 },
+        r: 'Le jeu reste classique.' }
+    ] },
+
+  // — Le Grodeal (p478) · generaliste, access —
+  { id: 'ps_p478_valise_truquee', programId: 'p478', family: 'editorial', phase: 1,
+    titre: 'La valise truquée',
+    desc: 'Un candidat de {programme} accuse la production de truquer le contenu des valises. Il a filmé les coulisses.',
+    c: [
+      { l: 'Faire contrôler par un huissier', icon: '⚖️', cost: { purchase: 0.02 }, career: { awareness: 1, loyalty: 2 },
+        r: 'L’huissier blanchit le jeu.' },
+      { l: 'Contester sans preuve', icon: '🛡️', career: { awareness: 1 }, pop: -2,
+        r: 'Le doute s’installe.' },
+      { l: 'Ouvrir les coulisses', icon: '🎥', career: { awareness: -1, loyalty: 1, wear: 1 },
+        r: 'La transparence rassure.' }
+    ] },
+  { id: 'ps_p478_banquier_sponsor', programId: 'p478', family: 'economie', phase: 2, when: { minSeasons: 1 },
+    titre: 'Le banquier sponsor',
+    desc: 'Une banque veut sponsoriser {programme} en incarnant le banquier du jeu. Les puristes jugent l’idée vulgaire.',
+    c: [
+      { l: 'Accepter le sponsor', icon: '🏦', cost: { commercial: 0.05 }, career: { awareness: 1, loyalty: -2 },
+        r: 'Le banquier devient une marque.' },
+      { l: 'Sponsor discret', icon: '🤫', cost: { commercial: 0.02 }, career: { awareness: -1, loyalty: 1 },
+        r: 'Le sponsor passe inaperçu.' },
+      { l: 'Refuser', icon: '🙅', career: { awareness: -2, loyalty: 2 },
+        r: 'Le jeu reste fidèle.' }
+    ] },
+
+  // — Le Grand Show (p479) · generaliste, access —
+  { id: 'ps_p479_artiste_qui_annule', programId: 'p479', family: 'editorial', phase: 1,
+    titre: 'L’artiste qui annule',
+    desc: 'La tête d’affiche de {programme} annule sa venue la veille du direct. La production cherche une solution.',
+    c: [
+      { l: 'Trouver une star de remplacement', icon: '⭐', cost: { purchase: 0.03 }, career: { awareness: 2, loyalty: 1 },
+        r: 'Le remplaçant sauve la soirée.' },
+      { l: 'Promouvoir un jeune talent', icon: '🌱', career: { awareness: -2, loyalty: 2 },
+        r: 'Le jeune talent impressionne la critique.' },
+      { l: 'Annoncer l’absence en direct', icon: '📢', career: { awareness: -1, wear: -1 }, pop: -1,
+        r: 'Le public est déçu.' }
+    ] },
+  { id: 'ps_p479_show_stade_france', programId: 'p479', family: 'audience', phase: 3, when: { minSeasons: 1, form: 'success' },
+    titre: 'Le show au Stade de France',
+    desc: 'Le succès de {programme} pousse la production à proposer un show au Stade de France. Les coûts seraient vertigineux.',
+    c: [
+      { l: 'Remplir le stade', icon: '🏟️', cost: { purchase: 0.07 }, lasting: 0.03, career: { awareness: 5 },
+        r: 'Le show est mémorable.' },
+      { l: 'Une grande salle parisienne', icon: '🎭', cost: { purchase: 0.03 }, career: { awareness: 2, loyalty: 1 },
+        r: 'Le show est réussi.' },
+      { l: 'Rester en studio', icon: '🎬', career: { awareness: -2, loyalty: 1 },
+        r: 'Le show reste classique.' }
+    ] },
+
+  // — Le Juste Price (p480) · generaliste, access —
+  { id: 'ps_p480_prix_mal_estime', programId: 'p480', family: 'editorial', phase: 1,
+    titre: 'Le prix mal estimé',
+    desc: 'Un produit de {programme} affichait un prix erroné, et une candidate a perdu à cause de l’erreur. Elle demande à rejouer.',
+    c: [
+      { l: 'La faire rejouer', icon: '🔁', career: { awareness: -1, loyalty: 2 },
+        r: 'La candidate gagne cette fois.' },
+      { l: 'Lui offrir le produit', icon: '🎁', cost: { purchase: 0.01 }, career: { loyalty: 1 }, pop: 1,
+        r: 'La candidate repart ravie.' },
+      { l: 'Refuser', icon: '🙈', career: { awareness: 1 }, pop: -2,
+        r: 'La polémique enfle.' }
+    ] },
+  { id: 'ps_p480_les_annonceurs_bousculent', programId: 'p480', family: 'economie', phase: 2, when: { minSeasons: 1 },
+    titre: 'Les annonceurs se bousculent',
+    desc: 'Des marques proposent de payer pour placer leurs produits dans {programme}. Les spectateurs pourraient s’en lasser.',
+    c: [
+      { l: 'Accepter tous les placements', icon: '🛒', cost: { commercial: 0.06 }, career: { awareness: 1, wear: 2 }, pop: -2,
+        r: 'Le jeu ressemble à une publicité.' },
+      { l: 'Sélectionner quelques marques', icon: '🏷️', cost: { commercial: 0.02 }, career: { awareness: -1, loyalty: 1 },
+        r: 'Le compromis passe.' },
+      { l: 'Refuser', icon: '🙅', career: { awareness: -2, loyalty: 2 },
+        r: 'Le jeu garde son charme.' }
+    ] },
+
+  // — L'Émission impossible (p481) · generaliste, nuit —
+  { id: 'ps_p481_emission_trop_audacieuse', programId: 'p481', family: 'editorial', phase: 1,
+    titre: 'L’émission trop audacieuse',
+    desc: 'Un numéro de {programme} mêle fiction et réalité au point de tromper des spectateurs. Certains croient à une vraie catastrophe.',
+    c: [
+      { l: 'Ajouter un avertissement', icon: '⚠️', career: { awareness: -1, loyalty: 2 },
+        r: 'Le public comprend le concept.' },
+      { l: 'Assumer la confusion', icon: '🎭', career: { awareness: 3 }, pop: -2,
+        r: 'Le canular fait le buzz.' },
+      { l: 'Présenter des excuses', icon: '🙏', cost: { purchase: 0.01 }, career: { loyalty: 1 }, pop: 1,
+        r: 'Les excuses sont acceptées.' }
+    ] },
+  { id: 'ps_p481_passage_prime', programId: 'p481', family: 'strategie', phase: 2, when: { minSeasons: 1 },
+    titre: 'Le passage en prime',
+    desc: 'Le côté culte de {programme} pousse la chaîne à proposer une version prime. Les créateurs craignent de perdre leur liberté.',
+    c: [
+      { l: 'Passer en prime', icon: '🌟', cost: { purchase: 0.04 }, lasting: 0.02, career: { awareness: 4, loyalty: -1 },
+        r: 'L’émission touche un large public.' },
+      { l: 'Un prime exceptionnel', icon: '🎁', cost: { purchase: 0.01 }, career: { awareness: 2, wear: 1 },
+        r: 'Le spécial est apprécié.' },
+      { l: 'Rester la nuit', icon: '🌙', career: { awareness: -2, loyalty: 2 },
+        r: 'L’émission garde son esprit libre.' }
+    ] },
+
+  // — Morning live (p482) · generaliste, matin —
+  { id: 'ps_p482_animateur_retard', programId: 'p482', family: 'editorial', phase: 1,
+    titre: 'L’animateur en retard',
+    desc: 'L’animateur vedette de {programme} arrive régulièrement en retard au direct. L’équipe est exaspérée.',
+    c: [
+      { l: 'Le recadrer', icon: '📋', career: { awareness: -1, loyalty: 2 },
+        r: 'Il redevient ponctuel.' },
+      { l: 'Engager un coanimateur', icon: '👥', cost: { recurring: 0.01 }, career: { loyalty: 1, wear: -2 },
+        r: 'Le duo fonctionne.' },
+      { l: 'Laisser faire', icon: '🙈', career: { awareness: 1, wear: 2 }, pop: -1,
+        r: 'L’équipe s’épuise.' }
+    ] },
+  { id: 'ps_p482_direct_exterieur', programId: 'p482', family: 'audience', phase: 2, when: { minSeasons: 1 },
+    titre: 'Le direct en extérieur',
+    desc: 'La production de {programme} propose de délocaliser l’émission dans une ville différente chaque semaine. La logistique serait lourde.',
+    c: [
+      { l: 'Partir en tournée', icon: '🚌', cost: { purchase: 0.04 }, lasting: 0.02, career: { awareness: 4 },
+        r: 'Les villes accueillent l’émission avec ferveur.' },
+      { l: 'Une fois par mois', icon: '📅', cost: { purchase: 0.01 }, career: { awareness: 1, loyalty: -1 },
+        r: 'L’effet est limité.' },
+      { l: 'Rester en studio', icon: '🎬', career: { awareness: -2, loyalty: 1 },
+        r: 'L’émission reste classique.' }
+    ] },
+
+  // — Les Niouzes (p483) · generaliste, nuit —
+  { id: 'ps_p483_parodie_qui_vexe', programId: 'p483', family: 'image', phase: 1,
+    titre: 'La parodie qui vexe',
+    desc: 'Une parodie de {programme} vise un journaliste d’une chaîne concurrente. Celui-ci se dit diffamé.',
+    c: [
+      { l: 'Présenter des excuses', icon: '🙏', career: { awareness: -1, loyalty: 1 },
+        r: 'Le journaliste accepte.' },
+      { l: 'Défendre la satire', icon: '🗽', career: { awareness: 2, loyalty: 1 }, pop: -1,
+        r: 'La satire triomphe.' },
+      { l: 'Inviter le journaliste', icon: '🎙️', cost: { purchase: 0.01 }, career: { awareness: 1, wear: 1 }, pop: 1,
+        r: 'Le journaliste joue le jeu.' }
+    ] },
+  { id: 'ps_p483_version_web', programId: 'p483', family: 'strategie', phase: 2, when: { minSeasons: 1 },
+    titre: 'La version web',
+    desc: 'La production de {programme} propose une déclinaison quotidienne sur les réseaux sociaux. Les auteurs craignent la surcharge.',
+    c: [
+      { l: 'Lancer la version web', icon: '📱', cost: { purchase: 0.03 }, career: { awareness: 4, wear: 2 },
+        r: 'La version web cartonne.' },
+      { l: 'Publier des extraits', icon: '✂️', career: { awareness: 1, loyalty: -1 },
+        r: 'Les extraits circulent.' },
+      { l: 'Rester à l’antenne', icon: '📺', career: { awareness: -2, loyalty: 1 },
+        r: 'L’émission rate le virage numérique.' }
+    ] },
+
+  // — Les Reines des courses (p484) · generaliste, apresmidi —
+  { id: 'ps_p484_cheval_blesse', programId: 'p484', family: 'editorial', phase: 1,
+    titre: 'Le cheval blessé',
+    desc: 'Un cheval s’est blessé lors d’une course filmée par {programme}. Les associations de protection animale réagissent.',
+    c: [
+      { l: 'Couper la séquence', icon: '✂️', career: { awareness: -1, loyalty: 2 },
+        r: 'L’incident est oublié.' },
+      { l: 'Diffuser avec un débat', icon: '🗣️', cost: { purchase: 0.01 }, career: { awareness: 1, loyalty: 1, wear: 1 },
+        r: 'Le débat est riche.' },
+      { l: 'Diffuser sans commentaire', icon: '📺', career: { awareness: 2 }, pop: -2,
+        r: 'Les associations s’indignent.' }
+    ] },
+  { id: 'ps_p484_pmu_partenaire', programId: 'p484', family: 'economie', phase: 2, when: { minSeasons: 1 },
+    titre: 'Le PMU partenaire',
+    desc: 'Le PMU propose de parrainer {programme}. Les associations de lutte contre l’addiction s’inquiètent.',
+    c: [
+      { l: 'Accepter', icon: '🏇', cost: { commercial: 0.05 }, career: { awareness: 1 }, pop: -2,
+        r: 'Le parrainage suscite des critiques.' },
+      { l: 'Parrainage encadré', icon: '📜', cost: { commercial: 0.02 }, career: { awareness: -1, loyalty: 1 },
+        r: 'Le compromis tient.' },
+      { l: 'Refuser', icon: '🙅', career: { awareness: -2, loyalty: 2 },
+        r: 'L’émission reste indépendante.' }
+    ] },
+
+  // — L'argent à l'appel (p485) · generaliste, access —
+  { id: 'ps_p485_standard_sature', programId: 'p485', family: 'editorial', phase: 1,
+    titre: 'Le standard saturé',
+    desc: 'Les lignes téléphoniques de {programme} ont saturé, et des joueurs n’ont pas pu participer. Ils réclament un remboursement.',
+    c: [
+      { l: 'Rembourser les appels', icon: '💶', cost: { purchase: 0.02 }, career: { loyalty: 2 }, pop: 1,
+        r: 'Les joueurs sont apaisés.' },
+      { l: 'Améliorer le standard', icon: '☎️', cost: { recurring: 0.01 }, career: { loyalty: 1, wear: -1 },
+        r: 'Les incidents cessent.' },
+      { l: 'Ignorer', icon: '🙈', career: { awareness: 1 }, pop: -2,
+        r: 'Les plaintes s’accumulent.' }
+    ] },
+  { id: 'ps_p485_regulation_des_jeux', programId: 'p485', family: 'image', phase: 2, when: { minSeasons: 1 },
+    titre: 'La régulation des jeux',
+    desc: 'L’Autorité des jeux interroge {programme} sur le coût des appels surtaxés. Une amende est possible.',
+    c: [
+      { l: 'Réduire le coût des appels', icon: '📉', career: { awareness: -1, loyalty: 2, wear: 1 }, pop: 1,
+        r: 'L’Autorité salue l’effort.' },
+      { l: 'Contester', icon: '⚖️', cost: { purchase: 0.02 }, career: { awareness: 1 }, pop: -1,
+        r: 'Le contentieux dure.' },
+      { l: 'Passer au vote gratuit', icon: '🆓', career: { awareness: -2, loyalty: 1 },
+        r: 'Le jeu perd de son attrait.' }
+    ] },
+
+  // — Millionnaire (p486) · generaliste, access —
+  { id: 'ps_p486_question_piege', programId: 'p486', family: 'editorial', phase: 1,
+    titre: 'La question piège',
+    desc: 'Une question de {programme} a été jugée ambiguë, et un candidat a perdu une grosse somme. Les spectateurs prennent sa défense.',
+    c: [
+      { l: 'Lui rendre ses gains', icon: '💶', cost: { purchase: 0.03 }, career: { loyalty: 2 }, pop: 1,
+        r: 'Le candidat est ravi.' },
+      { l: 'Le faire rejouer', icon: '🔁', career: { awareness: 1, loyalty: 1, wear: 1 },
+        r: 'Le candidat rejoue et gagne.' },
+      { l: 'Maintenir', icon: '🙈', career: { awareness: 1 }, pop: -2,
+        r: 'La polémique enfle.' }
+    ] },
+  { id: 'ps_p486_gagnant_historique', programId: 'p486', family: 'audience', phase: 3, when: { minSeasons: 1, form: 'success' },
+    titre: 'Le gagnant historique',
+    desc: 'Un candidat de {programme} approche du gain maximal. La production envisage de bouleverser la programmation pour la dernière question.',
+    c: [
+      { l: 'Programmer un prime spécial', icon: '🌟', cost: { purchase: 0.03 }, lasting: 0.02, career: { awareness: 5 },
+        r: 'La France entière retient son souffle.' },
+      { l: 'Garder le créneau habituel', icon: '⏸️', career: { awareness: 2, loyalty: -1, wear: 1 },
+        r: 'La victoire passe presque inaperçue.' },
+      { l: 'Retarder la diffusion', icon: '📆', career: { awareness: -2, loyalty: 1 },
+        r: 'Le suspense s’essouffle.' }
+    ] },
+
+  // — Strip-tease (p487) · generaliste, nuit —
+  { id: 'ps_p487_portrait_qui_blesse', programId: 'p487', family: 'editorial', phase: 1,
+    titre: 'Le portrait qui blesse',
+    desc: 'Une famille filmée par {programme} se dit humiliée par le montage. Elle porte plainte.',
+    c: [
+      { l: 'Retirer l’épisode', icon: '🗑️', career: { awareness: -1, loyalty: 2 },
+        r: 'La famille retire sa plainte.' },
+      { l: 'Défendre le regard documentaire', icon: '🎥', career: { awareness: 2, loyalty: 1 }, pop: -1,
+        r: 'Les cinéastes soutiennent l’émission.' },
+      { l: 'Proposer un droit de réponse', icon: '🗣️', cost: { purchase: 0.01 }, career: { wear: 1 }, pop: 1,
+        r: 'La famille s’exprime.' }
+    ] },
+  { id: 'ps_p487_festival', programId: 'p487', family: 'strategie', phase: 2, when: { minSeasons: 1 },
+    titre: 'Le festival',
+    desc: 'Un festival de documentaires propose une rétrospective de {programme}. Il demande une contribution aux frais.',
+    c: [
+      { l: 'Financer la rétrospective', icon: '🎞️', cost: { purchase: 0.02 }, career: { awareness: 1, loyalty: 2 },
+        r: 'La rétrospective est saluée.' },
+      { l: 'Accepter sans contribuer', icon: '🤝', career: { awareness: -1, loyalty: 1, wear: 1 },
+        r: 'La rétrospective est modeste.' },
+      { l: 'Refuser', icon: '🙅', career: { awareness: -2, loyalty: -1, wear: -1 },
+        r: 'L’émission reste méconnue.' }
     ] }
 ];
 // ---------------------------------------------------------------------------
