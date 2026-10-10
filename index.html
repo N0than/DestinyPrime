@@ -16186,6 +16186,485 @@ const PROGRAM_STORY_BANK = [
         r: 'Le jeu reste classique.' },
       { l: 'Un plateau géant pour une spéciale', icon: '🎉', cost: { purchase: 0.03 }, boost: 0.03, career: { awareness: 2 },
         r: 'La spéciale est appréciée.' }
+    ] },
+  // — Tous en scène ! (p368) · generaliste, prime —
+  { id: 'ps_p368_danseur_blesse_avant', programId: 'p368', family: 'editorial', phase: 1,
+    titre: 'Le danseur blessé avant la finale',
+    desc: 'Le favori de {programme} s’est blessé à la cheville à trois jours de la finale. Il veut danser malgré tout.',
+    c: [
+      { l: 'Reporter sa prestation', icon: '📆', cost: { purchase: 0.02 }, career: { loyalty: 2 }, pop: 1,
+        r: 'Le danseur se rétablit et brille.' },
+      { l: 'Le laisser danser', icon: '💃', boost: 0.05, career: { awareness: 3 }, pop: -1,
+        r: 'La prestation est héroïque mais risquée.' },
+      { l: 'Le remplacer par le premier éliminé', icon: '🔄', career: { loyalty: -2, wear: -3 },
+        r: 'Le repêché crée la surprise.' }
+    ] },
+  { id: 'ps_p368_spectacle_tournee', programId: 'p368', family: 'audience', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le spectacle en tournée',
+    desc: 'Les finalistes de {programme} pourraient partir en tournée dans les Zénith de France. Un producteur se propose.',
+    c: [
+      { l: 'Coproduire la tournée', icon: '🎪', cost: { purchase: 0.08 }, lasting: 0.03, career: { awareness: 5 },
+        r: 'La tournée prolonge le succès.' },
+      { l: 'Céder les droits', icon: '📝', cost: { commercial: 0.05 }, career: { awareness: 2, wear: 2 },
+        r: 'La tournée rapporte un peu.' },
+      { l: 'Refuser', icon: '🙅', career: { awareness: -2, loyalty: 1 },
+        r: 'Les finalistes restent à l’antenne.' }
+    ] },
+
+  // — Au chœur des villages (p369) · generaliste, prime —
+  { id: 'ps_p369_chorale_divisee', programId: 'p369', family: 'editorial', phase: 1,
+    titre: 'La chorale divisée',
+    desc: 'La chorale favorite de {programme} se déchire sur le choix d’un chant. Une partie des choristes menace de partir.',
+    c: [
+      { l: 'Laisser le chef de chœur trancher', icon: '🎼', career: { awareness: -1, loyalty: 1, wear: 2 },
+        r: 'La chorale reste unie, à grand-peine.' },
+      { l: 'Suivre le conflit à l’antenne', icon: '🎥', boost: 0.02, career: { awareness: 3 }, pop: -1,
+        r: 'Le conflit fait le buzz.' },
+      { l: 'Proposer un médiateur musical', icon: '🤝', cost: { purchase: 0.01 }, career: { loyalty: 2 }, pop: 1,
+        r: 'La médiation réconcilie la chorale.' }
+    ] },
+  { id: 'ps_p369_concert_dans_une', programId: 'p369', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le concert dans une cathédrale',
+    desc: 'Une cathédrale propose d’accueillir la finale de {programme}. Le cadre serait exceptionnel.',
+    c: [
+      { l: 'Organiser la finale à la cathédrale', icon: '⛪', cost: { purchase: 0.06 }, boost: 0.08, career: { awareness: 4 },
+        r: 'La finale émeut par sa beauté.' },
+      { l: 'Finale en studio', icon: '🎬', career: { loyalty: 1, wear: 3 },
+        r: 'La finale reste classique.' },
+      { l: 'Un concert spécial de Noël', icon: '🎄', cost: { purchase: 0.02 }, boost: 0.03, career: { awareness: 2 },
+        r: 'Le concert de Noël réchauffe les cœurs.' }
+    ] },
+
+  // — Les coups d'humour (p370) · generaliste, nuit —
+  { id: 'ps_p370_blague_trop', programId: 'p370', family: 'image', phase: 2,
+    titre: 'La blague de trop',
+    desc: 'Un humoriste de {programme} a fait une blague jugée homophobe. Les associations demandent son retrait.',
+    c: [
+      { l: 'Retirer la séquence et s’excuser', icon: '🙏', career: { loyalty: -1 }, pop: 2,
+        r: 'L’affaire est close.' },
+      { l: 'Défendre l’humoriste', icon: '🎭', career: { awareness: 2 }, pop: -3,
+        r: 'La polémique s’amplifie.' },
+      { l: 'Organiser un débat sur les limites de l’humour', icon: '⚖️', cost: { purchase: 0.01 }, career: { awareness: 2 }, pop: 1,
+        r: 'Le débat est salué.' }
+    ] },
+  { id: 'ps_p370_festival_rire', programId: 'p370', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le festival du rire',
+    desc: 'Un festival d’humour propose à {programme} de diffuser ses meilleurs spectacles. Les droits sont modestes.',
+    c: [
+      { l: 'Diffuser le festival', icon: '😂', cost: { purchase: 0.04 }, boost: 0.04, career: { awareness: 4 },
+        r: 'Les spectacles du festival font rire.' },
+      { l: 'Rester sur les humoristes habituels', icon: '🎤', career: { loyalty: 2, wear: 3 },
+        r: 'L’émission garde son équipe.' },
+      { l: 'Quelques sketchs du festival', icon: '🎬', cost: { purchase: 0.01 }, career: { awareness: 2 },
+        r: 'Les sketchs sont appréciés.' }
+    ] },
+
+  // — Cabaret ! (p371) · generaliste, access —
+  { id: 'ps_p371_numero_trop_ose', programId: 'p371', family: 'editorial', phase: 1,
+    titre: 'Le numéro trop osé',
+    desc: 'Un numéro de {programme} a été jugé trop déshabillé pour une diffusion en access. Des parents s’indignent.',
+    c: [
+      { l: 'Couper le numéro', icon: '✂️', boost: -0.02, career: { loyalty: -1 }, pop: 1,
+        r: 'Le numéro disparaît.' },
+      { l: 'Ajouter une signalétique', icon: '⚠️', cost: { purchase: 0.01 }, career: { loyalty: 1 }, pop: 1,
+        r: 'Les familles sont prévenues.' },
+      { l: 'Défendre l’art du cabaret', icon: '🎭', career: { awareness: 2, loyalty: 1 }, pop: -2,
+        r: 'Les amateurs applaudissent.' }
+    ] },
+  { id: 'ps_p371_cabaret_parisien', programId: 'p371', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le cabaret parisien',
+    desc: 'Un célèbre cabaret parisien propose d’accueillir {programme} pour une saison. Le décor serait prestigieux.',
+    c: [
+      { l: 'Tourner au cabaret', icon: '🎩', cost: { purchase: 0.06 }, career: { awareness: 4, wear: -6 },
+        r: 'Le décor prestigieux séduit.' },
+      { l: 'Rester en studio', icon: '🎬', career: { loyalty: 1, wear: 3 },
+        r: 'L’émission reste classique.' },
+      { l: 'Une émission spéciale au cabaret', icon: '🎉', cost: { purchase: 0.02 }, boost: 0.03, career: { awareness: 2 },
+        r: 'La spéciale est remarquée.' }
+    ] },
+
+  // — Stars circus ! (p372) · generaliste, prime —
+  { id: 'ps_p372_star_tombe_trapeze', programId: 'p372', family: 'image', phase: 2,
+    titre: 'La star tombe du trapèze',
+    desc: 'Une célébrité de {programme} a chuté du trapèze pendant l’entraînement. Elle est hospitalisée.',
+    c: [
+      { l: 'Renforcer la sécurité des numéros', icon: '🦺', cost: { purchase: 0.04 }, career: { loyalty: 2 }, pop: 2,
+        r: 'Les numéros deviennent plus sûrs.' },
+      { l: 'Diffuser la chute', icon: '📺', career: { awareness: 3 }, pop: -3,
+        r: 'La chute choque.' },
+      { l: 'Lui rendre hommage dans l’émission', icon: '💐', boost: -0.02, career: { loyalty: 1 }, pop: 1,
+        r: 'L’hommage émeut.' }
+    ] },
+  { id: 'ps_p372_les_cachets_des', programId: 'p372', family: 'economie', phase: 1, when: { minSeasons: 1 },
+    titre: 'Les cachets des stars',
+    desc: 'Les célébrités de {programme} réclament des cachets plus élevés. Certaines menacent de quitter l’émission.',
+    c: [
+      { l: 'Augmenter les cachets', icon: '💶', cost: { recurring: 0.08 }, career: { awareness: 3, loyalty: 2 },
+        r: 'Les stars restent.' },
+      { l: 'Recruter des stars montantes', icon: '🌟', career: { awareness: -1, loyalty: -1, wear: -4 },
+        r: 'De nouvelles têtes, moins connues.' },
+      { l: 'Proposer un intéressement aux audiences', icon: '📈', cost: { purchase: 0.03 }, career: { awareness: 1, loyalty: 1 },
+        r: 'Un accord gagnant-gagnant.' }
+    ] },
+
+  // — Surprise, surprise (p373) · generaliste, access —
+  { id: 'ps_p373_surprise_qui_fache', programId: 'p373', family: 'image', phase: 2,
+    titre: 'La surprise qui fâche',
+    desc: 'Une surprise organisée par {programme} a mis mal à l’aise son destinataire, ému aux larmes devant les caméras. Sa famille juge l’émission intrusive.',
+    c: [
+      { l: 'Couper les passages les plus intimes', icon: '✂️', boost: -0.02, pop: 2,
+        r: 'Le destinataire est respecté.' },
+      { l: 'Diffuser l’émotion telle quelle', icon: '😢', boost: 0.03, career: { awareness: 3 }, pop: -1,
+        r: 'L’émotion touche le public.' },
+      { l: 'Demander l’accord avant diffusion', icon: '✅', cost: { purchase: 0.01 }, career: { loyalty: 1 }, pop: 1,
+        r: 'Les familles sont rassurées.' }
+    ] },
+  { id: 'ps_p373_surprise_geante', programId: 'p373', family: 'audience', phase: 3, when: { minSeasons: 1 },
+    titre: 'La surprise géante',
+    desc: 'La production de {programme} propose une surprise géante : réunir une famille dispersée aux quatre coins du monde. Le tournage mobiliserait trois équipes sur trois continents.',
+    c: [
+      { l: 'Organiser les retrouvailles', icon: '✈️', cost: { purchase: 0.08 }, boost: 0.1, career: { awareness: 4 },
+        r: 'Les retrouvailles bouleversent la France.' },
+      { l: 'Rester sur des surprises simples', icon: '🎁', career: { loyalty: 2, wear: 3 },
+        r: 'L’émission reste classique.' },
+      { l: 'Une retrouvaille en visioconférence', icon: '💻', cost: { purchase: 0.01 }, career: { awareness: 2 },
+        r: 'Un moment touchant.' }
+    ] },
+
+  // — Fa Si La Chanter ! (p374) · generaliste, apresmidi —
+  { id: 'ps_p374_chanteuse_sans_voix', programId: 'p374', family: 'editorial', phase: 1,
+    titre: 'La chanteuse sans voix',
+    desc: 'La chanteuse vedette de {programme} a perdu sa voix. Le prochain enregistrement est menacé.',
+    c: [
+      { l: 'Reporter l’enregistrement', icon: '📆', boost: -0.03, career: { loyalty: 2 },
+        r: 'La chanteuse se repose.' },
+      { l: 'Faire appel à une remplaçante', icon: '🔄', cost: { purchase: 0.02 }, career: { awareness: 1, wear: -3 },
+        r: 'La remplaçante crée la surprise.' },
+      { l: 'Faire chanter le public', icon: '👥', career: { awareness: 2, loyalty: 1, wear: 2 },
+        r: 'Le public chante à sa place.' }
+    ] },
+  { id: 'ps_p374_chorale_geante', programId: 'p374', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'La chorale géante',
+    desc: 'La production de {programme} propose de réunir mille choristes amateurs pour une émission géante. Il faudrait louer un stade et coordonner des répétitions dans toute la région.',
+    c: [
+      { l: 'Réunir les mille choristes', icon: '🎶', cost: { purchase: 0.06 }, boost: 0.08, career: { awareness: 4 },
+        r: 'La chorale géante émeut.' },
+      { l: 'Rester sur le format habituel', icon: '🎤', career: { loyalty: 2, wear: 3 },
+        r: 'L’émission reste classique.' },
+      { l: 'Une chorale de cent personnes', icon: '👥', cost: { purchase: 0.02 }, boost: 0.03, career: { awareness: 2 },
+        r: 'La chorale est appréciée.' }
+    ] },
+
+  // — Faites-les rire ! (p375) · generaliste, nuit —
+  { id: 'ps_p375_humoriste_qui_fait', programId: 'p375', family: 'image', phase: 2,
+    titre: 'L’humoriste qui ne fait pas rire',
+    desc: 'Un jeune humoriste de {programme} a fait un bide retentissant, raillé sur les réseaux. Il traverse une période difficile.',
+    c: [
+      { l: 'Lui offrir une seconde chance', icon: '🔁', boost: -0.02, career: { loyalty: 1 }, pop: 2,
+        r: 'Sa seconde chance est réussie.' },
+      { l: 'Diffuser le bide', icon: '📺', career: { awareness: 2 }, pop: -2,
+        r: 'Le bide fait le buzz.' },
+      { l: 'Couper sa prestation', icon: '✂️', career: { wear: 2 }, pop: 1,
+        r: 'L’humoriste est préservé.' }
+    ] },
+  { id: 'ps_p375_ecole_rire', programId: 'p375', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'L’école du rire',
+    desc: 'La production de {programme} propose de créer une école de l’humour pour former de jeunes talents. Les humoristes installés y voient une concurrence déguisée.',
+    c: [
+      { l: 'Créer l’école', icon: '🎓', cost: { purchase: 0.06 }, lasting: 0.03, career: { awareness: 4 },
+        r: 'L’école révèle de nouveaux talents.' },
+      { l: 'Rester sur les castings', icon: '🎤', career: { loyalty: 1, wear: 3 },
+        r: 'L’émission garde son format.' },
+      { l: 'Organiser des ateliers', icon: '🛠️', cost: { purchase: 0.02 }, career: { awareness: 2 },
+        r: 'Les ateliers sont appréciés.' }
+    ] },
+
+  // — Ce soir, vous décidez (p376) · generaliste, prime —
+  { id: 'ps_p376_vote_truque', programId: 'p376', family: 'image', phase: 2,
+    titre: 'Le vote truqué',
+    desc: 'Des soupçons de vote truqué pèsent sur {programme}. Un candidat éliminé affirme avoir été victime d’une fraude.',
+    c: [
+      { l: 'Faire contrôler les votes par un huissier', icon: '📜', cost: { recurring: 0.01 }, career: { loyalty: 2 }, pop: 1,
+        r: 'Le contrôle rassure.' },
+      { l: 'Publier les résultats détaillés', icon: '📊', career: { awareness: -1, loyalty: 1 }, pop: 1,
+        r: 'La transparence apaise.' },
+      { l: 'Ignorer les soupçons', icon: '🤷', career: { awareness: 1, loyalty: -3 },
+        r: 'Le soupçon grandit.' }
+    ] },
+  { id: 'ps_p376_vote_direct', programId: 'p376', family: 'audience', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le vote en direct',
+    desc: 'La production de {programme} propose que le public vote en direct pour orienter le déroulé de l’émission. Les artistes craignent de perdre la maîtrise de leurs numéros.',
+    c: [
+      { l: 'Lancer le vote en direct', icon: '🗳️', cost: { purchase: 0.03 }, boost: 0.04, career: { awareness: 4 },
+        r: 'Le public devient acteur.' },
+      { l: 'Garder le déroulé prévu', icon: '📋', career: { loyalty: 2, wear: 3 },
+        r: 'L’émission reste maîtrisée.' },
+      { l: 'Un vote par émission', icon: '📲', cost: { purchase: 0.01 }, career: { awareness: 2 },
+        r: 'Le vote amuse.' }
+    ] },
+
+  // — Le chapeau d’or (p377) · generaliste, access —
+  { id: 'ps_p377_chapeau_perdu', programId: 'p377', family: 'editorial', phase: 1,
+    titre: 'Le chapeau perdu',
+    desc: 'Le chapeau d’or, trophée emblématique de {programme}, a été égaré pendant un déménagement de décor. La finale approche.',
+    c: [
+      { l: 'Fabriquer un nouveau chapeau', icon: '🎩', cost: { purchase: 0.01 }, career: { loyalty: 1, wear: 2 },
+        r: 'Le nouveau chapeau fait l’affaire.' },
+      { l: 'Lancer un appel au public', icon: '📢', career: { awareness: 3, loyalty: -1 },
+        r: 'Le public se prend au jeu.' },
+      { l: 'En faire un running gag', icon: '😄', boost: 0.02, career: { awareness: 2, loyalty: -1 },
+        r: 'Le gag amuse.' }
+    ] },
+  { id: 'ps_p377_chapeau_des_stars', programId: 'p377', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le chapeau des stars',
+    desc: 'La production de {programme} propose de faire jouer des personnalités pour des associations. Les gains seraient reversés intégralement, sans retombée directe pour la chaîne.',
+    c: [
+      { l: 'Lancer l’édition caritative', icon: '❤️', cost: { purchase: 0.03 }, career: { awareness: 3 }, pop: 2,
+        r: 'L’édition caritative séduit.' },
+      { l: 'Garder les candidats', icon: '🧑', career: { loyalty: 2, wear: 3 },
+        r: 'L’émission reste authentique.' },
+      { l: 'Une spéciale à Noël', icon: '🎄', cost: { purchase: 0.01 }, career: { awareness: 1 }, pop: 1,
+        r: 'La spéciale de Noël est appréciée.' }
+    ] },
+
+  // — Petit budget, grand chef (p378) · generaliste, apresmidi —
+  { id: 'ps_p378_budget_depasse', programId: 'p378', family: 'image', phase: 2,
+    titre: 'Le budget dépassé',
+    desc: 'Un candidat de {programme} a dépassé le budget autorisé sans être sanctionné. Les autres candidats protestent.',
+    c: [
+      { l: 'Le disqualifier', icon: '🚫', boost: -0.02, career: { loyalty: 2 }, pop: 1,
+        r: 'L’équité est respectée.' },
+      { l: 'Lui infliger une pénalité', icon: '⚖️', career: { awareness: -1, loyalty: 1, wear: 2 },
+        r: 'Un compromis acceptable.' },
+      { l: 'Ignorer', icon: '🤷', career: { awareness: 1, loyalty: -2 },
+        r: 'Les candidats sont furieux.' }
+    ] },
+  { id: 'ps_p378_chef_dans_les', programId: 'p378', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le chef dans les cantines',
+    desc: 'Le gagnant de {programme} se voit proposer de cuisiner dans des cantines scolaires pendant un an. Les municipalités demandent que la chaîne finance une partie du projet.',
+    c: [
+      { l: 'Suivre le chef dans les cantines', icon: '🏫', cost: { purchase: 0.04 }, lasting: 0.02, career: { awareness: 3 }, pop: 2,
+        r: 'Le chef transforme les cantines.' },
+      { l: 'Laisser le gagnant seul', icon: '🤷', career: { awareness: -1, loyalty: 1, wear: 2 },
+        r: 'Le projet se fait sans caméras.' },
+      { l: 'Un reportage de suivi', icon: '🎥', cost: { purchase: 0.01 }, career: { awareness: 2 },
+        r: 'Le reportage est apprécié.' }
+    ] },
+
+  // — Rien dans le frigo (p379) · generaliste, access —
+  { id: 'ps_p379_frigo_trop_rempli', programId: 'p379', family: 'editorial', phase: 1,
+    titre: 'Le frigo trop rempli',
+    desc: 'Des téléspectateurs révèlent que la production de {programme} remplit discrètement les frigos avant le tournage. Le concept est mis en doute.',
+    c: [
+      { l: 'Reconnaître et revoir les règles', icon: '🙏', career: { awareness: -1, loyalty: 2 }, pop: 1,
+        r: 'La transparence restaure la confiance.' },
+      { l: 'Démentir', icon: '🤥', career: { awareness: 1, loyalty: -3 },
+        r: 'Le démenti ne convainc pas.' },
+      { l: 'Filmer l’ouverture du frigo sans préparation', icon: '🎥', cost: { purchase: 0.01 }, career: { awareness: 2, loyalty: 2 },
+        r: 'L’authenticité convainc.' }
+    ] },
+  { id: 'ps_p379_anti_gaspillage', programId: 'p379', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'L’anti-gaspillage',
+    desc: 'L’Ademe propose à {programme} de s’associer à une campagne contre le gaspillage alimentaire. La campagne imposerait des séquences pédagogiques dans chaque numéro.',
+    c: [
+      { l: 'S’associer à la campagne', icon: '♻️', cost: { purchase: 0.01 }, career: { awareness: 2 }, pop: 2,
+        r: 'La campagne est saluée.' },
+      { l: 'Rester une émission culinaire', icon: '🍳', career: { loyalty: 1, wear: 3 },
+        r: 'L’émission garde son ton.' },
+      { l: 'Une émission spéciale anti-gaspillage', icon: '🥕', cost: { purchase: 0.03 }, career: { awareness: 3 }, pop: 2,
+        r: 'L’émission spéciale sensibilise.' }
+    ] },
+
+  // — La coupe des terroirs (p380) · generaliste, prime —
+  { id: 'ps_p380_region_vexee', programId: 'p380', family: 'image', phase: 2,
+    titre: 'La région vexée',
+    desc: 'Une région s’estime lésée par le jury de {programme}. Ses élus dénoncent un parti pris pour les terroirs voisins.',
+    c: [
+      { l: 'Changer la composition du jury', icon: '🔄', cost: { purchase: 0.01 }, career: { wear: -3 }, pop: 2,
+        r: 'Le jury gagne en diversité.' },
+      { l: 'Défendre le jury', icon: '🛡️', career: { awareness: 1 }, pop: -2,
+        r: 'La polémique dure.' },
+      { l: 'Organiser une revanche régionale', icon: '🏆', cost: { purchase: 0.03 }, boost: 0.04, career: { awareness: 3 },
+        r: 'La revanche passionne.' }
+    ] },
+  { id: 'ps_p380_finale_salon_agriculture', programId: 'p380', family: 'audience', phase: 3, when: { minSeasons: 1 },
+    titre: 'La finale au Salon de l’agriculture',
+    desc: 'Le Salon de l’agriculture propose d’accueillir la finale de {programme}. Le public serait nombreux.',
+    c: [
+      { l: 'Organiser la finale au Salon', icon: '🐄', cost: { purchase: 0.06 }, boost: 0.08, career: { awareness: 4 },
+        r: 'La finale fait l’événement.' },
+      { l: 'Finale en studio', icon: '🎬', career: { loyalty: 1, wear: 3 },
+        r: 'La finale reste classique.' },
+      { l: 'Un stand de l’émission au Salon', icon: '🏪', cost: { purchase: 0.02 }, career: { awareness: 2 }, pop: 1,
+        r: 'Le stand attire les visiteurs.' }
+    ] },
+
+  // — 48 heures pour ouvrir (p381) · generaliste, prime —
+  { id: 'ps_p381_restaurant_non_conforme', programId: 'p381', family: 'image', phase: 2,
+    titre: 'Le restaurant non conforme',
+    desc: 'Le restaurant ouvert en 48 heures dans {programme} a été fermé par les services d’hygiène quelques jours plus tard. La presse locale s’interroge sur le sérieux des chantiers express.',
+    c: [
+      { l: 'Revoir les normes avec des experts', icon: '🩺', cost: { purchase: 0.03 }, career: { loyalty: 2 }, pop: 1,
+        r: 'Les ouvertures deviennent conformes.' },
+      { l: 'Ignorer l’affaire', icon: '🤷', career: { awareness: 1 }, pop: -2,
+        r: 'L’émission est critiquée.' },
+      { l: 'Aider le restaurant à rouvrir', icon: '🔧', cost: { purchase: 0.02 }, career: { awareness: 1 }, pop: 2,
+        r: 'Le restaurant rouvre.' }
+    ] },
+  { id: 'ps_p381_les_restaurants_emission', programId: 'p381', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Les restaurants de l’émission',
+    desc: 'Les restaurants ouverts dans {programme} se développent. Un investisseur propose de créer une chaîne de restaurants.',
+    c: [
+      { l: 'Coproduire la chaîne de restaurants', icon: '🍽️', cost: { purchase: 0.08 }, lasting: 0.03, career: { awareness: 4 },
+        r: 'La marque se développe.' },
+      { l: 'Céder la marque', icon: '📝', cost: { commercial: 0.05 }, career: { awareness: 2, wear: 2 },
+        r: 'La cession rapporte.' },
+      { l: 'Refuser', icon: '🙅', career: { awareness: -2, loyalty: 1 },
+        r: 'L’émission reste à l’antenne.' }
+    ] },
+
+  // — Sucre et vertige (p382) · generaliste, prime —
+  { id: 'ps_p382_gateau_qui_effondre', programId: 'p382', family: 'image', phase: 2,
+    titre: 'Le gâteau qui s’effondre',
+    desc: 'La pièce montée de la finale de {programme} s’est effondrée en direct. Les réseaux en rient.',
+    c: [
+      { l: 'Offrir une seconde chance au candidat', icon: '🔁', cost: { purchase: 0.01 }, career: { loyalty: 1 }, pop: 2,
+        r: 'La seconde chance émeut.' },
+      { l: 'Diffuser l’effondrement en boucle', icon: '📺', boost: 0.02, career: { awareness: 3 }, pop: -1,
+        r: 'Le buzz est énorme.' },
+      { l: 'En faire un moment de solidarité', icon: '🤝', career: { loyalty: 2, wear: 2 }, pop: 1,
+        r: 'Les candidats s’entraident.' }
+    ] },
+  { id: 'ps_p382_patisserie_tournee', programId: 'p382', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'La pâtisserie en tournée',
+    desc: 'Les finalistes de {programme} pourraient animer des ateliers de pâtisserie dans toute la France. Un partenaire de la grande distribution se dit prêt à financer la tournée.',
+    c: [
+      { l: 'Lancer la tournée des ateliers', icon: '🧁', cost: { purchase: 0.04 }, lasting: 0.02, career: { awareness: 4 },
+        r: 'Les ateliers rencontrent un grand succès.' },
+      { l: 'Rester à l’antenne', icon: '📺', career: { loyalty: 1, wear: 3 },
+        r: 'L’émission reste classique.' },
+      { l: 'Des ateliers en ligne', icon: '💻', cost: { purchase: 0.01 }, career: { awareness: 2 },
+        r: 'Les ateliers en ligne attirent.' }
+    ] },
+
+  // — Fins palais (p383) · generaliste, apresmidi —
+  { id: 'ps_p383_degustateur_malade', programId: 'p383', family: 'image', phase: 2,
+    titre: 'Le dégustateur malade',
+    desc: 'Un juré de {programme} est tombé malade après une dégustation. La production doit vérifier la fraîcheur des produits.',
+    c: [
+      { l: 'Renforcer les contrôles d’hygiène', icon: '🧪', cost: { recurring: 0.01 }, career: { loyalty: 1 }, pop: 2,
+        r: 'Les contrôles rassurent.' },
+      { l: 'Minimiser', icon: '🤐', career: { awareness: 1 }, pop: -2,
+        r: 'L’émission est critiquée.' },
+      { l: 'Remplacer le fournisseur', icon: '🔄', cost: { purchase: 0.01 }, career: { wear: 2 }, pop: 1,
+        r: 'Le nouveau fournisseur rassure.' }
+    ] },
+  { id: 'ps_p383_degustation_des_grands', programId: 'p383', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'La dégustation des grands crus',
+    desc: 'Un grand domaine viticole propose d’accueillir une émission spéciale de {programme}. La dégustation serait prestigieuse.',
+    c: [
+      { l: 'Organiser la spéciale grands crus', icon: '🍷', cost: { purchase: 0.03 }, boost: 0.03, career: { awareness: 3 },
+        r: 'La spéciale est appréciée.' },
+      { l: 'Rester en studio', icon: '🎬', career: { loyalty: 1, wear: 3 },
+        r: 'L’émission reste classique.' },
+      { l: 'Accepter le parrainage du domaine', icon: '🤝', cost: { commercial: 0.02 }, career: { awareness: 1, loyalty: -2 },
+        r: 'Le parrainage rapporte un peu.' }
+    ] },
+
+  // — Tout feu, tout flamme (p384) · generaliste, access —
+  { id: 'ps_p384_feu_cuisine', programId: 'p384', family: 'image', phase: 2,
+    titre: 'Le feu en cuisine',
+    desc: 'Un départ de feu s’est produit pendant le tournage de {programme}. Les pompiers sont intervenus.',
+    c: [
+      { l: 'Revoir la sécurité du plateau', icon: '🧯', cost: { purchase: 0.03 }, career: { loyalty: 2 }, pop: 2,
+        r: 'Le plateau devient plus sûr.' },
+      { l: 'Diffuser l’incident', icon: '🔥', career: { awareness: 3 }, pop: -2,
+        r: 'Les images choquent.' },
+      { l: 'Remercier les pompiers à l’antenne', icon: '🚒', boost: -0.01, career: { loyalty: 1 }, pop: 1,
+        r: 'L’hommage aux pompiers est apprécié.' }
+    ] },
+  { id: 'ps_p384_les_chefs_barbecue', programId: 'p384', family: 'audience', phase: 3, when: { minSeasons: 1 },
+    titre: 'Les chefs du barbecue',
+    desc: 'La production de {programme} propose une saison consacrée aux grillades et au barbecue, tournée en plein air. La météo rendrait le planning de tournage incertain.',
+    c: [
+      { l: 'Lancer la saison barbecue', icon: '🍖', cost: { purchase: 0.04 }, career: { awareness: 4, wear: -6 },
+        r: 'La saison estivale séduit.' },
+      { l: 'Rester en cuisine', icon: '🍳', career: { loyalty: 2, wear: 3 },
+        r: 'L’émission garde son format.' },
+      { l: 'Un épisode spécial barbecue', icon: '🔥', cost: { purchase: 0.01 }, career: { awareness: 2 },
+        r: 'L’épisode est apprécié.' }
+    ] },
+
+  // — Mamie défie le chef (p385) · generaliste, access —
+  { id: 'ps_p385_mamie_gagne_trop', programId: 'p385', family: 'editorial', phase: 1,
+    titre: 'Mamie gagne trop souvent',
+    desc: 'Les grands-mères de {programme} battent presque systématiquement les chefs. Les chefs refusent de revenir.',
+    c: [
+      { l: 'Changer les épreuves', icon: '🔄', cost: { purchase: 0.01 }, career: { awareness: 1, loyalty: -1, wear: -6 },
+        r: 'Les duels redeviennent serrés.' },
+      { l: 'Garder le format', icon: '👵', career: { loyalty: 2, wear: 3 },
+        r: 'Les mamies restent reines.' },
+      { l: 'Inviter des chefs étoilés', icon: '⭐', cost: { purchase: 0.04 }, boost: 0.04, career: { awareness: 3 },
+        r: 'Les chefs étoilés relèvent le défi.' }
+    ] },
+  { id: 'ps_p385_livre_des_recettes', programId: 'p385', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le livre des recettes des mamies',
+    desc: 'Une maison d’édition propose de publier les recettes des grands-mères de {programme}. Le livre pourrait devenir un succès.',
+    c: [
+      { l: 'Publier le livre', icon: '📘', cost: { purchase: 0.02 }, lasting: 0.02, career: { awareness: 4 },
+        r: 'Le livre devient un best-seller.' },
+      { l: 'Céder les droits', icon: '📝', cost: { commercial: 0.03 }, career: { awareness: 2, wear: 2 },
+        r: 'Le livre rapporte un peu.' },
+      { l: 'Refuser', icon: '🙅', career: { awareness: -2, loyalty: 1 },
+        r: 'Les recettes restent à l’antenne.' }
+    ] },
+
+  // — Service de nuit (p386) · generaliste, nuit —
+  { id: 'ps_p386_les_conditions_travail', programId: 'p386', family: 'image', phase: 2,
+    titre: 'Les conditions de travail en cuisine',
+    desc: 'Un reportage de {programme} montre des cuisiniers épuisés par les services de nuit. Les syndicats saluent le sujet, le restaurant proteste.',
+    c: [
+      { l: 'Maintenir le reportage', icon: '📣', boost: -0.02, career: { awareness: 1, loyalty: 2 }, pop: 1,
+        r: 'Le reportage ouvre le débat.' },
+      { l: 'Couper les séquences critiques', icon: '✂️', career: { loyalty: -2 }, pop: -1,
+        r: 'Le reportage est édulcoré.' },
+      { l: 'Donner la parole au restaurateur', icon: '🎙️', cost: { purchase: 0.01 }, career: { loyalty: 1 }, pop: 1,
+        r: 'Le reportage gagne en équilibre.' }
+    ] },
+  { id: 'ps_p386_les_cuisines_nuit', programId: 'p386', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Les cuisines de nuit en France',
+    desc: 'La production de {programme} propose une série sur les cuisines qui travaillent la nuit dans toute la France. Les équipes devraient tourner à contre-horaire pendant deux mois.',
+    c: [
+      { l: 'Lancer la série', icon: '🌙', cost: { purchase: 0.03 }, lasting: 0.02, career: { awareness: 4 },
+        r: 'La série fait découvrir un monde méconnu.' },
+      { l: 'Rester sur un seul restaurant', icon: '🍽️', career: { loyalty: 1, wear: 3 },
+        r: 'L’émission reste intimiste.' },
+      { l: 'Un épisode par région', icon: '🗺️', cost: { purchase: 0.01 }, career: { awareness: 2, wear: -2 },
+        r: 'Une ouverture régionale.' }
+    ] },
+
+  // — Le banquet des 500 (p387) · generaliste, prime —
+  { id: 'ps_p387_banquet_trop_cher', programId: 'p387', family: 'editorial', phase: 1,
+    titre: 'Le banquet trop cher',
+    desc: 'Le banquet de cinq cents couverts de {programme} dépasse largement le budget prévu. La production doit trancher.',
+    c: [
+      { l: 'Financer le dépassement', icon: '💶', cost: { purchase: 0.08 }, boost: 0.05, career: { awareness: 3 },
+        r: 'Le banquet est grandiose.' },
+      { l: 'Réduire le nombre de couverts', icon: '✂️', boost: -0.02, career: { loyalty: -1, wear: 2 },
+        r: 'Le banquet perd de son ampleur.' },
+      { l: 'Trouver un sponsor', icon: '🤝', cost: { commercial: 0.04 }, career: { awareness: 1, loyalty: -2 },
+        r: 'Le sponsor finance, et s’affiche.' }
+    ] },
+  { id: 'ps_p387_banquet_solidaire', programId: 'p387', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le banquet solidaire',
+    desc: 'La production de {programme} propose d’offrir le banquet à des sans-abri, en partenariat avec une association. Certains y voient un beau geste, d’autres une mise en scène de la précarité.',
+    c: [
+      { l: 'Organiser le banquet solidaire', icon: '❤️', cost: { purchase: 0.03 }, career: { awareness: 3 }, pop: 3,
+        r: 'Le banquet solidaire émeut.' },
+      { l: 'Garder le format', icon: '🍽️', career: { loyalty: 1, wear: 3 },
+        r: 'L’émission reste classique.' },
+      { l: 'Un banquet solidaire à Noël', icon: '🎄', cost: { purchase: 0.01 }, career: { awareness: 1 }, pop: 1,
+        r: 'L’initiative de Noël est appréciée.' }
     ] }
 ];
 // ---------------------------------------------------------------------------
