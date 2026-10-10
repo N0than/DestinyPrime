@@ -8163,6 +8163,533 @@ const PROGRAM_STORY_BANK = [
         r: 'Le jeu circule dans les écoles sans effort de production.' },
       { l: 'Refuser', icon: '🙅', career: { awareness: -2, loyalty: 1 },
         r: 'L’émission reste confidentielle chez les plus jeunes.' }
+    ] },
+  // — Questions pour un jambon (p021) · generaliste, access —
+  { id: 'ps_p021_jambon_disparu', programId: 'p021', family: 'editorial', phase: 1,
+    titre: 'Le jambon d’or a disparu',
+    desc: 'Le trophée en forme de jambon remis au champion de {programme} a été dérobé en coulisses. Les fans s’amusent de l’affaire sur les réseaux et la production y voit une occasion.',
+    c: [
+      { l: 'Lancer une enquête parodique sur plusieurs émissions', icon: '🕵️', cost: { purchase: 0.06 }, boost: 0.06, career: { awareness: 5, wear: -4 },
+        r: 'Le feuilleton absurde amuse et fait parler du jeu.' },
+      { l: 'Commander discrètement un nouveau trophée', icon: '🍖', cost: { purchase: 0.02 }, career: { loyalty: 1, wear: 2 },
+        r: 'L’affaire est vite oubliée.' },
+      { l: 'Ne rien dire à l’antenne', icon: '🤐', career: { awareness: -1, loyalty: -1 },
+        r: 'Les fans regrettent qu’on n’en ait rien fait.' }
+    ] },
+  { id: 'ps_p021_les_questions_trop', programId: 'p021', family: 'audience', phase: 2, when: { minSeasons: 1 },
+    titre: 'Les questions trop faciles',
+    desc: 'Les champions de {programme} enchaînent les victoires et le jeu perd de son suspense. Les fidèles réclament des questions plus corsées.',
+    c: [
+      { l: 'Durcir les questions et plafonner les victoires', icon: '🧠', cost: { purchase: 0.03 }, career: { awareness: 1, loyalty: -2, wear: -8 },
+        r: 'Le jeu retrouve du suspense, quelques habitués sont frustrés.' },
+      { l: 'Garder les champions, ils font l’audience', icon: '🏅', career: { loyalty: 3, wear: 4 },
+        r: 'Les champions fidélisent, mais la routine s’installe.' },
+      { l: 'Créer un tournoi des maîtres en fin de saison', icon: '🏆', cost: { purchase: 0.08 }, boost: 0.06, career: { awareness: 3 },
+        r: 'Le tournoi offre un temps fort à la saison.' }
+    ] },
+
+  // — Question Maison (p023) · generaliste, access —
+  { id: 'ps_p023_agent_immobilier_vedette', programId: 'p023', family: 'editorial', phase: 2,
+    titre: 'L’agent immobilier vedette',
+    desc: 'L’expert immobilier de {programme} lance sa propre agence et voudrait y montrer ses biens. Son franc-parler plaît, mais le conflit d’intérêts est évident.',
+    c: [
+      { l: 'Lui demander de choisir entre l’émission et l’agence', icon: '⚖️', career: { loyalty: -2, wear: -3 }, pop: 1,
+        r: 'Il choisit l’agence : un nouveau visage arrive, la déontologie est sauve.' },
+      { l: 'Le garder en encadrant ses interventions', icon: '📋', cost: { purchase: 0.02 }, career: { loyalty: 2 }, pop: -1,
+        r: 'L’expert reste, avec une charte de transparence.' },
+      { l: 'Laisser faire', icon: '🤷', career: { awareness: 2, loyalty: -1 }, pop: -2,
+        r: 'Les téléspectateurs repèrent la publicité déguisée.' }
+    ] },
+  { id: 'ps_p023_crise_logement_invite', programId: 'p023', family: 'audience', phase: 3, when: { minSeasons: 1 },
+    titre: 'La crise du logement s’invite',
+    desc: 'Les taux d’intérêt grimpent et les acheteurs se raréfient. La rédaction de {programme} propose de s’intéresser aux locataires et aux primo-accédants en difficulté.',
+    c: [
+      { l: 'Réorienter l’émission vers le logement accessible', icon: '🏘️', cost: { purchase: 0.06 }, career: { awareness: 3, loyalty: 3, wear: -5 },
+        r: 'L’émission colle à l’actualité et gagne en utilité.' },
+      { l: 'Continuer les visites de belles maisons', icon: '🏡', career: { awareness: 1, loyalty: -3 },
+        r: 'L’émission fait rêver mais paraît déconnectée.' },
+      { l: 'Créer une rubrique d’aide aux démarches', icon: '🧾', cost: { recurring: 0.04 }, lasting: 0.02, career: { loyalty: 2 }, pop: 1,
+        r: 'La rubrique rend service chaque semaine.' }
+    ] },
+
+  // — Mokshû Patamû (p024) · generaliste, access —
+  { id: 'ps_p024_sketch_qui_choque', programId: 'p024', family: 'image', phase: 2,
+    titre: 'Un sketch qui choque',
+    desc: 'Un sketch de {programme} jugé moqueur envers une profession fait réagir ses syndicats. Les humoristes défendent leur liberté de ton.',
+    c: [
+      { l: 'Présenter des excuses à l’antenne', icon: '🙏', career: { loyalty: -2 }, pop: 1,
+        r: 'L’apaisement est rapide, les fans regrettent ce recul.' },
+      { l: 'Défendre l’humour de l’émission', icon: '🎭', career: { awareness: 3, loyalty: 2 }, pop: -1,
+        r: 'Les fans applaudissent, la polémique s’étire.' },
+      { l: 'Inviter les syndicats pour un sketch commun', icon: '🤝', cost: { purchase: 0.04 }, career: { awareness: 4 }, pop: 1,
+        r: 'Le sketch commun retourne la polémique en moment d’humour partagé.' }
+    ] },
+  { id: 'ps_p024_une_nouvelle_troupe', programId: 'p024', family: 'editorial', phase: 1, when: { minSeasons: 1 },
+    titre: 'Une nouvelle troupe',
+    desc: 'La troupe de {programme} s’essouffle et les sketchs se répètent. La production propose de recruter de jeunes humoristes repérés sur les réseaux.',
+    c: [
+      { l: 'Recruter trois nouveaux humoristes', icon: '🎤', cost: { recurring: 0.08 }, career: { awareness: 4, loyalty: -2, wear: -12 },
+        r: 'La nouvelle génération apporte un vent frais.' },
+      { l: 'Faire écrire la troupe historique avec de nouveaux auteurs', icon: '✍️', cost: { purchase: 0.05 }, career: { loyalty: 1, wear: -6 },
+        r: 'Les sketchs gagnent en fraîcheur sans perdre leurs visages.' },
+      { l: 'Ne rien changer', icon: '🪑', career: { loyalty: 2, wear: 5 },
+        r: 'La troupe garde ses fidèles mais vieillit.' }
+    ] },
+
+  // — Panini Quiz (p025) · generaliste, access —
+  { id: 'ps_p025_les_vignettes_gagnant', programId: 'p025', family: 'economie', phase: 1,
+    titre: 'Les vignettes du gagnant',
+    desc: 'Un fabricant d’albums de vignettes propose de sponsoriser {programme} en offrant des collections aux candidats. La visibilité de sa marque serait importante.',
+    c: [
+      { l: 'Accepter le sponsoring', icon: '📒', cost: { commercial: 0.08 }, career: { awareness: 2, loyalty: -2 },
+        r: 'Le budget s’améliore, l’émission prend des airs publicitaires.' },
+      { l: 'Refuser', icon: '🙅', career: { loyalty: 2, wear: 2 },
+        r: 'Le quiz reste neutre, sans recette supplémentaire.' },
+      { l: 'Créer un album officiel de l’émission', icon: '🃏', cost: { purchase: 0.06 }, lasting: 0.02, career: { awareness: 4, loyalty: 1 },
+        r: 'L’album s’arrache chez les fans et prolonge le jeu.' }
+    ] },
+  { id: 'ps_p025_quiz_rival', programId: 'p025', family: 'audience', phase: 2, when: { pressure: true },
+    titre: 'Le quiz rival',
+    desc: '{rival} lance {rivalProgramme} à la même heure que {programme}, avec des gains deux fois plus élevés. Les candidats commencent à hésiter.',
+    c: [
+      { l: 'Relever les gains', icon: '💰', cost: { recurring: 0.08 }, boost: 0.06, career: { awareness: 3 },
+        r: 'Les candidats reviennent et la tension remonte.' },
+      { l: 'Miser sur la convivialité de l’animateur', icon: '😄', career: { loyalty: 3, wear: 3 },
+        r: 'Les fidèles restent pour l’ambiance.' },
+      { l: 'Ajouter une manche où les téléspectateurs jouent', icon: '📲', cost: { purchase: 0.05 }, boost: 0.03, career: { awareness: 4, loyalty: -1 },
+        r: 'L’interactivité attire un public plus jeune.' }
+    ] },
+
+  // — Madmag (p026) · generaliste, access —
+  { id: 'ps_p026_sujet_trop_pointu', programId: 'p026', family: 'editorial', phase: 2,
+    titre: 'Le sujet trop pointu',
+    desc: 'Les reportages de {programme} sur les sous-cultures urbaines séduisent les initiés mais déroutent le grand public. La chaîne demande plus d’accessibilité.',
+    c: [
+      { l: 'Ajouter des explications et un ton pédagogique', icon: '📖', cost: { purchase: 0.03 }, career: { awareness: 3, loyalty: 1, wear: -3 },
+        r: 'Le magazine s’ouvre sans renier ses sujets.' },
+      { l: 'Garder la ligne pointue', icon: '🎧', career: { awareness: -2, loyalty: 3 },
+        r: 'Les fans adorent, le grand public reste à distance.' },
+      { l: 'Recruter une présentatrice issue des réseaux', icon: '📱', cost: { recurring: 0.06 }, career: { awareness: 5, loyalty: -2, wear: -5 },
+        r: 'La présentatrice amène une nouvelle communauté.' }
+    ] },
+  { id: 'ps_p026_festival_madmag', programId: 'p026', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le festival Madmag',
+    desc: 'La production de {programme} propose d’organiser un festival d’un week-end réunissant les artistes repérés dans l’émission. L’événement installerait la marque, mais l’organisation est lourde.',
+    c: [
+      { l: 'Organiser le festival et le diffuser', icon: '🎪', cost: { purchase: 0.3 }, boost: 0.08, career: { awareness: 7 }, pop: 1,
+        r: 'Le festival fait date et installe la marque.' },
+      { l: 'S’associer à un festival existant', icon: '🤝', cost: { purchase: 0.06 }, career: { awareness: 3, loyalty: 1 },
+        r: 'Une présence remarquée, à moindre coût.' },
+      { l: 'Renoncer', icon: '🙅', career: { awareness: -2, loyalty: 1 },
+        r: 'L’émission reste confinée à l’antenne.' }
+    ] },
+
+  // — Baby Boom-Boom (p027) · generaliste, access —
+  { id: 'ps_p027_accouchement_trop_expose', programId: 'p027', family: 'image', phase: 2,
+    titre: 'Un accouchement trop exposé',
+    desc: 'Une séquence d’accouchement diffusée dans {programme} est jugée indécente par plusieurs associations. Le couple filmé, lui, est ravi de l’émission.',
+    c: [
+      { l: 'Flouter et raccourcir les images sensibles', icon: '✂️', cost: { purchase: 0.02 }, boost: -0.02, career: { loyalty: 1 }, pop: 1,
+        r: 'La pudeur est respectée sans trahir l’émotion.' },
+      { l: 'Assumer les images, avec l’accord du couple', icon: '👶', boost: 0.03, career: { awareness: 3 }, pop: -1,
+        r: 'L’émotion est intacte, la polémique aussi.' },
+      { l: 'Ajouter un avertissement et un débat avec des sages-femmes', icon: '🩺', cost: { purchase: 0.04 }, career: { awareness: 1, loyalty: 2 }, pop: 1,
+        r: 'Le débat valorise le travail des soignants.' }
+    ] },
+  { id: 'ps_p027_ils_ont', programId: 'p027', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Ils ont un an',
+    desc: 'Les bébés nés dans {programme} soufflent leur première bougie. La production propose de retrouver les familles dans une émission spéciale.',
+    c: [
+      { l: 'Produire la spéciale anniversaire', icon: '🎂', cost: { purchase: 0.08 }, boost: 0.08, career: { loyalty: 4 },
+        r: 'Les retrouvailles émeuvent et fidélisent.' },
+      { l: 'Publier des nouvelles sur les réseaux', icon: '📸', cost: { purchase: 0.01 }, career: { awareness: 2, loyalty: 1, wear: 1 },
+        r: 'Les fans suivent les familles en ligne.' },
+      { l: 'Laisser les familles tranquilles', icon: '🕊️', career: { loyalty: -1 }, pop: 1,
+        r: 'Les familles sont préservées, les fans restent sur leur faim.' }
+    ] },
+
+  // — Douze pour cent (p028) · generaliste, prime —
+  { id: 'ps_p028_star_veut_jouer', programId: 'p028', family: 'editorial', phase: 1,
+    titre: 'La star veut jouer son propre rôle',
+    desc: 'Une vedette de cinéma accepte d’apparaître dans {programme} en jouant son propre rôle… à condition de relire et modifier le scénario.',
+    c: [
+      { l: 'Accepter ses conditions', icon: '🌟', cost: { purchase: 0.06 }, boost: 0.12, career: { awareness: 6, loyalty: -2 },
+        r: 'L’épisode fait l’événement, au prix d’un scénario plus sage.' },
+      { l: 'Refuser toute relecture', icon: '✋', boost: -0.02, career: { loyalty: 2 },
+        r: 'L’intégrité de l’écriture est préservée, sans la star.' },
+      { l: 'Proposer une autre vedette plus souple', icon: '🎭', cost: { purchase: 0.04 }, boost: 0.06, career: { awareness: 3 },
+        r: 'L’épisode reste réussi, avec un peu moins d’éclat.' }
+    ] },
+  { id: 'ps_p028_remake_americain', programId: 'p028', family: 'economie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le remake américain',
+    desc: 'Une plateforme américaine veut adapter {programme} et propose de racheter les droits du format. Les créateurs hésitent à voir leur série transformée.',
+    c: [
+      { l: 'Vendre les droits du remake', icon: '🇺🇸', cost: { commercial: 0.2 }, career: { awareness: 4, loyalty: -1, wear: 3 },
+        r: 'La vente rapporte et donne une aura internationale à la série.' },
+      { l: 'Garder le format', icon: '🔒', career: { awareness: -1, loyalty: 2 },
+        r: 'La série reste unique, sans recette nouvelle.' },
+      { l: 'Coproduire le remake pour garder la main', icon: '🤝', cost: { purchase: 0.15 }, lasting: 0.03, career: { awareness: 6 },
+        r: 'La coproduction fait rayonner la série, à un coût élevé.' }
+    ] },
+
+  // — Destination Express (p030) · generaliste, prime —
+  { id: 'ps_p030_train_bloque_frontiere', programId: 'p030', family: 'economie', phase: 1,
+    titre: 'Le train bloqué à la frontière',
+    desc: 'Un convoi de {programme} est bloqué par une grève à la frontière. Les binômes risquent de perdre deux jours de course.',
+    c: [
+      { l: 'Affréter des véhicules pour poursuivre', icon: '🚐', cost: { purchase: 0.12 }, boost: 0.04, career: { loyalty: 3 },
+        r: 'La course continue sans temps mort.' },
+      { l: 'Neutraliser l’étape', icon: '⏸️', boost: -0.03, career: { wear: 5 },
+        r: 'La course reprend plus tard, avec un épisode plus creux.' },
+      { l: 'Faire de la grève une épreuve d’improvisation', icon: '🧭', cost: { purchase: 0.04 }, boost: 0.03, career: { awareness: 5, loyalty: -2 },
+        r: 'L’improvisation donne un épisode inattendu.' }
+    ] },
+  { id: 'ps_p030_une_saison_autour', programId: 'p030', family: 'strategie', phase: 3, when: { form: ['succes', 'stable'], minSeasons: 1 },
+    titre: 'Une saison autour du monde',
+    desc: 'Après {saisons}, la production de {programme} propose une édition qui ferait le tour du monde au lieu de l’Europe. Le dépaysement serait total, la facture aussi.',
+    c: [
+      { l: 'Lancer la saison autour du monde', icon: '🌍', cost: { purchase: 0.4 }, boost: 0.15, career: { awareness: 7, wear: -10 },
+        r: 'Le dépaysement relance la course et fait rêver.' },
+      { l: 'Garder le terrain européen', icon: '🇪🇺', career: { loyalty: 2, wear: 4 },
+        r: 'Les habitués retrouvent leurs repères.' },
+      { l: 'Ajouter une seule étape lointaine', icon: '✈️', cost: { purchase: 0.12 }, boost: 0.06, career: { wear: -4 },
+        r: 'Une étape exotique pimente la saison.' }
+    ] },
+
+  // — Talent show (p031) · generaliste, prime —
+  { id: 'ps_p031_candidat_mineur_sous', programId: 'p031', family: 'image', phase: 2,
+    titre: 'Un candidat mineur sous pression',
+    desc: 'Un candidat de quinze ans de {programme} craque en direct après un commentaire sévère du jury. Les associations de protection de l’enfance s’inquiètent.',
+    c: [
+      { l: 'Instaurer un accompagnement pour les mineurs', icon: '🧸', cost: { recurring: 0.03 }, career: { loyalty: 2 }, pop: 2,
+        r: 'La production gagne en responsabilité et en confiance.' },
+      { l: 'Demander au jury d’adoucir le ton', icon: '🎤', career: { awareness: -1 }, pop: 1,
+        r: 'Le ton se fait plus bienveillant, l’émission perd un peu de piquant.' },
+      { l: 'Ne rien changer', icon: '🤷', career: { awareness: 2 }, pop: -2,
+        r: 'La polémique continue, les audiences tiennent.' }
+    ] },
+  { id: 'ps_p031_finale_dans_stade', programId: 'p031', family: 'audience', phase: 3, when: { minSeasons: 1 },
+    titre: 'La finale dans un stade',
+    desc: 'La production propose d’organiser la finale de {programme} dans un stade, avec 20 000 spectateurs et un orchestre. Le spectacle serait grandiose, mais le budget exploserait.',
+    c: [
+      { l: 'Finale géante dans un stade', icon: '🏟️', cost: { purchase: 0.35 }, boost: 0.2, career: { awareness: 6 },
+        r: 'Une finale grandiose, qui marque la saison.' },
+      { l: 'Finale dans une grande salle de concert', icon: '🎶', cost: { purchase: 0.12 }, boost: 0.08, career: { awareness: 3 },
+        r: 'Une soirée réussie à coût maîtrisé.' },
+      { l: 'Finale en studio', icon: '📺', career: { loyalty: 1, wear: 3 },
+        r: 'Une finale classique et sans surprise.' }
+    ] },
+
+  // — Blind Date (p033) · generaliste, prime —
+  { id: 'ps_p033_rendez_vous_qui', programId: 'p033', family: 'image', phase: 2,
+    titre: 'Un rendez-vous qui tourne mal',
+    desc: 'Un candidat de {programme} s’est montré insistant envers sa partenaire, malgré ses refus. La séquence a été diffusée et les réseaux s’indignent.',
+    c: [
+      { l: 'Retirer la séquence et exclure le candidat', icon: '🚫', boost: -0.04, career: { loyalty: 1 }, pop: 2,
+        r: 'La chaîne réagit vite et fermement.' },
+      { l: 'Diffuser une mise au point avec la candidate', icon: '🎙️', cost: { purchase: 0.03 }, career: { awareness: 1, loyalty: 2 }, pop: 1,
+        r: 'La candidate s’exprime : l’émission sort grandie.' },
+      { l: 'Laisser passer', icon: '🤷', career: { awareness: 2 }, pop: -3,
+        r: 'L’émission est accusée de complaisance.' }
+    ] },
+  { id: 'ps_p033_rendez_vous_dans', programId: 'p033', family: 'editorial', phase: 1, when: { minSeasons: 1 },
+    titre: 'Le rendez-vous dans le noir',
+    desc: 'La production de {programme} propose une variante où les candidats se rencontrent dans l’obscurité totale avant de se découvrir. L’idée est intrigante, mais elle bouscule un format qui fonctionne.',
+    c: [
+      { l: 'Tourner la variante dans le noir', icon: '🌑', cost: { purchase: 0.08 }, career: { awareness: 4, loyalty: -1, wear: -10 },
+        r: 'La variante intrigue et renouvelle le format.' },
+      { l: 'Garder le dîner classique', icon: '🕯️', career: { loyalty: 2, wear: 4 },
+        r: 'Le format reste rassurant et prévisible.' },
+      { l: 'Organiser un épisode spécial seniors', icon: '👵', cost: { purchase: 0.04 }, boost: 0.04, career: { loyalty: 2 },
+        r: 'Les seniors amoureux séduisent un public touché.' }
+    ] },
+
+  // — La France en Questions (p035) · generaliste, prime —
+  { id: 'ps_p035_temoin_manipule', programId: 'p035', family: 'image', phase: 2,
+    titre: 'Un témoin manipulé ?',
+    desc: 'Un participant de {programme} affirme que ses propos ont été coupés pour lui faire dire l’inverse de sa pensée. Il diffuse l’enregistrement complet sur internet.',
+    c: [
+      { l: 'Reconnaître l’erreur et diffuser la version intégrale', icon: '🔁', cost: { purchase: 0.03 }, career: { loyalty: 3 }, pop: 1,
+        r: 'La transparence restaure la confiance.' },
+      { l: 'Défendre le montage', icon: '🎞️', career: { awareness: 2, loyalty: -2 }, pop: -2,
+        r: 'La polémique s’installe sur les méthodes de l’émission.' },
+      { l: 'Ouvrir un droit de réponse permanent en fin d’émission', icon: '🗣️', cost: { recurring: 0.02 }, lasting: 0.02, career: { loyalty: 2, wear: 2 },
+        r: 'Le droit de réponse devient un gage de sérieux.' }
+    ] },
+  { id: 'ps_p035_grande_consultation', programId: 'p035', family: 'audience', phase: 3, when: { minSeasons: 1 },
+    titre: 'La grande consultation',
+    desc: 'La rédaction de {programme} propose une soirée spéciale où des milliers de Français votent en direct sur une question de société. Le dispositif technique est ambitieux.',
+    c: [
+      { l: 'Organiser la grande consultation en direct', icon: '🗳️', cost: { purchase: 0.2 }, boost: 0.12, career: { awareness: 5 }, pop: 1,
+        r: 'La soirée fait débat dans tout le pays.' },
+      { l: 'Faire un sondage classique', icon: '📊', cost: { purchase: 0.04 }, career: { awareness: 2 },
+        r: 'Le sondage nourrit l’émission, sans événement.' },
+      { l: 'Rester sur les témoignages', icon: '🎙️', career: { loyalty: 2, wear: 3 },
+        r: 'L’émission reste fidèle à son format.' }
+    ] },
+
+  // — Chanteurs masqués (p036) · generaliste, prime —
+  { id: 'ps_p036_masque_tombe_trop', programId: 'p036', family: 'image', phase: 2,
+    titre: 'Le masque tombe trop tôt',
+    desc: 'L’identité d’une star cachée dans {programme} a fuité sur les réseaux avant la révélation. Le suspense de la saison est menacé.',
+    c: [
+      { l: 'Avancer la révélation par un épisode spécial', icon: '🎭', cost: { purchase: 0.06 }, boost: 0.06, career: { awareness: 3 },
+        r: 'L’épisode spécial transforme la fuite en événement.' },
+      { l: 'Démentir et continuer', icon: '🤥', career: { awareness: 2, loyalty: -2 },
+        r: 'Personne n’est dupe, le suspense s’effrite.' },
+      { l: 'Renforcer la confidentialité pour la suite', icon: '🔐', cost: { recurring: 0.03 }, career: { loyalty: 2, wear: 2 },
+        r: 'Les fuites cessent pour les saisons suivantes.' }
+    ] },
+  { id: 'ps_p036_les_costumes_hors', programId: 'p036', family: 'economie', phase: 1, when: { minSeasons: 1 },
+    titre: 'Les costumes hors de prix',
+    desc: 'Les costumes de {programme} coûtent de plus en plus cher. La production propose de les recycler d’une saison à l’autre.',
+    c: [
+      { l: 'Recycler une partie des costumes', icon: '♻️', cost: { saving: 0.1 }, career: { awareness: -2, wear: 4 },
+        r: 'Des économies, mais les fans repèrent les costumes déjà vus.' },
+      { l: 'Garder des costumes inédits', icon: '🦄', cost: { recurring: 0.05 }, career: { awareness: 3, loyalty: 2 },
+        r: 'Le spectacle reste éblouissant.' },
+      { l: 'Faire dessiner un costume par les téléspectateurs', icon: '🎨', cost: { purchase: 0.03 }, boost: 0.03, career: { awareness: 4, loyalty: -1 },
+        r: 'Le concours de dessin crée l’engouement.' }
+    ] },
+
+  // — Ciné-max (p037) · generaliste, prime —
+  { id: 'ps_p037_film_dimanche', programId: 'p037', family: 'audience', phase: 1,
+    titre: 'Le film du dimanche',
+    desc: 'Le distributeur propose à {programme} un film français récent très attendu, mais exige un passage le soir même d’un grand match sur une chaîne rivale. Le duel peut payer, ou tourner au fiasco.',
+    c: [
+      { l: 'Accepter la date et le film', icon: '🎬', cost: { purchase: 0.15 }, boost: 0.1, career: { awareness: 3 },
+        r: 'Le film tient tête au match et séduit un public différent.' },
+      { l: 'Programmer un film plus ancien ce soir-là', icon: '📼', boost: -0.03, career: { loyalty: 1 },
+        r: 'Une soirée sans risque, sans éclat.' },
+      { l: 'Organiser un avant-programme avec l’équipe du film', icon: '🎤', cost: { purchase: 0.2 }, boost: 0.12, career: { awareness: 5, wear: 2 },
+        r: 'La soirée devient un événement de cinéma.' }
+    ] },
+  { id: 'ps_p037_coproduire_cinema_francais', programId: 'p037', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Coproduire le cinéma français',
+    desc: 'Un producteur propose à la chaîne de coproduire trois films en échange de leur première diffusion dans {programme}. Un pari sur la création française, sur plusieurs saisons.',
+    c: [
+      { l: 'Coproduire les trois films', icon: '🎥', cost: { purchase: 0.4 }, lasting: 0.06, career: { awareness: 5, loyalty: 2 },
+        r: 'La case gagne des exclusivités et soutient la création française.' },
+      { l: 'Coproduire un seul film', icon: '🎞️', cost: { purchase: 0.12 }, lasting: 0.02, career: { awareness: 2 },
+        r: 'Un engagement mesuré.' },
+      { l: 'Rester acheteur de films existants', icon: '🛒', career: { loyalty: 1, wear: 3 },
+        r: 'Pas d’exclusivité, pas de risque.' }
+    ] },
+
+  // — Au Théatre ce Soir (p038) · generaliste, prime —
+  { id: 'ps_p038_troupe_greve', programId: 'p038', family: 'editorial', phase: 1,
+    titre: 'La troupe en grève',
+    desc: 'Les comédiens de la troupe de {programme} réclament un cachet pour les captations, en plus de leurs représentations. La prochaine pièce est menacée.',
+    c: [
+      { l: 'Verser un cachet de captation', icon: '🎭', cost: { recurring: 0.08 }, career: { loyalty: 3, wear: -3 },
+        r: 'La troupe joue avec enthousiasme.' },
+      { l: 'Remplacer la pièce par une captation d’archive', icon: '📼', boost: -0.05, career: { loyalty: -2, wear: 4 },
+        r: 'Les fidèles découvrent une rediffusion à la place du direct.' },
+      { l: 'Négocier un intéressement aux audiences', icon: '📈', cost: { purchase: 0.02 }, career: { loyalty: 1, wear: -1 },
+        r: 'Un accord qui motive la troupe.' }
+    ] },
+  { id: 'ps_p038_une_piece_succes', programId: 'p038', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Une pièce à succès en direct',
+    desc: 'Une comédie qui triomphe à Paris accepte d’être jouée en direct dans {programme}, avec sa distribution originale. Une soirée rare, mais les droits sont élevés.',
+    c: [
+      { l: 'Diffuser la pièce en direct', icon: '🎟️', cost: { purchase: 0.3 }, boost: 0.18, career: { awareness: 6 },
+        r: 'Une soirée de théâtre exceptionnelle et très suivie.' },
+      { l: 'Diffuser une captation enregistrée', icon: '🎬', cost: { purchase: 0.12 }, boost: 0.08, career: { awareness: 2 },
+        r: 'La pièce séduit, sans le frisson du direct.' },
+      { l: 'Rester sur les classiques du répertoire', icon: '📚', career: { loyalty: 2, wear: 3 },
+        r: 'Les fidèles sont fidèles, sans nouveauté.' }
+    ] },
+
+  // — After-show (p039) · generaliste, nuit —
+  { id: 'ps_p039_invite_qui_derape', programId: 'p039', family: 'editorial', phase: 2,
+    titre: 'L’invité qui dérape tard le soir',
+    desc: 'Un invité de {programme}, visiblement éméché, a tenu des propos déplacés en fin d’émission. Les extraits circulent dès le lendemain matin.',
+    c: [
+      { l: 'Couper la séquence en replay et s’excuser', icon: '✂️', career: { loyalty: -1 }, pop: 1,
+        r: 'L’affaire est vite close.' },
+      { l: 'Assumer l’esprit libre de la case', icon: '🍸', boost: 0.03, career: { awareness: 4 }, pop: -2,
+        r: 'L’émission fait parler d’elle, pas toujours en bien.' },
+      { l: 'Passer à un léger différé', icon: '⏱️', cost: { recurring: 0.02 }, career: { loyalty: 1, wear: 2 }, pop: 1,
+        r: 'Le différé évite les dérapages futurs.' }
+    ] },
+  { id: 'ps_p039_public_jeune_debarque', programId: 'p039', family: 'audience', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le public jeune débarque',
+    desc: 'Les extraits de {programme} cartonnent sur les réseaux auprès des 18-25 ans. La production propose d’en faire la cible prioritaire.',
+    c: [
+      { l: 'Rajeunir les chroniqueurs et le ton', icon: '🧑‍🎤', cost: { purchase: 0.06 }, career: { awareness: 5, loyalty: -3, wear: -6 },
+        r: 'L’émission gagne un public jeune et perd quelques fidèles.' },
+      { l: 'Garder le ton actuel', icon: '🌙', career: { loyalty: 2, wear: 3 },
+        r: 'Les noctambules fidèles restent.' },
+      { l: 'Créer une rubrique dédiée aux réseaux', icon: '📱', cost: { purchase: 0.03 }, lasting: 0.02, career: { awareness: 3 },
+        r: 'La rubrique fait le pont entre les deux publics.' }
+    ] },
+
+  // — Tout le monde en parle (p040) · generaliste, nuit —
+  { id: 'ps_p040_clash_qui_fait', programId: 'p040', family: 'image', phase: 2,
+    titre: 'Le clash qui fait le tour du web',
+    desc: 'Un échange très vif entre deux invités de {programme} est devenu viral. Certains y voient de la télé-spectacle, d’autres un vrai débat.',
+    c: [
+      { l: 'Rediffuser l’échange avec un débat apaisé', icon: '🔁', cost: { purchase: 0.02 }, boost: 0.05, career: { awareness: 4 },
+        r: 'L’émission capitalise sur le buzz avec mesure.' },
+      { l: 'Ne plus inviter les deux protagonistes', icon: '🚪', career: { awareness: -1 }, pop: 1,
+        r: 'La chaîne prend ses distances avec la polémique.' },
+      { l: 'En faire un format récurrent de face-à-face', icon: '🥊', cost: { purchase: 0.05 }, boost: 0.06, career: { awareness: 3, wear: -4 }, pop: -1,
+        r: 'Les face-à-face attirent, au risque de durcir le ton.' }
+    ] },
+  { id: 'ps_p040_animateur_negocie_son', programId: 'p040', family: 'economie', phase: 1, when: { minSeasons: 1 },
+    titre: 'L’animateur négocie son contrat',
+    desc: 'L’animateur de {programme} veut produire l’émission lui-même via sa société. Il promet de maîtriser les coûts, mais prendrait le contrôle éditorial.',
+    c: [
+      { l: 'Lui confier la production', icon: '🏢', cost: { saving: 0.1 }, career: { awareness: -1, loyalty: 2 }, pop: -1,
+        r: 'Les coûts baissent, la chaîne perd la main sur le contenu.' },
+      { l: 'Garder la production en interne', icon: '🔒', cost: { recurring: 0.03 }, career: { loyalty: 1, wear: -2 },
+        r: 'La chaîne garde le contrôle, l’animateur reste.' },
+      { l: 'Proposer une coproduction', icon: '🤝', career: { awareness: -1, loyalty: 1, wear: 2 },
+        r: 'Un compromis qui ne satisfait personne pleinement.' }
+    ] },
+
+  // — Enquête de sens (p041) · generaliste, nuit —
+  { id: 'ps_p041_documentaire_deux_heures', programId: 'p041', family: 'editorial', phase: 1,
+    titre: 'Le documentaire de deux heures',
+    desc: 'Le réalisateur de {programme} a livré un film de deux heures sur la solitude des personnes âgées. La case ne dure que quatre-vingt-dix minutes.',
+    c: [
+      { l: 'Diffuser la version intégrale', icon: '🎞️', boost: -0.03, career: { loyalty: 3 }, pop: 1,
+        r: 'Le film est salué par la critique, la soirée finit tard.' },
+      { l: 'Raccourcir le film', icon: '✂️', boost: 0.02, career: { loyalty: -2 },
+        r: 'Le réalisateur proteste publiquement.' },
+      { l: 'Diffuser en deux soirées', icon: '2️⃣', cost: { purchase: 0.02 }, career: { awareness: 3, wear: 2 },
+        r: 'Le film devient un rendez-vous en deux temps.' }
+    ] },
+  { id: 'ps_p041_prix_festival', programId: 'p041', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le prix du festival',
+    desc: 'Un documentaire de {programme} est sélectionné dans un grand festival. La production demande un budget pour la campagne de promotion.',
+    c: [
+      { l: 'Financer la campagne festival', icon: '🏆', cost: { purchase: 0.15 }, lasting: 0.03, career: { awareness: 7 },
+        r: 'Le prix obtenu rejaillit sur toute la collection.' },
+      { l: 'Laisser le réalisateur se débrouiller', icon: '🙅', career: { loyalty: -1, wear: 1 },
+        r: 'Le film passe inaperçu au festival.' },
+      { l: 'Organiser une projection-débat à Paris', icon: '🎟️', cost: { purchase: 0.04 }, career: { awareness: 3, loyalty: 1 },
+        r: 'Une soirée remarquée par la presse.' }
+    ] },
+
+  // — Débat d'actualité (p042) · generaliste, nuit —
+  { id: 'ps_p042_invite_qui_ment', programId: 'p042', family: 'image', phase: 2,
+    titre: 'L’invité qui ment',
+    desc: 'Un invité de {programme} a affirmé des chiffres faux sans être contredit. La séquence est épinglée par les fact-checkeurs.',
+    c: [
+      { l: 'Instaurer une vérification en direct', icon: '✅', cost: { recurring: 0.04 }, lasting: 0.02, career: { loyalty: 4 },
+        r: 'Le débat gagne en rigueur et en confiance.' },
+      { l: 'Diffuser un rectificatif la semaine suivante', icon: '📝', career: { loyalty: 1, wear: 2 }, pop: 1,
+        r: 'Un rectificatif discret, peu remarqué.' },
+      { l: 'Ignorer la critique', icon: '🤷', career: { awareness: 1, loyalty: -3 }, pop: -1,
+        r: 'L’émission est accusée de laxisme.' }
+    ] },
+  { id: 'ps_p042_debat_ronronne', programId: 'p042', family: 'audience', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le débat ronronne',
+    desc: 'Les mêmes invités tournent sur le plateau de {programme} et les débats deviennent prévisibles. La production propose de renouveler le dispositif.',
+    c: [
+      { l: 'Faire entrer des citoyens tirés au sort', icon: '🎲', cost: { purchase: 0.05 }, career: { awareness: 3, loyalty: -1, wear: -10 },
+        r: 'Les citoyens bousculent les experts et le débat reprend vie.' },
+      { l: 'Garder les experts habituels', icon: '👔', career: { loyalty: 2, wear: 4 },
+        r: 'Le débat reste sérieux et répétitif.' },
+      { l: 'Inviter des personnalités de tous bords', icon: '🧭', cost: { purchase: 0.03 }, career: { awareness: 3, wear: -4 }, pop: -1,
+        r: 'La diversité des invités ravive le débat, parfois houleux.' }
+    ] },
+
+  // — Libre antenne (p043) · generaliste, nuit —
+  { id: 'ps_p043_auditeur_detresse', programId: 'p043', family: 'image', phase: 2,
+    titre: 'Un auditeur en détresse',
+    desc: 'Un auditeur de {programme} a confié en direct ses idées noires. L’animateur l’a gardé à l’antenne jusqu’à l’arrivée des secours.',
+    c: [
+      { l: 'Créer un partenariat avec une ligne d’écoute', icon: '☎️', cost: { recurring: 0.03 }, career: { loyalty: 3 }, pop: 2,
+        r: 'L’émission devient un relais d’aide reconnu.' },
+      { l: 'Rappeler les règles et filtrer les appels', icon: '🚦', career: { awareness: -1, loyalty: -1 }, pop: 1,
+        r: 'Les appels sont mieux encadrés, l’émission perd en spontanéité.' },
+      { l: 'En faire une émission spéciale sur la santé mentale', icon: '💙', cost: { purchase: 0.05 }, boost: 0.03, career: { awareness: 4 }, pop: 1,
+        r: 'L’émission spéciale est saluée pour son humanité.' }
+    ] },
+  { id: 'ps_p043_libre_antenne_video', programId: 'p043', family: 'editorial', phase: 1, when: { minSeasons: 1 },
+    titre: 'La libre antenne en vidéo',
+    desc: 'La production de {programme} propose que les auditeurs interviennent en visioconférence, et non plus seulement au téléphone. L’émission gagnerait en vie, mais perdrait une part de son anonymat.',
+    c: [
+      { l: 'Passer à la vidéo', icon: '📹', cost: { purchase: 0.06 }, career: { awareness: 4, loyalty: -2, wear: -8 },
+        r: 'L’émission devient plus vivante, certains habitués préfèrent l’anonymat.' },
+      { l: 'Garder le téléphone', icon: '📞', career: { loyalty: 3, wear: 3 },
+        r: 'L’intimité de la nuit est préservée.' },
+      { l: 'Proposer les deux', icon: '🔀', cost: { purchase: 0.03 }, career: { awareness: 2, loyalty: 1 },
+        r: 'Chacun choisit son mode d’intervention.' }
+    ] },
+
+  // — Magazine culturel (p044) · generaliste, nuit —
+  { id: 'ps_p044_ecrivain_absent', programId: 'p044', family: 'editorial', phase: 1,
+    titre: 'L’écrivain absent',
+    desc: 'L’écrivain vedette attendu dans {programme} annule à la dernière minute. La production doit remplacer l’invité pour l’enregistrement du soir.',
+    c: [
+      { l: 'Inviter un jeune auteur prometteur', icon: '🌱', career: { awareness: -1, loyalty: 2, wear: -3 },
+        r: 'Une découverte saluée par les lecteurs curieux.' },
+      { l: 'Diffuser un entretien d’archive avec une star des lettres', icon: '📼', cost: { purchase: 0.02 }, boost: 0.03, career: { wear: 3 },
+        r: 'Un beau moment, sans actualité.' },
+      { l: 'Improviser un débat entre critiques', icon: '🗣️', career: { awareness: 2, loyalty: -1 },
+        r: 'Le débat est vif, mais sans la vedette attendue.' }
+    ] },
+  { id: 'ps_p044_prix_litteraire_emission', programId: 'p044', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le prix littéraire de l’émission',
+    desc: 'La rédaction de {programme} propose de créer un prix littéraire décerné par un jury de téléspectateurs. Une belle vitrine, qui demande un vrai suivi.',
+    c: [
+      { l: 'Créer le prix', icon: '📚', cost: { purchase: 0.12 }, lasting: 0.04, career: { awareness: 6 },
+        r: 'Le prix devient un rendez-vous de la rentrée littéraire.' },
+      { l: 'S’associer à un prix existant', icon: '🤝', cost: { purchase: 0.03 }, career: { awareness: 2, loyalty: 1 },
+        r: 'Une association discrète.' },
+      { l: 'Renoncer', icon: '🙅', career: { loyalty: 1, wear: 2 },
+        r: 'Le magazine reste tel quel.' }
+    ] },
+
+  // — Enquête & faits divers (p045) · generaliste, nuit —
+  { id: 'ps_p045_famille_victime_proteste', programId: 'p045', family: 'image', phase: 2,
+    titre: 'La famille de la victime proteste',
+    desc: 'La famille d’une victime dont l’histoire est racontée dans {programme} n’a pas été consultée. Elle dénonce une exploitation de son drame.',
+    c: [
+      { l: 'Retirer le numéro et contacter la famille', icon: '🕊️', boost: -0.04, career: { loyalty: 1 }, pop: 2,
+        r: 'La chaîne montre son respect, l’épisode est perdu.' },
+      { l: 'Diffuser avec un hommage et l’accord tardif de la famille', icon: '🤝', cost: { purchase: 0.03 }, career: { loyalty: 2 }, pop: 1,
+        r: 'Le dialogue permet une diffusion apaisée.' },
+      { l: 'Maintenir la diffusion', icon: '📺', boost: 0.03, career: { awareness: 2 }, pop: -3,
+        r: 'L’audience est là, la polémique aussi.' }
+    ] },
+  { id: 'ps_p045_une_affaire_non', programId: 'p045', family: 'editorial', phase: 3, when: { minSeasons: 1 },
+    titre: 'Une affaire non élucidée',
+    desc: 'Un ancien enquêteur propose à {programme} de rouvrir une affaire jamais résolue, avec des éléments inédits. L’enquête promet d’être longue et sensible.',
+    c: [
+      { l: 'Enquêter sur plusieurs numéros', icon: '🔍', cost: { purchase: 0.15 }, boost: 0.04, lasting: 0.04, career: { awareness: 6 },
+        r: 'Le feuilleton judiciaire captive et relance l’affaire.' },
+      { l: 'Un seul numéro spécial', icon: '📰', cost: { purchase: 0.05 }, boost: 0.06, career: { awareness: 2 },
+        r: 'Un numéro fort, sans suite.' },
+      { l: 'Décliner par prudence', icon: '🙅', career: { awareness: -2, loyalty: 1 },
+        r: 'Une autre chaîne reprend l’enquête.' }
+    ] },
+
+  // — La Nuit nous appartient (p046) · generaliste, nuit —
+  { id: 'ps_p046_les_droits_rediffusion', programId: 'p046', family: 'economie', phase: 1,
+    titre: 'Les droits de rediffusion augmentent',
+    desc: 'Les ayants droit des programmes rediffusés dans {programme} réclament une hausse de leurs tarifs. La case nocturne coûte de plus en plus cher.',
+    c: [
+      { l: 'Accepter la hausse', icon: '💶', cost: { recurring: 0.1 }, boost: 0.03, career: { loyalty: 2 },
+        r: 'Les meilleurs programmes restent dans la case.' },
+      { l: 'Puiser dans les archives libres de droits', icon: '🗄️', cost: { saving: 0.1 }, career: { loyalty: -3, wear: 4 },
+        r: 'La case coûte moins cher, mais sa qualité baisse.' },
+      { l: 'Négocier un forfait annuel', icon: '🤝', cost: { purchase: 0.03 }, career: { loyalty: 1, wear: -2 },
+        r: 'Un accord équilibré.' }
+    ] },
+  { id: 'ps_p046_les_insomniaques_reclament', programId: 'p046', family: 'audience', phase: 2, when: { minSeasons: 1 },
+    titre: 'Les insomniaques réclament de l’inédit',
+    desc: 'Le public fidèle de {programme} écrit à la chaîne pour réclamer des programmes inédits en pleine nuit. La case n’a jamais eu de budget pour cela.',
+    c: [
+      { l: 'Programmer un inédit par semaine', icon: '🆕', cost: { purchase: 0.08 }, career: { awareness: 4, loyalty: 2, wear: -6 },
+        r: 'La nuit retrouve de la nouveauté.' },
+      { l: 'Composer une soirée thématique mensuelle', icon: '🌙', cost: { purchase: 0.03 }, boost: 0.02, career: { loyalty: 2 },
+        r: 'La thématique crée un petit rendez-vous.' },
+      { l: 'Ne rien changer', icon: '😴', career: { loyalty: -1, wear: 4 },
+        r: 'Les fidèles s’endorment sur des rediffusions.' }
     ] }
 ];
 // ---------------------------------------------------------------------------
