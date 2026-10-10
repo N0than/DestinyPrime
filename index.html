@@ -12402,6 +12402,461 @@ const PROGRAM_STORY_BANK = [
         r: 'Les fans sont satisfaits, la polémique enfle.' },
       { l: 'Donner la parole aux riverains', icon: '🗣️', cost: { purchase: 0.01 }, career: { loyalty: -1 }, pop: 1,
         r: 'L’émission montre son équilibre.' }
+    ] },
+  // — Matinale info (p208) · info, matin —
+  { id: 'ps_p208_invite_politique_matin', programId: 'p208', family: 'editorial', phase: 1,
+    titre: 'L’invité politique du matin',
+    desc: 'Un ministre accepte d’être l’invité de {programme}, à condition que les questions sur une affaire judiciaire soient écartées. Son équipe insiste lourdement.',
+    c: [
+      { l: 'Refuser les conditions', icon: '✋', boost: -0.03, career: { loyalty: 3 },
+        r: 'L’indépendance de la rédaction est saluée.' },
+      { l: 'Accepter les conditions', icon: '🤝', career: { awareness: 3, loyalty: -4 },
+        r: 'L’entretien est jugé complaisant.' },
+      { l: 'Accepter et le révéler à l’antenne', icon: '📢', career: { awareness: 2, loyalty: 1 }, pop: -1,
+        r: 'La transparence passe, le ministre est furieux.' }
+    ] },
+  { id: 'ps_p208_guerre_des_matinales', programId: 'p208', family: 'audience', phase: 2, when: { minSeasons: 1, pressure: true },
+    titre: 'La guerre des matinales',
+    desc: '{rival} renforce {rivalProgramme} avec une star de la radio. {programme} perd des téléspectateurs chaque semaine.',
+    c: [
+      { l: 'Recruter un intervieweur vedette', icon: '🎙️', cost: { recurring: 0.1 }, boost: 0.05, career: { awareness: 5 },
+        r: 'L’intervieweur attire les auditeurs fidèles.' },
+      { l: 'Miser sur l’info locale', icon: '🗺️', cost: { purchase: 0.04 }, career: { loyalty: 3, wear: -4 },
+        r: 'L’ancrage local fidélise.' },
+      { l: 'Ne rien changer', icon: '🪨', career: { loyalty: 1, wear: 4 },
+        r: 'La matinale continue de perdre du terrain.' }
+    ] },
+
+  // — Tranche économie (p209) · info, matin —
+  { id: 'ps_p209_faillite_annoncee_trop', programId: 'p209', family: 'image', phase: 2,
+    titre: 'La faillite annoncée trop tôt',
+    desc: 'Un journaliste de {programme} a annoncé la faillite d’une entreprise avant l’annonce officielle. L’action s’effondre en Bourse.',
+    c: [
+      { l: 'Publier un rectificatif et une enquête interne', icon: '🔍', cost: { purchase: 0.02 }, career: { loyalty: 2 }, pop: 1,
+        r: 'La rigueur est restaurée.' },
+      { l: 'Maintenir l’information', icon: '📰', career: { awareness: 3 }, pop: -2,
+        r: 'L’information s’avère juste, mais la méthode est critiquée.' },
+      { l: 'Instaurer une double validation des scoops', icon: '✅', cost: { recurring: 0.02 }, boost: -0.01, lasting: 0.01, career: { loyalty: 3 },
+        r: 'Les erreurs deviennent rares.' }
+    ] },
+  { id: 'ps_p209_indice_emission', programId: 'p209', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'L’indice de l’émission',
+    desc: 'La rédaction de {programme} propose de créer un baromètre économique mensuel, cité par les autres médias. L’outil renforcerait l’autorité de l’émission, s’il est rigoureux.',
+    c: [
+      { l: 'Créer le baromètre', icon: '📈', cost: { purchase: 0.06 }, lasting: 0.03, career: { awareness: 4 },
+        r: 'Le baromètre devient une référence.' },
+      { l: 'S’associer à un institut existant', icon: '🤝', cost: { purchase: 0.02 }, career: { awareness: 2 },
+        r: 'Un partenariat discret.' },
+      { l: 'Renoncer', icon: '🙅', career: { loyalty: 1, wear: 2 },
+        r: 'L’émission reste classique.' }
+    ] },
+
+  // — Politique & interviews (p210) · info, matin —
+  { id: 'ps_p210_entretien_qui_tourne', programId: 'p210', family: 'editorial', phase: 1,
+    titre: 'L’entretien qui tourne au clash',
+    desc: 'Un responsable politique a quitté le plateau de {programme} en plein entretien. La séquence est virale.',
+    c: [
+      { l: 'Rediffuser la séquence en entier', icon: '🔁', boost: 0.03, career: { awareness: 4 }, pop: -1,
+        r: 'Le buzz est énorme.' },
+      { l: 'Commenter sobrement l’incident', icon: '🎙️', career: { awareness: 1, loyalty: 2, wear: 2 },
+        r: 'La sobriété est appréciée.' },
+      { l: 'Inviter un autre élu de son camp', icon: '🔄', cost: { purchase: 0.01 }, career: { loyalty: 1 }, pop: 1,
+        r: 'Le pluralisme est préservé.' }
+    ] },
+  { id: 'ps_p210_temps_parole_desequilibre', programId: 'p210', family: 'image', phase: 2, when: { minSeasons: 1 },
+    titre: 'Le temps de parole déséquilibré',
+    desc: 'L’Arcom relève un déséquilibre du temps de parole politique dans {programme}. Un parti est sous-représenté.',
+    c: [
+      { l: 'Rééquilibrer immédiatement', icon: '⚖️', boost: -0.02, career: { loyalty: 1 }, pop: 2,
+        r: 'L’Arcom est satisfaite.' },
+      { l: 'Contester le décompte', icon: '🗣️', career: { awareness: 1 }, pop: -2,
+        r: 'Le conflit avec l’Arcom s’envenime.' },
+      { l: 'Recruter un responsable du pluralisme', icon: '📋', cost: { recurring: 0.03 }, lasting: 0.01, career: { loyalty: 1 }, pop: 1,
+        r: 'Le pluralisme est garanti.' }
+    ] },
+
+  // — Météo & trafic (p211) · info, matin —
+  { id: 'ps_p211_tempete_mal_annoncee', programId: 'p211', family: 'editorial', phase: 1,
+    titre: 'La tempête mal annoncée',
+    desc: 'Les prévisions de {programme} ont minimisé une tempête qui a fait des dégâts. Les téléspectateurs reprochent un manque d’alerte.',
+    c: [
+      { l: 'Renforcer le partenariat avec Météo-France', icon: '🌦️', cost: { recurring: 0.03 }, career: { loyalty: 3 }, pop: 1,
+        r: 'Les alertes deviennent plus précises.' },
+      { l: 'Présenter des excuses', icon: '🙏', career: { loyalty: -1, wear: 2 }, pop: 1,
+        r: 'L’excuse passe.' },
+      { l: 'Créer une alerte spéciale en direct', icon: '🚨', cost: { purchase: 0.03 }, career: { awareness: 3, loyalty: 1 },
+        r: 'L’alerte devient un service apprécié.' }
+    ] },
+  { id: 'ps_p211_meteo_version_spectacle', programId: 'p211', family: 'audience', phase: 2, when: { minSeasons: 1 },
+    titre: 'La météo version spectacle',
+    desc: 'La production de {programme} propose de présenter la météo depuis des lieux insolites chaque matin. Le ton serait plus léger, au risque de paraître moins sérieux.',
+    c: [
+      { l: 'Délocaliser la météo', icon: '🏔️', cost: { purchase: 0.05 }, career: { awareness: 4, wear: -6 },
+        r: 'La météo devient un rendez-vous ludique.' },
+      { l: 'Garder le studio', icon: '📺', career: { loyalty: 2, wear: 3 },
+        r: 'La météo reste sobre.' },
+      { l: 'Une fois par semaine', icon: '📅', cost: { purchase: 0.02 }, career: { awareness: 2, wear: -2 },
+        r: 'Un rendez-vous hebdomadaire apprécié.' }
+    ] },
+
+  // — Revue de presse (p212) · info, matin —
+  { id: 'ps_p212_une_oubliee', programId: 'p212', family: 'editorial', phase: 2,
+    titre: 'La une oubliée',
+    desc: 'La revue de presse de {programme} a ignoré la une d’un journal d’opposition. Ses lecteurs dénoncent un parti pris.',
+    c: [
+      { l: 'Couvrir systématiquement tous les titres', icon: '📰', cost: { purchase: 0.01 }, career: { loyalty: 2 }, pop: 1,
+        r: 'L’équilibre est salué.' },
+      { l: 'Assumer les choix éditoriaux', icon: '🖋️', career: { awareness: 1 }, pop: -2,
+        r: 'La polémique dure.' },
+      { l: 'Inviter un éditorialiste de ce journal', icon: '🎙️', cost: { purchase: 0.02 }, career: { awareness: 2 }, pop: 1,
+        r: 'L’ouverture est appréciée.' }
+    ] },
+  { id: 'ps_p212_revue_presse_internationale', programId: 'p212', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'La revue de presse internationale',
+    desc: 'La rédaction de {programme} propose d’ajouter une revue de la presse étrangère chaque matin. L’ouverture plairait, mais allongerait l’émission.',
+    c: [
+      { l: 'Ajouter la presse étrangère', icon: '🌍', cost: { recurring: 0.03 }, lasting: 0.02, career: { awareness: 4, loyalty: 1 },
+        r: 'L’ouverture internationale est saluée.' },
+      { l: 'Une fois par semaine', icon: '📅', cost: { purchase: 0.01 }, career: { awareness: 2 },
+        r: 'Un rendez-vous apprécié.' },
+      { l: 'Rester sur la presse française', icon: '🇫🇷', career: { awareness: -1, loyalty: 2, wear: 2 },
+        r: 'L’émission reste centrée sur la France.' }
+    ] },
+
+  // — International (p213) · info, matin —
+  { id: 'ps_p213_correspondant_menace', programId: 'p213', family: 'editorial', phase: 1,
+    titre: 'Le correspondant menacé',
+    desc: 'Le correspondant de {programme} dans une capitale étrangère reçoit des menaces après un reportage. Sa sécurité est en jeu.',
+    c: [
+      { l: 'Le rapatrier immédiatement', icon: '✈️', cost: { purchase: 0.04 }, career: { awareness: -1, loyalty: 1 }, pop: 1,
+        r: 'Le journaliste est en sécurité.' },
+      { l: 'Renforcer sa protection sur place', icon: '🛡️', cost: { recurring: 0.04 }, career: { awareness: 3, loyalty: 1 },
+        r: 'Le correspondant continue son travail.' },
+      { l: 'Le laisser décider', icon: '🤷', career: { awareness: 1, wear: 2 }, pop: -1,
+        r: 'La rédaction est critiquée.' }
+    ] },
+  { id: 'ps_p213_reseau_correspondants', programId: 'p213', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le réseau de correspondants',
+    desc: 'La rédaction de {programme} propose d’ouvrir trois nouveaux bureaux à l’étranger. L’investissement est lourd, mais la couverture gagnerait en profondeur.',
+    c: [
+      { l: 'Ouvrir trois bureaux', icon: '🌐', cost: { recurring: 0.12 }, lasting: 0.04, career: { awareness: 5 },
+        r: 'L’émission gagne en profondeur.' },
+      { l: 'Ouvrir un seul bureau', icon: '🏢', cost: { recurring: 0.04 }, career: { awareness: 2 },
+        r: 'Une ouverture prudente.' },
+      { l: 'Travailler avec des pigistes', icon: '🤝', career: { awareness: 1, loyalty: -1, wear: 2 },
+        r: 'Les sujets sont moins réguliers.' }
+    ] },
+
+  // — Chronique conso (p214) · info, matin —
+  { id: 'ps_p214_produit_dangereux', programId: 'p214', family: 'image', phase: 2,
+    titre: 'Le produit dangereux',
+    desc: 'Une chronique de {programme} a recommandé un produit rappelé quelques jours plus tard pour danger. Les consommateurs s’inquiètent.',
+    c: [
+      { l: 'Informer largement du rappel', icon: '📢', cost: { purchase: 0.02 }, career: { loyalty: 2 }, pop: 2,
+        r: 'Le rôle d’alerte de l’émission est salué.' },
+      { l: 'Ne rien dire', icon: '🤐', career: { loyalty: -2 }, pop: -2,
+        r: 'L’émission est critiquée.' },
+      { l: 'Créer une rubrique des rappels', icon: '⚠️', cost: { recurring: 0.02 }, lasting: 0.01, career: { awareness: 2 }, pop: 1,
+        r: 'La rubrique devient utile.' }
+    ] },
+  { id: 'ps_p214_application_des_bons', programId: 'p214', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'L’application des bons plans',
+    desc: 'La rédaction de {programme} propose une application pour comparer les prix en temps réel. Le projet est utile, mais demande un vrai développement.',
+    c: [
+      { l: 'Développer l’application', icon: '📲', cost: { purchase: 0.12 }, lasting: 0.03, career: { awareness: 4 },
+        r: 'L’application cartonne.' },
+      { l: 'Publier un comparatif mensuel', icon: '📊', cost: { purchase: 0.02 }, career: { awareness: 2, loyalty: 1 },
+        r: 'Le comparatif est apprécié.' },
+      { l: 'Renoncer', icon: '🙅', career: { awareness: -1, wear: 2 },
+        r: 'L’émission reste classique.' }
+    ] },
+
+  // — Interview éco (p215) · info, matin —
+  { id: 'ps_p215_patron_qui_refuse', programId: 'p215', family: 'editorial', phase: 1,
+    titre: 'Le patron qui refuse de répondre',
+    desc: 'Le patron d’une grande entreprise invité dans {programme} refuse de répondre sur les licenciements annoncés. Le public attend pourtant des réponses.',
+    c: [
+      { l: 'Insister jusqu’au bout', icon: '🎤', career: { awareness: 2, loyalty: 3 }, pop: -1,
+        r: 'L’entretien est tendu mais salué.' },
+      { l: 'Passer à un autre sujet', icon: '➡️', career: { loyalty: -2, wear: 2 },
+        r: 'L’entretien est jugé complaisant.' },
+      { l: 'Inviter un syndicaliste à répondre', icon: '🗣️', cost: { purchase: 0.01 }, career: { awareness: 2 }, pop: 1,
+        r: 'Le contradictoire est respecté.' }
+    ] },
+  { id: 'ps_p215_economie_trop_technique', programId: 'p215', family: 'audience', phase: 2, when: { minSeasons: 1 },
+    titre: 'L’économie trop technique',
+    desc: 'Les entretiens de {programme} sont jugés trop techniques par le grand public. La production propose de simplifier.',
+    c: [
+      { l: 'Ajouter des infographies', icon: '📊', cost: { purchase: 0.03 }, career: { awareness: 3, wear: -4 },
+        r: 'L’économie devient plus claire.' },
+      { l: 'Garder le niveau', icon: '🎓', boost: -0.02, career: { loyalty: 2 },
+        r: 'Les initiés sont satisfaits.' },
+      { l: 'Recruter un vulgarisateur', icon: '🧑‍🏫', cost: { recurring: 0.03 }, career: { awareness: 4, loyalty: 1 },
+        r: 'L’émission devient accessible.' }
+    ] },
+
+  // — Fil d'actualité continu (p216) · info, apresmidi —
+  { id: 'ps_p216_information_non_verifiee', programId: 'p216', family: 'editorial', phase: 1,
+    titre: 'L’information non vérifiée',
+    desc: 'Une rumeur d’attentat circule sur les réseaux. La rédaction de {programme} hésite à en parler avant confirmation officielle.',
+    c: [
+      { l: 'Attendre la confirmation', icon: '⏳', boost: -0.03, career: { loyalty: 3 },
+        r: 'La rigueur est saluée.' },
+      { l: 'Évoquer la rumeur avec prudence', icon: '⚠️', career: { awareness: 3 }, pop: -1,
+        r: 'L’émission est accusée d’alimenter la panique.' },
+      { l: 'Expliquer pourquoi on n’en parle pas encore', icon: '🎙️', career: { awareness: -1, loyalty: 2 }, pop: 1,
+        r: 'La pédagogie est appréciée.' }
+    ] },
+  { id: 'ps_p216_cellule_verification', programId: 'p216', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'La cellule de vérification',
+    desc: 'La rédaction de {programme} propose une cellule permanente de vérification des informations virales. Le dispositif renforcerait la crédibilité de l’émission.',
+    c: [
+      { l: 'Créer la cellule', icon: '🔍', cost: { recurring: 0.06 }, lasting: 0.03, career: { loyalty: 3 },
+        r: 'La cellule devient une référence.' },
+      { l: 'Une chronique quotidienne', icon: '📅', cost: { purchase: 0.02 }, career: { awareness: 1, loyalty: 2 },
+        r: 'La chronique est appréciée.' },
+      { l: 'Renoncer', icon: '🙅', career: { loyalty: -1, wear: 2 },
+        r: 'L’émission reste exposée aux fausses informations.' }
+    ] },
+
+  // — Breaking news (p217) · info, apresmidi —
+  { id: 'ps_p217_edition_speciale', programId: 'p217', family: 'editorial', phase: 1,
+    titre: 'L’édition spéciale',
+    desc: 'Un événement majeur survient en plein après-midi. La rédaction de {programme} propose une édition spéciale de plusieurs heures.',
+    c: [
+      { l: 'Lancer l’édition spéciale', icon: '🔴', cost: { purchase: 0.06 }, boost: 0.08, career: { awareness: 4 },
+        r: 'La chaîne devient la référence de l’événement.' },
+      { l: 'Un flash régulier', icon: '⚡', boost: 0.02, career: { wear: 2 },
+        r: 'L’information est donnée.' },
+      { l: 'Couvrir en ligne', icon: '📲', cost: { purchase: 0.01 }, career: { awareness: 2, loyalty: -1 },
+        r: 'Les internautes suivent en ligne.' }
+    ] },
+  { id: 'ps_p217_les_images_choquantes', programId: 'p217', family: 'image', phase: 2, when: { minSeasons: 1 },
+    titre: 'Les images choquantes',
+    desc: 'Des images violentes d’un drame ont été diffusées sans floutage dans {programme}. Le public s’indigne.',
+    c: [
+      { l: 'Flouter et s’excuser', icon: '🙏', boost: -0.02, career: { loyalty: 1 }, pop: 2,
+        r: 'La chaîne reconnaît son erreur.' },
+      { l: 'Défendre le droit à l’information', icon: '🗣️', career: { awareness: 2 }, pop: -3,
+        r: 'La polémique s’amplifie.' },
+      { l: 'Créer une charte des images', icon: '📜', cost: { purchase: 0.01 }, career: { loyalty: 1 }, pop: 1,
+        r: 'La charte rassure.' }
+    ] },
+
+  // — Directs terrain (p218) · info, apresmidi —
+  { id: 'ps_p218_journaliste_blesse', programId: 'p218', family: 'editorial', phase: 1,
+    titre: 'Le journaliste blessé',
+    desc: 'Un reporter de {programme} a été blessé lors d’une manifestation. La rédaction s’interroge sur la sécurité des équipes.',
+    c: [
+      { l: 'Équiper les équipes de protections', icon: '🦺', cost: { recurring: 0.04 }, career: { loyalty: 3 }, pop: 1,
+        r: 'Les équipes se sentent protégées.' },
+      { l: 'Réduire les directs en manifestation', icon: '📉', career: { awareness: -2 }, pop: 1,
+        r: 'Les directs se font plus rares.' },
+      { l: 'Ne rien changer', icon: '🤷', career: { awareness: 1, loyalty: -2 },
+        r: 'La rédaction s’inquiète.' }
+    ] },
+  { id: 'ps_p218_direct_par_smartphone', programId: 'p218', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le direct par smartphone',
+    desc: 'La rédaction de {programme} propose d’équiper les reporters de smartphones pour multiplier les directs. La réactivité y gagnerait, la qualité moins.',
+    c: [
+      { l: 'Équiper les reporters', icon: '📱', cost: { purchase: 0.04 }, career: { awareness: 4, loyalty: -1, wear: -6 },
+        r: 'Les directs se multiplient, la qualité varie.' },
+      { l: 'Garder les équipes classiques', icon: '🎥', career: { loyalty: 2, wear: 3 },
+        r: 'La qualité reste élevée.' },
+      { l: 'Un test sur une région', icon: '🧪', cost: { purchase: 0.01 }, career: { awareness: 2 },
+        r: 'Le test est concluant.' }
+    ] },
+
+  // — Reportages (p219) · info, apresmidi —
+  { id: 'ps_p219_reportage_trafique', programId: 'p219', family: 'editorial', phase: 1,
+    titre: 'Le reportage trafiqué',
+    desc: 'Un reportage de {programme} contient une scène reconstituée sans le signaler. Un concurrent le révèle.',
+    c: [
+      { l: 'Reconnaître et sanctionner', icon: '⚖️', career: { awareness: -1, loyalty: 1 }, pop: 2,
+        r: 'La rédaction gagne en crédibilité.' },
+      { l: 'Minimiser', icon: '🤐', career: { loyalty: -2 }, pop: -2,
+        r: 'La crédibilité s’effondre.' },
+      { l: 'Instaurer une mention des reconstitutions', icon: '📝', cost: { purchase: 0.01 }, career: { loyalty: 2 }, pop: 1,
+        r: 'La transparence est saluée.' }
+    ] },
+  { id: 'ps_p219_grand_reportage', programId: 'p219', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le grand reportage',
+    desc: 'La rédaction de {programme} propose une série de grands reportages de trente minutes, une fois par semaine. Ces reportages demandent du temps et des moyens.',
+    c: [
+      { l: 'Lancer la série', icon: '🎬', cost: { recurring: 0.06 }, lasting: 0.03, career: { awareness: 4 },
+        r: 'Les grands reportages sont salués.' },
+      { l: 'Un reportage par mois', icon: '📅', cost: { purchase: 0.02 }, career: { awareness: 2 },
+        r: 'Un rendez-vous apprécié.' },
+      { l: 'Rester sur des formats courts', icon: '⏱️', career: { loyalty: 1, wear: 3 },
+        r: 'L’émission garde son rythme.' }
+    ] },
+
+  // — Interviews (p220) · info, apresmidi —
+  { id: 'ps_p220_interview_exclusive', programId: 'p220', family: 'editorial', phase: 1,
+    titre: 'L’interview exclusive',
+    desc: 'Une personnalité au cœur d’un scandale propose une interview exclusive à {programme}, à condition de choisir l’intervieweur. L’exclusivité est tentante, mais la condition gênante.',
+    c: [
+      { l: 'Refuser la condition', icon: '✋', boost: -0.03, career: { loyalty: 3 },
+        r: 'L’indépendance est préservée.' },
+      { l: 'Accepter', icon: '🤝', boost: 0.06, career: { awareness: 4, loyalty: -3 },
+        r: 'L’interview fait l’événement mais est jugée complaisante.' },
+      { l: 'Proposer un duo d’intervieweurs', icon: '👥', career: { awareness: 2, loyalty: 1, wear: 2 },
+        r: 'Un compromis acceptable.' }
+    ] },
+  { id: 'ps_p220_les_interviews_public', programId: 'p220', family: 'audience', phase: 2, when: { minSeasons: 1 },
+    titre: 'Les interviews en public',
+    desc: 'La production de {programme} propose de réaliser les interviews devant un public qui poserait aussi des questions. Le format gagnerait en vie, mais serait moins maîtrisé.',
+    c: [
+      { l: 'Inviter le public', icon: '👥', cost: { purchase: 0.04 }, career: { awareness: 4, wear: -6 },
+        r: 'Les interviews gagnent en vie.' },
+      { l: 'Garder le format intimiste', icon: '🎙️', career: { loyalty: 2, wear: 3 },
+        r: 'L’émission reste sobre.' },
+      { l: 'Questions du public par vidéo', icon: '📹', cost: { purchase: 0.01 }, career: { awareness: 2 },
+        r: 'Le public participe à distance.' }
+    ] },
+
+  // — Économie en direct (p221) · info, apresmidi —
+  { id: 'ps_p221_krach_direct', programId: 'p221', family: 'editorial', phase: 2,
+    titre: 'Le krach en direct',
+    desc: 'Les Bourses s’effondrent en plein direct de {programme}. La rédaction doit réagir sans affoler.',
+    c: [
+      { l: 'Mobiliser des experts en direct', icon: '📉', cost: { purchase: 0.04 }, boost: 0.06, career: { awareness: 3, loyalty: 1 },
+        r: 'L’émission éclaire la crise avec sang-froid.' },
+      { l: 'Continuer le programme prévu', icon: '📺', career: { loyalty: -2, wear: 2 },
+        r: 'L’émission passe à côté de l’événement.' },
+      { l: 'Ouvrir une ligne de questions des épargnants', icon: '📞', cost: { purchase: 0.02 }, career: { awareness: 2 }, pop: 2,
+        r: 'Le service est salué.' }
+    ] },
+  { id: 'ps_p221_education_financiere', programId: 'p221', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'L’éducation financière',
+    desc: 'La rédaction de {programme} propose une rubrique quotidienne d’éducation financière pour les particuliers. Le projet rendrait service, mais demande un expert dédié.',
+    c: [
+      { l: 'Lancer la rubrique', icon: '💡', cost: { recurring: 0.03 }, lasting: 0.02, career: { awareness: 3 }, pop: 1,
+        r: 'La rubrique rend service.' },
+      { l: 'Une fois par semaine', icon: '📅', cost: { purchase: 0.01 }, career: { awareness: 1, loyalty: 1 },
+        r: 'Un rendez-vous apprécié.' },
+      { l: 'Rester sur l’actualité des marchés', icon: '📈', career: { loyalty: 1, wear: 3 },
+        r: 'L’émission reste technique.' }
+    ] },
+
+  // — International en continu (p222) · info, apresmidi —
+  { id: 'ps_p222_conflit_qui_dure', programId: 'p222', family: 'editorial', phase: 1,
+    titre: 'Le conflit qui dure',
+    desc: 'Un conflit armé s’enlise et les téléspectateurs de {programme} se lassent. La rédaction hésite à réduire la couverture.',
+    c: [
+      { l: 'Maintenir une couverture complète', icon: '🌍', cost: { purchase: 0.04 }, boost: -0.02, career: { loyalty: 3 },
+        r: 'L’émission reste une référence.' },
+      { l: 'Réduire la couverture', icon: '📉', boost: 0.02, career: { loyalty: -2 },
+        r: 'L’émission est accusée d’oublier le conflit.' },
+      { l: 'Proposer des formats explicatifs', icon: '🗺️', cost: { purchase: 0.02 }, career: { awareness: 3, wear: -3 },
+        r: 'Les explications relancent l’intérêt.' }
+    ] },
+  { id: 'ps_p222_alliance_avec_des', programId: 'p222', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'L’alliance avec des médias européens',
+    desc: 'Plusieurs chaînes européennes proposent à {programme} de partager leurs correspondants. L’alliance réduirait les coûts, au prix d’un peu d’indépendance.',
+    c: [
+      { l: 'Signer l’alliance', icon: '🇪🇺', cost: { saving: 0.06 }, career: { awareness: 3, loyalty: -1 },
+        r: 'La couverture s’élargit à moindre coût.' },
+      { l: 'Garder ses propres correspondants', icon: '🎙️', career: { loyalty: 2, wear: 2 },
+        r: 'L’émission reste indépendante.' },
+      { l: 'Un partenariat ponctuel', icon: '🤝', cost: { purchase: 0.01 }, career: { awareness: 2 },
+        r: 'Un échange limité.' }
+    ] },
+
+  // — Décryptage factuel (p223) · info, apresmidi —
+  { id: 'ps_p223_decryptage_conteste', programId: 'p223', family: 'image', phase: 2,
+    titre: 'Le décryptage contesté',
+    desc: 'Un décryptage de {programme} est accusé de partialité par un parti politique. Il demande un droit de réponse.',
+    c: [
+      { l: 'Accorder le droit de réponse', icon: '🗣️', career: { awareness: -1, loyalty: 1 }, pop: 1,
+        r: 'Le pluralisme est respecté.' },
+      { l: 'Refuser', icon: '✋', career: { awareness: 1 }, pop: -2,
+        r: 'La polémique s’envenime.' },
+      { l: 'Publier les sources du décryptage', icon: '📚', cost: { purchase: 0.01 }, career: { loyalty: 2 }, pop: 1,
+        r: 'La transparence convainc.' }
+    ] },
+  { id: 'ps_p223_decryptage_video', programId: 'p223', family: 'audience', phase: 2, when: { minSeasons: 1 },
+    titre: 'Le décryptage en vidéo',
+    desc: 'Les décryptages de {programme} sont très partagés en ligne. La production propose d’en faire des vidéos courtes.',
+    c: [
+      { l: 'Produire des vidéos courtes', icon: '🎬', cost: { purchase: 0.04 }, lasting: 0.02, career: { awareness: 4 },
+        r: 'Les vidéos font le tour des réseaux.' },
+      { l: 'Garder le format télé', icon: '📺', career: { awareness: -1, loyalty: 2 },
+        r: 'L’émission reste à l’antenne.' },
+      { l: 'Partager des extraits', icon: '📱', cost: { purchase: 0.01 }, career: { awareness: 2 },
+        r: 'Les extraits circulent.' }
+    ] },
+
+  // — Grand entretien (p224) · info, access —
+  { id: 'ps_p224_invite_qui_exige', programId: 'p224', family: 'editorial', phase: 1,
+    titre: 'L’invité qui exige un face-à-face',
+    desc: 'Un candidat à l’élection présidentielle exige un face-à-face avec son principal rival dans {programme}. Le rival refuse.',
+    c: [
+      { l: 'Laisser la chaise vide', icon: '🪑', boost: 0.03, career: { awareness: 4 }, pop: -1,
+        r: 'La chaise vide fait le buzz.' },
+      { l: 'Proposer deux entretiens séparés', icon: '👥', boost: -0.02, career: { loyalty: 2 }, pop: 1,
+        r: 'L’équité est respectée.' },
+      { l: 'Organiser un débat à plusieurs candidats', icon: '🗳️', cost: { purchase: 0.04 }, boost: 0.06, career: { awareness: 3 },
+        r: 'Le débat élargi fait l’événement.' }
+    ] },
+  { id: 'ps_p224_entretien_president', programId: 'p224', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'L’entretien du président',
+    desc: 'L’Élysée propose un entretien exclusif du président dans {programme}, à une date imposée. L’entretien serait un événement, mais les conditions font débat.',
+    c: [
+      { l: 'Accepter l’entretien', icon: '🏛️', cost: { purchase: 0.03 }, boost: 0.1, career: { awareness: 5, loyalty: -1 },
+        r: 'L’entretien fait l’audience de l’année.' },
+      { l: 'Négocier la date', icon: '📅', career: { awareness: 1, loyalty: 1, wear: 2 },
+        r: 'L’entretien est reporté.' },
+      { l: 'Refuser les conditions', icon: '✋', career: { awareness: -2, loyalty: 3 },
+        r: 'L’indépendance est préservée.' }
+    ] },
+
+  // — Débat politique (p225) · info, access —
+  { id: 'ps_p225_debat_trop_houleux', programId: 'p225', family: 'image', phase: 2,
+    titre: 'Le débat trop houleux',
+    desc: 'Le débat de {programme} a dégénéré en invectives. Le médiateur reçoit de nombreuses plaintes.',
+    c: [
+      { l: 'Instaurer un temps de parole strict', icon: '⏱️', cost: { purchase: 0.01 }, career: { loyalty: 1 }, pop: 2,
+        r: 'Les débats deviennent plus sereins.' },
+      { l: 'Assumer la vivacité', icon: '🔥', career: { awareness: 3 }, pop: -2,
+        r: 'Les audiences montent, l’image baisse.' },
+      { l: 'Changer d’animateur', icon: '🔄', career: { loyalty: -2, wear: -5 }, pop: 1,
+        r: 'Le débat se renouvelle.' }
+    ] },
+  { id: 'ps_p225_debat_avec_les', programId: 'p225', family: 'audience', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le débat avec les citoyens',
+    desc: 'La production de {programme} propose d’associer des citoyens tirés au sort au débat politique. Les élus s’en méfient, le public adore l’idée.',
+    c: [
+      { l: 'Associer les citoyens', icon: '🎲', cost: { purchase: 0.04 }, career: { awareness: 4, wear: -6 }, pop: 1,
+        r: 'Les citoyens bousculent les élus.' },
+      { l: 'Garder le débat entre élus', icon: '🏛️', career: { loyalty: 2, wear: 3 },
+        r: 'Le débat reste classique.' },
+      { l: 'Une question citoyenne par débat', icon: '❓', cost: { purchase: 0.01 }, career: { awareness: 2 }, pop: 1,
+        r: 'Les citoyens ont voix au chapitre.' }
+    ] },
+
+  // — Décryptage (p226) · info, access —
+  { id: 'ps_p226_decryptage_direct', programId: 'p226', family: 'editorial', phase: 1,
+    titre: 'Le décryptage en direct',
+    desc: 'Un discours présidentiel majeur est annoncé. La rédaction de {programme} propose de le décrypter en direct, phrase par phrase.',
+    c: [
+      { l: 'Décrypter en direct', icon: '🔍', cost: { purchase: 0.03 }, boost: 0.06, career: { awareness: 3 },
+        r: 'Le décryptage en direct est salué.' },
+      { l: 'Analyser après le discours', icon: '🎙️', career: { loyalty: 2, wear: 2 },
+        r: 'L’analyse est soignée.' },
+      { l: 'Vérifier les chiffres en direct', icon: '📊', cost: { purchase: 0.02 }, career: { awareness: 2, loyalty: 2 },
+        r: 'La vérification en direct est appréciée.' }
+    ] },
+  { id: 'ps_p226_decryptage_pour_les', programId: 'p226', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le décryptage pour les jeunes',
+    desc: 'La rédaction de {programme} propose une version de l’émission destinée aux 15-25 ans. Le projet ouvrirait un nouveau public, s’il trouve le bon ton.',
+    c: [
+      { l: 'Lancer la version jeune', icon: '🧑‍🎓', cost: { recurring: 0.04 }, lasting: 0.03, career: { awareness: 4 },
+        r: 'La version jeune trouve son public.' },
+      { l: 'Une rubrique jeune dans l’émission', icon: '📌', cost: { purchase: 0.01 }, career: { awareness: 2 },
+        r: 'La rubrique est appréciée.' },
+      { l: 'Rester sur la cible actuelle', icon: '🎯', career: { awareness: -1, loyalty: 2 },
+        r: 'L’émission ne se renouvelle pas.' }
     ] }
 ];
 // ---------------------------------------------------------------------------
