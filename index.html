@@ -11492,6 +11492,485 @@ const PROGRAM_STORY_BANK = [
         r: 'Les fans du Japon sont satisfaits.' },
       { l: 'Une rubrique coréenne par mois', icon: '📅', cost: { purchase: 0.02 }, career: { awareness: 2, wear: -2 },
         r: 'Une ouverture progressive.' }
+    ] },
+  // — Journal des sports (p168) · sport, matin —
+  { id: 'ps_p168_scoop_transfert', programId: 'p168', family: 'editorial', phase: 1,
+    titre: 'Le scoop du transfert',
+    desc: 'Un journaliste de {programme} tient l’annonce d’un transfert record, mais le club demande un embargo jusqu’au soir. La concurrence est sur le coup.',
+    c: [
+      { l: 'Sortir l’information immédiatement', icon: '⚡', boost: 0.06, career: { awareness: 4, loyalty: -2 },
+        r: 'Le scoop est repris partout, le club ne vous parlera plus.' },
+      { l: 'Respecter l’embargo', icon: '🤝', boost: -0.02, career: { loyalty: 3 },
+        r: 'Le club vous réserve ses prochaines exclusivités.' },
+      { l: 'Annoncer une révélation pour le lendemain', icon: '⏰', cost: { purchase: 0.03 }, boost: 0.03, career: { awareness: 2 },
+        r: 'Le teasing fait monter l’attente.' }
+    ] },
+  { id: 'ps_p168_bataille_des_journaux', programId: 'p168', family: 'audience', phase: 2, when: { minSeasons: 1, pressure: true },
+    titre: 'La bataille des journaux sportifs',
+    desc: '{rival} lance {rivalProgramme} avec un consultant vedette, face à {programme}. Les fans de sport hésitent.',
+    c: [
+      { l: 'Recruter un ancien international comme consultant', icon: '⚽', cost: { recurring: 0.08 }, boost: 0.05, career: { awareness: 5 },
+        r: 'Le consultant attire les passionnés.' },
+      { l: 'Miser sur l’exhaustivité des résultats', icon: '📊', career: { loyalty: 3, wear: 3 },
+        r: 'Les passionnés restent fidèles.' },
+      { l: 'Ajouter les sports féminins chaque jour', icon: '👟', cost: { purchase: 0.04 }, career: { awareness: 3, wear: -4 }, pop: 1,
+        r: 'L’émission se démarque et séduit un nouveau public.' }
+    ] },
+
+  // — Résumés & highlights (p169) · sport, matin —
+  { id: 'ps_p169_les_images_trop', programId: 'p169', family: 'economie', phase: 1,
+    titre: 'Les images trop chères',
+    desc: 'Les ligues professionnelles augmentent le prix des extraits utilisés dans {programme}. Le budget de l’émission explose.',
+    c: [
+      { l: 'Payer les nouveaux tarifs', icon: '💶', cost: { recurring: 0.15 }, boost: 0.03, career: { loyalty: 3 },
+        r: 'Les plus beaux buts restent à l’antenne.' },
+      { l: 'Se concentrer sur les sports moins chers', icon: '🏐', career: { awareness: 1, loyalty: -3 },
+        r: 'L’émission perd ses temps forts.' },
+      { l: 'Négocier un forfait annuel', icon: '🤝', cost: { purchase: 0.08 }, career: { loyalty: 1, wear: -2 },
+        r: 'Un accord stable.' }
+    ] },
+  { id: 'ps_p169_les_highlights_sur', programId: 'p169', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Les highlights sur les réseaux',
+    desc: 'La production de {programme} propose de publier les meilleurs extraits sur les réseaux sociaux juste après la diffusion. L’émission gagnerait en visibilité, au risque de perdre son exclusivité.',
+    c: [
+      { l: 'Publier les extraits en ligne', icon: '📱', cost: { purchase: 0.04 }, lasting: 0.02, career: { awareness: 5, loyalty: -1 },
+        r: 'Les extraits font des millions de vues.' },
+      { l: 'Garder les extraits pour l’antenne', icon: '📺', career: { awareness: -2, loyalty: 2 },
+        r: 'L’émission reste rare.' },
+      { l: 'Créer une chaîne dédiée en ligne', icon: '🌐', cost: { purchase: 0.1 }, lasting: 0.03, career: { awareness: 4 },
+        r: 'La chaîne en ligne prolonge l’émission.' }
+    ] },
+
+  // — Fitness (p170) · sport, matin —
+  { id: 'ps_p170_coach_les_complements', programId: 'p170', family: 'image', phase: 2,
+    titre: 'Le coach et les compléments',
+    desc: 'Le coach de {programme} recommande des compléments alimentaires d’une marque dont il est actionnaire. La presse révèle le conflit d’intérêts.',
+    c: [
+      { l: 'Écarter le coach', icon: '🚪', career: { loyalty: -2 }, pop: 2,
+        r: 'La chaîne réagit fermement.' },
+      { l: 'Imposer une déclaration d’intérêts', icon: '📋', career: { awareness: -1, loyalty: 1 }, pop: 1,
+        r: 'La transparence rassure.' },
+      { l: 'Ne rien faire', icon: '🤷', career: { awareness: 1 }, pop: -2,
+        r: 'L’émission perd en crédibilité.' }
+    ] },
+  { id: 'ps_p170_defi_fitness_national', programId: 'p170', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le défi fitness national',
+    desc: 'La production de {programme} propose un défi fitness de trente jours pour toute la France, avec suivi en ligne. L’opération serait fédératrice, mais demande un vrai dispositif.',
+    c: [
+      { l: 'Lancer le défi national', icon: '💪', cost: { purchase: 0.12 }, boost: 0.08, career: { awareness: 5 },
+        r: 'Des milliers de Français relèvent le défi.' },
+      { l: 'Proposer un programme sur le site', icon: '🌐', cost: { purchase: 0.02 }, career: { awareness: 2 },
+        r: 'Les plus motivés suivent le programme.' },
+      { l: 'Rester sur les séances habituelles', icon: '🧘', career: { loyalty: 2, wear: 3 },
+        r: 'Les fidèles continuent leurs séances.' }
+    ] },
+
+  // — Portraits de sportifs (p171) · sport, matin —
+  { id: 'ps_p171_portrait_champion_dechu', programId: 'p171', family: 'editorial', phase: 1,
+    titre: 'Le portrait d’un champion déchu',
+    desc: 'Le sportif au cœur du prochain numéro de {programme} vient d’être suspendu pour dopage. La production hésite à maintenir le portrait.',
+    c: [
+      { l: 'Maintenir et aborder le dopage', icon: '⚖️', cost: { purchase: 0.03 }, career: { awareness: 4, loyalty: 2 },
+        r: 'Le portrait est salué pour sa franchise.' },
+      { l: 'Remplacer par un autre portrait', icon: '🔄', cost: { purchase: 0.04 }, career: { loyalty: 1, wear: -3 },
+        r: 'Le numéro est sauvé.' },
+      { l: 'Diffuser le portrait tel quel', icon: '📺', career: { awareness: 2 }, pop: -2,
+        r: 'L’émission est critiquée pour sa complaisance.' }
+    ] },
+  { id: 'ps_p171_les_oublies_sport', programId: 'p171', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Les oubliés du sport',
+    desc: 'La production de {programme} propose une série de portraits d’athlètes paralympiques et de sports méconnus. Le projet est généreux, mais l’audience incertaine.',
+    c: [
+      { l: 'Produire la série', icon: '🦽', cost: { purchase: 0.06 }, lasting: 0.02, career: { awareness: 4 }, pop: 2,
+        r: 'La série est saluée et fait découvrir des champions méconnus.' },
+      { l: 'Un portrait par mois', icon: '📅', cost: { purchase: 0.02 }, career: { awareness: 1 }, pop: 1,
+        r: 'Une ouverture régulière.' },
+      { l: 'Rester sur les stars', icon: '⭐', boost: 0.02, career: { wear: 3 },
+        r: 'L’émission reste centrée sur les stars.' }
+    ] },
+
+  // — Matinale 100% Sport (p172) · sport, matin —
+  { id: 'ps_p172_consultant_chambreur', programId: 'p172', family: 'editorial', phase: 2,
+    titre: 'Le consultant chambreur',
+    desc: 'Le consultant de {programme} multiplie les moqueries envers un club. Les supporters du club appellent au boycott.',
+    c: [
+      { l: 'Recadrer le consultant', icon: '🎙️', career: { awareness: -1, loyalty: -1 }, pop: 1,
+        r: 'Le ton s’apaise.' },
+      { l: 'Assumer le ton chambreur', icon: '😏', career: { awareness: 4 }, pop: -2,
+        r: 'L’émission fait parler d’elle.' },
+      { l: 'Inviter un supporter du club à répondre', icon: '🗣️', cost: { purchase: 0.02 }, career: { awareness: 2 }, pop: 1,
+        r: 'Le duel tourne à l’amusement.' }
+    ] },
+  { id: 'ps_p172_matinale_video', programId: 'p172', family: 'audience', phase: 3, when: { minSeasons: 1 },
+    titre: 'La matinale vidéo',
+    desc: 'La production de {programme} propose de diffuser l’émission en simultané sur une plateforme de streaming. Les jeunes pourraient découvrir l’émission, au détriment de l’antenne.',
+    c: [
+      { l: 'Diffuser en simultané', icon: '📡', cost: { purchase: 0.04 }, career: { awareness: 5, loyalty: -1 },
+        r: 'Les jeunes découvrent la matinale.' },
+      { l: 'Garder l’exclusivité de l’antenne', icon: '📺', career: { awareness: -2, loyalty: 2 },
+        r: 'Les fidèles restent sur la chaîne.' },
+      { l: 'Publier des extraits en ligne', icon: '📱', cost: { purchase: 0.02 }, career: { awareness: 2, loyalty: 1 },
+        r: 'Les extraits donnent envie.' }
+    ] },
+
+  // — Actualité mercato (p173) · sport, matin —
+  { id: 'ps_p173_fausse_rumeur_transfert', programId: 'p173', family: 'image', phase: 2,
+    titre: 'La fausse rumeur de transfert',
+    desc: '{programme} a annoncé un transfert qui ne s’est jamais produit. Le joueur concerné dénonce un manque de sérieux.',
+    c: [
+      { l: 'Publier un démenti et s’excuser', icon: '🙏', career: { awareness: -1, loyalty: 2 }, pop: 1,
+        r: 'La transparence est saluée.' },
+      { l: 'Ignorer l’affaire', icon: '🤷', career: { awareness: 1, loyalty: -3 },
+        r: 'L’émission perd en crédibilité.' },
+      { l: 'Créer un indice de fiabilité des rumeurs', icon: '📊', cost: { purchase: 0.04 }, career: { awareness: 3, loyalty: 2 },
+        r: 'L’indice devient un gimmick apprécié.' }
+    ] },
+  { id: 'ps_p173_mercato_direct', programId: 'p173', family: 'strategie', phase: 1, when: { minSeasons: 1 },
+    titre: 'Le mercato en direct',
+    desc: 'La production de {programme} propose une émission en direct le dernier jour du mercato, jusqu’à minuit. Les fans adorent ce suspense de dernière minute.',
+    c: [
+      { l: 'Organiser la soirée mercato', icon: '🕛', cost: { purchase: 0.12 }, boost: 0.08, career: { awareness: 5 },
+        r: 'La soirée devient un rendez-vous des fans.' },
+      { l: 'Couvrir le mercato dans l’émission habituelle', icon: '📰', career: { loyalty: 1, wear: 3 },
+        r: 'Une couverture classique.' },
+      { l: 'Un direct sur les réseaux', icon: '📱', cost: { purchase: 0.03 }, career: { awareness: 3 },
+        r: 'Les fans suivent en ligne.' }
+    ] },
+
+  // — Sport santé (p174) · sport, matin —
+  { id: 'ps_p174_regime_miracle', programId: 'p174', family: 'image', phase: 2,
+    titre: 'Le régime miracle',
+    desc: 'Un invité de {programme} a vanté un régime jugé dangereux par des nutritionnistes. L’Ordre des médecins réagit.',
+    c: [
+      { l: 'Diffuser un rectificatif avec des médecins', icon: '🩺', cost: { purchase: 0.02 }, career: { loyalty: 2 }, pop: 2,
+        r: 'La rigueur de l’émission est saluée.' },
+      { l: 'Laisser passer', icon: '🤷', career: { awareness: 1 }, pop: -2,
+        r: 'L’émission est critiquée.' },
+      { l: 'Créer un comité scientifique', icon: '🔬', cost: { recurring: 0.03 }, lasting: 0.02, career: { loyalty: 3 },
+        r: 'Le comité garantit la qualité des conseils.' }
+    ] },
+  { id: 'ps_p174_partenariat_avec_assurance', programId: 'p174', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le partenariat avec l’assurance maladie',
+    desc: 'L’assurance maladie propose à {programme} un partenariat pour promouvoir l’activité physique. L’émission gagnerait en légitimité, et perdrait un peu de liberté.',
+    c: [
+      { l: 'Signer le partenariat', icon: '🏥', cost: { commercial: 0.05 }, career: { loyalty: -1 }, pop: 2,
+        r: 'Le partenariat donne du poids à l’émission.' },
+      { l: 'Garder l’indépendance', icon: '🛡️', career: { loyalty: 2, wear: 2 },
+        r: 'L’émission reste libre.' },
+      { l: 'Produire une campagne commune', icon: '📢', cost: { purchase: 0.04 }, career: { awareness: 3 }, pop: 1,
+        r: 'La campagne est remarquée.' }
+    ] },
+
+  // — Archives sportives (p175) · sport, matin —
+  { id: 'ps_p175_les_archives_finale', programId: 'p175', family: 'economie', phase: 1,
+    titre: 'Les archives de la finale mythique',
+    desc: 'Les images d’une finale mythique sont proposées à {programme} par la fédération, à prix fort. Ces images feraient revivre un moment que tous les fans attendent.',
+    c: [
+      { l: 'Acheter les images', icon: '📼', cost: { purchase: 0.2 }, boost: 0.06, career: { awareness: 3, loyalty: 2 },
+        r: 'Les fans revivent la finale.' },
+      { l: 'Utiliser des photos et des témoignages', icon: '📸', career: { loyalty: 1, wear: 3 },
+        r: 'Le numéro est moins spectaculaire.' },
+      { l: 'Négocier un accès partiel', icon: '🤝', cost: { purchase: 0.06 }, boost: 0.03, career: { awareness: 1 },
+        r: 'Quelques images clés.' }
+    ] },
+  { id: 'ps_p175_nostalgie_fait_recette', programId: 'p175', family: 'audience', phase: 2, when: { minSeasons: 1 },
+    titre: 'La nostalgie fait recette',
+    desc: 'Les numéros de {programme} consacrés aux années 1990 cartonnent. La production propose de les multiplier.',
+    c: [
+      { l: 'Une saison entière consacrée aux années 1990', icon: '📺', cost: { purchase: 0.06 }, boost: 0.06, career: { awareness: 3, wear: 4 },
+        r: 'La nostalgie fait recette.' },
+      { l: 'Varier les époques', icon: '🗂️', boost: -0.02, career: { loyalty: 2, wear: -3 },
+        r: 'L’émission garde sa diversité.' },
+      { l: 'Un numéro spécial par trimestre', icon: '📅', cost: { purchase: 0.02 }, boost: 0.03, career: { loyalty: 1 },
+        r: 'Un équilibre apprécié.' }
+    ] },
+
+  // — Biathlon (p176) · sport, apresmidi —
+  { id: 'ps_p176_coupe_monde_biathlon', programId: 'p176', family: 'economie', phase: 1,
+    titre: 'La Coupe du monde de biathlon',
+    desc: 'Les droits de la Coupe du monde de biathlon diffusée dans {programme} sont remis en jeu. Une plateforme veut les rafler.',
+    c: [
+      { l: 'Surenchérir pour garder les droits', icon: '💶', cost: { recurring: 0.2 }, boost: 0.04, career: { loyalty: 4 },
+        r: 'Le biathlon reste sur la chaîne.' },
+      { l: 'Laisser partir les droits', icon: '👋', boost: -0.06, career: { loyalty: -3 },
+        r: 'Les fans suivent le biathlon ailleurs.' },
+      { l: 'Proposer une codiffusion', icon: '🤝', cost: { purchase: 0.08 }, career: { awareness: 1, loyalty: 1 },
+        r: 'Les droits sont partagés.' }
+    ] },
+  { id: 'ps_p176_francais_lice_pour', programId: 'p176', family: 'audience', phase: 2, when: { minSeasons: 1, form: ['succes', 'stable'] },
+    titre: 'Le Français en lice pour le gros globe',
+    desc: 'Un biathlète français est en course pour le classement général. La production de {programme} propose d’en faire un feuilleton.',
+    c: [
+      { l: 'Suivre le biathlète toute la saison', icon: '🎿', cost: { purchase: 0.12 }, boost: 0.08, career: { awareness: 5 },
+        r: 'Le feuilleton passionne la France.' },
+      { l: 'Couvrir seulement les courses', icon: '📺', career: { loyalty: 1, wear: 3 },
+        r: 'Une couverture classique.' },
+      { l: 'Un portrait avant la dernière course', icon: '🎥', cost: { purchase: 0.03 }, boost: 0.03, career: { awareness: 2 },
+        r: 'Le portrait émeut.' }
+    ] },
+
+  // — Sports émergents (p177) · sport, apresmidi —
+  { id: 'ps_p177_sport_inconnu', programId: 'p177', family: 'editorial', phase: 1,
+    titre: 'Le sport inconnu',
+    desc: 'La production de {programme} propose de diffuser un tournoi de sepak takraw, sport asiatique méconnu. Le pari est original, mais l’audience incertaine.',
+    c: [
+      { l: 'Diffuser le tournoi', icon: '🏐', cost: { purchase: 0.04 }, boost: -0.02, career: { awareness: 3, wear: -5 },
+        r: 'La curiosité attire quelques téléspectateurs.' },
+      { l: 'Rester sur les sports connus', icon: '⚽', career: { loyalty: 2, wear: 3 },
+        r: 'Les fidèles sont rassurés.' },
+      { l: 'Un reportage de présentation', icon: '🎥', cost: { purchase: 0.02 }, career: { awareness: 2, loyalty: 1 },
+        r: 'Les téléspectateurs découvrent ce sport.' }
+    ] },
+  { id: 'ps_p177_les_nouveaux_sports', programId: 'p177', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Les nouveaux sports olympiques',
+    desc: 'De nouveaux sports entrent aux Jeux olympiques. La production de {programme} propose une série de découverte.',
+    c: [
+      { l: 'Produire la série de découverte', icon: '🛹', cost: { purchase: 0.08 }, lasting: 0.03, career: { awareness: 5 },
+        r: 'La série prépare les fans aux Jeux.' },
+      { l: 'Un numéro spécial', icon: '📅', cost: { purchase: 0.02 }, career: { awareness: 2 },
+        r: 'Un numéro remarqué.' },
+      { l: 'Ne rien changer', icon: '🙅', career: { loyalty: 1, wear: 3 },
+        r: 'L’émission passe à côté de l’actualité.' }
+    ] },
+
+  // — Matchs de légendes (p178) · sport, apresmidi —
+  { id: 'ps_p178_les_legendes_reclament', programId: 'p178', family: 'economie', phase: 1,
+    titre: 'Les légendes réclament un cachet',
+    desc: 'Les anciens champions qui jouent dans {programme} réclament un cachet plus élevé. Certains menacent de ne plus venir.',
+    c: [
+      { l: 'Augmenter les cachets', icon: '💶', cost: { recurring: 0.1 }, career: { awareness: 1, loyalty: 3 },
+        r: 'Les légendes restent fidèles.' },
+      { l: 'Recruter d’autres anciens joueurs', icon: '🔄', career: { loyalty: -2, wear: -4 },
+        r: 'De nouveaux visages, moins prestigieux.' },
+      { l: 'Reverser les recettes à une association', icon: '❤️', cost: { purchase: 0.05 }, career: { loyalty: 1 }, pop: 2,
+        r: 'Le geste solidaire convainc les légendes.' }
+    ] },
+  { id: 'ps_p178_match_des_legendes', programId: 'p178', family: 'audience', phase: 2, when: { minSeasons: 1 },
+    titre: 'Le match des légendes au stade',
+    desc: 'La production de {programme} propose d’organiser le prochain match dans un grand stade, devant le public. Le spectacle serait grandiose, le coût aussi.',
+    c: [
+      { l: 'Organiser le match au stade', icon: '🏟️', cost: { purchase: 0.2 }, boost: 0.1, career: { awareness: 4 },
+        r: 'Le stade plein donne une ambiance unique.' },
+      { l: 'Rester dans un petit stade', icon: '⚽', career: { loyalty: 1, wear: 3 },
+        r: 'Une ambiance plus intime.' },
+      { l: 'Un match caritatif dans un stade moyen', icon: '❤️', cost: { purchase: 0.06 }, boost: 0.04, pop: 2,
+        r: 'Le match solidaire est salué.' }
+    ] },
+
+  // — Documentaires sportifs (p179) · sport, apresmidi —
+  { id: 'ps_p179_enquete_sur_dopage', programId: 'p179', family: 'editorial', phase: 1,
+    titre: 'L’enquête sur le dopage',
+    desc: 'Les réalisateurs de {programme} ont enquêté sur un réseau de dopage dans le cyclisme amateur. Une fédération menace de couper ses accès.',
+    c: [
+      { l: 'Diffuser l’enquête', icon: '🔍', boost: -0.02, career: { awareness: 5, loyalty: 2 },
+        r: 'L’enquête fait du bruit.' },
+      { l: 'Reporter pour vérifications', icon: '⏳', cost: { purchase: 0.04 }, career: { awareness: 1, loyalty: 1 },
+        r: 'L’enquête gagne en solidité.' },
+      { l: 'Abandonner l’enquête', icon: '🗑️', career: { loyalty: -3 }, pop: -1,
+        r: 'La rédaction est déçue.' }
+    ] },
+  { id: 'ps_p179_documentaire_prime', programId: 'p179', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le documentaire primé',
+    desc: 'Un documentaire de {programme} est sélectionné dans un festival international. La production demande un budget de promotion.',
+    c: [
+      { l: 'Financer la promotion', icon: '🏆', cost: { purchase: 0.08 }, lasting: 0.03, career: { awareness: 5 },
+        r: 'Le documentaire est primé.' },
+      { l: 'Laisser le réalisateur seul', icon: '🙅', career: { loyalty: -1, wear: 2 },
+        r: 'Le film passe inaperçu.' },
+      { l: 'Organiser une projection en avant-première', icon: '🎟️', cost: { purchase: 0.03 }, career: { awareness: 2, loyalty: 1 },
+        r: 'La projection est remarquée.' }
+    ] },
+
+  // — Multisports (p180) · sport, apresmidi —
+  { id: 'ps_p180_trop_sports_fois', programId: 'p180', family: 'audience', phase: 2,
+    titre: 'Trop de sports à la fois',
+    desc: 'Les téléspectateurs de {programme} se plaignent de passer d’un sport à l’autre sans fil conducteur. La production propose de thématiser chaque journée.',
+    c: [
+      { l: 'Thématiser chaque journée', icon: '🗂️', cost: { purchase: 0.03 }, career: { loyalty: 2, wear: -5 },
+        r: 'Les fans de chaque sport trouvent leur journée.' },
+      { l: 'Garder le zapping', icon: '🔀', career: { awareness: 2, loyalty: -2 },
+        r: 'Le rythme reste effréné.' },
+      { l: 'Créer un fil rouge avec un présentateur', icon: '🎙️', cost: { recurring: 0.04 }, boost: 0.02, career: { loyalty: 3 },
+        r: 'Le fil rouge donne du sens.' }
+    ] },
+  { id: 'ps_p180_les_championnats_europe', programId: 'p180', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Les championnats d’Europe',
+    desc: 'Les championnats d’Europe multisports approchent. Les droits de {programme} sont disponibles à prix raisonnable.',
+    c: [
+      { l: 'Acheter les droits', icon: '🇪🇺', cost: { purchase: 0.2 }, boost: 0.1, career: { awareness: 4 },
+        r: 'Les championnats font l’événement.' },
+      { l: 'Acheter seulement les finales', icon: '🏅', cost: { purchase: 0.06 }, boost: 0.04, career: { awareness: 1 },
+        r: 'Les finales sont diffusées.' },
+      { l: 'Laisser passer', icon: '🙅', career: { awareness: -2, wear: 2 },
+        r: 'Les championnats sont diffusés ailleurs.' }
+    ] },
+
+  // — Sports mécaniques (p181) · sport, apresmidi —
+  { id: 'ps_p181_accident_sur_circuit', programId: 'p181', family: 'image', phase: 2,
+    titre: 'L’accident sur le circuit',
+    desc: 'Un grave accident s’est produit lors d’une course diffusée dans {programme}. Les images ont été diffusées en direct.',
+    c: [
+      { l: 'Interrompre la diffusion et rendre hommage', icon: '🕊️', boost: -0.03, pop: 2,
+        r: 'La chaîne fait preuve de dignité.' },
+      { l: 'Continuer le direct', icon: '📺', career: { awareness: 2 }, pop: -3,
+        r: 'La chaîne est vivement critiquée.' },
+      { l: 'Instaurer un différé de sécurité', icon: '⏱️', cost: { recurring: 0.02 }, lasting: 0.01, career: { loyalty: 1 }, pop: 1,
+        r: 'Les images choquantes ne passeront plus.' }
+    ] },
+  { id: 'ps_p181_rallye_mythique', programId: 'p181', family: 'economie', phase: 1, when: { minSeasons: 1 },
+    titre: 'Le rallye mythique',
+    desc: 'Les droits du plus grand rallye du monde sont proposés à {programme}. Le prix est élevé mais l’audience assurée.',
+    c: [
+      { l: 'Acheter les droits', icon: '🏁', cost: { purchase: 0.3 }, boost: 0.12, career: { awareness: 4 },
+        r: 'Le rallye attire les passionnés.' },
+      { l: 'Diffuser seulement des résumés', icon: '🎬', cost: { purchase: 0.06 }, boost: 0.03,
+        r: 'Les résumés satisfont les curieux.' },
+      { l: 'Laisser passer', icon: '🙅', career: { loyalty: -1, wear: 2 },
+        r: 'Les fans vont voir ailleurs.' }
+    ] },
+
+  // — Cyclisme (p182) · sport, apresmidi —
+  { id: 'ps_p182_tour_france_des', programId: 'p182', family: 'economie', phase: 1,
+    titre: 'Le Tour de France des petites routes',
+    desc: 'Les droits des courses cyclistes régionales de {programme} sont bon marché, mais l’audience est modeste. La production propose d’étoffer le calendrier.',
+    c: [
+      { l: 'Racheter tout le calendrier régional', icon: '🚴', cost: { purchase: 0.1 }, career: { awareness: 3, loyalty: 3 },
+        r: 'Les passionnés suivent toutes les courses.' },
+      { l: 'Garder les courses actuelles', icon: '🛣️', career: { loyalty: 1, wear: 3 },
+        r: 'Le calendrier reste maigre.' },
+      { l: 'Ajouter les courses féminines', icon: '🚴‍♀️', cost: { purchase: 0.04 }, career: { awareness: 3 }, pop: 1,
+        r: 'Les courses féminines séduisent.' }
+    ] },
+  { id: 'ps_p182_moto_embarquee', programId: 'p182', family: 'audience', phase: 2, when: { minSeasons: 1 },
+    titre: 'La moto embarquée',
+    desc: 'La production de {programme} propose des caméras embarquées sur les vélos pour plonger les téléspectateurs au cœur du peloton. L’innovation coûte cher, mais les images seraient inédites.',
+    c: [
+      { l: 'Installer les caméras embarquées', icon: '🎥', cost: { purchase: 0.08 }, boost: 0.03, career: { awareness: 4, wear: -6 },
+        r: 'Les images immersives fascinent.' },
+      { l: 'Garder la réalisation classique', icon: '📺', career: { loyalty: 2, wear: 3 },
+        r: 'Les fidèles sont rassurés.' },
+      { l: 'Tester sur une seule course', icon: '🧪', cost: { purchase: 0.02 }, career: { awareness: 2 },
+        r: 'Un test prometteur.' }
+    ] },
+
+  // — Surf (p183) · sport, apresmidi —
+  { id: 'ps_p183_vague_geante', programId: 'p183', family: 'editorial', phase: 1,
+    titre: 'La vague géante',
+    desc: 'Une houle exceptionnelle est annoncée sur la côte basque. Les surfeurs de {programme} proposent un direct exceptionnel.',
+    c: [
+      { l: 'Monter le direct en urgence', icon: '🌊', cost: { purchase: 0.12 }, boost: 0.08, career: { awareness: 5 },
+        r: 'Les images de la vague géante font le tour du monde.' },
+      { l: 'Filmer pour un résumé', icon: '🎥', cost: { purchase: 0.03 }, boost: 0.02, career: { awareness: 2 },
+        r: 'Un résumé spectaculaire.' },
+      { l: 'Ne pas couvrir l’événement', icon: '🙅', career: { awareness: -2, wear: 2 },
+        r: 'D’autres médias s’en chargent.' }
+    ] },
+  { id: 'ps_p183_surf_environnement', programId: 'p183', family: 'image', phase: 2, when: { minSeasons: 1 },
+    titre: 'Le surf et l’environnement',
+    desc: 'Des surfeurs de {programme} dénoncent la pollution des plages. Un sponsor pétrolier de la compétition s’en irrite.',
+    c: [
+      { l: 'Soutenir les surfeurs', icon: '🌿', boost: -0.02, career: { loyalty: 2 }, pop: 2,
+        r: 'L’émission gagne en sympathie.' },
+      { l: 'Couper leurs propos', icon: '✂️', career: { loyalty: -2 }, pop: -2,
+        r: 'L’émission est critiquée.' },
+      { l: 'Produire un numéro sur la pollution', icon: '🔍', cost: { purchase: 0.04 }, career: { awareness: 3 }, pop: 1,
+        r: 'Le numéro est salué.' }
+    ] },
+
+  // — 100% Data (p185) · sport, access —
+  { id: 'ps_p185_les_statistiques_contestees', programId: 'p185', family: 'editorial', phase: 1,
+    titre: 'Les statistiques contestées',
+    desc: 'Un entraîneur conteste publiquement les statistiques présentées dans {programme}. Il les juge fausses et trompeuses.',
+    c: [
+      { l: 'Publier la méthode de calcul', icon: '📊', cost: { purchase: 0.02 }, career: { awareness: 1, loyalty: 3 },
+        r: 'La transparence convainc les passionnés.' },
+      { l: 'Ignorer la critique', icon: '🤷', career: { awareness: 1, loyalty: -2 },
+        r: 'La polémique continue.' },
+      { l: 'Inviter l’entraîneur à débattre', icon: '🗣️', cost: { purchase: 0.02 }, boost: 0.02, career: { awareness: 3 },
+        r: 'Le débat passionne.' }
+    ] },
+  { id: 'ps_p185_intelligence_artificielle_predit', programId: 'p185', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'L’intelligence artificielle prédit les matchs',
+    desc: 'Une start-up propose à {programme} un outil de prédiction des matchs par intelligence artificielle. L’outil intrigue, mais les puristes s’en méfient.',
+    c: [
+      { l: 'Intégrer l’outil', icon: '🤖', cost: { recurring: 0.06 }, career: { awareness: 5, loyalty: -1, wear: -6 },
+        r: 'Les prédictions fascinent.' },
+      { l: 'Garder l’analyse humaine', icon: '🧠', career: { loyalty: 2, wear: 3 },
+        r: 'Les fidèles apprécient l’expertise.' },
+      { l: 'Organiser un duel analystes contre IA', icon: '⚔️', cost: { purchase: 0.04 }, boost: 0.04, career: { awareness: 3 },
+        r: 'Le duel amuse les fans.' }
+    ] },
+
+  // — 100% Mercato (p186) · sport, access —
+  { id: 'ps_p186_agent_vereux', programId: 'p186', family: 'image', phase: 2,
+    titre: 'L’agent véreux',
+    desc: 'Un agent de joueurs invité régulièrement dans {programme} est soupçonné de malversations. La presse s’interroge sur ses liens avec l’émission.',
+    c: [
+      { l: 'Ne plus l’inviter', icon: '🚪', career: { loyalty: -1 }, pop: 2,
+        r: 'L’émission prend ses distances.' },
+      { l: 'Le maintenir', icon: '🤝', career: { awareness: 1 }, pop: -2,
+        r: 'L’émission est critiquée.' },
+      { l: 'Enquêter sur les pratiques des agents', icon: '🔍', cost: { purchase: 0.05 }, career: { awareness: 4, loyalty: 2 },
+        r: 'L’enquête fait du bruit.' }
+    ] },
+  { id: 'ps_p186_mercato_hiver', programId: 'p186', family: 'audience', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le mercato d’hiver',
+    desc: 'Le mercato d’hiver approche. La production de {programme} propose de passer en quotidienne pendant un mois.',
+    c: [
+      { l: 'Passer en quotidienne', icon: '📅', cost: { purchase: 0.08 }, boost: 0.06, career: { awareness: 3, wear: 4 },
+        r: 'Les fans suivent chaque jour les rumeurs.' },
+      { l: 'Garder le rythme hebdomadaire', icon: '🗓️', boost: -0.02, career: { loyalty: 2 },
+        r: 'Les fans attendent la semaine.' },
+      { l: 'Ajouter un direct en ligne quotidien', icon: '📱', cost: { purchase: 0.03 }, career: { awareness: 3 },
+        r: 'Les fans suivent en ligne.' }
+    ] },
+
+  // — Débat sportif (p187) · sport, access —
+  { id: 'ps_p187_debat_qui_derape', programId: 'p187', family: 'image', phase: 2,
+    titre: 'Le débat qui dérape',
+    desc: 'Deux chroniqueurs de {programme} en sont venus aux mains en direct. Les images font le tour des réseaux.',
+    c: [
+      { l: 'Suspendre les deux chroniqueurs', icon: '⏸️', career: { loyalty: -2 }, pop: 2,
+        r: 'La chaîne réagit fermement.' },
+      { l: 'Assumer la passion du débat', icon: '🔥', career: { awareness: 5 }, pop: -3,
+        r: 'Les audiences grimpent, l’image chute.' },
+      { l: 'Instaurer une charte du débat', icon: '📜', cost: { purchase: 0.01 }, career: { loyalty: 1 }, pop: 1,
+        r: 'Les débats se font plus courtois.' }
+    ] },
+  { id: 'ps_p187_les_supporters_plateau', programId: 'p187', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Les supporters en plateau',
+    desc: 'La production de {programme} propose de faire venir des supporters de chaque club en plateau. L’ambiance serait électrique, le débat moins serein.',
+    c: [
+      { l: 'Faire venir les supporters', icon: '📣', cost: { purchase: 0.04 }, career: { awareness: 4, loyalty: 2 }, pop: -1,
+        r: 'L’ambiance devient électrique.' },
+      { l: 'Garder les experts', icon: '🎓', career: { loyalty: 1, wear: 3 },
+        r: 'Le débat reste analytique.' },
+      { l: 'Ouvrir aux supporters par visioconférence', icon: '💻', cost: { purchase: 0.02 }, career: { awareness: 2, loyalty: 1 },
+        r: 'Les supporters participent à distance.' }
+    ] },
+
+  // — Le débrief (p188) · sport, access —
+  { id: 'ps_p188_entraineur_refuse_venir', programId: 'p188', family: 'editorial', phase: 1,
+    titre: 'L’entraîneur refuse de venir',
+    desc: 'L’entraîneur de l’équipe de France refuse de venir dans {programme} après une critique sévère. Il boycotte l’émission.',
+    c: [
+      { l: 'Présenter des excuses', icon: '🙏', career: { awareness: 2, loyalty: -2 },
+        r: 'L’entraîneur revient, la rédaction grince.' },
+      { l: 'Maintenir la critique', icon: '🖋️', career: { awareness: -2, loyalty: 3 },
+        r: 'L’émission garde son indépendance.' },
+      { l: 'Inviter son adjoint', icon: '🔄', cost: { purchase: 0.02 }, career: { awareness: 1, loyalty: 1 },
+        r: 'Un compromis.' }
+    ] },
+  { id: 'ps_p188_debrief_trop_long', programId: 'p188', family: 'audience', phase: 2, when: { minSeasons: 1 },
+    titre: 'Le débrief trop long',
+    desc: 'Le débrief de {programme} dure deux heures et les téléspectateurs décrochent. La production propose de le raccourcir.',
+    c: [
+      { l: 'Raccourcir à une heure', icon: '✂️', cost: { saving: 0.05 }, boost: 0.04, career: { loyalty: -2 },
+        r: 'L’émission gagne en rythme.' },
+      { l: 'Garder les deux heures', icon: '⏱️', boost: -0.03, career: { loyalty: 2 },
+        r: 'Les passionnés restent.' },
+      { l: 'Découper en séquences avec un plan clair', icon: '🗂️', cost: { purchase: 0.02 }, career: { awareness: 2, loyalty: 1 },
+        r: 'L’émission devient plus lisible.' }
     ] }
 ];
 // ---------------------------------------------------------------------------
