@@ -13312,6 +13312,485 @@ const PROGRAM_STORY_BANK = [
         r: 'L’émission reste indépendante.' },
       { l: 'Un échange ponctuel', icon: '🤝', cost: { purchase: 0.01 }, career: { awareness: 1, loyalty: 1 },
         r: 'Un partenariat limité.' }
+    ] },
+  // — Le Prix de la Vérité (p248) · generaliste, prime —
+  { id: 'ps_p248_detecteur_mensonges_conteste', programId: 'p248', family: 'image', phase: 2,
+    titre: 'Le détecteur de mensonges contesté',
+    desc: 'Le détecteur de mensonges de {programme} a accusé à tort une candidate, qui a perdu sa cagnotte. Des scientifiques rappellent que ces machines ne sont pas fiables.',
+    c: [
+      { l: 'Rendre la cagnotte et afficher un avertissement', icon: '💶', cost: { purchase: 0.06 }, career: { loyalty: 2 }, pop: 2,
+        r: 'Le fair-play de l’émission est salué.' },
+      { l: 'Maintenir le verdict de la machine', icon: '🔍', career: { awareness: 3 }, pop: -2,
+        r: 'La polémique fait parler du jeu.' },
+      { l: 'Remplacer la machine par un jury de psychologues', icon: '🧠', cost: { purchase: 0.03 }, career: { awareness: 1, loyalty: 1, wear: -6 },
+        r: 'Le jeu gagne en crédibilité.' }
+    ] },
+  { id: 'ps_p248_verite_des_celebrites', programId: 'p248', family: 'audience', phase: 3, when: { minSeasons: 1 },
+    titre: 'La vérité des célébrités',
+    desc: 'La production de {programme} propose une édition spéciale avec des célébrités prêtes à répondre à des questions intimes. Les agents des stars posent leurs conditions.',
+    c: [
+      { l: 'Lancer l’édition célébrités', icon: '🌟', cost: { purchase: 0.15 }, boost: 0.1, career: { awareness: 5 },
+        r: 'Les révélations des stars font le buzz.' },
+      { l: 'Garder les candidats anonymes', icon: '🧑', career: { loyalty: 2, wear: 3 },
+        r: 'Le jeu reste authentique.' },
+      { l: 'Inviter une seule célébrité par émission', icon: '🎤', cost: { purchase: 0.05 }, boost: 0.04, career: { awareness: 2 },
+        r: 'Un équilibre apprécié.' }
+    ] },
+
+  // — Undercover (p249) · generaliste, prime —
+  { id: 'ps_p249_agent_infiltre_demasque', programId: 'p249', family: 'editorial', phase: 1,
+    titre: 'L’agent infiltré démasqué',
+    desc: 'Le candidat infiltré de {programme} a été démasqué dès le premier épisode, par une fuite sur les réseaux. Le suspense de la saison est compromis.',
+    c: [
+      { l: 'Introduire un second infiltré surprise', icon: '🕵️', cost: { purchase: 0.06 }, boost: 0.06, career: { awareness: 3, wear: -4 },
+        r: 'Le rebondissement relance la saison.' },
+      { l: 'Continuer la saison telle quelle', icon: '📺', career: { loyalty: -2, wear: 3 },
+        r: 'Le suspense s’évapore.' },
+      { l: 'Renforcer la confidentialité pour la suite', icon: '🔐', cost: { recurring: 0.03 }, lasting: 0.01, career: { loyalty: 2 },
+        r: 'Les fuites cessent.' }
+    ] },
+  { id: 'ps_p249_undercover_entreprise', programId: 'p249', family: 'strategie', phase: 3, when: { form: 'succes', minSeasons: 1 },
+    titre: 'Undercover en entreprise',
+    desc: 'Le succès de {programme} donne une idée à la production : infiltrer des patrons dans leur propre entreprise. Le format serait très différent.',
+    c: [
+      { l: 'Lancer la version entreprise', icon: '🏢', cost: { purchase: 0.2 }, lasting: 0.04, career: { awareness: 5 },
+        r: 'Le spin-off séduit un nouveau public.' },
+      { l: 'Rester sur le format actuel', icon: '🎭', career: { loyalty: 2, wear: 3 },
+        r: 'Le jeu garde son identité.' },
+      { l: 'Un épisode spécial en entreprise', icon: '🎬', cost: { purchase: 0.06 }, boost: 0.05, career: { awareness: 2 },
+        r: 'L’épisode intrigue.' }
+    ] },
+
+  // — L’Ultime Tentation (p250) · generaliste, prime —
+  { id: 'ps_p250_une_tentation_trop', programId: 'p250', family: 'image', phase: 2,
+    titre: 'Une tentation de trop',
+    desc: 'Une épreuve de {programme} poussait les candidats à trahir leur conjoint pour de l’argent. Des associations dénoncent un jeu immoral.',
+    c: [
+      { l: 'Supprimer l’épreuve', icon: '🚫', boost: -0.04, pop: 2,
+        r: 'La chaîne apaise la polémique.' },
+      { l: 'Assumer le concept', icon: '😈', boost: 0.04, career: { awareness: 4 }, pop: -3,
+        r: 'Le scandale fait grimper l’audience.' },
+      { l: 'Adoucir l’épreuve', icon: '🤝', cost: { purchase: 0.02 }, career: { loyalty: -1 }, pop: 1,
+        r: 'Un compromis acceptable.' }
+    ] },
+  { id: 'ps_p250_cagnotte_record', programId: 'p250', family: 'economie', phase: 1, when: { minSeasons: 1 },
+    titre: 'La cagnotte record',
+    desc: 'La production de {programme} propose de doubler la cagnotte pour attirer de nouveaux candidats. Le coût de l’émission augmenterait d’autant.',
+    c: [
+      { l: 'Doubler la cagnotte', icon: '💰', cost: { recurring: 0.1 }, boost: 0.06, career: { awareness: 4 },
+        r: 'La cagnotte attire les candidats et la presse.' },
+      { l: 'Garder la cagnotte actuelle', icon: '🪙', career: { loyalty: 1, wear: 4 },
+        r: 'Le jeu continue sans éclat.' },
+      { l: 'Ajouter une cagnotte bonus imprévisible', icon: '🎲', cost: { purchase: 0.05 }, boost: 0.04, career: { awareness: 2, loyalty: -1 },
+        r: 'Le suspense monte.' }
+    ] },
+
+  // — Déconnectés : seuls face au défi (p251) · generaliste, prime —
+  { id: 'ps_p251_candidat_detresse', programId: 'p251', family: 'image', phase: 2,
+    titre: 'Un candidat en détresse',
+    desc: 'Un candidat de {programme}, privé de téléphone depuis dix jours, a montré des signes de détresse. Sa famille demande son retour immédiat.',
+    c: [
+      { l: 'L’évacuer et renforcer le suivi psychologique', icon: '🧠', cost: { purchase: 0.04 }, career: { loyalty: 1 }, pop: 2,
+        r: 'La production fait preuve de responsabilité.' },
+      { l: 'Le laisser décider seul', icon: '🤷', career: { awareness: 2 }, pop: -2,
+        r: 'La production est critiquée.' },
+      { l: 'Organiser un appel avec sa famille', icon: '📞', cost: { purchase: 0.01 }, career: { wear: 2 }, pop: 1,
+        r: 'Le candidat se rassure et poursuit l’aventure.' }
+    ] },
+  { id: 'ps_p251_deconnexion_famille', programId: 'p251', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'La déconnexion en famille',
+    desc: 'La production de {programme} propose une saison où des familles entières se déconnectent ensemble pendant un mois. Le concept pourrait toucher un public plus large.',
+    c: [
+      { l: 'Lancer la saison familles', icon: '👨‍👩‍👧', cost: { purchase: 0.15 }, lasting: 0.03, career: { awareness: 5, wear: -6 },
+        r: 'La saison familles touche un large public.' },
+      { l: 'Garder les candidats seuls', icon: '🧍', career: { loyalty: 2, wear: 3 },
+        r: 'Le jeu garde son concept.' },
+      { l: 'Un épisode spécial familles', icon: '🏠', cost: { purchase: 0.05 }, boost: 0.04, career: { awareness: 2 },
+        r: 'L’épisode émeut.' }
+    ] },
+
+  // — Générations extrêmes (p252) · generaliste, prime —
+  { id: 'ps_p252_grand_pere_blesse', programId: 'p252', family: 'image', phase: 2,
+    titre: 'Le grand-père blessé',
+    desc: 'Un senior de {programme} s’est blessé lors d’une épreuve physique contre un adolescent. Les associations de retraités s’indignent.',
+    c: [
+      { l: 'Adapter les épreuves selon l’âge', icon: '🦺', cost: { purchase: 0.04 }, career: { wear: -4 }, pop: 2,
+        r: 'Les épreuves deviennent plus justes.' },
+      { l: 'Maintenir les épreuves', icon: '💪', career: { awareness: 2 }, pop: -2,
+        r: 'La polémique dure.' },
+      { l: 'Faire jouer les générations en équipe', icon: '🤝', cost: { purchase: 0.02 }, career: { loyalty: 2 }, pop: 1,
+        r: 'Le jeu devient plus bienveillant.' }
+    ] },
+  { id: 'ps_p252_duel_des_extremes', programId: 'p252', family: 'audience', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le duel des extrêmes',
+    desc: 'La production de {programme} propose une finale entre le plus jeune et le plus âgé des candidats. Le public adore l’idée.',
+    c: [
+      { l: 'Organiser la grande finale des extrêmes', icon: '🏆', cost: { purchase: 0.1 }, boost: 0.1, career: { awareness: 4 },
+        r: 'La finale émeut toute la France.' },
+      { l: 'Garder la finale classique', icon: '🎬', career: { loyalty: 1, wear: 3 },
+        r: 'La finale se déroule sans surprise.' },
+      { l: 'Laisser le public voter pour les finalistes', icon: '🗳️', cost: { purchase: 0.03 }, career: { awareness: 3, loyalty: -1 },
+        r: 'Le vote implique le public.' }
+    ] },
+
+  // — La ville est à vous ! (p253) · generaliste, prime —
+  { id: 'ps_p253_mairie_retire', programId: 'p253', family: 'editorial', phase: 1,
+    titre: 'La mairie se retire',
+    desc: 'La ville choisie pour accueillir {programme} se retire à la dernière minute. Le tournage est menacé.',
+    c: [
+      { l: 'Trouver une nouvelle ville en urgence', icon: '🏙️', cost: { purchase: 0.1 }, boost: 0.02, career: { loyalty: 2 },
+        r: 'La nouvelle ville joue le jeu avec enthousiasme.' },
+      { l: 'Reporter le tournage', icon: '📆', boost: -0.05, career: { wear: 2 },
+        r: 'La saison est retardée.' },
+      { l: 'Tourner dans un village volontaire', icon: '🏘️', cost: { purchase: 0.03 }, career: { awareness: 3, wear: -4 },
+        r: 'Le village apporte une fraîcheur inattendue.' }
+    ] },
+  { id: 'ps_p253_ville_gagnante', programId: 'p253', family: 'strategie', phase: 3, when: { minSeasons: 1, form: ['succes', 'stable'] },
+    titre: 'La ville gagnante',
+    desc: 'Plusieurs villes se portent candidates pour accueillir la prochaine saison de {programme}. Une ville propose même de financer une partie du tournage.',
+    c: [
+      { l: 'Accepter la ville qui finance', icon: '💶', cost: { commercial: 0.08 }, career: { awareness: 2, loyalty: -2 },
+        r: 'Le budget respire, le jeu paraît moins neutre.' },
+      { l: 'Choisir la ville la plus originale', icon: '🎲', cost: { purchase: 0.04 }, career: { awareness: 4, wear: -6 },
+        r: 'La ville apporte un cadre inédit.' },
+      { l: 'Organiser un vote du public', icon: '🗳️', career: { awareness: 2, loyalty: 1, wear: 2 },
+        r: 'Le public choisit la ville.' }
+    ] },
+
+  // — Break the Limits (p254) · generaliste, prime —
+  { id: 'ps_p254_epreuve_trop_dangereuse', programId: 'p254', family: 'image', phase: 2,
+    titre: 'L’épreuve trop dangereuse',
+    desc: 'Une épreuve de {programme} a provoqué une blessure grave. L’assureur menace de ne plus couvrir le tournage.',
+    c: [
+      { l: 'Revoir toutes les épreuves avec des experts', icon: '🦺', cost: { purchase: 0.12 }, career: { loyalty: 2, wear: -4 }, pop: 2,
+        r: 'Le jeu devient plus sûr.' },
+      { l: 'Supprimer l’épreuve', icon: '🚧', boost: -0.03, pop: 1,
+        r: 'Le jeu perd un temps fort.' },
+      { l: 'Remplacer par une épreuve mentale', icon: '🧩', cost: { purchase: 0.03 }, career: { awareness: 2, wear: -3 },
+        r: 'Le jeu se diversifie.' }
+    ] },
+  { id: 'ps_p254_les_athletes_haut', programId: 'p254', family: 'audience', phase: 3, when: { minSeasons: 1 },
+    titre: 'Les athlètes de haut niveau',
+    desc: 'Des athlètes olympiques proposent de défier les candidats de {programme}. Leur présence attirerait les fans de sport.',
+    c: [
+      { l: 'Organiser le défi des athlètes', icon: '🏅', cost: { purchase: 0.12 }, boost: 0.1, career: { awareness: 5 },
+        r: 'Les athlètes font le spectacle.' },
+      { l: 'Garder les candidats ordinaires', icon: '🧑', career: { loyalty: 2, wear: 3 },
+        r: 'Le jeu reste accessible.' },
+      { l: 'Un athlète parrain de la saison', icon: '🤝', cost: { recurring: 0.03 }, career: { awareness: 3, loyalty: 1 },
+        r: 'Le parrain motive les candidats.' }
+    ] },
+
+  // — Attrapez le dernier train ! (p255) · generaliste, prime —
+  { id: 'ps_p255_sncf_retire_son', programId: 'p255', family: 'economie', phase: 1,
+    titre: 'La SNCF retire son autorisation',
+    desc: 'La compagnie ferroviaire refuse que {programme} tourne dans ses gares cette saison. Le concept repose pourtant sur les trains.',
+    c: [
+      { l: 'Négocier une redevance', icon: '💶', cost: { purchase: 0.1 }, boost: 0.02, career: { loyalty: 2 },
+        r: 'Le tournage peut avoir lieu.' },
+      { l: 'Tourner dans des gares de trains touristiques', icon: '🚂', cost: { purchase: 0.03 }, career: { awareness: 3, wear: -6 },
+        r: 'Le décor change et surprend.' },
+      { l: 'Reporter la saison', icon: '📆', boost: -0.05, career: { loyalty: -1 },
+        r: 'Les fans attendront.' }
+    ] },
+  { id: 'ps_p255_train_travers_europe', programId: 'p255', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le train à travers l’Europe',
+    desc: 'La production de {programme} propose une édition à travers l’Europe en train de nuit. Le dépaysement serait total.',
+    c: [
+      { l: 'Lancer l’édition européenne', icon: '🇪🇺', cost: { purchase: 0.25 }, boost: 0.1, career: { awareness: 5, wear: -8 },
+        r: 'L’aventure européenne fait rêver.' },
+      { l: 'Rester en France', icon: '🇫🇷', career: { loyalty: 2, wear: 3 },
+        r: 'Le jeu garde son ancrage.' },
+      { l: 'Une seule étape à l’étranger', icon: '🚆', cost: { purchase: 0.06 }, boost: 0.04, career: { wear: -3 },
+        r: 'L’étape étrangère pimente la saison.' }
+    ] },
+
+  // — L'île de la trahison (p256) · generaliste, prime —
+  { id: 'ps_p256_une_trahison_qui', programId: 'p256', family: 'image', phase: 2,
+    titre: 'Une trahison qui va trop loin',
+    desc: 'Une alliance de candidats de {programme} a harcelé une candidate pour la pousser à abandonner. Les images choquent les téléspectateurs.',
+    c: [
+      { l: 'Exclure les responsables', icon: '🚫', boost: -0.03, career: { loyalty: -1 }, pop: 2,
+        r: 'La production réagit fermement.' },
+      { l: 'Diffuser en montrant les conséquences', icon: '🎬', cost: { purchase: 0.02 }, career: { awareness: 3 }, pop: 1,
+        r: 'Le montage montre la réalité du harcèlement.' },
+      { l: 'Laisser faire, c’est le jeu', icon: '😈', career: { awareness: 3 }, pop: -3,
+        r: 'L’émission est vivement critiquée.' }
+    ] },
+  { id: 'ps_p256_saison_des_traitres', programId: 'p256', family: 'audience', phase: 3, when: { minSeasons: 1, form: 'succes' },
+    titre: 'La saison des traîtres célèbres',
+    desc: 'Le succès de {programme} pousse la production à proposer une saison avec des personnalités. Les stars adorent l’idée de manipuler en direct.',
+    c: [
+      { l: 'Lancer la saison des célébrités', icon: '🌟', cost: { purchase: 0.2 }, boost: 0.12, career: { awareness: 5 },
+        r: 'Les célébrités font le show.' },
+      { l: 'Garder les anonymes', icon: '🧑', career: { loyalty: 2, wear: 3 },
+        r: 'Le jeu reste authentique.' },
+      { l: 'Mélanger célébrités et anonymes', icon: '🔀', cost: { purchase: 0.08 }, boost: 0.05, career: { awareness: 3 },
+        r: 'Le mélange crée des alliances inattendues.' }
+    ] },
+
+  // — Gare à la Chute ! (p257) · generaliste, prime —
+  { id: 'ps_p257_chute_dans_bassin', programId: 'p257', family: 'image', phase: 2,
+    titre: 'La chute dans le bassin',
+    desc: 'Un candidat de {programme} a mal chuté dans le bassin et a été hospitalisé. Les images ont été diffusées au ralenti.',
+    c: [
+      { l: 'Couper le ralenti et prendre des nouvelles', icon: '🙏', boost: -0.02, pop: 2,
+        r: 'La production fait preuve de dignité.' },
+      { l: 'Garder le ralenti', icon: '🎞️', career: { awareness: 3 }, pop: -2,
+        r: 'Le ralenti choque.' },
+      { l: 'Renforcer la sécurité du parcours', icon: '🦺', cost: { purchase: 0.06 }, career: { loyalty: 2 }, pop: 1,
+        r: 'Le parcours devient plus sûr.' }
+    ] },
+  { id: 'ps_p257_parcours_geant', programId: 'p257', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le parcours géant',
+    desc: 'La production de {programme} propose de construire le plus grand parcours d’obstacles d’Europe pour la prochaine saison. Le coût est considérable.',
+    c: [
+      { l: 'Construire le parcours géant', icon: '🏗️', cost: { purchase: 0.35 }, boost: 0.12, career: { awareness: 6, wear: -10 },
+        r: 'Le parcours géant fait sensation.' },
+      { l: 'Rénover le parcours actuel', icon: '🔧', cost: { purchase: 0.08 }, career: { loyalty: 1, wear: -6 },
+        r: 'Le parcours se renouvelle.' },
+      { l: 'Garder le parcours', icon: '🧱', career: { loyalty: 1, wear: 4 },
+        r: 'Le jeu reste le même.' }
+    ] },
+
+  // — Remettez tout en ordre ! (p258) · generaliste, access —
+  { id: 'ps_p258_rangement_impossible', programId: 'p258', family: 'editorial', phase: 1,
+    titre: 'Le rangement impossible',
+    desc: 'Une famille candidate de {programme} vit dans un logement encombré par une pathologie d’accumulation. La production hésite à poursuivre le tournage.',
+    c: [
+      { l: 'Poursuivre avec un accompagnement psychologique', icon: '🧠', cost: { purchase: 0.04 }, career: { awareness: 2 }, pop: 2,
+        r: 'L’épisode est touchant et respectueux.' },
+      { l: 'Arrêter le tournage', icon: '🛑', boost: -0.03, pop: 1,
+        r: 'La famille est préservée.' },
+      { l: 'Poursuivre sans accompagnement', icon: '📺', career: { awareness: 3 }, pop: -2,
+        r: 'L’épisode est jugé voyeuriste.' }
+    ] },
+  { id: 'ps_p258_livre_rangement', programId: 'p258', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le livre du rangement',
+    desc: 'Une maison d’édition propose de publier un guide pratique inspiré de {programme}. Les experts de l’émission en seraient les auteurs.',
+    c: [
+      { l: 'Publier le guide', icon: '📘', cost: { purchase: 0.03 }, lasting: 0.02, career: { awareness: 4 },
+        r: 'Le guide devient un best-seller.' },
+      { l: 'Céder les droits', icon: '📝', cost: { commercial: 0.04 }, career: { awareness: 2, wear: 2 },
+        r: 'Le guide rapporte un peu.' },
+      { l: 'Refuser', icon: '🙅', career: { awareness: -1, loyalty: 1 },
+        r: 'L’émission reste à l’antenne.' }
+    ] },
+
+  // — Ni Oui Ni Non (p259) · generaliste, access —
+  { id: 'ps_p259_candidat_qui_dit', programId: 'p259', family: 'editorial', phase: 1,
+    titre: 'Le candidat qui ne dit jamais oui',
+    desc: 'Un candidat de {programme} enchaîne les victoires sans jamais trébucher. Les téléspectateurs le soupçonnent de connaître les questions.',
+    c: [
+      { l: 'Faire vérifier le jeu par un huissier', icon: '📜', cost: { recurring: 0.02 }, career: { loyalty: 3 }, pop: 1,
+        r: 'Le candidat est blanchi, la confiance revient.' },
+      { l: 'Laisser courir', icon: '🏅', career: { awareness: 2, loyalty: -2 },
+        r: 'Le soupçon grandit.' },
+      { l: 'Le confronter à des questions inédites en direct', icon: '❓', cost: { purchase: 0.03 }, boost: 0.05, career: { awareness: 3 },
+        r: 'Le défi en direct passionne.' }
+    ] },
+  { id: 'ps_p259_jeu_trop_rapide', programId: 'p259', family: 'audience', phase: 2, when: { minSeasons: 1 },
+    titre: 'Le jeu trop rapide',
+    desc: 'Les parties de {programme} sont si courtes que le jeu manque de suspense. La production propose un nouveau format.',
+    c: [
+      { l: 'Allonger les parties avec une manche finale', icon: '⏱️', cost: { purchase: 0.03 }, career: { loyalty: 1, wear: -6 },
+        r: 'Le jeu gagne en suspense.' },
+      { l: 'Garder le format nerveux', icon: '⚡', career: { loyalty: 2, wear: 3 },
+        r: 'Les fans du rythme sont satisfaits.' },
+      { l: 'Ajouter des pièges inédits', icon: '🪤', cost: { purchase: 0.02 }, career: { awareness: 2, wear: -3 },
+        r: 'Les pièges amusent.' }
+    ] },
+
+  // — 60 secondes pour tout gagner (p260) · generaliste, access —
+  { id: 'ps_p260_gros_lot_remporte', programId: 'p260', family: 'economie', phase: 1,
+    titre: 'Le gros lot remporté trois fois',
+    desc: 'Trois candidats d’affilée ont remporté le gros lot de {programme}. Le budget de l’émission est épuisé.',
+    c: [
+      { l: 'Augmenter le budget des gains', icon: '💰', cost: { recurring: 0.1 }, boost: 0.04, career: { awareness: 3 },
+        r: 'Les gains spectaculaires attirent.' },
+      { l: 'Durcir les épreuves', icon: '⏱️', career: { loyalty: -2, wear: -4 },
+        r: 'Le jeu devient plus difficile.' },
+      { l: 'Réduire temporairement le gros lot', icon: '✂️', cost: { saving: 0.05 }, career: { awareness: -2, loyalty: -1 },
+        r: 'Le budget est préservé.' }
+    ] },
+  { id: 'ps_p260_speciale_des_champions', programId: 'p260', family: 'audience', phase: 3, when: { minSeasons: 1 },
+    titre: 'La spéciale des champions',
+    desc: 'La production de {programme} propose une soirée réunissant les plus grands gagnants de l’histoire du jeu. Les fans l’attendent depuis longtemps.',
+    c: [
+      { l: 'Organiser la soirée des champions', icon: '🏆', cost: { purchase: 0.08 }, boost: 0.08, career: { awareness: 3 },
+        r: 'La soirée ravit les fans.' },
+      { l: 'Rester sur les candidats habituels', icon: '🧑', career: { loyalty: 1, wear: 3 },
+        r: 'Le jeu reste classique.' },
+      { l: 'Un champion invité par semaine', icon: '📅', cost: { purchase: 0.03 }, boost: 0.03, career: { loyalty: 1 },
+        r: 'Un rendez-vous apprécié.' }
+    ] },
+
+  // — Misez sur la bonne star ! (p261) · generaliste, access —
+  { id: 'ps_p261_star_qui_triche', programId: 'p261', family: 'image', phase: 2,
+    titre: 'La star qui triche',
+    desc: 'Une star participant à {programme} a reçu des indices de son agent pendant le jeu. Les autres candidats protestent.',
+    c: [
+      { l: 'Disqualifier la star', icon: '🚫', boost: -0.03, career: { loyalty: 1 }, pop: 2,
+        r: 'L’équité du jeu est respectée.' },
+      { l: 'Rejouer la manche', icon: '🔁', cost: { purchase: 0.03 }, career: { loyalty: 1 }, pop: 1,
+        r: 'La manche est rejouée.' },
+      { l: 'Ignorer l’incident', icon: '🤷', career: { awareness: 2 }, pop: -2,
+        r: 'La polémique enfle.' }
+    ] },
+  { id: 'ps_p261_les_cachets_des', programId: 'p261', family: 'economie', phase: 1, when: { minSeasons: 1 },
+    titre: 'Les cachets des stars',
+    desc: 'Les stars invitées dans {programme} réclament des cachets plus élevés. Certaines menacent de rejoindre un jeu concurrent.',
+    c: [
+      { l: 'Augmenter les cachets', icon: '💶', cost: { recurring: 0.1 }, career: { awareness: 3, loyalty: 2 },
+        r: 'Les stars restent.' },
+      { l: 'Inviter des stars moins connues', icon: '🌟', career: { awareness: -2, wear: -4 },
+        r: 'De nouvelles têtes, moins prestigieuses.' },
+      { l: 'Reverser les gains à des associations', icon: '❤️', cost: { purchase: 0.04 }, career: { awareness: 1 }, pop: 2,
+        r: 'Les stars jouent pour une bonne cause.' }
+    ] },
+
+  // — Combien ça coûte vraiment ? (p262) · generaliste, access —
+  { id: 'ps_p262_prix_sous_estime', programId: 'p262', family: 'image', phase: 2,
+    titre: 'Le prix sous-estimé',
+    desc: 'Une enseigne reproche à {programme} d’avoir présenté un prix erroné pour l’un de ses produits. Elle demande un rectificatif.',
+    c: [
+      { l: 'Diffuser un rectificatif', icon: '📝', career: { awareness: -1, loyalty: 1 }, pop: 1,
+        r: 'L’erreur est reconnue.' },
+      { l: 'Maintenir le prix affiché', icon: '🏷️', career: { awareness: 1 }, pop: -1,
+        r: 'Le conflit dure.' },
+      { l: 'Instaurer une vérification des prix', icon: '✅', cost: { recurring: 0.02 }, lasting: 0.01, career: { loyalty: 2 },
+        r: 'Les prix sont désormais irréprochables.' }
+    ] },
+  { id: 'ps_p262_inflation_dans_jeu', programId: 'p262', family: 'audience', phase: 2, when: { minSeasons: 1 },
+    titre: 'L’inflation dans le jeu',
+    desc: 'Les prix ont tellement augmenté que les candidats de {programme} se trompent systématiquement. Le public y voit un reflet de l’actualité.',
+    c: [
+      { l: 'Créer une manche spéciale inflation', icon: '📈', cost: { purchase: 0.02 }, boost: 0.03, career: { awareness: 4 },
+        r: 'La manche colle à l’actualité.' },
+      { l: 'Garder les questions classiques', icon: '🛒', career: { loyalty: 2, wear: 3 },
+        r: 'Le jeu reste intemporel.' },
+      { l: 'Faire commenter les prix par un économiste', icon: '🎓', cost: { recurring: 0.02 }, career: { awareness: 2, loyalty: 1 },
+        r: 'Le jeu devient instructif.' }
+    ] },
+
+  // — Le Maître des Ombres (p263) · generaliste, access —
+  { id: 'ps_p263_identite_maitre_revelee', programId: 'p263', family: 'editorial', phase: 1,
+    titre: 'L’identité du Maître révélée',
+    desc: 'L’identité du mystérieux maître du jeu de {programme} a fuité sur les réseaux. Le mystère est le cœur du concept.',
+    c: [
+      { l: 'Changer de Maître des Ombres', icon: '🎭', cost: { purchase: 0.05 }, career: { awareness: 2, loyalty: -1, wear: -6 },
+        r: 'Le mystère est relancé.' },
+      { l: 'Assumer la révélation', icon: '😮', career: { awareness: 3, loyalty: -2 },
+        r: 'Le jeu perd une part de sa magie.' },
+      { l: 'Démentir et entretenir le doute', icon: '🌫️', career: { loyalty: 1, wear: 2 },
+        r: 'Le doute persiste.' }
+    ] },
+  { id: 'ps_p263_escape_game_emission', programId: 'p263', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'L’escape game de l’émission',
+    desc: 'Une société propose de créer un escape game inspiré de {programme} dans plusieurs villes. Les fans pourraient vivre le jeu en vrai.',
+    c: [
+      { l: 'Coproduire l’escape game', icon: '🗝️', cost: { purchase: 0.1 }, lasting: 0.03, career: { awareness: 5 },
+        r: 'L’escape game séduit les fans.' },
+      { l: 'Céder la licence', icon: '📝', cost: { commercial: 0.06 }, career: { awareness: 2, wear: 2 },
+        r: 'La licence rapporte un peu.' },
+      { l: 'Refuser', icon: '🙅', career: { awareness: -2, loyalty: 1 },
+        r: 'Le jeu reste à l’antenne.' }
+    ] },
+
+  // — Mon quartier va gagner ! (p264) · generaliste, access —
+  { id: 'ps_p264_quartier_oublie', programId: 'p264', family: 'image', phase: 2,
+    titre: 'Le quartier oublié',
+    desc: 'Les habitants d’un quartier populaire reprochent à {programme} de ne jamais les sélectionner. Ils lancent une pétition.',
+    c: [
+      { l: 'Sélectionner leur quartier', icon: '🏘️', cost: { purchase: 0.02 }, career: { awareness: 2 }, pop: 2,
+        r: 'Le quartier participe avec enthousiasme.' },
+      { l: 'Garder la sélection actuelle', icon: '🗺️', career: { wear: 2 }, pop: -1,
+        r: 'La pétition prend de l’ampleur.' },
+      { l: 'Créer une saison des quartiers populaires', icon: '🏙️', cost: { purchase: 0.08 }, career: { awareness: 3, wear: -4 }, pop: 2,
+        r: 'La saison est saluée.' }
+    ] },
+  { id: 'ps_p264_tournoi_des_villes', programId: 'p264', family: 'audience', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le tournoi des villes',
+    desc: 'La production de {programme} propose un grand tournoi entre les quartiers gagnants des saisons passées. Les maires se disent prêts à jouer le jeu.',
+    c: [
+      { l: 'Organiser le tournoi', icon: '🏆', cost: { purchase: 0.1 }, boost: 0.08, career: { awareness: 4 },
+        r: 'Le tournoi fédère les quartiers.' },
+      { l: 'Garder le format classique', icon: '📺', career: { loyalty: 1, wear: 3 },
+        r: 'Le jeu continue.' },
+      { l: 'Une finale en direct seulement', icon: '🔴', cost: { purchase: 0.04 }, boost: 0.04, career: { awareness: 2 },
+        r: 'La finale fait l’événement.' }
+    ] },
+
+  // — Qui se cache derrière ? (p265) · generaliste, access —
+  { id: 'ps_p265_celebrite_reconnue_trop', programId: 'p265', family: 'editorial', phase: 1,
+    titre: 'La célébrité reconnue trop vite',
+    desc: 'La personnalité cachée de {programme} a été reconnue à sa voix en quelques secondes. Le jeu manque de suspense.',
+    c: [
+      { l: 'Modifier les voix avec un effet', icon: '🎙️', cost: { purchase: 0.02 }, career: { awareness: 1, loyalty: -1, wear: -4 },
+        r: 'Le mystère dure plus longtemps.' },
+      { l: 'Ajouter des indices visuels', icon: '🔎', cost: { purchase: 0.03 }, boost: 0.03, career: { awareness: 2 },
+        r: 'Le jeu gagne en richesse.' },
+      { l: 'Garder le format', icon: '📺', career: { loyalty: 1, wear: 3 },
+        r: 'Le jeu reste simple.' }
+    ] },
+  { id: 'ps_p265_public_devine', programId: 'p265', family: 'audience', phase: 2, when: { minSeasons: 1 },
+    titre: 'Le public devine',
+    desc: 'La production de {programme} propose de faire jouer les téléspectateurs en direct pour deviner l’identité cachée. Le dispositif technique demande un petit investissement.',
+    c: [
+      { l: 'Lancer le jeu interactif', icon: '📲', cost: { purchase: 0.04 }, lasting: 0.02, career: { awareness: 4 },
+        r: 'Les téléspectateurs jouent en masse.' },
+      { l: 'Garder le jeu en plateau', icon: '🎬', career: { loyalty: 2, wear: 3 },
+        r: 'Le jeu reste classique.' },
+      { l: 'Un vote en ligne après l’émission', icon: '🗳️', cost: { purchase: 0.01 }, career: { awareness: 2 },
+        r: 'Le vote amuse les fans.' }
+    ] },
+
+  // — Zone Rouge (p266) · generaliste, access —
+  { id: 'ps_p266_zone_rouge_trop', programId: 'p266', family: 'image', phase: 2,
+    titre: 'La zone rouge trop stressante',
+    desc: 'Une candidate de {programme} a fait un malaise pendant l’épreuve finale chronométrée. Les médecins jugent la pression excessive.',
+    c: [
+      { l: 'Assouplir l’épreuve finale', icon: '🫁', boost: -0.03, pop: 2,
+        r: 'Le jeu devient plus humain.' },
+      { l: 'Ajouter un médecin sur le plateau', icon: '🩺', cost: { recurring: 0.02 }, career: { loyalty: 1 }, pop: 1,
+        r: 'La sécurité est renforcée.' },
+      { l: 'Maintenir l’épreuve', icon: '⏱️', career: { awareness: 2 }, pop: -2,
+        r: 'Le jeu est critiqué.' }
+    ] },
+  { id: 'ps_p266_decor_zone_rouge', programId: 'p266', family: 'economie', phase: 1, when: { minSeasons: 1 },
+    titre: 'Le décor de la zone rouge',
+    desc: 'Le décor de {programme} est vieillissant et ses effets lumineux tombent en panne. La production demande un nouveau plateau.',
+    c: [
+      { l: 'Construire un nouveau plateau', icon: '🏗️', cost: { purchase: 0.15 }, career: { awareness: 3, wear: -10 },
+        r: 'Le nouveau plateau impressionne.' },
+      { l: 'Réparer l’ancien', icon: '🔧', cost: { purchase: 0.03 }, career: { loyalty: 1, wear: -3 },
+        r: 'Le décor tient encore.' },
+      { l: 'Garder le décor tel quel', icon: '🧱', career: { loyalty: -1, wear: 4 },
+        r: 'Le décor paraît daté.' }
+    ] },
+
+  // — Golden family (p267) · generaliste, access —
+  { id: 'ps_p267_famille_trop_riche', programId: 'p267', family: 'image', phase: 2,
+    titre: 'La famille trop riche',
+    desc: 'Une famille candidate de {programme} se révèle millionnaire. Les téléspectateurs jugent indécent qu’elle remporte la cagnotte.',
+    c: [
+      { l: 'Reverser la cagnotte à une association', icon: '❤️', cost: { purchase: 0.03 }, career: { loyalty: 1 }, pop: 2,
+        r: 'Le geste est salué.' },
+      { l: 'Garder les règles du jeu', icon: '📜', career: { awareness: 2 }, pop: -2,
+        r: 'La polémique dure.' },
+      { l: 'Limiter la participation aux revenus modestes', icon: '⚖️', career: { awareness: -1, wear: 2 }, pop: 1,
+        r: 'Le jeu se recentre.' }
+    ] },
+  { id: 'ps_p267_les_familles_celebres', programId: 'p267', family: 'audience', phase: 3, when: { minSeasons: 1 },
+    titre: 'Les familles célèbres',
+    desc: 'La production de {programme} propose une édition avec des familles de célébrités. Les enfants de stars seraient de la partie.',
+    c: [
+      { l: 'Lancer l’édition célébrités', icon: '🌟', cost: { purchase: 0.12 }, boost: 0.08, career: { awareness: 5 },
+        r: 'Les familles célèbres attirent le public.' },
+      { l: 'Garder les familles anonymes', icon: '👨‍👩‍👧', career: { loyalty: 2, wear: 3 },
+        r: 'Le jeu reste authentique.' },
+      { l: 'Une spéciale par saison', icon: '📅', cost: { purchase: 0.04 }, boost: 0.04, career: { awareness: 2 },
+        r: 'Une spéciale appréciée.' }
     ] }
 ];
 // ---------------------------------------------------------------------------
