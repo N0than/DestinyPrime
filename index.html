@@ -19060,6 +19060,293 @@ const PROGRAM_STORY_BANK = [
         r: 'La rétrospective est modeste.' },
       { l: 'Refuser', icon: '🙅', career: { awareness: -2, loyalty: -1, wear: -1 },
         r: 'L’émission reste méconnue.' }
+    ] },
+  // — N'oubliez pas la chanson ! (p488) · generaliste, access —
+  { id: 'ps_p488_les_paroles_contestees', programId: 'p488', family: 'editorial', phase: 1,
+    titre: 'Les paroles contestées',
+    desc: 'Un candidat de {programme} conteste la version des paroles jugée correcte. L’auteur de la chanson lui donne raison sur les réseaux.',
+    c: [
+      { l: 'Lui accorder la victoire', icon: '🏆', cost: { purchase: 0.01 }, career: { loyalty: 2 }, pop: 1,
+        r: 'Le candidat remporte la manche.' },
+      { l: 'Faire trancher par un huissier', icon: '⚖️', career: { awareness: 1, loyalty: 1, wear: 1 },
+        r: 'La décision est acceptée.' },
+      { l: 'Maintenir le résultat', icon: '🙈', career: { awareness: 1 }, pop: -2,
+        r: 'La polémique enfle.' }
+    ] },
+  { id: 'ps_p488_concert_des_maestros', programId: 'p488', family: 'audience', phase: 3, when: { minSeasons: 1, form: 'success' },
+    titre: 'Le concert des maestros',
+    desc: 'Le succès de {programme} pousse la production à réunir les plus grands champions pour un concert géant. Les droits musicaux seraient élevés.',
+    c: [
+      { l: 'Organiser le concert', icon: '🎤', cost: { purchase: 0.05 }, lasting: 0.03, career: { awareness: 5 },
+        r: 'Le concert fait chanter la France.' },
+      { l: 'Un tournoi des champions', icon: '🎶', cost: { purchase: 0.02 }, career: { awareness: 2, loyalty: 1 },
+        r: 'Le tournoi est apprécié.' },
+      { l: 'Garder la formule', icon: '⏸️', career: { awareness: -2, loyalty: 1 },
+        r: 'Le jeu reste fidèle.' }
+    ] },
+
+  // — Qui veut épouser mon fiston ? (p490) · generaliste, prime —
+  { id: 'ps_p490_mere_trop_intrusive', programId: 'p490', family: 'image', phase: 1,
+    titre: 'La mère trop intrusive',
+    desc: 'Une mère de {programme} est accusée d’humilier les prétendantes de son fils. Les réseaux sociaux s’enflamment.',
+    c: [
+      { l: 'Recadrer la mère', icon: '📋', career: { awareness: -1, loyalty: 2 },
+        r: 'Les épisodes deviennent plus bienveillants.' },
+      { l: 'Capitaliser sur le buzz', icon: '📈', career: { awareness: 3 }, pop: -2,
+        r: 'L’audience grimpe.' },
+      { l: 'Offrir un droit de réponse aux prétendantes', icon: '🗣️', cost: { purchase: 0.01 }, career: { loyalty: 1 }, pop: 1,
+        r: 'Les prétendantes s’expriment.' }
+    ] },
+  { id: 'ps_p490_mariage_final', programId: 'p490', family: 'audience', phase: 2, when: { minSeasons: 1 },
+    titre: 'Le mariage final',
+    desc: 'Un couple formé dans {programme} veut se marier à l’antenne. La production y voit un événement.',
+    c: [
+      { l: 'Offrir le mariage', icon: '💍', cost: { purchase: 0.05 }, lasting: 0.02, career: { awareness: 5 },
+        r: 'Le mariage bat des records.' },
+      { l: 'Trouver un sponsor', icon: '💐', cost: { commercial: 0.03 }, career: { awareness: 2, loyalty: -1, wear: 1 },
+        r: 'Les marques envahissent la cérémonie.' },
+      { l: 'Décliner', icon: '🙅', career: { awareness: -2, loyalty: 1 },
+        r: 'Le couple se marie loin des caméras.' }
+    ] },
+
+  // — Sosie ! Or Not Sosie ? (p491) · generaliste, prime —
+  { id: 'ps_p491_sosie_trop_convaincant', programId: 'p491', family: 'editorial', phase: 1,
+    titre: 'Le sosie trop convaincant',
+    desc: 'Un sosie de {programme} a été pris pour la vraie star dans la rue, et la presse a publié de fausses informations. La star menace de poursuites.',
+    c: [
+      { l: 'Présenter des excuses', icon: '🙏', career: { awareness: -1, loyalty: 2 },
+        r: 'La star se calme.' },
+      { l: 'Inviter la star', icon: '⭐', cost: { purchase: 0.03 }, career: { awareness: 3, loyalty: 1 },
+        r: 'La star joue le jeu.' },
+      { l: 'Assumer la confusion', icon: '🎭', career: { awareness: 2 }, pop: -2,
+        r: 'Le procès s’annonce.' }
+    ] },
+  { id: 'ps_p491_les_sosies_politiques', programId: 'p491', family: 'strategie', phase: 2, when: { minSeasons: 1 },
+    titre: 'Les sosies politiques',
+    desc: 'La production de {programme} propose une émission de sosies d’hommes politiques. Le CSA rappelle les règles en période électorale.',
+    c: [
+      { l: 'Lancer l’émission', icon: '🏛️', cost: { purchase: 0.02 }, career: { awareness: 4, wear: 1 }, pop: -1,
+        r: 'L’émission fait rire et grincer.' },
+      { l: 'Attendre la fin de campagne', icon: '📆', career: { awareness: -1, loyalty: 1 },
+        r: 'L’émission est reportée.' },
+      { l: 'Renoncer', icon: '🙅', career: { awareness: -2, loyalty: 2, wear: -1 },
+        r: 'Les politiques respirent.' }
+    ] },
+
+  // — Qui est qui ? (p492) · generaliste, access —
+  { id: 'ps_p492_mystere_evente', programId: 'p492', family: 'editorial', phase: 1,
+    titre: 'Le mystère éventé',
+    desc: 'L’identité de l’invité mystère de {programme} a fuité avant l’émission. Le jeu perd tout intérêt.',
+    c: [
+      { l: 'Changer d’invité', icon: '🔄', cost: { purchase: 0.02 }, career: { awareness: 1, loyalty: 2 },
+        r: 'Le nouvel invité surprend.' },
+      { l: 'Maintenir l’invité', icon: '⏸️', career: { awareness: -2, loyalty: -1 }, pop: 1,
+        r: 'Le public connaît la réponse.' },
+      { l: 'Jouer avec la fuite', icon: '😜', career: { awareness: 2, wear: 2 }, pop: -1,
+        r: 'L’émission joue l’autodérision.' }
+    ] },
+  { id: 'ps_p492_jeu_ligne', programId: 'p492', family: 'audience', phase: 2, when: { minSeasons: 1 },
+    titre: 'Le jeu en ligne',
+    desc: 'La production de {programme} propose une version en ligne où le public devine l’invité. Le développement serait coûteux.',
+    c: [
+      { l: 'Développer le jeu', icon: '📱', cost: { purchase: 0.03 }, lasting: 0.02, career: { awareness: 4 },
+        r: 'Le jeu fidélise les jeunes.' },
+      { l: 'Un simple sondage', icon: '❓', career: { awareness: 1, loyalty: -1, wear: 1 },
+        r: 'Le sondage passe inaperçu.' },
+      { l: 'Renoncer', icon: '🙅', career: { awareness: -2, loyalty: 1 },
+        r: 'L’émission reste classique.' }
+    ] },
+
+  // — Tout vu tout lu (p493) · generaliste, nuit —
+  { id: 'ps_p493_chroniqueur_partial', programId: 'p493', family: 'editorial', phase: 1,
+    titre: 'Le chroniqueur partial',
+    desc: 'Un chroniqueur de {programme} a encensé un livre publié par son propre éditeur. Le conflit d’intérêts est révélé.',
+    c: [
+      { l: 'L’écarter', icon: '🚪', career: { awareness: -1, loyalty: 2 },
+        r: 'L’émission montre son intégrité.' },
+      { l: 'Instaurer une déclaration d’intérêts', icon: '📋', cost: { purchase: 0.01 }, career: { loyalty: 1 }, pop: 1,
+        r: 'La transparence rassure.' },
+      { l: 'Ignorer', icon: '🙈', career: { awareness: 1 }, pop: -2,
+        r: 'La crédibilité s’effrite.' }
+    ] },
+  { id: 'ps_p493_emission_podcast', programId: 'p493', family: 'strategie', phase: 2, when: { minSeasons: 1 },
+    titre: 'L’émission en podcast',
+    desc: 'Les fidèles de {programme} réclament une version podcast. Les chroniqueurs veulent être rémunérés en plus.',
+    c: [
+      { l: 'Payer les chroniqueurs', icon: '🎧', cost: { recurring: 0.01 }, lasting: 0.02, career: { awareness: 3 },
+        r: 'Le podcast fidélise un nouveau public.' },
+      { l: 'Publier le son de l’émission', icon: '🔊', career: { awareness: 1, loyalty: -1, wear: 2 },
+        r: 'Les chroniqueurs grincent.' },
+      { l: 'Renoncer', icon: '🙅', career: { awareness: -2, loyalty: 1 },
+        r: 'L’émission reste à la télévision.' }
+    ] },
+
+  // — All is possible (p494) · generaliste, nuit —
+  { id: 'ps_p494_reve_impossible', programId: 'p494', family: 'editorial', phase: 1,
+    titre: 'Le rêve impossible',
+    desc: 'Un spectateur de {programme} réclame la réalisation d’un rêve jugé dangereux. Sa famille s’y oppose.',
+    c: [
+      { l: 'Proposer une alternative sûre', icon: '🛡️', cost: { purchase: 0.02 }, career: { loyalty: 2 }, pop: 1,
+        r: 'Le spectateur est comblé.' },
+      { l: 'Réaliser le rêve', icon: '🚀', cost: { purchase: 0.04 }, career: { awareness: 4, wear: 2 }, pop: -1,
+        r: 'Les images sont spectaculaires.' },
+      { l: 'Refuser', icon: '🙅', career: { awareness: -2, loyalty: 1 },
+        r: 'Le spectateur est déçu.' }
+    ] },
+  { id: 'ps_p494_partenaire_voyages', programId: 'p494', family: 'economie', phase: 2, when: { minSeasons: 1 },
+    titre: 'Le partenaire voyages',
+    desc: 'Une agence de voyages propose de financer les rêves de {programme}. Elle veut afficher son logo à chaque séquence.',
+    c: [
+      { l: 'Accepter', icon: '✈️', cost: { commercial: 0.05 }, career: { awareness: 1, loyalty: -2 },
+        r: 'Les rêves deviennent des publicités.' },
+      { l: 'Accepter discrètement', icon: '🤫', cost: { commercial: 0.02 }, career: { awareness: -1, loyalty: 1 },
+        r: 'Le partenariat passe inaperçu.' },
+      { l: 'Refuser', icon: '🙅', career: { awareness: -2, loyalty: 2 },
+        r: 'L’émission reste libre.' }
+    ] },
+
+  // — Chasse, pêche et saucisson (p495) · generaliste, nuit —
+  { id: 'ps_p495_chasse_filmee', programId: 'p495', family: 'image', phase: 1,
+    titre: 'La chasse filmée',
+    desc: 'Une séquence de chasse de {programme} est jugée trop crue par des associations animalistes. Une pétition circule.',
+    c: [
+      { l: 'Flouter les images', icon: '🌫️', career: { awareness: -1, loyalty: 1 },
+        r: 'La séquence passe mieux.' },
+      { l: 'Défendre la tradition', icon: '🛡️', career: { awareness: 2, loyalty: 1 }, pop: -2,
+        r: 'Les chasseurs applaudissent.' },
+      { l: 'Inviter un débat', icon: '🗣️', cost: { purchase: 0.01 }, career: { loyalty: 1, wear: 1 }, pop: 1,
+        r: 'Le débat apaise les tensions.' }
+    ] },
+  { id: 'ps_p495_fete_terroir', programId: 'p495', family: 'audience', phase: 2, when: { minSeasons: 1 },
+    titre: 'La fête du terroir',
+    desc: 'La production de {programme} propose une grande fête du terroir en direct d’un village. Les frais de captation sont élevés.',
+    c: [
+      { l: 'Organiser la fête', icon: '🎉', cost: { purchase: 0.04 }, lasting: 0.02, career: { awareness: 4 },
+        r: 'La fête rassemble les fidèles.' },
+      { l: 'Un reportage simple', icon: '🎥', career: { awareness: 1, loyalty: -1, wear: 1 },
+        r: 'Le reportage est sympathique.' },
+      { l: 'Renoncer', icon: '🙅', career: { awareness: -2, loyalty: 1 },
+        r: 'L’émission reste en studio.' }
+    ] },
+
+  // — Union libre (p496) · generaliste, access —
+  { id: 'ps_p496_invitee_decue', programId: 'p496', family: 'editorial', phase: 1,
+    titre: 'L’invitée déçue',
+    desc: 'Une invitée de {programme} se plaint d’avoir été tournée en ridicule par les chroniqueurs. Elle le dit sur les réseaux.',
+    c: [
+      { l: 'Présenter des excuses', icon: '🙏', career: { awareness: -1, loyalty: 2 },
+        r: 'L’invitée est apaisée.' },
+      { l: 'Défendre le ton', icon: '😜', career: { awareness: 2 }, pop: -2,
+        r: 'La polémique dure.' },
+      { l: 'La réinviter', icon: '🔁', cost: { purchase: 0.01 }, career: { loyalty: 1, wear: 1 }, pop: 1,
+        r: 'Elle revient et s’amuse.' }
+    ] },
+  { id: 'ps_p496_duo_animateurs', programId: 'p496', family: 'strategie', phase: 2, when: { minSeasons: 1 },
+    titre: 'Le duo d’animateurs',
+    desc: 'La chaîne propose d’associer un second animateur à {programme}. L’animateur actuel se sent menacé.',
+    c: [
+      { l: 'Imposer le duo', icon: '👥', cost: { recurring: 0.01 }, career: { awareness: 3, loyalty: -1, wear: -1 },
+        r: 'Le duo fonctionne.' },
+      { l: 'Un invité récurrent', icon: '🎙️', career: { awareness: 1, loyalty: 1, wear: 1 },
+        r: 'Le compromis plaît.' },
+      { l: 'Garder l’animateur seul', icon: '👤', career: { awareness: -2, loyalty: 2 },
+        r: 'L’animateur est rassuré.' }
+    ] },
+
+  // — Vidéo Gag (p497) · generaliste, access —
+  { id: 'ps_p497_video_mise_scene', programId: 'p497', family: 'image', phase: 1,
+    titre: 'La vidéo mise en scène',
+    desc: 'Une vidéo primée dans {programme} a été mise en scène, et le candidat l’avoue. Les autres participants protestent.',
+    c: [
+      { l: 'Retirer le prix', icon: '🚫', career: { awareness: -1, loyalty: 2 },
+        r: 'L’émission montre son intégrité.' },
+      { l: 'Vérifier les vidéos', icon: '🔎', cost: { recurring: 0.01 }, career: { loyalty: 1, wear: -1 },
+        r: 'Les vérifications rassurent.' },
+      { l: 'Ignorer', icon: '🙈', career: { awareness: 1 }, pop: -2,
+        r: 'La crédibilité s’effrite.' }
+    ] },
+  { id: 'ps_p497_les_videos_monde', programId: 'p497', family: 'audience', phase: 2, when: { minSeasons: 1 },
+    titre: 'Les vidéos du monde',
+    desc: 'La production de {programme} propose d’acheter des vidéos du monde entier. Les droits seraient coûteux.',
+    c: [
+      { l: 'Acheter les droits', icon: '🌍', cost: { purchase: 0.04 }, lasting: 0.02, career: { awareness: 4 },
+        r: 'Les vidéos internationales séduisent.' },
+      { l: 'Un épisode international', icon: '📼', cost: { purchase: 0.01 }, career: { awareness: 1, loyalty: -1 },
+        r: 'L’épisode est apprécié.' },
+      { l: 'Rester en France', icon: '🇫🇷', career: { awareness: -2, loyalty: 1 },
+        r: 'Les vidéos se ressemblent.' }
+    ] },
+
+  // — Vis ma life (p498) · generaliste, access —
+  { id: 'ps_p498_echange_qui_tourne', programId: 'p498', family: 'editorial', phase: 1,
+    titre: 'L’échange qui tourne mal',
+    desc: 'Un adolescent participant à {programme} est harcelé dans sa nouvelle école d’accueil. Ses parents veulent tout arrêter.',
+    c: [
+      { l: 'Arrêter l’échange', icon: '⏹️', career: { awareness: -1, loyalty: 2 },
+        r: 'L’adolescent rentre chez lui.' },
+      { l: 'Accompagner l’adolescent', icon: '🤝', cost: { purchase: 0.02 }, career: { loyalty: 1 }, pop: 1,
+        r: 'L’adolescent finit par s’intégrer.' },
+      { l: 'Filmer le harcèlement', icon: '🎥', career: { awareness: 2 }, pop: -2,
+        r: 'Les images choquent.' }
+    ] },
+  { id: 'ps_p498_echange_etranger', programId: 'p498', family: 'strategie', phase: 2, when: { minSeasons: 1 },
+    titre: 'L’échange à l’étranger',
+    desc: 'La production de {programme} propose des échanges à l’étranger. Les coûts de tournage doubleraient.',
+    c: [
+      { l: 'Partir à l’étranger', icon: '✈️', cost: { purchase: 0.05 }, lasting: 0.03, career: { awareness: 4 },
+        r: 'Le dépaysement séduit.' },
+      { l: 'Un épisode test', icon: '🧪', cost: { purchase: 0.01 }, career: { awareness: 1, loyalty: -1 },
+        r: 'Le test est encourageant.' },
+      { l: 'Rester en France', icon: '🇫🇷', career: { awareness: -2, loyalty: 1 },
+        r: 'L’émission tourne en rond.' }
+    ] },
+
+  // — Le Jeu de la vérité (p499) · generaliste, prime —
+  { id: 'ps_p499_revelation_fracassante', programId: 'p499', family: 'editorial', phase: 1,
+    titre: 'La révélation fracassante',
+    desc: 'L’invité de {programme} révèle en direct une liaison avec une personnalité politique. La séquence fait scandale.',
+    c: [
+      { l: 'Couper le replay', icon: '✂️', career: { awareness: -1, loyalty: 2 },
+        r: 'La chaîne limite les dégâts.' },
+      { l: 'Laisser le replay intact', icon: '📺', career: { awareness: 3 }, pop: -2,
+        r: 'Le scandale fait vendre.' },
+      { l: 'Offrir un droit de réponse', icon: '🗣️', cost: { purchase: 0.01 }, career: { loyalty: 1 }, pop: 1,
+        r: 'La personnalité s’exprime.' }
+    ] },
+  { id: 'ps_p499_invite_presidentiel', programId: 'p499', family: 'audience', phase: 3, when: { minSeasons: 1, form: 'success' },
+    titre: 'L’invité présidentiel',
+    desc: 'Le succès de {programme} attire un ancien président prêt à se livrer. Il exige un droit de regard sur le montage.',
+    c: [
+      { l: 'Accepter ses conditions', icon: '🏛️', cost: { purchase: 0.02 }, career: { awareness: 5, loyalty: -2 },
+        r: 'L’entretien est historique mais lissé.' },
+      { l: 'Négocier le direct', icon: '🎙️', cost: { purchase: 0.03 }, career: { awareness: 4, loyalty: 1, wear: 2 },
+        r: 'Le direct est passionnant.' },
+      { l: 'Refuser', icon: '🙅', career: { awareness: -2, loyalty: 2 },
+        r: 'L’émission garde son indépendance.' }
+    ] },
+
+  // — Tous égaux (p500) · generaliste, access —
+  { id: 'ps_p500_temoignage_qui_divise', programId: 'p500', family: 'editorial', phase: 1,
+    titre: 'Le témoignage qui divise',
+    desc: 'Un témoignage sur les inégalités dans {programme} déclenche une vague de commentaires haineux. L’invité est menacé.',
+    c: [
+      { l: 'Protéger l’invité', icon: '🛡️', cost: { purchase: 0.02 }, career: { loyalty: 2 }, pop: 1,
+        r: 'L’invité se sent soutenu.' },
+      { l: 'Modérer les commentaires', icon: '🧹', career: { awareness: -1, loyalty: 1, wear: 2 },
+        r: 'La modération apaise les réseaux.' },
+      { l: 'Ne rien faire', icon: '🙈', career: { awareness: 1 }, pop: -2,
+        r: 'L’invité dénonce l’émission.' }
+    ] },
+  { id: 'ps_p500_partenariat_associatif', programId: 'p500', family: 'strategie', phase: 2, when: { minSeasons: 1 },
+    titre: 'Le partenariat associatif',
+    desc: 'Une grande association propose de coproduire {programme}. Elle veut valider les sujets traités.',
+    c: [
+      { l: 'Accepter la coproduction', icon: '🤝', cost: { commercial: 0.04 }, career: { awareness: 1, loyalty: -2 },
+        r: 'Les sujets deviennent militants.' },
+      { l: 'Partenariat ponctuel', icon: '📅', cost: { commercial: 0.01 }, career: { awareness: -1, loyalty: 1 },
+        r: 'Le compromis tient.' },
+      { l: 'Refuser', icon: '🙅', career: { awareness: -2, loyalty: 2, wear: 1 },
+        r: 'L’émission reste indépendante.' }
     ] }
 ];
 // ---------------------------------------------------------------------------

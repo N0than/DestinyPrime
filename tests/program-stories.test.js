@@ -61,6 +61,7 @@ Object.entries(byProgram).forEach(([pid,list])=>{
   chk(list.length>=2,'au moins deux histoires par programme couvert '+pid);
   chk(new Set(list.map(d=>d.titre)).size===list.length,'titres distincts '+pid);
 });
+PROGRAM_CATALOG.forEach(p=>chk(byProgram[p.id]?.length>=2,'programme du catalogue couvert '+p.id));
 ok(!issues.length,'Banque des histoires :\n'+issues.join('\n'));
 
 // ——— 2. Mise en place d'une partie ———
