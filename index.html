@@ -15707,6 +15707,485 @@ const PROGRAM_STORY_BANK = [
         r: 'Le guide rapporte un peu.' },
       { l: 'Refuser', icon: '🙅', career: { awareness: -2, loyalty: 1 },
         r: 'Les astuces restent à l’antenne.' }
+    ] },
+  // — Chasse gardée (p348) · generaliste, prime —
+  { id: 'ps_p348_chasse_dans_une', programId: 'p348', family: 'image', phase: 2,
+    titre: 'La chasse dans une réserve',
+    desc: 'Une épreuve de {programme} a été tournée dans une réserve naturelle protégée. Les gardes portent plainte pour dérangement de la faune.',
+    c: [
+      { l: 'Présenter des excuses et financer la réserve', icon: '🌿', cost: { purchase: 0.04 }, career: { loyalty: 1 }, pop: 2,
+        r: 'Le geste apaise les associations.' },
+      { l: 'Contester la plainte', icon: '⚖️', career: { awareness: 1 }, pop: -2,
+        r: 'Le conflit s’envenime.' },
+      { l: 'Changer de terrain de jeu', icon: '🗺️', career: { loyalty: -1, wear: -3 }, pop: 1,
+        r: 'Le jeu se déplace.' }
+    ] },
+  { id: 'ps_p348_chasse_tresor_nationale', programId: 'p348', family: 'audience', phase: 3, when: { minSeasons: 1 },
+    titre: 'La chasse au trésor nationale',
+    desc: 'La production de {programme} propose une chasse au trésor ouverte à tous les téléspectateurs, avec des indices cachés dans l’émission. Le dispositif fédérerait une communauté, s’il est bien encadré.',
+    c: [
+      { l: 'Lancer la chasse nationale', icon: '🗝️', cost: { purchase: 0.08 }, boost: 0.05, career: { awareness: 5 },
+        r: 'Des milliers de chercheurs suivent les indices.' },
+      { l: 'Garder le jeu en plateau', icon: '🎬', career: { loyalty: 2, wear: 3 },
+        r: 'Le jeu reste classique.' },
+      { l: 'Une énigme en ligne par semaine', icon: '🧩', cost: { purchase: 0.01 }, career: { awareness: 2 },
+        r: 'Les fans adorent les énigmes.' }
+    ] },
+
+  // — Survie à crédit (p349) · generaliste, prime —
+  { id: 'ps_p349_les_dettes_des', programId: 'p349', family: 'image', phase: 2,
+    titre: 'Les dettes des candidats',
+    desc: 'Le concept de {programme}, survivre en s’endettant, est critiqué par des associations de lutte contre le surendettement. Elles demandent une évolution du concept.',
+    c: [
+      { l: 'Ajouter un volet d’éducation financière', icon: '💡', cost: { purchase: 0.02 }, career: { awareness: 1 }, pop: 2,
+        r: 'L’émission devient pédagogique.' },
+      { l: 'Assumer le concept', icon: '💸', career: { awareness: 3 }, pop: -2,
+        r: 'La polémique fait parler.' },
+      { l: 'Annuler les dettes des candidats en fin de jeu', icon: '🤝', cost: { purchase: 0.03 }, career: { loyalty: 2 }, pop: 1,
+        r: 'Le geste rassure.' }
+    ] },
+  { id: 'ps_p349_partenariat_bancaire', programId: 'p349', family: 'economie', phase: 1, when: { minSeasons: 1 },
+    titre: 'Le partenariat bancaire',
+    desc: 'Une banque en ligne propose de sponsoriser {programme}. Elle souhaite que ses produits apparaissent dans les épreuves.',
+    c: [
+      { l: 'Accepter le sponsoring', icon: '🏦', cost: { commercial: 0.08 }, career: { awareness: 2, loyalty: -3 },
+        r: 'Le budget augmente, l’émission paraît commerciale.' },
+      { l: 'Refuser', icon: '🛡️', career: { loyalty: 2, wear: 2 },
+        r: 'L’émission reste neutre.' },
+      { l: 'Un parrainage discret', icon: '🎬', cost: { commercial: 0.03 }, career: { awareness: 1, loyalty: -1 },
+        r: 'Un compromis acceptable.' }
+    ] },
+
+  // — Objectif banquise (p350) · generaliste, prime —
+  { id: 'ps_p350_ours_polaire_detresse', programId: 'p350', family: 'image', phase: 2,
+    titre: 'L’ours polaire en détresse',
+    desc: 'Les images d’un ours polaire affamé tournées par {programme} ont ému le public. Des scientifiques accusent l’équipe de l’avoir dérangé.',
+    c: [
+      { l: 'Reverser une partie des recettes à la protection', icon: '🐻‍❄️', cost: { purchase: 0.04 }, career: { awareness: 2 }, pop: 2,
+        r: 'Le geste est salué.' },
+      { l: 'Se défendre', icon: '🛡️', career: { awareness: 1 }, pop: -2,
+        r: 'La polémique dure.' },
+      { l: 'Adopter une charte de tournage', icon: '📜', career: { loyalty: 1, wear: 2 }, pop: 1,
+        r: 'La charte rassure.' }
+    ] },
+  { id: 'ps_p350_saison_antarctique', programId: 'p350', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'La saison en Antarctique',
+    desc: 'La production de {programme} propose de partir en Antarctique pour la prochaine saison. Le défi logistique est immense.',
+    c: [
+      { l: 'Partir en Antarctique', icon: '🧊', cost: { purchase: 0.3 }, boost: 0.12, career: { awareness: 5, wear: -10 },
+        r: 'Les paysages extrêmes fascinent.' },
+      { l: 'Rester au Groenland', icon: '🏔️', career: { loyalty: 2, wear: 3 },
+        r: 'Le décor reste familier.' },
+      { l: 'Une étape en Islande', icon: '🌋', cost: { purchase: 0.08 }, career: { awareness: 2, wear: -4 },
+        r: 'L’Islande apporte de la nouveauté.' }
+    ] },
+
+  // — La nuit au musée (p351) · generaliste, prime —
+  { id: 'ps_p351_une_uvre_abimee', programId: 'p351', family: 'image', phase: 2,
+    titre: 'Une œuvre abîmée',
+    desc: 'Un candidat de {programme} a heurté une statue pendant une épreuve nocturne au musée. Le musée réclame réparation.',
+    c: [
+      { l: 'Payer la restauration', icon: '🖼️', cost: { purchase: 0.05 }, career: { loyalty: 1 }, pop: 2,
+        r: 'La relation avec le musée est préservée.' },
+      { l: 'Contester la responsabilité', icon: '⚖️', career: { awareness: 1 }, pop: -2,
+        r: 'Le conflit s’envenime.' },
+      { l: 'Revoir les règles de sécurité', icon: '🦺', cost: { purchase: 0.01 }, career: { wear: -2 }, pop: 1,
+        r: 'Les épreuves deviennent plus sûres.' }
+    ] },
+  { id: 'ps_p351_nuit_louvre', programId: 'p351', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'La nuit au Louvre',
+    desc: 'Le Louvre propose d’accueillir une édition exceptionnelle de {programme}. Les conditions de tournage sont très strictes.',
+    c: [
+      { l: 'Accepter la nuit au Louvre', icon: '🏛️', cost: { purchase: 0.15 }, boost: 0.12, career: { awareness: 6 },
+        r: 'La nuit au Louvre fait l’événement.' },
+      { l: 'Rester dans les musées habituels', icon: '🖼️', career: { loyalty: 2, wear: 3 },
+        r: 'Le jeu reste classique.' },
+      { l: 'Une épreuve filmée au Louvre', icon: '🎬', cost: { purchase: 0.04 }, boost: 0.04, career: { awareness: 3 },
+        r: 'L’épreuve est remarquée.' }
+    ] },
+
+  // — City Express (p352) · generaliste, access —
+  { id: 'ps_p352_candidat_verbalise', programId: 'p352', family: 'image', phase: 2,
+    titre: 'Le candidat verbalisé',
+    desc: 'Un candidat de {programme} a été verbalisé pour excès de vitesse pendant une course dans Paris. La police critique le concept.',
+    c: [
+      { l: 'Revoir les règles et interdire la voiture', icon: '🚲', career: { loyalty: -1, wear: -3 }, pop: 2,
+        r: 'Le jeu se fait à vélo.' },
+      { l: 'Payer l’amende et continuer', icon: '💶', cost: { purchase: 0.01 }, career: { awareness: 2 }, pop: -1,
+        r: 'Le jeu continue.' },
+      { l: 'Faire une campagne de sécurité routière', icon: '🚦', cost: { purchase: 0.03 }, career: { awareness: 1 }, pop: 2,
+        r: 'La campagne est saluée.' }
+    ] },
+  { id: 'ps_p352_course_dans_les', programId: 'p352', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'La course dans les capitales',
+    desc: 'La production de {programme} propose une saison dans les capitales européennes. Les candidats courraient dans Rome, Berlin et Madrid.',
+    c: [
+      { l: 'Lancer la saison européenne', icon: '🇪🇺', cost: { purchase: 0.12 }, career: { awareness: 5, wear: -8 },
+        r: 'Le dépaysement relance le jeu.' },
+      { l: 'Rester à Paris', icon: '🗼', career: { loyalty: 2, wear: 3 },
+        r: 'Le jeu garde son décor.' },
+      { l: 'Une étape à Bruxelles', icon: '🇧🇪', cost: { purchase: 0.03 }, career: { awareness: 2, wear: -3 },
+        r: 'L’étape belge amuse.' }
+    ] },
+
+  // — Compostelle Express (p353) · generaliste, apresmidi —
+  { id: 'ps_p353_les_pelerins_agaces', programId: 'p353', family: 'image', phase: 2,
+    titre: 'Les pèlerins agacés',
+    desc: 'Des pèlerins se plaignent d’avoir été filmés sans autorisation par {programme} sur le chemin de Compostelle. Les associations jacquaires relaient leur colère.',
+    c: [
+      { l: 'Flouter les pèlerins', icon: '🌫️', cost: { purchase: 0.01 }, career: { loyalty: 1 }, pop: 1,
+        r: 'Les pèlerins sont respectés.' },
+      { l: 'Ignorer les plaintes', icon: '🤷', career: { awareness: 1 }, pop: -2,
+        r: 'La polémique dure.' },
+      { l: 'Tourner à l’écart des pèlerins', icon: '🗺️', boost: -0.01, career: { wear: 2 }, pop: 1,
+        r: 'Le tournage devient plus discret.' }
+    ] },
+  { id: 'ps_p353_autres_chemins', programId: 'p353', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'D’autres chemins',
+    desc: 'La production de {programme} propose de parcourir d’autres chemins de randonnée célèbres, comme celui de Stevenson. Le jeu changerait de décor sans perdre son esprit.',
+    c: [
+      { l: 'Explorer d’autres chemins', icon: '🥾', cost: { purchase: 0.05 }, career: { awareness: 4, wear: -8 },
+        r: 'Les nouveaux chemins renouvellent l’émission.' },
+      { l: 'Rester sur Compostelle', icon: '🐚', career: { loyalty: 2, wear: 3 },
+        r: 'Le jeu garde son identité.' },
+      { l: 'Un chemin différent par saison', icon: '📅', cost: { purchase: 0.02 }, career: { awareness: 2, wear: -3 },
+        r: 'Un renouvellement mesuré.' }
+    ] },
+
+  // — Tous sur le pont (p354) · generaliste, prime —
+  { id: 'ps_p354_mal_mer', programId: 'p354', family: 'image', phase: 2,
+    titre: 'Le mal de mer',
+    desc: 'Plusieurs candidats de {programme} ont été malades lors d’une tempête en mer. Les images ont été diffusées sans pudeur.',
+    c: [
+      { l: 'Couper les images gênantes', icon: '✂️', boost: -0.02, pop: 2,
+        r: 'Les candidats sont respectés.' },
+      { l: 'Garder les images', icon: '🌊', career: { awareness: 2 }, pop: -2,
+        r: 'Les images choquent.' },
+      { l: 'Renforcer la sécurité en mer', icon: '⚓', cost: { purchase: 0.03 }, career: { loyalty: 2 }, pop: 1,
+        r: 'Les traversées deviennent plus sûres.' }
+    ] },
+  { id: 'ps_p354_transat', programId: 'p354', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'La transat',
+    desc: 'La production de {programme} propose une traversée de l’Atlantique à la voile. L’aventure serait spectaculaire.',
+    c: [
+      { l: 'Lancer la transatlantique', icon: '⛵', cost: { purchase: 0.2 }, boost: 0.1, career: { awareness: 5, wear: -8 },
+        r: 'La transat fait rêver.' },
+      { l: 'Rester sur les côtes françaises', icon: '🏖️', career: { loyalty: 2, wear: 3 },
+        r: 'Le jeu reste accessible.' },
+      { l: 'Une traversée de la Manche', icon: '🚢', cost: { purchase: 0.05 }, boost: 0.03, career: { awareness: 2 },
+        r: 'La traversée est une belle étape.' }
+    ] },
+
+  // — Murder Party (p355) · generaliste, access —
+  { id: 'ps_p355_meurtrier_devine_trop', programId: 'p355', family: 'editorial', phase: 1,
+    titre: 'Le meurtrier deviné trop vite',
+    desc: 'Les téléspectateurs de {programme} devinent le coupable dès les premières minutes. Le scénario manque de subtilité.',
+    c: [
+      { l: 'Recruter un auteur de polars', icon: '✍️', cost: { recurring: 0.03 }, career: { loyalty: 2, wear: -6 },
+        r: 'Les intrigues gagnent en finesse.' },
+      { l: 'Garder les scénaristes', icon: '📖', career: { loyalty: 1, wear: 3 },
+        r: 'Les intrigues restent simples.' },
+      { l: 'Laisser les téléspectateurs voter pour le coupable', icon: '🗳️', cost: { purchase: 0.01 }, career: { awareness: 3, wear: -3 },
+        r: 'Le vote ajoute du suspense.' }
+    ] },
+  { id: 'ps_p355_murder_party_geante', programId: 'p355', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'La murder party géante',
+    desc: 'La production de {programme} propose une murder party dans un château, avec des célébrités comme suspects. Le décor ajouterait du prestige au jeu.',
+    c: [
+      { l: 'Organiser la murder party au château', icon: '🏰', cost: { purchase: 0.06 }, boost: 0.06, career: { awareness: 4 },
+        r: 'La soirée est un succès.' },
+      { l: 'Rester en studio', icon: '🎬', career: { loyalty: 1, wear: 3 },
+        r: 'Le jeu reste classique.' },
+      { l: 'Un épisode avec une célébrité', icon: '🌟', cost: { purchase: 0.02 }, boost: 0.02, career: { awareness: 2 },
+        r: 'La célébrité amuse.' }
+    ] },
+
+  // — Nuit noire (p356) · generaliste, nuit —
+  { id: 'ps_p356_peur_noir', programId: 'p356', family: 'image', phase: 2,
+    titre: 'La peur du noir',
+    desc: 'Une candidate de {programme} a fait une crise d’angoisse dans l’obscurité. Ses proches reprochent à la production un manque de vigilance.',
+    c: [
+      { l: 'Ajouter un psychologue sur le tournage', icon: '🧠', cost: { recurring: 0.01 }, career: { loyalty: 1 }, pop: 2,
+        r: 'Les candidats sont mieux accompagnés.' },
+      { l: 'Couper la séquence', icon: '✂️', boost: -0.02, pop: 1,
+        r: 'La candidate est préservée.' },
+      { l: 'Diffuser la séquence', icon: '📺', career: { awareness: 2 }, pop: -2,
+        r: 'La séquence choque.' }
+    ] },
+  { id: 'ps_p356_nuit_noire_direct', programId: 'p356', family: 'audience', phase: 3, when: { minSeasons: 1 },
+    titre: 'La nuit noire en direct',
+    desc: 'La production de {programme} propose une édition en direct, dans un manoir réputé hanté. Le frisson serait garanti, l’imprévu aussi.',
+    c: [
+      { l: 'Tourner en direct au manoir', icon: '👻', cost: { purchase: 0.04 }, boost: 0.06, career: { awareness: 4 },
+        r: 'Le direct fait frissonner.' },
+      { l: 'Rester en enregistrement', icon: '🎬', career: { loyalty: 1, wear: 3 },
+        r: 'Le jeu reste maîtrisé.' },
+      { l: 'Un épisode spécial Halloween', icon: '🎃', cost: { purchase: 0.01 }, career: { awareness: 2 },
+        r: 'L’épisode amuse.' }
+    ] },
+
+  // — À la force des mollets (p357) · generaliste, prime —
+  { id: 'ps_p357_chute_velo', programId: 'p357', family: 'image', phase: 2,
+    titre: 'La chute à vélo',
+    desc: 'Un candidat de {programme} a chuté lourdement dans une descente de col. Les médecins critiquent le rythme imposé.',
+    c: [
+      { l: 'Revoir le parcours avec des experts', icon: '🦺', cost: { purchase: 0.04 }, career: { loyalty: 2 }, pop: 2,
+        r: 'Le parcours devient plus sûr.' },
+      { l: 'Diffuser la chute au ralenti', icon: '📺', career: { awareness: 3 }, pop: -3,
+        r: 'La chute choque.' },
+      { l: 'Ajouter une moto médicale', icon: '🏍️', cost: { recurring: 0.01 }, lasting: 0.02, career: { loyalty: 1 }, pop: 1,
+        r: 'La sécurité est renforcée.' }
+    ] },
+  { id: 'ps_p357_etape_tour', programId: 'p357', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'L’étape du Tour',
+    desc: 'Les organisateurs du Tour de France proposent aux candidats de {programme} de rouler sur une étape la veille des professionnels. L’expérience serait inoubliable pour les candidats.',
+    c: [
+      { l: 'Accepter l’étape du Tour', icon: '🚴', cost: { purchase: 0.06 }, boost: 0.08, career: { awareness: 5 },
+        r: 'L’étape est un moment fort.' },
+      { l: 'Rester sur les cols habituels', icon: '⛰️', career: { loyalty: 2, wear: 3 },
+        r: 'Le jeu garde son parcours.' },
+      { l: 'Un reportage sur le Tour', icon: '🎥', cost: { purchase: 0.01 }, career: { awareness: 2 },
+        r: 'Le reportage est apprécié.' }
+    ] },
+
+  // — Case par case (p358) · generaliste, access —
+  { id: 'ps_p358_jeu_trop_long', programId: 'p358', family: 'editorial', phase: 1,
+    titre: 'Le jeu trop long',
+    desc: 'Les parties de {programme} s’éternisent et les téléspectateurs décrochent avant la fin. La production propose de raccourcir.',
+    c: [
+      { l: 'Ajouter un chronomètre', icon: '⏱️', cost: { purchase: 0.01 }, boost: 0.02, career: { loyalty: -1, wear: -6 },
+        r: 'Le jeu gagne en rythme.' },
+      { l: 'Garder le rythme actuel', icon: '🐢', career: { loyalty: 2, wear: 3 },
+        r: 'Les fidèles apprécient.' },
+      { l: 'Couper les temps morts au montage', icon: '✂️', cost: { purchase: 0.02 }, career: { awareness: 1, wear: -3 },
+        r: 'Le jeu est plus dynamique.' }
+    ] },
+  { id: 'ps_p358_cout_grille_geante', programId: 'p358', family: 'economie', phase: 1, when: { minSeasons: 1 },
+    titre: 'Le coût de la grille géante',
+    desc: 'La grille géante de {programme} doit être reconstruite, après des années d’utilisation. Le devis est élevé.',
+    c: [
+      { l: 'Reconstruire la grille', icon: '🏗️', cost: { purchase: 0.1 }, career: { awareness: 2, wear: -8 },
+        r: 'La nouvelle grille impressionne.' },
+      { l: 'Réparer l’ancienne', icon: '🔧', cost: { purchase: 0.02 }, career: { loyalty: 1, wear: -2 },
+        r: 'La grille tient encore.' },
+      { l: 'Passer à une grille virtuelle', icon: '🖥️', cost: { saving: 0.04 }, career: { awareness: 1, loyalty: -2 },
+        r: 'L’économie est réelle, le charme moins.' }
+    ] },
+
+  // — Le faux ami (p359) · generaliste, prime —
+  { id: 'ps_p359_trahison_reelle', programId: 'p359', family: 'image', phase: 2,
+    titre: 'La trahison réelle',
+    desc: 'Un candidat de {programme} a trahi un ami de longue date pour gagner. Leur amitié est brisée et l’ami témoigne de son amertume.',
+    c: [
+      { l: 'Organiser une réconciliation', icon: '🤝', cost: { purchase: 0.01 }, career: { awareness: 1 }, pop: 2,
+        r: 'La réconciliation touche.' },
+      { l: 'Diffuser son témoignage', icon: '📺', career: { awareness: 3 }, pop: -1,
+        r: 'Le témoignage fait débat.' },
+      { l: 'Ne plus faire jouer d’amis réels', icon: '🔄', career: { awareness: -1, wear: -3 }, pop: 1,
+        r: 'Le jeu change de casting.' }
+    ] },
+  { id: 'ps_p359_faux_ami_celebre', programId: 'p359', family: 'audience', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le faux ami célèbre',
+    desc: 'La production de {programme} propose qu’une célébrité incognito joue le faux ami. Le public adorerait la révélation.',
+    c: [
+      { l: 'Engager une célébrité incognito', icon: '🎭', cost: { purchase: 0.06 }, boost: 0.06, career: { awareness: 4 },
+        r: 'La révélation fait le buzz.' },
+      { l: 'Garder des anonymes', icon: '🧑', career: { loyalty: 2, wear: 3 },
+        r: 'Le jeu reste authentique.' },
+      { l: 'Une célébrité par saison', icon: '🌟', cost: { purchase: 0.02 }, career: { awareness: 2 },
+        r: 'Un moment fort par saison.' }
+    ] },
+
+  // — À vue de nez (p360) · generaliste, apresmidi —
+  { id: 'ps_p360_odeur_trop_forte', programId: 'p360', family: 'editorial', phase: 1,
+    titre: 'L’odeur trop forte',
+    desc: 'Une épreuve olfactive de {programme} a provoqué des malaises chez des candidats. L’odeur était particulièrement forte.',
+    c: [
+      { l: 'Faire valider les épreuves par un médecin', icon: '🩺', cost: { recurring: 0.01 }, career: { loyalty: 1 }, pop: 2,
+        r: 'Les épreuves deviennent plus sûres.' },
+      { l: 'Supprimer les odeurs fortes', icon: '🌸', career: { awareness: -1, wear: 2 }, pop: 1,
+        r: 'Le jeu perd de son piquant.' },
+      { l: 'Garder les épreuves', icon: '👃', career: { awareness: 2 }, pop: -2,
+        r: 'La polémique dure.' }
+    ] },
+  { id: 'ps_p360_nez', programId: 'p360', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le nez d’or',
+    desc: 'Une grande maison de parfums propose d’organiser la finale de {programme} dans ses laboratoires de Grasse. Le décor serait unique, mais la marque demande de la visibilité.',
+    c: [
+      { l: 'Accepter la finale à Grasse', icon: '💐', cost: { purchase: 0.04 }, boost: 0.05, career: { awareness: 4 },
+        r: 'La finale parfumée est un succès.' },
+      { l: 'Rester en studio', icon: '🎬', career: { loyalty: 1, wear: 3 },
+        r: 'La finale reste classique.' },
+      { l: 'Accepter le parrainage de la marque', icon: '🤝', cost: { commercial: 0.03 }, career: { awareness: 2, loyalty: -2 },
+        r: 'Le parrainage rapporte, le jeu paraît commercial.' }
+    ] },
+
+  // — À une lettre près (p361) · generaliste, apresmidi —
+  { id: 'ps_p361_mot_introuvable', programId: 'p361', family: 'editorial', phase: 1,
+    titre: 'Le mot introuvable',
+    desc: 'Un mot proposé dans {programme} n’existe dans aucun dictionnaire. Un candidat éliminé proteste.',
+    c: [
+      { l: 'Réintégrer le candidat', icon: '🔁', cost: { purchase: 0.01 }, career: { loyalty: 2 }, pop: 1,
+        r: 'Le fair-play est salué.' },
+      { l: 'Maintenir l’élimination', icon: '📋', career: { awareness: 1, loyalty: -2 },
+        r: 'La polémique dure.' },
+      { l: 'Recruter un lexicographe', icon: '📚', cost: { recurring: 0.01 }, lasting: 0.01, career: { loyalty: 2 },
+        r: 'Les mots deviennent irréprochables.' }
+    ] },
+  { id: 'ps_p361_championnat_orthographe', programId: 'p361', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le championnat d’orthographe',
+    desc: 'L’Académie française propose de parrainer un championnat national d’orthographe inspiré de {programme}. Le jeu gagnerait en prestige et en légitimité.',
+    c: [
+      { l: 'Organiser le championnat', icon: '✍️', cost: { purchase: 0.04 }, lasting: 0.03, career: { awareness: 4 }, pop: 1,
+        r: 'Le championnat passionne les amoureux des mots.' },
+      { l: 'Garder le jeu tel quel', icon: '🔤', career: { loyalty: 1, wear: 3 },
+        r: 'Le jeu reste classique.' },
+      { l: 'Une édition spéciale avec l’Académie', icon: '🎓', cost: { purchase: 0.01 }, career: { awareness: 2 },
+        r: 'L’édition est remarquée.' }
+    ] },
+
+  // — Blind Test (p362) · generaliste, access —
+  { id: 'ps_p362_les_droits_musicaux', programId: 'p362', family: 'economie', phase: 1,
+    titre: 'Les droits musicaux explosent',
+    desc: 'Les maisons de disques augmentent fortement le prix des extraits utilisés dans {programme}. Le budget de l’émission explose.',
+    c: [
+      { l: 'Payer les nouveaux tarifs', icon: '💶', cost: { recurring: 0.1 }, boost: 0.02, career: { loyalty: 2 },
+        r: 'Les grands tubes restent dans le jeu.' },
+      { l: 'Se limiter aux catalogues moins chers', icon: '📻', career: { loyalty: -3, wear: 3 },
+        r: 'Les extraits sont moins connus.' },
+      { l: 'Faire rejouer les tubes par un orchestre', icon: '🎻', cost: { purchase: 0.04 }, career: { awareness: 3, wear: -4 },
+        r: 'L’orchestre donne une nouvelle couleur au jeu.' }
+    ] },
+  { id: 'ps_p362_blind_test_geant', programId: 'p362', family: 'audience', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le blind test géant',
+    desc: 'La production de {programme} propose un blind test géant dans une salle de concert, avec 10 000 spectateurs. L’ambiance serait électrique, le coût aussi.',
+    c: [
+      { l: 'Organiser le blind test géant', icon: '🎤', cost: { purchase: 0.12 }, boost: 0.1, career: { awareness: 4 },
+        r: 'La soirée géante fait l’événement.' },
+      { l: 'Rester en studio', icon: '🎬', career: { loyalty: 1, wear: 3 },
+        r: 'Le jeu reste classique.' },
+      { l: 'Faire jouer les téléspectateurs en ligne', icon: '📲', cost: { purchase: 0.03 }, career: { awareness: 3 },
+        r: 'Le jeu en ligne attire du monde.' }
+    ] },
+
+  // — Témoin clé (p363) · generaliste, apresmidi —
+  { id: 'ps_p363_temoin_qui_ment', programId: 'p363', family: 'editorial', phase: 1,
+    titre: 'Le témoin qui ment',
+    desc: 'Un témoin de {programme} a menti délibérément pour piéger les candidats, sans que la règle le prévoie. Les candidats sont furieux.',
+    c: [
+      { l: 'Annuler la manche', icon: '🔁', boost: -0.02, career: { loyalty: 2 }, pop: 1,
+        r: 'L’équité est respectée.' },
+      { l: 'Intégrer le mensonge aux règles', icon: '🎭', cost: { purchase: 0.01 }, career: { awareness: 2, wear: -4 },
+        r: 'Le jeu gagne en piquant.' },
+      { l: 'Maintenir le résultat', icon: '📋', career: { awareness: 1, loyalty: -2 },
+        r: 'La polémique dure.' }
+    ] },
+  { id: 'ps_p363_temoin_celebre', programId: 'p363', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le témoin célèbre',
+    desc: 'Des acteurs de séries policières proposent de jouer les témoins de {programme}. Leur présence ferait sourire les fans.',
+    c: [
+      { l: 'Inviter des acteurs de polars', icon: '🕵️', cost: { purchase: 0.03 }, boost: 0.03, career: { awareness: 4 },
+        r: 'Les acteurs amusent le public.' },
+      { l: 'Garder les témoins anonymes', icon: '🧑', career: { loyalty: 2, wear: 3 },
+        r: 'Le jeu reste authentique.' },
+      { l: 'Un acteur par saison', icon: '🌟', cost: { purchase: 0.01 }, career: { awareness: 2 },
+        r: 'Une apparition remarquée.' }
+    ] },
+
+  // — Adjugé ! (p364) · generaliste, access —
+  { id: 'ps_p364_objet_vole_aux', programId: 'p364', family: 'image', phase: 2,
+    titre: 'L’objet volé aux enchères',
+    desc: 'Un objet mis aux enchères dans {programme} s’avère volé. La police saisit l’objet après la vente.',
+    c: [
+      { l: 'Rembourser l’acheteur', icon: '💶', cost: { purchase: 0.03 }, career: { loyalty: 1 }, pop: 2,
+        r: 'La production assume.' },
+      { l: 'Renvoyer vers le vendeur', icon: '🤷', career: { awareness: 1 }, pop: -2,
+        r: 'L’acheteur proteste.' },
+      { l: 'Vérifier la provenance des objets', icon: '🔍', cost: { recurring: 0.01 }, lasting: 0.01, career: { loyalty: 2 },
+        r: 'Les objets sont désormais vérifiés.' }
+    ] },
+  { id: 'ps_p364_vente_des_stars', programId: 'p364', family: 'audience', phase: 3, when: { minSeasons: 1 },
+    titre: 'La vente des stars',
+    desc: 'Des célébrités proposent de vendre aux enchères dans {programme} des objets personnels au profit d’associations. Le geste solidaire attirerait l’attention.',
+    c: [
+      { l: 'Organiser la vente des stars', icon: '🌟', cost: { purchase: 0.03 }, boost: 0.06, career: { awareness: 4 }, pop: 1,
+        r: 'La vente solidaire fait le buzz.' },
+      { l: 'Garder les objets ordinaires', icon: '📦', career: { loyalty: 2, wear: 3 },
+        r: 'Le jeu reste accessible.' },
+      { l: 'Un objet de star par émission', icon: '🎤', cost: { purchase: 0.01 }, career: { awareness: 2 },
+        r: 'Une touche de glamour.' }
+    ] },
+
+  // — Face à France (p365) · generaliste, prime —
+  { id: 'ps_p365_question_regionale', programId: 'p365', family: 'image', phase: 2,
+    titre: 'La question régionale',
+    desc: 'Une question de {programme} sur une région est jugée méprisante par ses habitants. Les élus locaux protestent.',
+    c: [
+      { l: 'Présenter des excuses', icon: '🙏', career: { loyalty: -1 }, pop: 1,
+        r: 'L’affaire est close.' },
+      { l: 'Consacrer une émission à la région', icon: '🗺️', cost: { purchase: 0.03 }, career: { awareness: 3 }, pop: 2,
+        r: 'La région est à l’honneur.' },
+      { l: 'Assumer l’humour', icon: '😄', career: { loyalty: 1 }, pop: -2,
+        r: 'La polémique dure.' }
+    ] },
+  { id: 'ps_p365_tour_france_des', programId: 'p365', family: 'audience', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le tour de France des régions',
+    desc: 'La production de {programme} propose de tourner chaque émission dans une région différente. Le jeu y gagnerait en proximité, au prix d’une logistique plus lourde.',
+    c: [
+      { l: 'Lancer le tour de France', icon: '🚐', cost: { purchase: 0.06 }, career: { awareness: 4, wear: -6 },
+        r: 'Les régions accueillent le jeu avec enthousiasme.' },
+      { l: 'Rester en studio', icon: '🎬', career: { loyalty: 1, wear: 3 },
+        r: 'Le jeu reste classique.' },
+      { l: 'Une émission en région par mois', icon: '📅', cost: { purchase: 0.02 }, career: { awareness: 2, wear: -2 },
+        r: 'Une ouverture appréciée.' }
+    ] },
+
+  // — Brèves de comptoir (p366) · generaliste, nuit —
+  { id: 'ps_p366_les_propos_comptoir', programId: 'p366', family: 'image', phase: 2,
+    titre: 'Les propos de comptoir',
+    desc: 'Des propos tenus dans {programme} ont été jugés racistes. L’émission revendique un ton « libre ».',
+    c: [
+      { l: 'Recadrer et s’excuser', icon: '🙏', career: { loyalty: -1 }, pop: 2,
+        r: 'L’affaire est close.' },
+      { l: 'Assumer le ton', icon: '🍺', career: { awareness: 2 }, pop: -3,
+        r: 'La chaîne est vivement critiquée.' },
+      { l: 'Ajouter un modérateur', icon: '🎙️', cost: { recurring: 0.01 }, career: { loyalty: 1 }, pop: 1,
+        r: 'Les propos sont mieux encadrés.' }
+    ] },
+  { id: 'ps_p366_comptoir_tournee', programId: 'p366', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le comptoir en tournée',
+    desc: 'La production de {programme} propose de tourner dans de vrais bars de province. L’émission gagnerait en authenticité, et perdrait en maîtrise.',
+    c: [
+      { l: 'Tourner dans les bars', icon: '🍻', cost: { purchase: 0.03 }, career: { awareness: 4, wear: -6 },
+        r: 'L’authenticité des bars séduit.' },
+      { l: 'Rester en studio', icon: '🎬', career: { loyalty: 1, wear: 3 },
+        r: 'Le décor reste le même.' },
+      { l: 'Un bar par mois', icon: '📅', cost: { purchase: 0.01 }, career: { awareness: 2, wear: -2 },
+        r: 'Une ouverture appréciée.' }
+    ] },
+
+  // — Le grand jeu de l’oie (p367) · generaliste, prime —
+  { id: 'ps_p367_truque', programId: 'p367', family: 'editorial', phase: 1,
+    titre: 'Le dé truqué',
+    desc: 'Un candidat de {programme} accuse la production d’utiliser un dé truqué. Les images au ralenti sont ambiguës.',
+    c: [
+      { l: 'Faire contrôler le dé par un huissier', icon: '🎲', cost: { purchase: 0.01 }, career: { loyalty: 2 }, pop: 1,
+        r: 'Le dé est contrôlé, la confiance revient.' },
+      { l: 'Ignorer l’accusation', icon: '🤷', career: { awareness: 1, loyalty: -2 },
+        r: 'Le soupçon grandit.' },
+      { l: 'Faire lancer le dé par le public', icon: '👥', career: { awareness: 2, loyalty: 1, wear: 2 },
+        r: 'Le public devient arbitre.' }
+    ] },
+  { id: 'ps_p367_jeu_oie_geant', programId: 'p367', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le jeu de l’oie géant',
+    desc: 'La production de {programme} propose de construire un plateau géant dans un parc, avec des cases grandeur nature. Le spectacle serait spectaculaire, la logistique lourde.',
+    c: [
+      { l: 'Construire le plateau géant', icon: '🏞️', cost: { purchase: 0.1 }, boost: 0.08, career: { awareness: 5, wear: -6 },
+        r: 'Le plateau géant émerveille.' },
+      { l: 'Rester en studio', icon: '🎬', career: { loyalty: 1, wear: 3 },
+        r: 'Le jeu reste classique.' },
+      { l: 'Un plateau géant pour une spéciale', icon: '🎉', cost: { purchase: 0.03 }, boost: 0.03, career: { awareness: 2 },
+        r: 'La spéciale est appréciée.' }
     ] }
 ];
 // ---------------------------------------------------------------------------
