@@ -11971,6 +11971,437 @@ const PROGRAM_STORY_BANK = [
         r: 'Les passionnés restent.' },
       { l: 'Découper en séquences avec un plan clair', icon: '🗂️', cost: { purchase: 0.02 }, career: { awareness: 2, loyalty: 1 },
         r: 'L’émission devient plus lisible.' }
+    ] },
+  // — Légendes du football (p189) · sport, access —
+  { id: 'ps_p189_legende_refuse_parler', programId: 'p189', family: 'editorial', phase: 1,
+    titre: 'La légende refuse de parler du passé',
+    desc: 'La légende du football invitée dans {programme} refuse d’évoquer la finale perdue qui a marqué sa carrière. C’est pourtant le moment que tout le public attend.',
+    c: [
+      { l: 'Respecter son refus', icon: '🤝', boost: -0.03, career: { loyalty: 2 },
+        r: 'L’entretien est chaleureux mais sans le moment attendu.' },
+      { l: 'Montrer les images de la finale', icon: '📼', boost: 0.03, career: { awareness: 4 }, pop: -1,
+        r: 'La légende s’émeut en direct : un moment fort, mais gênant.' },
+      { l: 'Faire raconter la finale par un coéquipier', icon: '🗣️', cost: { purchase: 0.03 }, career: { awareness: 3, loyalty: 1 },
+        r: 'Le témoignage croisé est salué.' }
+    ] },
+  { id: 'ps_p189_musee_football', programId: 'p189', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le musée du football',
+    desc: 'Le musée national du football propose à {programme} de tourner une saison dans ses réserves. Les objets mythiques y sont nombreux.',
+    c: [
+      { l: 'Tourner la saison au musée', icon: '🏛️', cost: { purchase: 0.08 }, lasting: 0.03, career: { awareness: 4, wear: -4 },
+        r: 'Le décor du musée donne une âme à l’émission.' },
+      { l: 'Un numéro spécial au musée', icon: '🎫', cost: { purchase: 0.02 }, career: { awareness: 2 },
+        r: 'Un numéro apprécié.' },
+      { l: 'Rester en studio', icon: '🎙️', career: { loyalty: 1, wear: 3 },
+        r: 'L’émission garde son format.' }
+    ] },
+
+  // — Interview champion (p190) · sport, access —
+  { id: 'ps_p190_champion_politique', programId: 'p190', family: 'image', phase: 2,
+    titre: 'Le champion et la politique',
+    desc: 'Le champion interviewé dans {programme} a pris position sur un sujet politique brûlant. La direction de la chaîne s’inquiète des réactions.',
+    c: [
+      { l: 'Diffuser l’intégralité de l’entretien', icon: '🎙️', career: { awareness: 4, loyalty: 2 }, pop: -1,
+        r: 'L’entretien fait la une.' },
+      { l: 'Couper le passage politique', icon: '✂️', career: { loyalty: -3 }, pop: 1,
+        r: 'Le champion dénonce la censure.' },
+      { l: 'Diffuser avec un débat', icon: '⚖️', cost: { purchase: 0.02 }, career: { awareness: 2 }, pop: 1,
+        r: 'Le débat équilibre les propos.' }
+    ] },
+  { id: 'ps_p190_champion_exige_cachet', programId: 'p190', family: 'economie', phase: 1, when: { minSeasons: 1 },
+    titre: 'Le champion exige un cachet',
+    desc: 'Le champion du monde attendu dans {programme} demande un cachet, contrairement à l’usage. Son agent est inflexible.',
+    c: [
+      { l: 'Payer le cachet', icon: '💶', cost: { purchase: 0.15 }, boost: 0.08, career: { awareness: 4, loyalty: -1 },
+        r: 'L’interview fait l’événement, la déontologie est écornée.' },
+      { l: 'Refuser', icon: '✋', boost: -0.03, career: { loyalty: 2 },
+        r: 'L’émission garde ses principes.' },
+      { l: 'Proposer un don à son association', icon: '❤️', cost: { purchase: 0.05 }, career: { awareness: 2 }, pop: 2,
+        r: 'Le geste solidaire convainc le champion.' }
+    ] },
+
+  // — Quiz sport (p191) · sport, access —
+  { id: 'ps_p191_question_erronee', programId: 'p191', family: 'editorial', phase: 1,
+    titre: 'La question erronée',
+    desc: 'Une question de {programme} sur un record olympique s’est révélée fausse. Un candidat a été éliminé à tort.',
+    c: [
+      { l: 'Réintégrer le candidat', icon: '🔁', cost: { purchase: 0.02 }, career: { loyalty: 3 }, pop: 1,
+        r: 'Le fair-play est salué.' },
+      { l: 'S’excuser sans réintégrer', icon: '🙏', career: { loyalty: -1, wear: 2 }, pop: 1,
+        r: 'L’excuse passe, le candidat reste lésé.' },
+      { l: 'Recruter un vérificateur statisticien', icon: '📊', cost: { recurring: 0.04 }, lasting: 0.02, career: { loyalty: 2 },
+        r: 'Les questions deviennent irréprochables.' }
+    ] },
+  { id: 'ps_p191_les_sportifs_candidats', programId: 'p191', family: 'audience', phase: 2, when: { minSeasons: 1 },
+    titre: 'Les sportifs candidats',
+    desc: 'La production de {programme} propose de faire jouer des sportifs professionnels contre le public. Les fans adorent l’idée.',
+    c: [
+      { l: 'Inviter des sportifs chaque semaine', icon: '🏅', cost: { recurring: 0.06 }, boost: 0.06, career: { awareness: 4 },
+        r: 'Les sportifs attirent les fans.' },
+      { l: 'Une spéciale par mois', icon: '📅', cost: { purchase: 0.03 }, boost: 0.03, career: { awareness: 2 },
+        r: 'Un rendez-vous apprécié.' },
+      { l: 'Garder les candidats anonymes', icon: '🧑', career: { loyalty: 2, wear: 3 },
+        r: 'Le quiz reste classique.' }
+    ] },
+
+  // — Football total (p192) · sport, prime —
+  { id: 'ps_p192_championnat_change_diffuseur', programId: 'p192', family: 'economie', phase: 1,
+    titre: 'Le championnat change de diffuseur',
+    desc: 'Les droits du championnat de football de {programme} sont remis en jeu. Une plateforme américaine est prête à les rafler.',
+    c: [
+      { l: 'Surenchérir massivement', icon: '💰', cost: { recurring: 0.25 }, boost: 0.06, career: { loyalty: 5 },
+        r: 'Le football reste sur la chaîne.' },
+      { l: 'Proposer une codiffusion', icon: '🤝', cost: { purchase: 0.12 }, career: { awareness: 1, loyalty: 2 },
+        r: 'Les matchs sont partagés.' },
+      { l: 'Laisser partir les droits', icon: '👋', boost: -0.08, career: { loyalty: -5 },
+        r: 'Les fans suivent le football ailleurs.' }
+    ] },
+  { id: 'ps_p192_choc_saison', programId: 'p192', family: 'audience', phase: 3, when: { minSeasons: 1, form: ['succes', 'stable'] },
+    titre: 'Le choc de la saison',
+    desc: 'Le match au sommet du championnat approche. La production de {programme} propose une soirée spéciale avec avant-match de deux heures.',
+    c: [
+      { l: 'Organiser la soirée spéciale', icon: '🏟️', cost: { purchase: 0.2 }, boost: 0.15, career: { awareness: 4 },
+        r: 'La soirée bat des records.' },
+      { l: 'Diffusion classique du match', icon: '📺', career: { loyalty: 1, wear: 3 },
+        r: 'Le match fait l’audience, sans plus.' },
+      { l: 'Ajouter une caméra dans les vestiaires', icon: '🎥', cost: { purchase: 0.06 }, boost: 0.06, career: { awareness: 3 },
+        r: 'Les images des vestiaires fascinent.' }
+    ] },
+
+  // — Rugby Européen (p193) · sport, prime —
+  { id: 'ps_p193_commotion_direct', programId: 'p193', family: 'image', phase: 2,
+    titre: 'La commotion en direct',
+    desc: 'Un joueur victime d’une commotion a été maintenu sur le terrain lors d’un match diffusé dans {programme}. Le consultant n’a rien dit.',
+    c: [
+      { l: 'Produire un numéro sur les commotions', icon: '🧠', cost: { purchase: 0.04 }, career: { awareness: 3 }, pop: 2,
+        r: 'Le numéro est salué par les médecins.' },
+      { l: 'Laisser passer', icon: '🤷', career: { awareness: 1 }, pop: -2,
+        r: 'La chaîne est critiquée.' },
+      { l: 'Recruter un médecin consultant', icon: '🩺', cost: { recurring: 0.03 }, lasting: 0.01, career: { loyalty: 2 }, pop: 1,
+        r: 'Le médecin éclaire chaque match.' }
+    ] },
+  { id: 'ps_p193_coupe_europe_negocie', programId: 'p193', family: 'economie', phase: 1, when: { minSeasons: 1 },
+    titre: 'La Coupe d’Europe se négocie',
+    desc: 'Les droits de la Coupe d’Europe de rugby de {programme} sont renégociés. L’organisateur demande une hausse importante.',
+    c: [
+      { l: 'Accepter la hausse', icon: '💶', cost: { recurring: 0.15 }, boost: 0.04, career: { loyalty: 4 },
+        r: 'Le rugby européen reste sur la chaîne.' },
+      { l: 'Ne garder que les phases finales', icon: '🏉', cost: { saving: 0.1 }, boost: -0.03, career: { loyalty: -3 },
+        r: 'Les fans perdent les matchs de poule.' },
+      { l: 'Proposer une codiffusion', icon: '🤝', cost: { purchase: 0.05 }, career: { awareness: 1, loyalty: 1 },
+        r: 'Les droits sont partagés.' }
+    ] },
+
+  // — Sports de combat (p194) · sport, prime —
+  { id: 'ps_p194_combat_trop_violent', programId: 'p194', family: 'image', phase: 2,
+    titre: 'Le combat trop violent',
+    desc: 'Un combat diffusé dans {programme} s’est terminé par une blessure grave. Des associations demandent l’arrêt des retransmissions.',
+    c: [
+      { l: 'Instaurer un différé de sécurité', icon: '⏱️', cost: { recurring: 0.02 }, career: { loyalty: -1 }, pop: 2,
+        r: 'Les images choquantes ne passeront plus.' },
+      { l: 'Maintenir le direct', icon: '🥊', career: { awareness: 2, loyalty: 2 }, pop: -2,
+        r: 'Les fans apprécient, la critique enfle.' },
+      { l: 'Produire un débat sur la sécurité des combattants', icon: '⚖️', cost: { purchase: 0.03 }, career: { awareness: 2 }, pop: 1,
+        r: 'Le débat est salué.' }
+    ] },
+  { id: 'ps_p194_champion_francais', programId: 'p194', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le champion français',
+    desc: 'Un combattant français est en passe de devenir champion du monde. La production de {programme} propose de le suivre jusqu’au combat.',
+    c: [
+      { l: 'Le suivre jusqu’au combat', icon: '🏆', cost: { purchase: 0.12 }, boost: 0.1, career: { awareness: 5 },
+        r: 'Le feuilleton passionne la France.' },
+      { l: 'Diffuser le combat seul', icon: '📺', career: { loyalty: 1, wear: 3 },
+        r: 'Le combat fait l’audience.' },
+      { l: 'Un portrait avant le combat', icon: '🎥', cost: { purchase: 0.03 }, boost: 0.03, career: { awareness: 2 },
+        r: 'Le portrait émeut.' }
+    ] },
+
+  // — Coupe Davis (p195) · sport, prime —
+  { id: 'ps_p195_nouvelle_formule_coupe', programId: 'p195', family: 'economie', phase: 1,
+    titre: 'La nouvelle formule de la Coupe Davis',
+    desc: 'La Coupe Davis change de formule et se joue désormais en une semaine. Les droits de {programme} doivent être renégociés.',
+    c: [
+      { l: 'Acheter la nouvelle formule', icon: '🎾', cost: { purchase: 0.2 }, boost: 0.05, career: { loyalty: 3 },
+        r: 'La compétition reste sur la chaîne.' },
+      { l: 'Ne diffuser que les matchs des Bleus', icon: '🇫🇷', cost: { purchase: 0.06 }, boost: 0.03, career: { loyalty: -1 },
+        r: 'Les fans de tennis regrettent le reste.' },
+      { l: 'Laisser partir la compétition', icon: '👋', boost: -0.05, career: { loyalty: -3 },
+        r: 'La compétition part ailleurs.' }
+    ] },
+  { id: 'ps_p195_match_qui_dure', programId: 'p195', family: 'audience', phase: 2, when: { minSeasons: 1 },
+    titre: 'Le match qui dure cinq heures',
+    desc: 'Un match de {programme} s’éternise et déborde sur le journal du soir. La chaîne doit décider de la suite.',
+    c: [
+      { l: 'Garder le match jusqu’au bout', icon: '⏳', boost: -0.03, career: { loyalty: 4 },
+        r: 'Les fans de tennis sont comblés.' },
+      { l: 'Basculer sur la chaîne en ligne', icon: '📲', cost: { purchase: 0.02 }, career: { awareness: 2, loyalty: -1 },
+        r: 'Les fans suivent la fin en ligne.' },
+      { l: 'Couper pour le journal', icon: '✂️', boost: 0.02, career: { loyalty: -4 },
+        r: 'Les fans de tennis sont furieux.' }
+    ] },
+
+  // — Basket Français (p196) · sport, prime —
+  { id: 'ps_p196_championnat_basket_vend', programId: 'p196', family: 'economie', phase: 1,
+    titre: 'Le championnat de basket se vend',
+    desc: 'Les droits du championnat de basket de {programme} sont remis en jeu. Une plateforme est intéressée.',
+    c: [
+      { l: 'Garder les droits', icon: '🏀', cost: { recurring: 0.12 }, boost: 0.03, career: { loyalty: 4 },
+        r: 'Le basket reste sur la chaîne.' },
+      { l: 'Laisser partir', icon: '👋', boost: -0.05, career: { loyalty: -3 },
+        r: 'Le basket part ailleurs.' },
+      { l: 'Garder seulement les playoffs', icon: '🏆', cost: { purchase: 0.06 }, boost: 0.03, career: { loyalty: 1 },
+        r: 'Les playoffs restent sur la chaîne.' }
+    ] },
+  { id: 'ps_p196_basket_3x3', programId: 'p196', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le basket 3x3',
+    desc: 'Le basket 3x3 devient olympique. La production de {programme} propose de diffuser le circuit français.',
+    c: [
+      { l: 'Diffuser le circuit 3x3', icon: '🏙️', cost: { purchase: 0.06 }, career: { awareness: 4, wear: -5 },
+        r: 'Le 3x3 séduit un public jeune.' },
+      { l: 'Un tournoi par saison', icon: '🗓️', cost: { purchase: 0.02 }, career: { awareness: 2 },
+        r: 'Une découverte appréciée.' },
+      { l: 'Rester sur le basket classique', icon: '🏀', career: { loyalty: 2, wear: 3 },
+        r: 'Les fidèles sont rassurés.' }
+    ] },
+
+  // — Coupe d'Europe de Handball (p197) · sport, prime —
+  { id: 'ps_p197_equipe_france_finale', programId: 'p197', family: 'audience', phase: 2,
+    titre: 'L’équipe de France en finale',
+    desc: 'L’équipe de France de handball est en finale de la Coupe d’Europe. La production de {programme} propose une soirée spéciale.',
+    c: [
+      { l: 'Organiser la soirée spéciale', icon: '🤾', cost: { purchase: 0.12 }, boost: 0.12, career: { awareness: 4 },
+        r: 'La finale réunit la France.' },
+      { l: 'Diffusion classique', icon: '📺', boost: 0.04, career: { wear: 2 },
+        r: 'La finale fait l’audience.' },
+      { l: 'Installer un écran géant dans une ville', icon: '🏟️', cost: { purchase: 0.08 }, boost: 0.08, pop: 2,
+        r: 'L’ambiance populaire est saluée.' }
+    ] },
+  { id: 'ps_p197_handball_renegocie', programId: 'p197', family: 'economie', phase: 1, when: { minSeasons: 1 },
+    titre: 'Le handball se renégocie',
+    desc: 'Les droits de la Coupe d’Europe de handball de {programme} sont renégociés. La fédération européenne demande plus.',
+    c: [
+      { l: 'Accepter la hausse', icon: '💶', cost: { recurring: 0.1 }, boost: 0.03, career: { loyalty: 3 },
+        r: 'Le handball reste sur la chaîne.' },
+      { l: 'Ne garder que les matchs des Bleus', icon: '🇫🇷', cost: { saving: 0.06 }, boost: -0.02, career: { loyalty: -2 },
+        r: 'Les fans perdent les autres matchs.' },
+      { l: 'Codiffuser avec une autre chaîne', icon: '🤝', cost: { purchase: 0.04 }, career: { loyalty: 1 },
+        r: 'Les droits sont partagés.' }
+    ] },
+
+  // — Multiplex européen (p199) · sport, prime —
+  { id: 'ps_p199_multiplex_trop_confus', programId: 'p199', family: 'editorial', phase: 1,
+    titre: 'Le multiplex trop confus',
+    desc: 'Les téléspectateurs de {programme} se plaignent de passer trop vite d’un match à l’autre. Ils ratent les buts.',
+    c: [
+      { l: 'Ajouter un écran partagé', icon: '🖥️', cost: { purchase: 0.04 }, career: { loyalty: 3, wear: -4 },
+        r: 'Les fans suivent plusieurs matchs à la fois.' },
+      { l: 'Garder le multiplex classique', icon: '🔀', career: { awareness: 1, loyalty: -2 },
+        r: 'Le rythme reste effréné.' },
+      { l: 'Proposer un match au choix en ligne', icon: '📲', cost: { purchase: 0.03 }, career: { awareness: 2, loyalty: 1 },
+        r: 'Chacun choisit son match.' }
+    ] },
+  { id: 'ps_p199_les_droits_europeens', programId: 'p199', family: 'economie', phase: 1, when: { minSeasons: 1 },
+    titre: 'Les droits européens',
+    desc: 'Les droits des championnats européens de {programme} augmentent. Il faut arbitrer entre l’Angleterre, l’Espagne et l’Italie.',
+    c: [
+      { l: 'Garder les trois championnats', icon: '💶', cost: { recurring: 0.2 }, boost: 0.04, career: { loyalty: 4 },
+        r: 'Le multiplex reste complet.' },
+      { l: 'Ne garder que l’Angleterre', icon: '🏴', cost: { saving: 0.08 }, career: { awareness: 1, loyalty: -2 },
+        r: 'Le multiplex perd de sa diversité.' },
+      { l: 'Ajouter la France', icon: '🇫🇷', cost: { purchase: 0.12 }, boost: 0.04, career: { awareness: 3 },
+        r: 'Le multiplex s’enrichit.' }
+    ] },
+
+  // — Sports US en direct (p200) · sport, nuit —
+  { id: 'ps_p200_les_insomniaques_sport', programId: 'p200', family: 'audience', phase: 2,
+    titre: 'Les insomniaques du sport américain',
+    desc: 'Les matchs de {programme} attirent un public fidèle de noctambules passionnés. La production propose un plateau en direct.',
+    c: [
+      { l: 'Installer un plateau en direct', icon: '🎙️', cost: { recurring: 0.06 }, career: { awareness: 3, loyalty: 3 },
+        r: 'Les noctambules ont leur rendez-vous.' },
+      { l: 'Garder le commentaire seul', icon: '🎧', career: { loyalty: 1, wear: 3 },
+        r: 'L’émission reste sobre.' },
+      { l: 'Ouvrir un chat en direct', icon: '💬', cost: { purchase: 0.02 }, career: { awareness: 2, loyalty: 1 },
+        r: 'Les fans échangent pendant les matchs.' }
+    ] },
+  { id: 'ps_p200_super_bowl', programId: 'p200', family: 'economie', phase: 1, when: { minSeasons: 1 },
+    titre: 'Le Super Bowl',
+    desc: 'Les droits du Super Bowl sont proposés à {programme}. La finale se joue au milieu de la nuit en France.',
+    c: [
+      { l: 'Acheter le Super Bowl', icon: '🏈', cost: { purchase: 0.3 }, boost: 0.12, career: { awareness: 5 },
+        r: 'La nuit du Super Bowl devient un événement.' },
+      { l: 'Diffuser un résumé le lendemain', icon: '📼', cost: { purchase: 0.04 }, boost: 0.02,
+        r: 'Les fans regrettent le direct.' },
+      { l: 'Laisser passer', icon: '🙅', career: { awareness: -2, wear: 2 },
+        r: 'Le Super Bowl part ailleurs.' }
+    ] },
+
+  // — Sports de combat en direct (p201) · sport, nuit —
+  { id: 'ps_p201_pesee_qui_derape', programId: 'p201', family: 'image', phase: 2,
+    titre: 'La pesée qui dérape',
+    desc: 'Une pesée diffusée dans {programme} a dégénéré en bagarre générale. Les images sont reprises partout.',
+    c: [
+      { l: 'Couper les images de la bagarre', icon: '✂️', boost: -0.02, career: { loyalty: -1 }, pop: 1,
+        r: 'La chaîne fait preuve de retenue.' },
+      { l: 'Diffuser les images en boucle', icon: '🔁', boost: 0.04, career: { awareness: 4 }, pop: -3,
+        r: 'Le buzz est énorme, l’image désastreuse.' },
+      { l: 'Diffuser avec un commentaire critique', icon: '🎙️', cost: { purchase: 0.01 }, career: { awareness: 2 }, pop: 1,
+        r: 'La chaîne prend ses distances.' }
+    ] },
+  { id: 'ps_p201_soiree_mma_france', programId: 'p201', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'La soirée MMA en France',
+    desc: 'Le MMA est désormais autorisé en France. Un organisateur propose à {programme} une grande soirée à Paris.',
+    c: [
+      { l: 'Diffuser la soirée parisienne', icon: '🥋', cost: { purchase: 0.2 }, boost: 0.1, career: { awareness: 5 }, pop: -1,
+        r: 'La soirée attire un public nombreux.' },
+      { l: 'Rester sur les combats étrangers', icon: '🌍', career: { loyalty: 1, wear: 3 },
+        r: 'L’émission reste classique.' },
+      { l: 'Diffuser un résumé', icon: '📼', cost: { purchase: 0.04 }, boost: 0.03, career: { awareness: 1 },
+        r: 'Un résumé efficace.' }
+    ] },
+
+  // — Caisses à savon (p202) · sport, nuit —
+  { id: 'ps_p202_caisse_savon_star', programId: 'p202', family: 'editorial', phase: 1,
+    titre: 'La caisse à savon de la star',
+    desc: 'Un chanteur célèbre veut participer à la course de {programme} avec un bolide délirant. Sa présence attirerait la presse.',
+    c: [
+      { l: 'L’inviter', icon: '🎸', cost: { purchase: 0.03 }, boost: 0.06, career: { awareness: 5, loyalty: -1 },
+        r: 'La star fait le buzz.' },
+      { l: 'Garder les amateurs', icon: '🛞', career: { loyalty: 3, wear: 2 },
+        r: 'La course reste authentique.' },
+      { l: 'Organiser une course des célébrités à part', icon: '🏁', cost: { purchase: 0.06 }, boost: 0.05, career: { awareness: 3 },
+        r: 'La course des stars amuse.' }
+    ] },
+  { id: 'ps_p202_accident_descente', programId: 'p202', family: 'image', phase: 2, when: { minSeasons: 1 },
+    titre: 'L’accident de la descente',
+    desc: 'Un pilote de {programme} s’est blessé lors d’une descente. Les parents d’enfants participants s’inquiètent.',
+    c: [
+      { l: 'Renforcer la sécurité', icon: '🦺', cost: { recurring: 0.03 }, career: { loyalty: 1 }, pop: 2,
+        r: 'Les parents sont rassurés.' },
+      { l: 'Réduire la pente', icon: '📉', career: { awareness: -2 }, pop: 1,
+        r: 'La course est moins spectaculaire.' },
+      { l: 'Ne rien changer', icon: '🤷', career: { awareness: 2 }, pop: -2,
+        r: 'La polémique s’installe.' }
+    ] },
+
+  // — Après-match (p203) · sport, nuit —
+  { id: 'ps_p203_joueur_colere', programId: 'p203', family: 'editorial', phase: 2,
+    titre: 'Le joueur en colère',
+    desc: 'Un joueur interrogé dans {programme} juste après la défaite a insulté l’arbitre. Les images circulent.',
+    c: [
+      { l: 'Diffuser la séquence en entier', icon: '📺', boost: 0.03, career: { awareness: 4 }, pop: -2,
+        r: 'Le buzz est énorme.' },
+      { l: 'Couper les insultes', icon: '✂️', career: { loyalty: -1 }, pop: 1,
+        r: 'La séquence est sobre.' },
+      { l: 'Inviter un arbitre à réagir', icon: '🟨', cost: { purchase: 0.02 }, career: { awareness: 2 }, pop: 1,
+        r: 'Le débat apaise les tensions.' }
+    ] },
+  { id: 'ps_p203_les_vestiaires_ouverts', programId: 'p203', family: 'audience', phase: 3, when: { minSeasons: 1 },
+    titre: 'Les vestiaires ouverts',
+    desc: 'Un club propose à {programme} un accès exclusif à ses vestiaires après le match. Les images promettent d’être brutes et inédites.',
+    c: [
+      { l: 'Accepter l’accès', icon: '🚪', cost: { purchase: 0.04 }, boost: 0.04, career: { awareness: 5 },
+        r: 'Les images des vestiaires fascinent.' },
+      { l: 'Rester en plateau', icon: '🎙️', career: { loyalty: 1, wear: 3 },
+        r: 'L’émission reste classique.' },
+      { l: 'Diffuser seulement l’entraîneur', icon: '🧢', cost: { purchase: 0.01 }, career: { awareness: 2 },
+        r: 'L’entraîneur donne son analyse.' }
+    ] },
+
+  // — Highlights (p204) · sport, nuit —
+  { id: 'ps_p204_les_ralentis_trop', programId: 'p204', family: 'economie', phase: 1,
+    titre: 'Les ralentis trop chers',
+    desc: 'Les ligues facturent désormais les ralentis utilisés dans {programme}. Le budget augmente.',
+    c: [
+      { l: 'Payer les ralentis', icon: '💶', cost: { recurring: 0.1 }, boost: 0.02, career: { loyalty: 3 },
+        r: 'Les plus beaux gestes restent visibles.' },
+      { l: 'Utiliser des images fixes', icon: '🖼️', career: { loyalty: -3, wear: 3 },
+        r: 'L’émission perd de son attrait.' },
+      { l: 'Négocier un forfait', icon: '🤝', cost: { purchase: 0.04 }, career: { loyalty: 1 },
+        r: 'Un accord stable.' }
+    ] },
+  { id: 'ps_p204_top_semaine', programId: 'p204', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le top 10 de la semaine',
+    desc: 'La production de {programme} propose un classement hebdomadaire des plus beaux gestes, voté par les téléspectateurs. Le format est simple et pourrait fidéliser les fans.',
+    c: [
+      { l: 'Lancer le top 10', icon: '🔟', cost: { purchase: 0.03 }, lasting: 0.02, career: { awareness: 4 },
+        r: 'Le classement devient un rendez-vous.' },
+      { l: 'Garder le format actuel', icon: '📺', career: { loyalty: 1, wear: 3 },
+        r: 'L’émission reste classique.' },
+      { l: 'Un vote en ligne seulement', icon: '📱', cost: { purchase: 0.01 }, career: { awareness: 2 },
+        r: 'Les fans votent en ligne.' }
+    ] },
+
+  // — Débrief (p205) · sport, nuit —
+  { id: 'ps_p205_debrief_trop_tardif', programId: 'p205', family: 'editorial', phase: 1,
+    titre: 'Le débrief trop tardif',
+    desc: 'Le débrief de {programme} commence après minuit et les téléspectateurs se couchent. La production propose de l’avancer.',
+    c: [
+      { l: 'Avancer le débrief', icon: '⏰', cost: { purchase: 0.03 }, boost: 0.05, career: { loyalty: -1 },
+        r: 'Plus de téléspectateurs suivent le débrief.' },
+      { l: 'Garder l’horaire', icon: '🌙', boost: -0.02, career: { loyalty: 2 },
+        r: 'Les noctambules restent.' },
+      { l: 'Proposer le débrief en ligne dès la fin du match', icon: '📲', cost: { purchase: 0.02 }, career: { awareness: 3 },
+        r: 'Les fans réagissent à chaud.' }
+    ] },
+  { id: 'ps_p205_consultant_partial', programId: 'p205', family: 'image', phase: 2, when: { minSeasons: 1 },
+    titre: 'Le consultant partial',
+    desc: 'Un consultant de {programme} est accusé de favoriser son ancien club. Les supporters rivaux protestent.',
+    c: [
+      { l: 'Équilibrer avec un second consultant', icon: '⚖️', cost: { recurring: 0.04 }, career: { loyalty: 2 }, pop: 1,
+        r: 'Le débat gagne en équilibre.' },
+      { l: 'Défendre le consultant', icon: '🛡️', career: { awareness: 1 }, pop: -2,
+        r: 'La polémique dure.' },
+      { l: 'Changer de consultant', icon: '🔄', career: { loyalty: -2, wear: -3 }, pop: 1,
+        r: 'Le plateau se renouvelle.' }
+    ] },
+
+  // — Basket US (p206) · sport, nuit —
+  { id: 'ps_p206_les_droits_nba', programId: 'p206', family: 'economie', phase: 1,
+    titre: 'Les droits de la NBA',
+    desc: 'Les droits de la NBA de {programme} augmentent fortement. Les matchs se jouent en pleine nuit en France.',
+    c: [
+      { l: 'Payer les droits', icon: '💶', cost: { recurring: 0.15 }, boost: 0.03, career: { loyalty: 4 },
+        r: 'Les fans de basket gardent leurs matchs.' },
+      { l: 'Ne garder que les playoffs', icon: '🏆', cost: { saving: 0.08 }, boost: -0.02, career: { loyalty: -2 },
+        r: 'Les fans perdent la saison régulière.' },
+      { l: 'Diffuser des résumés le matin', icon: '☀️', cost: { purchase: 0.03 }, career: { awareness: 2, loyalty: -1 },
+        r: 'Les fans suivent les résumés.' }
+    ] },
+  { id: 'ps_p206_francais_nba', programId: 'p206', family: 'audience', phase: 2, when: { minSeasons: 1 },
+    titre: 'Le Français en NBA',
+    desc: 'Un jeune Français brille en NBA. La production de {programme} propose de suivre tous ses matchs.',
+    c: [
+      { l: 'Suivre tous ses matchs', icon: '🇫🇷', cost: { purchase: 0.06 }, boost: 0.06, career: { awareness: 4 },
+        r: 'Les fans suivent la star française.' },
+      { l: 'Couvrir ses meilleurs matchs', icon: '🏀', boost: 0.02, career: { wear: 2 },
+        r: 'Les fans en profitent.' },
+      { l: 'Un documentaire sur sa saison', icon: '🎥', cost: { purchase: 0.08 }, lasting: 0.02, career: { awareness: 5 },
+        r: 'Le documentaire passionne.' }
+    ] },
+
+  // — Sports mécaniques nocturnes (p207) · sport, nuit —
+  { id: 'ps_p207_course_nuit', programId: 'p207', family: 'editorial', phase: 1,
+    titre: 'La course de nuit',
+    desc: 'La course d’endurance de 24 heures diffusée dans {programme} entre dans sa nuit. La production propose de couvrir les heures nocturnes en direct.',
+    c: [
+      { l: 'Couvrir toute la nuit', icon: '🌙', cost: { purchase: 0.06 }, career: { awareness: 4, loyalty: 3 },
+        r: 'Les passionnés suivent la course toute la nuit.' },
+      { l: 'Diffuser un résumé au matin', icon: '☀️', career: { loyalty: -2, wear: 2 },
+        r: 'Les passionnés regrettent le direct.' },
+      { l: 'Proposer le direct en ligne', icon: '📲', cost: { purchase: 0.02 }, career: { awareness: 2, loyalty: 1 },
+        r: 'Les passionnés suivent en ligne.' }
+    ] },
+  { id: 'ps_p207_bruit_des_moteurs', programId: 'p207', family: 'image', phase: 2, when: { minSeasons: 1 },
+    titre: 'Le bruit des moteurs',
+    desc: 'Des riverains d’un circuit diffusé dans {programme} se plaignent du bruit. Les écologistes réclament l’interdiction de la course.',
+    c: [
+      { l: 'Produire un numéro sur les courses électriques', icon: '⚡', cost: { purchase: 0.04 }, career: { awareness: 3 }, pop: 2,
+        r: 'Le numéro ouvre un débat utile.' },
+      { l: 'Ignorer la polémique', icon: '🤷', career: { loyalty: 1 }, pop: -1,
+        r: 'Les fans sont satisfaits, la polémique enfle.' },
+      { l: 'Donner la parole aux riverains', icon: '🗣️', cost: { purchase: 0.01 }, career: { loyalty: -1 }, pop: 1,
+        r: 'L’émission montre son équilibre.' }
     ] }
 ];
 // ---------------------------------------------------------------------------
