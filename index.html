@@ -7142,6 +7142,893 @@ function getEligibleDilemmas() {
   });
 }
 
+// Banque des histoires de programmes. Champs : id stable, programId (catalogue), family
+// (editorial · economie · audience · image · strategie), phase (1 = début de saison,
+// 2 = arbitrage, 3 = fin de saison), repeat ('unique' par défaut, ou délai en saisons),
+// when (conditions, voir programStoryMatches), titre, desc (2 à 5 phrases ; {programme},
+// {saisons}, {rival}, {rivalProgramme}, {creneau} sont remplacés), et 2 à 4 choix. Chaque
+// choix : cost (part du budget annuel du programme : purchase, recurring, saving ou
+// commercial), boost (bonus de la saison) et lasting (bonus durable) en part de sa
+// puissance de base, career (notoriété, fidélité, usure en points), pop, flag / clearFlag
+// (mémoire éditoriale).
+const PROGRAM_STORY_BANK = [
+  // — MasterCuisto (p032) · concours culinaire, prime —
+  { id: 'ps_p032_finale', programId: 'p032', family: 'editorial', phase: 3, when: { form: ['succes', 'stable'] },
+    titre: 'La finale à prix d’or',
+    desc: 'La production de {programme} propose une finale exceptionnelle en direct, avec trois chefs étoilés venus de l’étranger pour départager les finalistes. Le dispositif promet l’événement de la saison, mais il coûte cher et le direct ne pardonne aucune erreur.',
+    c: [
+      { l: 'Financer une finale en direct avec les chefs étoilés', icon: '🌟', cost: { purchase: 0.3 }, boost: 0.22, career: { awareness: 8 }, pop: 1, flag: 'finale_live',
+        r: 'La finale fait l’événement : audience au sommet et presse unanime. Le programme gagne en prestige.' },
+      { l: 'Conserver la finale enregistrée habituelle', icon: '🎬', career: { wear: 4 },
+        r: 'La finale reste solide mais sans éclat : le public fidèle est là, sans plus.' },
+      { l: 'Faire voter le public sur l’appli pour le plat final', icon: '📲', cost: { purchase: 0.12 }, boost: 0.1, lasting: 0.03, career: { awareness: 5, loyalty: -2 }, flag: 'vote_public',
+        r: 'Le vote interactif séduit les plus jeunes, mais quelques fidèles crient au concours de popularité.' }
+    ] },
+  { id: 'ps_p032_jury', programId: 'p032', family: 'image', phase: 1, when: { minSeasons: 1 },
+    titre: 'Le chef star claque la porte',
+    desc: 'Le chef emblématique du jury de {programme} exige un droit de regard sur le casting et menace de partir chez {rival}. Sa personnalité fait vendre, mais ses colères pèsent sur l’ambiance du tournage.',
+    c: [
+      { l: 'Accepter ses conditions et revaloriser son contrat', icon: '✍️', cost: { recurring: 0.08 }, lasting: 0.04, career: { loyalty: 5 },
+        r: 'Le chef reste et le jury garde son alchimie. Le programme coûte désormais un peu plus chaque saison.' },
+      { l: 'Le laisser partir et promouvoir une jeune cheffe', icon: '👩‍🍳', career: { loyalty: -6, awareness: -4, wear: -10 }, flag: 'nouveau_jury',
+        r: 'Le départ fait parler et une partie du public décroche, mais la nouvelle cheffe apporte un souffle neuf.' },
+      { l: 'Lui proposer un rôle de parrain lors des grandes émissions', icon: '🤝', cost: { purchase: 0.06 }, career: { loyalty: 1, wear: 3 },
+        r: 'Compromis acceptable : le chef apparaît aux grands rendez-vous, sans régner sur le plateau.' }
+    ] },
+  { id: 'ps_p032_jury_suite', programId: 'p032', family: 'audience', phase: 2, when: { flag: 'nouveau_jury' },
+    titre: 'La nouvelle cheffe divise',
+    desc: 'La jeune cheffe du jury de {programme} ne laisse personne indifférent : les moins de 35 ans adorent sa franchise, les fidèles regrettent l’ancien chef. La production attend votre ligne pour la suite.',
+    c: [
+      { l: 'Lui confier la présidence du jury', icon: '👑', lasting: 0.05, career: { awareness: 5, loyalty: -3 }, clearFlag: 'nouveau_jury',
+        r: 'La cheffe impose son style : le programme rajeunit, au prix de quelques fidèles.' },
+      { l: 'Rappeler l’ancien chef pour une émission hommage', icon: '🎂', cost: { purchase: 0.1 }, boost: 0.08, career: { loyalty: 5 }, clearFlag: 'nouveau_jury',
+        r: 'Les retrouvailles émeuvent le public et apaisent les fidèles, le temps d’une soirée.' },
+      { l: 'Former un jury tournant de chefs invités', icon: '🔄', cost: { recurring: 0.04 }, career: { wear: -8, awareness: 3 }, clearFlag: 'nouveau_jury',
+        r: 'Chaque semaine apporte une nouvelle signature : le concours gagne en variété.' }
+    ] },
+  { id: 'ps_p032_junior', programId: 'p032', family: 'strategie', phase: 3, when: { form: 'succes', minSeasons: 2 },
+    titre: 'Une version junior ?',
+    desc: 'Fort du succès de {programme}, la production propose une déclinaison junior où des cuisiniers de 10 à 14 ans s’affrontent. Le format peut séduire les familles, mais il risque de diluer la marque.',
+    c: [
+      { l: 'Lancer la version junior en spéciale de fin d’année', icon: '🧒', cost: { purchase: 0.2 }, boost: 0.1, lasting: 0.06, career: { awareness: 10, wear: 6 }, pop: 1, flag: 'junior',
+        r: 'Les familles adorent : la marque s’élargit, même si le concours principal paraît un peu moins rare.' },
+      { l: 'Refuser pour préserver l’exigence du concours', icon: '🛡️', career: { loyalty: 3, wear: 3 },
+        r: 'Le concours garde son prestige, sans nouvelle dynamique.' },
+      { l: 'Vendre le format junior à une plateforme', icon: '💶', cost: { commercial: 0.1 }, career: { awareness: 4, wear: 2 },
+        r: 'La plateforme paie bien, mais c’est elle qui profite de la nouveauté.' }
+    ] },
+
+  // — Koh Menta (p034) · jeu d’aventure, prime —
+  { id: 'ps_p034_tempete', programId: 'p034', family: 'economie', phase: 1,
+    titre: 'Une étape qui tourne mal',
+    desc: 'Une tempête tropicale interrompt le tournage de {programme} au milieu de l’archipel. Les candidats sont à l’abri, mais trois jours d’épreuves sont perdus et la production demande un arbitrage immédiat.',
+    c: [
+      { l: 'Prolonger le tournage et financer le surcoût', icon: '💸', cost: { purchase: 0.18 }, boost: 0.08, career: { loyalty: 4 },
+        r: 'Les épreuves prévues sont tournées et le récit reste intact. Le budget, lui, a pris l’eau.' },
+      { l: 'Adapter le parcours avec les épreuves restantes', icon: '🧭', boost: -0.05, career: { wear: 6 },
+        r: 'Le jeu continue sur un parcours raccourci ; les habitués trouvent les épisodes moins rythmés.' },
+      { l: 'Faire de la tempête un épisode spécial « survie »', icon: '🌪️', cost: { purchase: 0.06 }, boost: 0.06, career: { awareness: 6, loyalty: -2 }, flag: 'episode_survie',
+        r: 'Le récit de la tempête captive, même si certains y voient une dramatisation opportuniste.' }
+    ] },
+  { id: 'ps_p034_mise_en_scene', programId: 'p034', family: 'image', phase: 2, when: { minSeasons: 1 },
+    titre: 'Accusations de mise en scène',
+    desc: 'Un ancien candidat de {programme} affirme sur les réseaux que certaines épreuves ont été rejouées pour la caméra. La rumeur enfle et la presse réclame des explications.',
+    c: [
+      { l: 'Commander un audit indépendant et publier ses conclusions', icon: '🔍', cost: { purchase: 0.05 }, career: { loyalty: 3 }, pop: 2,
+        r: 'L’audit blanchit le jeu : la confiance du public sort renforcée.' },
+      { l: 'Démentir fermement et attaquer en diffamation', icon: '⚖️', career: { awareness: 4, loyalty: -3 }, pop: -1,
+        r: 'Le démenti alimente la polémique : on parle beaucoup du programme, pas toujours en bien.' },
+      { l: 'Ouvrir les coulisses dans un making-of', icon: '🎥', cost: { purchase: 0.04 }, career: { awareness: 5, loyalty: 1, wear: 4 },
+        r: 'Le making-of rassure et intrigue, mais dévoile un peu de la magie du jeu.' }
+    ] },
+  { id: 'ps_p034_duel', programId: 'p034', family: 'audience', phase: 2, repeat: 3, when: { pressure: true },
+    titre: 'Duel au sommet',
+    desc: '{rival} programme {rivalProgramme} face à {programme} et grignote le public des 25-49 ans. La production propose de répondre par une saison « All Stars » réunissant d’anciens finalistes.',
+    c: [
+      { l: 'Lancer une saison All Stars', icon: '⭐', cost: { purchase: 0.25 }, boost: 0.2, career: { awareness: 8, wear: 4 }, pop: 1,
+        r: 'Les anciens finalistes font recette et reprennent l’avantage sur la concurrence.' },
+      { l: 'Tenir la formule et miser sur la fidélité', icon: '🪨', career: { loyalty: 3, wear: 4 },
+        r: 'Le noyau dur reste fidèle, mais le rival continue de séduire les indécis.' },
+      { l: 'Avancer le début de l’émission pour prendre le rival de vitesse', icon: '⏱️', cost: { purchase: 0.04 }, boost: 0.08, career: { loyalty: -2 },
+        r: 'Le démarrage anticipé capte les zappeurs, au prix d’habitudes bousculées.' }
+    ] },
+  { id: 'ps_p034_refonte', programId: 'p034', family: 'editorial', phase: 3, when: { minWear: 40 },
+    titre: 'L’île a perdu de son mystère',
+    desc: 'Après {saisons}, {programme} ronronne : les stratégies des candidats sont connues, les épreuves se répètent. La production propose une refonte avec un nouveau territoire et de nouvelles règles.',
+    c: [
+      { l: 'Refonte complète : nouvel archipel et nouvelles règles', icon: '🏝️', cost: { purchase: 0.4 }, lasting: 0.08, career: { wear: -25, loyalty: -4 }, flag: 'refonte',
+        r: 'Le jeu renaît sur un nouveau terrain : l’effet de surprise est revenu, quelques fidèles sont déroutés.' },
+      { l: 'Ajustements légers avec quelques épreuves inédites', icon: '🔧', cost: { purchase: 0.1 }, career: { wear: -8 },
+        r: 'Un peu de nouveauté, sans révolution : l’usure ralentit.' },
+      { l: 'Raccourcir la saison pour préserver la rareté', icon: '✂️', cost: { saving: 0.15 }, boost: -0.08, career: { wear: -10, awareness: -3 },
+        r: 'Moins d’épisodes, plus attendus : la chaîne économise, l’audience de la case recule un peu.' }
+    ] },
+  { id: 'ps_p034_refonte_suite', programId: 'p034', family: 'audience', phase: 2, when: { flag: 'refonte' },
+    titre: 'Le nouvel archipel divise',
+    desc: 'La refonte de {programme} a changé de territoire et de règles. Les premiers retours sont contrastés : les plus jeunes adhèrent, les fidèles se sentent perdus.',
+    c: [
+      { l: 'Pousser la nouvelle formule plus loin', icon: '🚀', cost: { purchase: 0.1 }, lasting: 0.06, career: { awareness: 6, loyalty: -4 }, clearFlag: 'refonte',
+        r: 'Le jeu assume sa mue et attire un public neuf.' },
+      { l: 'Réintroduire les épreuves cultes', icon: '🔥', cost: { purchase: 0.05 }, career: { loyalty: 6, wear: 4 }, clearFlag: 'refonte',
+        r: 'Le retour des épreuves mythiques rassure les fidèles, au risque de répéter le passé.' },
+      { l: 'Laisser la formule s’installer sans retouche', icon: '⏳', career: { loyalty: -1, wear: 2 }, clearFlag: 'refonte',
+        r: 'Le temps fera son œuvre : ni nouvel élan, ni rupture.' }
+    ] },
+
+  // — Navarron (p029) · série policière, prime —
+  { id: 'ps_p029_depart', programId: 'p029', family: 'image', phase: 3, when: { minSeasons: 2 },
+    titre: 'Le commissaire veut raccrocher',
+    desc: 'L’acteur qui incarne Navarron depuis {saisons} annonce vouloir quitter la série. Il accepterait une dernière saison en échange d’un cachet nettement revu à la hausse.',
+    c: [
+      { l: 'Accepter : une saison d’adieux événement', icon: '🎖️', cost: { recurring: 0.1 }, boost: 0.15, career: { awareness: 6 }, flag: 'adieux',
+        r: 'La saison d’adieux est attendue comme un événement ; la série coûte plus cher.' },
+      { l: 'Écrire sa sortie et confier l’enquête à sa partenaire', icon: '👮‍♀️', cost: { purchase: 0.08 }, lasting: 0.04, career: { loyalty: -6, wear: -15 }, flag: 'releve',
+        r: 'La relève est assurée en douceur : la série se renouvelle, une partie du public hésite.' },
+      { l: 'Le remplacer par un autre acteur dans le même rôle', icon: '🎭', career: { loyalty: -10, awareness: -3, wear: -5 }, pop: -1,
+        r: 'Le public ne reconnaît plus son commissaire : la greffe prend mal.' }
+    ] },
+  { id: 'ps_p029_releve_suite', programId: 'p029', family: 'audience', phase: 2, when: { flag: 'releve' },
+    titre: 'La nouvelle commissaire s’impose-t-elle ?',
+    desc: 'La partenaire du commissaire a pris la tête de la brigade de {programme}. La critique salue le renouveau, mais une partie du public réclame le retour du héros historique.',
+    c: [
+      { l: 'Installer durablement la nouvelle héroïne', icon: '🔎', lasting: 0.06, career: { awareness: 4, loyalty: -3 }, clearFlag: 'releve',
+        r: 'La série trouve un nouveau visage et un public plus jeune.' },
+      { l: 'Organiser un épisode de retour du commissaire', icon: '🚔', cost: { purchase: 0.08 }, boost: 0.12, career: { loyalty: 4 }, clearFlag: 'releve',
+        r: 'Le temps d’un épisode, les deux générations se croisent : les fidèles sont aux anges.' },
+      { l: 'Lancer un téléfilm dérivé centré sur l’ancien héros', icon: '📺', cost: { purchase: 0.2 }, lasting: 0.03, career: { awareness: 6, wear: 4 }, clearFlag: 'releve',
+        r: 'Le téléfilm entretient la marque, mais la série principale perd un peu de sa singularité.' }
+    ] },
+  { id: 'ps_p029_coproduction', programId: 'p029', family: 'economie', phase: 1,
+    titre: 'Une coproduction belge',
+    desc: 'Une chaîne belge propose de coproduire la prochaine saison de {programme}, en échange de deux épisodes tournés à Liège. L’apport financier est réel, mais les fidèles sont attachés au décor parisien de la série.',
+    c: [
+      { l: 'Signer la coproduction', icon: '🇧🇪', cost: { commercial: 0.12 }, career: { loyalty: -3, awareness: 3 },
+        r: 'Le budget respire et la série s’exporte, au prix d’un dépaysement qui surprend les habitués.' },
+      { l: 'Refuser et garder l’ancrage parisien', icon: '🗼', career: { loyalty: 2, wear: 3 },
+        r: 'La série reste fidèle à elle-même, sans financement supplémentaire.' },
+      { l: 'Proposer un seul épisode croisé avec une série belge', icon: '🤝', cost: { purchase: 0.03 }, boost: 0.05, career: { awareness: 5 },
+        r: 'L’épisode croisé intrigue et donne un coup de projecteur à la série.' }
+    ] },
+  { id: 'ps_p029_vieillissement', programId: 'p029', family: 'audience', phase: 2, when: { minSeasons: 3 },
+    titre: 'Le public vieillit avec la série',
+    desc: '{programme} garde ses habitués, mais les moins de 50 ans décrochent. Les scénaristes proposent d’intégrer une brigade numérique et des intrigues plus modernes.',
+    c: [
+      { l: 'Moderniser les intrigues avec une brigade cyber', icon: '💻', cost: { purchase: 0.15 }, lasting: 0.06, career: { loyalty: -4, awareness: 5, wear: -12 },
+        r: 'La série se met à jour : nouveaux téléspectateurs, quelques fidèles déroutés.' },
+      { l: 'Assumer le public senior et soigner la tradition', icon: '☕', career: { loyalty: 5, wear: 5 },
+        r: 'Les fidèles sont choyés, mais la série continue de vieillir avec eux.' },
+      { l: 'Tester un épisode court diffusé sur le numérique', icon: '📱', cost: { purchase: 0.04 }, boost: 0.03, career: { awareness: 6 },
+        r: 'L’expérience fait découvrir la série à un public plus jeune, sans la bouleverser.' }
+    ] },
+
+  // — Love Story (p022) · téléréalité, access —
+  { id: 'ps_p022_derapage', programId: 'p022', family: 'image', phase: 2,
+    titre: 'Dérapage dans la villa',
+    desc: 'Une violente dispute entre deux candidats de {programme} a été diffusée sans coupe en access. Les associations dénoncent une banalisation du harcèlement et l’Arcom a été saisie.',
+    c: [
+      { l: 'Retirer la séquence et exclure le candidat', icon: '🚫', boost: -0.05, career: { loyalty: -3 }, pop: 2,
+        r: 'La chaîne montre qu’elle a des limites ; une partie des fans regrette le candidat exclu.' },
+      { l: 'Assumer et en faire le fil rouge de la semaine', icon: '🔥', boost: 0.12, career: { awareness: 6 }, pop: -3,
+        r: 'L’audience grimpe, mais l’image de la chaîne en prend un coup.' },
+      { l: 'Ajouter un accompagnement psy et un débrief à l’antenne', icon: '🧠', cost: { purchase: 0.05 }, career: { loyalty: 2 }, pop: 1,
+        r: 'Le débrief apaise la polémique et montre une production responsable.' }
+    ] },
+  { id: 'ps_p022_couple', programId: 'p022', family: 'strategie', phase: 3, when: { form: 'succes', minSeasons: 1 },
+    titre: 'Le couple star',
+    desc: 'Le couple formé dans {programme} est devenu la sensation des réseaux. Une plateforme leur propose une série documentaire, et la production suggère d’en faire plutôt une émission dérivée.',
+    c: [
+      { l: 'Produire une émission dérivée sur leur vie de couple', icon: '💞', cost: { purchase: 0.15 }, lasting: 0.05, career: { awareness: 8, wear: 5 }, flag: 'spinoff_couple',
+        r: 'L’émission dérivée prolonge l’histoire et entretient la marque.' },
+      { l: 'Les laisser partir vers la plateforme', icon: '👋', cost: { commercial: 0.04 }, career: { awareness: -2 },
+        r: 'La chaîne touche des droits d’images, la plateforme récupère la vedette.' },
+      { l: 'Les garder comme parrains de la saison suivante', icon: '🎙️', cost: { recurring: 0.04 }, boost: 0.06, career: { loyalty: 5 },
+        r: 'Le couple reste dans la villa comme guide : les fans suivent.' }
+    ] },
+  { id: 'ps_p022_casting', programId: 'p022', family: 'editorial', phase: 1, when: { form: 'difficulte' },
+    titre: 'Casting en panne',
+    desc: 'Les audiences de {programme} s’effritent et le casting peine à trouver de nouveaux profils. La production propose de miser sur des personnalités déjà connues du public.',
+    c: [
+      { l: 'Passer à une saison « célébrités »', icon: '🌟', cost: { recurring: 0.1 }, boost: 0.12, career: { awareness: 8, loyalty: -4 },
+        r: 'Les célébrités attirent la curiosité, mais l’émission perd un peu de sa spontanéité.' },
+      { l: 'Réduire le nombre d’épisodes hebdomadaires', icon: '✂️', cost: { saving: 0.15 }, boost: -0.08, career: { wear: -8 },
+        r: 'Moins d’épisodes, des économies, mais l’access perd du terrain.' },
+      { l: 'Ouvrir le casting aux plus de 40 ans', icon: '🧑‍🦳', cost: { purchase: 0.05 }, boost: -0.02, career: { loyalty: 2, awareness: 4, wear: -10 },
+        r: 'Le casting se renouvelle et surprend, même si la cible jeune hésite.' }
+    ] },
+
+  // — Matinale info (p001) · généraliste, matin —
+  { id: 'ps_p001_scoop', programId: 'p001', family: 'editorial', phase: 1,
+    titre: 'Le scoop de 7 h 10',
+    desc: 'Un chroniqueur de {programme} détient une information exclusive sur un remaniement ministériel, mais une seule source la confirme. La concurrence pourrait sortir l’information dans l’heure.',
+    c: [
+      { l: 'Diffuser l’exclusivité tout de suite', icon: '⚡', boost: 0.12, career: { awareness: 5, loyalty: -2 }, pop: -1,
+        r: 'Le scoop est repris partout ; un démenti partiel écorne toutefois la crédibilité de l’émission.' },
+      { l: 'Attendre une seconde confirmation', icon: '⏳', boost: -0.03, career: { loyalty: 3 }, pop: 1,
+        r: 'La concurrence sort l’information la première, mais votre sérieux est salué.' },
+      { l: 'Annoncer l’information au conditionnel avec un expert en plateau', icon: '🎙️', cost: { purchase: 0.03 }, career: { awareness: 3, loyalty: 1 },
+        r: 'Prudence et réactivité : l’émission tient son rang sans prendre de risque.' }
+    ] },
+  { id: 'ps_p001_duo', programId: 'p001', family: 'image', phase: 2, when: { minSeasons: 1 },
+    titre: 'Le duo se fissure',
+    desc: 'Les deux présentateurs de {programme} ne se parlent plus hors antenne et la tension se voit à l’écran. L’un d’eux réclame de présenter seul.',
+    c: [
+      { l: 'Lui confier la présentation en solo', icon: '🎤', cost: { saving: 0.1 }, career: { loyalty: -4, awareness: 2 },
+        r: 'Un salaire de moins et un style plus affirmé, mais les habitués regrettent le duo.' },
+      { l: 'Recruter un troisième chroniqueur pour apaiser le plateau', icon: '👥', cost: { recurring: 0.08 }, career: { loyalty: 3, wear: -6 },
+        r: 'Le trio retrouve de la légèreté : la matinale respire.' },
+      { l: 'Imposer une médiation et garder le duo', icon: '🕊️', career: { loyalty: 1, wear: 6 },
+        r: 'Le duo tient, sans retrouver sa complicité d’antan.' }
+    ] },
+  { id: 'ps_p001_bataille', programId: 'p001', family: 'audience', phase: 2, repeat: 3, when: { pressure: true },
+    titre: 'La bataille des matinales',
+    desc: '{rival} a recruté une voix vedette de la radio pour {rivalProgramme} et {programme} perd des téléspectateurs chaque semaine. La rédaction propose de riposter.',
+    c: [
+      { l: 'Allonger la matinale avec des éditions régionales', icon: '🗺️', cost: { recurring: 0.12 }, boost: 0.1, lasting: 0.05,
+        r: 'L’ancrage local fidélise de nouveaux téléspectateurs, au prix d’une rédaction renforcée.' },
+      { l: 'Miser sur la météo, le trafic et le service', icon: '🌦️', career: { loyalty: 4, wear: 4 },
+        r: 'La matinale devient le réflexe pratique du matin, sans renouveler son ton.' },
+      { l: 'Diffuser la matinale en simultané sur les réseaux', icon: '📡', cost: { purchase: 0.06 }, lasting: 0.03, career: { awareness: 6, loyalty: -2 },
+        r: 'Les jeunes actifs découvrent l’émission, les fidèles trouvent le ton moins posé.' }
+    ] },
+
+  // — C à moi (p020) · talk-show, access —
+  { id: 'ps_p020_invite', programId: 'p020', family: 'image', phase: 2,
+    titre: 'L’invité qui fait polémique',
+    desc: 'Un essayiste aux propos très controversés demande à venir sur le plateau de {programme} pour présenter son livre. Sa venue garantirait le buzz, mais une partie de l’équipe menace de boycotter l’émission.',
+    c: [
+      { l: 'L’inviter face à un contradicteur solide', icon: '⚔️', boost: 0.1, career: { awareness: 5, loyalty: -2 }, pop: -1,
+        r: 'Le face-à-face fait le buzz ; une partie du public reproche la tribune offerte.' },
+      { l: 'Décliner l’invitation', icon: '🙅', boost: -0.02, career: { loyalty: 2 }, pop: 1,
+        r: 'L’équipe est soulagée et la ligne de l’émission préservée.' },
+      { l: 'Organiser un débat diffusé uniquement en ligne', icon: '💻', cost: { purchase: 0.02 }, career: { awareness: 3 },
+        r: 'Le débat vit sur le numérique sans engager l’antenne.' }
+    ] },
+  { id: 'ps_p020_animatrice', programId: 'p020', family: 'economie', phase: 1, when: { minSeasons: 1, form: ['succes', 'stable'] },
+    titre: 'L’animatrice courtisée',
+    desc: '{rival} propose à l’animatrice de {programme} un contrat d’une durée inédite. Elle préférerait rester, à condition d’obtenir des parts dans la société de production.',
+    c: [
+      { l: 'Lui céder des parts de la production', icon: '📈', cost: { recurring: 0.06 }, lasting: 0.05, career: { loyalty: 6 },
+        r: 'L’animatrice s’engage pour longtemps : le talk gagne en stabilité, la marge en pâtit.' },
+      { l: 'Refuser et préparer une relève', icon: '🔄', career: { loyalty: -8, awareness: -4, wear: -10 }, flag: 'releve_animation',
+        r: 'Le départ est un choc, mais il ouvre la porte à un nouveau visage.' },
+      { l: 'Prolonger d’une saison avec une prime à l’audience', icon: '🎯', cost: { purchase: 0.05 }, career: { loyalty: 3, wear: 3 },
+        r: 'Le statu quo est préservé une saison de plus.' }
+    ] },
+  { id: 'ps_p020_numerique', programId: 'p020', family: 'strategie', phase: 3, when: { minSeasons: 2 },
+    titre: 'Le talk sur les réseaux',
+    desc: 'Les extraits de {programme} cumulent des millions de vues. La production propose une déclinaison quotidienne réservée au numérique, avec des chroniqueurs plus jeunes.',
+    c: [
+      { l: 'Lancer la déclinaison numérique', icon: '📱', cost: { purchase: 0.06 }, lasting: 0.04, career: { awareness: 8, wear: 3 }, flag: 'digital',
+        r: 'La marque touche une nouvelle génération et renvoie vers l’antenne.' },
+      { l: 'Garder l’exclusivité à l’antenne', icon: '📺', career: { loyalty: 3, wear: 4 },
+        r: 'Le rendez-vous reste rare et précieux pour ses fidèles, mais ne se renouvelle pas.' },
+      { l: 'Vendre les extraits à une plateforme vidéo', icon: '💶', cost: { commercial: 0.04 }, career: { awareness: 3, loyalty: -2 },
+        r: 'Recette immédiate, mais la plateforme capte une partie de l’attention.' }
+    ] },
+
+  // — Téléfoot (p184) · magazine sport, access —
+  { id: 'ps_p184_exclu', programId: 'p184', family: 'editorial', phase: 1,
+    titre: 'L’interview du transfert de l’été',
+    desc: 'Un agent propose à {programme} l’interview exclusive de la recrue phare du championnat… à condition de verser un dédommagement. La pratique est courante, mais elle fait grincer des dents.',
+    c: [
+      { l: 'Payer pour l’exclusivité', icon: '💰', cost: { purchase: 0.3 }, boost: 0.15, career: { awareness: 6 }, pop: -1,
+        r: 'L’interview fait l’ouverture de tous les sites sportifs ; la méthode est critiquée.' },
+      { l: 'Refuser de payer une interview', icon: '✋', boost: -0.04, career: { loyalty: 3 }, pop: 1,
+        r: 'La rédaction garde son indépendance, la concurrence décroche l’entretien.' },
+      { l: 'Proposer un portrait réalisé à partir d’archives', icon: '🎞️', cost: { purchase: 0.08 }, boost: 0.04, career: { awareness: 2 },
+        r: 'Un portrait soigné, sans le frisson de l’exclusivité.' }
+    ] },
+  { id: 'ps_p184_consultant', programId: 'p184', family: 'image', phase: 2, when: { minSeasons: 1 },
+    titre: 'Le consultant dérape',
+    desc: 'Un consultant vedette de {programme} a insulté un arbitre en direct. Les instances du football réclament des excuses publiques.',
+    c: [
+      { l: 'Suspendre le consultant un mois', icon: '⏸️', boost: -0.04, career: { loyalty: -3 }, pop: 2,
+        r: 'La sanction est saluée, mais le plateau perd son trublion.' },
+      { l: 'Le défendre au nom de la liberté de ton', icon: '🗣️', boost: 0.04, career: { awareness: 5 }, pop: -2,
+        r: 'Les supporters applaudissent, les instances grincent.' },
+      { l: 'Faire des excuses et organiser un débat sur l’arbitrage', icon: '🟨', cost: { purchase: 0.04 }, career: { loyalty: 1 }, pop: 1,
+        r: 'Le débat transforme la polémique en émission utile.' }
+    ] },
+  { id: 'ps_p184_data', programId: 'p184', family: 'editorial', phase: 3, when: { minSeasons: 2 },
+    titre: 'Le virage data',
+    desc: 'Les plus jeunes délaissent {programme} pour les analyses chiffrées des réseaux. La rédaction propose d’intégrer statistiques en temps réel et réalité augmentée.',
+    c: [
+      { l: 'Investir dans un plateau en réalité augmentée', icon: '🥽', cost: { purchase: 0.5 }, lasting: 0.08, career: { awareness: 6, wear: -12 },
+        r: 'Le magazine change de dimension et séduit une nouvelle génération de fans.' },
+      { l: 'Garder un ton de vestiaire, à l’ancienne', icon: '👟', career: { loyalty: 4, wear: 5 },
+        r: 'Les fidèles se reconnaissent, mais l’émission vieillit.' },
+      { l: 'Recruter un analyste vidéo issu des réseaux', icon: '📊', cost: { recurring: 0.15 }, career: { awareness: 4, wear: -6, loyalty: -1 },
+        r: 'Un regard neuf s’installe sans bouleverser le plateau.' }
+    ] },
+
+  // — Grand prix F1 (p198) · sport, prime —
+  { id: 'ps_p198_finale', programId: 'p198', family: 'audience', phase: 3, when: { form: ['succes', 'stable'] },
+    titre: 'Le titre se joue au dernier Grand Prix',
+    desc: 'Le championnat se décidera lors de la dernière course de la saison. {programme} peut transformer la soirée en événement, à condition de mobiliser des moyens exceptionnels.',
+    c: [
+      { l: 'Soirée spéciale avec plateau en bord de piste', icon: '🏁', cost: { purchase: 0.5 }, boost: 0.2, career: { awareness: 6 }, pop: 1,
+        r: 'Une soirée historique : le dénouement du championnat réunit un très large public.' },
+      { l: 'Diffusion classique de la course', icon: '📺', career: { wear: 3 },
+        r: 'La course tient ses promesses, sans dispositif particulier.' },
+      { l: 'Course en direct puis débrief interactif en ligne', icon: '💬', cost: { purchase: 0.15 }, boost: 0.08, career: { awareness: 4, loyalty: 1 },
+        r: 'Les passionnés prolongent la soirée en ligne.' }
+    ] },
+  { id: 'ps_p198_nuit', programId: 'p198', family: 'economie', phase: 2,
+    titre: 'Un Grand Prix en pleine nuit',
+    desc: 'La prochaine manche se court à Las Vegas, en pleine nuit française. Les annonceurs hésitent et la production propose de décaler la diffusion.',
+    c: [
+      { l: 'Diffuser en direct, quoi qu’il arrive', icon: '🌙', boost: -0.06, career: { loyalty: 4 },
+        r: 'Les puristes saluent le direct, mais peu de téléspectateurs veillent jusque-là.' },
+      { l: 'Rediffusion intégrale en prime le lendemain', icon: '⏪', boost: 0.04, career: { awareness: 2, loyalty: -3 },
+        r: 'L’audience est au rendez-vous, mais les fans connaissaient déjà le résultat.' },
+      { l: 'Résumé en prime et course en direct sur le numérique', icon: '📲', cost: { purchase: 0.1 }, boost: 0.02, career: { awareness: 4 },
+        r: 'Chacun y trouve son compte, au prix d’un dispositif doublé.' }
+    ] },
+  { id: 'ps_p198_pilote', programId: 'p198', family: 'strategie', phase: 1, when: { minSeasons: 1 },
+    titre: 'Le pilote français',
+    desc: 'Un jeune pilote français vient de signer dans une écurie de pointe. {programme} peut le suivre toute la saison dans une série documentaire tournée dans les coulisses.',
+    c: [
+      { l: 'Produire la série documentaire', icon: '🎥', cost: { purchase: 0.4 }, lasting: 0.06, career: { awareness: 8, loyalty: 3 }, flag: 'docu_pilote',
+        r: 'La série crée un attachement durable au pilote et à la discipline.' },
+      { l: 'Laisser la série à une plateforme et couvrir le pilote en reportages', icon: '📰', boost: -0.03, career: { awareness: 2 },
+        r: 'La plateforme raconte son histoire ; le programme se contente des reportages.' },
+      { l: 'Coproduire la série avec l’écurie', icon: '🏎️', cost: { purchase: 0.15 }, lasting: 0.04, career: { awareness: 6 }, pop: -1,
+        r: 'La série coûte moins cher, mais l’écurie garde un œil sur le montage.' }
+    ] },
+
+  // — Le Grand journal (p227) · info, access —
+  { id: 'ps_p227_erreur', programId: 'p227', family: 'image', phase: 2,
+    titre: 'L’image qui n’était pas la bonne',
+    desc: '{programme} a diffusé une image d’archive présentée comme actuelle. Les réseaux s’en emparent et le médiateur de la chaîne est assailli de messages.',
+    c: [
+      { l: 'Rectificatif solennel en ouverture de journal', icon: '📢', boost: -0.03, career: { loyalty: 2 }, pop: 2,
+        r: 'L’erreur est reconnue franchement : la confiance est préservée.' },
+      { l: 'Corriger discrètement sur le site', icon: '🤫', career: { loyalty: -2 }, pop: -2,
+        r: 'La discrétion passe mal : l’affaire continue de circuler.' },
+      { l: 'Créer une rubrique hebdomadaire de vérification', icon: '✅', cost: { recurring: 0.1 }, lasting: 0.03, career: { loyalty: 4 }, pop: 1, flag: 'verification',
+        r: 'La rubrique devient un rendez-vous et renforce la crédibilité du journal.' }
+    ] },
+  { id: 'ps_p227_presentateur', programId: 'p227', family: 'economie', phase: 1, when: { minSeasons: 1 },
+    titre: 'Le visage du journal',
+    desc: 'Le présentateur de {programme} est approché par {rival}. Il resterait en échange d’une augmentation substantielle et du titre de rédacteur en chef.',
+    c: [
+      { l: 'Accepter ses conditions', icon: '✍️', cost: { recurring: 0.3 }, career: { loyalty: 6 },
+        r: 'Le visage du journal reste, et les fidèles avec lui.' },
+      { l: 'Le laisser partir et promouvoir une journaliste de la rédaction', icon: '🌱', career: { loyalty: -6, awareness: -3, wear: -8 },
+        r: 'Un nouveau visage s’installe, le temps que le public l’adopte.' },
+      { l: 'Proposer une co-présentation tournante', icon: '🔁', career: { loyalty: -2, awareness: 1, wear: -4 },
+        r: 'Le journal gagne en dynamisme, le présentateur reste à mi-temps.' }
+    ] },
+  { id: 'ps_p227_election', programId: 'p227', family: 'strategie', phase: 3, repeat: 4,
+    titre: 'Une soirée électorale',
+    desc: 'Une élection décisive approche. La rédaction de {programme} propose une édition spéciale de quatre heures avec sondeurs, correspondants et invités politiques.',
+    c: [
+      { l: 'Mobiliser toute la rédaction pour la soirée électorale', icon: '🗳️', cost: { purchase: 0.6 }, boost: 0.15, career: { awareness: 6 }, pop: 2,
+        r: 'La chaîne devient la référence de la soirée électorale.' },
+      { l: 'Édition prolongée d’une heure', icon: '⏱️', cost: { purchase: 0.15 }, boost: 0.05,
+        r: 'Une édition solide, sans faire la différence.' },
+      { l: 'Laisser la soirée aux chaînes généralistes', icon: '🙈', boost: -0.04, career: { loyalty: -3 },
+        r: 'Les téléspectateurs vont chercher les résultats ailleurs.' }
+    ] },
+
+  // — Investigation (p232) · info, prime —
+  { id: 'ps_p232_pressions', programId: 'p232', family: 'image', phase: 2,
+    titre: 'Pressions sur l’enquête',
+    desc: 'Une enquête de {programme} met en cause un grand groupe agroalimentaire, annonceur important de la chaîne. Ses avocats menacent de poursuites et sa régie de couper ses budgets.',
+    c: [
+      { l: 'Diffuser l’enquête intégralement', icon: '📣', cost: { purchase: 0.3 }, career: { awareness: 6, loyalty: 2 }, pop: 2,
+        r: 'L’enquête fait date ; les frais juridiques s’accumulent.' },
+      { l: 'Reporter la diffusion pour vérification juridique', icon: '⚖️', cost: { purchase: 0.1 }, career: { loyalty: -2 }, pop: -1,
+        r: 'Le report est interprété comme un recul, même si l’enquête finira par sortir.' },
+      { l: 'Retirer l’enquête', icon: '🗑️', career: { loyalty: -5, awareness: -2 }, pop: -3,
+        r: 'L’annonceur est rassuré, la crédibilité de l’émission sérieusement entamée.' }
+    ] },
+  { id: 'ps_p232_lanceur', programId: 'p232', family: 'editorial', phase: 1, when: { minSeasons: 1 },
+    titre: 'Un lanceur d’alerte frappe à la porte',
+    desc: 'Un ingénieur propose à {programme} des documents internes sur des tests de sécurité falsifiés. Vérifier ses révélations demandera des mois de travail.',
+    c: [
+      { l: 'Monter une cellule d’enquête dédiée', icon: '🕵️', cost: { purchase: 0.4 }, lasting: 0.08, career: { awareness: 8 }, flag: 'grande_enquete',
+        r: 'L’enquête au long cours se prépare : le pari peut payer gros.' },
+      { l: 'Transmettre les documents à un journal partenaire', icon: '📨', career: { awareness: 2, loyalty: -2 }, pop: 1,
+        r: 'Le scoop sort ailleurs, avec une mention de votre rédaction qui frustre l’équipe.' },
+      { l: 'Enquête rapide en un seul numéro', icon: '⚡', cost: { purchase: 0.1 }, boost: 0.08, career: { loyalty: -1 }, pop: -1,
+        r: 'Le numéro fait réagir, mais des zones d’ombre subsistent.' }
+    ] },
+  { id: 'ps_p232_retombees', programId: 'p232', family: 'strategie', phase: 3, when: { flag: 'grande_enquete', after: 'ps_p232_lanceur' },
+    titre: 'Les retombées de l’enquête',
+    desc: 'L’enquête de {programme} a provoqué l’ouverture d’une information judiciaire. L’émission est citée partout et la production propose d’en tirer une collection.',
+    c: [
+      { l: 'Lancer une collection de grandes enquêtes', icon: '📚', cost: { recurring: 0.3 }, lasting: 0.08, career: { awareness: 6 }, clearFlag: 'grande_enquete',
+        r: 'L’émission devient une marque d’investigation reconnue.' },
+      { l: 'Capitaliser avec un numéro de suivi', icon: '🔁', cost: { purchase: 0.1 }, boost: 0.1, clearFlag: 'grande_enquete',
+        r: 'Le suivi prolonge l’impact de l’enquête le temps d’une soirée.' },
+      { l: 'Céder les droits pour une adaptation en fiction', icon: '🎬', cost: { commercial: 0.3 }, career: { awareness: 3, wear: 4 }, clearFlag: 'grande_enquete',
+        r: 'La fiction rapporte et prolonge l’histoire ailleurs, au risque d’éclipser l’émission.' }
+    ] },
+
+  // — Manga (p146) · jeunesse, access —
+  { id: 'ps_p146_violence', programId: 'p146', family: 'image', phase: 2,
+    titre: 'Des scènes trop violentes ?',
+    desc: 'Des parents s’inquiètent de la violence de certains épisodes de {programme}, diffusés à une heure familiale. Une association demande leur retrait.',
+    c: [
+      { l: 'Couper les scènes les plus dures', icon: '✂️', cost: { purchase: 0.05 }, career: { loyalty: -5 }, pop: 2,
+        r: 'Les parents sont rassurés, les fans dénoncent la censure.' },
+      { l: 'Maintenir la version originale avec un avertissement', icon: '⚠️', career: { loyalty: 4 }, pop: -1,
+        r: 'Les fans saluent le respect de l’œuvre ; la polémique persiste.' },
+      { l: 'Proposer la version intégrale sur le numérique', icon: '💻', cost: { purchase: 0.08 }, career: { loyalty: 2, awareness: 2 }, pop: 1,
+        r: 'Chacun y trouve son compte : version adaptée à l’antenne, intégrale en ligne.' }
+    ] },
+  { id: 'ps_p146_simulcast', programId: 'p146', family: 'strategie', phase: 1, when: { form: ['succes', 'stable'] },
+    titre: 'Le simulcast japonais',
+    desc: 'L’éditeur japonais propose à {programme} de diffuser les nouveaux épisodes une heure après le Japon, sous-titrés. Les fans en rêvent, mais les droits sont nettement plus chers.',
+    c: [
+      { l: 'Signer le simulcast', icon: '🗾', cost: { recurring: 0.4 }, boost: 0.1, career: { awareness: 8, loyalty: 6 },
+        r: 'Les fans ont rendez-vous en même temps que le Japon : l’émission devient incontournable.' },
+      { l: 'Garder la version doublée, avec quelques mois de décalage', icon: '🎙️', career: { loyalty: -2 },
+        r: 'Rien ne change, mais les fans vont chercher les épisodes ailleurs.' },
+      { l: 'Simulcast sur le numérique uniquement', icon: '📲', cost: { purchase: 0.15 }, career: { awareness: 4, loyalty: 2 },
+        r: 'Les plus impatients sont servis en ligne, l’antenne garde le doublage.' }
+    ] },
+  { id: 'ps_p146_salon', programId: 'p146', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Une spéciale au salon manga',
+    desc: 'Le grand salon manga de Paris propose à {programme} de tourner une émission spéciale en direct, avec des auteurs japonais invités. L’occasion de fédérer les fans, mais un direct hors studio coûte cher.',
+    c: [
+      { l: 'Spéciale en direct depuis le salon', icon: '🎪', cost: { purchase: 0.3 }, boost: 0.15, career: { awareness: 6 }, pop: 1,
+        r: 'Une soirée de fête pour les fans et un vrai coup de projecteur.' },
+      { l: 'Reportage dans l’émission habituelle', icon: '📼', cost: { purchase: 0.05 }, career: { awareness: 2 },
+        r: 'Un clin d’œil apprécié, sans événement.' },
+      { l: 'Laisser passer l’occasion', icon: '🙅', career: { loyalty: -2 },
+        r: 'Les fans regrettent l’absence de l’émission au salon.' }
+    ] },
+
+  // — Grand jeu familial (p155) · jeunesse, prime —
+  { id: 'ps_p155_triche', programId: 'p155', family: 'image', phase: 2,
+    titre: 'Soupçons de triche',
+    desc: 'Une famille éliminée de {programme} affirme que les gagnants connaissaient les questions. La production jure que non, mais la rumeur circule dans les cours d’école.',
+    c: [
+      { l: 'Faire contrôler le jeu par un huissier', icon: '📜', cost: { recurring: 0.05 }, career: { loyalty: 3 }, pop: 2,
+        r: 'Le contrôle permanent coupe court aux rumeurs.' },
+      { l: 'Rejouer la manche contestée', icon: '🔁', cost: { purchase: 0.1 }, boost: 0.03, career: { loyalty: 1, awareness: 3 }, pop: 1,
+        r: 'La revanche passionne les familles.' },
+      { l: 'Ignorer la rumeur', icon: '🤷', career: { loyalty: -3 }, pop: -2,
+        r: 'La rumeur s’installe et ternit l’image du jeu.' }
+    ] },
+  { id: 'ps_p155_noel', programId: 'p155', family: 'editorial', phase: 3, repeat: 3,
+    titre: 'La spéciale de Noël',
+    desc: 'Pour les fêtes, la production de {programme} propose une édition géante avec des familles de toute la France et des invités surprises. Une soirée qui peut marquer l’hiver, à condition d’y mettre les moyens.',
+    c: [
+      { l: 'Édition géante de Noël', icon: '🎄', cost: { purchase: 0.5 }, boost: 0.2, career: { awareness: 5 },
+        r: 'La soirée réunit plusieurs générations devant l’écran.' },
+      { l: 'Édition habituelle avec un décor de fêtes', icon: '🎁', boost: 0.03, career: { wear: 3 },
+        r: 'Une touche de magie, sans grand frisson.' },
+      { l: 'Édition solidaire au profit d’une association', icon: '❤️', cost: { purchase: 0.2 }, boost: 0.08, career: { loyalty: 2 }, pop: 3,
+        r: 'La générosité de la soirée touche le public et la presse.' }
+    ] },
+  { id: 'ps_p155_jeu_video', programId: 'p155', family: 'strategie', phase: 1, when: { form: 'succes', minSeasons: 1 },
+    titre: 'Le jeu vidéo dérivé',
+    desc: 'Un éditeur de jeux vidéo veut adapter {programme} sur console et mobile. Les familles pourraient jouer chez elles, et le jeu ferait la promotion de l’émission.',
+    c: [
+      { l: 'Céder la licence contre une redevance', icon: '💶', cost: { commercial: 0.4 }, career: { awareness: 5, wear: 3 },
+        r: 'La licence rapporte, et le jeu s’invite dans les salons.' },
+      { l: 'Coproduire le jeu pour garder la main', icon: '🎮', cost: { purchase: 0.3 }, lasting: 0.05, career: { awareness: 8, loyalty: 2 },
+        r: 'Le jeu prolonge fidèlement l’émission et renforce la marque.' },
+      { l: 'Refuser pour ne pas user la marque', icon: '🛡️', career: { loyalty: 2, awareness: -2 },
+        r: 'L’émission reste un rendez-vous rare, pendant qu’un jeu concurrent occupe les consoles.' }
+    ] },
+
+  // — Grand documentaire historique (p112) · culture, prime —
+  { id: 'ps_p112_historiens', programId: 'p112', family: 'image', phase: 2,
+    titre: 'Les historiens contestent',
+    desc: 'Un collectif d’historiens reproche à {programme} des raccourcis sur la Révolution française. Leur tribune fait la une des pages culture.',
+    c: [
+      { l: 'Inviter les historiens à un débat après la diffusion', icon: '🗣️', cost: { purchase: 0.1 }, career: { loyalty: 3, awareness: 2 }, pop: 2,
+        r: 'Le débat enrichit le documentaire et la chaîne gagne en crédibilité.' },
+      { l: 'Défendre le parti pris de vulgarisation', icon: '🛡️', career: { awareness: 3, loyalty: -3 },
+        r: 'La polémique fait connaître le film, les spécialistes s’en détournent.' },
+      { l: 'Corriger le montage avant la rediffusion', icon: '✂️', cost: { purchase: 0.05 }, career: { loyalty: 2 }, pop: 1,
+        r: 'La correction est saluée, discrètement.' }
+    ] },
+  { id: 'ps_p112_reconstitution', programId: 'p112', family: 'editorial', phase: 1,
+    titre: 'Reconstitution ou archives ?',
+    desc: 'Pour son prochain numéro, {programme} hésite entre des reconstitutions spectaculaires en images de synthèse et un récit fondé sur les archives inédites d’un musée. Le choix engagera le ton de toute la collection.',
+    c: [
+      { l: 'Reconstitutions en 3D spectaculaires', icon: '🏛️', cost: { purchase: 0.6 }, boost: 0.18, career: { awareness: 6, loyalty: -2 },
+        r: 'Le spectacle attire un large public, certains puristes tiquent.' },
+      { l: 'Archives inédites et témoignages d’experts', icon: '📜', boost: -0.04, career: { loyalty: 4 }, pop: 1,
+        r: 'Un film exigeant, salué par la critique et les fidèles, mais moins grand public.' },
+      { l: 'Docu-fiction avec des comédiens', icon: '🎭', cost: { purchase: 0.35 }, boost: 0.1, career: { awareness: 4 },
+        r: 'Un compromis vivant entre récit et rigueur.' }
+    ] },
+  { id: 'ps_p112_coproduction', programId: 'p112', family: 'economie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Une coproduction franco-allemande',
+    desc: 'Une chaîne culturelle allemande propose de coproduire la prochaine saison de {programme}, avec un regard croisé sur l’histoire européenne. L’apport financier est réel, mais la ligne éditoriale devra être partagée.',
+    c: [
+      { l: 'Signer la coproduction', icon: '🇪🇺', cost: { commercial: 0.4 }, career: { awareness: 3, loyalty: -2 },
+        r: 'Le budget s’étoffe ; le ton s’européanise.' },
+      { l: 'Garder une production 100 % française', icon: '🇫🇷', career: { loyalty: 2, wear: 3 },
+        r: 'Le documentaire garde sa signature, avec des moyens inchangés.' },
+      { l: 'Coproduire un seul numéro événement', icon: '🤝', cost: { commercial: 0.15 }, boost: 0.04, career: { awareness: 2, loyalty: -1 },
+        r: 'Un numéro exceptionnel, sans engager toute la saison.' }
+    ] },
+
+  // — Film blockbuster (p071) · cinéma, prime —
+  { id: 'ps_p071_premiere', programId: 'p071', family: 'audience', phase: 1,
+    titre: 'La première diffusion en clair',
+    desc: 'Le distributeur propose à {programme} la première diffusion en clair d’un succès du box-office. Il exige toutefois un passage le même soir que {rivalProgramme} sur {rival}.',
+    c: [
+      { l: 'Accepter le duel du dimanche soir', icon: '🥊', cost: { purchase: 0.4 }, boost: 0.15, career: { awareness: 4 },
+        r: 'Le film tient tête au rival et attire un large public.' },
+      { l: 'Négocier une autre date, quitte à perdre l’exclusivité', icon: '📅', boost: -0.04, career: { loyalty: 2 },
+        r: 'Le film passe plus tard, après une diffusion sur une plateforme.' },
+      { l: 'Programmer le film avec un making-of en avant-soirée', icon: '🎬', cost: { purchase: 0.55 }, boost: 0.2, career: { awareness: 6, wear: 3 },
+        r: 'La soirée devient un événement de cinéma.' }
+    ] },
+  { id: 'ps_p071_duree', programId: 'p071', family: 'economie', phase: 2,
+    titre: 'Le film est trop long',
+    desc: 'Le film prévu dans {programme} dure 2 h 50. Pour garder deux coupures publicitaires et finir avant minuit, la régie propose une version raccourcie.',
+    c: [
+      { l: 'Diffuser la version intégrale avec une seule coupure', icon: '🎞️', boost: -0.05, career: { loyalty: 3 }, pop: 1,
+        r: 'Les cinéphiles apprécient, la soirée se termine tard.' },
+      { l: 'Diffuser la version raccourcie', icon: '✂️', cost: { commercial: 0.2 }, career: { loyalty: -3 }, pop: -2,
+        r: 'La régie vend une coupure de plus ; les cinéphiles s’indignent.' },
+      { l: 'Diffuser le film en deux parties', icon: '2️⃣', boost: 0.06, career: { loyalty: -2, wear: 3 },
+        r: 'Deux soirées au lieu d’une : astucieux, mais frustrant pour certains.' }
+    ] },
+  { id: 'ps_p071_saga', programId: 'p071', family: 'strategie', phase: 3, when: { form: ['succes', 'stable'], minSeasons: 1 },
+    titre: 'Toute la saga en un été',
+    desc: 'Les droits de toute une saga de science-fiction sont disponibles. {programme} pourrait en faire le rendez-vous de l’été, un film par semaine.',
+    c: [
+      { l: 'Acheter la saga complète', icon: '🚀', cost: { purchase: 0.8 }, boost: 0.15, lasting: 0.04, career: { awareness: 6, loyalty: 5 },
+        r: 'L’été devient un rendez-vous pour les fans de la saga.' },
+      { l: 'Acheter les deux films les plus populaires', icon: '🎟️', cost: { purchase: 0.3 }, boost: 0.08,
+        r: 'Deux soirées fortes, sans feuilleton estival.' },
+      { l: 'Passer son tour', icon: '🙅', career: { wear: 3 },
+        r: 'Une concurrente s’offre la saga.' }
+    ] },
+
+  // — Silence, ça tourne ! (p013) · feuilleton quotidien, après-midi —
+  { id: 'ps_p013_mariage', programId: 'p013', family: 'editorial', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le mariage de l’année',
+    desc: 'Les deux héros de {programme} doivent enfin se marier. Les scénaristes proposent un épisode spécial en prime, tourné en décors naturels.',
+    c: [
+      { l: 'Épisode spécial en prime avec tournage en extérieur', icon: '💍', cost: { purchase: 0.1 }, boost: 0.15, career: { awareness: 6, loyalty: 3 },
+        r: 'Le mariage réunit les fidèles et attire de nouveaux curieux.' },
+      { l: 'Mariage dans l’épisode quotidien habituel', icon: '📺', career: { loyalty: 2, wear: 2 },
+        r: 'Le moment est beau, mais passe un peu inaperçu.' },
+      { l: 'Laisser les téléspectateurs voter pour la fin', icon: '🗳️', cost: { purchase: 0.04 }, boost: 0.06, career: { awareness: 5, loyalty: -2 },
+        r: 'Le vote crée l’événement, mais certains fidèles se sentent trahis par le résultat.' }
+    ] },
+  { id: 'ps_p013_auteurs', programId: 'p013', family: 'economie', phase: 1, when: { minSeasons: 1 },
+    titre: 'Les auteurs menacent de poser la plume',
+    desc: 'Les scénaristes de {programme} réclament une revalorisation et menacent de suspendre l’écriture. Il ne reste que trois semaines d’épisodes d’avance.',
+    c: [
+      { l: 'Accepter la revalorisation', icon: '✍️', cost: { recurring: 0.05 }, career: { loyalty: 3, wear: -4 },
+        r: 'Les auteurs reprennent l’écriture avec enthousiasme.' },
+      { l: 'Faire écrire par une équipe de remplacement', icon: '🔄', boost: -0.06, career: { loyalty: -6, wear: 8 },
+        r: 'Les intrigues perdent en cohérence et les fidèles le remarquent.' },
+      { l: 'Négocier un intéressement aux audiences', icon: '📈', cost: { purchase: 0.02 }, career: { loyalty: 1, wear: -2 },
+        r: 'Un accord gagnant-gagnant qui motive l’équipe.' }
+    ] },
+  { id: 'ps_p013_crossover', programId: 'p013', family: 'audience', phase: 2, when: { form: ['stable', 'difficulte'], minSeasons: 2 },
+    titre: 'Un crossover pour relancer l’intrigue',
+    desc: 'Les audiences de {programme} plafonnent. La production propose un épisode croisé avec une série policière à succès pour attirer un nouveau public.',
+    c: [
+      { l: 'Monter le crossover', icon: '🔀', cost: { purchase: 0.08 }, boost: 0.12, career: { awareness: 5, loyalty: -2, wear: -6 },
+        r: 'Le crossover crée la surprise et ramène des curieux.' },
+      { l: 'Relancer l’intrigue avec une nouvelle famille', icon: '👨‍👩‍👧', cost: { recurring: 0.04 }, lasting: 0.04, career: { wear: -12, loyalty: -3 },
+        r: 'De nouveaux personnages redonnent du souffle au feuilleton.' },
+      { l: 'Conserver le rythme actuel', icon: '🪨', career: { wear: 4, loyalty: 2 },
+        r: 'Les fidèles restent, sans nouvel élan.' }
+    ] },
+
+  // — Nouvelle étoile (p489) · télé-crochet, prime —
+  { id: 'ps_p489_jure', programId: 'p489', family: 'image', phase: 2,
+    titre: 'Le juré qui fait le show',
+    desc: 'Un juré de {programme} multiplie les remarques cinglantes. Ses extraits font des millions de vues, mais un candidat mineur a fondu en larmes et sa famille porte plainte.',
+    c: [
+      { l: 'Recadrer le juré et soutenir le candidat', icon: '🤗', boost: -0.04, career: { loyalty: 2 }, pop: 2,
+        r: 'L’émission montre de la bienveillance, au prix d’un peu de piquant.' },
+      { l: 'Assumer le ton de l’émission', icon: '🌶️', boost: 0.06, career: { awareness: 6 }, pop: -2,
+        r: 'Le buzz continue, mais l’image du concours se durcit.' },
+      { l: 'Remplacer le juré pour la fin de saison', icon: '🔄', cost: { purchase: 0.06 }, career: { loyalty: -3, wear: -6 }, pop: 1,
+        r: 'Un nouveau juré apporte de la fraîcheur, les fans du précédent protestent.' }
+    ] },
+  { id: 'ps_p489_gagnant', programId: 'p489', family: 'economie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le gagnant signe chez un concurrent',
+    desc: 'Le vainqueur de la dernière saison de {programme} vient d’être recruté comme animateur par {rival}. La production voudrait désormais lier les finalistes à la chaîne.',
+    c: [
+      { l: 'Imposer une exclusivité de deux ans aux finalistes', icon: '📝', cost: { recurring: 0.05 }, lasting: 0.03, career: { loyalty: 4 }, pop: -1,
+        r: 'Les talents révélés restent sur la chaîne, au risque de paraître captifs.' },
+      { l: 'Laisser les talents libres', icon: '🕊️', career: { awareness: 2, loyalty: -2 },
+        r: 'Les finalistes font carrière ailleurs, en rappelant d’où ils viennent.' },
+      { l: 'Créer une tournée des finalistes coproduite', icon: '🎤', cost: { commercial: 0.1 }, career: { awareness: 4, wear: 4 },
+        r: 'La tournée rapporte et entretient la marque, mais banalise un peu le concours.' }
+    ] },
+  { id: 'ps_p489_relance', programId: 'p489', family: 'editorial', phase: 1, when: { form: 'difficulte' },
+    titre: 'Le télé-crochet s’essouffle',
+    desc: '{programme} attire moins de candidats et les voix se ressemblent. La production propose de rouvrir le concours aux groupes et aux auteurs-compositeurs.',
+    c: [
+      { l: 'Ouvrir le concours aux groupes et aux auteurs', icon: '🎸', cost: { purchase: 0.15 }, lasting: 0.05, career: { wear: -18, loyalty: -3 }, flag: 'nouvelle_formule',
+        r: 'Le concours change de visage et retrouve des talents singuliers.' },
+      { l: 'Réduire la saison à huit primes', icon: '✂️', cost: { saving: 0.15 }, boost: -0.05, career: { wear: -6 },
+        r: 'Moins de primes, moins de dépenses : la case recule un peu.' },
+      { l: 'Garder la formule et miser sur un jury de stars', icon: '🌟', cost: { recurring: 0.1 }, boost: 0.08, career: { awareness: 6 },
+        r: 'Les stars du jury attirent la lumière, sans régler l’usure du format.' }
+    ] }
+];
+// ---------------------------------------------------------------------------
+// HISTOIRES DE PROGRAMMES — dilemmes narratifs propres à un programme du catalogue
+// ---------------------------------------------------------------------------
+// Chaque entrée de PROGRAM_STORY_BANK appartient à un programme précis (programId) et ne
+// peut être tirée que si ce programme est réellement à l'antenne sur la grille du joueur.
+// Les conditions (when) lisent l'état réel : carrière du programme (saisons, usure),
+// audience de sa case comparée à la concurrence, pression adverse, trésorerie, et mémoire
+// éditoriale (choix déjà faits sur ce programme). Les effets portent sur la carrière du
+// programme : ils restent attachés à lui et disparaissent avec lui.
+const PROGRAM_STORY_FAMILIES = {
+  editorial: { label: 'Éditorial', icon: '🎬' },
+  economie: { label: 'Économie', icon: '💼' },
+  audience: { label: 'Audience', icon: '📈' },
+  image: { label: 'Image', icon: '📰' },
+  strategie: { label: 'Développement', icon: '🚀' }
+};
+const PROGRAM_STORY_TUNING = {
+  // Au plus deux histoires par saison, jamais deux pour le même programme : elles prennent
+  // la place de dilemmes génériques, jamais celle d'un événement prioritaire.
+  maxPerSeason: 2, baseChance: 0.45, chancePerProgram: 0.12, maxChance: 0.85, secondChance: 0.3,
+  // Saisons d'écart entre deux histoires d'un même programme (une suite narrative peut
+  // arriver dès la saison suivante).
+  programGap: 2, followUpGap: 1,
+  // Forme du programme : part de sa case rapportée à l'audience moyenne de la chaîne,
+  // ou écart à l'audience attendue lors de la saison précédente.
+  successRatio: 1.25, struggleRatio: 0.8, successGap: 1.5, struggleGap: -1.5, pressurePenalty: 0.1,
+  // Bonus durable cumulé plafonné (part de la puissance de base du programme).
+  lastingCap: 0.6, minAmount: 0.2,
+  // Trésorerie négative : les options coûteuses passent en « formule allégée ».
+  tightCashScale: 0.6, heavyPurchaseRate: 0.3
+};
+const PROGRAM_STORY_POSITIONS = { 1: [0, 1], 2: [1, 2, 0], 3: [2, 1] };
+const PROGRAM_STORIES_BY_PROGRAM = {};
+
+function indexProgramStories() {
+  Object.keys(PROGRAM_STORIES_BY_PROGRAM).forEach(k => delete PROGRAM_STORIES_BY_PROGRAM[k]);
+  PROGRAM_STORY_BANK.forEach(def => (PROGRAM_STORIES_BY_PROGRAM[def.programId] ??= []).push(def));
+}
+indexProgramStories();
+
+// Mémoire éditoriale du joueur, par programme : seuls ses propres choix y figurent. Un
+// programme racheté à un concurrent arrive donc sans passé ; un programme que le joueur
+// reprogramme après l'avoir arrêté retrouve en revanche les décisions qu'il avait prises.
+function programStoryRecord(programId) {
+  const p = gameState.player;
+  p.programStories ??= {};
+  return p.programStories[programId] ??= { log: [], flags: {}, last: null };
+}
+
+// Le programme est-il diffusé sur la grille du joueur cette saison, sur cette case ?
+function programStoryAirs(slot, programId) {
+  const p = gameState.player;
+  const contract = p.contracts?.[slot];
+  if (!contract || contract.id !== programId) return false;
+  if (activeContract(p, slot) !== contract) return false; // case prise par un droit, contrat échu
+  if (contract.stopped || contract.sportsPause === gameState.season) return false;
+  return (contract.startSeason ?? -Infinity) <= gameState.season;
+}
+
+function programStoryStage(career) {
+  return { 'franchise historique': 'historique', 'maturité': 'maturite' }[programLifeStage(career)] || programLifeStage(career);
+}
+
+function programStoryContext(slot, contract, rows) {
+  const p = gameState.player, T = PROGRAM_STORY_TUNING;
+  const career = migrateProgramCareer(contract, slot);
+  const target = contract.target || p.target;
+  const row = rows.find(r => r.channel === p);
+  // Seuils relatifs : la case est comparée à l'audience moyenne de la chaîne sur sa cible,
+  // ce qui vaut aussi bien pour une petite chaîne que pour une chaîne installée.
+  const share = row.slots[slot][p.target];
+  const ratio = share / Math.max(0.1, row.pda[p.target]);
+  const last = career.history?.at(-1);
+  const gap = last ? last.performance - last.expected : 0;
+  const form = ratio >= T.successRatio || gap >= T.successGap ? 'succes'
+    : ratio <= T.struggleRatio || gap <= T.struggleGap ? 'difficulte' : 'stable';
+  const rivalRow = rows.filter(r => r.channel !== p).sort((a, b) => b.slots[slot][target] - a.slots[slot][target])[0];
+  const rivalContract = rivalRow ? activeContract(rivalRow.channel, slot) : null;
+  return {
+    slot, contract, career, target, share, ratio, form,
+    stage: programStoryStage(career), seasons: career.seasonsCount || 0, wear: career.wear || 0,
+    pressure: (row.pressure[slot][target]?.penalty || 0) >= T.pressurePenalty,
+    cash: p.tresorerie < 0 ? 'serre' : p.tresorerie > (p.coutGrilleEngageSaison || 0) * 0.5 ? 'aise' : 'normal',
+    rival: rivalRow?.name || 'un concurrent',
+    rivalProgram: rivalContract?.isSportsEvent ? 'un grand événement sportif'
+      : rivalContract?.name || PROGRAM_GRID[rivalRow?.channel?.type]?.[slot] || 'sa grille',
+    record: programStoryRecord(contract.id)
+  };
+}
+
+const asList = v => v == null ? null : [].concat(v);
+
+// Conditions narratives, économiques et de répétition d'une histoire.
+function programStoryMatches(def, ctx) {
+  const w = def.when || {}, rec = ctx.record, season = gameState.season;
+  const plays = rec.log.filter(l => l.id === def.id);
+  if ((def.repeat ?? 'unique') === 'unique' ? plays.length : plays.length && season - plays.at(-1).season < def.repeat) return false;
+  const followUp = !!(w.after || w.flag);
+  if (rec.last != null && season - rec.last < (followUp ? PROGRAM_STORY_TUNING.followUpGap : PROGRAM_STORY_TUNING.programGap)) return false;
+  if (w.stage && !asList(w.stage).includes(ctx.stage)) return false;
+  if (w.form && !asList(w.form).includes(ctx.form)) return false;
+  if (w.minSeasons != null && ctx.seasons < w.minSeasons) return false;
+  if (w.maxSeasons != null && ctx.seasons > w.maxSeasons) return false;
+  if (w.minWear != null && ctx.wear < w.minWear) return false;
+  if (w.pressure != null && ctx.pressure !== w.pressure) return false;
+  if (w.cash && !asList(w.cash).includes(ctx.cash)) return false;
+  if (w.flag && !asList(w.flag).every(f => rec.flags[f] != null)) return false;
+  if (w.noFlag && asList(w.noFlag).some(f => rec.flags[f] != null)) return false;
+  if (w.after && !asList(w.after).every(id => rec.log.some(l => l.id === id))) return false;
+  return true;
+}
+
+// Histoires éligibles cette saison, avec leur poids : une histoire liée au contexte
+// (forme, concurrence, suite d'un choix passé) est plus probable qu'une histoire neutre.
+function programStoryCandidates(excludeProgramIds = []) {
+  const p = gameState.player;
+  const slots = TIME_SLOTS.map(s => s.key).filter(slot => {
+    const c = p.contracts?.[slot];
+    return c && PROGRAM_STORIES_BY_PROGRAM[c.id] && !excludeProgramIds.includes(c.id) && programStoryAirs(slot, c.id);
+  });
+  if (!slots.length) return [];
+  const rows = getCalculatedPDAs();
+  return slots.flatMap(slot => {
+    const contract = p.contracts[slot];
+    const ctx = programStoryContext(slot, contract, rows);
+    return PROGRAM_STORIES_BY_PROGRAM[contract.id].filter(def => programStoryMatches(def, ctx)).map(def => {
+      const w = def.when || {};
+      const specificity = ['form', 'pressure', 'flag', 'after', 'minWear', 'cash'].filter(k => w[k] != null).length;
+      return { def, slot, contract, ctx, weight: (def.weight || 1) * (1 + 0.4 * specificity) };
+    });
+  });
+}
+
+function weightedStoryPick(list) {
+  const total = list.reduce((s, c) => s + c.weight, 0);
+  let r = seededRandom() * total;
+  return list.find(c => (r -= c.weight) < 0) || list.at(-1);
+}
+
+function fillStoryText(text, ctx) {
+  return String(text)
+    .replaceAll('{programme}', `« ${esc(ctx.contract.name)} »`)
+    .replaceAll('{saisons}', `${ctx.seasons} saison${ctx.seasons > 1 ? 's' : ''}`)
+    .replaceAll('{rival}', esc(ctx.rival))
+    .replaceAll('{rivalProgramme}', `« ${esc(ctx.rivalProgram)} »`)
+    .replaceAll('{creneau}', esc(TIME_SLOTS.find(s => s.key === ctx.slot)?.label || ctx.slot));
+}
+
+// Coûts proportionnés au budget annuel du programme (cost : parts de ce budget).
+function programStoryFinance(cost, contract, scale = 1) {
+  const budget = Math.max(1, contract.annual || 0);
+  const amount = rate => Math.max(PROGRAM_STORY_TUNING.minAmount, Math.round(rate * scale * budget * 10) / 10);
+  if (cost?.purchase) return { recurring: 0, purchase: amount(cost.purchase), commercial: 0, category: 'P' };
+  if (cost?.recurring) return { recurring: amount(cost.recurring), purchase: 0, commercial: 0, category: 'R' };
+  if (cost?.saving) return { recurring: -Math.min(amount(cost.saving), Math.round((contract.annual || 0) * 5) / 10), purchase: 0, commercial: 0, category: 'E' };
+  if (cost?.commercial) return { recurring: 0, purchase: 0, commercial: amount(cost.commercial), category: 'C' };
+  return { recurring: 0, purchase: 0, commercial: 0, category: 'N' };
+}
+
+function buildProgramStoryDilemma(cand) {
+  const { def, slot, contract, ctx } = cand;
+  const tight = ctx.cash === 'serre';
+  const family = PROGRAM_STORY_FAMILIES[def.family];
+  return {
+    id: def.id, isProgramStory: true, programId: contract.id, storySlot: slot, storyFamily: def.family,
+    storyLabel: `${family.icon} ${family.label}`, phase: def.phase,
+    titre: fillStoryText(def.titre, ctx), desc: fillStoryText(def.desc, ctx),
+    careerStats: { awareness: Math.round(ctx.career.awareness), loyalty: Math.round(ctx.career.loyalty), wear: Math.round(ctx.career.wear) },
+    c: def.c.map((spec, index) => {
+      // Trésorerie dans le rouge : l'option la plus coûteuse est proposée en version allégée,
+      // moins chère mais aussi moins efficace.
+      const lighter = tight && (spec.cost?.purchase || 0) >= PROGRAM_STORY_TUNING.heavyPurchaseRate;
+      const scale = lighter ? PROGRAM_STORY_TUNING.tightCashScale : 1;
+      return {
+        l: fillStoryText(spec.l, ctx) + (lighter ? ' (formule allégée)' : ''), r: fillStoryText(spec.r, ctx),
+        icon: spec.icon, pop: spec.pop || 0,
+        finance: programStoryFinance(spec.cost, contract, scale),
+        pda: { j1524: 0, a2549: 0, s50: 0, csp: 0 },
+        // Impact mesuré sur la case du programme (l'effet passe par sa carrière).
+        audienceImpacts: [{ slot, value: 0, targets: {}, programId: contract.id }],
+        story: { index, scale, career: spec.career || null, boost: spec.boost || 0, lasting: spec.lasting || 0,
+          flag: spec.flag || null, clearFlag: spec.clearFlag || null }
+      };
+    })
+  };
+}
+
+// Seconde validation : le programme est-il toujours à l'antenne au moment d'afficher ou
+// de jouer son histoire ? (déprogrammé, remplacé, case prise par un droit…)
+function programStoryDilemmaValid(dilemma) {
+  return !dilemma?.isProgramStory || programStoryAirs(dilemma.storySlot, dilemma.programId);
+}
+
+// Remplace dans la suite de la saison toute histoire devenue invalide : par une autre
+// histoire éligible (d'un autre programme), sinon par un dilemme générique non encore vu.
+function revalidateProgramStoryQueue() {
+  const queue = gameState.dilemmaQueue || [];
+  let changed = false;
+  for (let i = gameState.currentDilemmaIndex || 0; i < queue.length; i++) {
+    if (programStoryDilemmaValid(queue[i])) continue;
+    changed = true;
+    const inQueue = queue.filter(d => d.isProgramStory).map(d => d.programId);
+    const stories = programStoryCandidates(inQueue);
+    if (stories.length) { queue[i] = buildProgramStoryDilemma(weightedStoryPick(stories)); continue; }
+    const ids = new Set(queue.map(d => d.id));
+    const generic = shuffle(getEligibleDilemmas().filter(d => d.type !== 'sports_rights_auction' && !d.requiresRight
+      && !ids.has(d.id) && !gameState.seenDilemmaIds.includes(d.id)))[0];
+    if (generic) { queue[i] = generic; gameState.seenDilemmaIds.push(generic.id); }
+    else { queue.splice(i, 1); i--; }
+  }
+  return changed;
+}
+
+// Tirage : une histoire (parfois deux) prend la place d'un dilemme générique de la file,
+// sur la position correspondant à sa phase (D1 lancement, D2 arbitrage, D3 fin de saison).
+function placeProgramStories(queue, lastTaken = false) {
+  const candidates = programStoryCandidates();
+  if (!candidates.length) return [];
+  const T = PROGRAM_STORY_TUNING;
+  const programs = new Set(candidates.map(c => c.contract.id));
+  if (seededRandom() >= Math.min(T.maxChance, T.baseChance + T.chancePerProgram * programs.size)) return [];
+  const picks = [weightedStoryPick(candidates)];
+  const others = candidates.filter(c => c.contract.id !== picks[0].contract.id);
+  if (others.length && T.maxPerSeason > 1 && seededRandom() < T.secondChance) picks.push(weightedStoryPick(others));
+  const replaceable = i => queue[i] && DILEMMA_BANK.includes(queue[i]) && !queue[i].requiresRight
+    && queue[i].type !== 'sports_rights_auction' && !(lastTaken && i === queue.length - 1);
+  const placed = [];
+  picks.forEach(cand => {
+    // Positions compatibles avec la phase : une histoire de fin de saison (finale, bilan)
+    // n'ouvre jamais la saison, une histoire de lancement ne la clôt pas. Sans place
+    // compatible, elle attend une saison suivante.
+    const index = PROGRAM_STORY_POSITIONS[cand.def.phase || 2].find(replaceable);
+    if (index == null) return;
+    const old = queue[index];
+    const seenAt = gameState.seenDilemmaIds.lastIndexOf(old.id);
+    if (seenAt >= 0) gameState.seenDilemmaIds.splice(seenAt, 1);
+    queue[index] = buildProgramStoryDilemma(cand);
+    placed.push(queue[index]);
+  });
+  return placed;
+}
+
+// Application d'un choix : le budget du programme évolue (avant le devis de grille), puis
+// sa carrière, et la mémoire éditoriale enregistre la décision.
+function prepareProgramStoryChoice(dilemma, choice) {
+  const contract = gameState.player.contracts?.[dilemma.storySlot];
+  if (!contract || contract.id !== dilemma.programId) return;
+  if (choice.finance.category === 'R' || choice.finance.category === 'E') {
+    contract.annual = Math.max(0, Math.round(((contract.annual || 0) + choice.finance.recurring) * 100) / 100);
+  }
+}
+
+function applyProgramStoryChoice(dilemma, choice) {
+  const p = gameState.player, contract = p.contracts?.[dilemma.storySlot];
+  if (!contract || contract.id !== dilemma.programId || !choice.story) return false;
+  const c = migrateProgramCareer(contract, dilemma.storySlot), s = choice.story, scale = s.scale ?? 1;
+  const clamp = v => Math.max(0, Math.min(100, v));
+  if (s.career) {
+    if (s.career.awareness) c.awareness = clamp(c.awareness + s.career.awareness * scale);
+    if (s.career.loyalty) c.loyalty = clamp(c.loyalty + s.career.loyalty * scale);
+    if (s.career.wear) c.wear = clamp(c.wear + s.career.wear * scale);
+  }
+  const base = Math.max(1, c.basePotential || contract.power || 1), cap = PROGRAM_STORY_TUNING.lastingCap * base;
+  if (s.lasting) c.storyBoost = Math.max(-cap, Math.min(cap, (c.storyBoost || 0) + s.lasting * scale * base));
+  if (s.boost) c.storySeasonBoost = { season: gameState.season, value: s.boost * scale * base };
+  const rec = programStoryRecord(contract.id);
+  rec.log.push({ id: dilemma.id, choice: s.index, season: gameState.season });
+  rec.last = gameState.season;
+  if (s.flag) rec.flags[s.flag] = gameState.season;
+  if (s.clearFlag) delete rec.flags[s.clearFlag];
+  return true;
+}
+
 function pickDilemmaQueue() {
   const pool = getEligibleDilemmas().filter(d => (!isMercatoSeason() || !MERCATO_OVERLAP_DILEMMAS.includes(d.id))
     && d.type !== 'sports_rights_auction');
@@ -7168,6 +8055,9 @@ function pickDilemmaQueue() {
     queue[1] = createRegieOpportunityDilemma();
     gameState.player.lastRegieOpportunity = gameState.season;
   }
+  // Histoires de programmes : elles prennent la place de dilemmes génériques restants. La
+  // dernière position est laissée aux renouvellements quand la grille en attend.
+  placeProgramStories(queue, selectCareerDecisions().length > 0 || recurringRightsToRenew(o => o.ownerId === 'player').length > 0);
   // Le renouvellement est une décision éditoriale à part entière : lorsqu'un programme
   // arrive à un moment clé, il remplace le dernier choix de la saison plutôt que
   // d'interrompre le bilan une fois les comptes déjà arrêtés. Si plusieurs programmes
@@ -7620,7 +8510,9 @@ function programCareerPower(contract) {
   const recognition = c.awareness * GAME_BALANCE.programCareer.awarenessPower
     + c.loyalty * GAME_BALANCE.programCareer.loyaltyPower;
   const wear = c.wear * GAME_BALANCE.programCareer.wearPenalty;
-  return Math.max(-1.5, recognition - wear + (c.potential - c.basePotential));
+  // Effets des histoires du programme : bonus durable (plafonné) et bonus de la saison.
+  const story = (c.storyBoost || 0) + (c.storySeasonBoost?.season === gameState.season ? c.storySeasonBoost.value : 0);
+  return Math.max(-1.5, recognition - wear + (c.potential - c.basePotential) + story);
 }
 
 function getSlotBreakdown(channel, slot, target) {
@@ -7880,6 +8772,8 @@ function chooseDilemmaOption(choiceIndex) {
   if (gameState.step !== 6 || gameState.dilemmaPhase !== 'choosing') return;
   const dilemma = gameState.dilemmaQueue[gameState.currentDilemmaIndex];
   if (!dilemma || !Number.isInteger(choiceIndex) || !dilemma.c[choiceIndex]) return;
+  // Histoire d'un programme qui n'est plus à l'antenne : elle est remplacée, jamais jouée.
+  if (!programStoryDilemmaValid(dilemma)) { revalidateProgramStoryQueue(); render(); return; }
   const isSportsAuction = dilemma.type === 'sports_rights_auction';
   if (isSportsAuction && gameState.sportsRights?.activeAuction?.phase !== 'verdict') return;
   const choice = isSportsAuction ? buildSportsAuctionChoice(dilemma)
@@ -7895,6 +8789,8 @@ function chooseDilemmaOption(choiceIndex) {
 
   const isSportsDeal = isSportsAuction || !!dilemma.isSportsRenewal;
   if (!isSportsDeal) applyDilemmaEditoImpact(dilemma, choiceIndex, choice);
+  // Budget du programme ajusté avant le devis : le plancher de grille suit son coût.
+  if (dilemma.isProgramStory) prepareProgramStoryChoice(dilemma, choice);
 
   const decisionQuote = choice.careerAction ? quoteCareerDilemma(choice)
     : choice.excludedSlots ? { ...quoteFinance(choice.finance, choice.excludedSlots), finance: { ...choice.finance }, termination: 0, replacedTalent: 0 }
@@ -7902,6 +8798,7 @@ function chooseDilemmaOption(choiceIndex) {
 
   const calculatedAvant = getCalculatedPDAs().find(item => item.channel === player);
   const pdaCibleAvant = calculatedAvant.pda[player.target];
+  if (dilemma.isProgramStory) applyProgramStoryChoice(dilemma, choice);
   const resolvedAudienceImpacts = applyDilemmaAudienceImpacts(dilemma, choice, popAvant);
   const calculatedApresImpact = getCalculatedPDAs().find(item => item.channel === player);
   const slotAudienceDeltas = resolvedAudienceImpacts.map(impact => {
@@ -8948,6 +9845,9 @@ function render() {
     const phase = gameState.dilemmaPhase;
     // En phase "résultat", le dilemme vient d'être résolu : l'index a déjà avancé,
     // on réaffiche donc celui qui vient d'être répondu, pas le suivant.
+    // Seconde validation avant affichage : une histoire dont le programme a quitté l'antenne
+    // (remplacé, case prise par un droit…) cède sa place avant d'être montrée.
+    if (phase === 'choosing' && (gameState.dilemmaQueue || []).some(d => !programStoryDilemmaValid(d))) revalidateProgramStoryQueue();
     const dilemmaIndex = phase === 'result' ? gameState.currentDilemmaIndex - 1 : gameState.currentDilemmaIndex;
     const dilemma = gameState.dilemmaQueue[dilemmaIndex];
 
@@ -9051,15 +9951,24 @@ function render() {
       <div class="dilemma-container${phase === 'choosing' ? entrance : ''}">
         <div class="dilemma-card dilemma-hero${phase === 'result' ? ' is-result' : ''}${sportEvent ? ` sa-hero sa-phase-${phase === 'result' ? 'verdict' : gameState.sportsRights?.activeAuction?.phase || 'market'}` : ''}">
           <div class="dc-head">
-            <span class="dc-head-left"><span class="dc-live-pill"><span class="dc-live-dot"></span>${sportEvent ? rightsMarketLabel(sportEvent) : 'Événement'}</span>${channelPillHtml()}</span>
+            <span class="dc-head-left"><span class="dc-live-pill"><span class="dc-live-dot"></span>${sportEvent ? rightsMarketLabel(sportEvent) : dilemma.isProgramStory ? esc(dilemma.storyLabel) : 'Événement'}</span>${channelPillHtml()}</span>
             <span class="dc-season-pill">${seasonPillLabel()}</span>
           </div>
           <div class="dc-body">
-            <h2>${sportEvent ? esc(sportEvent.headline) : dilemma.isCareerDilemma || dilemma.isTalentRenewal || dilemma.isSportsRenewal ? dilemma.titre.replace(/« [^»]*»(?: \?)?/, m => `<span class="dc-title-keep">${m}</span>`) : dilemma.titre}</h2>
+            <h2>${sportEvent ? esc(sportEvent.headline) : dilemma.isCareerDilemma || dilemma.isTalentRenewal || dilemma.isSportsRenewal || dilemma.isProgramStory ? dilemma.titre.replace(/« [^»]*»(?: \?)?/, m => `<span class="dc-title-keep">${m}</span>`) : dilemma.titre}</h2>
             <p>${sportEvent ? esc(sportEvent.pitch) : dilemma.desc}</p>
             ${sportsBlock}
             ${dilemma.isSportsRenewal && playerRecurringRight(dilemma.rightsEventId) ? `
             <div class="gr-cards gr-single" data-gr-cards="single">${sportsRenewalCardHtml(playerRecurringRight(dilemma.rightsEventId), { readonly: true, single: true })}</div>` : ''}
+            ${dilemma.isProgramStory && gameState.player.contracts[dilemma.storySlot]?.id === dilemma.programId ? `
+            <div class="gr-cards gr-single" data-gr-cards="single">${renewalCardHtml(dilemma.storySlot,
+              gameState.player.contracts[dilemma.storySlot].name,
+              !!gameState.player.contracts[dilemma.storySlot].career?.historic, [
+                { label: 'Notoriété', value: dilemma.careerStats.awareness },
+                { label: 'Fidélité', value: dilemma.careerStats.loyalty },
+                { label: 'Usure', value: dilemma.careerStats.wear, wear: true }],
+                { readonly: true, single: true })}
+            </div>` : ''}
             ${dilemma.isCareerDilemma ? `
             <div class="gr-cards gr-single" data-gr-cards="single">${renewalCardHtml(dilemma.careerSlot,
               gameState.player.contracts[dilemma.careerSlot]?.name || '',
