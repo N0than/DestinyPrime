@@ -21170,7 +21170,7 @@ function goToStepAnimated(mutate, dir = 1) {
   const app = document.getElementById('app');
   const isMobile = window.matchMedia('(max-width: 540px)').matches;
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (!isMobile || reduce || typeof app.animate !== 'function') { mutate(); render(); return; }
+  if (reduce || typeof app.animate !== 'function') { mutate(); render(); return; }
 
   const prevMasthead = app.querySelector('.masthead');
   const prevHudWrap = app.querySelector('.hud-wrap');
@@ -21181,10 +21181,19 @@ function goToStepAnimated(mutate, dir = 1) {
   mutate();
   render();
 
-  // Pendant la configuration, afficher directement la géométrie définitive :
-  // pas de calque transformé à retirer après l'arrivée des cartes (Safari iOS).
-  // Les transitions vers le jeu conservent leur glissement.
-  if (gameState.step >= 1 && gameState.step <= 5) return;
+  // Configuration : courte entrée vers la droite (inverse au retour), sans
+  // rebond. Les éléments restent dans leur mise en page définitive : aucun
+  // wrapper ni copie de l'ancien écran à retirer en fin d'animation sur iOS.
+  if (gameState.step >= 1 && gameState.step <= 5) {
+    Array.from(app.children)
+      .filter(el => !el.matches('.masthead, .hud-wrap'))
+      .forEach(el => el.animate([
+        { translate: `${-28 * dir}px 0`, opacity: 0 },
+        { translate: '0px 0', opacity: 1 }
+      ], { duration: 240, easing: 'cubic-bezier(0.2, 0, 0.2, 1)' }));
+    return;
+  }
+  if (!isMobile) return;
 
   // Le header (bandeau + ligne mire) ET le HUD (tableau de bord) restent en
   // place ; seul le contenu sous la mire (dilemme / conférence de rentrée) glisse.
