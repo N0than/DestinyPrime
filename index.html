@@ -15228,6 +15228,485 @@ const PROGRAM_STORY_BANK = [
         r: 'L’émission reste à l’antenne.' },
       { l: 'Un podcast résumé', icon: '🎧', cost: { purchase: 0.02 }, career: { awareness: 2, loyalty: 1 },
         r: 'Le podcast trouve son public.' }
+    ] },
+  // — Mon quartier, mes champions (p328) · sport, prime —
+  { id: 'ps_p328_terrain_quartier_ferme', programId: 'p328', family: 'editorial', phase: 1,
+    titre: 'Le terrain du quartier fermé',
+    desc: 'Le terrain de sport du quartier suivi par {programme} va être fermé par la mairie. Les jeunes champions sont désemparés.',
+    c: [
+      { l: 'Mobiliser l’émission pour sauver le terrain', icon: '📣', cost: { purchase: 0.02 }, career: { awareness: 3 }, pop: 3,
+        r: 'La mobilisation sauve le terrain.' },
+      { l: 'Raconter la fermeture', icon: '📺', career: { awareness: 1, loyalty: 1 }, pop: -1,
+        r: 'Le reportage émeut sans rien changer.' },
+      { l: 'Financer la rénovation du terrain', icon: '🏗️', cost: { purchase: 0.1 }, career: { awareness: 4 }, pop: 3,
+        r: 'Le terrain rénové devient un symbole.' }
+    ] },
+  { id: 'ps_p328_tournoi_des_quartiers', programId: 'p328', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le tournoi des quartiers',
+    desc: 'La production de {programme} propose un grand tournoi national entre les quartiers suivis. Les finales auraient lieu dans un stade.',
+    c: [
+      { l: 'Organiser le tournoi national', icon: '🏆', cost: { purchase: 0.1 }, boost: 0.08, career: { awareness: 4 }, pop: 1,
+        r: 'Le tournoi fédère les quartiers.' },
+      { l: 'Rester sur les portraits', icon: '🎥', career: { loyalty: 2, wear: 3 },
+        r: 'L’émission garde son ton intimiste.' },
+      { l: 'Un match de gala', icon: '⚽', cost: { purchase: 0.03 }, boost: 0.03, career: { awareness: 2 },
+        r: 'Le match de gala est apprécié.' }
+    ] },
+
+  // — Demain, champions (p329) · sport, prime —
+  { id: 'ps_p329_jeune_prodige_blesse', programId: 'p329', family: 'editorial', phase: 1,
+    titre: 'Le jeune prodige blessé',
+    desc: 'Le jeune athlète vedette de {programme} se blesse gravement. Sa carrière est compromise, et sa famille hésite à poursuivre le tournage.',
+    c: [
+      { l: 'Suivre sa rééducation avec pudeur', icon: '🩹', cost: { purchase: 0.02 }, career: { awareness: 3, loyalty: 3 },
+        r: 'Le combat du jeune athlète bouleverse.' },
+      { l: 'Arrêter de le filmer', icon: '🛑', boost: -0.03, pop: 1,
+        r: 'La famille est respectée.' },
+      { l: 'Mettre en avant un autre espoir', icon: '🌱', career: { awareness: 1, loyalty: -1, wear: -3 },
+        r: 'Un nouveau visage émerge.' }
+    ] },
+  { id: 'ps_p329_bourse_des_champions', programId: 'p329', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'La bourse des champions',
+    desc: 'La production de {programme} propose de créer une bourse pour financer les études des jeunes sportifs suivis. Le geste serait fort, mais engage la chaîne sur la durée.',
+    c: [
+      { l: 'Créer la bourse', icon: '🎓', cost: { purchase: 0.06 }, lasting: 0.02, career: { awareness: 3 }, pop: 2,
+        r: 'La bourse donne du sens à l’émission.' },
+      { l: 'Laisser les familles se débrouiller', icon: '🤷', career: { wear: 2 }, pop: -1,
+        r: 'L’émission est critiquée.' },
+      { l: 'S’associer à une fondation', icon: '🤝', cost: { purchase: 0.02 }, career: { awareness: 1 }, pop: 1,
+        r: 'La fondation prend le relais.' }
+    ] },
+
+  // — Vous appelez ça du sport ? (p330) · sport, prime —
+  { id: 'ps_p330_sport_trop_bizarre', programId: 'p330', family: 'image', phase: 2,
+    titre: 'Le sport trop bizarre',
+    desc: 'Une fédération de sport de table proteste contre la manière dont {programme} ridiculise sa discipline. Ses champions sont vexés.',
+    c: [
+      { l: 'Inviter les champions à montrer leur talent', icon: '🏓', cost: { purchase: 0.02 }, career: { awareness: 2 }, pop: 2,
+        r: 'Les champions impressionnent.' },
+      { l: 'Assumer l’humour', icon: '😄', career: { loyalty: 2 }, pop: -1,
+        r: 'Les fans rient, la fédération boude.' },
+      { l: 'Couper la séquence', icon: '✂️', boost: -0.02, pop: 1,
+        r: 'La polémique s’éteint.' }
+    ] },
+  { id: 'ps_p330_les_championnats_monde', programId: 'p330', family: 'audience', phase: 3, when: { minSeasons: 1 },
+    titre: 'Les championnats du monde insolites',
+    desc: 'La production de {programme} propose de couvrir le championnat du monde de lancer de téléphone en Finlande. Le sujet est décalé, à l’image de l’émission.',
+    c: [
+      { l: 'Envoyer une équipe en Finlande', icon: '📱', cost: { purchase: 0.06 }, boost: 0.04, career: { awareness: 4 },
+        r: 'Le reportage décalé fait le buzz.' },
+      { l: 'Utiliser des images d’archives', icon: '📼', career: { loyalty: 1, wear: 3 },
+        r: 'Le sujet est traité de loin.' },
+      { l: 'Organiser un championnat français', icon: '🇫🇷', cost: { purchase: 0.03 }, career: { awareness: 3, wear: -3 },
+        r: 'Le championnat amuse.' }
+    ] },
+
+  // — Capitaines : à vous de jouer ! (p331) · sport, prime —
+  { id: 'ps_p331_capitaine_qui_demissionne', programId: 'p331', family: 'editorial', phase: 1,
+    titre: 'Le capitaine qui démissionne',
+    desc: 'Le capitaine d’une équipe de {programme} démissionne en pleine compétition après un conflit. L’équipe est déstabilisée.',
+    c: [
+      { l: 'Suivre la crise de l’équipe', icon: '🎥', boost: 0.03, career: { awareness: 3, loyalty: -1 },
+        r: 'Le drame sportif passionne.' },
+      { l: 'Organiser une médiation', icon: '🤝', cost: { purchase: 0.02 }, career: { loyalty: 2 }, pop: 1,
+        r: 'L’équipe retrouve son unité.' },
+      { l: 'Remplacer l’équipe', icon: '🔄', career: { loyalty: -2, wear: -3 },
+        r: 'Une nouvelle équipe arrive.' }
+    ] },
+  { id: 'ps_p331_les_capitaines_celebres', programId: 'p331', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Les capitaines célèbres',
+    desc: 'D’anciens capitaines de l’équipe de France proposent de coacher les équipes de {programme}. Leur présence attirerait les fans, mais coûte cher.',
+    c: [
+      { l: 'Recruter les anciens capitaines', icon: '⭐', cost: { recurring: 0.05 }, boost: 0.04, career: { awareness: 5 },
+        r: 'Les légendes attirent les fans.' },
+      { l: 'Garder les coachs actuels', icon: '🧢', career: { loyalty: 2, wear: 3 },
+        r: 'L’émission garde son équipe.' },
+      { l: 'Un capitaine invité par épisode', icon: '🎤', cost: { purchase: 0.02 }, boost: 0.02, career: { awareness: 2 },
+        r: 'Les invités apportent du prestige.' }
+    ] },
+
+  // — 42 kilomètres pour se dépasser (p332) · sport, prime —
+  { id: 'ps_p332_malaise_marathon', programId: 'p332', family: 'image', phase: 2,
+    titre: 'Le malaise au marathon',
+    desc: 'Un participant de {programme} a fait un malaise au trentième kilomètre. Les images de son effondrement ont été diffusées.',
+    c: [
+      { l: 'Couper les images et prendre des nouvelles', icon: '🙏', boost: -0.02, pop: 2,
+        r: 'La production fait preuve de dignité.' },
+      { l: 'Renforcer le suivi médical', icon: '🩺', cost: { recurring: 0.02 }, career: { loyalty: 2 }, pop: 1,
+        r: 'Les participants sont mieux protégés.' },
+      { l: 'Garder les images', icon: '📺', career: { awareness: 2 }, pop: -3,
+        r: 'La chaîne est critiquée.' }
+    ] },
+  { id: 'ps_p332_marathon_new_york', programId: 'p332', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le marathon de New York',
+    desc: 'La production de {programme} propose d’emmener les participants courir le marathon de New York. L’aventure ferait rêver, mais le voyage coûte cher.',
+    c: [
+      { l: 'Partir à New York', icon: '🗽', cost: { purchase: 0.12 }, boost: 0.08, career: { awareness: 5 },
+        r: 'L’aventure new-yorkaise fait rêver.' },
+      { l: 'Courir le marathon de Paris', icon: '🗼', cost: { purchase: 0.03 }, boost: 0.03, career: { awareness: 2 },
+        r: 'Le marathon de Paris est une belle étape.' },
+      { l: 'Rester sur les courses locales', icon: '🏃', career: { loyalty: 2, wear: 3 },
+        r: 'L’émission garde son ancrage.' }
+    ] },
+
+  // — Sport : défiez l’impossible (p333) · sport, prime —
+  { id: 'ps_p333_defi_impossible_echoue', programId: 'p333', family: 'image', phase: 2,
+    titre: 'Le défi impossible échoue',
+    desc: 'Le défi phare de {programme}, nager entre deux îles, a échoué en direct. Les critiques parlent d’un risque inconsidéré.',
+    c: [
+      { l: 'Assumer l’échec et en parler', icon: '🗣️', career: { awareness: 2, loyalty: 2 }, pop: -1,
+        r: 'L’honnêteté est saluée.' },
+      { l: 'Réduire les risques des défis', icon: '🦺', cost: { purchase: 0.04 }, career: { wear: -3 }, pop: 2,
+        r: 'Les défis deviennent plus sûrs.' },
+      { l: 'Retenter le défi', icon: '🔁', cost: { purchase: 0.06 }, boost: 0.06, career: { awareness: 3 }, pop: -1,
+        r: 'La seconde tentative réussit.' }
+    ] },
+  { id: 'ps_p333_defi_des_personnes', programId: 'p333', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le défi des personnes handicapées',
+    desc: 'La production de {programme} propose une saison de défis relevés par des athlètes en situation de handicap. Le projet est fort et demande un accompagnement soigné.',
+    c: [
+      { l: 'Lancer la saison', icon: '🦽', cost: { purchase: 0.06 }, career: { awareness: 4 }, pop: 3,
+        r: 'La saison bouleverse et inspire.' },
+      { l: 'Un défi spécial', icon: '🎯', cost: { purchase: 0.02 }, career: { awareness: 2 }, pop: 1,
+        r: 'Le défi est salué.' },
+      { l: 'Garder les défis habituels', icon: '🏋️', career: { loyalty: 1, wear: 3 },
+        r: 'L’émission reste classique.' }
+    ] },
+
+  // — Campus contre campus (p334) · sport, prime —
+  { id: 'ps_p334_bizutage_revele', programId: 'p334', family: 'image', phase: 2,
+    titre: 'Le bizutage révélé',
+    desc: 'Une équipe universitaire de {programme} est mise en cause pour des faits de bizutage. L’université ouvre une enquête.',
+    c: [
+      { l: 'Exclure l’équipe', icon: '🚫', boost: -0.02, career: { loyalty: -1 }, pop: 2,
+        r: 'La production réagit fermement.' },
+      { l: 'Attendre l’enquête', icon: '⏳', career: { wear: 2 }, pop: -1,
+        r: 'L’attente est critiquée.' },
+      { l: 'Consacrer un numéro au bizutage', icon: '💬', cost: { purchase: 0.02 }, career: { awareness: 3 }, pop: 1,
+        r: 'Le numéro sensibilise.' }
+    ] },
+  { id: 'ps_p334_finale_entre_grandes', programId: 'p334', family: 'audience', phase: 3, when: { minSeasons: 1 },
+    titre: 'La finale entre grandes écoles',
+    desc: 'Deux grandes écoles rivales s’affrontent en finale de {programme}. La production propose une soirée en direct.',
+    c: [
+      { l: 'Organiser la soirée en direct', icon: '🎓', cost: { purchase: 0.06 }, boost: 0.08, career: { awareness: 3 },
+        r: 'La rivalité fait le spectacle.' },
+      { l: 'Diffusion classique', icon: '📺', career: { loyalty: 1, wear: 3 },
+        r: 'La finale fait l’audience.' },
+      { l: 'Un avant-match festif sur les campus', icon: '🎉', cost: { purchase: 0.03 }, boost: 0.03, career: { awareness: 3 },
+        r: 'L’ambiance des campus séduit.' }
+    ] },
+
+  // — Une saison pour y croire (p335) · sport, prime —
+  { id: 'ps_p335_club_bord_faillite', programId: 'p335', family: 'editorial', phase: 1,
+    titre: 'Le club au bord de la faillite',
+    desc: 'Le petit club suivi par {programme} risque de disparaître faute de moyens. Les joueurs lancent un appel aux dons.',
+    c: [
+      { l: 'Relayer l’appel aux dons', icon: '📢', cost: { purchase: 0.01 }, career: { awareness: 3 }, pop: 2,
+        r: 'Les dons affluent.' },
+      { l: 'Raconter la fin du club', icon: '📺', boost: 0.02, career: { awareness: 2 }, pop: -1,
+        r: 'Le récit émeut.' },
+      { l: 'Devenir sponsor du club', icon: '🤝', cost: { purchase: 0.08 }, lasting: 0.02, career: { awareness: 2 }, pop: 3,
+        r: 'Le club est sauvé.' }
+    ] },
+  { id: 'ps_p335_montee_historique', programId: 'p335', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'La montée historique',
+    desc: 'Le club suivi par {programme} est à une victoire de la montée. La production propose un dispositif exceptionnel pour le match décisif.',
+    c: [
+      { l: 'Diffuser le match en direct', icon: '🏟️', cost: { purchase: 0.06 }, boost: 0.08, career: { awareness: 4 },
+        r: 'La montée historique émeut la France.' },
+      { l: 'Un résumé dans l’émission', icon: '🎬', career: { loyalty: 1, wear: 3 },
+        r: 'Le résumé est réussi.' },
+      { l: 'Un documentaire après la saison', icon: '🎥', cost: { purchase: 0.04 }, lasting: 0.02, career: { awareness: 3 },
+        r: 'Le documentaire fait date.' }
+    ] },
+
+  // — Pile dans le mille ! (p336) · sport, prime —
+  { id: 'ps_p336_cible_truquee', programId: 'p336', family: 'editorial', phase: 1,
+    titre: 'La cible truquée',
+    desc: 'Un concurrent de {programme} accuse la production d’avoir truqué une épreuve de tir à l’arc. Les images au ralenti sont ambiguës.',
+    c: [
+      { l: 'Faire contrôler par un arbitre officiel', icon: '🎯', cost: { recurring: 0.01 }, career: { loyalty: 3 }, pop: 1,
+        r: 'Le contrôle rassure.' },
+      { l: 'Rejouer l’épreuve', icon: '🔁', cost: { purchase: 0.02 }, boost: 0.02, career: { loyalty: 1 },
+        r: 'L’épreuve est rejouée.' },
+      { l: 'Maintenir le résultat', icon: '📋', career: { awareness: 1 }, pop: -2,
+        r: 'La polémique dure.' }
+    ] },
+  { id: 'ps_p336_les_champions_precision', programId: 'p336', family: 'audience', phase: 2, when: { minSeasons: 1 },
+    titre: 'Les champions de précision',
+    desc: 'La production de {programme} propose d’inviter des champions olympiques de tir et de pétanque. Les fans de précision adorent.',
+    c: [
+      { l: 'Inviter les champions', icon: '🥇', cost: { purchase: 0.04 }, boost: 0.05, career: { awareness: 4 },
+        r: 'Les champions impressionnent.' },
+      { l: 'Garder les amateurs', icon: '🧑', career: { loyalty: 2, wear: 3 },
+        r: 'L’émission reste accessible.' },
+      { l: 'Un champion par saison', icon: '📅', cost: { purchase: 0.01 }, career: { awareness: 2 },
+        r: 'Un invité de prestige.' }
+    ] },
+
+  // — Ensemble jusqu’au bout (p337) · sport, prime —
+  { id: 'ps_p337_equipe_qui_abandonne', programId: 'p337', family: 'image', phase: 2,
+    titre: 'L’équipe qui abandonne',
+    desc: 'Une équipe de {programme} a abandonné en pleine épreuve, épuisée. Certains y voient une leçon, d’autres un échec.',
+    c: [
+      { l: 'Valoriser leur parcours', icon: '💪', boost: -0.02, career: { loyalty: 1 }, pop: 2,
+        r: 'L’émission salue le courage.' },
+      { l: 'Montrer l’abandon sans commentaire', icon: '📺', career: { awareness: 2 }, pop: -1,
+        r: 'L’abandon divise.' },
+      { l: 'Leur proposer une revanche', icon: '🔁', cost: { purchase: 0.03 }, boost: 0.03, career: { awareness: 3 },
+        r: 'La revanche réussie émeut.' }
+    ] },
+  { id: 'ps_p337_aventure_famille', programId: 'p337', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'L’aventure en famille',
+    desc: 'La production de {programme} propose une saison où les équipes sont des familles. Le défi serait intergénérationnel.',
+    c: [
+      { l: 'Lancer la saison familles', icon: '👨‍👩‍👧', cost: { purchase: 0.08 }, lasting: 0.03, career: { awareness: 5 },
+        r: 'Les familles touchent le public.' },
+      { l: 'Garder les équipes d’amis', icon: '👥', career: { loyalty: 2, wear: 3 },
+        r: 'Le format reste le même.' },
+      { l: 'Une équipe familiale par saison', icon: '🏠', cost: { purchase: 0.02 }, career: { awareness: 2 },
+        r: 'Une touche d’émotion.' }
+    ] },
+
+  // — Poussez les murs ! (p338) · generaliste, apresmidi —
+  { id: 'ps_p338_mur_porteur', programId: 'p338', family: 'editorial', phase: 1,
+    titre: 'Le mur porteur',
+    desc: 'Lors d’un tournage de {programme}, l’équipe découvre qu’un mur à abattre est porteur. Les travaux doivent être revus.',
+    c: [
+      { l: 'Faire appel à un ingénieur', icon: '👷', cost: { purchase: 0.04 }, career: { loyalty: 2 }, pop: 1,
+        r: 'Les travaux sont sécurisés.' },
+      { l: 'Adapter le projet sans abattre le mur', icon: '📐', career: { awareness: -1, loyalty: 1, wear: 2 },
+        r: 'Le projet est moins ambitieux.' },
+      { l: 'En faire un épisode pédagogique', icon: '📚', cost: { purchase: 0.02 }, career: { awareness: 3 }, pop: 1,
+        r: 'Les téléspectateurs apprennent les bonnes pratiques.' }
+    ] },
+  { id: 'ps_p338_renovation_des_logements', programId: 'p338', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'La rénovation des logements sociaux',
+    desc: 'Un bailleur social propose à {programme} de rénover des appartements de ses locataires. Le projet serait utile et touchant.',
+    c: [
+      { l: 'Lancer la saison logements sociaux', icon: '🏢', cost: { purchase: 0.06 }, career: { awareness: 3 }, pop: 3,
+        r: 'La saison est saluée.' },
+      { l: 'Un épisode spécial', icon: '🔨', cost: { purchase: 0.02 }, career: { awareness: 1 }, pop: 1,
+        r: 'L’épisode touche.' },
+      { l: 'Rester sur les propriétaires', icon: '🏡', career: { loyalty: 2, wear: 3 },
+        r: 'L’émission garde son format.' }
+    ] },
+
+  // — C’est cassé ? C’est sauvé ! (p339) · generaliste, apresmidi —
+  { id: 'ps_p339_reparation_dangereuse', programId: 'p339', family: 'editorial', phase: 1,
+    titre: 'La réparation dangereuse',
+    desc: 'Une réparation électrique montrée dans {programme} est jugée dangereuse par des électriciens. Ils craignent des accidents.',
+    c: [
+      { l: 'Ajouter un avertissement de sécurité', icon: '⚠️', boost: -0.01, career: { loyalty: 1 }, pop: 1,
+        r: 'Les téléspectateurs sont prévenus.' },
+      { l: 'Recruter un électricien consultant', icon: '⚡', cost: { recurring: 0.01 }, career: { loyalty: 2 }, pop: 1,
+        r: 'Les réparations sont validées.' },
+      { l: 'Ignorer les critiques', icon: '🤷', career: { awareness: 1 }, pop: -2,
+        r: 'La polémique dure.' }
+    ] },
+  { id: 'ps_p339_les_ateliers_reparation', programId: 'p339', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Les ateliers de réparation',
+    desc: 'La production de {programme} propose d’ouvrir des ateliers de réparation gratuits dans plusieurs villes. L’opération prolongerait l’émission dans la vraie vie.',
+    c: [
+      { l: 'Ouvrir les ateliers', icon: '🔧', cost: { purchase: 0.06 }, lasting: 0.02, career: { awareness: 3 }, pop: 3,
+        r: 'Les ateliers rencontrent un grand succès.' },
+      { l: 'Rester à l’antenne', icon: '📺', career: { loyalty: 1, wear: 3 },
+        r: 'L’émission reste classique.' },
+      { l: 'S’associer aux repair cafés existants', icon: '🤝', cost: { purchase: 0.01 }, career: { awareness: 1 }, pop: 1,
+        r: 'Un partenariat apprécié.' }
+    ] },
+
+  // — Petit jardin, grand bonheur (p340) · generaliste, apresmidi —
+  { id: 'ps_p340_plante_toxique', programId: 'p340', family: 'editorial', phase: 1,
+    titre: 'La plante toxique',
+    desc: 'Une plante conseillée dans {programme} est toxique pour les animaux domestiques. Des propriétaires de chats s’inquiètent.',
+    c: [
+      { l: 'Diffuser un rectificatif', icon: '📢', career: { awareness: -1, loyalty: 1 }, pop: 2,
+        r: 'Le rectificatif rassure.' },
+      { l: 'Créer une rubrique sécurité', icon: '🐱', cost: { purchase: 0.01 }, career: { loyalty: 2 }, pop: 1,
+        r: 'La rubrique est appréciée.' },
+      { l: 'Ignorer', icon: '🤷', career: { wear: 2 }, pop: -2,
+        r: 'La chaîne est critiquée.' }
+    ] },
+  { id: 'ps_p340_concours_plus_beau', programId: 'p340', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le concours du plus beau jardin',
+    desc: 'La production de {programme} propose un concours national du plus beau petit jardin. Les jardiniers amateurs seraient nombreux à participer.',
+    c: [
+      { l: 'Lancer le concours', icon: '🌻', cost: { purchase: 0.04 }, boost: 0.03, lasting: 0.02, career: { awareness: 4 },
+        r: 'Le concours mobilise les jardiniers.' },
+      { l: 'Rester sur les conseils', icon: '🌿', career: { loyalty: 2, wear: 3 },
+        r: 'L’émission garde son format.' },
+      { l: 'Un concours en ligne', icon: '📱', cost: { purchase: 0.01 }, career: { awareness: 2 },
+        r: 'Le concours en ligne amuse.' }
+    ] },
+
+  // — Vos envies ont un prix (p341) · generaliste, apresmidi —
+  { id: 'ps_p341_prix_exagere', programId: 'p341', family: 'image', phase: 2,
+    titre: 'Le prix exagéré',
+    desc: 'Un objet estimé dans {programme} a été revendu bien moins cher. Le propriétaire se sent trompé.',
+    c: [
+      { l: 'Faire réévaluer par un expert indépendant', icon: '🔍', cost: { purchase: 0.01 }, career: { loyalty: 2 }, pop: 1,
+        r: 'La crédibilité de l’émission est préservée.' },
+      { l: 'Assumer l’estimation', icon: '📋', career: { awareness: 1, loyalty: -1 }, pop: -1,
+        r: 'La polémique dure.' },
+      { l: 'Proposer de racheter l’objet', icon: '💶', cost: { purchase: 0.03 }, career: { awareness: 2 }, pop: 2,
+        r: 'Le geste est salué.' }
+    ] },
+  { id: 'ps_p341_les_objets_des', programId: 'p341', family: 'audience', phase: 2, when: { minSeasons: 1 },
+    titre: 'Les objets des stars',
+    desc: 'La production de {programme} propose d’estimer les objets personnels de célébrités. Les agents sont intéressés.',
+    c: [
+      { l: 'Estimer les objets des stars', icon: '🌟', cost: { purchase: 0.04 }, boost: 0.05, career: { awareness: 4 },
+        r: 'Les objets des stars fascinent.' },
+      { l: 'Garder les objets des anonymes', icon: '🧑', career: { loyalty: 2, wear: 3 },
+        r: 'L’émission reste authentique.' },
+      { l: 'Une star par mois', icon: '📅', cost: { purchase: 0.01 }, career: { awareness: 2 },
+        r: 'Une touche de glamour.' }
+    ] },
+
+  // — Une maison, Une Histoire (p342) · generaliste, apresmidi —
+  { id: 'ps_p342_maison_famille_vendue', programId: 'p342', family: 'editorial', phase: 1,
+    titre: 'La maison de famille vendue',
+    desc: 'La maison de famille racontée dans {programme} est mise en vente pendant le tournage. Les héritiers se déchirent.',
+    c: [
+      { l: 'Raconter le déchirement avec pudeur', icon: '🏡', cost: { purchase: 0.01 }, career: { awareness: 3, loyalty: 2 },
+        r: 'Le récit émeut.' },
+      { l: 'Changer de maison', icon: '🔄', cost: { purchase: 0.02 }, career: { loyalty: 1, wear: -3 },
+        r: 'Une autre maison est choisie.' },
+      { l: 'Montrer les disputes', icon: '🔥', career: { awareness: 3 }, pop: -2,
+        r: 'Les disputes font le buzz.' }
+    ] },
+  { id: 'ps_p342_les_maisons_celebrites', programId: 'p342', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Les maisons de célébrités',
+    desc: 'La production de {programme} propose de raconter l’histoire des maisons de personnalités disparues. Les familles accepteraient d’ouvrir leurs portes.',
+    c: [
+      { l: 'Lancer la série', icon: '🏛️', cost: { purchase: 0.04 }, lasting: 0.02, career: { awareness: 4 },
+        r: 'Les maisons de célébrités fascinent.' },
+      { l: 'Rester sur les familles anonymes', icon: '👨‍👩‍👧', career: { loyalty: 2, wear: 3 },
+        r: 'L’émission reste intime.' },
+      { l: 'Un épisode spécial', icon: '🎬', cost: { purchase: 0.01 }, career: { awareness: 2 },
+        r: 'L’épisode est apprécié.' }
+    ] },
+
+  // — Ce meuble a de l’avenir ! (p343) · generaliste, apresmidi —
+  { id: 'ps_p343_meuble_valeur_detruit', programId: 'p343', family: 'editorial', phase: 1,
+    titre: 'Le meuble de valeur détruit',
+    desc: 'Un meuble transformé dans {programme} s’est révélé être une pièce ancienne de grande valeur. Les antiquaires s’indignent.',
+    c: [
+      { l: 'Reconnaître l’erreur et faire expertiser', icon: '🔍', cost: { purchase: 0.01 }, career: { loyalty: 2 }, pop: 1,
+        r: 'La transparence est saluée.' },
+      { l: 'Défendre la transformation', icon: '🎨', career: { awareness: 2 }, pop: -2,
+        r: 'La polémique dure.' },
+      { l: 'Créer une étape d’expertise', icon: '🧐', cost: { recurring: 0.01 }, lasting: 0.01, career: { loyalty: 2 },
+        r: 'Les erreurs ne se reproduiront plus.' }
+    ] },
+  { id: 'ps_p343_vente_aux_encheres', programId: 'p343', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'La vente aux enchères solidaire',
+    desc: 'La production de {programme} propose de vendre aux enchères les meubles transformés au profit d’une association. Les participants seraient d’accord.',
+    c: [
+      { l: 'Organiser la vente solidaire', icon: '🔨', cost: { purchase: 0.02 }, career: { awareness: 3 }, pop: 3,
+        r: 'La vente rapporte beaucoup pour l’association.' },
+      { l: 'Rendre les meubles aux participants', icon: '📦', career: { loyalty: 1, wear: 3 },
+        r: 'Les participants sont contents.' },
+      { l: 'Une vente en ligne', icon: '🌐', career: { awareness: 1, wear: 2 }, pop: 1,
+        r: 'La vente en ligne est discrète.' }
+    ] },
+
+  // — La Folle Histoire de… (p344) · generaliste, apresmidi —
+  { id: 'ps_p344_marque_copiee', programId: 'p344', family: 'image', phase: 2,
+    titre: 'La marque copiée',
+    desc: 'Une astuce de relooking de {programme} copie le design d’une marque de luxe. La marque menace de poursuites.',
+    c: [
+      { l: 'Retirer la séquence', icon: '🗑️', boost: -0.01, career: { loyalty: -1 }, pop: 1,
+        r: 'Le risque juridique est écarté.' },
+      { l: 'Inviter la marque à commenter', icon: '🎙️', cost: { purchase: 0.01 }, career: { awareness: 2 }, pop: 1,
+        r: 'La marque accepte de jouer le jeu.' },
+      { l: 'Maintenir la séquence', icon: '📺', career: { awareness: 2 }, pop: -2,
+        r: 'Le conflit s’envenime.' }
+    ] },
+  { id: 'ps_p344_marche_seconde_main', programId: 'p344', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le marché de seconde main',
+    desc: 'Une plateforme de seconde main propose un partenariat à {programme}. Les tenues relookées y seraient vendues.',
+    c: [
+      { l: 'Signer le partenariat', icon: '👗', cost: { commercial: 0.04 }, career: { awareness: 3, loyalty: -2 },
+        r: 'Le partenariat rapporte, l’émission paraît plus commerciale.' },
+      { l: 'Rester indépendant', icon: '🛡️', career: { loyalty: 2, wear: 2 },
+        r: 'L’émission garde son ton.' },
+      { l: 'Un épisode spécial seconde main', icon: '♻️', cost: { purchase: 0.01 }, career: { awareness: 2 }, pop: 1,
+        r: 'L’épisode sensibilise à la seconde main.' }
+    ] },
+
+  // — L'ultime Razzia (p345) · generaliste, apresmidi —
+  { id: 'ps_p345_razzia_trop_agressive', programId: 'p345', family: 'image', phase: 2,
+    titre: 'La razzia trop agressive',
+    desc: 'Les candidats de {programme} ont bousculé des clients dans un supermarché pendant le tournage. Les images choquent.',
+    c: [
+      { l: 'Revoir les règles du jeu', icon: '📜', cost: { purchase: 0.01 }, career: { loyalty: 1 }, pop: 2,
+        r: 'Le jeu devient plus respectueux.' },
+      { l: 'Diffuser les images', icon: '📺', boost: 0.02, career: { awareness: 3 }, pop: -3,
+        r: 'Les images font scandale.' },
+      { l: 'Tourner hors des heures d’ouverture', icon: '🌙', cost: { purchase: 0.02 }, career: { loyalty: 2, wear: 2 }, pop: 1,
+        r: 'Les clients sont préservés.' }
+    ] },
+  { id: 'ps_p345_razzia_solidaire', programId: 'p345', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'La razzia solidaire',
+    desc: 'La production de {programme} propose une édition où les courses gagnées sont offertes aux Restos du Cœur. Le concept changerait de sens, pour une saison.',
+    c: [
+      { l: 'Lancer l’édition solidaire', icon: '❤️', cost: { purchase: 0.04 }, career: { awareness: 3 }, pop: 3,
+        r: 'L’édition solidaire émeut.' },
+      { l: 'Garder le jeu classique', icon: '🛒', career: { loyalty: 1, wear: 3 },
+        r: 'Le jeu reste le même.' },
+      { l: 'Une édition solidaire à Noël', icon: '🎄', cost: { purchase: 0.01 }, career: { awareness: 1 }, pop: 1,
+        r: 'L’édition de Noël est appréciée.' }
+    ] },
+
+  // — La grande évasion (p346) · generaliste, apresmidi —
+  { id: 'ps_p346_evasion_qui_tourne', programId: 'p346', family: 'editorial', phase: 1,
+    titre: 'L’évasion qui tourne mal',
+    desc: 'Une famille candidate de {programme} s’est perdue en montagne lors d’une épreuve. Les secours ont été mobilisés.',
+    c: [
+      { l: 'Revoir la sécurité des épreuves', icon: '🦺', cost: { purchase: 0.03 }, career: { loyalty: 2 }, pop: 2,
+        r: 'Les épreuves deviennent plus sûres.' },
+      { l: 'Diffuser le sauvetage', icon: '🚁', boost: 0.03, career: { awareness: 3 }, pop: -2,
+        r: 'Les images spectaculaires choquent.' },
+      { l: 'Ne pas diffuser l’épisode', icon: '🗑️', boost: -0.03, pop: 1,
+        r: 'L’épisode disparaît.' }
+    ] },
+  { id: 'ps_p346_grande_evasion_etranger', programId: 'p346', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'La grande évasion à l’étranger',
+    desc: 'La production de {programme} propose des épreuves dans les pays voisins pour une saison plus dépaysante. Le voyage renouvellerait le jeu, à un coût plus élevé.',
+    c: [
+      { l: 'Partir à l’étranger', icon: '✈️', cost: { purchase: 0.1 }, career: { awareness: 4, wear: -8 },
+        r: 'Le dépaysement séduit.' },
+      { l: 'Rester en France', icon: '🇫🇷', career: { loyalty: 2, wear: 3 },
+        r: 'L’émission garde son ancrage.' },
+      { l: 'Une étape à l’étranger', icon: '🗺️', cost: { purchase: 0.03 }, career: { awareness: 2, wear: -3 },
+        r: 'L’étape apporte de la nouveauté.' }
+    ] },
+
+  // — Un Jour, une Histoire (p347) · generaliste, apresmidi —
+  { id: 'ps_p347_astuce_contestee', programId: 'p347', family: 'editorial', phase: 1,
+    titre: 'L’astuce contestée',
+    desc: 'Une astuce pour gagner du temps présentée dans {programme} est jugée inefficace par une association de consommateurs. Les téléspectateurs demandent des explications.',
+    c: [
+      { l: 'Tester l’astuce en direct', icon: '🧪', cost: { purchase: 0.01 }, career: { awareness: 3, loyalty: 1 },
+        r: 'Le test en direct amuse et convainc.' },
+      { l: 'Retirer l’astuce', icon: '🗑️', career: { loyalty: -1 }, pop: 1,
+        r: 'L’affaire est close.' },
+      { l: 'Ignorer la critique', icon: '🤷', career: { awareness: 1, wear: 2 }, pop: -1,
+        r: 'La critique persiste.' }
+    ] },
+  { id: 'ps_p347_guide_des_astuces', programId: 'p347', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le guide des astuces',
+    desc: 'Une maison d’édition propose de publier un guide des astuces de {programme}. Le livre pourrait devenir un best-seller.',
+    c: [
+      { l: 'Publier le guide', icon: '📘', cost: { purchase: 0.02 }, lasting: 0.02, career: { awareness: 4 },
+        r: 'Le guide se vend très bien.' },
+      { l: 'Céder les droits', icon: '📝', cost: { commercial: 0.03 }, career: { awareness: 2, wear: 2 },
+        r: 'Le guide rapporte un peu.' },
+      { l: 'Refuser', icon: '🙅', career: { awareness: -2, loyalty: 1 },
+        r: 'Les astuces restent à l’antenne.' }
     ] }
 ];
 // ---------------------------------------------------------------------------
