@@ -16665,6 +16665,485 @@ const PROGRAM_STORY_BANK = [
         r: 'L’émission reste classique.' },
       { l: 'Un banquet solidaire à Noël', icon: '🎄', cost: { purchase: 0.01 }, career: { awareness: 1 }, pop: 1,
         r: 'L’initiative de Noël est appréciée.' }
+    ] },
+  // — Cupidon fait maison (p388) · generaliste, access —
+  { id: 'ps_p388_couple_qui_existait', programId: 'p388', family: 'editorial', phase: 1,
+    titre: 'Le couple qui n’existait pas',
+    desc: 'Un couple formé dans {programme} avoue avoir simulé sa rencontre pour passer à l’antenne. Les réseaux sociaux s’emparent de l’affaire.',
+    c: [
+      { l: 'Diffuser leurs aveux', icon: '🎤', boost: 0.02, career: { awareness: 3 }, pop: -1,
+        r: 'La franchise du couple amuse autant qu’elle choque.' },
+      { l: 'Retirer l’épisode', icon: '✂️', cost: { purchase: 0.02 }, career: { awareness: -1, loyalty: 2 },
+        r: 'La production sauve sa crédibilité.' },
+      { l: 'Durcir le casting', icon: '🔍', cost: { recurring: 0.01 }, career: { awareness: -1, loyalty: 1, wear: -2 },
+        r: 'Les candidats suivants sont mieux vérifiés.' }
+    ] },
+  { id: 'ps_p388_mariage_direct', programId: 'p388', family: 'audience', phase: 2, when: { minSeasons: 1 },
+    titre: 'Le mariage en direct',
+    desc: 'Deux participants de {programme} veulent se marier devant les caméras. La production y voit l’épisode de l’année.',
+    c: [
+      { l: 'Offrir la cérémonie', icon: '💍', cost: { purchase: 0.06 }, lasting: 0.03, career: { awareness: 5 },
+        r: 'Le mariage réunit un public record.' },
+      { l: 'Trouver un sponsor', icon: '💐', cost: { commercial: 0.04 }, career: { awareness: 2, loyalty: -1, wear: 2 },
+        r: 'Les marques envahissent la cérémonie.' },
+      { l: 'Décliner', icon: '🙅', career: { awareness: -2, loyalty: 1 },
+        r: 'Le couple se marie loin des caméras.' }
+    ] },
+
+  // — Le deuxième printemps (p389) · generaliste, apresmidi —
+  { id: 'ps_p389_candidate_ans', programId: 'p389', family: 'image', phase: 1,
+    titre: 'La candidate de 82 ans',
+    desc: 'Une candidate de 82 ans devient la star de {programme}. Sa famille s’inquiète de la fatigue des tournages.',
+    c: [
+      { l: 'Aménager ses horaires', icon: '🕰️', cost: { purchase: 0.02 }, career: { loyalty: 2 }, pop: 1,
+        r: 'La candidate tient la distance et rayonne.' },
+      { l: 'Maintenir le rythme', icon: '🎬', career: { awareness: 3, wear: 2 }, pop: -1,
+        r: 'Les épisodes restent intenses, mais la presse grince.' },
+      { l: 'La faire sortir', icon: '🚪', career: { awareness: -2, loyalty: 1 },
+        r: 'Le public regrette son départ.' }
+    ] },
+  { id: 'ps_p389_croisiere_des_seniors', programId: 'p389', family: 'economie', phase: 2, when: { minSeasons: 1 },
+    titre: 'La croisière des seniors',
+    desc: 'Une compagnie de croisière propose d’accueillir la prochaine saison de {programme}. Elle demande une forte visibilité à l’écran.',
+    c: [
+      { l: 'Accepter le partenariat', icon: '🛳️', cost: { commercial: 0.06 }, career: { awareness: 2, loyalty: -1, wear: 2 },
+        r: 'Le décor séduit, la marque un peu moins.' },
+      { l: 'Tourner en France', icon: '🏡', cost: { purchase: 0.03 }, career: { awareness: 1, loyalty: 2 },
+        r: 'L’émission garde son ancrage.' },
+      { l: 'Ne rien changer', icon: '⏸️', career: { awareness: -2, wear: -1 },
+        r: 'Le concept s’essouffle doucement.' }
+    ] },
+
+  // — La maison de nos parents (p390) · generaliste, prime —
+  { id: 'ps_p390_maison_vendre', programId: 'p390', family: 'editorial', phase: 1,
+    titre: 'La maison à vendre',
+    desc: 'Une famille de {programme} découvre à l’antenne que la maison familiale va être vendue. Les frères et sœurs se déchirent devant les caméras.',
+    c: [
+      { l: 'Diffuser la dispute', icon: '🎥', boost: 0.02, career: { awareness: 3 }, pop: -1,
+        r: 'L’émotion est brute, les critiques aussi.' },
+      { l: 'Accompagner la famille hors antenne', icon: '🤝', cost: { purchase: 0.02 }, career: { awareness: -1, loyalty: 2 },
+        r: 'La famille se réconcilie et remercie la production.' },
+      { l: 'Couper la séquence', icon: '✂️', career: { awareness: -2, loyalty: 1 },
+        r: 'L’épisode perd de sa force.' }
+    ] },
+  { id: 'ps_p390_saison_des_maisons', programId: 'p390', family: 'strategie', phase: 3, when: { minSeasons: 1, form: 'success' },
+    titre: 'La saison des maisons d’enfance',
+    desc: 'Le succès de {programme} attire des célébrités prêtes à revisiter leur maison d’enfance. Leurs cachets restent élevés.',
+    c: [
+      { l: 'Lancer une saison people', icon: '⭐', cost: { purchase: 0.07 }, lasting: 0.03, career: { awareness: 5, loyalty: -1 },
+        r: 'Les stars attirent un public nouveau.' },
+      { l: 'Mélanger anonymes et célébrités', icon: '⚖️', cost: { purchase: 0.03 }, career: { awareness: 2, loyalty: 1 },
+        r: 'L’équilibre plaît aux fidèles.' },
+      { l: 'Rester avec des anonymes', icon: '🏠', career: { awareness: -2, loyalty: 2 },
+        r: 'L’émission garde son authenticité.' }
+    ] },
+
+  // — Bonjour voisin ! (p391) · generaliste, apresmidi —
+  { id: 'ps_p391_querelle_voisinage', programId: 'p391', family: 'image', phase: 1,
+    titre: 'La querelle de voisinage',
+    desc: 'Une médiation filmée par {programme} tourne au conflit judiciaire entre deux voisins. L’un d’eux menace de porter plainte contre la chaîne.',
+    c: [
+      { l: 'Négocier un accord', icon: '⚖️', cost: { purchase: 0.02 }, career: { loyalty: 2, wear: -1 },
+        r: 'Le plaignant retire sa menace.' },
+      { l: 'Diffuser quand même', icon: '📺', boost: 0.02, career: { awareness: 3 }, pop: -2,
+        r: 'L’épisode fait parler, l’avocat aussi.' },
+      { l: 'Déprogrammer l’épisode', icon: '🗑️', career: { awareness: -2, loyalty: 1 },
+        r: 'La chaîne évite le procès.' }
+    ] },
+  { id: 'ps_p391_fete_des_voisins', programId: 'p391', family: 'economie', phase: 2, when: { minSeasons: 1 },
+    titre: 'La fête des voisins',
+    desc: 'Une enseigne de bricolage propose de sponsoriser une grande fête des voisins tournée par {programme}. Elle veut ses produits dans chaque plan.',
+    c: [
+      { l: 'Accepter le sponsor', icon: '🔨', cost: { commercial: 0.05 }, career: { awareness: 2, loyalty: -1, wear: 2 },
+        r: 'La fête est réussie, la marque très présente.' },
+      { l: 'Organiser la fête seuls', icon: '🎉', cost: { purchase: 0.03 }, career: { awareness: 2, loyalty: 1 },
+        r: 'La fête sonne juste.' },
+      { l: 'Renoncer', icon: '🙅', career: { awareness: -2, wear: -1 },
+        r: 'L’épisode spécial n’aura pas lieu.' }
+    ] },
+
+  // — Dans ta peau (p392) · generaliste, prime —
+  { id: 'ps_p392_echange_qui_derape', programId: 'p392', family: 'editorial', phase: 1,
+    titre: 'L’échange qui dérape',
+    desc: 'Dans {programme}, un chef d’entreprise passe une semaine dans la peau d’un éboueur et le prend de haut. Les éboueurs demandent un droit de réponse.',
+    c: [
+      { l: 'Accorder le droit de réponse', icon: '🗣️', career: { awareness: -1, loyalty: 2, wear: 1 },
+        r: 'Les éboueurs gagnent la sympathie du public.' },
+      { l: 'Diffuser tel quel', icon: '📺', boost: 0.02, career: { awareness: 3 }, pop: -2,
+        r: 'La séquence choque et fait de l’audience.' },
+      { l: 'Retourner une séquence de réconciliation', icon: '🤝', cost: { purchase: 0.03 }, career: { loyalty: 1 }, pop: 1,
+        r: 'Le patron présente ses excuses.' }
+    ] },
+  { id: 'ps_p392_les_politiques_dans', programId: 'p392', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Les politiques dans la peau',
+    desc: 'Des députés acceptent de participer à {programme}. Le CSA rappelle les règles de pluralisme en période électorale.',
+    c: [
+      { l: 'Inviter tous les partis', icon: '🏛️', cost: { purchase: 0.04 }, career: { awareness: 3, loyalty: 1, wear: 2 },
+        r: 'L’émission devient un rendez-vous citoyen.' },
+      { l: 'Inviter un seul député', icon: '👤', boost: 0.03, career: { awareness: 4 }, pop: -1,
+        r: 'L’opposition crie au favoritisme.' },
+      { l: 'Refuser les politiques', icon: '🚫', career: { awareness: -2, loyalty: 1 },
+        r: 'L’émission reste à l’écart de la politique.' }
+    ] },
+
+  // — On recommence ? (p393) · generaliste, nuit —
+  { id: 'ps_p393_qui_refuse', programId: 'p393', family: 'editorial', phase: 1,
+    titre: 'L’ex qui refuse',
+    desc: 'Un candidat de {programme} veut retrouver son ex-compagne, qui refuse de participer. Il insiste publiquement sur les réseaux.',
+    c: [
+      { l: 'Respecter son refus', icon: '✋', career: { awareness: -2, loyalty: 2 },
+        r: 'Le candidat repart seul, la production garde son éthique.' },
+      { l: 'Lui proposer un cachet', icon: '💶', cost: { purchase: 0.02 }, career: { awareness: 2 }, pop: -1,
+        r: 'Elle accepte, mais l’épisode est tendu.' },
+      { l: 'Filmer ses tentatives', icon: '📹', boost: 0.02, career: { awareness: 3 }, pop: -2,
+        r: 'L’épisode met mal à l’aise.' }
+    ] },
+  { id: 'ps_p393_retour_soiree', programId: 'p393', family: 'strategie', phase: 2, when: { minSeasons: 1, form: 'struggle' },
+    titre: 'Le retour en soirée',
+    desc: 'La chaîne songe à avancer {programme} en deuxième partie de soirée. L’animateur réclame plus de moyens pour l’occasion.',
+    c: [
+      { l: 'Avancer avec plus de moyens', icon: '🌙', cost: { recurring: 0.02 }, lasting: 0.03, career: { awareness: 4 },
+        r: 'L’émission trouve un public plus large.' },
+      { l: 'Avancer à budget constant', icon: '⏩', career: { awareness: 2, loyalty: -1, wear: 3 },
+        r: 'L’équipe s’épuise à suivre.' },
+      { l: 'Rester la nuit', icon: '🌑', career: { awareness: -2, loyalty: 1 },
+        r: 'L’émission garde son public de fidèles.' }
+    ] },
+
+  // — La coloc des âges (p394) · generaliste, access —
+  { id: 'ps_p394_colocataire_demenage', programId: 'p394', family: 'editorial', phase: 1,
+    titre: 'La colocataire déménage',
+    desc: 'La doyenne de {programme} veut quitter la colocation après un conflit avec un étudiant. Les deux se reprochent publiquement leurs habitudes.',
+    c: [
+      { l: 'Organiser une médiation', icon: '🤝', cost: { purchase: 0.02 }, career: { loyalty: 2 }, pop: 1,
+        r: 'Ils finissent par se comprendre.' },
+      { l: 'Laisser partir la doyenne', icon: '🧳', career: { awareness: -2, loyalty: 1 },
+        r: 'Le public regrette son humour.' },
+      { l: 'Filmer l’escalade', icon: '🎥', career: { awareness: 3, wear: 1 }, pop: -1,
+        r: 'Le conflit fait les gros titres.' }
+    ] },
+  { id: 'ps_p394_colocation_etranger', programId: 'p394', family: 'audience', phase: 2, when: { minSeasons: 1 },
+    titre: 'La colocation à l’étranger',
+    desc: 'La production propose une saison de {programme} dans une colocation à Lisbonne. Les frais de tournage doubleraient.',
+    c: [
+      { l: 'Partir à Lisbonne', icon: '✈️', cost: { purchase: 0.07 }, lasting: 0.03, career: { awareness: 5 },
+        r: 'Le dépaysement relance la série.' },
+      { l: 'Tourner dans une autre ville française', icon: '🏙️', cost: { purchase: 0.03 }, career: { awareness: 2, loyalty: 1 },
+        r: 'Le changement de décor est apprécié.' },
+      { l: 'Garder la même maison', icon: '🏠', career: { awareness: -2, wear: -1 },
+        r: 'Les habitués retrouvent leurs repères.' }
+    ] },
+
+  // — Nos cousins d’ailleurs (p395) · generaliste, prime —
+  { id: 'ps_p395_cliche_exotique', programId: 'p395', family: 'image', phase: 1,
+    titre: 'Le cliché exotique',
+    desc: 'Une association reproche à {programme} de caricaturer une famille sénégalaise. Des extraits circulent avec des commentaires indignés.',
+    c: [
+      { l: 'Faire relire par des consultants', icon: '📚', cost: { recurring: 0.01 }, career: { loyalty: 2 }, pop: 1,
+        r: 'Les épisodes suivants sonnent plus justes.' },
+      { l: 'Défendre le montage', icon: '🛡️', boost: 0.02, career: { awareness: 1 }, pop: -2,
+        r: 'La polémique entretient l’audience.' },
+      { l: 'Laisser la famille s’exprimer', icon: '🗣️', career: { awareness: -1, loyalty: 1, wear: 1 },
+        r: 'La famille remet les choses à leur place.' }
+    ] },
+  { id: 'ps_p395_les_cousins_viennent', programId: 'p395', family: 'audience', phase: 3, when: { minSeasons: 1, form: 'success' },
+    titre: 'Les cousins viennent en France',
+    desc: 'Les familles rencontrées dans {programme} veulent être reçues en France à leur tour. Le voyage serait coûteux mais très attendu.',
+    c: [
+      { l: 'Financer les voyages retour', icon: '🛬', cost: { purchase: 0.06 }, lasting: 0.02, career: { awareness: 5, loyalty: 1 },
+        r: 'Les retrouvailles émeuvent la France entière.' },
+      { l: 'Un seul épisode spécial', icon: '🎁', cost: { purchase: 0.02 }, career: { awareness: 2 }, pop: 1,
+        r: 'L’épisode touche sans ruiner la production.' },
+      { l: 'Refuser', icon: '🙅', career: { awareness: -2 }, pop: -1,
+        r: 'Le public trouve la production ingrate.' }
+    ] },
+
+  // — Le stagiaire, c’est le patron (p396) · generaliste, prime —
+  { id: 'ps_p396_patron_vexe', programId: 'p396', family: 'editorial', phase: 1,
+    titre: 'Le patron vexé',
+    desc: 'Le patron infiltré dans {programme} découvre que ses employés le critiquent sévèrement. Il exige que certaines séquences soient coupées.',
+    c: [
+      { l: 'Couper les séquences', icon: '✂️', career: { awareness: -2, loyalty: -1, wear: -1 },
+        r: 'L’épisode perd son intérêt.' },
+      { l: 'Diffuser sans coupe', icon: '📺', career: { awareness: 3, loyalty: 1 }, pop: -1,
+        r: 'Le patron se plaint, le public adore.' },
+      { l: 'Lui offrir un droit de conclusion', icon: '🎙️', cost: { purchase: 0.02 }, career: { awareness: 1, loyalty: 2 },
+        r: 'Le patron sort grandi de l’épisode.' }
+    ] },
+  { id: 'ps_p396_les_entreprises_font', programId: 'p396', family: 'economie', phase: 2, when: { minSeasons: 1 },
+    titre: 'Les entreprises font la queue',
+    desc: 'Des grands groupes proposent de payer pour figurer dans {programme}. Ils y voient une publicité pour leur marque employeur.',
+    c: [
+      { l: 'Accepter les paiements', icon: '💼', cost: { commercial: 0.06 }, career: { awareness: 1, wear: 2 }, pop: -2,
+        r: 'Les épisodes ressemblent à des publicités.' },
+      { l: 'Choisir sans rémunération', icon: '🎯', career: { awareness: -1, loyalty: 2 },
+        r: 'L’émission garde son indépendance.' },
+      { l: 'Privilégier les PME', icon: '🏭', cost: { purchase: 0.03 }, career: { loyalty: 1 }, pop: 1,
+        r: 'Les petites entreprises apportent de l’authenticité.' }
+    ] },
+
+  // — Les ados font la loi (p397) · generaliste, access —
+  { id: 'ps_p397_regle_trop', programId: 'p397', family: 'image', phase: 1,
+    titre: 'La règle de trop',
+    desc: 'Des ados de {programme} ont imposé à leurs parents une règle jugée humiliante. Des pédopsychiatres dénoncent la séquence.',
+    c: [
+      { l: 'Inviter un expert en plateau', icon: '🧠', cost: { purchase: 0.02 }, career: { loyalty: 2 }, pop: 1,
+        r: 'Le débat apaise la polémique.' },
+      { l: 'Assumer le ton décalé', icon: '😜', career: { awareness: 3 }, pop: -2,
+        r: 'Les jeunes adorent, les parents beaucoup moins.' },
+      { l: 'Revoir les règles autorisées', icon: '📜', career: { awareness: -2, loyalty: 1 },
+        r: 'Les épisodes deviennent plus sages.' }
+    ] },
+  { id: 'ps_p397_passage_prime', programId: 'p397', family: 'strategie', phase: 2, when: { minSeasons: 1 },
+    titre: 'Le passage en prime',
+    desc: 'La chaîne envisage une version prime de {programme} avec des familles célèbres. Le format court risque de mal supporter l’allongement.',
+    c: [
+      { l: 'Lancer le prime', icon: '🌟', cost: { purchase: 0.05 }, lasting: 0.02, career: { awareness: 4, wear: 2 },
+        r: 'Le prime fait un joli score.' },
+      { l: 'Tester un seul numéro', icon: '🧪', cost: { purchase: 0.02 }, career: { awareness: 2, loyalty: -1 },
+        r: 'Le test donne des résultats mitigés.' },
+      { l: 'Rester en access', icon: '⏸️', career: { awareness: -1, loyalty: 1, wear: -1 },
+        r: 'Le format garde son rythme.' }
+    ] },
+
+  // — Prochain départ (p398) · cinema, access —
+  { id: 'ps_p398_comedien_principal_veut', programId: 'p398', family: 'editorial', phase: 1,
+    titre: 'Le comédien principal veut partir',
+    desc: 'L’acteur principal de {programme} annonce qu’il veut quitter la série pour le cinéma. Les auteurs doivent trouver une sortie à son personnage.',
+    c: [
+      { l: 'Revaloriser son contrat', icon: '💶', cost: { recurring: 0.02 }, career: { awareness: 2, loyalty: 2 },
+        r: 'Il accepte de rester une saison de plus.' },
+      { l: 'Le faire mourir à l’écran', icon: '⚰️', career: { awareness: 4, loyalty: -1 }, pop: -1,
+        r: 'L’épisode bat des records, le public est en deuil.' },
+      { l: 'Le faire partir en voyage', icon: '✈️', career: { awareness: -2, loyalty: 1 },
+        r: 'La porte reste ouverte à un retour.' }
+    ] },
+  { id: 'ps_p398_gare_partenaire', programId: 'p398', family: 'economie', phase: 2, when: { minSeasons: 1 },
+    titre: 'La gare partenaire',
+    desc: 'La SNCF propose de financer une partie des tournages de {programme} contre une meilleure image du rail. Les auteurs craignent le placement de produit.',
+    c: [
+      { l: 'Accepter le partenariat', icon: '🚄', cost: { commercial: 0.06 }, career: { awareness: 1, loyalty: -1, wear: 2 },
+        r: 'Les trains brillent un peu trop à l’écran.' },
+      { l: 'Accepter avec charte éditoriale', icon: '📜', cost: { commercial: 0.03 }, career: { awareness: -1, loyalty: 1 },
+        r: 'Le financement reste discret.' },
+      { l: 'Refuser', icon: '🙅', career: { awareness: -2, loyalty: 2 },
+        r: 'La série garde son regard libre.' }
+    ] },
+
+  // — Le silence des cimes (p399) · cinema, prime —
+  { id: 'ps_p399_avalanche_tournage', programId: 'p399', family: 'editorial', phase: 1,
+    titre: 'L’avalanche au tournage',
+    desc: 'Une avalanche a frôlé l’équipe de {programme} en haute montagne. Les assureurs exigent de nouvelles mesures de sécurité.',
+    c: [
+      { l: 'Renforcer la sécurité', icon: '⛑️', cost: { purchase: 0.04 }, career: { loyalty: 2, wear: -2 },
+        r: 'Le tournage reprend sereinement.' },
+      { l: 'Tourner en studio', icon: '🎬', cost: { purchase: 0.02 }, career: { awareness: -1, loyalty: -1 },
+        r: 'Les décors sonnent moins vrai.' },
+      { l: 'Poursuivre comme prévu', icon: '🏔️', career: { awareness: 3, wear: 3 }, pop: -1,
+        r: 'Les images sont spectaculaires, les équipes inquiètes.' }
+    ] },
+  { id: 'ps_p399_tourisme_dans_vallee', programId: 'p399', family: 'image', phase: 3, when: { minSeasons: 1, form: 'success' },
+    titre: 'Le tourisme dans la vallée',
+    desc: 'Le succès de {programme} attire des milliers de visiteurs dans la vallée du tournage. Les habitants se plaignent de l’afflux.',
+    c: [
+      { l: 'Financer un plan d’accueil', icon: '🏘️', cost: { purchase: 0.03 }, career: { loyalty: 1 }, pop: 2,
+        r: 'La vallée vit bien son succès.' },
+      { l: 'Vendre des circuits touristiques', icon: '🧭', cost: { commercial: 0.04 }, career: { awareness: 1 }, pop: -2,
+        r: 'Les habitants se sentent dépossédés.' },
+      { l: 'Tourner ailleurs', icon: '🗺️', cost: { purchase: 0.02 }, career: { awareness: -1, loyalty: -1 },
+        r: 'Le changement de décor déroute les fidèles.' }
+    ] },
+
+  // — Sous la ville lumière (p400) · cinema, prime —
+  { id: 'ps_p400_tournage_bloque_paris', programId: 'p400', family: 'editorial', phase: 1,
+    titre: 'Le tournage bloqué à Paris',
+    desc: 'La préfecture refuse à {programme} un tournage nocturne sur les quais de Seine. La scène-clé de la saison est menacée.',
+    c: [
+      { l: 'Reconstituer les quais', icon: '🏗️', cost: { purchase: 0.05 }, career: { awareness: 1, loyalty: 2 },
+        r: 'La reconstitution bluffe la critique.' },
+      { l: 'Réécrire la scène', icon: '✍️', career: { awareness: -1, loyalty: -1, wear: 1 },
+        r: 'La saison perd son climax.' },
+      { l: 'Tourner à Lyon', icon: '🌉', cost: { purchase: 0.02 }, career: { awareness: 1 }, pop: -1,
+        r: 'Les Parisiens repèrent la supercherie.' }
+    ] },
+  { id: 'ps_p400_export_international', programId: 'p400', family: 'audience', phase: 2, when: { minSeasons: 1 },
+    titre: 'L’export à l’international',
+    desc: 'Une plateforme américaine veut coproduire la prochaine saison de {programme}. Elle demande des intrigues plus internationales.',
+    c: [
+      { l: 'Coproduire', icon: '🌎', cost: { commercial: 0.06 }, lasting: 0.02, career: { awareness: 2, loyalty: -2 },
+        r: 'La série gagne en ampleur, perd en identité.' },
+      { l: 'Vendre seulement les droits', icon: '📝', cost: { commercial: 0.03 }, career: { awareness: 1, wear: 1 },
+        r: 'La série voyage sans changer.' },
+      { l: 'Refuser', icon: '🙅', career: { awareness: -2, loyalty: 2 },
+        r: 'La série reste profondément parisienne.' }
+    ] },
+
+  // — Bonne route ! (p401) · cinema, access —
+  { id: 'ps_p401_accident_van', programId: 'p401', family: 'editorial', phase: 1,
+    titre: 'L’accident de van',
+    desc: 'Le van de tournage de {programme} a été accidenté sur l’autoroute, sans blessé grave. Les assureurs suspendent la couverture.',
+    c: [
+      { l: 'Changer de prestataire', icon: '🚐', cost: { purchase: 0.03 }, career: { loyalty: 2, wear: -2 },
+        r: 'Le tournage reprend en sécurité.' },
+      { l: 'Intégrer l’accident au scénario', icon: '💥', career: { awareness: 3, wear: 1 }, pop: -1,
+        r: 'Le rebondissement plaît, l’opportunisme un peu moins.' },
+      { l: 'Pause de deux semaines', icon: '⏸️', career: { awareness: -2, loyalty: 1 },
+        r: 'La série perd du terrain.' }
+    ] },
+  { id: 'ps_p401_road_trip_europeen', programId: 'p401', family: 'strategie', phase: 2, when: { minSeasons: 1 },
+    titre: 'Le road-trip européen',
+    desc: 'Les auteurs de {programme} rêvent d’une saison traversant l’Europe. Les coûts de tournage seraient très élevés.',
+    c: [
+      { l: 'Partir en Europe', icon: '🇪🇺', cost: { purchase: 0.07 }, lasting: 0.03, career: { awareness: 5 },
+        r: 'Les paysages séduisent un large public.' },
+      { l: 'Un épisode à l’étranger', icon: '🛣️', cost: { purchase: 0.02 }, career: { awareness: 2, loyalty: -1 },
+        r: 'Le voyage reste anecdotique.' },
+      { l: 'Rester en France', icon: '🇫🇷', career: { awareness: -2, loyalty: 1 },
+        r: 'Les jeunes trouvent la saison répétitive.' }
+    ] },
+
+  // — Docteur tout-terrain (p402) · cinema, prime —
+  { id: 'ps_p402_erreur_medicale_ecran', programId: 'p402', family: 'image', phase: 1,
+    titre: 'L’erreur médicale à l’écran',
+    desc: 'Des médecins dénoncent une erreur médicale dans un épisode de {programme}. L’Ordre des médecins demande une rectification.',
+    c: [
+      { l: 'Engager un conseiller médical', icon: '🩺', cost: { recurring: 0.01 }, career: { loyalty: 2 }, pop: 1,
+        r: 'La série gagne en crédibilité.' },
+      { l: 'Diffuser un rectificatif', icon: '📢', career: { awareness: -1, loyalty: 1 },
+        r: 'Le geste est apprécié.' },
+      { l: 'Ignorer la critique', icon: '🙈', boost: 0.01, career: { awareness: 1 }, pop: -2,
+        r: 'Les médecins boycottent la série.' }
+    ] },
+  { id: 'ps_p402_docteur_tournee', programId: 'p402', family: 'audience', phase: 3, when: { minSeasons: 1, form: 'success' },
+    titre: 'Le docteur en tournée',
+    desc: 'Le succès de {programme} donne envie de tourner dans les déserts médicaux réels. Des mairies se portent candidates.',
+    c: [
+      { l: 'Tourner dans un vrai village', icon: '🏘️', cost: { purchase: 0.04 }, career: { awareness: 3, loyalty: 2 },
+        r: 'La série sonne vrai et touche.' },
+      { l: 'Mettre en avant les mairies partenaires', icon: '🏛️', cost: { commercial: 0.03 }, career: { awareness: 1, loyalty: -1 },
+        r: 'Les mairies paient pour figurer.' },
+      { l: 'Garder les décors habituels', icon: '🎬', career: { awareness: -2, wear: -1 },
+        r: 'La série reste confortable.' }
+    ] },
+
+  // — Le casse du 14 Juillet (p403) · cinema, prime —
+  { id: 'ps_p403_braquage_imite', programId: 'p403', family: 'image', phase: 1,
+    titre: 'Le braquage imité',
+    desc: 'Un vrai braquage de bijouterie reprend le mode opératoire de {programme}. Des syndicats de police s’indignent.',
+    c: [
+      { l: 'Repousser l’épisode final', icon: '📆', career: { awareness: -2, loyalty: 1 },
+        r: 'La chaîne évite d’envenimer.' },
+      { l: 'Diffuser comme prévu', icon: '📺', boost: 0.02, career: { awareness: 3 }, pop: -2,
+        r: 'L’audience grimpe, la polémique aussi.' },
+      { l: 'Ajouter un avertissement', icon: '⚠️', cost: { purchase: 0.01 }, career: { loyalty: 1 }, pop: 1,
+        r: 'Le message est jugé responsable.' }
+    ] },
+  { id: 'ps_p403_casse_suivant', programId: 'p403', family: 'strategie', phase: 2, when: { minSeasons: 1 },
+    titre: 'Le casse suivant',
+    desc: 'Les producteurs de {programme} proposent une suite avec un nouveau casse au Louvre. Le musée hésite à ouvrir ses portes.',
+    c: [
+      { l: 'Négocier avec le Louvre', icon: '🖼️', cost: { purchase: 0.06 }, lasting: 0.03, career: { awareness: 5 },
+        r: 'Les images du musée subjuguent le public.' },
+      { l: 'Inventer un musée fictif', icon: '🏛️', cost: { purchase: 0.03 }, career: { awareness: 2, loyalty: -1 },
+        r: 'L’intrigue convainc sans éblouir.' },
+      { l: 'Ne pas faire de suite', icon: '🛑', career: { awareness: -2, loyalty: 1 },
+        r: 'La série reste une histoire unique.' }
+    ] },
+
+  // — Il était une nuit (p404) · cinema, nuit —
+  { id: 'ps_p404_conte_trop_sombre', programId: 'p404', family: 'editorial', phase: 1,
+    titre: 'Le conte trop sombre',
+    desc: 'Un épisode de {programme} est jugé trop violent pour un public jeune. Des parents écrivent au médiateur de la chaîne.',
+    c: [
+      { l: 'Signalétique -12', icon: '🔞', career: { awareness: -2, loyalty: 1 },
+        r: 'L’épisode est diffusé avec prudence.' },
+      { l: 'Diffuser tel quel', icon: '🌘', career: { awareness: 2, loyalty: 1 }, pop: -2,
+        r: 'Les fans saluent l’audace.' },
+      { l: 'Remonter l’épisode', icon: '✂️', cost: { purchase: 0.02 }, career: { loyalty: -1 }, pop: 1,
+        r: 'L’épisode perd de sa force.' }
+    ] },
+  { id: 'ps_p404_podcast_officiel', programId: 'p404', family: 'audience', phase: 2, when: { minSeasons: 1 },
+    titre: 'Le podcast officiel',
+    desc: 'Les fans de {programme} réclament un podcast prolongeant les histoires. Un studio audio propose de le produire.',
+    c: [
+      { l: 'Produire le podcast', icon: '🎧', cost: { purchase: 0.03 }, career: { awareness: 3, loyalty: 1 },
+        r: 'Le podcast fidélise les fans.' },
+      { l: 'Céder la licence', icon: '📝', cost: { commercial: 0.03 }, career: { awareness: 1, loyalty: -1 },
+        r: 'Le podcast est inégal.' },
+      { l: 'Refuser', icon: '🙅', career: { awareness: -2, wear: -1 },
+        r: 'Les fans sont déçus.' }
+    ] },
+
+  // — Un été en colo (p405) · cinema, access —
+  { id: 'ps_p405_jeune_acteur_harcele', programId: 'p405', family: 'editorial', phase: 1,
+    titre: 'Le jeune acteur harcelé',
+    desc: 'Un jeune acteur de {programme} est harcelé sur les réseaux sociaux. Ses parents demandent une protection.',
+    c: [
+      { l: 'Engager un modérateur', icon: '🛡️', cost: { recurring: 0.01 }, career: { loyalty: 2 }, pop: 1,
+        r: 'L’acteur reprend confiance.' },
+      { l: 'Publier un communiqué', icon: '📢', career: { awareness: -1, loyalty: 1 },
+        r: 'Le soutien est symbolique.' },
+      { l: 'Ne rien faire', icon: '🙈', career: { awareness: 1, wear: 2 }, pop: -2,
+        r: 'Les parents menacent de retirer leur fils.' }
+    ] },
+  { id: 'ps_p405_colonie_vacances_partenaire', programId: 'p405', family: 'economie', phase: 2, when: { minSeasons: 1 },
+    titre: 'La colonie de vacances partenaire',
+    desc: 'Un organisateur de colonies propose de financer {programme} en échange de visibilité. Les auteurs craignent une publicité déguisée.',
+    c: [
+      { l: 'Accepter', icon: '🏕️', cost: { commercial: 0.05 }, career: { awareness: 1, loyalty: -1, wear: 2 },
+        r: 'La marque s’affiche partout.' },
+      { l: 'Accepter discrètement', icon: '🤫', cost: { commercial: 0.02 }, career: { awareness: -1, loyalty: 1 },
+        r: 'Le partenariat passe inaperçu.' },
+      { l: 'Refuser', icon: '🙅', career: { awareness: -2, loyalty: 2 },
+        r: 'La série reste libre de ton.' }
+    ] },
+
+  // — Point de bascule (p406) · cinema, prime —
+  { id: 'ps_p406_intrigue_trop_proche', programId: 'p406', family: 'editorial', phase: 1,
+    titre: 'L’intrigue trop proche du réel',
+    desc: 'L’intrigue de {programme} ressemble à une affaire judiciaire en cours. L’avocat de l’accusé menace de poursuivre.',
+    c: [
+      { l: 'Modifier l’intrigue', icon: '✍️', cost: { purchase: 0.03 }, career: { awareness: -1, loyalty: 1 },
+        r: 'La série évite le procès.' },
+      { l: 'Maintenir la diffusion', icon: '📺', boost: 0.02, career: { awareness: 3 }, pop: -2,
+        r: 'Le parallèle intrigue le public.' },
+      { l: 'Ajouter un avertissement', icon: '⚠️', career: { awareness: -1, loyalty: 1, wear: 1 },
+        r: 'Le message rassure les juristes.' }
+    ] },
+  { id: 'ps_p406_saison_finale', programId: 'p406', family: 'strategie', phase: 3, when: { minSeasons: 1, form: 'success' },
+    titre: 'La saison finale',
+    desc: 'Les auteurs de {programme} proposent de conclure la série en apothéose. La chaîne préférerait la prolonger.',
+    c: [
+      { l: 'Écrire une fin grandiose', icon: '🎆', cost: { purchase: 0.05 }, lasting: -0.02, career: { awareness: 5, loyalty: 2 },
+        r: 'Le final est salué, la série laisse un vide.' },
+      { l: 'Prolonger de deux saisons', icon: '➕', cost: { recurring: 0.02 }, lasting: 0.03, career: { awareness: 2, wear: 3 },
+        r: 'La série continue, mais s’use.' },
+      { l: 'Laisser une fin ouverte', icon: '🔓', career: { awareness: 1, loyalty: -1 }, pop: -1,
+        r: 'Le public est frustré.' }
+    ] },
+
+  // — Le domaine des trois sœurs (p407) · cinema, apresmidi —
+  { id: 'ps_p407_ainee_part', programId: 'p407', family: 'editorial', phase: 1,
+    titre: 'La sœur aînée part',
+    desc: 'L’actrice incarnant la sœur aînée de {programme} quitte la série. Les auteurs hésitent entre un remplacement et une disparition.',
+    c: [
+      { l: 'Recaster le rôle', icon: '🔄', cost: { purchase: 0.02 }, career: { awareness: 1, loyalty: -1 },
+        r: 'Le public met du temps à adopter la nouvelle actrice.' },
+      { l: 'Écrire une disparition dramatique', icon: '🌪️', career: { awareness: 3, loyalty: 1 }, pop: -1,
+        r: 'Le rebondissement relance l’intrigue.' },
+      { l: 'La faire partir à l’étranger', icon: '✈️', career: { awareness: -2, loyalty: 1 },
+        r: 'La sortie est discrète.' }
+    ] },
+  { id: 'ps_p407_vin_domaine', programId: 'p407', family: 'economie', phase: 2, when: { minSeasons: 1 },
+    titre: 'Le vin du domaine',
+    desc: 'Un négociant propose de commercialiser le vin fictif de {programme}. La loi Évin impose des limites strictes.',
+    c: [
+      { l: 'Lancer le vin', icon: '🍷', cost: { commercial: 0.05 }, career: { awareness: 1 }, pop: -2,
+        r: 'Les ventes sont bonnes, l’image écornée.' },
+      { l: 'Produire des produits dérivés sans alcool', icon: '🧃', cost: { commercial: 0.02 }, career: { awareness: 1, loyalty: -1 },
+        r: 'Les produits dérivés plaisent aux fans.' },
+      { l: 'Refuser', icon: '🙅', career: { awareness: -2, loyalty: 2 },
+        r: 'La série reste au-dessus de la mêlée.' }
     ] }
 ];
 // ---------------------------------------------------------------------------
