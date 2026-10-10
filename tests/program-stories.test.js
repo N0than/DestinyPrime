@@ -62,6 +62,12 @@ Object.entries(byProgram).forEach(([pid,list])=>{
   chk(new Set(list.map(d=>d.titre)).size===list.length,'titres distincts '+pid);
 });
 PROGRAM_CATALOG.forEach(p=>chk(byProgram[p.id]?.length>=2,'programme du catalogue couvert '+p.id));
+// Conséquences visibles : presque chaque histoire touche l'audience du programme, et une
+// large part engage aussi la popularité de la chaîne.
+const withAudience=PROGRAM_STORY_BANK.filter(d=>d.c.some(c=>c.boost||c.lasting)).length;
+const withPop=PROGRAM_STORY_BANK.filter(d=>d.c.some(c=>c.pop)).length;
+chk(withAudience>=0.95*PROGRAM_STORY_BANK.length,'conséquences d’audience '+withAudience);
+chk(withPop>=0.55*PROGRAM_STORY_BANK.length,'conséquences de popularité '+withPop);
 ok(!issues.length,'Banque des histoires :\n'+issues.join('\n'));
 
 // ——— 2. Mise en place d'une partie ———
