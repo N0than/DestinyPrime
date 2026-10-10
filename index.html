@@ -166,6 +166,7 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 }
 .hud-panel-head-right { gap: 6px; }
 .hud-type-badge.hud-gameover-badge { color: #b91c1c; background: rgba(254,226,226,0.8); border-color: rgba(252,165,165,0.9); }
+.hud-type-badge.hud-convention-badge { color: #4338ca; background: rgba(224,231,255,0.8); border-color: rgba(165,180,252,0.9); }
 /* Écrans étroits : badges resserrés ; si le nom ne tient pas sur une ligne, seul le point rouge reste. */
 .hud-panel { container-type: inline-size; }
 /* Panneau étroit (mobile) : badges resserrés pour garder « Audience Masters » sur une ligne. */
@@ -9228,12 +9229,12 @@ function renderStepDots(active, total) {
 }
 
 // Ligne de tête du HUD : marque, type de chaîne, cible et, au besoin, bouton du slider.
-function renderHudHead(p, { toggle = true, open = false, gameOver = false } = {}) {
+function renderHudHead(p, { toggle = true, open = false, status = null } = {}) {
   return `
         <div class="hud-panel-head">
           <button type="button" class="hud-brand-badge" id="hud-brand" title="Retour à l’accueil"><span class="dot"></span><span class="hud-brand-text">Audience Masters</span></button>
           <div class="hud-panel-head-right">
-            ${gameOver ? '<span class="hud-type-badge hud-gameover-badge" title="Fin de partie">🏁 Fin de partie</span>' : (() => {
+            ${status ? `<span class="hud-type-badge hud-status-badge ${status.cls || ''}" title="${esc(status.label)}">${status.icon} ${esc(status.label)}</span>` : (() => {
               // Le type de chaîne reste toujours écrit ; s'il manque de place (cf. fitHudBrand),
               // il perd son emoji puis passe à son libellé court. La cible perd « ans » sur mobile.
               const typeLabel = CHANNEL_TYPES[p.type].label.replace(/\s*\/\s*Famille\b/, '');
@@ -9253,11 +9254,16 @@ function renderHudHead(p, { toggle = true, open = false, gameOver = false } = {}
   `;
 }
 // Bilan de saison : seule la ligne de tête du HUD, sans indicateurs ni bouton du slider.
-// En fin de partie, un badge « Fin de partie » remplace ceux du type de chaîne et de la cible.
-function renderHudHeadOnly({ gameOver = false } = {}) {
+// Fin de partie, renouvellement de convention : un badge d'étape remplace ceux du type de
+// chaîne et de la cible.
+const HUD_STATUS_BADGES = {
+  gameOver: { icon: '🏁', label: 'Fin de partie', cls: 'hud-gameover-badge' },
+  convention: { icon: '⚖️', label: 'Convention', cls: 'hud-convention-badge' }
+};
+function renderHudHeadOnly({ status = null } = {}) {
   return `
     <div class="hud-wrap hud-head-only">
-      <div class="hud-panel">${renderHudHead(gameState.player, { toggle: false, gameOver })}</div>
+      <div class="hud-panel">${renderHudHead(gameState.player, { toggle: false, status: HUD_STATUS_BADGES[status] || null })}</div>
     </div>`;
 }
 
@@ -10182,7 +10188,7 @@ function render() {
         ];
     app.innerHTML = `
       ${renderMasthead("Fin de partie", "Audience Masters", true)}
-      ${renderHudHeadOnly({ gameOver: true })}
+      ${renderHudHeadOnly({ status: 'gameOver' })}
       <div class="card bilan-card sanction-card">
         <div class="kicker-row sanction-kicker-row">
           <span class="dc-live-pill sanction-pill"><span class="dc-live-dot"></span>${isArcom ? 'Autorisation retirée' : 'Mise sous tutelle'}</span>
@@ -10341,7 +10347,8 @@ function render() {
     ];
 
     app.innerHTML = `
-      ${renderMasthead("Renouvellement de convention", "Audience Masters")}
+      ${renderMasthead("Renouvellement de convention", "Audience Masters", true)}
+      ${renderHudHeadOnly({ status: 'convention' })}
       <div class="card bilan-card renewal-card renewal-${tone}">
         <div class="kicker-row renewal-kicker-row">
           <span class="kicker-badge">⚖️ Renouvellement<span class="renewal-xs-hide">&nbsp;de convention</span></span>
@@ -10374,6 +10381,11 @@ function render() {
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
     `;
+    // Même en-tête que le bilan de saison : le badge de marque ramène à l'accueil.
+    fitHudBrand();
+    const renewalBrand = document.getElementById('hud-brand');
+    if (renewalBrand) renewalBrand.onclick = goHome;
+    app.querySelector('.masthead').onclick = goHome;
     document.getElementById('btn-renewal-continue').onclick = () => {
       if (outcome.key === 'refused') {
         gameState.gameOverReason = 'arcom';
