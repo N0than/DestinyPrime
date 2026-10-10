@@ -11061,6 +11061,437 @@ const PROGRAM_STORY_BANK = [
         r: 'Le sponsoring donne de la visibilité.' },
       { l: 'Ne pas s’engager', icon: '🙅', career: { awareness: -1, wear: 2 },
         r: 'La chaîne reste spectatrice.' }
+    ] },
+  // — Animation Young Adult (p149) · jeunesse, access —
+  { id: 'ps_p149_sante_mentale_ecran', programId: 'p149', family: 'image', phase: 2,
+    titre: 'La santé mentale à l’écran',
+    desc: 'Un épisode de {programme} montre une héroïne en dépression. Des psychologues saluent le sujet, mais des parents le jugent trop lourd.',
+    c: [
+      { l: 'Ajouter une ligne d’écoute en fin d’épisode', icon: '💙', cost: { purchase: 0.01 }, career: { loyalty: 1 }, pop: 2,
+        r: 'L’épisode devient un outil de sensibilisation.' },
+      { l: 'Diffuser plus tard dans la soirée', icon: '🌙', boost: -0.04, career: { loyalty: 1 }, pop: 1,
+        r: 'L’épisode trouve son public, loin des plus jeunes.' },
+      { l: 'Diffuser tel quel', icon: '📺', career: { awareness: 2, loyalty: 2 }, pop: -1,
+        r: 'Les jeunes adultes saluent la sincérité de la série.' }
+    ] },
+  { id: 'ps_p149_saison_coproduction', programId: 'p149', family: 'economie', phase: 1, when: { minSeasons: 1 },
+    titre: 'La saison 2 en coproduction',
+    desc: 'Le studio de {programme} cherche un coproducteur pour sa deuxième saison. La chaîne pourrait en obtenir l’exclusivité.',
+    c: [
+      { l: 'Coproduire la saison 2', icon: '🎬', cost: { purchase: 0.3 }, lasting: 0.05, career: { awareness: 4, loyalty: 2 },
+        r: 'La série continue en exclusivité.' },
+      { l: 'Acheter la saison une fois terminée', icon: '🛒', cost: { purchase: 0.1 }, career: { awareness: 1, loyalty: 1 },
+        r: 'La saison arrive plus tard, sans exclusivité.' },
+      { l: 'Laisser une plateforme la financer', icon: '🙅', career: { loyalty: -3, wear: 2 },
+        r: 'La série part sur une plateforme.' }
+    ] },
+
+  // — Magazine pop culture (p150) · jeunesse, access —
+  { id: 'ps_p150_cosplay_qui_derape', programId: 'p150', family: 'editorial', phase: 2,
+    titre: 'Le cosplay qui dérape',
+    desc: 'Un concours de cosplay filmé par {programme} a donné lieu à des moqueries envers une participante. Les fans de pop culture s’indignent.',
+    c: [
+      { l: 'Soutenir la participante à l’antenne', icon: '🤝', cost: { purchase: 0.01 }, career: { loyalty: 2 }, pop: 2,
+        r: 'La communauté salue la réaction de l’émission.' },
+      { l: 'Couper les séquences moqueuses', icon: '✂️', boost: -0.02, career: { loyalty: 1 }, pop: 1,
+        r: 'Le reportage est corrigé.' },
+      { l: 'Ne pas réagir', icon: '🤷', career: { awareness: 1 }, pop: -2,
+        r: 'La communauté boude l’émission.' }
+    ] },
+  { id: 'ps_p150_convention_pop_culture', programId: 'p150', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'La convention pop culture',
+    desc: 'La grande convention de pop culture propose à {programme} de devenir son média officiel. L’émission y installerait son plateau.',
+    c: [
+      { l: 'Devenir le média officiel', icon: '🦸', cost: { purchase: 0.15 }, boost: 0.04, lasting: 0.04, career: { awareness: 5 },
+        r: 'L’émission devient incontournable pour les fans.' },
+      { l: 'Envoyer une équipe de reportage', icon: '📸', cost: { purchase: 0.04 }, career: { awareness: 2, loyalty: 1 },
+        r: 'Quelques reportages appréciés.' },
+      { l: 'Décliner', icon: '🙅', career: { awareness: -2, wear: 2 },
+        r: 'La convention trouve un autre partenaire.' }
+    ] },
+
+  // — Série musicale (p151) · jeunesse, access —
+  { id: 'ps_p151_chanson_serie_tete', programId: 'p151', family: 'editorial', phase: 1,
+    titre: 'La chanson de la série en tête des classements',
+    desc: 'Une chanson de {programme} est entrée dans les classements. Le label propose un concert des acteurs en direct.',
+    c: [
+      { l: 'Organiser le concert en direct', icon: '🎤', cost: { purchase: 0.15 }, boost: 0.1, career: { awareness: 5 },
+        r: 'Le concert fait le bonheur des fans.' },
+      { l: 'Diffuser le clip', icon: '🎬', career: { awareness: 1, wear: 2 },
+        r: 'Le clip tourne en boucle.' },
+      { l: 'Organiser un karaoké géant avec les fans', icon: '🎶', cost: { purchase: 0.06 }, career: { awareness: 4, loyalty: 2 },
+        r: 'Le karaoké crée un moment de communion.' }
+    ] },
+  { id: 'ps_p151_serie_essouffle', programId: 'p151', family: 'audience', phase: 2, when: { minSeasons: 1 },
+    titre: 'La série s’essouffle',
+    desc: 'Les intrigues de {programme} tournent en rond et les fans s’impatientent. Les scénaristes proposent un nouveau groupe de musique rival.',
+    c: [
+      { l: 'Introduire le groupe rival', icon: '🎸', cost: { purchase: 0.06 }, boost: 0.03, career: { awareness: 3, wear: -8 },
+        r: 'La rivalité relance l’intrigue.' },
+      { l: 'Garder les intrigues actuelles', icon: '🔁', career: { loyalty: 2, wear: 4 },
+        r: 'Les fidèles restent, sans nouvel élan.' },
+      { l: 'Organiser un concours de chant pour les fans', icon: '🎙️', cost: { purchase: 0.04 }, career: { awareness: 3, loyalty: 1 },
+        r: 'Le concours implique la communauté.' }
+    ] },
+
+  // — Grand film d'animation (p152) · jeunesse, prime —
+  { id: 'ps_p152_film_animation_annee', programId: 'p152', family: 'economie', phase: 1,
+    titre: 'Le film d’animation de l’année',
+    desc: 'Le grand film d’animation de l’année est disponible pour {programme}, à un prix record. Une plateforme est prête à surenchérir.',
+    c: [
+      { l: 'Acheter le film au prix record', icon: '💰', cost: { purchase: 0.6 }, boost: 0.15, career: { awareness: 5 },
+        r: 'Le film réunit les familles devant la chaîne.' },
+      { l: 'Diffuser un film d’animation plus ancien', icon: '📼', career: { loyalty: 1, wear: 3 },
+        r: 'Une soirée sympathique, sans événement.' },
+      { l: 'Négocier une diffusion décalée', icon: '⏳', cost: { purchase: 0.2 }, boost: 0.05, career: { awareness: 2 },
+        r: 'Le film arrive plus tard, à moindre coût.' }
+    ] },
+  { id: 'ps_p152_soiree_noel', programId: 'p152', family: 'audience', phase: 3, when: { minSeasons: 1 },
+    titre: 'La soirée de Noël',
+    desc: 'La soirée de Noël approche. La production de {programme} propose un film d’animation inédit, précédé d’un making-of.',
+    c: [
+      { l: 'Programmer la soirée de Noël', icon: '🎄', cost: { purchase: 0.2 }, boost: 0.12, career: { awareness: 4 },
+        r: 'La soirée de Noël réunit les familles.' },
+      { l: 'Diffuser un classique de Noël', icon: '⭐', career: { loyalty: 2, wear: 3 },
+        r: 'Une soirée chaleureuse et sans risque.' },
+      { l: 'Organiser un vote des enfants pour le film', icon: '🗳️', cost: { purchase: 0.04 }, career: { awareness: 3, loyalty: 1 },
+        r: 'Les enfants se sentent impliqués.' }
+    ] },
+
+  // — Film familial (p153) · jeunesse, prime —
+  { id: 'ps_p153_film_familial_conteste', programId: 'p153', family: 'image', phase: 2,
+    titre: 'Un film familial contesté',
+    desc: 'Un film familial prévu dans {programme} contient une scène jugée stéréotypée envers une communauté. Des associations demandent un avertissement.',
+    c: [
+      { l: 'Ajouter un avertissement', icon: '⚠️', cost: { purchase: 0.01 }, career: { loyalty: 1 }, pop: 1,
+        r: 'Le film est remis dans son contexte.' },
+      { l: 'Remplacer le film', icon: '🔄', cost: { purchase: 0.06 }, career: { wear: 2 }, pop: 2,
+        r: 'La soirée se passe sans polémique.' },
+      { l: 'Diffuser tel quel', icon: '📺', career: { loyalty: 1 }, pop: -2,
+        r: 'La polémique s’installe.' }
+    ] },
+  { id: 'ps_p153_cinema_plein_air', programId: 'p153', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le cinéma en plein air',
+    desc: 'La production de {programme} propose de diffuser un film en plein air dans un parc, en direct, avec des familles. L’événement serait convivial, mais dépend de la météo.',
+    c: [
+      { l: 'Organiser la séance en plein air', icon: '🌳', cost: { purchase: 0.12 }, boost: 0.08, career: { awareness: 4 },
+        r: 'Une soirée conviviale très suivie.' },
+      { l: 'Diffuser le film normalement', icon: '📺', career: { loyalty: 1, wear: 3 },
+        r: 'Une soirée classique.' },
+      { l: 'Filmer une séance en reportage', icon: '📸', cost: { purchase: 0.03 }, career: { awareness: 2, loyalty: 1 },
+        r: 'Le reportage donne envie aux familles.' }
+    ] },
+
+  // — Spécial franchise (p154) · jeunesse, prime —
+  { id: 'ps_p154_franchise_exige_plus', programId: 'p154', family: 'economie', phase: 1,
+    titre: 'La franchise exige plus',
+    desc: 'Les ayants droit de la franchise diffusée dans {programme} exigent une hausse de 50 % des droits. Ils menacent de partir vers une plateforme.',
+    c: [
+      { l: 'Accepter la hausse', icon: '💶', cost: { recurring: 0.2 }, boost: 0.04, career: { loyalty: 3 },
+        r: 'La franchise reste, à un prix élevé.' },
+      { l: 'Lancer une franchise maison', icon: '🌟', cost: { purchase: 0.2 }, lasting: 0.03, career: { awareness: 3, loyalty: -3 },
+        r: 'Une nouvelle franchise prend progressivement.' },
+      { l: 'Laisser partir la franchise', icon: '👋', boost: -0.06, career: { loyalty: -3 },
+        r: 'Les fans suivent la franchise ailleurs.' }
+    ] },
+  { id: 'ps_p154_marathon_franchise', programId: 'p154', family: 'audience', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le marathon de la franchise',
+    desc: 'Les fans de {programme} réclament un marathon de tous les épisodes avant la sortie du prochain film. La chaîne pourrait y consacrer un samedi.',
+    c: [
+      { l: 'Organiser le marathon du samedi', icon: '🍿', cost: { purchase: 0.04 }, boost: 0.08, career: { awareness: 3, wear: 3 },
+        r: 'Le marathon fait le bonheur des fans.' },
+      { l: 'Diffuser un épisode par jour', icon: '📅', career: { loyalty: 2, wear: 2 },
+        r: 'La franchise s’étale tranquillement.' },
+      { l: 'Proposer le marathon en ligne', icon: '📲', cost: { purchase: 0.02 }, career: { awareness: 2, loyalty: 1 },
+        r: 'Les fans regardent à leur rythme.' }
+    ] },
+
+  // — Événement jeunesse (p156) · jeunesse, prime —
+  { id: 'ps_p156_invite_star_des', programId: 'p156', family: 'editorial', phase: 1,
+    titre: 'L’invité star des ados',
+    desc: 'Un chanteur adoré des adolescents accepte de participer à {programme}. Il exige de choisir lui-même les questions.',
+    c: [
+      { l: 'Accepter ses conditions', icon: '🌟', cost: { purchase: 0.06 }, boost: 0.1, career: { awareness: 5, loyalty: -2 },
+        r: 'Les ados sont ravis, l’émission perd un peu de spontanéité.' },
+      { l: 'Refuser', icon: '✋', career: { awareness: -2, loyalty: 2 },
+        r: 'L’émission garde sa liberté.' },
+      { l: 'Proposer un format libre avec les fans', icon: '🎙️', cost: { purchase: 0.03 }, career: { awareness: 3, loyalty: 1 },
+        r: 'Les fans posent les questions.' }
+    ] },
+  { id: 'ps_p156_evenement_trop_commercial', programId: 'p156', family: 'image', phase: 2, when: { minSeasons: 1 },
+    titre: 'L’événement trop commercial',
+    desc: 'Les parents reprochent à {programme} de multiplier les produits dérivés et les jeux payants. Une association de consommateurs s’en mêle.',
+    c: [
+      { l: 'Réduire la place des produits dérivés', icon: '🛑', cost: { saving: 0.05 }, career: { awareness: -2 }, pop: 2,
+        r: 'L’émission retrouve une image saine.' },
+      { l: 'Maintenir la formule', icon: '🛍️', career: { awareness: 1, loyalty: -1 }, pop: -2,
+        r: 'La polémique s’amplifie.' },
+      { l: 'Remplacer les jeux payants par des jeux gratuits', icon: '🎁', cost: { purchase: 0.04 }, career: { loyalty: 2 }, pop: 2,
+        r: 'Les familles apprécient le geste.' }
+    ] },
+
+  // — Comédie familiale (p157) · jeunesse, prime —
+  { id: 'ps_p157_acteur_enfant', programId: 'p157', family: 'editorial', phase: 1,
+    titre: 'L’acteur enfant',
+    desc: 'Le jeune acteur vedette de {programme} grandit et ne correspond plus au rôle. Les auteurs proposent de faire vieillir le personnage.',
+    c: [
+      { l: 'Faire vieillir le personnage', icon: '🧑', cost: { purchase: 0.03 }, career: { awareness: 2, loyalty: -1, wear: -8 },
+        r: 'La série grandit avec son public.' },
+      { l: 'Remplacer l’acteur', icon: '🔄', career: { loyalty: -4, wear: -4 },
+        r: 'Les fans ont du mal à s’habituer.' },
+      { l: 'Clore l’histoire en beauté', icon: '🏁', cost: { purchase: 0.06 }, boost: 0.08, career: { loyalty: 3 },
+        r: 'Un final émouvant salué par les familles.' }
+    ] },
+  { id: 'ps_p157_comedie_concurrente', programId: 'p157', family: 'audience', phase: 2, when: { minSeasons: 1, pressure: true },
+    titre: 'La comédie concurrente',
+    desc: '{rival} diffuse {rivalProgramme} face à {programme}. Les familles hésitent entre les deux rendez-vous.',
+    c: [
+      { l: 'Programmer des épisodes inédits', icon: '🆕', cost: { purchase: 0.12 }, boost: 0.08, career: { awareness: 2 },
+        r: 'Les inédits retiennent les familles.' },
+      { l: 'Miser sur la fidélité', icon: '🏠', career: { loyalty: 2, wear: 3 },
+        r: 'Les fidèles restent.' },
+      { l: 'Organiser un épisode avec un invité surprise', icon: '🎁', cost: { purchase: 0.05 }, boost: 0.05, career: { awareness: 3 },
+        r: 'L’invité surprise crée l’événement.' }
+    ] },
+
+  // — Téléfilm jeunesse (p158) · jeunesse, prime —
+  { id: 'ps_p158_telefilm_tourne_dans', programId: 'p158', family: 'editorial', phase: 2,
+    titre: 'Le téléfilm tourné dans une école',
+    desc: 'Le téléfilm de {programme} doit être tourné dans une vraie école. Les parents d’élèves s’inquiètent pour leurs enfants.',
+    c: [
+      { l: 'Associer les élèves au tournage', icon: '🏫', cost: { purchase: 0.04 }, career: { awareness: 3 }, pop: 2,
+        r: 'Les élèves vivent une expérience inoubliable.' },
+      { l: 'Tourner en studio', icon: '🎬', cost: { purchase: 0.06 }, career: { loyalty: 1, wear: 2 },
+        r: 'Le tournage se passe sans incident.' },
+      { l: 'Maintenir le tournage sans concertation', icon: '📋', career: { awareness: 1 }, pop: -2,
+        r: 'Les parents protestent.' }
+    ] },
+  { id: 'ps_p158_telefilm_serie', programId: 'p158', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le téléfilm en série',
+    desc: 'Le succès du téléfilm de {programme} pousse la production à proposer une série dérivée. Les personnages ont trouvé leur public.',
+    c: [
+      { l: 'Produire la série dérivée', icon: '📺', cost: { purchase: 0.3 }, lasting: 0.05, career: { awareness: 5 },
+        r: 'La série prolonge l’univers.' },
+      { l: 'Produire un second téléfilm', icon: '🎬', cost: { purchase: 0.12 }, boost: 0.06, career: { awareness: 2 },
+        r: 'Une suite appréciée.' },
+      { l: 'En rester là', icon: '🏁', career: { awareness: -2, loyalty: 1 },
+        r: 'Le téléfilm reste unique.' }
+    ] },
+
+  // — Soirée super-héros (p159) · jeunesse, prime —
+  { id: 'ps_p159_soiree_trop_chere', programId: 'p159', family: 'economie', phase: 1,
+    titre: 'La soirée trop chère',
+    desc: 'Les droits des films de super-héros de {programme} augmentent fortement. La chaîne doit arbitrer.',
+    c: [
+      { l: 'Payer les droits', icon: '💶', cost: { recurring: 0.15 }, boost: 0.05, career: { loyalty: 3 },
+        r: 'La soirée garde ses blockbusters.' },
+      { l: 'Diffuser des films plus anciens', icon: '📼', career: { loyalty: -1, wear: 4 },
+        r: 'Les fans connaissent déjà les films.' },
+      { l: 'Alterner films et dessins animés', icon: '🔀', cost: { purchase: 0.04 }, career: { awareness: 2, wear: -3 },
+        r: 'Un équilibre astucieux.' }
+    ] },
+  { id: 'ps_p159_debat_des_fans', programId: 'p159', family: 'audience', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le débat des fans',
+    desc: 'Les fans de {programme} débattent sans fin sur les réseaux des meilleurs super-héros. La production propose une émission de débat après le film.',
+    c: [
+      { l: 'Lancer le débat après le film', icon: '💬', cost: { purchase: 0.04 }, boost: -0.02, career: { awareness: 4, loyalty: 2 },
+        r: 'Les fans se retrouvent pour débattre.' },
+      { l: 'Organiser un vote en ligne', icon: '🗳️', cost: { purchase: 0.01 }, career: { awareness: 2, wear: 1 },
+        r: 'Le vote amuse les fans.' },
+      { l: 'Ne rien ajouter', icon: '🙅', career: { awareness: -1, wear: 2 },
+        r: 'La soirée reste classique.' }
+    ] },
+
+  // — Anime japonais (p160) · jeunesse, nuit —
+  { id: 'ps_p160_simulcast_des_anime', programId: 'p160', family: 'economie', phase: 1,
+    titre: 'Le simulcast des anime',
+    desc: 'Les studios japonais proposent à {programme} de diffuser les nouveaux épisodes en même temps qu’au Japon. Le prix est élevé.',
+    c: [
+      { l: 'Signer le simulcast', icon: '🗾', cost: { recurring: 0.2 }, career: { awareness: 5, loyalty: 4 },
+        r: 'Les fans d’anime ont rendez-vous avec la chaîne.' },
+      { l: 'Diffuser avec quelques mois de décalage', icon: '⏳', career: { loyalty: -2, wear: 2 },
+        r: 'Les fans regardent ailleurs.' },
+      { l: 'Simulcast pour un seul anime phare', icon: '⭐', cost: { purchase: 0.1 }, career: { awareness: 3, loyalty: 2 },
+        r: 'L’anime phare attire les fans.' }
+    ] },
+  { id: 'ps_p160_censure_des_anime', programId: 'p160', family: 'image', phase: 2, when: { minSeasons: 1 },
+    titre: 'La censure des anime',
+    desc: 'Certains anime de {programme} contiennent des scènes violentes que la chaîne a coupées. Les fans dénoncent une censure.',
+    c: [
+      { l: 'Diffuser les versions intégrales avec signalétique', icon: '🔞', career: { loyalty: 4 }, pop: -1,
+        r: 'Les fans sont ravis.' },
+      { l: 'Garder les coupes', icon: '✂️', career: { loyalty: -3 }, pop: 1,
+        r: 'Les fans boudent la chaîne.' },
+      { l: 'Proposer l’intégrale en ligne', icon: '🌐', cost: { purchase: 0.03 }, career: { awareness: 1, loyalty: 2 },
+        r: 'Chacun y trouve son compte.' }
+    ] },
+
+  // — Animation adulte (p161) · jeunesse, nuit —
+  { id: 'ps_p161_humour_trop_grincant', programId: 'p161', family: 'image', phase: 2,
+    titre: 'L’humour trop grinçant',
+    desc: 'Un épisode de {programme} se moque d’une personnalité politique. Son entourage menace la chaîne de poursuites.',
+    c: [
+      { l: 'Maintenir l’épisode', icon: '😈', career: { awareness: 4, loyalty: 2 }, pop: -1,
+        r: 'Les fans saluent l’audace.' },
+      { l: 'Retirer l’épisode', icon: '🗑️', career: { loyalty: -3 }, pop: 1,
+        r: 'Les fans dénoncent la censure.' },
+      { l: 'Ajouter un avertissement satirique', icon: '⚠️', cost: { purchase: 0.01 }, career: { awareness: 2, loyalty: 1 },
+        r: 'Le ton satirique est assumé.' }
+    ] },
+  { id: 'ps_p161_animation_francaise_pour', programId: 'p161', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'L’animation française pour adultes',
+    desc: 'Un jeune studio français propose une série d’animation pour adultes à {programme}. Le projet est audacieux.',
+    c: [
+      { l: 'Coproduire la série', icon: '🇫🇷', cost: { purchase: 0.2 }, lasting: 0.04, career: { awareness: 5 },
+        r: 'La série révèle un talent français.' },
+      { l: 'Acheter un pilote', icon: '🎬', cost: { purchase: 0.05 }, career: { awareness: 2 },
+        r: 'Le pilote intrigue.' },
+      { l: 'Rester sur les séries américaines', icon: '🇺🇸', career: { loyalty: 1, wear: 3 },
+        r: 'La case reste classique.' }
+    ] },
+
+  // — Manga culte (p162) · jeunesse, nuit —
+  { id: 'ps_p162_doublage_conteste', programId: 'p162', family: 'editorial', phase: 1,
+    titre: 'Le doublage contesté',
+    desc: 'Le nouveau doublage d’un manga culte diffusé dans {programme} est critiqué par les fans, attachés aux voix d’origine. Les réseaux s’enflamment depuis la première diffusion.',
+    c: [
+      { l: 'Revenir aux voix d’origine', icon: '🎙️', cost: { purchase: 0.06 }, career: { awareness: 1, loyalty: 4 },
+        r: 'Les fans retrouvent leurs repères.' },
+      { l: 'Garder le nouveau doublage', icon: '🆕', career: { awareness: 2, loyalty: -3 },
+        r: 'Les fans râlent.' },
+      { l: 'Proposer la VO sous-titrée en option', icon: '🔤', cost: { purchase: 0.02 }, career: { awareness: 1, loyalty: 2 },
+        r: 'Les puristes choisissent la VO.' }
+    ] },
+  { id: 'ps_p162_manga_culte_vieillit', programId: 'p162', family: 'audience', phase: 2, when: { minSeasons: 1 },
+    titre: 'Le manga culte vieillit',
+    desc: 'Les rediffusions du manga culte de {programme} attirent moins de nouveaux fans. Un remake récent est disponible.',
+    c: [
+      { l: 'Acheter le remake', icon: '🔄', cost: { purchase: 0.2 }, career: { awareness: 4, wear: -12 },
+        r: 'Le remake attire une nouvelle génération.' },
+      { l: 'Garder l’original', icon: '📼', career: { loyalty: 3, wear: 3 },
+        r: 'Les nostalgiques sont comblés.' },
+      { l: 'Diffuser les deux versions', icon: '🔀', cost: { purchase: 0.1 }, career: { awareness: 2, loyalty: 1, wear: -4 },
+        r: 'Les deux générations s’y retrouvent.' }
+    ] },
+
+  // — Gaming & e-sport (p163) · jeunesse, nuit —
+  { id: 'ps_p163_joueur_toxique', programId: 'p163', family: 'image', phase: 2,
+    titre: 'Le joueur toxique',
+    desc: 'Un joueur vedette de {programme} a tenu des propos insultants en direct. Les fans demandent son exclusion.',
+    c: [
+      { l: 'Exclure le joueur', icon: '🚫', career: { loyalty: -2 }, pop: 2,
+        r: 'La chaîne montre son exigence.' },
+      { l: 'Le suspendre temporairement', icon: '⏸️', career: { loyalty: -1, wear: -2 }, pop: 1,
+        r: 'Une sanction mesurée.' },
+      { l: 'Ne rien faire', icon: '🤷', career: { awareness: 2 }, pop: -2,
+        r: 'Les fans dénoncent le laxisme.' }
+    ] },
+  { id: 'ps_p163_tournoi_nuit', programId: 'p163', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le tournoi de nuit',
+    desc: 'La production de {programme} propose d’organiser un grand tournoi en direct toute la nuit. Les joueurs adorent l’idée, mais l’organisation est lourde.',
+    c: [
+      { l: 'Organiser le tournoi de nuit', icon: '🌙', cost: { purchase: 0.12 }, boost: 0.08, career: { awareness: 5 },
+        r: 'Le tournoi attire les noctambules.' },
+      { l: 'Un tournoi en deux heures', icon: '⏱️', cost: { purchase: 0.04 }, boost: 0.03, career: { awareness: 2 },
+        r: 'Un tournoi apprécié.' },
+      { l: 'Rester sur les retransmissions', icon: '📺', career: { loyalty: 1, wear: 3 },
+        r: 'L’émission reste classique.' }
+    ] },
+
+  // — Série animée satirique (p164) · jeunesse, nuit —
+  { id: 'ps_p164_satire_qui_fache', programId: 'p164', family: 'image', phase: 2,
+    titre: 'La satire qui fâche',
+    desc: 'Un épisode de {programme} caricature une religion. Des associations dénoncent un manque de respect.',
+    c: [
+      { l: 'Défendre la satire', icon: '🗣️', career: { awareness: 3, loyalty: 2 }, pop: -2,
+        r: 'La liberté d’expression est défendue, la polémique enfle.' },
+      { l: 'Retirer l’épisode', icon: '🗑️', career: { loyalty: -3 }, pop: 1,
+        r: 'Les fans dénoncent la censure.' },
+      { l: 'Organiser un débat sur la satire', icon: '⚖️', cost: { purchase: 0.03 }, career: { awareness: 2 }, pop: 1,
+        r: 'Le débat apaise les tensions.' }
+    ] },
+  { id: 'ps_p164_les_droits_satire', programId: 'p164', family: 'economie', phase: 1, when: { minSeasons: 1 },
+    titre: 'Les droits de la satire américaine',
+    desc: 'La série satirique américaine de {programme} est rachetée par une plateforme. Les droits télé deviennent hors de prix.',
+    c: [
+      { l: 'Payer les droits', icon: '💶', cost: { recurring: 0.15 }, boost: 0.04, career: { loyalty: 3 },
+        r: 'La série reste à l’antenne.' },
+      { l: 'Produire une satire française', icon: '🇫🇷', cost: { purchase: 0.2 }, lasting: 0.03, career: { awareness: 3, loyalty: -2 },
+        r: 'La satire française trouve son public.' },
+      { l: 'Laisser partir la série', icon: '👋', boost: -0.05, career: { loyalty: -2 },
+        r: 'Les fans suivent la série ailleurs.' }
+    ] },
+
+  // — Anime fantastique (p165) · jeunesse, nuit —
+  { id: 'ps_p165_anime_adapte_jeu', programId: 'p165', family: 'editorial', phase: 1,
+    titre: 'L’anime adapté d’un jeu',
+    desc: 'Un studio japonais propose à {programme} un anime adapté d’un jeu vidéo à succès. Les fans du jeu sont nombreux.',
+    c: [
+      { l: 'Acheter l’anime', icon: '🎮', cost: { purchase: 0.15 }, boost: 0.05, career: { awareness: 5 },
+        r: 'Les fans du jeu découvrent l’anime.' },
+      { l: 'Rester sur les anime classiques', icon: '📼', career: { loyalty: 2, wear: 3 },
+        r: 'Les fidèles sont rassurés.' },
+      { l: 'Acheter seulement la première saison', icon: '🎬', cost: { purchase: 0.06 }, boost: 0.02, career: { awareness: 2 },
+        r: 'Un test prudent.' }
+    ] },
+  { id: 'ps_p165_les_fans_reclament', programId: 'p165', family: 'audience', phase: 2, when: { minSeasons: 1 },
+    titre: 'Les fans réclament la suite',
+    desc: 'Les fans de {programme} réclament la suite d’une saga interrompue. Les droits sont disponibles mais coûteux.',
+    c: [
+      { l: 'Acheter la suite', icon: '💰', cost: { purchase: 0.2 }, career: { awareness: 2, loyalty: 4 },
+        r: 'Les fans sont aux anges.' },
+      { l: 'Attendre une baisse des prix', icon: '⏳', career: { loyalty: -2, wear: 2 },
+        r: 'Les fans s’impatientent.' },
+      { l: 'Organiser un vote des fans pour la prochaine saga', icon: '🗳️', cost: { purchase: 0.02 }, career: { awareness: 2, loyalty: 1 },
+        r: 'Les fans choisissent leur prochaine saga.' }
+    ] },
+
+  // — Anime action (p166) · jeunesse, nuit —
+  { id: 'ps_p166_trop_combats', programId: 'p166', family: 'image', phase: 2,
+    titre: 'Trop de combats',
+    desc: 'Les anime de {programme} enchaînent les combats et une association de parents saisit l’Arcom. Les fans, eux, défendent leurs séries favorites.',
+    c: [
+      { l: 'Respecter strictement la signalétique', icon: '🔞', boost: -0.03, pop: 2,
+        r: 'La chaîne est en règle.' },
+      { l: 'Ajouter des épisodes moins violents', icon: '🔀', cost: { purchase: 0.04 }, career: { loyalty: -1, wear: -3 }, pop: 1,
+        r: 'La case se diversifie.' },
+      { l: 'Défendre la programmation', icon: '🛡️', career: { loyalty: 2 }, pop: -2,
+        r: 'Les fans apprécient, l’Arcom moins.' }
+    ] },
+  { id: 'ps_p166_convention_anime', programId: 'p166', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'La convention anime',
+    desc: 'Une grande convention japonaise propose à {programme} de diffuser ses avant-premières en exclusivité. Les fans attendent ces épisodes depuis des mois.',
+    c: [
+      { l: 'Signer l’exclusivité', icon: '🎌', cost: { purchase: 0.12 }, lasting: 0.03, career: { awareness: 5 },
+        r: 'Les avant-premières attirent les fans.' },
+      { l: 'Diffuser quelques extraits', icon: '🎬', cost: { purchase: 0.02 }, career: { awareness: 2 },
+        r: 'Les fans ont un avant-goût.' },
+      { l: 'Décliner', icon: '🙅', career: { awareness: -2, wear: 2 },
+        r: 'Les avant-premières partent ailleurs.' }
+    ] },
+
+  // — Pop culture japonaise (p167) · jeunesse, nuit —
+  { id: 'ps_p167_reportage_japon', programId: 'p167', family: 'editorial', phase: 1,
+    titre: 'Le reportage au Japon',
+    desc: 'L’équipe de {programme} propose de tourner un reportage à Tokyo pendant le grand festival de la pop culture. Le voyage coûte cher, mais les images seraient uniques.',
+    c: [
+      { l: 'Tourner au Japon', icon: '🗼', cost: { purchase: 0.15 }, boost: 0.05, career: { awareness: 5 },
+        r: 'Le reportage plonge les fans dans la culture japonaise.' },
+      { l: 'Utiliser des images fournies par le festival', icon: '📼', career: { loyalty: 1, wear: 3 },
+        r: 'Un reportage sans saveur.' },
+      { l: 'Travailler avec un correspondant local', icon: '🤝', cost: { purchase: 0.04 }, career: { awareness: 2, loyalty: 1 },
+        r: 'Un regard de l’intérieur.' }
+    ] },
+  { id: 'ps_p167_pop_gagne_terrain', programId: 'p167', family: 'audience', phase: 2, when: { minSeasons: 1 },
+    titre: 'La K-pop gagne du terrain',
+    desc: 'Les fans de {programme} s’intéressent de plus en plus à la culture coréenne. La production propose d’élargir l’émission.',
+    c: [
+      { l: 'Élargir à la culture coréenne', icon: '🇰🇷', cost: { purchase: 0.04 }, career: { awareness: 4, loyalty: -2, wear: -6 },
+        r: 'L’émission attire un nouveau public.' },
+      { l: 'Rester sur le Japon', icon: '🇯🇵', career: { loyalty: 3, wear: 3 },
+        r: 'Les fans du Japon sont satisfaits.' },
+      { l: 'Une rubrique coréenne par mois', icon: '📅', cost: { purchase: 0.02 }, career: { awareness: 2, wear: -2 },
+        r: 'Une ouverture progressive.' }
     ] }
 ];
 // ---------------------------------------------------------------------------
