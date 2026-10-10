@@ -17144,6 +17144,485 @@ const PROGRAM_STORY_BANK = [
         r: 'Les produits dérivés plaisent aux fans.' },
       { l: 'Refuser', icon: '🙅', career: { awareness: -2, loyalty: 2 },
         r: 'La série reste au-dessus de la mêlée.' }
+    ] },
+  // — Ce que la terre cache (p408) · culture, apresmidi —
+  { id: 'ps_p408_fouille_contestee', programId: 'p408', family: 'editorial', phase: 1,
+    titre: 'La fouille contestée',
+    desc: 'Un archéologue filmé par {programme} est accusé d’avoir abîmé un site protégé. La DRAC ouvre une enquête.',
+    c: [
+      { l: 'Suspendre le tournage', icon: '⏸️', career: { awareness: -2, loyalty: 2 },
+        r: 'La chaîne montre son respect du patrimoine.' },
+      { l: 'Financer une expertise indépendante', icon: '🔬', cost: { purchase: 0.03 }, career: { loyalty: 1 }, pop: 1,
+        r: 'L’expertise blanchit l’équipe.' },
+      { l: 'Diffuser l’épisode', icon: '📺', career: { awareness: 2, wear: 1 }, pop: -2,
+        r: 'Les archéologues s’indignent.' }
+    ] },
+  { id: 'ps_p408_decouverte_majeure', programId: 'p408', family: 'audience', phase: 3, when: { minSeasons: 1, form: 'success' },
+    titre: 'La découverte majeure',
+    desc: 'L’équipe de {programme} est présente lors de la découverte d’une nécropole gauloise. Les chercheurs acceptent une exclusivité filmée.',
+    c: [
+      { l: 'Produire un prime spécial', icon: '🏺', cost: { purchase: 0.05 }, lasting: 0.03, career: { awareness: 5 },
+        r: 'Le prime fait découvrir l’archéologie au grand public.' },
+      { l: 'Intégrer la découverte aux épisodes', icon: '🎞️', career: { awareness: 2, loyalty: -1, wear: 1 },
+        r: 'La découverte passe un peu inaperçue.' },
+      { l: 'Laisser l’exclusivité au CNRS', icon: '🤝', career: { awareness: -2, loyalty: 2 },
+        r: 'Les scientifiques saluent la discrétion.' }
+    ] },
+
+  // — Histoire non classée (p409) · culture, prime —
+  { id: 'ps_p409_archive_inedite', programId: 'p409', family: 'editorial', phase: 1,
+    titre: 'L’archive inédite',
+    desc: 'Un collectionneur propose à {programme} des archives jamais diffusées sur la guerre d’Algérie. Les ayants droit des personnes filmées n’ont pas été consultés.',
+    c: [
+      { l: 'Rechercher les familles', icon: '🔎', cost: { purchase: 0.03 }, career: { awareness: 1, loyalty: 2 },
+        r: 'Les familles donnent leur accord et témoignent.' },
+      { l: 'Diffuser en floutant', icon: '🌫️', career: { awareness: 2, loyalty: -1, wear: 1 },
+        r: 'Les images perdent de leur force.' },
+      { l: 'Renoncer aux archives', icon: '🙅', career: { awareness: -2, loyalty: 1 },
+        r: 'Le documentaire reste prudent.' }
+    ] },
+  { id: 'ps_p409_historien_conteste', programId: 'p409', family: 'image', phase: 2, when: { minSeasons: 1 },
+    titre: 'L’historien contesté',
+    desc: 'Le consultant historique de {programme} est accusé de minimiser certains faits. Une pétition d’universitaires réclame son départ.',
+    c: [
+      { l: 'Remplacer le consultant', icon: '🔄', cost: { purchase: 0.02 }, career: { loyalty: 2 }, pop: 1,
+        r: 'La série retrouve la confiance des historiens.' },
+      { l: 'Organiser un débat contradictoire', icon: '🗣️', cost: { purchase: 0.01 }, career: { awareness: 2, wear: 1 },
+        r: 'Le débat passionne les amateurs d’histoire.' },
+      { l: 'Le défendre publiquement', icon: '🛡️', career: { awareness: 1, loyalty: -1 }, pop: -2,
+        r: 'La controverse enfle.' }
+    ] },
+
+  // — Et si on essayait ? (p410) · culture, access —
+  { id: 'ps_p410_experience_qui_echoue', programId: 'p410', family: 'editorial', phase: 1,
+    titre: 'L’expérience qui échoue',
+    desc: 'L’expérience de vie zéro déchet menée par {programme} échoue au bout de dix jours. La famille participante veut tout arrêter.',
+    c: [
+      { l: 'Montrer l’échec honnêtement', icon: '📺', career: { awareness: -1, loyalty: 2 },
+        r: 'Le public apprécie la sincérité.' },
+      { l: 'Prolonger avec un coach', icon: '🧑‍🏫', cost: { purchase: 0.02 }, career: { awareness: 2, wear: 1 },
+        r: 'La famille finit par réussir.' },
+      { l: 'Changer de famille', icon: '🔄', career: { awareness: -1, loyalty: -1 }, pop: 1,
+        r: 'L’épisode repart de zéro.' }
+    ] },
+  { id: 'ps_p410_kit_vendre', programId: 'p410', family: 'economie', phase: 2, when: { minSeasons: 1 },
+    titre: 'Le kit à vendre',
+    desc: 'Une start-up propose de vendre les kits utilisés dans {programme}. Les spectateurs les réclament déjà.',
+    c: [
+      { l: 'Lancer le kit officiel', icon: '📦', cost: { commercial: 0.05 }, career: { awareness: 1, loyalty: -2 },
+        r: 'Les ventes décollent, la neutralité recule.' },
+      { l: 'Publier les tutoriels gratuitement', icon: '📖', cost: { purchase: 0.01 }, career: { loyalty: 1 }, pop: 1,
+        r: 'Le public salue la démarche.' },
+      { l: 'Refuser', icon: '🙅', career: { awareness: -1, wear: 1 },
+        r: 'Les spectateurs restent sur leur faim.' }
+    ] },
+
+  // — Les yeux de la forêt (p411) · culture, prime —
+  { id: 'ps_p411_piege_photographique', programId: 'p411', family: 'editorial', phase: 1,
+    titre: 'Le piège photographique',
+    desc: 'Les pièges photographiques de {programme} ont filmé un braconnier en action. La gendarmerie réclame les images.',
+    c: [
+      { l: 'Remettre les images', icon: '👮', career: { awareness: -1, loyalty: 2 },
+        r: 'Le braconnier est interpellé.' },
+      { l: 'Diffuser avant de les remettre', icon: '📺', career: { awareness: 3, wear: 2 }, pop: -1,
+        r: 'Le scoop fait du bruit, la procédure en pâtit.' },
+      { l: 'Produire une enquête', icon: '🕵️', cost: { purchase: 0.03 }, career: { awareness: 2, loyalty: 1, wear: 1 },
+        r: 'L’enquête révèle un trafic.' }
+    ] },
+  { id: 'ps_p411_les_forets_monde', programId: 'p411', family: 'strategie', phase: 3, when: { minSeasons: 1, form: 'success' },
+    titre: 'Les forêts du monde',
+    desc: 'Le succès de {programme} pousse la production à proposer une saison dans les forêts tropicales. Le budget triplerait.',
+    c: [
+      { l: 'Partir sous les tropiques', icon: '🌴', cost: { purchase: 0.07 }, lasting: 0.03, career: { awareness: 5 },
+        r: 'Les images subjuguent le public.' },
+      { l: 'Explorer les forêts européennes', icon: '🌲', cost: { purchase: 0.03 }, career: { awareness: 2, loyalty: 1 },
+        r: 'La saison reste accessible.' },
+      { l: 'Rester en France', icon: '🇫🇷', career: { awareness: -2, loyalty: 1 },
+        r: 'Le format se répète.' }
+    ] },
+
+  // — Le détail qui change tout (p412) · culture, access —
+  { id: 'ps_p412_erreur_attribution', programId: 'p412', family: 'editorial', phase: 1,
+    titre: 'L’erreur d’attribution',
+    desc: 'Un tableau présenté dans {programme} comme un original s’avère être une copie. Le musée prêteur est furieux.',
+    c: [
+      { l: 'Publier un rectificatif', icon: '📢', career: { awareness: -1, loyalty: 2 },
+        r: 'L’honnêteté de la chaîne est saluée.' },
+      { l: 'Consacrer un épisode à l’enquête', icon: '🔍', cost: { purchase: 0.02 }, career: { awareness: 2, loyalty: 1 },
+        r: 'L’épisode passionne les amateurs.' },
+      { l: 'Ignorer l’erreur', icon: '🙈', career: { awareness: 1 }, pop: -2,
+        r: 'Les conservateurs s’indignent.' }
+    ] },
+  { id: 'ps_p412_jeu_interactif', programId: 'p412', family: 'audience', phase: 2, when: { minSeasons: 1 },
+    titre: 'Le jeu interactif',
+    desc: 'La production de {programme} propose un jeu en ligne où le public cherche le détail caché. Le développement coûterait cher.',
+    c: [
+      { l: 'Développer le jeu', icon: '🎮', cost: { purchase: 0.04 }, lasting: 0.02, career: { awareness: 4 },
+        r: 'Le jeu rajeunit l’audience.' },
+      { l: 'Proposer un simple quiz', icon: '❓', cost: { purchase: 0.01 }, career: { awareness: 1, loyalty: -1 },
+        r: 'Le quiz reste confidentiel.' },
+      { l: 'Renoncer', icon: '🙅', career: { awareness: -2, wear: -1 },
+        r: 'L’émission reste classique.' }
+    ] },
+
+  // — Mon cabinet de curiosités (p413) · culture, nuit —
+  { id: 'ps_p413_objet_vole', programId: 'p413', family: 'editorial', phase: 1,
+    titre: 'L’objet volé',
+    desc: 'Un objet présenté dans {programme} figure sur une liste d’œuvres volées. Son propriétaire jure l’avoir acheté de bonne foi.',
+    c: [
+      { l: 'Prévenir les autorités', icon: '👮', career: { awareness: -1, loyalty: 2 },
+        r: 'L’objet retourne à son propriétaire légitime.' },
+      { l: 'Enquêter avant de diffuser', icon: '🕵️', cost: { purchase: 0.02 }, career: { awareness: 2, wear: 1 },
+        r: 'L’enquête devient un épisode passionnant.' },
+      { l: 'Diffuser sans commentaire', icon: '📺', career: { awareness: 1 }, pop: -2,
+        r: 'Les experts repèrent l’objet volé.' }
+    ] },
+  { id: 'ps_p413_exposition_itinerante', programId: 'p413', family: 'economie', phase: 3, when: { minSeasons: 1 },
+    titre: 'L’exposition itinérante',
+    desc: 'Un musée propose de réunir les objets de {programme} dans une exposition itinérante. Les collectionneurs demandent des garanties.',
+    c: [
+      { l: 'Coproduire l’exposition', icon: '🏛️', cost: { purchase: 0.04 }, lasting: 0.02, career: { awareness: 3, loyalty: 1 },
+        r: 'L’exposition attire les foules.' },
+      { l: 'Céder la licence au musée', icon: '📝', cost: { commercial: 0.03 }, career: { awareness: 1, loyalty: -1 },
+        r: 'L’exposition est correcte, sans éclat.' },
+      { l: 'Refuser', icon: '🙅', career: { awareness: -2, loyalty: 1 },
+        r: 'Les objets restent à l’écran.' }
+    ] },
+
+  // — Bâtisseurs d’un été (p414) · culture, prime —
+  { id: 'ps_p414_echafaudage_effondre', programId: 'p414', family: 'editorial', phase: 1,
+    titre: 'L’échafaudage effondré',
+    desc: 'Un échafaudage s’est effondré sur un chantier filmé par {programme}, sans faire de blessé. L’inspection du travail se déplace.',
+    c: [
+      { l: 'Suspendre le chantier', icon: '⛔', career: { awareness: -2, loyalty: 2 },
+        r: 'La sécurité passe avant le tournage.' },
+      { l: 'Financer un audit sécurité', icon: '🦺', cost: { purchase: 0.03 }, career: { loyalty: 1, wear: -2 },
+        r: 'Le chantier repart sur de bonnes bases.' },
+      { l: 'Continuer à filmer', icon: '🎥', career: { awareness: 2, wear: 2 }, pop: -2,
+        r: 'Les images inquiètent les spectateurs.' }
+    ] },
+  { id: 'ps_p414_restauration_chateau', programId: 'p414', family: 'image', phase: 3, when: { minSeasons: 1, form: 'success' },
+    titre: 'La restauration d’un château',
+    desc: 'Le succès de {programme} attire une commune qui veut restaurer son château. Elle propose une saison complète.',
+    c: [
+      { l: 'Accepter la saison', icon: '🏰', cost: { purchase: 0.05 }, lasting: 0.03, career: { awareness: 4 },
+        r: 'Le chantier passionne le public.' },
+      { l: 'Faire un épisode unique', icon: '🎬', cost: { purchase: 0.02 }, career: { awareness: 2, loyalty: -1 },
+        r: 'L’épisode laisse le public sur sa faim.' },
+      { l: 'Décliner', icon: '🙅', career: { awareness: -1, loyalty: 1 }, pop: -1,
+        r: 'La commune se tourne vers une autre chaîne.' }
+    ] },
+
+  // — Les secrets d’un tube (p415) · culture, nuit —
+  { id: 'ps_p415_plagiat_revele', programId: 'p415', family: 'editorial', phase: 1,
+    titre: 'Le plagiat révélé',
+    desc: 'L’enquête de {programme} révèle qu’un tube célèbre aurait plagié une chanson oubliée. Le chanteur menace de poursuites.',
+    c: [
+      { l: 'Faire valider par un musicologue', icon: '🎼', cost: { purchase: 0.02 }, career: { awareness: 1, loyalty: 2 },
+        r: 'L’analyse est inattaquable.' },
+      { l: 'Diffuser l’enquête telle quelle', icon: '📺', career: { awareness: 3, wear: 2 }, pop: -1,
+        r: 'Le scandale fait la une.' },
+      { l: 'Retirer l’épisode', icon: '🗑️', career: { awareness: -2, loyalty: -1 },
+        r: 'Les fans soupçonnent une censure.' }
+    ] },
+  { id: 'ps_p415_concert_des_tubes', programId: 'p415', family: 'audience', phase: 2, when: { minSeasons: 1 },
+    titre: 'Le concert des tubes',
+    desc: 'Les artistes évoqués dans {programme} proposent un concert réunissant leurs tubes. Les droits musicaux seraient élevés.',
+    c: [
+      { l: 'Produire le concert', icon: '🎤', cost: { purchase: 0.06 }, lasting: 0.03, career: { awareness: 5 },
+        r: 'Le concert fait chanter la France.' },
+      { l: 'Diffuser une captation existante', icon: '📼', cost: { purchase: 0.02 }, career: { awareness: 2, loyalty: -1 },
+        r: 'La captation manque de fraîcheur.' },
+      { l: 'Refuser', icon: '🙅', career: { awareness: -2, loyalty: 1 },
+        r: 'L’émission reste fidèle à son format.' }
+    ] },
+
+  // — Le ciel en direct (p416) · culture, prime —
+  { id: 'ps_p416_eclipse_sous_les', programId: 'p416', family: 'editorial', phase: 1,
+    titre: 'L’éclipse sous les nuages',
+    desc: 'Le direct de {programme} consacré à l’éclipse est menacé par les nuages. Un avion pourrait filmer au-dessus de la couche nuageuse.',
+    c: [
+      { l: 'Affréter l’avion', icon: '✈️', cost: { purchase: 0.04 }, career: { awareness: 4, loyalty: 1 },
+        r: 'Les images sont spectaculaires.' },
+      { l: 'Basculer sur des images d’archives', icon: '📼', career: { awareness: -2, loyalty: -1 },
+        r: 'Le direct déçoit.' },
+      { l: 'Diffuser l’attente en direct', icon: '⏳', career: { awareness: 1, wear: 1 }, pop: -1,
+        r: 'Le suspense amuse, la frustration aussi.' }
+    ] },
+  { id: 'ps_p416_partenariat_spatial', programId: 'p416', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le partenariat spatial',
+    desc: 'Le CNES propose à {programme} un direct depuis la Station spatiale internationale. La préparation prendrait des mois.',
+    c: [
+      { l: 'Accepter le défi', icon: '🚀', cost: { purchase: 0.06 }, lasting: 0.03, career: { awareness: 5, wear: 2 },
+        r: 'Le direct devient historique.' },
+      { l: 'Un duplex enregistré', icon: '🎙️', cost: { purchase: 0.02 }, career: { awareness: 2, loyalty: -1 },
+        r: 'Le duplex manque de magie.' },
+      { l: 'Décliner', icon: '🙅', career: { awareness: -2, loyalty: 1 },
+        r: 'L’émission reste terrestre.' }
+    ] },
+
+  // — La France en tortillard (p417) · culture, apresmidi —
+  { id: 'ps_p417_ligne_menacee', programId: 'p417', family: 'editorial', phase: 1,
+    titre: 'La ligne menacée',
+    desc: 'Une ligne filmée par {programme} doit fermer faute de financement. Les élus locaux demandent à la chaîne de les soutenir.',
+    c: [
+      { l: 'Consacrer un épisode à la mobilisation', icon: '📢', career: { awareness: 1, loyalty: 2, wear: 1 },
+        r: 'La mobilisation gagne en visibilité.' },
+      { l: 'Rester neutre', icon: '⚖️', career: { awareness: -1 }, pop: -1,
+        r: 'Les élus sont déçus.' },
+      { l: 'Financer un débat régional', icon: '🗣️', cost: { purchase: 0.02 }, career: { loyalty: 1 }, pop: 1,
+        r: 'Le débat est apprécié.' }
+    ] },
+  { id: 'ps_p417_train_touristique', programId: 'p417', family: 'economie', phase: 2, when: { minSeasons: 1 },
+    titre: 'Le train touristique',
+    desc: 'Une compagnie ferroviaire veut lancer un train touristique inspiré de {programme}. Elle propose une part des recettes.',
+    c: [
+      { l: 'Signer le partenariat', icon: '🚂', cost: { commercial: 0.05 }, career: { awareness: 1, loyalty: -1 },
+        r: 'Le train rencontre son public.' },
+      { l: 'Coproduire la ligne', icon: '🤝', cost: { purchase: 0.03 }, lasting: 0.02, career: { awareness: 3 },
+        r: 'Le train prolonge l’émission.' },
+      { l: 'Refuser', icon: '🙅', career: { awareness: -2, loyalty: 1 },
+        r: 'L’émission reste un simple programme.' }
+    ] },
+
+  // — Dix minutes pour comprendre (p418) · info, access —
+  { id: 'ps_p418_erreur_chiffre', programId: 'p418', family: 'editorial', phase: 1,
+    titre: 'L’erreur de chiffre',
+    desc: 'Un chiffre erroné diffusé dans {programme} a été repris par des politiques. Les fact-checkers relèvent l’erreur.',
+    c: [
+      { l: 'Corriger à l’antenne', icon: '📢', career: { awareness: -1, loyalty: 2 },
+        r: 'L’émission gagne en crédibilité.' },
+      { l: 'Renforcer la vérification', icon: '🔎', cost: { recurring: 0.01 }, career: { loyalty: 1, wear: -2 },
+        r: 'Les erreurs se raréfient.' },
+      { l: 'Minimiser l’erreur', icon: '🙈', career: { awareness: 1 }, pop: -2,
+        r: 'La crédibilité de l’émission s’effrite.' }
+    ] },
+  { id: 'ps_p418_version_video_courte', programId: 'p418', family: 'audience', phase: 2, when: { minSeasons: 1 },
+    titre: 'La version vidéo courte',
+    desc: 'Les extraits de {programme} cartonnent sur les réseaux sociaux. La production propose une déclinaison quotidienne en format court.',
+    c: [
+      { l: 'Lancer la déclinaison', icon: '📱', cost: { purchase: 0.03 }, career: { awareness: 4, wear: 2 },
+        r: 'L’émission séduit les plus jeunes.' },
+      { l: 'Publier quelques extraits', icon: '✂️', career: { awareness: 1, loyalty: -1 },
+        r: 'L’impact reste limité.' },
+      { l: 'Rester sur l’antenne', icon: '📺', career: { awareness: -2, loyalty: 1 },
+        r: 'L’émission rate le virage numérique.' }
+    ] },
+
+  // — Piège à arnaqueurs (p419) · info, prime —
+  { id: 'ps_p419_arnaqueur_reconnu', programId: 'p419', family: 'editorial', phase: 1,
+    titre: 'L’arnaqueur reconnu',
+    desc: 'Un arnaqueur piégé par {programme} a été reconnu par ses voisins et agressé. Son avocat accuse la chaîne de l’avoir exposé.',
+    c: [
+      { l: 'Flouter systématiquement', icon: '🌫️', cost: { purchase: 0.01 }, career: { awareness: -1, loyalty: 2 },
+        r: 'L’émission devient plus responsable.' },
+      { l: 'Maintenir le format', icon: '📺', career: { awareness: 2, wear: 1 }, pop: -2,
+        r: 'L’avocat porte plainte.' },
+      { l: 'Ouvrir un débat éthique', icon: '🗣️', career: { awareness: -1, loyalty: 1, wear: 1 },
+        r: 'Le débat apaise la polémique.' }
+    ] },
+  { id: 'ps_p419_partenariat_avec_police', programId: 'p419', family: 'strategie', phase: 3, when: { minSeasons: 1, form: 'success' },
+    titre: 'Le partenariat avec la police',
+    desc: 'La police propose à {programme} de collaborer pour piéger des escrocs en ligne. Les journalistes craignent de perdre leur indépendance.',
+    c: [
+      { l: 'Accepter la collaboration', icon: '👮', cost: { purchase: 0.03 }, career: { awareness: 4, loyalty: -1 },
+        r: 'Les arrestations font de l’audience.' },
+      { l: 'Collaborer ponctuellement', icon: '🤝', career: { awareness: 2, loyalty: -1, wear: 1 },
+        r: 'L’émission garde ses distances.' },
+      { l: 'Refuser', icon: '🙅', career: { awareness: -2, loyalty: 2 },
+        r: 'L’indépendance est préservée.' }
+    ] },
+
+  // — D’où ça vient ? (p420) · info, access —
+  { id: 'ps_p420_industriel_mecontent', programId: 'p420', family: 'editorial', phase: 1,
+    titre: 'L’industriel mécontent',
+    desc: 'Une enquête de {programme} sur l’origine d’un produit déplaît à son fabricant. Celui-ci menace de retirer ses publicités.',
+    c: [
+      { l: 'Maintenir l’enquête', icon: '📺', career: { awareness: 1, loyalty: 2 }, pop: -1,
+        r: 'Le public salue le courage de l’émission.' },
+      { l: 'Offrir un droit de réponse', icon: '🗣️', career: { awareness: -1, loyalty: 1 },
+        r: 'L’industriel se calme.' },
+      { l: 'Adoucir le reportage', icon: '✂️', cost: { commercial: 0.02 }, career: { awareness: -1, loyalty: -2 },
+        r: 'Les spectateurs repèrent la complaisance.' }
+    ] },
+  { id: 'ps_p420_label_origine', programId: 'p420', family: 'audience', phase: 2, when: { minSeasons: 1 },
+    titre: 'Le label d’origine',
+    desc: 'Les spectateurs de {programme} réclament un label pour repérer les produits vraiment français. Une fédération propose de le co-créer.',
+    c: [
+      { l: 'Créer le label', icon: '🏷️', cost: { purchase: 0.03 }, career: { awareness: 3, loyalty: 1, wear: 1 },
+        r: 'Le label devient une référence.' },
+      { l: 'Publier un guide', icon: '📖', cost: { purchase: 0.01 }, career: { awareness: 1, loyalty: -1 },
+        r: 'Le guide est apprécié des fidèles.' },
+      { l: 'Refuser', icon: '🙅', career: { awareness: -2, loyalty: 1 },
+        r: 'L’émission reste neutre.' }
+    ] },
+
+  // — Terrain d’entente (p421) · info, nuit —
+  { id: 'ps_p421_debat_qui_derape', programId: 'p421', family: 'editorial', phase: 1,
+    titre: 'Le débat qui dérape',
+    desc: 'Deux invités de {programme} en viennent presque aux mains sur le plateau. La séquence tourne en boucle.',
+    c: [
+      { l: 'Exclure les invités', icon: '🚪', career: { awareness: -1, loyalty: 2 },
+        r: 'L’émission garde sa sérénité.' },
+      { l: 'Diffuser la séquence', icon: '📺', career: { awareness: 3 }, pop: -2,
+        r: 'L’audience grimpe, l’image souffre.' },
+      { l: 'Recruter un médiateur', icon: '🧑‍⚖️', cost: { recurring: 0.01 }, career: { loyalty: 1, wear: -1 }, pop: 1,
+        r: 'Les débats se recentrent.' }
+    ] },
+  { id: 'ps_p421_debat_public', programId: 'p421', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le débat en public',
+    desc: 'La production propose d’ouvrir {programme} à un public citoyen tiré au sort. La logistique serait coûteuse.',
+    c: [
+      { l: 'Ouvrir le plateau', icon: '👥', cost: { purchase: 0.04 }, lasting: 0.02, career: { awareness: 3, loyalty: 1 },
+        r: 'Le public apporte de la fraîcheur.' },
+      { l: 'Un numéro test', icon: '🧪', cost: { purchase: 0.01 }, career: { awareness: 1, loyalty: -1 },
+        r: 'Le test est mitigé.' },
+      { l: 'Garder les experts', icon: '🎓', career: { awareness: -2, loyalty: 1 },
+        r: 'L’émission reste confidentielle.' }
+    ] },
+
+  // — Votre ville à la une (p422) · info, apresmidi —
+  { id: 'ps_p422_maire_mecontent', programId: 'p422', family: 'editorial', phase: 1,
+    titre: 'Le maire mécontent',
+    desc: 'Un maire critiqué dans {programme} accuse la chaîne de partialité à six mois des municipales. Il exige un droit de réponse.',
+    c: [
+      { l: 'Accorder le droit de réponse', icon: '🗣️', career: { awareness: -1, loyalty: 2 },
+        r: 'Le maire se calme.' },
+      { l: 'Maintenir le reportage', icon: '📺', career: { awareness: 2, wear: 1 }, pop: -1,
+        r: 'Le maire porte plainte.' },
+      { l: 'Organiser un débat municipal', icon: '🏛️', cost: { purchase: 0.02 }, career: { awareness: 1, loyalty: 1 },
+        r: 'Le débat est apprécié.' }
+    ] },
+  { id: 'ps_p422_les_villes_candidates', programId: 'p422', family: 'economie', phase: 2, when: { minSeasons: 1 },
+    titre: 'Les villes candidates',
+    desc: 'Des villes proposent de financer leur passage dans {programme}. La rédaction craint pour son indépendance.',
+    c: [
+      { l: 'Accepter les financements', icon: '💶', cost: { commercial: 0.05 }, career: { awareness: 1, loyalty: -2 },
+        r: 'Les reportages ressemblent à des brochures.' },
+      { l: 'Choisir les villes librement', icon: '🎯', career: { awareness: -1, loyalty: 2 },
+        r: 'L’indépendance est préservée.' },
+      { l: 'Accepter un partenariat encadré', icon: '📜', cost: { commercial: 0.02 }, career: { awareness: 1, loyalty: -1, wear: 1 },
+        r: 'Le compromis tient.' }
+    ] },
+
+  // — On vérifie tout (p423) · info, nuit —
+  { id: 'ps_p423_erreur_verification', programId: 'p423', family: 'editorial', phase: 1,
+    titre: 'L’erreur de vérification',
+    desc: 'L’émission {programme} a qualifié de faux un document qui s’avère authentique. Les réseaux sociaux se moquent des vérificateurs.',
+    c: [
+      { l: 'Reconnaître l’erreur', icon: '📢', career: { awareness: -1, loyalty: 2 },
+        r: 'L’humilité de l’émission est saluée.' },
+      { l: 'Renforcer l’équipe', icon: '🔎', cost: { recurring: 0.01 }, career: { loyalty: 1, wear: -2 },
+        r: 'Les vérifications gagnent en rigueur.' },
+      { l: 'Contester', icon: '🛡️', career: { awareness: 1 }, pop: -2,
+        r: 'La polémique enfle.' }
+    ] },
+  { id: 'ps_p423_outil_verification', programId: 'p423', family: 'audience', phase: 2, when: { minSeasons: 1 },
+    titre: 'L’outil de vérification',
+    desc: 'La production de {programme} propose une application permettant au public de soumettre des rumeurs. Les développeurs demandent un budget conséquent.',
+    c: [
+      { l: 'Développer l’application', icon: '📱', cost: { purchase: 0.04 }, lasting: 0.02, career: { awareness: 4 },
+        r: 'L’application fidélise les jeunes.' },
+      { l: 'Ouvrir une simple adresse mail', icon: '✉️', career: { awareness: 1, loyalty: -1, wear: 1 },
+        r: 'Les messages s’accumulent.' },
+      { l: 'Renoncer', icon: '🙅', career: { awareness: -2, loyalty: 1 },
+        r: 'L’émission reste classique.' }
+    ] },
+
+  // — Cent voix contre une (p424) · info, prime —
+  { id: 'ps_p424_invite_malmene', programId: 'p424', family: 'editorial', phase: 1,
+    titre: 'L’invité malmené',
+    desc: 'Un ministre invité de {programme} quitte le plateau après une question jugée humiliante. Son cabinet accuse la chaîne de traquenard.',
+    c: [
+      { l: 'Maintenir la question', icon: '📺', career: { awareness: 3, loyalty: 1 }, pop: -1,
+        r: 'Le public salue la pugnacité.' },
+      { l: 'Présenter des excuses', icon: '🙏', career: { awareness: -1, loyalty: -1 },
+        r: 'La rédaction est furieuse.' },
+      { l: 'Inviter le ministre à revenir', icon: '🔁', cost: { purchase: 0.01 }, career: { loyalty: 1, wear: 1 },
+        r: 'Le ministre revient, l’échange est apaisé.' }
+    ] },
+  { id: 'ps_p424_emission_electorale', programId: 'p424', family: 'strategie', phase: 3, when: { minSeasons: 1, form: 'success' },
+    titre: 'L’émission électorale',
+    desc: 'Le succès de {programme} pousse la chaîne à en faire le rendez-vous de la présidentielle. Le CSA impose des règles strictes.',
+    c: [
+      { l: 'Assumer le rendez-vous', icon: '🗳️', cost: { purchase: 0.05 }, lasting: 0.03, career: { awareness: 5, wear: 2 },
+        r: 'L’émission devient incontournable.' },
+      { l: 'Un seul numéro spécial', icon: '🎙️', cost: { purchase: 0.02 }, career: { awareness: 2, loyalty: -1 },
+        r: 'Le spécial est bien reçu.' },
+      { l: 'Rester hors campagne', icon: '🚫', career: { awareness: -2, loyalty: 1 },
+        r: 'L’émission garde sa neutralité.' }
+    ] },
+
+  // — Ceux qui veillent (p425) · info, nuit —
+  { id: 'ps_p425_infirmiere_epuisee', programId: 'p425', family: 'image', phase: 1,
+    titre: 'L’infirmière épuisée',
+    desc: 'Une infirmière suivie par {programme} fait un malaise en plein tournage de nuit. Son syndicat accuse la production d’ajouter de la pression.',
+    c: [
+      { l: 'Alléger les tournages', icon: '🕊️', cost: { purchase: 0.02 }, career: { loyalty: 2 }, pop: 1,
+        r: 'Le tournage devient plus respectueux.' },
+      { l: 'Diffuser la séquence', icon: '📺', career: { awareness: 3 }, pop: -2,
+        r: 'L’émotion est forte, la polémique aussi.' },
+      { l: 'Faire témoigner le syndicat', icon: '🗣️', career: { awareness: -1, loyalty: 1, wear: 1 },
+        r: 'Le débat sur les conditions de travail s’ouvre.' }
+    ] },
+  { id: 'ps_p425_les_metiers_nuit', programId: 'p425', family: 'audience', phase: 2, when: { minSeasons: 1 },
+    titre: 'Les métiers de la nuit',
+    desc: 'La production de {programme} propose d’élargir aux boulangers, routiers et agents de sécurité. Le tournage serait plus long.',
+    c: [
+      { l: 'Élargir', icon: '🌙', cost: { purchase: 0.04 }, lasting: 0.02, career: { awareness: 4 },
+        r: 'Les nouveaux portraits séduisent.' },
+      { l: 'Ajouter un seul métier', icon: '➕', cost: { purchase: 0.01 }, career: { awareness: 1, loyalty: -1 },
+        r: 'L’élargissement est timide.' },
+      { l: 'Rester sur l’hôpital', icon: '🏥', career: { awareness: -2, loyalty: 1 },
+        r: 'L’émission garde son identité.' }
+    ] },
+
+  // — Bien réveillés (p426) · info, apresmidi —
+  { id: 'ps_p426_chroniqueur_polemique', programId: 'p426', family: 'editorial', phase: 1,
+    titre: 'Le chroniqueur polémique',
+    desc: 'Un chroniqueur de {programme} tient des propos jugés sexistes. Les associations féministes réclament son éviction.',
+    c: [
+      { l: 'L’écarter', icon: '🚪', career: { awareness: -1, loyalty: 2 },
+        r: 'L’émission se démarque.' },
+      { l: 'Le défendre', icon: '🛡️', career: { awareness: 2 }, pop: -2,
+        r: 'La polémique dure.' },
+      { l: 'Lui imposer des excuses', icon: '🙏', cost: { purchase: 0.01 }, career: { loyalty: 1 }, pop: 1,
+        r: 'Les excuses calment le jeu.' }
+    ] },
+  { id: 'ps_p426_cafe_partenaire', programId: 'p426', family: 'economie', phase: 2, when: { minSeasons: 1 },
+    titre: 'Le café partenaire',
+    desc: 'Une marque de café veut parrainer {programme}. Elle demande que les chroniqueurs boivent son café à l’antenne.',
+    c: [
+      { l: 'Accepter le parrainage', icon: '☕', cost: { commercial: 0.05 }, career: { awareness: 1, loyalty: -1, wear: 1 },
+        r: 'Le café s’affiche partout.' },
+      { l: 'Accepter un parrainage discret', icon: '🤫', cost: { commercial: 0.02 }, career: { awareness: -1, loyalty: 1 },
+        r: 'Le parrainage passe inaperçu.' },
+      { l: 'Refuser', icon: '🙅', career: { awareness: -2, loyalty: 2 },
+        r: 'L’émission reste indépendante.' }
+    ] },
+
+  // — Dossier rouvert (p427) · info, prime —
+  { id: 'ps_p427_temoin_qui_retracte', programId: 'p427', family: 'editorial', phase: 1,
+    titre: 'Le témoin qui se rétracte',
+    desc: 'Un témoin clé de {programme} revient sur ses déclarations après la diffusion. L’avocat de la défense exige un démenti.',
+    c: [
+      { l: 'Diffuser un démenti', icon: '📢', career: { awareness: -2, loyalty: 1 },
+        r: 'L’émission reconnaît ses limites.' },
+      { l: 'Contre-enquêter', icon: '🕵️', cost: { purchase: 0.03 }, career: { awareness: 1, loyalty: 2 },
+        r: 'La contre-enquête confirme l’essentiel.' },
+      { l: 'Maintenir le reportage', icon: '📺', career: { awareness: 2, wear: 1 }, pop: -2,
+        r: 'La défense porte plainte.' }
+    ] },
+  { id: 'ps_p427_innocent_libere', programId: 'p427', family: 'image', phase: 3, when: { minSeasons: 1, form: 'success' },
+    titre: 'L’innocent libéré',
+    desc: 'Une affaire rouverte par {programme} aboutit à la libération d’un innocent. Il veut témoigner en exclusivité.',
+    c: [
+      { l: 'Produire un prime spécial', icon: '🎬', cost: { purchase: 0.04 }, lasting: 0.02, career: { awareness: 5, loyalty: 1 },
+        r: 'Le prime bouleverse la France.' },
+      { l: 'Un entretien sobre', icon: '🎙️', career: { awareness: 1, loyalty: 2, wear: 1 },
+        r: 'L’entretien est salué pour sa pudeur.' },
+      { l: 'Le laisser se reposer', icon: '🕊️', career: { awareness: -2, loyalty: 1 }, pop: 1,
+        r: 'L’homme remercie la chaîne de sa délicatesse.' }
     ] }
 ];
 // ---------------------------------------------------------------------------
