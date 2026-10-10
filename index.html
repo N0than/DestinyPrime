@@ -10582,6 +10582,485 @@ const PROGRAM_STORY_BANK = [
         r: 'Le documentaire est nuancé.' },
       { l: 'Diffuser tel quel', icon: '📺', career: { awareness: 2 }, pop: -3,
         r: 'La chaîne est vivement critiquée.' }
+    ] },
+  // — Animation préscolaire (p128) · jeunesse, matin —
+  { id: 'ps_p128_trop_ecrans_pour', programId: 'p128', family: 'image', phase: 2,
+    titre: 'Trop d’écrans pour les tout-petits ?',
+    desc: 'Des pédiatres publient une tribune contre l’exposition des moins de trois ans aux écrans, citant {programme}. Les parents s’interrogent.',
+    c: [
+      { l: 'Ajouter des pauses actives dans les épisodes', icon: '🤸', cost: { purchase: 0.06 }, career: { loyalty: 2 }, pop: 2,
+        r: 'Les épisodes invitent les enfants à bouger : les parents apprécient.' },
+      { l: 'Défendre la qualité éducative du programme', icon: '🛡️', career: { awareness: 1, loyalty: 1 }, pop: -1,
+        r: 'Le débat continue sans réponse claire.' },
+      { l: 'Raccourcir la durée de diffusion', icon: '⏱️', cost: { saving: 0.1 }, boost: -0.05, pop: 1,
+        r: 'La chaîne montre l’exemple, au prix d’une case réduite.' }
+    ] },
+  { id: 'ps_p128_les_peluches_heros', programId: 'p128', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Les peluches du héros',
+    desc: 'Le personnage vedette de {programme} plaît beaucoup aux tout-petits. Un fabricant de jouets propose une licence de peluches.',
+    c: [
+      { l: 'Céder la licence', icon: '🧸', cost: { commercial: 0.2 }, career: { awareness: 4, wear: 3 }, pop: -1,
+        r: 'Les peluches s’arrachent, certains parents dénoncent le marketing.' },
+      { l: 'Refuser pour protéger les enfants de la publicité', icon: '🛡️', career: { awareness: -1, loyalty: 1 }, pop: 1,
+        r: 'La chaîne garde une image responsable.' },
+      { l: 'Produire des peluches éco-conçues sans publicité à l’antenne', icon: '🌱', cost: { purchase: 0.1 }, lasting: 0.02, career: { awareness: 3 }, pop: 1,
+        r: 'Une licence responsable saluée par les parents.' }
+    ] },
+
+  // — Ludo-éducatif (p129) · jeunesse, matin —
+  { id: 'ps_p129_programme_valide_par', programId: 'p129', family: 'editorial', phase: 1,
+    titre: 'Le programme validé par les enseignants',
+    desc: 'Le ministère propose de faire valider le contenu de {programme} par des enseignants. Le programme gagnerait un label officiel.',
+    c: [
+      { l: 'Obtenir le label avec un comité d’enseignants', icon: '🎓', cost: { recurring: 0.03 }, lasting: 0.02, career: { loyalty: 3 }, pop: 2,
+        r: 'Le label rassure les parents.' },
+      { l: 'Garder une totale liberté éditoriale', icon: '🎨', career: { awareness: 1, loyalty: -1, wear: 2 },
+        r: 'Le programme reste libre, sans label.' },
+      { l: 'Organiser une consultation ponctuelle', icon: '📋', cost: { purchase: 0.03 }, career: { loyalty: 1 }, pop: 1,
+        r: 'Quelques ajustements bienvenus.' }
+    ] },
+  { id: 'ps_p129_les_enfants_decrochent', programId: 'p129', family: 'audience', phase: 2, when: { minSeasons: 1 },
+    titre: 'Les enfants décrochent',
+    desc: 'Les enfants trouvent {programme} trop scolaire et zappent vers les dessins animés d’action. La production propose plus d’humour.',
+    c: [
+      { l: 'Ajouter un personnage comique', icon: '🤡', cost: { purchase: 0.06 }, career: { awareness: 3, loyalty: -1, wear: -6 },
+        r: 'Le nouveau personnage fait rire les enfants.' },
+      { l: 'Garder le ton actuel', icon: '📚', boost: -0.03, career: { loyalty: 2 },
+        r: 'Les parents apprécient, les enfants moins.' },
+      { l: 'Transformer les leçons en jeux', icon: '🎲', cost: { purchase: 0.04 }, boost: 0.04, career: { awareness: 2 },
+        r: 'Apprendre devient un jeu.' }
+    ] },
+
+  // — Animation musicale (p130) · jeunesse, matin —
+  { id: 'ps_p130_chanson_qui_rend', programId: 'p130', family: 'editorial', phase: 1,
+    titre: 'La chanson qui rend fou',
+    desc: 'Le générique de {programme} est devenu un ver d’oreille national. Les parents s’en amusent et s’en plaignent sur les réseaux.',
+    c: [
+      { l: 'Produire une version remixée par un DJ', icon: '🎧', cost: { purchase: 0.04 }, career: { awareness: 5, loyalty: -1 },
+        r: 'Le remix devient un tube et fait connaître le programme.' },
+      { l: 'Garder le générique', icon: '🎵', career: { loyalty: 2, wear: 2 },
+        r: 'Les enfants adorent, les parents soupirent.' },
+      { l: 'Lancer un concours de reprises', icon: '🎤', cost: { purchase: 0.03 }, career: { awareness: 3, loyalty: 1 },
+        r: 'Les familles s’amusent à reprendre la chanson.' }
+    ] },
+  { id: 'ps_p130_spectacle_tournee', programId: 'p130', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le spectacle en tournée',
+    desc: 'Un producteur de spectacles propose d’adapter {programme} sur scène pour une tournée dans toute la France. La marque gagnerait en visibilité, si la qualité suit.',
+    c: [
+      { l: 'Coproduire la tournée', icon: '🎪', cost: { purchase: 0.15 }, lasting: 0.04, career: { awareness: 5 },
+        r: 'La tournée fait salle comble et renforce la marque.' },
+      { l: 'Céder les droits sans s’impliquer', icon: '📝', cost: { commercial: 0.08 }, career: { awareness: 2, wear: 3 },
+        r: 'La tournée rapporte, sans contrôle sur sa qualité.' },
+      { l: 'Refuser', icon: '🙅', career: { awareness: -2, loyalty: 1 },
+        r: 'Le programme reste à la télévision.' }
+    ] },
+
+  // — Éveil & découverte (p131) · jeunesse, matin —
+  { id: 'ps_p131_experience_qui_fait', programId: 'p131', family: 'editorial', phase: 2,
+    titre: 'L’expérience qui fait peur',
+    desc: 'Une expérience scientifique montrée dans {programme} a été reproduite par des enfants à la maison, causant de petits accidents. Des parents demandent des comptes à la chaîne.',
+    c: [
+      { l: 'Ajouter un avertissement de sécurité', icon: '⚠️', cost: { purchase: 0.02 }, career: { loyalty: 1 }, pop: 1,
+        r: 'Les parents sont rassurés.' },
+      { l: 'Retirer l’épisode', icon: '🗑️', boost: -0.02, career: { loyalty: -1 }, pop: 1,
+        r: 'L’épisode disparaît, la polémique aussi.' },
+      { l: 'Créer une rubrique « à faire avec papa et maman »', icon: '👨‍👩‍👧', cost: { purchase: 0.04 }, career: { awareness: 2 }, pop: 2,
+        r: 'La rubrique favorise les moments en famille.' }
+    ] },
+  { id: 'ps_p131_application_eveil', programId: 'p131', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'L’application d’éveil',
+    desc: 'La production de {programme} propose une application d’éveil pour les tout-petits. Les parents pourraient prolonger l’émission à la maison.',
+    c: [
+      { l: 'Développer l’application', icon: '📲', cost: { purchase: 0.15 }, lasting: 0.03, career: { awareness: 4 }, pop: -1,
+        r: 'L’application plaît, certains parents craignent les écrans.' },
+      { l: 'Produire des fiches imprimables', icon: '🖨️', cost: { purchase: 0.02 }, career: { loyalty: 1 }, pop: 1,
+        r: 'Les fiches sont appréciées.' },
+      { l: 'Renoncer', icon: '🙅', career: { awareness: -1, wear: 2 },
+        r: 'Le programme reste à l’antenne.' }
+    ] },
+
+  // — Comptines (p132) · jeunesse, matin —
+  { id: 'ps_p132_une_comptine_contestee', programId: 'p132', family: 'image', phase: 2,
+    titre: 'Une comptine contestée',
+    desc: 'Une comptine traditionnelle de {programme} contient des paroles jugées violentes. Des parents demandent sa modification.',
+    c: [
+      { l: 'Réécrire les paroles', icon: '✍️', cost: { purchase: 0.02 }, career: { loyalty: -1 }, pop: 1,
+        r: 'La comptine est modernisée, certains regrettent la tradition.' },
+      { l: 'Garder la comptine', icon: '🎶', career: { loyalty: 2 }, pop: -1,
+        r: 'La tradition est respectée, la polémique continue.' },
+      { l: 'Expliquer l’origine de la comptine', icon: '📖', cost: { purchase: 0.02 }, career: { awareness: 2, loyalty: 1 },
+        r: 'Les parents découvrent l’histoire de la chanson.' }
+    ] },
+  { id: 'ps_p132_album_des_comptines', programId: 'p132', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'L’album des comptines',
+    desc: 'Une maison de disques propose de produire un album des comptines de {programme}, chantées par des artistes connus. Le projet pourrait faire entrer le programme dans tous les foyers.',
+    c: [
+      { l: 'Produire l’album', icon: '💿', cost: { purchase: 0.1 }, lasting: 0.03, career: { awareness: 5 },
+        r: 'L’album séduit les familles.' },
+      { l: 'Céder les droits', icon: '📝', cost: { commercial: 0.06 }, career: { awareness: 2, wear: 2 },
+        r: 'L’album rapporte un peu.' },
+      { l: 'Refuser', icon: '🙅', career: { awareness: -2, loyalty: 1 },
+        r: 'Les comptines restent à l’antenne.' }
+    ] },
+
+  // — Aventures 3-5 ans (p133) · jeunesse, matin —
+  { id: 'ps_p133_heros_fait_peur', programId: 'p133', family: 'editorial', phase: 1,
+    titre: 'Le héros fait peur',
+    desc: 'Le méchant de {programme} effraie certains enfants de trois ans. Des parents demandent de l’adoucir.',
+    c: [
+      { l: 'Adoucir le méchant', icon: '😊', cost: { purchase: 0.04 }, career: { loyalty: -1, wear: -3 }, pop: 1,
+        r: 'Les plus petits sont rassurés.' },
+      { l: 'Garder le méchant', icon: '😈', career: { loyalty: 2 }, pop: -1,
+        r: 'Les plus grands apprécient le frisson.' },
+      { l: 'Ajouter un épisode où le méchant devient gentil', icon: '🤝', cost: { purchase: 0.03 }, career: { awareness: 2 }, pop: 1,
+        r: 'L’épisode de rédemption plaît à tous.' }
+    ] },
+  { id: 'ps_p133_dessin_anime_concurrent', programId: 'p133', family: 'audience', phase: 2, when: { minSeasons: 1, pressure: true },
+    titre: 'Le dessin animé concurrent',
+    desc: '{rival} diffuse {rivalProgramme} à la même heure que {programme}. Les tout-petits sont attirés par ses couleurs vives.',
+    c: [
+      { l: 'Acheter de nouveaux épisodes', icon: '🛒', cost: { purchase: 0.15 }, boost: 0.08, career: { awareness: 2, wear: -6 },
+        r: 'Les nouveaux épisodes retiennent les enfants.' },
+      { l: 'Miser sur la fidélité des parents', icon: '👨‍👩‍👧', career: { loyalty: 2, wear: 3 },
+        r: 'Les parents restent fidèles.' },
+      { l: 'Créer un jeu interactif avant l’épisode', icon: '🎮', cost: { purchase: 0.04 }, boost: 0.03, career: { awareness: 3 },
+        r: 'Le jeu capte l’attention des enfants.' }
+    ] },
+
+  // — Animaux & nature (p134) · jeunesse, matin —
+  { id: 'ps_p134_animal_danger', programId: 'p134', family: 'editorial', phase: 1,
+    titre: 'Un animal en danger',
+    desc: 'Un épisode de {programme} met en scène un animal menacé d’extinction. Une association propose de s’associer à la diffusion.',
+    c: [
+      { l: 'S’associer à l’association', icon: '🐼', cost: { purchase: 0.03 }, career: { awareness: 2 }, pop: 2,
+        r: 'Les enfants découvrent la protection de la nature.' },
+      { l: 'Diffuser sans partenariat', icon: '📺', career: { loyalty: 1, wear: 2 },
+        r: 'Un épisode comme les autres.' },
+      { l: 'Lancer une collecte pour l’animal', icon: '💚', cost: { purchase: 0.06 }, boost: 0.02, career: { awareness: 3 }, pop: 3,
+        r: 'Les enfants se mobilisent pour l’animal.' }
+    ] },
+  { id: 'ps_p134_parc_animalier', programId: 'p134', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le parc animalier',
+    desc: 'Un parc animalier propose à {programme} de tourner des épisodes en vrai avec ses soigneurs. Les enfants verraient enfin les animaux en vrai.',
+    c: [
+      { l: 'Tourner au parc animalier', icon: '🦁', cost: { purchase: 0.12 }, career: { awareness: 5, wear: -6 },
+        r: 'Les enfants découvrent les animaux en vrai.' },
+      { l: 'Utiliser des images d’archives', icon: '📼', career: { loyalty: 1, wear: 3 },
+        r: 'Les épisodes restent classiques.' },
+      { l: 'Organiser une seule journée spéciale', icon: '🎫', cost: { purchase: 0.04 }, boost: 0.03, career: { awareness: 2 },
+        r: 'Une journée appréciée.' }
+    ] },
+
+  // — Apprentissage ludique (p135) · jeunesse, matin —
+  { id: 'ps_p135_apprentissage_des_langues', programId: 'p135', family: 'editorial', phase: 1,
+    titre: 'L’apprentissage des langues',
+    desc: 'La production de {programme} propose d’introduire quelques mots d’anglais dans chaque épisode. Les parents sont partagés.',
+    c: [
+      { l: 'Introduire l’anglais', icon: '🇬🇧', cost: { purchase: 0.03 }, career: { awareness: 3, loyalty: -1, wear: -4 },
+        r: 'Les enfants apprennent quelques mots en s’amusant.' },
+      { l: 'Rester en français', icon: '🇫🇷', career: { loyalty: 2, wear: 2 },
+        r: 'Le programme garde son identité.' },
+      { l: 'Créer une version bilingue en ligne', icon: '🌐', cost: { purchase: 0.04 }, career: { awareness: 2, loyalty: 1 },
+        r: 'Les parents intéressés y trouvent leur compte.' }
+    ] },
+  { id: 'ps_p135_programme_vieillit', programId: 'p135', family: 'audience', phase: 2, when: { minSeasons: 1 },
+    titre: 'Le programme vieillit',
+    desc: 'L’animation de {programme} paraît datée face aux productions récentes. Les enfants zappent.',
+    c: [
+      { l: 'Refaire l’animation en 3D', icon: '🖥️', cost: { purchase: 0.3 }, career: { awareness: 5, loyalty: -2, wear: -15 },
+        r: 'Le programme retrouve une jeunesse.' },
+      { l: 'Garder l’animation actuelle', icon: '✏️', boost: -0.03, career: { loyalty: 2 },
+        r: 'Les parents nostalgiques apprécient.' },
+      { l: 'Moderniser seulement le générique', icon: '🎬', cost: { purchase: 0.04 }, career: { awareness: 2, wear: -3 },
+        r: 'Un petit coup de neuf.' }
+    ] },
+
+  // — Animation aventure (p136) · jeunesse, apresmidi —
+  { id: 'ps_p136_aventure_trop_violente', programId: 'p136', family: 'editorial', phase: 1,
+    titre: 'L’aventure trop violente',
+    desc: 'Les combats de {programme} sont jugés trop violents par une association de parents. Elle saisit l’Arcom.',
+    c: [
+      { l: 'Atténuer les scènes de combat', icon: '✂️', cost: { purchase: 0.04 }, career: { loyalty: -2 }, pop: 2,
+        r: 'Les parents sont rassurés, les enfants trouvent ça moins palpitant.' },
+      { l: 'Défendre le programme', icon: '🛡️', career: { loyalty: 2 }, pop: -2,
+        r: 'La polémique s’installe.' },
+      { l: 'Ajouter une morale à chaque épisode', icon: '💬', cost: { purchase: 0.02 }, career: { loyalty: 1 }, pop: 1,
+        r: 'La morale équilibre l’action.' }
+    ] },
+  { id: 'ps_p136_film_cinema', programId: 'p136', family: 'strategie', phase: 3, when: { minSeasons: 1, form: 'succes' },
+    titre: 'Le film au cinéma',
+    desc: 'Le succès de {programme} pousse un studio à proposer un long métrage au cinéma. La chaîne pourrait coproduire.',
+    c: [
+      { l: 'Coproduire le film', icon: '🎬', cost: { purchase: 0.3 }, lasting: 0.05, career: { awareness: 6 },
+        r: 'Le film cartonne et renforce la marque.' },
+      { l: 'Céder les droits du film', icon: '📝', cost: { commercial: 0.15 }, career: { awareness: 3, wear: 3 },
+        r: 'Le film rapporte, sans contrôle de la chaîne.' },
+      { l: 'Refuser', icon: '🙅', career: { awareness: -2, loyalty: 1 },
+        r: 'Le programme reste à la télévision.' }
+    ] },
+
+  // — Comédie animée (p137) · jeunesse, apresmidi —
+  { id: 'ps_p137_une_blague_mal', programId: 'p137', family: 'image', phase: 2,
+    titre: 'Une blague mal comprise',
+    desc: 'Une blague de {programme} est jugée moqueuse envers les enfants en surpoids. Des associations demandent des excuses.',
+    c: [
+      { l: 'Retirer la scène et s’excuser', icon: '🙏', career: { loyalty: -1 }, pop: 2,
+        r: 'La chaîne fait preuve de sensibilité.' },
+      { l: 'Défendre l’humour du programme', icon: '😂', career: { loyalty: 2 }, pop: -2,
+        r: 'La polémique s’amplifie.' },
+      { l: 'Produire un épisode sur la différence', icon: '🤝', cost: { purchase: 0.04 }, career: { awareness: 2 }, pop: 2,
+        r: 'L’épisode est salué pour son message.' }
+    ] },
+  { id: 'ps_p137_les_rires_famille', programId: 'p137', family: 'audience', phase: 3, when: { minSeasons: 1 },
+    titre: 'Les rires en famille',
+    desc: 'Les parents regardent {programme} avec leurs enfants. La production propose d’ajouter des blagues pour les adultes.',
+    c: [
+      { l: 'Ajouter des clins d’œil pour les parents', icon: '😉', cost: { purchase: 0.03 }, career: { awareness: 4, loyalty: 1, wear: -3 },
+        r: 'Les familles regardent ensemble.' },
+      { l: 'Rester à hauteur d’enfant', icon: '🧒', career: { loyalty: 2, wear: 2 },
+        r: 'Le programme reste ciblé.' },
+      { l: 'Programmer une version du dimanche pour toute la famille', icon: '📺', cost: { purchase: 0.06 }, boost: 0.06, career: { awareness: 2 },
+        r: 'Le rendez-vous familial fonctionne.' }
+    ] },
+
+  // — Super-héros (p138) · jeunesse, apresmidi —
+  { id: 'ps_p138_licence_super_heros', programId: 'p138', family: 'economie', phase: 1,
+    titre: 'La licence du super-héros',
+    desc: 'L’éditeur américain du super-héros de {programme} augmente fortement le prix de la licence. Sans elle, le héros disparaît de l’antenne.',
+    c: [
+      { l: 'Payer la licence', icon: '💶', cost: { recurring: 0.2 }, career: { awareness: 2, loyalty: 3 },
+        r: 'Les enfants retrouvent leur héros préféré.' },
+      { l: 'Créer un super-héros français', icon: '🦸', cost: { purchase: 0.15 }, lasting: 0.03, career: { awareness: 3, loyalty: -3 },
+        r: 'Le nouveau héros séduit peu à peu.' },
+      { l: 'Diffuser des rediffusions', icon: '🔁', career: { loyalty: -1, wear: 5 },
+        r: 'Les enfants connaissent déjà les épisodes.' }
+    ] },
+  { id: 'ps_p138_heros_les_armes', programId: 'p138', family: 'image', phase: 2, when: { minSeasons: 1 },
+    titre: 'Le héros et les armes',
+    desc: 'Le super-héros de {programme} utilise des armes à feu dans certains épisodes. Des parents s’en inquiètent.',
+    c: [
+      { l: 'Retirer les épisodes concernés', icon: '🗑️', boost: -0.03, pop: 2,
+        r: 'Les parents sont rassurés.' },
+      { l: 'Ajouter une signalétique', icon: '⚠️', cost: { purchase: 0.01 }, career: { loyalty: 1 }, pop: 1,
+        r: 'Les parents sont informés.' },
+      { l: 'Ne rien changer', icon: '🤷', career: { loyalty: 1 }, pop: -2,
+        r: 'La polémique continue.' }
+    ] },
+
+  // — Fantasy (p139) · jeunesse, apresmidi —
+  { id: 'ps_p139_monde_imaginaire_agrandit', programId: 'p139', family: 'editorial', phase: 1,
+    titre: 'Le monde imaginaire s’agrandit',
+    desc: 'Les auteurs de {programme} proposent d’ouvrir un nouveau royaume dans leur univers fantastique. Le projet demande de nouveaux décors.',
+    c: [
+      { l: 'Créer le nouveau royaume', icon: '🏰', cost: { purchase: 0.12 }, career: { awareness: 4, wear: -10 },
+        r: 'L’univers s’enrichit et captive les enfants.' },
+      { l: 'Rester dans le monde connu', icon: '🌲', career: { loyalty: 2, wear: 3 },
+        r: 'Les fans retrouvent leurs repères.' },
+      { l: 'Introduire un nouveau personnage venu d’ailleurs', icon: '🧚', cost: { purchase: 0.04 }, career: { awareness: 2, wear: -4 },
+        r: 'Le personnage apporte de la fraîcheur.' }
+    ] },
+  { id: 'ps_p139_jeu_role_emission', programId: 'p139', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le jeu de rôle de l’émission',
+    desc: 'Un éditeur propose de créer un jeu de société inspiré de {programme}, pour jouer en famille. La licence pourrait prolonger l’univers hors de l’écran.',
+    c: [
+      { l: 'Coproduire le jeu', icon: '🎲', cost: { purchase: 0.1 }, lasting: 0.03, career: { awareness: 4 },
+        r: 'Le jeu s’invite dans les familles.' },
+      { l: 'Céder la licence', icon: '📝', cost: { commercial: 0.06 }, career: { awareness: 2, wear: 2 },
+        r: 'Le jeu rapporte un peu.' },
+      { l: 'Refuser', icon: '🙅', career: { awareness: -2, loyalty: 1 },
+        r: 'L’univers reste à l’antenne.' }
+    ] },
+
+  // — Kids Quiz (p140) · jeunesse, apresmidi —
+  { id: 'ps_p140_quiz_des_ecoles', programId: 'p140', family: 'editorial', phase: 1,
+    titre: 'Le quiz des écoles',
+    desc: 'Des enseignants proposent que leurs classes s’affrontent dans {programme}. Le format deviendrait un championnat national.',
+    c: [
+      { l: 'Lancer le championnat des écoles', icon: '🏫', cost: { purchase: 0.1 }, lasting: 0.03, career: { awareness: 5, loyalty: 1 },
+        r: 'Le championnat fédère les écoles de France.' },
+      { l: 'Garder les candidats individuels', icon: '🧒', career: { loyalty: 2, wear: 3 },
+        r: 'Le quiz reste classique.' },
+      { l: 'Une semaine spéciale écoles', icon: '📅', cost: { purchase: 0.03 }, boost: 0.03, career: { awareness: 2 },
+        r: 'Une semaine remarquée.' }
+    ] },
+  { id: 'ps_p140_candidat_qui_pleure', programId: 'p140', family: 'image', phase: 2, when: { minSeasons: 1 },
+    titre: 'Le candidat qui pleure',
+    desc: 'Un enfant candidat de {programme} a fondu en larmes après une mauvaise réponse. La séquence a ému les parents.',
+    c: [
+      { l: 'Offrir un lot de consolation à tous les candidats', icon: '🎁', cost: { recurring: 0.02 }, career: { loyalty: 2 }, pop: 2,
+        r: 'Chaque enfant repart gagnant.' },
+      { l: 'Couper la séquence au montage', icon: '✂️', boost: -0.02, pop: 1,
+        r: 'La séquence disparaît.' },
+      { l: 'Ne rien changer', icon: '🤷', career: { awareness: 1 }, pop: -2,
+        r: 'La séquence fait polémique.' }
+    ] },
+
+  // — Animation sportive (p141) · jeunesse, apresmidi —
+  { id: 'ps_p141_champion_olympique_invite', programId: 'p141', family: 'editorial', phase: 1,
+    titre: 'Le champion olympique en invité',
+    desc: 'Un champion olympique propose de prêter sa voix à un personnage de {programme}. Il souhaite promouvoir le sport auprès des enfants.',
+    c: [
+      { l: 'Accepter et créer un personnage pour lui', icon: '🏅', cost: { purchase: 0.06 }, boost: 0.04, career: { awareness: 5 },
+        r: 'Le champion attire l’attention des enfants et des parents.' },
+      { l: 'Lui proposer un simple caméo', icon: '🎤', cost: { purchase: 0.02 }, career: { awareness: 2 },
+        r: 'Une apparition remarquée.' },
+      { l: 'Décliner', icon: '🙅', career: { awareness: -1, loyalty: 1, wear: 2 },
+        r: 'Le programme reste tel quel.' }
+    ] },
+  { id: 'ps_p141_les_defis_sportifs', programId: 'p141', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Les défis sportifs en vrai',
+    desc: 'La production de {programme} propose d’organiser des défis sportifs dans les écoles, inspirés de l’émission. L’opération ferait bouger les enfants, mais demande une organisation lourde.',
+    c: [
+      { l: 'Organiser les défis', icon: '⚽', cost: { purchase: 0.1 }, lasting: 0.02, career: { awareness: 4 }, pop: 2,
+        r: 'Les enfants bougent et aiment le programme.' },
+      { l: 'Proposer des fiches d’activités', icon: '📋', cost: { purchase: 0.02 }, career: { loyalty: 1 }, pop: 1,
+        r: 'Les enseignants utilisent les fiches.' },
+      { l: 'Renoncer', icon: '🙅', career: { awareness: -1, wear: 2 },
+        r: 'Le programme reste à l’antenne.' }
+    ] },
+
+  // — Série éducative (p142) · jeunesse, apresmidi —
+  { id: 'ps_p142_episode_sur_harcelement', programId: 'p142', family: 'image', phase: 2,
+    titre: 'Un épisode sur le harcèlement',
+    desc: 'La production de {programme} propose un épisode sur le harcèlement scolaire. Le sujet est sensible pour un jeune public.',
+    c: [
+      { l: 'Produire l’épisode avec des psychologues', icon: '💙', cost: { purchase: 0.06 }, career: { awareness: 3 }, pop: 3,
+        r: 'L’épisode est salué et utilisé dans les écoles.' },
+      { l: 'Traiter le sujet légèrement', icon: '🧸', career: { wear: 2 }, pop: 1,
+        r: 'Un épisode doux mais peu marquant.' },
+      { l: 'Renoncer au sujet', icon: '🙅', career: { awareness: -1, loyalty: -1 },
+        r: 'L’occasion est manquée.' }
+    ] },
+  { id: 'ps_p142_serie_classe', programId: 'p142', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'La série en classe',
+    desc: 'Le ministère propose d’utiliser {programme} dans les classes de primaire. La chaîne céderait les droits pour l’école.',
+    c: [
+      { l: 'Céder les droits gratuitement', icon: '🏫', career: { awareness: 3, wear: 2 }, pop: 2,
+        r: 'La série entre dans les classes.' },
+      { l: 'Créer une version pédagogique', icon: '📚', cost: { purchase: 0.08 }, lasting: 0.03, career: { awareness: 4 },
+        r: 'La version pédagogique est très utilisée.' },
+      { l: 'Facturer les droits', icon: '💶', cost: { commercial: 0.04 }, career: { awareness: 1 }, pop: -1,
+        r: 'Une petite recette, une image moins généreuse.' }
+    ] },
+
+  // — Animation familiale (p143) · jeunesse, apresmidi —
+  { id: 'ps_p143_famille_recomposee', programId: 'p143', family: 'editorial', phase: 1,
+    titre: 'La famille recomposée',
+    desc: 'Les auteurs de {programme} veulent introduire une famille recomposée dans la série. Une partie des parents est réticente.',
+    c: [
+      { l: 'Introduire la famille recomposée', icon: '👨‍👩‍👧‍👦', cost: { purchase: 0.03 }, career: { awareness: 3, loyalty: -2 }, pop: 1,
+        r: 'La série reflète la diversité des familles.' },
+      { l: 'Garder la famille traditionnelle', icon: '🏠', career: { loyalty: 2, wear: 3 },
+        r: 'Les parents conservateurs sont rassurés.' },
+      { l: 'Introduire le sujet par un personnage secondaire', icon: '🧒', cost: { purchase: 0.02 }, career: { awareness: 2, loyalty: 1 },
+        r: 'Un équilibre bien reçu.' }
+    ] },
+  { id: 'ps_p143_rendez_vous_mercredi', programId: 'p143', family: 'audience', phase: 2, when: { minSeasons: 1 },
+    titre: 'Le rendez-vous du mercredi',
+    desc: 'La chaîne envisage de déplacer les nouveaux épisodes de {programme} au mercredi après-midi, quand les enfants sont à la maison. Le rendez-vous serait plus fort, mais moins fréquent.',
+    c: [
+      { l: 'Créer un rendez-vous du mercredi', icon: '📅', cost: { purchase: 0.04 }, boost: 0.06, career: { loyalty: 2 },
+        r: 'Les enfants attendent le mercredi avec impatience.' },
+      { l: 'Garder la diffusion quotidienne', icon: '📺', career: { loyalty: 1, wear: 3 },
+        r: 'Le rythme reste le même.' },
+      { l: 'Diffuser en avant-première en ligne', icon: '📲', cost: { purchase: 0.03 }, boost: -0.02, career: { awareness: 3 },
+        r: 'Les fans regardent en ligne.' }
+    ] },
+
+  // — Teen series (p144) · jeunesse, access —
+  { id: 'ps_p144_une_serie_trop', programId: 'p144', family: 'image', phase: 2,
+    titre: 'Une série trop adulte ?',
+    desc: 'Un épisode de {programme} aborde la consommation d’alcool chez les adolescents. Des parents jugent le sujet trop sensible.',
+    c: [
+      { l: 'Ajouter une signalétique et un débat', icon: '💬', cost: { purchase: 0.03 }, career: { awareness: 2 }, pop: 1,
+        r: 'Le débat aide les familles à parler du sujet.' },
+      { l: 'Retirer l’épisode', icon: '🗑️', career: { loyalty: -2 }, pop: 1,
+        r: 'Les ados dénoncent une censure.' },
+      { l: 'Diffuser tel quel', icon: '📺', career: { loyalty: 2 }, pop: -2,
+        r: 'Les ados apprécient le réalisme, les parents s’inquiètent.' }
+    ] },
+  { id: 'ps_p144_les_acteurs_sur', programId: 'p144', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Les acteurs sur les réseaux',
+    desc: 'Les jeunes acteurs de {programme} sont suivis par des millions de fans sur les réseaux. La production propose de les faire intervenir en ligne.',
+    c: [
+      { l: 'Créer un contenu en ligne avec les acteurs', icon: '📱', cost: { purchase: 0.06 }, lasting: 0.03, career: { awareness: 5 },
+        r: 'Les fans suivent la série partout.' },
+      { l: 'Laisser les acteurs gérer seuls leurs réseaux', icon: '🤷', career: { awareness: 1, wear: 2 },
+        r: 'Les acteurs communiquent librement.' },
+      { l: 'Encadrer strictement leur communication', icon: '📋', career: { awareness: -1, loyalty: 1 }, pop: 1,
+        r: 'Les risques sont maîtrisés.' }
+    ] },
+
+  // — Gaming (p145) · jeunesse, access —
+  { id: 'ps_p145_jeu_video_violent', programId: 'p145', family: 'image', phase: 2,
+    titre: 'Le jeu vidéo violent',
+    desc: 'Un jeu vidéo présenté dans {programme} est interdit aux moins de 18 ans. Des parents reprochent à l’émission d’en faire la promotion.',
+    c: [
+      { l: 'Respecter la signalétique des jeux', icon: '🔞', boost: -0.02, career: { awareness: -1 }, pop: 2,
+        r: 'L’émission ne présente plus que des jeux adaptés.' },
+      { l: 'Présenter les jeux avec un avertissement', icon: '⚠️', cost: { purchase: 0.01 }, career: { loyalty: 1 }, pop: 1,
+        r: 'Les parents sont informés.' },
+      { l: 'Ne rien changer', icon: '🎮', career: { loyalty: 2 }, pop: -2,
+        r: 'Les joueurs apprécient, les parents s’inquiètent.' }
+    ] },
+  { id: 'ps_p145_salon_jeu_video', programId: 'p145', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le salon du jeu vidéo',
+    desc: 'Le grand salon du jeu vidéo propose à {programme} d’y installer un plateau en direct pendant quatre jours. L’occasion est rêvée, mais coûteuse.',
+    c: [
+      { l: 'Installer le plateau au salon', icon: '🕹️', cost: { purchase: 0.15 }, boost: 0.08, career: { awareness: 5 },
+        r: 'L’émission vit le salon en direct.' },
+      { l: 'Envoyer une équipe de reportage', icon: '📸', cost: { purchase: 0.04 }, boost: 0.02, career: { awareness: 2 },
+        r: 'Quelques reportages appréciés.' },
+      { l: 'Couvrir le salon depuis le studio', icon: '🎙️', career: { awareness: -1, wear: 2 },
+        r: 'Le salon est traité de loin.' }
+    ] },
+
+  // — Créateurs & influence (p147) · jeunesse, access —
+  { id: 'ps_p147_influenceur_publicite_cachee', programId: 'p147', family: 'image', phase: 2,
+    titre: 'L’influenceur et la publicité cachée',
+    desc: 'Un influenceur invité dans {programme} a fait la promotion d’un produit sans le signaler. L’autorité de la publicité ouvre une enquête.',
+    c: [
+      { l: 'Instaurer une mention obligatoire des partenariats', icon: '📢', career: { awareness: -1, loyalty: 1 }, pop: 2,
+        r: 'L’émission montre l’exemple.' },
+      { l: 'Écarter l’influenceur', icon: '🚪', career: { awareness: -2, wear: -4 }, pop: 1,
+        r: 'L’affaire est close.' },
+      { l: 'Produire un numéro sur la publicité en ligne', icon: '🔍', cost: { purchase: 0.04 }, career: { awareness: 4 }, pop: 1,
+        r: 'Le numéro sensibilise les jeunes.' }
+    ] },
+  { id: 'ps_p147_maison_des_createurs', programId: 'p147', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'La maison des créateurs',
+    desc: 'La production de {programme} propose de réunir des créateurs de contenu dans une maison pendant un mois, filmés en continu. Le concept plaît aux jeunes, mais inquiète les parents.',
+    c: [
+      { l: 'Lancer la maison des créateurs', icon: '🏡', cost: { purchase: 0.25 }, boost: 0.1, career: { awareness: 6 }, pop: -1,
+        r: 'L’expérience fait un carton chez les jeunes.' },
+      { l: 'Un épisode spécial dans un studio', icon: '🎬', cost: { purchase: 0.06 }, boost: 0.03, career: { awareness: 2 },
+        r: 'Un épisode réussi.' },
+      { l: 'Renoncer', icon: '🙅', career: { awareness: -2, wear: 2 },
+        r: 'L’idée est reprise par une plateforme.' }
+    ] },
+
+  // — Compétition e-sport (p148) · jeunesse, access —
+  { id: 'ps_p148_les_droits_competition', programId: 'p148', family: 'economie', phase: 1,
+    titre: 'Les droits de la compétition',
+    desc: 'L’organisateur du grand tournoi e-sport diffusé dans {programme} triple le prix de ses droits. Les plateformes de streaming sont prêtes à payer.',
+    c: [
+      { l: 'Payer le nouveau prix', icon: '💶', cost: { recurring: 0.25 }, boost: 0.05, career: { loyalty: 3 },
+        r: 'Le tournoi reste à l’antenne.' },
+      { l: 'Se replier sur une compétition secondaire', icon: '🥈', career: { loyalty: -3, wear: 3 },
+        r: 'La compétition attire moins de fans.' },
+      { l: 'Proposer une codiffusion avec une plateforme', icon: '🤝', cost: { purchase: 0.1 }, career: { awareness: 2, loyalty: 1 },
+        r: 'Le tournoi est partagé.' }
+    ] },
+  { id: 'ps_p148_equipe_chaine', programId: 'p148', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'L’équipe de la chaîne',
+    desc: 'La production de {programme} propose de créer une équipe e-sport aux couleurs de la chaîne. L’équipe porterait la marque auprès des joueurs.',
+    c: [
+      { l: 'Créer l’équipe', icon: '🎮', cost: { recurring: 0.1 }, lasting: 0.04, career: { awareness: 5 },
+        r: 'L’équipe fidélise les fans.' },
+      { l: 'Sponsoriser une équipe existante', icon: '🤝', cost: { purchase: 0.06 }, career: { awareness: 3 },
+        r: 'Le sponsoring donne de la visibilité.' },
+      { l: 'Ne pas s’engager', icon: '🙅', career: { awareness: -1, wear: 2 },
+        r: 'La chaîne reste spectatrice.' }
     ] }
 ];
 // ---------------------------------------------------------------------------
