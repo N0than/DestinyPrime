@@ -17623,6 +17623,485 @@ const PROGRAM_STORY_BANK = [
         r: 'L’entretien est salué pour sa pudeur.' },
       { l: 'Le laisser se reposer', icon: '🕊️', career: { awareness: -2, loyalty: 1 }, pop: 1,
         r: 'L’homme remercie la chaîne de sa délicatesse.' }
+    ] },
+  // — Le match de leur vie (p428) · sport, prime —
+  { id: 'ps_p428_joueur_amateur_blesse', programId: 'p428', family: 'editorial', phase: 1,
+    titre: 'Le joueur amateur blessé',
+    desc: 'Un joueur amateur de {programme} s’est blessé gravement pendant le match. Sa famille reproche à la production un échauffement bâclé.',
+    c: [
+      { l: 'Prendre en charge ses soins', icon: '🩹', cost: { purchase: 0.02 }, career: { loyalty: 2 }, pop: 1,
+        r: 'La famille salue le geste.' },
+      { l: 'Diffuser l’accident', icon: '📺', career: { awareness: 3 }, pop: -2,
+        r: 'Les images choquent.' },
+      { l: 'Engager un préparateur physique', icon: '🏋️', cost: { recurring: 0.01 }, career: { loyalty: 1, wear: -2 },
+        r: 'Les matchs suivants se déroulent sans incident.' }
+    ] },
+  { id: 'ps_p428_match_contre_les', programId: 'p428', family: 'audience', phase: 2, when: { minSeasons: 1 },
+    titre: 'Le match contre les pros',
+    desc: 'Un club de Ligue 1 propose d’affronter les amateurs de {programme} dans son stade. Les droits de captation sont élevés.',
+    c: [
+      { l: 'Organiser le match', icon: '🏟️', cost: { purchase: 0.06 }, lasting: 0.03, career: { awareness: 5 },
+        r: 'Le stade est plein, l’audience aussi.' },
+      { l: 'Un match d’entraînement filmé', icon: '🎥', cost: { purchase: 0.02 }, career: { awareness: 2, loyalty: -1 },
+        r: 'Les images manquent d’enjeu.' },
+      { l: 'Décliner', icon: '🙅', career: { awareness: -2, loyalty: 1 },
+        r: 'Les amateurs restent entre eux.' }
+    ] },
+
+  // — Record à battre (p429) · sport, access —
+  { id: 'ps_p429_record_conteste', programId: 'p429', family: 'editorial', phase: 1,
+    titre: 'Le record contesté',
+    desc: 'Le record battu dans {programme} est contesté par un ancien détenteur. Il accuse l’arbitrage de complaisance.',
+    c: [
+      { l: 'Faire homologuer le record', icon: '📜', cost: { purchase: 0.02 }, career: { awareness: 1, loyalty: 2 },
+        r: 'Le record est validé officiellement.' },
+      { l: 'Organiser une revanche', icon: '🔁', cost: { purchase: 0.03 }, career: { awareness: 3, wear: 1 },
+        r: 'La revanche passionne le public.' },
+      { l: 'Ignorer la contestation', icon: '🙈', career: { awareness: 1 }, pop: -2,
+        r: 'La polémique entache l’émission.' }
+    ] },
+  { id: 'ps_p429_record_dangereux', programId: 'p429', family: 'image', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le record dangereux',
+    desc: 'Un candidat de {programme} veut tenter un record d’apnée jugé risqué. Les médecins de la production émettent des réserves.',
+    c: [
+      { l: 'Encadrer médicalement', icon: '🩺', cost: { purchase: 0.03 }, career: { awareness: 3, loyalty: 1 },
+        r: 'Le record est battu en sécurité.' },
+      { l: 'Laisser tenter sans encadrement', icon: '⚠️', career: { awareness: 4, wear: 2 }, pop: -2,
+        r: 'Le suspense est total, la critique aussi.' },
+      { l: 'Refuser la tentative', icon: '🚫', career: { awareness: -2, loyalty: 2 },
+        r: 'La production joue la prudence.' }
+    ] },
+
+  // — Battle de bitume (p430) · sport, access —
+  { id: 'ps_p430_spot_interdit', programId: 'p430', family: 'editorial', phase: 1,
+    titre: 'Le spot interdit',
+    desc: 'Les riders de {programme} ont tourné dans un lieu public interdit au skate. La mairie menace de poursuites.',
+    c: [
+      { l: 'Payer l’amende', icon: '💶', cost: { purchase: 0.01 }, career: { awareness: -1, loyalty: 1 },
+        r: 'L’affaire est réglée discrètement.' },
+      { l: 'Revendiquer le geste', icon: '🛹', career: { awareness: 3 }, pop: -2,
+        r: 'Les jeunes applaudissent, les élus moins.' },
+      { l: 'Négocier un spot officiel', icon: '🤝', cost: { purchase: 0.03 }, career: { loyalty: 2, wear: 1 },
+        r: 'La mairie ouvre un skatepark.' }
+    ] },
+  { id: 'ps_p430_marque_streetwear', programId: 'p430', family: 'economie', phase: 2, when: { minSeasons: 1 },
+    titre: 'La marque de streetwear',
+    desc: 'Une marque de streetwear veut habiller tous les riders de {programme}. Les puristes y voient une trahison de la culture skate.',
+    c: [
+      { l: 'Signer le contrat', icon: '👕', cost: { commercial: 0.05 }, career: { awareness: 1, loyalty: -2 },
+        r: 'Les riders sont bien payés, moins crédibles.' },
+      { l: 'Choisir une marque indépendante', icon: '🏷️', cost: { commercial: 0.02 }, career: { awareness: -1, loyalty: 1 },
+        r: 'Le choix plaît aux puristes.' },
+      { l: 'Refuser les sponsors', icon: '🙅', career: { awareness: -2, loyalty: 2 },
+        r: 'Le budget reste serré.' }
+    ] },
+
+  // — Manette d’or (p431) · sport, nuit —
+  { id: 'ps_p431_joueur_tricheur', programId: 'p431', family: 'editorial', phase: 1,
+    titre: 'Le joueur tricheur',
+    desc: 'Un finaliste de {programme} est soupçonné d’avoir utilisé un logiciel de triche. Les autres joueurs réclament sa disqualification.',
+    c: [
+      { l: 'Analyser les données', icon: '💻', cost: { purchase: 0.02 }, career: { awareness: 1, loyalty: 2 },
+        r: 'L’analyse confirme la triche.' },
+      { l: 'Disqualifier sans preuve', icon: '🚪', career: { awareness: 2 }, pop: -2,
+        r: 'Le joueur conteste publiquement.' },
+      { l: 'Rejouer le match', icon: '🔁', career: { awareness: -1, loyalty: 1, wear: 1 },
+        r: 'Le match rejoué apaise les esprits.' }
+    ] },
+  { id: 'ps_p431_tournoi_international', programId: 'p431', family: 'strategie', phase: 3, when: { minSeasons: 1, form: 'success' },
+    titre: 'Le tournoi international',
+    desc: 'Le succès de {programme} attire une ligue internationale d’e-sport. Elle propose d’en faire une étape officielle.',
+    c: [
+      { l: 'Devenir étape officielle', icon: '🏆', cost: { purchase: 0.06 }, lasting: 0.03, career: { awareness: 5 },
+        r: 'Le tournoi attire les meilleurs joueurs.' },
+      { l: 'Un tournoi invité', icon: '🎮', cost: { purchase: 0.02 }, career: { awareness: 2, loyalty: -1 },
+        r: 'Le tournoi reste confidentiel.' },
+      { l: 'Rester national', icon: '🇫🇷', career: { awareness: -2, loyalty: 1 },
+        r: 'L’émission garde son identité.' }
+    ] },
+
+  // — Esprit de club (p432) · sport, apresmidi —
+  { id: 'ps_p432_president_club_colere', programId: 'p432', family: 'editorial', phase: 1,
+    titre: 'Le président de club en colère',
+    desc: 'Le président d’un club filmé par {programme} reproche à la chaîne de montrer les divisions du vestiaire. Il menace d’interdire l’accès.',
+    c: [
+      { l: 'Lui montrer le montage', icon: '🎞️', career: { awareness: -1, loyalty: 1 },
+        r: 'Il accepte la diffusion.' },
+      { l: 'Diffuser tel quel', icon: '📺', career: { awareness: 3, wear: 1 }, pop: -1,
+        r: 'Le club ferme ses portes.' },
+      { l: 'Changer de club', icon: '🔄', cost: { purchase: 0.03 }, career: { awareness: -1, loyalty: 2 },
+        r: 'Le nouveau club ouvre son vestiaire.' }
+    ] },
+  { id: 'ps_p432_club_danger', programId: 'p432', family: 'audience', phase: 2, when: { minSeasons: 1 },
+    titre: 'Le club en danger',
+    desc: 'Le club suivi par {programme} risque la faillite. Les supporters appellent la chaîne à l’aide.',
+    c: [
+      { l: 'Lancer une collecte à l’antenne', icon: '💚', cost: { purchase: 0.02 }, career: { awareness: 3, loyalty: 2 },
+        r: 'Le club est sauvé.' },
+      { l: 'Filmer la chute', icon: '🎥', career: { awareness: 2 }, pop: -2,
+        r: 'Le documentaire est poignant mais cruel.' },
+      { l: 'Changer de club', icon: '🔄', career: { awareness: -1, loyalty: -1, wear: 1 },
+        r: 'Les fidèles sont déçus.' }
+    ] },
+
+  // — La récré des grands (p433) · sport, prime —
+  { id: 'ps_p433_ancienne_gloire_blessee', programId: 'p433', family: 'editorial', phase: 1,
+    titre: 'L’ancienne gloire blessée',
+    desc: 'Un ancien champion participant à {programme} se blesse en voulant prouver qu’il est toujours au niveau. Sa fédération critique la production.',
+    c: [
+      { l: 'Prendre en charge sa rééducation', icon: '🩹', cost: { purchase: 0.02 }, career: { loyalty: 2 }, pop: 1,
+        r: 'Le champion remercie la production.' },
+      { l: 'Diffuser la blessure', icon: '📺', career: { awareness: 3 }, pop: -2,
+        r: 'Les images font mal.' },
+      { l: 'Adapter les épreuves', icon: '⚖️', career: { awareness: -1, loyalty: 1, wear: 1 },
+        r: 'Les épreuves deviennent plus raisonnables.' }
+    ] },
+  { id: 'ps_p433_rencontre_des_generations', programId: 'p433', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'La rencontre des générations',
+    desc: 'La production propose d’opposer les champions de {programme} à de jeunes espoirs. Les fédérations hésitent à prêter leurs talents.',
+    c: [
+      { l: 'Négocier avec les fédérations', icon: '🤝', cost: { purchase: 0.05 }, lasting: 0.03, career: { awareness: 4 },
+        r: 'Le duel des générations passionne.' },
+      { l: 'Recruter des espoirs amateurs', icon: '🌱', cost: { purchase: 0.01 }, career: { awareness: 2, loyalty: -1 },
+        r: 'L’opposition est déséquilibrée.' },
+      { l: 'Garder les anciens', icon: '👴', career: { awareness: -2, loyalty: 1 },
+        r: 'L’émission vieillit avec ses champions.' }
+    ] },
+
+  // — Cap ou pas cap ? (p434) · sport, access —
+  { id: 'ps_p434_defi_dangereux', programId: 'p434', family: 'image', phase: 1,
+    titre: 'Le défi dangereux',
+    desc: 'Un défi de {programme} est repris par des adolescents sur les réseaux sociaux, avec des blessés. Les parents d’élèves s’alarment.',
+    c: [
+      { l: 'Retirer le défi', icon: '🗑️', career: { awareness: -2, loyalty: 2 },
+        r: 'La chaîne agit vite.' },
+      { l: 'Ajouter un avertissement', icon: '⚠️', cost: { purchase: 0.01 }, career: { awareness: -1, loyalty: 1 },
+        r: 'L’avertissement rassure en partie.' },
+      { l: 'Maintenir le défi', icon: '📺', career: { awareness: 3, wear: 1 }, pop: -2,
+        r: 'La polémique enfle.' }
+    ] },
+  { id: 'ps_p434_les_defis_public', programId: 'p434', family: 'audience', phase: 2, when: { minSeasons: 1 },
+    titre: 'Les défis du public',
+    desc: 'Les spectateurs proposent leurs propres défis à {programme}. La production craint de perdre le contrôle.',
+    c: [
+      { l: 'Lancer un concours', icon: '🎯', cost: { purchase: 0.03 }, career: { awareness: 4, wear: 2 },
+        r: 'Les propositions affluent.' },
+      { l: 'Sélectionner quelques défis', icon: '✅', career: { awareness: 1, loyalty: -1 },
+        r: 'L’initiative passe inaperçue.' },
+      { l: 'Refuser', icon: '🙅', career: { awareness: -2, loyalty: 1 },
+        r: 'L’émission reste fermée.' }
+    ] },
+
+  // — Au pied du mur (p435) · sport, prime —
+  { id: 'ps_p435_chute_grimpeur', programId: 'p435', family: 'editorial', phase: 1,
+    titre: 'La chute du grimpeur',
+    desc: 'Un grimpeur de {programme} a chuté lors d’une épreuve, rattrapé de justesse par son assurage. L’image tourne en boucle.',
+    c: [
+      { l: 'Revoir la sécurité', icon: '🧗', cost: { purchase: 0.03 }, career: { loyalty: 2, wear: -2 },
+        r: 'Les épreuves suivantes se déroulent sereinement.' },
+      { l: 'Diffuser au ralenti', icon: '🎥', career: { awareness: 3 }, pop: -2,
+        r: 'La séquence fait sensation.' },
+      { l: 'Couper la séquence', icon: '✂️', career: { awareness: -2, loyalty: 1 },
+        r: 'L’épisode perd son moment fort.' }
+    ] },
+  { id: 'ps_p435_mur_geant', programId: 'p435', family: 'strategie', phase: 3, when: { minSeasons: 1, form: 'success' },
+    titre: 'Le mur géant',
+    desc: 'La production de {programme} propose de construire un mur d’escalade géant en plein Paris. L’installation coûterait une fortune.',
+    c: [
+      { l: 'Construire le mur', icon: '🏗️', cost: { purchase: 0.07 }, lasting: 0.03, career: { awareness: 5 },
+        r: 'Le mur devient une attraction.' },
+      { l: 'Utiliser une falaise naturelle', icon: '🏔️', cost: { purchase: 0.02 }, career: { awareness: 2, loyalty: 1, wear: 1 },
+        r: 'Les images sont belles.' },
+      { l: 'Garder le studio', icon: '🎬', career: { awareness: -1, loyalty: -1 },
+        r: 'L’émission reste classique.' }
+    ] },
+
+  // — Tirer ou pointer (p436) · sport, apresmidi —
+  { id: 'ps_p436_partie_truquee', programId: 'p436', family: 'editorial', phase: 1,
+    titre: 'La partie truquée',
+    desc: 'Un joueur de {programme} accuse son adversaire d’avoir déplacé le cochonnet. La vidéo est ambiguë.',
+    c: [
+      { l: 'Faire arbitrer par la fédération', icon: '⚖️', cost: { purchase: 0.01 }, career: { awareness: -1, loyalty: 2 },
+        r: 'La décision est acceptée.' },
+      { l: 'Diffuser la polémique', icon: '📺', career: { awareness: 3 }, pop: -1,
+        r: 'Les boulistes s’enflamment.' },
+      { l: 'Rejouer la mène', icon: '🔁', career: { awareness: -1, loyalty: 1, wear: 1 },
+        r: 'La mène rejouée calme les esprits.' }
+    ] },
+  { id: 'ps_p436_aperitif_partenaire', programId: 'p436', family: 'economie', phase: 2, when: { minSeasons: 1 },
+    titre: 'L’apéritif partenaire',
+    desc: 'Une marque d’anisette veut parrainer {programme}. La loi Évin complique la présence à l’écran.',
+    c: [
+      { l: 'Accepter avec prudence', icon: '🥃', cost: { commercial: 0.04 }, career: { awareness: 1 }, pop: -2,
+        r: 'Le parrainage fait grincer.' },
+      { l: 'Choisir un sponsor de boules', icon: '🎯', cost: { commercial: 0.02 }, career: { awareness: -1, loyalty: 1 },
+        r: 'Le sponsor est cohérent.' },
+      { l: 'Refuser', icon: '🙅', career: { awareness: -2, loyalty: 2 },
+        r: 'L’émission reste sobre.' }
+    ] },
+
+  // — Tribune libre (p437) · sport, nuit —
+  { id: 'ps_p437_supporter_violent', programId: 'p437', family: 'editorial', phase: 1,
+    titre: 'Le supporter violent',
+    desc: 'Un intervenant de {programme} tient des propos appelant à la violence contre un arbitre. La Ligue saisit le CSA.',
+    c: [
+      { l: 'L’exclure', icon: '🚪', career: { awareness: -1, loyalty: 2 },
+        r: 'L’émission montre sa fermeté.' },
+      { l: 'Le défendre', icon: '🛡️', career: { awareness: 2 }, pop: -2,
+        r: 'La polémique s’envenime.' },
+      { l: 'Inviter l’arbitre', icon: '🎙️', cost: { purchase: 0.01 }, career: { awareness: 1, loyalty: 1, wear: 1 },
+        r: 'L’échange apaise les tensions.' }
+    ] },
+  { id: 'ps_p437_emission_tournee', programId: 'p437', family: 'audience', phase: 2, when: { minSeasons: 1 },
+    titre: 'L’émission en tournée',
+    desc: 'La production de {programme} propose de tourner dans les bars de supporters partout en France. Les frais seraient conséquents.',
+    c: [
+      { l: 'Partir en tournée', icon: '🚌', cost: { purchase: 0.04 }, lasting: 0.02, career: { awareness: 4 },
+        r: 'L’ambiance est électrique.' },
+      { l: 'Une émission délocalisée', icon: '📍', cost: { purchase: 0.01 }, career: { awareness: 1, loyalty: -1 },
+        r: 'L’essai est timide.' },
+      { l: 'Rester en studio', icon: '🎬', career: { awareness: -2, loyalty: 1 },
+        r: 'L’émission reste confidentielle.' }
+    ] },
+
+  // — Seconde vie (p438) · generaliste, apresmidi —
+  { id: 'ps_p438_objet_restaure_abime', programId: 'p438', family: 'editorial', phase: 1,
+    titre: 'L’objet restauré abîmé',
+    desc: 'Un meuble ancien confié à {programme} a été abîmé pendant la restauration. Son propriétaire réclame un dédommagement.',
+    c: [
+      { l: 'Indemniser', icon: '💶', cost: { purchase: 0.02 }, career: { loyalty: 2 }, pop: 1,
+        r: 'Le propriétaire est satisfait.' },
+      { l: 'Diffuser l’incident', icon: '📺', career: { awareness: 2 }, pop: -2,
+        r: 'Le public se moque des artisans.' },
+      { l: 'Proposer une seconde restauration', icon: '🔨', career: { awareness: -1, loyalty: 1, wear: 1 },
+        r: 'La seconde tentative est réussie.' }
+    ] },
+  { id: 'ps_p438_boutique_seconde_main', programId: 'p438', family: 'economie', phase: 2, when: { minSeasons: 1 },
+    titre: 'La boutique de seconde main',
+    desc: 'Une enseigne de seconde main veut vendre les objets restaurés dans {programme}. Elle propose une part des ventes.',
+    c: [
+      { l: 'Signer le partenariat', icon: '🛍️', cost: { commercial: 0.05 }, career: { awareness: 1, loyalty: -1 },
+        r: 'Les objets trouvent preneur.' },
+      { l: 'Organiser des ventes caritatives', icon: '💚', cost: { purchase: 0.01 }, career: { awareness: -1, loyalty: 2 },
+        r: 'Les ventes financent une association.' },
+      { l: 'Refuser', icon: '🙅', career: { awareness: -2, wear: -1 },
+        r: 'Les objets restent chez leurs propriétaires.' }
+    ] },
+
+  // — Rien à me mettre (p439) · generaliste, access —
+  { id: 'ps_p439_grossophobie_denoncee', programId: 'p439', family: 'image', phase: 1,
+    titre: 'La grossophobie dénoncée',
+    desc: 'Une séquence de {programme} est accusée de grossophobie. Des influenceuses appellent au boycott.',
+    c: [
+      { l: 'Présenter des excuses', icon: '🙏', career: { awareness: -1, loyalty: 2 },
+        r: 'Les excuses sont acceptées.' },
+      { l: 'Recruter une styliste spécialisée', icon: '👗', cost: { recurring: 0.01 }, career: { loyalty: 1 }, pop: 2,
+        r: 'L’émission devient plus inclusive.' },
+      { l: 'Défendre la séquence', icon: '🛡️', career: { awareness: 2 }, pop: -2,
+        r: 'La polémique dure.' }
+    ] },
+  { id: 'ps_p439_marque_fast_fashion', programId: 'p439', family: 'economie', phase: 2, when: { minSeasons: 1 },
+    titre: 'La marque de fast-fashion',
+    desc: 'Une enseigne de fast-fashion veut habiller les candidates de {programme}. Les écologistes dénoncent le partenariat.',
+    c: [
+      { l: 'Accepter', icon: '🏷️', cost: { commercial: 0.05 }, career: { awareness: 1 }, pop: -2,
+        r: 'Les tenues plaisent, l’image souffre.' },
+      { l: 'Choisir la seconde main', icon: '♻️', cost: { purchase: 0.01 }, career: { awareness: -1, loyalty: 2 },
+        r: 'La démarche est saluée.' },
+      { l: 'Alterner les marques', icon: '🔄', cost: { commercial: 0.02 }, career: { awareness: -1, wear: 1 },
+        r: 'Le compromis passe inaperçu.' }
+    ] },
+
+  // — Les comptes à rebours (p440) · generaliste, access —
+  { id: 'ps_p440_budget_irrealiste', programId: 'p440', family: 'editorial', phase: 1,
+    titre: 'Le budget irréaliste',
+    desc: 'Les conseils budgétaires de {programme} sont jugés irréalistes par des associations de consommateurs. Elles réclament un démenti.',
+    c: [
+      { l: 'Inviter les associations', icon: '🗣️', career: { awareness: -1, loyalty: 2 },
+        r: 'Le débat enrichit l’émission.' },
+      { l: 'Recruter un conseiller financier', icon: '💼', cost: { recurring: 0.01 }, career: { loyalty: 1 }, pop: 1,
+        r: 'Les conseils gagnent en sérieux.' },
+      { l: 'Ignorer', icon: '🙈', career: { awareness: 1 }, pop: -2,
+        r: 'Les critiques s’accumulent.' }
+    ] },
+  { id: 'ps_p440_simulateur_ligne', programId: 'p440', family: 'audience', phase: 2, when: { minSeasons: 1 },
+    titre: 'Le simulateur en ligne',
+    desc: 'La production de {programme} propose un simulateur de budget en ligne. Les développeurs demandent un budget conséquent.',
+    c: [
+      { l: 'Développer le simulateur', icon: '📱', cost: { purchase: 0.04 }, lasting: 0.02, career: { awareness: 4 },
+        r: 'Le simulateur cartonne.' },
+      { l: 'Publier des fiches pratiques', icon: '📄', career: { awareness: 1, loyalty: -1, wear: 1 },
+        r: 'Les fiches sont utiles mais discrètes.' },
+      { l: 'Renoncer', icon: '🙅', career: { awareness: -2, loyalty: 1 },
+        r: 'L’émission reste classique.' }
+    ] },
+
+  // — Partir au vert (p441) · generaliste, prime —
+  { id: 'ps_p441_neo_rural_decu', programId: 'p441', family: 'editorial', phase: 1,
+    titre: 'Le néo-rural déçu',
+    desc: 'Une famille installée à la campagne grâce à {programme} veut revenir en ville. Elle accuse la production d’avoir enjolivé la vie rurale.',
+    c: [
+      { l: 'Filmer leur retour', icon: '🎥', career: { awareness: 1, loyalty: 2 }, pop: -1,
+        r: 'L’honnêteté de l’émission est saluée.' },
+      { l: 'Les aider à s’intégrer', icon: '🤝', cost: { purchase: 0.02 }, career: { loyalty: 1 }, pop: 1,
+        r: 'La famille finit par rester.' },
+      { l: 'Ne pas en parler', icon: '🙈', career: { awareness: -1, loyalty: -1 },
+        r: 'La famille témoigne ailleurs.' }
+    ] },
+  { id: 'ps_p441_les_regions_candidates', programId: 'p441', family: 'economie', phase: 2, when: { minSeasons: 1 },
+    titre: 'Les régions candidates',
+    desc: 'Des régions proposent de financer {programme} pour attirer de nouveaux habitants. La rédaction craint la publicité déguisée.',
+    c: [
+      { l: 'Accepter les financements', icon: '💶', cost: { commercial: 0.05 }, career: { awareness: 1, loyalty: -2 },
+        r: 'Les reportages manquent de nuance.' },
+      { l: 'Choisir librement', icon: '🎯', career: { awareness: -1, loyalty: 2 },
+        r: 'L’indépendance est préservée.' },
+      { l: 'Accepter avec charte', icon: '📜', cost: { commercial: 0.02 }, career: { awareness: 1, loyalty: -1, wear: 1 },
+        r: 'Le compromis tient.' }
+    ] },
+
+  // — Graines de quartier (p442) · generaliste, apresmidi —
+  { id: 'ps_p442_jardin_vandalise', programId: 'p442', family: 'editorial', phase: 1,
+    titre: 'Le jardin vandalisé',
+    desc: 'Le jardin partagé filmé par {programme} a été vandalisé. Les habitants sont découragés.',
+    c: [
+      { l: 'Financer la reconstruction', icon: '🌱', cost: { purchase: 0.02 }, career: { loyalty: 2 }, pop: 1,
+        r: 'Le jardin renaît.' },
+      { l: 'Lancer un appel aux bénévoles', icon: '📢', career: { awareness: 2, loyalty: 1, wear: 2 },
+        r: 'Les bénévoles affluent.' },
+      { l: 'Changer de quartier', icon: '🔄', career: { awareness: -1, loyalty: -1 },
+        r: 'Les habitants se sentent abandonnés.' }
+    ] },
+  { id: 'ps_p442_reseau_jardins', programId: 'p442', family: 'audience', phase: 3, when: { minSeasons: 1, form: 'success' },
+    titre: 'Le réseau de jardins',
+    desc: 'Le succès de {programme} donne envie à d’autres quartiers de créer leur jardin. La production propose de les accompagner.',
+    c: [
+      { l: 'Accompagner dix quartiers', icon: '🌻', cost: { purchase: 0.04 }, lasting: 0.02, career: { awareness: 4 },
+        r: 'Les jardins fleurissent.' },
+      { l: 'Publier un guide', icon: '📖', career: { awareness: 1, loyalty: -1, wear: 1 },
+        r: 'Le guide circule.' },
+      { l: 'Rester dans un quartier', icon: '🏘️', career: { awareness: -2, loyalty: 1 },
+        r: 'L’émission reste intime.' }
+    ] },
+
+  // — Adieu passoire (p443) · generaliste, access —
+  { id: 'ps_p443_les_travaux_mal', programId: 'p443', family: 'editorial', phase: 1,
+    titre: 'Les travaux mal faits',
+    desc: 'Un artisan recommandé par {programme} a bâclé une isolation. La famille se retrouve avec des moisissures.',
+    c: [
+      { l: 'Financer la réparation', icon: '🔧', cost: { purchase: 0.03 }, career: { loyalty: 2 }, pop: 1,
+        r: 'La famille retrouve un logement sain.' },
+      { l: 'Enquêter sur l’artisan', icon: '🕵️', career: { awareness: 2, loyalty: 1, wear: 2 },
+        r: 'L’enquête révèle d’autres victimes.' },
+      { l: 'Ne rien faire', icon: '🙈', career: { awareness: -1 }, pop: -2,
+        r: 'La famille témoigne dans la presse.' }
+    ] },
+  { id: 'ps_p443_fournisseur_energie', programId: 'p443', family: 'economie', phase: 2, when: { minSeasons: 1 },
+    titre: 'Le fournisseur d’énergie',
+    desc: 'Un fournisseur d’énergie veut parrainer {programme}. Les associations écologistes jugent ses pratiques douteuses.',
+    c: [
+      { l: 'Accepter', icon: '⚡', cost: { commercial: 0.05 }, career: { awareness: 1 }, pop: -2,
+        r: 'Le parrainage suscite des critiques.' },
+      { l: 'Choisir l’Ademe', icon: '🌿', career: { awareness: -1, loyalty: 2 },
+        r: 'Le partenariat est salué.' },
+      { l: 'Parrainage encadré', icon: '📜', cost: { commercial: 0.02 }, career: { awareness: 1, loyalty: -1 },
+        r: 'Le compromis passe.' }
+    ] },
+
+  // — Coup de cœur au refuge (p444) · generaliste, apresmidi —
+  { id: 'ps_p444_adoption_ratee', programId: 'p444', family: 'editorial', phase: 1,
+    titre: 'L’adoption ratée',
+    desc: 'Un chien adopté grâce à {programme} a été rendu au refuge après une semaine. La famille adoptante est critiquée sur les réseaux.',
+    c: [
+      { l: 'Protéger la famille', icon: '🛡️', career: { awareness: -1, loyalty: 2 },
+        r: 'La famille remercie la chaîne.' },
+      { l: 'Diffuser leur témoignage', icon: '🎥', career: { awareness: 2, wear: 1 }, pop: -1,
+        r: 'Le témoignage divise.' },
+      { l: 'Mieux préparer les adoptions', icon: '🐕', cost: { recurring: 0.01 }, career: { loyalty: 1 }, pop: 1,
+        r: 'Les adoptions suivantes réussissent.' }
+    ] },
+  { id: 'ps_p444_refuge_sature', programId: 'p444', family: 'image', phase: 3, when: { minSeasons: 1, form: 'success' },
+    titre: 'Le refuge saturé',
+    desc: 'Le succès de {programme} attire une foule au refuge, qui ne peut plus suivre. La SPA appelle à l’aide.',
+    c: [
+      { l: 'Financer des renforts', icon: '🤝', cost: { purchase: 0.03 }, career: { loyalty: 2 }, pop: 2,
+        r: 'Le refuge fait face.' },
+      { l: 'Limiter les visites', icon: '🚧', career: { awareness: -1, loyalty: 1 },
+        r: 'Le refuge respire.' },
+      { l: 'Laisser faire', icon: '🙈', career: { awareness: 2, wear: 1 }, pop: -2,
+        r: 'Le refuge déborde.' }
+    ] },
+
+  // — SOS paperasse (p445) · generaliste, apresmidi —
+  { id: 'ps_p445_conseil_errone', programId: 'p445', family: 'editorial', phase: 1,
+    titre: 'Le conseil erroné',
+    desc: 'Un conseil administratif donné dans {programme} a fait perdre une aide sociale à un spectateur. Il réclame réparation.',
+    c: [
+      { l: 'Corriger à l’antenne', icon: '📢', career: { awareness: -1, loyalty: 2 },
+        r: 'L’émission reconnaît son erreur.' },
+      { l: 'Engager un juriste', icon: '⚖️', cost: { recurring: 0.01 }, career: { loyalty: 1 }, pop: 1,
+        r: 'Les conseils deviennent irréprochables.' },
+      { l: 'Ignorer', icon: '🙈', career: { awareness: 1 }, pop: -2,
+        r: 'Le spectateur alerte la presse.' }
+    ] },
+  { id: 'ps_p445_permanence_telephonique', programId: 'p445', family: 'audience', phase: 2, when: { minSeasons: 1 },
+    titre: 'La permanence téléphonique',
+    desc: 'Les spectateurs de {programme} réclament une ligne d’assistance. Un partenaire associatif propose de la tenir.',
+    c: [
+      { l: 'Financer la permanence', icon: '☎️', cost: { purchase: 0.03 }, lasting: 0.02, career: { awareness: 3, loyalty: 1 },
+        r: 'La ligne est saturée d’appels.' },
+      { l: 'Renvoyer vers les associations', icon: '🔗', career: { awareness: 1, loyalty: -1 },
+        r: 'Le service reste limité.' },
+      { l: 'Refuser', icon: '🙅', career: { awareness: -2 }, pop: -1,
+        r: 'Les spectateurs se sentent abandonnés.' }
+    ] },
+
+  // — Toute la rue s’y met (p446) · generaliste, prime —
+  { id: 'ps_p446_voisin_recalcitrant', programId: 'p446', family: 'editorial', phase: 1,
+    titre: 'Le voisin récalcitrant',
+    desc: 'Un habitant refuse de participer au projet collectif de {programme}. Il bloque les travaux de toute la rue.',
+    c: [
+      { l: 'Négocier', icon: '🤝', cost: { purchase: 0.01 }, career: { awareness: -1, loyalty: 2 },
+        r: 'Il finit par rejoindre le projet.' },
+      { l: 'Filmer son refus', icon: '🎥', career: { awareness: 3 }, pop: -2,
+        r: 'L’homme est harcelé sur les réseaux.' },
+      { l: 'Changer de rue', icon: '🔄', cost: { purchase: 0.02 }, career: { awareness: 1, loyalty: -1, wear: 1 },
+        r: 'Le projet repart ailleurs, avec une rue enthousiaste.' }
+    ] },
+  { id: 'ps_p446_village_entier', programId: 'p446', family: 'audience', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le village entier',
+    desc: 'Un village entier veut participer à {programme}. Le chantier serait colossal.',
+    c: [
+      { l: 'Relever le défi', icon: '🏘️', cost: { purchase: 0.06 }, lasting: 0.03, career: { awareness: 5 },
+        r: 'Le village transformé émeut.' },
+      { l: 'Un quartier seulement', icon: '🏠', cost: { purchase: 0.02 }, career: { awareness: 2, loyalty: -1 },
+        r: 'L’impact est limité.' },
+      { l: 'Décliner', icon: '🙅', career: { awareness: -2, loyalty: 1 },
+        r: 'Le village est déçu.' }
+    ] },
+
+  // — Rouler des mécaniques (p447) · generaliste, nuit —
+  { id: 'ps_p447_voiture_volee', programId: 'p447', family: 'editorial', phase: 1,
+    titre: 'La voiture volée',
+    desc: 'Une voiture de collection restaurée dans {programme} est volée juste avant la diffusion. Le propriétaire est effondré.',
+    c: [
+      { l: 'Lancer un appel à témoins', icon: '📢', career: { awareness: 3, loyalty: 1, wear: 1 },
+        r: 'La voiture est retrouvée.' },
+      { l: 'Indemniser le propriétaire', icon: '💶', cost: { purchase: 0.03 }, career: { loyalty: 2 }, pop: 1,
+        r: 'Le propriétaire salue le geste.' },
+      { l: 'Diffuser sans commentaire', icon: '📺', career: { awareness: -1 }, pop: -1,
+        r: 'Le public est frustré.' }
+    ] },
+  { id: 'ps_p447_salon_automobile', programId: 'p447', family: 'economie', phase: 2, when: { minSeasons: 1 },
+    titre: 'Le salon automobile',
+    desc: 'Un salon automobile propose d’accueillir {programme} en direct. Il demande une part des recettes publicitaires.',
+    c: [
+      { l: 'Accepter', icon: '🚗', cost: { commercial: 0.04 }, career: { awareness: 2, loyalty: -1 },
+        r: 'Le direct attire les passionnés.' },
+      { l: 'Un reportage simple', icon: '🎥', career: { awareness: 1, loyalty: 1, wear: 1 }, pop: -1,
+        r: 'Le reportage est soigné mais discret.' },
+      { l: 'Refuser', icon: '🙅', career: { awareness: -2, loyalty: 1 },
+        r: 'L’émission reste dans son garage.' }
     ] }
 ];
 // ---------------------------------------------------------------------------
