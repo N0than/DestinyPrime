@@ -12857,6 +12857,461 @@ const PROGRAM_STORY_BANK = [
         r: 'La rubrique est appréciée.' },
       { l: 'Rester sur la cible actuelle', icon: '🎯', career: { awareness: -1, loyalty: 2 },
         r: 'L’émission ne se renouvelle pas.' }
+    ] },
+  // — Ça se dispute (p228) · info, access —
+  { id: 'ps_p228_chroniqueur_provocateur', programId: 'p228', family: 'image', phase: 2,
+    titre: 'Le chroniqueur provocateur',
+    desc: 'Un chroniqueur de {programme} multiplie les sorties polémiques pour faire le buzz. L’Arcom adresse une mise en garde à la chaîne.',
+    c: [
+      { l: 'Écarter le chroniqueur', icon: '🚪', career: { awareness: -2 }, pop: 2,
+        r: 'La chaîne rassure le régulateur.' },
+      { l: 'Le recadrer fermement', icon: '📋', career: { loyalty: -1, wear: 2 }, pop: 1,
+        r: 'Le ton s’apaise un peu.' },
+      { l: 'Assumer la provocation', icon: '🔥', boost: 0.03, career: { awareness: 4 }, pop: -3,
+        r: 'Le buzz continue, l’Arcom aussi.' }
+    ] },
+  { id: 'ps_p228_face_face_vendredi', programId: 'p228', family: 'audience', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le face-à-face du vendredi',
+    desc: 'La production de {programme} propose un grand face-à-face hebdomadaire entre deux personnalités opposées. Le format promet des étincelles.',
+    c: [
+      { l: 'Lancer le face-à-face', icon: '🥊', cost: { purchase: 0.03 }, boost: 0.06, career: { awareness: 4 }, pop: -1,
+        r: 'Le duel devient un rendez-vous.' },
+      { l: 'Garder le débat à plusieurs', icon: '👥', career: { loyalty: 2, wear: 3 },
+        r: 'Le débat reste classique.' },
+      { l: 'Un face-à-face par mois', icon: '📅', cost: { purchase: 0.01 }, boost: 0.02, career: { awareness: 2 },
+        r: 'Un rendez-vous apprécié.' }
+    ] },
+
+  // — Face à l'info (p229) · info, access —
+  { id: 'ps_p229_editorialiste_ligne_politique', programId: 'p229', family: 'editorial', phase: 1,
+    titre: 'L’éditorialiste et la ligne politique',
+    desc: 'L’éditorialiste vedette de {programme} affiche des positions très tranchées. Ses opposants accusent l’émission de partialité.',
+    c: [
+      { l: 'Ajouter un contradicteur permanent', icon: '⚖️', cost: { recurring: 0.04 }, career: { loyalty: 1 }, pop: 2,
+        r: 'Le pluralisme est mieux respecté.' },
+      { l: 'Maintenir l’éditorialiste seul', icon: '🎙️', career: { awareness: 3, loyalty: 2 }, pop: -2,
+        r: 'Les fidèles adorent, les critiques pleuvent.' },
+      { l: 'Alterner les éditorialistes', icon: '🔄', cost: { purchase: 0.02 }, career: { wear: -3 }, pop: 1,
+        r: 'Les points de vue se diversifient.' }
+    ] },
+  { id: 'ps_p229_mise_demeure_arcom', programId: 'p229', family: 'image', phase: 2, when: { minSeasons: 1 },
+    titre: 'La mise en demeure de l’Arcom',
+    desc: 'L’Arcom met en demeure {programme} pour manque de pluralisme. Une sanction financière est possible.',
+    c: [
+      { l: 'Se mettre en conformité immédiatement', icon: '✅', career: { loyalty: -2 }, pop: 2,
+        r: 'La sanction est évitée.' },
+      { l: 'Contester devant le Conseil d’État', icon: '⚖️', cost: { purchase: 0.05 }, career: { awareness: 2, loyalty: 2 }, pop: -1,
+        r: 'La procédure dure, les fidèles soutiennent l’émission.' },
+      { l: 'Changer d’animateur', icon: '🔄', career: { loyalty: -3, wear: -6 }, pop: 1,
+        r: 'L’émission tourne la page.' }
+    ] },
+
+  // — Merci pour l'info (p230) · info, access —
+  { id: 'ps_p230_humour_sur_actualite', programId: 'p230', family: 'editorial', phase: 1,
+    titre: 'L’humour sur l’actualité',
+    desc: 'Les chroniqueurs humoristes de {programme} se moquent d’un dirigeant étranger. L’ambassade proteste officiellement.',
+    c: [
+      { l: 'Défendre la liberté de l’humour', icon: '😄', career: { awareness: 3, loyalty: 2 }, pop: -1,
+        r: 'Les fans applaudissent.' },
+      { l: 'Présenter des excuses', icon: '🙏', career: { loyalty: -2 }, pop: 1,
+        r: 'L’affaire est close.' },
+      { l: 'Répondre par un sketch sur l’incident', icon: '🎭', cost: { purchase: 0.01 }, boost: 0.02, career: { awareness: 4 }, pop: -1,
+        r: 'Le sketch amuse beaucoup.' }
+    ] },
+  { id: 'ps_p230_spectacle_des_chroniqueurs', programId: 'p230', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le spectacle des chroniqueurs',
+    desc: 'Les chroniqueurs de {programme} proposent un spectacle sur scène, adapté de l’émission. La tournée serait filmée.',
+    c: [
+      { l: 'Coproduire le spectacle', icon: '🎟️', cost: { purchase: 0.1 }, lasting: 0.03, career: { awareness: 5 },
+        r: 'Le spectacle fait salle comble.' },
+      { l: 'Céder les droits', icon: '📝', cost: { commercial: 0.06 }, career: { awareness: 2, wear: 2 },
+        r: 'Le spectacle rapporte un peu.' },
+      { l: 'Refuser', icon: '🙅', career: { awareness: -2, loyalty: 1 },
+        r: 'Les chroniqueurs restent à l’antenne.' }
+    ] },
+
+  // — Édition du soir (p231) · info, access —
+  { id: 'ps_p231_ouverture_journal', programId: 'p231', family: 'editorial', phase: 1,
+    titre: 'L’ouverture du journal',
+    desc: 'Deux informations majeures tombent en même temps : un drame national et une décision politique importante. {programme} doit choisir son ouverture.',
+    c: [
+      { l: 'Ouvrir sur le drame', icon: '🕯️', boost: 0.04, career: { awareness: 2, loyalty: -1 },
+        r: 'Le journal colle à l’émotion du pays.' },
+      { l: 'Ouvrir sur la décision politique', icon: '🏛️', boost: -0.02, career: { loyalty: 2 },
+        r: 'Le journal privilégie l’analyse.' },
+      { l: 'Faire un journal spécial des deux sujets', icon: '📰', cost: { purchase: 0.03 }, career: { awareness: 3, loyalty: 1 },
+        r: 'Le journal est salué pour sa complétude.' }
+    ] },
+  { id: 'ps_p231_journal_concurrent', programId: 'p231', family: 'audience', phase: 2, when: { minSeasons: 1, pressure: true },
+    titre: 'Le journal concurrent',
+    desc: '{rival} avance {rivalProgramme} d’un quart d’heure pour devancer {programme}. Les téléspectateurs zappent.',
+    c: [
+      { l: 'Avancer aussi le journal', icon: '⏩', cost: { purchase: 0.02 }, boost: 0.04, career: { loyalty: -1 },
+        r: 'La course à l’horaire reprend.' },
+      { l: 'Garder l’horaire et soigner le contenu', icon: '🎯', career: { loyalty: 3, wear: 2 },
+        r: 'Les fidèles restent.' },
+      { l: 'Ajouter un sujet exclusif chaque soir', icon: '🔎', cost: { recurring: 0.04 }, boost: 0.03, career: { awareness: 3 },
+        r: 'Les exclusivités font la différence.' }
+    ] },
+
+  // — Grand reportage (p233) · info, prime —
+  { id: 'ps_p233_reporter_retenu', programId: 'p233', family: 'editorial', phase: 1,
+    titre: 'Le reporter retenu',
+    desc: 'Un reporter de {programme} est retenu par des autorités étrangères. La chaîne doit choisir entre médiatisation et discrétion.',
+    c: [
+      { l: 'Médiatiser l’affaire', icon: '📢', boost: -0.02, career: { awareness: 4 }, pop: 2,
+        r: 'La mobilisation obtient sa libération.' },
+      { l: 'Négocier discrètement', icon: '🤫', cost: { purchase: 0.05 }, career: { loyalty: 2 }, pop: 1,
+        r: 'Le reporter est libéré sans bruit.' },
+      { l: 'Laisser faire la diplomatie', icon: '🏛️', career: { loyalty: -2, wear: 2 },
+        r: 'La rédaction s’inquiète de l’inaction.' }
+    ] },
+  { id: 'ps_p233_grand_reportage_prime', programId: 'p233', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le grand reportage primé',
+    desc: 'Un reportage de {programme} reçoit le prix Albert-Londres. La rédaction demande des moyens pour une série.',
+    c: [
+      { l: 'Financer une série de grands reportages', icon: '🏆', cost: { purchase: 0.2 }, lasting: 0.04, career: { awareness: 5 },
+        r: 'La série consolide la réputation de l’émission.' },
+      { l: 'Rediffuser le reportage primé', icon: '🔁', career: { awareness: 2, wear: 2 },
+        r: 'Le reportage touche un public plus large.' },
+      { l: 'Un numéro spécial prix', icon: '📅', cost: { purchase: 0.03 }, career: { awareness: 2, loyalty: 1 },
+        r: 'Le numéro est salué.' }
+    ] },
+
+  // — Géopolitique (p234) · info, prime —
+  { id: 'ps_p234_carte_contestee', programId: 'p234', family: 'editorial', phase: 2,
+    titre: 'La carte contestée',
+    desc: 'Une carte diffusée dans {programme} est contestée par deux pays voisins. Leurs ambassades protestent.',
+    c: [
+      { l: 'Corriger la carte avec une explication', icon: '🗺️', cost: { purchase: 0.01 }, career: { loyalty: 1 }, pop: 1,
+        r: 'La correction apaise les tensions.' },
+      { l: 'Maintenir la carte', icon: '📍', career: { awareness: 2 }, pop: -2,
+        r: 'La polémique s’installe.' },
+      { l: 'Consacrer un numéro aux frontières contestées', icon: '🌍', cost: { purchase: 0.04 }, career: { awareness: 4, loyalty: 1 },
+        r: 'Le numéro est passionnant.' }
+    ] },
+  { id: 'ps_p234_atlas_anime', programId: 'p234', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'L’atlas animé',
+    desc: 'La rédaction de {programme} propose de créer des cartes animées pour chaque numéro. La production serait plus coûteuse.',
+    c: [
+      { l: 'Créer l’atlas animé', icon: '🌐', cost: { recurring: 0.04 }, lasting: 0.03, career: { awareness: 4 },
+        r: 'Les cartes animées rendent la géopolitique claire.' },
+      { l: 'Garder les cartes fixes', icon: '🗺️', career: { loyalty: 1, wear: 3 },
+        r: 'Le format reste sobre.' },
+      { l: 'Animer une carte par numéro', icon: '🎬', cost: { purchase: 0.01 }, career: { awareness: 2 },
+        r: 'Une touche de modernité.' }
+    ] },
+
+  // — Société (p235) · info, prime —
+  { id: 'ps_p235_temoin_anonyme_demasque', programId: 'p235', family: 'image', phase: 2,
+    titre: 'Le témoin anonyme démasqué',
+    desc: 'Un témoin anonyme de {programme} a été reconnu par son entourage malgré le floutage. Il subit des représailles.',
+    c: [
+      { l: 'Indemniser et renforcer l’anonymisation', icon: '🛡️', cost: { purchase: 0.04 }, career: { loyalty: 2 }, pop: 2,
+        r: 'La rédaction assume sa responsabilité.' },
+      { l: 'Présenter des excuses', icon: '🙏', career: { loyalty: -1 }, pop: 1,
+        r: 'L’excuse ne suffit pas.' },
+      { l: 'Ignorer l’affaire', icon: '🤷', career: { awareness: 1 }, pop: -3,
+        r: 'La rédaction est vivement critiquée.' }
+    ] },
+  { id: 'ps_p235_societe_direct', programId: 'p235', family: 'audience', phase: 3, when: { minSeasons: 1 },
+    titre: 'La société en direct',
+    desc: 'La production de {programme} propose une soirée en direct sur la santé mentale des jeunes, avec des témoignages et des experts. Le sujet est délicat et demande une préparation soignée.',
+    c: [
+      { l: 'Organiser la soirée en direct', icon: '💙', cost: { purchase: 0.06 }, boost: 0.06, career: { awareness: 3 }, pop: 2,
+        r: 'La soirée est saluée.' },
+      { l: 'Un documentaire enregistré', icon: '🎬', cost: { purchase: 0.02 }, career: { awareness: 2, loyalty: 1 },
+        r: 'Le documentaire est soigné.' },
+      { l: 'Garder la programmation prévue', icon: '📅', career: { loyalty: 1, wear: 3 },
+        r: 'L’émission passe à côté du sujet.' }
+    ] },
+
+  // — Économie (p236) · info, prime —
+  { id: 'ps_p236_entreprise_qui_refuse', programId: 'p236', family: 'editorial', phase: 1,
+    titre: 'L’entreprise qui refuse le tournage',
+    desc: 'Une entreprise mise en cause dans {programme} refuse que les équipes filment ses usines. Les salariés, eux, veulent témoigner.',
+    c: [
+      { l: 'Filmer les salariés à l’extérieur', icon: '🏭', career: { awareness: 3, loyalty: 2 }, pop: -1,
+        r: 'Les témoignages donnent de la force à l’enquête.' },
+      { l: 'Renoncer au sujet', icon: '🗑️', career: { loyalty: -2, wear: 2 },
+        r: 'L’enquête est abandonnée.' },
+      { l: 'Utiliser des caméras cachées', icon: '🕵️', cost: { purchase: 0.03 }, boost: 0.03, career: { awareness: 4 }, pop: -2,
+        r: 'Les images choc font polémique.' }
+    ] },
+  { id: 'ps_p236_economie_racontee_par', programId: 'p236', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'L’économie racontée par les Français',
+    desc: 'La rédaction de {programme} propose de suivre dix foyers français pendant un an pour raconter l’économie au quotidien. Le projet est long, mais il humaniserait l’émission.',
+    c: [
+      { l: 'Suivre les dix foyers', icon: '🏠', cost: { purchase: 0.1 }, lasting: 0.04, career: { awareness: 4, loyalty: 2 },
+        r: 'Le feuilleton rend l’économie concrète.' },
+      { l: 'Un foyer par numéro', icon: '🧺', cost: { purchase: 0.02 }, career: { awareness: 2 },
+        r: 'Une approche humaine.' },
+      { l: 'Rester sur les experts', icon: '🎓', career: { loyalty: 1, wear: 3 },
+        r: 'L’émission reste technique.' }
+    ] },
+
+  // — Documentaire d'actualité (p237) · info, prime —
+  { id: 'ps_p237_documentaire_urgence', programId: 'p237', family: 'editorial', phase: 1,
+    titre: 'Le documentaire en urgence',
+    desc: 'Un événement majeur bouleverse l’actualité. La rédaction de {programme} propose de monter un documentaire en une semaine.',
+    c: [
+      { l: 'Monter le documentaire en urgence', icon: '⚡', cost: { purchase: 0.06 }, boost: 0.06, career: { awareness: 4, loyalty: -1 },
+        r: 'Le documentaire colle à l’actualité.' },
+      { l: 'Garder le documentaire prévu', icon: '📅', boost: -0.03, career: { loyalty: 2 },
+        r: 'L’émission passe à côté de l’événement.' },
+      { l: 'Ajouter un débat d’actualité après le film', icon: '🎙️', cost: { purchase: 0.02 }, career: { awareness: 2, loyalty: 1 },
+        r: 'Le débat fait le lien avec l’actualité.' }
+    ] },
+  { id: 'ps_p237_les_images_amateurs', programId: 'p237', family: 'image', phase: 2, when: { minSeasons: 1 },
+    titre: 'Les images d’amateurs',
+    desc: 'Un documentaire de {programme} utilise des images amateurs dont l’origine n’a pas été vérifiée. Certaines s’avèrent truquées.',
+    c: [
+      { l: 'Retirer les images et s’excuser', icon: '🙏', boost: -0.02, career: { loyalty: 1 }, pop: 2,
+        r: 'La rédaction reconnaît son erreur.' },
+      { l: 'Défendre le documentaire', icon: '🛡️', career: { awareness: 1 }, pop: -3,
+        r: 'La crédibilité s’effondre.' },
+      { l: 'Créer une cellule de vérification des images', icon: '🔍', cost: { recurring: 0.03 }, lasting: 0.02, career: { loyalty: 3 },
+        r: 'Les images sont désormais vérifiées.' }
+    ] },
+
+  // — Enquête & faits divers (p238) · info, prime —
+  { id: 'ps_p238_innocent_presente_comme', programId: 'p238', family: 'image', phase: 2,
+    titre: 'L’innocent présenté comme coupable',
+    desc: 'Un suspect présenté dans {programme} a été innocenté. Il poursuit la chaîne pour diffamation.',
+    c: [
+      { l: 'Diffuser un rectificatif et un portrait', icon: '🙏', cost: { purchase: 0.03 }, career: { loyalty: 2 }, pop: 2,
+        r: 'La réparation est saluée.' },
+      { l: 'Négocier un accord', icon: '🤝', cost: { purchase: 0.02 }, pop: 1,
+        r: 'L’affaire se clôt discrètement.' },
+      { l: 'Aller au procès', icon: '⚖️', career: { awareness: 2 }, pop: -2,
+        r: 'Le procès dure et ternit l’émission.' }
+    ] },
+  { id: 'ps_p238_enquete_participative', programId: 'p238', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'L’enquête participative',
+    desc: 'La rédaction de {programme} propose de faire participer les téléspectateurs à la résolution d’une affaire non élucidée. L’idée peut faire émerger des témoins, ou dériver vers la rumeur.',
+    c: [
+      { l: 'Lancer l’enquête participative', icon: '🔎', cost: { purchase: 0.06 }, boost: 0.04, career: { awareness: 5 }, pop: -1,
+        r: 'Les témoignages affluent.' },
+      { l: 'Garder l’enquête journalistique', icon: '🗂️', career: { loyalty: 2, wear: 3 },
+        r: 'L’enquête reste rigoureuse.' },
+      { l: 'Ouvrir un appel à témoins encadré', icon: '📞', cost: { purchase: 0.02 }, career: { awareness: 2, loyalty: 1 },
+        r: 'Quelques témoignages utiles.' }
+    ] },
+
+  // — Portrait politique & historique (p239) · info, prime —
+  { id: 'ps_p239_portrait_non_autorise', programId: 'p239', family: 'editorial', phase: 1,
+    titre: 'Le portrait non autorisé',
+    desc: 'Un homme politique refuse de participer au portrait que {programme} lui consacre. Il menace d’interdire l’utilisation de ses images.',
+    c: [
+      { l: 'Faire le portrait sans lui', icon: '🖼️', career: { awareness: 3, loyalty: 2 }, pop: -1,
+        r: 'Le portrait est riche de témoignages.' },
+      { l: 'Renoncer au portrait', icon: '🗑️', career: { awareness: -1, loyalty: -2 },
+        r: 'Le portrait est abandonné.' },
+      { l: 'Lui proposer un droit de réponse final', icon: '🎙️', cost: { purchase: 0.01 }, career: { loyalty: 1 }, pop: 1,
+        r: 'Le droit de réponse équilibre le portrait.' }
+    ] },
+  { id: 'ps_p239_serie_des_presidents', programId: 'p239', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'La série des présidents',
+    desc: 'La rédaction de {programme} propose une série sur tous les présidents de la Ve République, avec des archives rares. Le projet ferait référence, à condition d’y mettre les moyens.',
+    c: [
+      { l: 'Produire la série complète', icon: '🏛️', cost: { purchase: 0.15 }, lasting: 0.04, career: { awareness: 5 },
+        r: 'La série fait référence.' },
+      { l: 'Trois portraits', icon: '🎬', cost: { purchase: 0.05 }, boost: 0.03, career: { awareness: 2 },
+        r: 'Un triptyque remarqué.' },
+      { l: 'Rester sur l’actualité', icon: '📰', career: { loyalty: 1, wear: 3 },
+        r: 'L’émission reste dans le présent.' }
+    ] },
+
+  // — Journal de la nuit (p240) · info, nuit —
+  { id: 'ps_p240_information_tombe_minuit', programId: 'p240', family: 'editorial', phase: 1,
+    titre: 'L’information tombe à minuit',
+    desc: 'Une information majeure tombe juste après le début de {programme}. L’équipe de nuit est réduite.',
+    c: [
+      { l: 'Rappeler des journalistes en urgence', icon: '📞', cost: { purchase: 0.04 }, boost: 0.06, career: { awareness: 3 },
+        r: 'Le journal de nuit devient la référence.' },
+      { l: 'Traiter l’info avec l’équipe présente', icon: '🌙', career: { loyalty: 1, wear: 2 },
+        r: 'L’information est donnée sobrement.' },
+      { l: 'Renvoyer vers la matinale', icon: '☀️', boost: -0.02, career: { loyalty: -2 },
+        r: 'Les noctambules restent sur leur faim.' }
+    ] },
+  { id: 'ps_p240_equipe_nuit_renforcee', programId: 'p240', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'L’équipe de nuit renforcée',
+    desc: 'La rédaction de {programme} demande des moyens pour une équipe de nuit permanente. Le journal gagnerait en réactivité.',
+    c: [
+      { l: 'Renforcer l’équipe de nuit', icon: '🦉', cost: { recurring: 0.06 }, lasting: 0.03, career: { awareness: 3, loyalty: 1 },
+        r: 'Le journal de nuit gagne en réactivité.' },
+      { l: 'Mutualiser avec l’édition du soir', icon: '🔄', cost: { saving: 0.05 }, career: { loyalty: -2, wear: 2 },
+        r: 'Des économies, moins de réactivité.' },
+      { l: 'Ne rien changer', icon: '🙅', career: { loyalty: 1, wear: 3 },
+        r: 'Le journal reste modeste.' }
+    ] },
+
+  // — Débrief de l'actualité (p241) · info, nuit —
+  { id: 'ps_p241_debrief_qui_tourne', programId: 'p241', family: 'editorial', phase: 2,
+    titre: 'Le débrief qui tourne au règlement de comptes',
+    desc: 'Deux chroniqueurs de {programme} règlent leurs comptes en direct. Les extraits circulent.',
+    c: [
+      { l: 'Séparer les deux chroniqueurs', icon: '↔️', career: { loyalty: -1, wear: -3 }, pop: 1,
+        r: 'Le calme revient.' },
+      { l: 'Laisser faire', icon: '🔥', career: { awareness: 4 }, pop: -2,
+        r: 'Le buzz continue.' },
+      { l: 'Organiser une explication apaisée', icon: '🤝', cost: { purchase: 0.01 }, career: { loyalty: 1 }, pop: 1,
+        r: 'L’explication est appréciée.' }
+    ] },
+  { id: 'ps_p241_debrief_podcast', programId: 'p241', family: 'audience', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le débrief en podcast',
+    desc: 'Les auditeurs de {programme} écoutent l’émission en podcast le lendemain matin. La production propose de l’adapter.',
+    c: [
+      { l: 'Produire une version podcast', icon: '🎧', cost: { purchase: 0.02 }, lasting: 0.02, career: { awareness: 4 },
+        r: 'Le podcast trouve un large public.' },
+      { l: 'Garder l’antenne seule', icon: '📺', career: { awareness: -2, loyalty: 2 },
+        r: 'L’émission reste confidentielle.' },
+      { l: 'Mettre en ligne le son brut', icon: '📻', career: { awareness: 1, wear: 2 },
+        r: 'Le son brut est disponible.' }
+    ] },
+
+  // — Débat politique (p242) · info, nuit —
+  { id: 'ps_p242_debat_nuit_sans', programId: 'p242', family: 'image', phase: 2,
+    titre: 'Le débat de nuit sans contradicteur',
+    desc: 'Le débat politique de {programme} ne réunit plus que des invités d’un même bord à cette heure tardive. L’Arcom s’en inquiète.',
+    c: [
+      { l: 'Garantir l’équilibre des invités', icon: '⚖️', cost: { purchase: 0.01 }, career: { loyalty: 1 }, pop: 2,
+        r: 'Le pluralisme est rétabli.' },
+      { l: 'Expliquer la difficulté à recruter la nuit', icon: '🌙', career: { wear: 2 }, pop: -1,
+        r: 'L’explication ne convainc pas.' },
+      { l: 'Ouvrir aux élus locaux', icon: '🏘️', boost: -0.02, career: { awareness: 2 }, pop: 1,
+        r: 'De nouvelles voix enrichissent le débat.' }
+    ] },
+  { id: 'ps_p242_debat_direct_des', programId: 'p242', family: 'audience', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le débat en direct des régions',
+    desc: 'La production de {programme} propose de délocaliser le débat dans une ville différente chaque mois. Le débat gagnerait en proximité, au prix d’une logistique plus lourde.',
+    c: [
+      { l: 'Délocaliser le débat', icon: '🚐', cost: { purchase: 0.04 }, career: { awareness: 4, wear: -6 },
+        r: 'Le débat se rapproche des Français.' },
+      { l: 'Rester en studio', icon: '🎙️', career: { loyalty: 2, wear: 3 },
+        r: 'Le débat reste classique.' },
+      { l: 'Inviter des élus régionaux en visio', icon: '💻', cost: { purchase: 0.01 }, career: { awareness: 2 },
+        r: 'Une ouverture légère.' }
+    ] },
+
+  // — Revue de presse (p243) · info, nuit —
+  { id: 'ps_p243_les_unes_lendemain', programId: 'p243', family: 'editorial', phase: 1,
+    titre: 'Les unes du lendemain',
+    desc: 'La production de {programme} propose de dévoiler les unes des journaux du lendemain avant minuit. Les éditeurs hésitent.',
+    c: [
+      { l: 'Négocier l’accès aux unes', icon: '📰', cost: { purchase: 0.02 }, boost: 0.03, career: { awareness: 4 },
+        r: 'Les noctambules découvrent les unes en avant-première.' },
+      { l: 'Garder la revue de presse classique', icon: '🗞️', career: { loyalty: 2, wear: 3 },
+        r: 'La revue reste fidèle à elle-même.' },
+      { l: 'Commenter seulement les unes en ligne', icon: '🌐', career: { awareness: 1, loyalty: -1 },
+        r: 'Une version allégée.' }
+    ] },
+  { id: 'ps_p243_revue_presse_podcast', programId: 'p243', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'La revue de presse en podcast',
+    desc: 'Les auditeurs de {programme} réclament une version audio pour le matin. La production propose un podcast.',
+    c: [
+      { l: 'Produire le podcast', icon: '🎧', cost: { purchase: 0.02 }, lasting: 0.02, career: { awareness: 4 },
+        r: 'Le podcast devient un réflexe matinal.' },
+      { l: 'Garder l’antenne seule', icon: '📺', career: { awareness: -1, loyalty: 2 },
+        r: 'L’émission reste nocturne.' },
+      { l: 'Mettre en ligne la vidéo', icon: '📹', career: { awareness: 1, wear: 2 },
+        r: 'La vidéo est disponible.' }
+    ] },
+
+  // — Rediffusion grands entretiens (p244) · info, nuit —
+  { id: 'ps_p244_les_droits_des', programId: 'p244', family: 'economie', phase: 1,
+    titre: 'Les droits des grands entretiens',
+    desc: 'Les personnalités interviewées dans {programme} réclament des droits pour les rediffusions. La case devient coûteuse.',
+    c: [
+      { l: 'Payer les droits', icon: '💶', cost: { recurring: 0.06 }, boost: 0.02, career: { loyalty: 2 },
+        r: 'Les grands entretiens restent disponibles.' },
+      { l: 'Rediffuser uniquement les entretiens libres de droits', icon: '🗄️', career: { loyalty: -2, wear: 3 },
+        r: 'La sélection se réduit.' },
+      { l: 'Négocier un accord global', icon: '🤝', cost: { purchase: 0.03 }, career: { loyalty: 1 },
+        r: 'Un accord équilibré.' }
+    ] },
+  { id: 'ps_p244_les_entretiens_thematiques', programId: 'p244', family: 'audience', phase: 2, when: { minSeasons: 1 },
+    titre: 'Les entretiens thématiques',
+    desc: 'La production de {programme} propose de regrouper les entretiens par thème chaque nuit. Les noctambules pourraient s’y retrouver plus facilement.',
+    c: [
+      { l: 'Thématiser les nuits', icon: '🗂️', cost: { purchase: 0.01 }, career: { awareness: 2, wear: -4 },
+        r: 'Les thèmes donnent du sens aux rediffusions.' },
+      { l: 'Garder l’ordre chronologique', icon: '📅', career: { loyalty: 1, wear: 3 },
+        r: 'La case reste classique.' },
+      { l: 'Ajouter une présentation inédite', icon: '🎙️', cost: { purchase: 0.03 }, career: { awareness: 2, loyalty: 2 },
+        r: 'La présentation enrichit les entretiens.' }
+    ] },
+
+  // — Boucle d'information (p245) · info, nuit —
+  { id: 'ps_p245_boucle_repetitive', programId: 'p245', family: 'editorial', phase: 1,
+    titre: 'La boucle répétitive',
+    desc: 'Les téléspectateurs de {programme} se plaignent d’entendre les mêmes sujets toute la nuit. La production propose de varier.',
+    c: [
+      { l: 'Varier les sujets chaque heure', icon: '🔀', cost: { purchase: 0.03 }, career: { loyalty: 2, wear: -5 },
+        r: 'La boucle devient plus vivante.' },
+      { l: 'Garder la boucle', icon: '🔁', career: { loyalty: -1, wear: 4 },
+        r: 'La lassitude gagne.' },
+      { l: 'Ajouter des chroniques courtes', icon: '⏱️', cost: { purchase: 0.02 }, career: { awareness: 2, wear: -2 },
+        r: 'Les chroniques rythment la nuit.' }
+    ] },
+  { id: 'ps_p245_boucle_automatisee', programId: 'p245', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'La boucle automatisée',
+    desc: 'Une entreprise propose à {programme} de générer la boucle d’information de nuit par intelligence artificielle. Les coûts baisseraient fortement.',
+    c: [
+      { l: 'Automatiser la boucle', icon: '🤖', cost: { saving: 0.15 }, career: { loyalty: -4 }, pop: -2,
+        r: 'Les économies sont réelles, la qualité baisse.' },
+      { l: 'Garder des journalistes', icon: '🧑‍💼', career: { loyalty: 2, wear: 2 },
+        r: 'La qualité est préservée.' },
+      { l: 'Automatiser seulement les titres', icon: '📋', cost: { saving: 0.04 }, career: { awareness: -1, loyalty: -1 },
+        r: 'Un compromis prudent.' }
+    ] },
+
+  // — Archives du jour (p246) · info, nuit —
+  { id: 'ps_p246_archive_embarrassante', programId: 'p246', family: 'editorial', phase: 1,
+    titre: 'L’archive embarrassante',
+    desc: 'Une archive du jour diffusée dans {programme} montre un ministre actuel tenant des propos contraires à ses positions actuelles. Son cabinet demande de ne pas la diffuser.',
+    c: [
+      { l: 'Diffuser l’archive', icon: '📼', boost: 0.02, career: { awareness: 4 }, pop: -1,
+        r: 'L’archive fait le tour des réseaux.' },
+      { l: 'Ne pas la diffuser', icon: '🤐', career: { loyalty: -2, wear: 2 },
+        r: 'La rédaction est accusée d’autocensure.' },
+      { l: 'Diffuser avec une mise en contexte', icon: '🎙️', cost: { purchase: 0.01 }, career: { awareness: 2, loyalty: 2 },
+        r: 'La mise en contexte est appréciée.' }
+    ] },
+  { id: 'ps_p246_les_archives_ligne', programId: 'p246', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Les archives en ligne',
+    desc: 'La production de {programme} propose de mettre en ligne les archives du jour sous forme de vidéos courtes. Les archives pourraient trouver un second public.',
+    c: [
+      { l: 'Créer les vidéos courtes', icon: '📱', cost: { purchase: 0.03 }, lasting: 0.02, career: { awareness: 4 },
+        r: 'Les vidéos font le tour des réseaux.' },
+      { l: 'Garder l’antenne', icon: '📺', career: { awareness: -1, loyalty: 1 },
+        r: 'Les archives restent confidentielles.' },
+      { l: 'Publier une archive par jour', icon: '📅', cost: { purchase: 0.01 }, career: { awareness: 2 },
+        r: 'Un rendez-vous en ligne.' }
+    ] },
+
+  // — Édition internationale (p247) · info, nuit —
+  { id: 'ps_p247_coup_etat_pleine', programId: 'p247', family: 'editorial', phase: 1,
+    titre: 'Le coup d’État en pleine nuit',
+    desc: 'Un coup d’État éclate dans un pays étranger pendant la diffusion de {programme}. Les images arrivent au compte-gouttes.',
+    c: [
+      { l: 'Basculer en édition spéciale', icon: '🔴', cost: { purchase: 0.04 }, boost: 0.06, career: { awareness: 4 },
+        r: 'L’émission devient la référence de la nuit.' },
+      { l: 'Traiter l’info dans la boucle', icon: '🔁', career: { loyalty: 1, wear: 2 },
+        r: 'L’information est donnée.' },
+      { l: 'Mobiliser des experts par téléphone', icon: '📞', cost: { purchase: 0.01 }, career: { awareness: 2, loyalty: 1 },
+        r: 'Les experts éclairent la situation.' }
+    ] },
+  { id: 'ps_p247_partenariat_avec_une', programId: 'p247', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le partenariat avec une chaîne internationale',
+    desc: 'Une chaîne d’information internationale propose à {programme} un échange d’images et de correspondants. L’accord réduirait les coûts, au prix d’un peu d’indépendance.',
+    c: [
+      { l: 'Signer le partenariat', icon: '🌍', cost: { saving: 0.05 }, career: { awareness: 3, loyalty: -1 },
+        r: 'La couverture s’élargit à moindre coût.' },
+      { l: 'Garder ses propres moyens', icon: '🎙️', career: { loyalty: 2, wear: 2 },
+        r: 'L’émission reste indépendante.' },
+      { l: 'Un échange ponctuel', icon: '🤝', cost: { purchase: 0.01 }, career: { awareness: 1, loyalty: 1 },
+        r: 'Un partenariat limité.' }
     ] }
 ];
 // ---------------------------------------------------------------------------
