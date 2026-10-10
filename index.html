@@ -1469,6 +1469,42 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 
 .namebar { display: flex; gap: 8px; align-items: center; margin-bottom: 16px; }
 
+/* Configuration de la chaîne : retour visible, réponse immédiate à la pression. */
+.kicker-lead { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.btn-config-back {
+  flex-shrink: 0; width: 30px; height: 30px; padding: 0; border-radius: 999px; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center; color: #334155;
+  background: rgba(255,255,255,0.6); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,0.8); box-shadow: 0 4px 12px rgba(15,23,42,0.06);
+  transition: transform 100ms ease-out, background 0.15s ease;
+}
+.btn-config-back svg { width: 14px; height: 14px; }
+.kicker-lead .kicker-badge { white-space: nowrap; }
+/* Le texte change de couleur au même rythme que le fond : aucune image intermédiaire illisible. */
+.opt-format-title, .opt-format-obj, .opt-format-obj b { transition: color 0.12s ease; }
+/* Avec le bouton retour, le dé seul suffit sur petit écran : le badge reste sur une ligne. */
+@media (max-width: 420px) {
+  .kicker-lead + .btn-dice { padding: 7px 10px; }
+  .kicker-lead + .btn-dice .dice-label { display: none; }
+}
+@media (hover: hover) { .btn-config-back:hover { background: rgba(255,255,255,0.85); } }
+.opt-format, .btn-dice, .btn-config-back, .welcome-cta { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+/* Retour dès l'appui (pas au relâchement) : la carte s'enfonce légèrement. */
+.opt-format:active, .btn-config-back:active { transform: scale(0.97); transition-duration: 100ms; }
+.welcome-cta:active { transition-duration: 100ms; }
+/* La coche apparaît depuis son coin, sans rebond : le tap n'a pas d'élan à prolonger. */
+.opt-format.sel .opt-format-check { animation: optCheckIn 200ms cubic-bezier(0.25, 1, 0.5, 1) both; transform-origin: 100% 0; }
+@keyframes optCheckIn { from { opacity: 0; transform: scale(0.5); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .opt-format.sel .opt-format-check { animation: optCheckFade 150ms ease both; }
+  .opt-format:active, .btn-config-back:active, .btn-dice:active, .welcome-cta:active { transform: none; }
+}
+@keyframes optCheckFade { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-transparency: reduce) {
+  .opt-format, .btn-dice, .btn-config-back, .kicker-badge, .welcome-glass { background: #fff; backdrop-filter: none; -webkit-backdrop-filter: none; border-color: rgba(15,23,42,0.12); }
+  .opt-format.sel { background: var(--ink); }
+}
+
 .btn {
   display: inline-block; background: var(--ink); color: var(--paper); border: none;
   border-radius: 10px;
@@ -20811,6 +20847,17 @@ function renderMasthead(sub, over, hudMode = false) {
   `;
 }
 
+// Retour à l'étape précédente de la configuration (le bandeau ramène, lui, à l'accueil).
+function configBackButton() {
+  return `<button class="btn-config-back" id="btn-config-back" aria-label="Étape précédente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke-linecap="round" stroke-linejoin="round"/></svg></button>`;
+}
+function bindConfigBack(app, prevStep, beforeLeave) {
+  app.querySelector('#btn-config-back').onclick = () => {
+    if (beforeLeave) beforeLeave();
+    goToStepAnimated(() => { gameState.step = prevStep; }, -1);
+  };
+}
+
 function renderStepDots(active, total) {
   return `
     <div class="step-dots" aria-hidden="true">
@@ -21102,7 +21149,7 @@ function entranceClass(key, cls) {
   return fresh ? ` ${cls}` : '';
 }
 
-function goToStepAnimated(mutate) {
+function goToStepAnimated(mutate, dir = 1) {
   const app = document.getElementById('app');
   const isMobile = window.matchMedia('(max-width: 540px)').matches;
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -21142,8 +21189,10 @@ function goToStepAnimated(mutate) {
   app.classList.add('step-sliding');
 
   const timing = { duration: 340, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' };
-  const anims = newBodyNodes.map(el => el.animate([{ transform: 'translateX(100%)' }, { transform: 'translateX(0)' }], timing));
-  anims.push(oldWrap.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(-100%)' }], { ...timing, fill: 'forwards' }));
+  // Même chemin à l'aller et au retour : revenir en arrière ramène l'écran précédent
+  // par la gauche, là où il était sorti.
+  const anims = newBodyNodes.map(el => el.animate([{ transform: `translateX(${100 * dir}%)` }, { transform: 'translateX(0)' }], timing));
+  anims.push(oldWrap.animate([{ transform: 'translateX(0)' }, { transform: `translateX(${-100 * dir}%)` }], { ...timing, fill: 'forwards' }));
 
   let finished = false;
   const finish = () => {
@@ -21225,7 +21274,7 @@ function render() {
       ${renderMasthead("Étape 1/4 : Type de Chaîne & Capital Initial", "Audience Masters")}
       <div class="kicker-row">
         <div class="kicker-badge">ÉTAPE 1 — FORMAT ÉDITORIAL</div>
-        <button class="btn-dice" id="btn-random-setup"><span class="dice-icon">🎲</span><span class="dice-label">Aléatoire</span></button>
+        <button class="btn-dice" id="btn-random-setup" aria-label="Aléatoire"><span class="dice-icon">🎲</span><span class="dice-label">Aléatoire</span></button>
       </div>
       <div class="optgrid-format">
         ${Object.entries(CHANNEL_TYPES).map(([k, v]) => {
@@ -21264,10 +21313,11 @@ function render() {
       gameState.player.type = pick(Object.keys(CHANNEL_TYPES));
       gameState.player.target = pick(Object.keys(TARGET_STRATEGIES));
       gameState.player.name = pick(GENERATED_NAMES[gameState.player.type]);
-      finalizeChannelSetup();
-      gameState.resumeStep = null;
-      gameState.step = 5;
-      render();
+      goToStepAnimated(() => {
+        finalizeChannelSetup();
+        gameState.resumeStep = null;
+        gameState.step = 5;
+      });
     };
     app.querySelector('.masthead').onclick = goHome;
     return;
@@ -21277,8 +21327,8 @@ function render() {
     app.innerHTML = `
       ${renderMasthead("Étape 2/4 : Choisissez votre Cible Prioritaire", "Audience Masters")}
       <div class="kicker-row">
-        <div class="kicker-badge">ÉTAPE 2 — AUDIENCE CIBLÉE</div>
-        <button class="btn-dice" id="btn-random-setup"><span class="dice-icon">🎲</span><span class="dice-label">Aléatoire</span></button>
+        <div class="kicker-lead">${configBackButton()}<div class="kicker-badge">ÉTAPE 2 — AUDIENCE CIBLÉE</div></div>
+        <button class="btn-dice" id="btn-random-setup" aria-label="Aléatoire"><span class="dice-icon">🎲</span><span class="dice-label">Aléatoire</span></button>
       </div>
       <div class="optgrid-format">
         ${Object.entries(TARGET_STRATEGIES).map(([k, v]) => {
@@ -21314,14 +21364,16 @@ function render() {
       };
     });
     document.getElementById('btn-next-3').onclick = () => { goToStepAnimated(() => { gameState.step = 4; }); };
+    bindConfigBack(app, 2);
     document.getElementById('btn-random-setup').onclick = () => {
       gameState.player.type = pick(Object.keys(CHANNEL_TYPES));
       gameState.player.target = pick(Object.keys(TARGET_STRATEGIES));
       gameState.player.name = pick(GENERATED_NAMES[gameState.player.type]);
-      finalizeChannelSetup();
-      gameState.resumeStep = null;
-      gameState.step = 5;
-      render();
+      goToStepAnimated(() => {
+        finalizeChannelSetup();
+        gameState.resumeStep = null;
+        gameState.step = 5;
+      });
     };
     app.querySelector('.masthead').onclick = goHome;
     return;
@@ -21336,8 +21388,8 @@ function render() {
     app.innerHTML = `
       ${renderMasthead("Étape 3/4 : Nom du nouvel entrant", "Audience Masters")}
       <div class="kicker-row">
-        <div class="kicker-badge">ÉTAPE 3 — LANCEMENT OFFICIEL</div>
-        <button class="btn-dice" id="btn-rand"><span class="dice-icon">🎲</span><span class="dice-label">Aléatoire</span></button>
+        <div class="kicker-lead">${configBackButton()}<div class="kicker-badge">ÉTAPE 3 — LANCEMENT OFFICIEL</div></div>
+        <button class="btn-dice" id="btn-rand" aria-label="Aléatoire"><span class="dice-icon">🎲</span><span class="dice-label">Aléatoire</span></button>
       </div>
       <div class="optgrid-format" id="name-proposals"></div>
       <div class="card-format namecard-custom">
@@ -21381,6 +21433,10 @@ function render() {
       gameState.nameProposals = [...GENERATED_NAMES[gameState.player.type]].sort(() => Math.random() - 0.5).slice(0, 4);
       renderProposals();
     };
+    bindConfigBack(app, 3, () => { gameState.player.name = chainInput.value.trim(); });
+    chainInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') { e.preventDefault(); chainInput.blur(); document.getElementById('btn-next-4').click(); }
+    });
     document.getElementById('btn-next-4').onclick = () => {
       goToStepAnimated(() => {
         const val = chainInput.value.trim();
@@ -21403,7 +21459,7 @@ function render() {
     app.innerHTML = `
       ${renderMasthead("Étape 4/4 : Fiche Nouvel Entrant", "Audience Masters")}
       <div class="kicker-row">
-        <div class="kicker-badge">ÉTAPE 4 — PARAMÈTRES ANNÉE 1</div>
+        <div class="kicker-lead">${configBackButton()}<div class="kicker-badge">ÉTAPE 4 — PARAMÈTRES ANNÉE 1</div></div>
       </div>
       <div class="card-format">
         <h2 style="color: var(--bleu);">${esc(gameState.player.name)}</h2>
@@ -21430,6 +21486,7 @@ function render() {
     document.getElementById('btn-launch').onclick = () => {
       goToStepAnimated(launchFirstSeason);
     };
+    bindConfigBack(app, 4);
     app.querySelector('.masthead').onclick = goHome;
     return;
   }
