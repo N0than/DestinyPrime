@@ -14749,6 +14749,485 @@ const PROGRAM_STORY_BANK = [
         r: 'La licence rapporte un peu.' },
       { l: 'Refuser', icon: '🙅', career: { awareness: -2, loyalty: 1 },
         r: 'La série reste à l’écran.' }
+    ] },
+  // — Sans eux, tout s’arrête (p308) · culture, prime —
+  { id: 'ps_p308_les_invisibles_refusent', programId: 'p308', family: 'editorial', phase: 1,
+    titre: 'Les invisibles refusent la caméra',
+    desc: 'Les éboueurs qui devaient être suivis dans {programme} refusent d’être filmés, par peur d’être reconnus. Le numéro est menacé.',
+    c: [
+      { l: 'Filmer sans montrer les visages', icon: '🌫️', cost: { purchase: 0.02 }, career: { awareness: 1, loyalty: 2 },
+        r: 'Le documentaire respecte les travailleurs.' },
+      { l: 'Changer de profession', icon: '🔄', cost: { purchase: 0.03 }, career: { loyalty: 1, wear: -3 },
+        r: 'Un autre métier est mis en lumière.' },
+      { l: 'Renoncer au numéro', icon: '🗑️', boost: -0.03, career: { loyalty: -1 },
+        r: 'La saison perd un épisode.' }
+    ] },
+  { id: 'ps_p308_journee_des_metiers', programId: 'p308', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'La journée des métiers essentiels',
+    desc: 'La production de {programme} propose une soirée spéciale pour rendre hommage aux métiers essentiels. Les syndicats sont partants.',
+    c: [
+      { l: 'Organiser la soirée hommage', icon: '🙏', cost: { purchase: 0.1 }, boost: 0.08, pop: 3,
+        r: 'La soirée émeut et rassemble.' },
+      { l: 'Un numéro classique', icon: '📺', career: { loyalty: 1, wear: 3 },
+        r: 'Le numéro est solide.' },
+      { l: 'Un hommage en fin d’émission', icon: '💐', cost: { purchase: 0.02 }, career: { loyalty: 1 }, pop: 1,
+        r: 'L’hommage est apprécié.' }
+    ] },
+
+  // — Sous la France, un autre monde (p309) · culture, prime —
+  { id: 'ps_p309_les_catacombes_interdites', programId: 'p309', family: 'editorial', phase: 1,
+    titre: 'Les catacombes interdites',
+    desc: 'L’équipe de {programme} a obtenu un accès à des galeries souterraines interdites au public. Le tournage présente des risques.',
+    c: [
+      { l: 'Tourner avec des guides spécialisés', icon: '🔦', cost: { purchase: 0.06 }, boost: 0.04, career: { awareness: 4 },
+        r: 'Les images inédites fascinent.' },
+      { l: 'Utiliser des images d’archives', icon: '📼', career: { loyalty: 1, wear: 3 },
+        r: 'Le numéro est moins spectaculaire.' },
+      { l: 'Tourner avec une équipe réduite', icon: '🎥', cost: { purchase: 0.02 }, career: { awareness: 2 }, pop: -1,
+        r: 'Le tournage est risqué mais réussi.' }
+    ] },
+  { id: 'ps_p309_les_souterrains_realite', programId: 'p309', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Les souterrains en réalité virtuelle',
+    desc: 'La production de {programme} propose une visite virtuelle des souterrains de Paris. Les fans pourraient explorer les galeries chez eux.',
+    c: [
+      { l: 'Créer la visite virtuelle', icon: '🥽', cost: { purchase: 0.1 }, lasting: 0.03, career: { awareness: 5 },
+        r: 'La visite virtuelle attire les curieux.' },
+      { l: 'Rester à l’antenne', icon: '📺', career: { loyalty: 1, wear: 3 },
+        r: 'Le documentaire reste classique.' },
+      { l: 'Publier des vidéos à 360 degrés', icon: '🔄', cost: { purchase: 0.03 }, career: { awareness: 2 },
+        r: 'Les vidéos immersives plaisent.' }
+    ] },
+
+  // — Si nos objets parlaient (p310) · culture, prime —
+  { id: 'ps_p310_objet_vole', programId: 'p310', family: 'editorial', phase: 1,
+    titre: 'L’objet volé',
+    desc: 'Un objet raconté dans {programme} s’avère avoir été volé à une famille pendant la guerre. Ses descendants demandent sa restitution.',
+    c: [
+      { l: 'Consacrer un numéro à la restitution', icon: '🏛️', cost: { purchase: 0.03 }, career: { awareness: 4 }, pop: 2,
+        r: 'Le numéro émeut et fait avancer le dossier.' },
+      { l: 'Retirer l’objet du numéro', icon: '🗑️', career: { loyalty: -1 }, pop: 1,
+        r: 'L’affaire est évitée.' },
+      { l: 'Mentionner l’affaire sans prendre parti', icon: '⚖️', career: { loyalty: 1, wear: 2 }, pop: -1,
+        r: 'La neutralité déçoit.' }
+    ] },
+  { id: 'ps_p310_les_objets_des', programId: 'p310', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Les objets des téléspectateurs',
+    desc: 'La production de {programme} propose de raconter l’histoire d’objets envoyés par les téléspectateurs. Les propositions affluent déjà.',
+    c: [
+      { l: 'Lancer l’appel aux objets', icon: '📦', cost: { purchase: 0.03 }, lasting: 0.02, career: { awareness: 4, loyalty: 1 },
+        r: 'Les histoires des téléspectateurs touchent le public.' },
+      { l: 'Garder les objets de musée', icon: '🏛️', career: { loyalty: 1, wear: 3 },
+        r: 'Le documentaire reste classique.' },
+      { l: 'Un objet du public par numéro', icon: '🎁', cost: { purchase: 0.01 }, career: { awareness: 2 },
+        r: 'Une ouverture appréciée.' }
+    ] },
+
+  // — De l’autre côté (p311) · culture, prime —
+  { id: 'ps_p311_passeur_frontiere', programId: 'p311', family: 'image', phase: 2,
+    titre: 'Le passeur de frontière',
+    desc: 'Un documentaire de {programme} suit un passeur de migrants. Des élus accusent la chaîne de faire l’apologie d’un délit.',
+    c: [
+      { l: 'Maintenir avec un débat', icon: '⚖️', cost: { purchase: 0.02 }, career: { awareness: 3, loyalty: 2 }, pop: -1,
+        r: 'Le débat apporte de la nuance.' },
+      { l: 'Retirer le documentaire', icon: '🗑️', career: { loyalty: -3 }, pop: 1,
+        r: 'La rédaction proteste.' },
+      { l: 'Ajouter le point de vue des autorités', icon: '🏛️', cost: { purchase: 0.03 }, career: { awareness: 2 }, pop: 1,
+        r: 'Le documentaire gagne en équilibre.' }
+    ] },
+  { id: 'ps_p311_autre_cote_monde', programId: 'p311', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'De l’autre côté du monde',
+    desc: 'La production de {programme} propose une série tournée dans des pays fermés aux journalistes. Les risques sont réels.',
+    c: [
+      { l: 'Produire la série', icon: '🌍', cost: { purchase: 0.2 }, lasting: 0.04, career: { awareness: 5 },
+        r: 'La série offre des images rares.' },
+      { l: 'Un seul pays', icon: '📍', cost: { purchase: 0.06 }, boost: 0.03, career: { awareness: 2 },
+        r: 'Un numéro remarqué.' },
+      { l: 'Rester sur des destinations sûres', icon: '🛡️', career: { loyalty: 1, wear: 3 },
+        r: 'La série reste prudente.' }
+    ] },
+
+  // — Chantiers hors normes (p312) · culture, prime —
+  { id: 'ps_p312_accident_sur_chantier', programId: 'p312', family: 'editorial', phase: 1,
+    titre: 'L’accident sur le chantier',
+    desc: 'Un ouvrier s’est blessé sur le chantier filmé par {programme}. L’entreprise demande de ne pas diffuser les images.',
+    c: [
+      { l: 'Diffuser les images avec un sujet sur la sécurité', icon: '🦺', cost: { purchase: 0.02 }, career: { awareness: 3 }, pop: 1,
+        r: 'Le sujet sensibilise à la sécurité.' },
+      { l: 'Couper l’accident', icon: '✂️', career: { loyalty: -1, wear: 2 },
+        r: 'Le documentaire évite le sujet.' },
+      { l: 'Diffuser l’accident tel quel', icon: '📺', career: { awareness: 3 }, pop: -2,
+        r: 'Les images choquent.' }
+    ] },
+  { id: 'ps_p312_chantier_siecle', programId: 'p312', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le chantier du siècle',
+    desc: 'Un grand chantier international propose à {programme} de le suivre pendant cinq ans. La série deviendrait un feuilleton.',
+    c: [
+      { l: 'Suivre le chantier sur cinq ans', icon: '🏗️', cost: { recurring: 0.05 }, lasting: 0.04, career: { awareness: 4 },
+        r: 'Le feuilleton du chantier passionne.' },
+      { l: 'Un numéro par an', icon: '📅', cost: { purchase: 0.03 }, career: { awareness: 2 },
+        r: 'Un rendez-vous annuel.' },
+      { l: 'Refuser', icon: '🙅', career: { awareness: -1, wear: 2 },
+        r: 'Une autre chaîne s’en charge.' }
+    ] },
+
+  // — Ma ville à hauteur d’enfant (p313) · culture, prime —
+  { id: 'ps_p313_enfant_filme_sans', programId: 'p313', family: 'image', phase: 2,
+    titre: 'L’enfant filmé sans autorisation',
+    desc: 'Un enfant apparaît dans {programme} sans que ses deux parents aient donné leur accord. Le père porte plainte.',
+    c: [
+      { l: 'Flouter l’enfant', icon: '🌫️', cost: { purchase: 0.01 }, career: { loyalty: 1 }, pop: 1,
+        r: 'L’enfant est protégé.' },
+      { l: 'Retirer la séquence', icon: '✂️', boost: -0.02, pop: 1,
+        r: 'La séquence disparaît.' },
+      { l: 'Maintenir la séquence', icon: '📺', career: { awareness: 1 }, pop: -3,
+        r: 'La chaîne est condamnée.' }
+    ] },
+  { id: 'ps_p313_ville_vue_par', programId: 'p313', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'La ville vue par les enfants',
+    desc: 'Des écoles proposent que leurs élèves filment eux-mêmes un épisode de {programme}. Le résultat serait spontané.',
+    c: [
+      { l: 'Confier un épisode aux élèves', icon: '🎒', cost: { purchase: 0.03 }, career: { awareness: 4 }, pop: 2,
+        r: 'L’épisode des élèves est touchant.' },
+      { l: 'Garder les professionnels', icon: '🎥', career: { loyalty: 1, wear: 3 },
+        r: 'Le documentaire reste soigné.' },
+      { l: 'Intégrer quelques plans des élèves', icon: '📹', cost: { purchase: 0.01 }, career: { awareness: 2 }, pop: 1,
+        r: 'Les plans des enfants apportent de la fraîcheur.' }
+    ] },
+
+  // — Les paysages ont une histoire (p314) · culture, prime —
+  { id: 'ps_p314_paysage_menace', programId: 'p314', family: 'editorial', phase: 1,
+    titre: 'Le paysage menacé',
+    desc: 'Un paysage présenté dans {programme} est menacé par un projet de parc éolien. Les habitants demandent à l’émission de prendre position.',
+    c: [
+      { l: 'Donner la parole à tous', icon: '⚖️', cost: { purchase: 0.02 }, career: { loyalty: 2 }, pop: 1,
+        r: 'Le débat est équilibré.' },
+      { l: 'Défendre le paysage', icon: '🏞️', career: { awareness: 3, loyalty: 1 }, pop: -1,
+        r: 'L’émission prend parti.' },
+      { l: 'Rester neutre', icon: '🤐', career: { loyalty: 2, wear: 2 }, pop: -1,
+        r: 'L’émission déçoit les habitants.' }
+    ] },
+  { id: 'ps_p314_les_paysages_drone', programId: 'p314', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Les paysages en drone',
+    desc: 'La production de {programme} propose de filmer tous les paysages par drone en très haute définition. Le matériel coûte cher.',
+    c: [
+      { l: 'Investir dans les drones', icon: '🚁', cost: { purchase: 0.1 }, career: { awareness: 4, wear: -8 },
+        r: 'Les images aériennes sont spectaculaires.' },
+      { l: 'Garder les caméras au sol', icon: '🎥', career: { loyalty: 1, wear: 3 },
+        r: 'Le documentaire reste classique.' },
+      { l: 'Louer un drone ponctuellement', icon: '🛩️', cost: { purchase: 0.02 }, career: { awareness: 2, wear: -2 },
+        r: 'Quelques plans aériens bienvenus.' }
+    ] },
+
+  // — Les mille vies d’un chef-d’œuvre (p315) · culture, prime —
+  { id: 'ps_p315_chef_uvre_prete', programId: 'p315', family: 'editorial', phase: 1,
+    titre: 'Le chef-d’œuvre prêté',
+    desc: 'Un musée étranger accepte de prêter son chef-d’œuvre à {programme} pour un tournage exceptionnel. L’assurance coûte une fortune.',
+    c: [
+      { l: 'Payer l’assurance', icon: '🖼️', cost: { purchase: 0.15 }, boost: 0.05, career: { awareness: 5 },
+        r: 'Le tournage est un événement.' },
+      { l: 'Filmer au musée étranger', icon: '✈️', cost: { purchase: 0.06 }, career: { awareness: 3, loyalty: 1 },
+        r: 'Le chef-d’œuvre est filmé chez lui.' },
+      { l: 'Utiliser des reproductions', icon: '📄', career: { loyalty: -1, wear: 3 },
+        r: 'Le numéro perd de sa magie.' }
+    ] },
+  { id: 'ps_p315_exposition_emission', programId: 'p315', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'L’exposition de l’émission',
+    desc: 'Un musée propose d’organiser une exposition inspirée de {programme}. Les œuvres racontées dans l’émission y seraient réunies.',
+    c: [
+      { l: 'Coproduire l’exposition', icon: '🏛️', cost: { purchase: 0.08 }, lasting: 0.03, career: { awareness: 5 }, pop: 1,
+        r: 'L’exposition attire les foules.' },
+      { l: 'Prêter le nom de l’émission', icon: '📝', cost: { commercial: 0.03 }, career: { awareness: 2, wear: 2 },
+        r: 'L’exposition rapporte un peu.' },
+      { l: 'Refuser', icon: '🙅', career: { awareness: -2, loyalty: 1 },
+        r: 'L’émission reste à l’antenne.' }
+    ] },
+
+  // — France 1900 (p316) · culture, prime —
+  { id: 'ps_p316_les_protecteurs_menaces', programId: 'p316', family: 'editorial', phase: 1,
+    titre: 'Les protecteurs menacés',
+    desc: 'Un garde forestier suivi dans {programme} reçoit des menaces de braconniers. Il souhaite rester anonyme.',
+    c: [
+      { l: 'Flouter son visage', icon: '🌫️', cost: { purchase: 0.01 }, career: { loyalty: 1 }, pop: 1,
+        r: 'Le garde est protégé.' },
+      { l: 'Changer de protagoniste', icon: '🔄', cost: { purchase: 0.03 }, career: { loyalty: 1, wear: -3 },
+        r: 'Un autre protecteur de la nature est suivi.' },
+      { l: 'Diffuser sans précaution', icon: '📺', career: { awareness: 2 }, pop: -2,
+        r: 'Le garde est mis en danger.' }
+    ] },
+  { id: 'ps_p316_operation_plantation', programId: 'p316', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'L’opération plantation',
+    desc: 'La production de {programme} propose une grande opération où chaque téléspectateur peut parrainer un arbre. Une association gérerait les plantations.',
+    c: [
+      { l: 'Lancer l’opération', icon: '🌳', cost: { purchase: 0.04 }, career: { awareness: 3 }, pop: 3,
+        r: 'Des milliers d’arbres sont plantés.' },
+      { l: 'Rester sur le documentaire', icon: '📺', career: { loyalty: 1, wear: 3 },
+        r: 'L’émission reste contemplative.' },
+      { l: 'Relayer une opération existante', icon: '🤝', cost: { purchase: 0.01 }, career: { awareness: 1 }, pop: 1,
+        r: 'Un relais discret.' }
+    ] },
+
+  // — L’histoire passe à table (p317) · culture, prime —
+  { id: 'ps_p317_plat_historique_conteste', programId: 'p317', family: 'editorial', phase: 1,
+    titre: 'Le plat historique contesté',
+    desc: 'Un historien conteste l’origine d’un plat racontée dans {programme}. Deux régions se disputent sa paternité.',
+    c: [
+      { l: 'Organiser un débat entre les deux régions', icon: '🍲', cost: { purchase: 0.02 }, career: { awareness: 4 }, pop: 1,
+        r: 'Le débat gourmand amuse.' },
+      { l: 'Corriger le numéro', icon: '✍️', boost: -0.02, career: { loyalty: 2 },
+        r: 'La rigueur est saluée.' },
+      { l: 'Ignorer la polémique', icon: '🤷', career: { awareness: 1, loyalty: -1 },
+        r: 'La polémique continue.' }
+    ] },
+  { id: 'ps_p317_banquet_historique', programId: 'p317', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le banquet historique',
+    desc: 'La production de {programme} propose de reconstituer un banquet royal en direct, avec des chefs étoilés. L’événement serait spectaculaire, mais coûteux.',
+    c: [
+      { l: 'Organiser le banquet royal', icon: '👑', cost: { purchase: 0.12 }, boost: 0.1, career: { awareness: 5 },
+        r: 'Le banquet fait l’événement.' },
+      { l: 'Une recette historique par numéro', icon: '📜', cost: { purchase: 0.02 }, career: { awareness: 2, loyalty: 1 },
+        r: 'Les recettes historiques plaisent.' },
+      { l: 'Rester sur le documentaire', icon: '📺', career: { loyalty: 1, wear: 3 },
+        r: 'L’émission reste classique.' }
+    ] },
+
+  // — On vous a dit que… (p318) · info, nuit —
+  { id: 'ps_p318_intox_demontee_trop', programId: 'p318', family: 'image', phase: 2,
+    titre: 'L’intox démontée trop vite',
+    desc: '{programme} a qualifié de fausse une information qui s’est révélée vraie. Les complotistes s’en donnent à cœur joie.',
+    c: [
+      { l: 'Reconnaître l’erreur en détail', icon: '🙏', career: { awareness: -1, loyalty: 2 }, pop: 1,
+        r: 'La transparence restaure la confiance.' },
+      { l: 'Minimiser', icon: '🤐', career: { loyalty: -3 }, pop: -1,
+        r: 'La crédibilité s’effondre.' },
+      { l: 'Créer une rubrique sur nos propres erreurs', icon: '🔍', cost: { purchase: 0.02 }, career: { awareness: 2, loyalty: 3 },
+        r: 'La rubrique est saluée.' }
+    ] },
+  { id: 'ps_p318_education_aux_medias', programId: 'p318', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'L’éducation aux médias',
+    desc: 'Le ministère propose d’utiliser {programme} dans les cours d’éducation aux médias. Les enseignants sont demandeurs.',
+    c: [
+      { l: 'Créer une version scolaire', icon: '🏫', cost: { purchase: 0.04 }, lasting: 0.03, career: { awareness: 4 }, pop: 2,
+        r: 'L’émission entre dans les classes.' },
+      { l: 'Céder les droits', icon: '📝', career: { awareness: 1, wear: 2 }, pop: 1,
+        r: 'Les enseignants utilisent l’émission.' },
+      { l: 'Refuser', icon: '🙅', career: { awareness: -2, loyalty: 1 },
+        r: 'L’occasion est manquée.' }
+    ] },
+
+  // — Ce que vous payez vraiment (p319) · info, nuit —
+  { id: 'ps_p319_distributeur_attaque', programId: 'p319', family: 'image', phase: 2,
+    titre: 'Le distributeur attaque',
+    desc: 'Une enquête de {programme} sur les marges de la grande distribution provoque la colère d’une enseigne. Elle retire sa publicité de la chaîne.',
+    c: [
+      { l: 'Maintenir l’enquête', icon: '📣', boost: -0.03, career: { loyalty: 3 }, pop: 2,
+        r: 'L’émission défend son indépendance.' },
+      { l: 'Proposer un droit de réponse', icon: '🎙️', career: { awareness: -1, loyalty: 1 }, pop: 1,
+        r: 'Le conflit s’apaise.' },
+      { l: 'Retirer l’enquête du replay', icon: '🗑️', career: { loyalty: -3 }, pop: -2,
+        r: 'L’émission perd en crédibilité.' }
+    ] },
+  { id: 'ps_p319_calculateur_des_prix', programId: 'p319', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le calculateur des prix',
+    desc: 'La production de {programme} propose un outil en ligne pour décomposer le prix des produits du quotidien. L’outil serait utile, mais demande un développement.',
+    c: [
+      { l: 'Développer l’outil', icon: '🧮', cost: { purchase: 0.06 }, lasting: 0.03, career: { awareness: 4 },
+        r: 'L’outil devient une référence.' },
+      { l: 'Publier des fiches', icon: '📄', cost: { purchase: 0.01 }, career: { awareness: 2 },
+        r: 'Les fiches sont appréciées.' },
+      { l: 'Rester sur l’émission', icon: '📺', career: { loyalty: 1, wear: 3 },
+        r: 'L’émission reste classique.' }
+    ] },
+
+  // — Et si on essayait ? (p320) · info, nuit —
+  { id: 'ps_p320_experience_qui_echoue', programId: 'p320', family: 'editorial', phase: 1,
+    titre: 'L’expérience qui échoue',
+    desc: 'L’expérience sociale tentée dans {programme} a échoué. La production hésite à diffuser cet échec.',
+    c: [
+      { l: 'Diffuser l’échec avec une analyse', icon: '🔬', cost: { purchase: 0.01 }, career: { awareness: 2, loyalty: 3 },
+        r: 'L’honnêteté de l’émission est saluée.' },
+      { l: 'Ne pas diffuser', icon: '🙈', boost: -0.03, career: { loyalty: -1 },
+        r: 'La saison perd un numéro.' },
+      { l: 'Relancer l’expérience autrement', icon: '🔄', cost: { purchase: 0.04 }, career: { awareness: 2, wear: -4 },
+        r: 'La seconde tentative réussit.' }
+    ] },
+  { id: 'ps_p320_experience_nationale', programId: 'p320', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'L’expérience nationale',
+    desc: 'La production de {programme} propose une expérience à l’échelle nationale : une semaine sans voiture dans une ville volontaire. L’opération ferait débat, et parler de l’émission.',
+    c: [
+      { l: 'Lancer l’expérience nationale', icon: '🚲', cost: { purchase: 0.06 }, career: { awareness: 5 }, pop: 1,
+        r: 'L’expérience fait débat dans tout le pays.' },
+      { l: 'Une expérience locale', icon: '🏘️', cost: { purchase: 0.02 }, career: { awareness: 2 },
+        r: 'L’expérience est modeste.' },
+      { l: 'Rester sur les expériences individuelles', icon: '🧍', career: { loyalty: 1, wear: 3 },
+        r: 'L’émission reste classique.' }
+    ] },
+
+  // — Le travail, version demain (p321) · info, nuit —
+  { id: 'ps_p321_teletravail_question', programId: 'p321', family: 'editorial', phase: 1,
+    titre: 'Le télétravail en question',
+    desc: 'Une entreprise filmée dans {programme} supprime le télétravail juste avant la diffusion. Le sujet devient brûlant.',
+    c: [
+      { l: 'Actualiser le sujet', icon: '🔄', cost: { purchase: 0.02 }, career: { awareness: 3, loyalty: 1 },
+        r: 'Le sujet colle à l’actualité.' },
+      { l: 'Diffuser tel quel', icon: '📺', career: { loyalty: -1, wear: 2 },
+        r: 'Le sujet paraît daté.' },
+      { l: 'Organiser un débat avec les salariés', icon: '💬', cost: { purchase: 0.01 }, career: { awareness: 2 }, pop: 1,
+        r: 'Le débat est vif et utile.' }
+    ] },
+  { id: 'ps_p321_salon_travail_demain', programId: 'p321', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le salon du travail de demain',
+    desc: 'Un salon professionnel propose à {programme} d’être son partenaire média. L’émission y gagnerait des sujets exclusifs.',
+    c: [
+      { l: 'Devenir partenaire', icon: '🤝', cost: { purchase: 0.03 }, lasting: 0.02, career: { awareness: 3 },
+        r: 'Le partenariat apporte des sujets exclusifs.' },
+      { l: 'Couvrir le salon librement', icon: '🎥', career: { awareness: 1, loyalty: 1, wear: 2 },
+        r: 'Le salon est couvert sans engagement.' },
+      { l: 'Ignorer le salon', icon: '🙅', career: { awareness: -1, loyalty: 2, wear: 2 },
+        r: 'L’occasion est manquée.' }
+    ] },
+
+  // — Sur place : l’enquête (p322) · info, nuit —
+  { id: 'ps_p322_source_menacee', programId: 'p322', family: 'image', phase: 2,
+    titre: 'La source menacée',
+    desc: 'Une source de {programme} a été identifiée par son employeur et licenciée. Elle reproche à l’émission un manque de protection.',
+    c: [
+      { l: 'Soutenir la source juridiquement', icon: '⚖️', cost: { purchase: 0.04 }, career: { loyalty: 3 }, pop: 2,
+        r: 'La rédaction assume ses responsabilités.' },
+      { l: 'Renforcer la protection des sources', icon: '🔐', cost: { recurring: 0.01 }, lasting: 0.01, career: { loyalty: 2 },
+        r: 'Les sources sont mieux protégées.' },
+      { l: 'Ne pas réagir', icon: '🤷', career: { loyalty: -2 }, pop: -2,
+        r: 'Les sources se détournent de l’émission.' }
+    ] },
+  { id: 'ps_p322_enquete_direct', programId: 'p322', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'L’enquête en direct',
+    desc: 'La production de {programme} propose de diffuser une enquête en direct, avec les journalistes sur le terrain. La tension serait réelle, le risque d’erreur aussi.',
+    c: [
+      { l: 'Lancer l’enquête en direct', icon: '🔴', cost: { purchase: 0.05 }, boost: 0.06, career: { awareness: 4 },
+        r: 'Le direct donne une tension rare.' },
+      { l: 'Garder l’enquête montée', icon: '🎬', career: { loyalty: 2, wear: 3 },
+        r: 'L’enquête reste rigoureuse.' },
+      { l: 'Un duplex final en direct', icon: '📡', cost: { purchase: 0.01 }, career: { awareness: 2 },
+        r: 'Le duplex apporte de la vie.' }
+    ] },
+
+  // — Ma ville tente le coup (p323) · info, nuit —
+  { id: 'ps_p323_ville_qui_renonce', programId: 'p323', family: 'editorial', phase: 1,
+    titre: 'La ville qui renonce',
+    desc: 'La ville suivie dans {programme} abandonne son projet en cours de tournage. Le numéro perd son fil rouge.',
+    c: [
+      { l: 'Raconter l’échec', icon: '📉', cost: { purchase: 0.01 }, career: { awareness: 2, loyalty: 2 },
+        r: 'L’échec raconté honnêtement passionne.' },
+      { l: 'Changer de ville', icon: '🔄', cost: { purchase: 0.04 }, career: { loyalty: 1, wear: -3 },
+        r: 'Une autre ville relève le défi.' },
+      { l: 'Renoncer au numéro', icon: '🗑️', boost: -0.03, career: { loyalty: -1 },
+        r: 'La saison perd un épisode.' }
+    ] },
+  { id: 'ps_p323_reseau_des_villes', programId: 'p323', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le réseau des villes innovantes',
+    desc: 'L’association des maires propose à {programme} de créer un prix des villes innovantes. L’émission en serait le jury.',
+    c: [
+      { l: 'Créer le prix', icon: '🏆', cost: { purchase: 0.03 }, lasting: 0.03, career: { awareness: 4 },
+        r: 'Le prix valorise les initiatives locales.' },
+      { l: 'Rester observateur', icon: '👀', career: { loyalty: 1, wear: 3 },
+        r: 'L’émission garde sa neutralité.' },
+      { l: 'S’associer à un prix existant', icon: '🤝', cost: { purchase: 0.01 }, career: { awareness: 2 },
+        r: 'Un partenariat discret.' }
+    ] },
+
+  // — L’éco frappe à votre porte (p324) · info, nuit —
+  { id: 'ps_p324_demarcheur_filme', programId: 'p324', family: 'image', phase: 2,
+    titre: 'Le démarcheur filmé',
+    desc: 'Un démarcheur abusif filmé en caméra cachée par {programme} menace de poursuites. Son entreprise conteste les images.',
+    c: [
+      { l: 'Maintenir la diffusion', icon: '📣', boost: -0.02, career: { loyalty: 3 }, pop: 1,
+        r: 'L’enquête protège les consommateurs.' },
+      { l: 'Flouter le démarcheur', icon: '🌫️', cost: { purchase: 0.01 }, career: { loyalty: 1 }, pop: 1,
+        r: 'Le risque juridique est réduit.' },
+      { l: 'Retirer la séquence', icon: '🗑️', career: { loyalty: -2 }, pop: -1,
+        r: 'L’émission est accusée de céder.' }
+    ] },
+  { id: 'ps_p324_ligne_alerte_des', programId: 'p324', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'La ligne d’alerte des consommateurs',
+    desc: 'La production de {programme} propose une ligne d’alerte où les téléspectateurs signalent les arnaques. Le service rendrait l’émission plus utile au quotidien.',
+    c: [
+      { l: 'Créer la ligne d’alerte', icon: '📞', cost: { recurring: 0.02 }, lasting: 0.02, career: { awareness: 3 }, pop: 2,
+        r: 'La ligne d’alerte rend service.' },
+      { l: 'Un formulaire en ligne', icon: '🌐', cost: { purchase: 0.01 }, career: { awareness: 1 }, pop: 1,
+        r: 'Le formulaire est utilisé.' },
+      { l: 'Rester sur l’émission', icon: '📺', career: { loyalty: 1, wear: 3 },
+        r: 'L’émission reste classique.' }
+    ] },
+
+  // — Deux vies, un face-à-face (p325) · info, nuit —
+  { id: 'ps_p325_face_face_trop', programId: 'p325', family: 'editorial', phase: 1,
+    titre: 'Le face-à-face trop tendu',
+    desc: 'Le face-à-face entre deux personnes aux vies opposées dans {programme} a tourné à l’affrontement. Les deux participants regrettent.',
+    c: [
+      { l: 'Diffuser avec leur accord et une conclusion apaisée', icon: '🤝', cost: { purchase: 0.02 }, career: { awareness: 2 }, pop: 1,
+        r: 'La réconciliation finale touche.' },
+      { l: 'Diffuser l’affrontement', icon: '🔥', boost: 0.03, career: { awareness: 3 }, pop: -2,
+        r: 'Le buzz est fort.' },
+      { l: 'Ne pas diffuser', icon: '🙈', boost: -0.03, pop: 1,
+        r: 'La saison perd un numéro.' }
+    ] },
+  { id: 'ps_p325_face_face_des', programId: 'p325', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le face-à-face des élus',
+    desc: 'La production de {programme} propose de confronter des élus à des citoyens aux vies très différentes des leurs. Les élus hésitent, le public adore l’idée.',
+    c: [
+      { l: 'Lancer les face-à-face d’élus', icon: '🏛️', cost: { purchase: 0.03 }, career: { awareness: 4 }, pop: 1,
+        r: 'Les élus se confrontent à la réalité.' },
+      { l: 'Garder les anonymes', icon: '🧑', career: { loyalty: 1, wear: 3 },
+        r: 'L’émission reste intimiste.' },
+      { l: 'Un élu par saison', icon: '📅', cost: { purchase: 0.01 }, career: { awareness: 2 },
+        r: 'Une ouverture remarquée.' }
+    ] },
+
+  // — La science à l’épreuve (p326) · info, nuit —
+  { id: 'ps_p326_chercheur_controverse', programId: 'p326', family: 'image', phase: 2,
+    titre: 'Le chercheur controversé',
+    desc: 'Un chercheur invité dans {programme} défend une thèse rejetée par ses pairs. Des scientifiques dénoncent une fausse équivalence.',
+    c: [
+      { l: 'Présenter le consensus scientifique', icon: '🔬', cost: { purchase: 0.01 }, career: { loyalty: 3 }, pop: 1,
+        r: 'La rigueur de l’émission est saluée.' },
+      { l: 'Laisser le débat ouvert', icon: '⚖️', career: { awareness: 2 }, pop: -2,
+        r: 'L’émission est critiquée.' },
+      { l: 'Retirer la séquence', icon: '🗑️', career: { loyalty: -1, wear: 2 }, pop: 1,
+        r: 'La polémique s’éteint.' }
+    ] },
+  { id: 'ps_p326_science_participative', programId: 'p326', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'La science participative',
+    desc: 'La production de {programme} propose une grande expérience scientifique avec les téléspectateurs, comme compter les oiseaux. Le projet ferait participer toute la France.',
+    c: [
+      { l: 'Lancer l’expérience participative', icon: '🐦', cost: { purchase: 0.03 }, career: { awareness: 4 }, pop: 2,
+        r: 'Des milliers de téléspectateurs participent.' },
+      { l: 'Rester sur l’émission', icon: '📺', career: { loyalty: 1, wear: 3 },
+        r: 'L’émission reste classique.' },
+      { l: 'Relayer une expérience existante', icon: '🤝', cost: { purchase: 0.01 }, career: { awareness: 1 }, pop: 1,
+        r: 'Un relais apprécié.' }
+    ] },
+
+  // — Une semaine, trois clés (p327) · info, nuit —
+  { id: 'ps_p327_semaine_trop_chargee', programId: 'p327', family: 'editorial', phase: 1,
+    titre: 'La semaine trop chargée',
+    desc: 'Trois sujets majeurs se disputent l’édition de {programme} cette semaine. La rédaction doit choisir.',
+    c: [
+      { l: 'Allonger exceptionnellement l’émission', icon: '⏱️', cost: { purchase: 0.03 }, career: { awareness: 3, loyalty: 1 },
+        r: 'L’édition spéciale est appréciée.' },
+      { l: 'Garder les trois clés habituelles', icon: '🔑', career: { awareness: -1, loyalty: 1, wear: 2 },
+        r: 'Un sujet est sacrifié.' },
+      { l: 'Publier un bonus en ligne', icon: '📱', cost: { purchase: 0.01 }, career: { awareness: 2 },
+        r: 'Le bonus complète l’émission.' }
+    ] },
+  { id: 'ps_p327_lettre_information', programId: 'p327', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'La lettre d’information',
+    desc: 'La production de {programme} propose une lettre d’information hebdomadaire résumant les trois clés. Le projet est simple et peu coûteux.',
+    c: [
+      { l: 'Lancer la lettre', icon: '✉️', cost: { purchase: 0.01 }, lasting: 0.02, career: { awareness: 3 },
+        r: 'La lettre fidélise les abonnés.' },
+      { l: 'Rester sur l’antenne', icon: '📺', career: { awareness: -1, loyalty: 1, wear: 2 },
+        r: 'L’émission reste à l’antenne.' },
+      { l: 'Un podcast résumé', icon: '🎧', cost: { purchase: 0.02 }, career: { awareness: 2, loyalty: 1 },
+        r: 'Le podcast trouve son public.' }
     ] }
 ];
 // ---------------------------------------------------------------------------
