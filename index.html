@@ -13791,6 +13791,485 @@ const PROGRAM_STORY_BANK = [
         r: 'Le jeu reste authentique.' },
       { l: 'Une spéciale par saison', icon: '📅', cost: { purchase: 0.04 }, boost: 0.04, career: { awareness: 2 },
         r: 'Une spéciale appréciée.' }
+    ] },
+  // — Ce soir, c’est leur soir ! (p268) · generaliste, prime —
+  { id: 'ps_p268_surprise_gachee', programId: 'p268', family: 'editorial', phase: 1,
+    titre: 'La surprise gâchée',
+    desc: 'La personne qui devait être surprise dans {programme} a découvert le projet la veille du tournage. Toute la soirée reposait sur l’effet de surprise.',
+    c: [
+      { l: 'Changer de personne à honorer', icon: '🔄', cost: { purchase: 0.04 }, career: { loyalty: 1, wear: -3 },
+        r: 'Une autre histoire touchante est trouvée.' },
+      { l: 'Tourner quand même en jouant la surprise', icon: '🎭', career: { awareness: 1, loyalty: -2 },
+        r: 'La surprise sonne faux à l’écran.' },
+      { l: 'Faire de la fuite un moment de l’émission', icon: '😄', cost: { purchase: 0.02 }, boost: 0.02, career: { awareness: 3 },
+        r: 'L’humour sauve la soirée.' }
+    ] },
+  { id: 'ps_p268_soiree_des_soignants', programId: 'p268', family: 'audience', phase: 3, when: { minSeasons: 1 },
+    titre: 'La soirée des soignants',
+    desc: 'La production de {programme} propose une édition spéciale pour honorer des soignants de toute la France. L’émotion serait au rendez-vous.',
+    c: [
+      { l: 'Organiser la soirée des soignants', icon: '🩺', cost: { purchase: 0.12 }, boost: 0.1, pop: 3,
+        r: 'La soirée émeut tout le pays.' },
+      { l: 'Garder les invités habituels', icon: '🎬', career: { loyalty: 1, wear: 3 },
+        r: 'La soirée reste classique.' },
+      { l: 'Un hommage dans l’émission habituelle', icon: '💐', cost: { purchase: 0.03 }, boost: 0.02, pop: 1,
+        r: 'L’hommage est apprécié.' }
+    ] },
+
+  // — Ma famille fait le show (p269) · generaliste, prime —
+  { id: 'ps_p269_enfant_star_malgre', programId: 'p269', family: 'image', phase: 2,
+    titre: 'L’enfant star malgré lui',
+    desc: 'Un enfant de {programme} est devenu la risée des réseaux après une séquence maladroite. Ses parents demandent le retrait des extraits.',
+    c: [
+      { l: 'Retirer les extraits et protéger l’enfant', icon: '🛡️', boost: -0.02, pop: 2,
+        r: 'La production protège l’enfant.' },
+      { l: 'Laisser les extraits en ligne', icon: '📱', career: { awareness: 3 }, pop: -3,
+        r: 'La production est vivement critiquée.' },
+      { l: 'Diffuser un message de soutien', icon: '💙', cost: { purchase: 0.01 }, career: { loyalty: 1 }, pop: 1,
+        r: 'Le message apaise les moqueries.' }
+    ] },
+  { id: 'ps_p269_les_familles_tournee', programId: 'p269', family: 'strategie', phase: 3, when: { minSeasons: 1, form: 'succes' },
+    titre: 'Les familles en tournée',
+    desc: 'Les familles les plus drôles de {programme} pourraient partir en tournée de spectacles. Un producteur est intéressé.',
+    c: [
+      { l: 'Coproduire la tournée', icon: '🎪', cost: { purchase: 0.12 }, lasting: 0.03, career: { awareness: 5 },
+        r: 'La tournée fait salle comble.' },
+      { l: 'Céder les droits', icon: '📝', cost: { commercial: 0.06 }, career: { awareness: 2, wear: 2 },
+        r: 'La tournée rapporte un peu.' },
+      { l: 'Refuser', icon: '🙅', career: { awareness: -2, loyalty: 1 },
+        r: 'Les familles restent à l’antenne.' }
+    ] },
+
+  // — La Nuit de Tous les Défis (p270) · generaliste, prime —
+  { id: 'ps_p270_defi_rate_doyen', programId: 'p270', family: 'image', phase: 2,
+    titre: 'Le défi raté du doyen',
+    desc: 'Le doyen de {programme}, 92 ans, a raté son défi et s’est fâché en direct. Les téléspectateurs se moquent sur les réseaux.',
+    c: [
+      { l: 'Lui offrir une revanche', icon: '🔁', cost: { purchase: 0.02 }, career: { awareness: 2 }, pop: 2,
+        r: 'La revanche réussie émeut le public.' },
+      { l: 'Couper la séquence', icon: '✂️', boost: -0.02, pop: 1,
+        r: 'Le doyen est préservé.' },
+      { l: 'Laisser la séquence', icon: '📺', career: { awareness: 2 }, pop: -2,
+        r: 'Les moqueries continuent.' }
+    ] },
+  { id: 'ps_p270_nuit_rire', programId: 'p270', family: 'audience', phase: 3, when: { minSeasons: 1 },
+    titre: 'La nuit du rire',
+    desc: 'La production de {programme} propose une édition de quatre heures en direct, jusqu’au bout de la nuit. Les humoristes seraient nombreux.',
+    c: [
+      { l: 'Organiser la nuit en direct', icon: '🌙', cost: { purchase: 0.15 }, boost: 0.1, career: { awareness: 4 },
+        r: 'La nuit du rire fait l’événement.' },
+      { l: 'Garder la durée habituelle', icon: '⏱️', career: { loyalty: 1, wear: 3 },
+        r: 'La soirée reste classique.' },
+      { l: 'Prolonger d’une heure', icon: '➕', cost: { purchase: 0.04 }, boost: 0.04, career: { awareness: 1 },
+        r: 'Une soirée prolongée appréciée.' }
+    ] },
+
+  // — Jackpot (p271) · generaliste, prime —
+  { id: 'ps_p271_jackpot_qui_tombe', programId: 'p271', family: 'economie', phase: 1,
+    titre: 'Le jackpot qui ne tombe jamais',
+    desc: 'Le jackpot de {programme} n’a pas été remporté depuis des mois et atteint un montant record. Les candidats se bousculent.',
+    c: [
+      { l: 'Laisser grimper le jackpot', icon: '💰', cost: { recurring: 0.06 }, boost: 0.08, career: { awareness: 4 },
+        r: 'Le suspense attire un large public.' },
+      { l: 'Plafonner le jackpot', icon: '🛑', boost: -0.02, career: { loyalty: -1 },
+        r: 'Le suspense retombe.' },
+      { l: 'Organiser une soirée spéciale jackpot', icon: '🎰', cost: { purchase: 0.06 }, boost: 0.06, career: { awareness: 2 },
+        r: 'La soirée spéciale fait l’événement.' }
+    ] },
+  { id: 'ps_p271_gagnant_ruine', programId: 'p271', family: 'image', phase: 2, when: { minSeasons: 1 },
+    titre: 'Le gagnant ruiné',
+    desc: 'Un ancien gagnant de {programme} raconte dans la presse avoir tout perdu. Il accuse l’émission de l’avoir laissé seul.',
+    c: [
+      { l: 'Offrir un accompagnement financier aux gagnants', icon: '🤝', cost: { recurring: 0.02 }, career: { loyalty: 1 }, pop: 2,
+        r: 'La production montre sa responsabilité.' },
+      { l: 'Ignorer l’affaire', icon: '🤷', career: { awareness: 1 }, pop: -2,
+        r: 'La polémique dure.' },
+      { l: 'L’inviter à témoigner', icon: '🎙️', cost: { purchase: 0.01 }, career: { awareness: 2 }, pop: 1,
+        r: 'Le témoignage émeut.' }
+    ] },
+
+  // — À vous de faire les voix ! (p272) · generaliste, prime —
+  { id: 'ps_p272_comedien_doublage_colere', programId: 'p272', family: 'editorial', phase: 1,
+    titre: 'Le comédien de doublage en colère',
+    desc: 'Un comédien de doublage reproche à {programme} de tourner en ridicule son métier. Ses collègues le soutiennent.',
+    c: [
+      { l: 'Inviter des doubleurs professionnels', icon: '🎙️', cost: { purchase: 0.03 }, career: { awareness: 2 }, pop: 2,
+        r: 'Les professionnels valorisent leur métier.' },
+      { l: 'Assumer l’humour', icon: '😄', career: { loyalty: 2 }, pop: -1,
+        r: 'Les fans apprécient.' },
+      { l: 'Ajouter une rubrique sur le métier', icon: '🎬', cost: { purchase: 0.02 }, career: { awareness: 2, loyalty: 1 },
+        r: 'La rubrique est appréciée.' }
+    ] },
+  { id: 'ps_p272_doublage_vrai_film', programId: 'p272', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le doublage d’un vrai film',
+    desc: 'Un studio propose aux meilleurs candidats de {programme} de doubler un vrai film d’animation. Le film sortirait au cinéma.',
+    c: [
+      { l: 'Accepter le partenariat', icon: '🎬', cost: { purchase: 0.06 }, lasting: 0.03, career: { awareness: 5 },
+        r: 'Le film fait connaître l’émission.' },
+      { l: 'Refuser', icon: '🙅', career: { awareness: -2, loyalty: 1 },
+        r: 'L’occasion est manquée.' },
+      { l: 'Un seul candidat sélectionné', icon: '🎤', cost: { purchase: 0.02 }, boost: 0.02, career: { awareness: 2 },
+        r: 'Le candidat vit un rêve.' }
+    ] },
+
+  // — La Piste aux étoiles (p273) · generaliste, prime —
+  { id: 'ps_p273_les_animaux_cirque', programId: 'p273', family: 'image', phase: 2,
+    titre: 'Les animaux de cirque',
+    desc: 'Un numéro avec des animaux sauvages dans {programme} provoque la colère des défenseurs des animaux. Une pétition circule.',
+    c: [
+      { l: 'Supprimer les numéros avec animaux', icon: '🐘', career: { loyalty: -2 }, pop: 3,
+        r: 'La chaîne est saluée par les associations.' },
+      { l: 'Maintenir les numéros', icon: '🎪', career: { loyalty: 2 }, pop: -3,
+        r: 'La polémique enfle.' },
+      { l: 'Remplacer par des numéros d’acrobates', icon: '🤸', cost: { purchase: 0.05 }, career: { awareness: 2 }, pop: 2,
+        r: 'Le spectacle se renouvelle.' }
+    ] },
+  { id: 'ps_p273_festival_cirque', programId: 'p273', family: 'audience', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le festival du cirque',
+    desc: 'Le grand festival international du cirque propose à {programme} une soirée avec ses meilleurs numéros. Les droits sont élevés.',
+    c: [
+      { l: 'Diffuser la soirée du festival', icon: '🎪', cost: { purchase: 0.2 }, boost: 0.12, career: { awareness: 4 },
+        r: 'La soirée émerveille les familles.' },
+      { l: 'Garder les numéros habituels', icon: '🤹', career: { loyalty: 1, wear: 3 },
+        r: 'Le spectacle reste classique.' },
+      { l: 'Diffuser quelques numéros du festival', icon: '🎬', cost: { purchase: 0.06 }, boost: 0.04, career: { awareness: 2 },
+        r: 'Quelques numéros remarqués.' }
+    ] },
+
+  // — Zéro de Conduite (p274) · generaliste, prime —
+  { id: 'ps_p274_camera_cachee_qui', programId: 'p274', family: 'image', phase: 2,
+    titre: 'La caméra cachée qui dérape',
+    desc: 'Une caméra cachée de {programme} a piégé un passant qui a cru à une vraie agression. Il porte plainte.',
+    c: [
+      { l: 'Retirer la séquence et s’excuser', icon: '🙏', boost: -0.03, pop: 2,
+        r: 'L’affaire est close.' },
+      { l: 'Négocier un accord', icon: '🤝', cost: { purchase: 0.02 }, career: { loyalty: 1 }, pop: 1,
+        r: 'Le passant accepte un dédommagement.' },
+      { l: 'Diffuser quand même', icon: '📺', career: { awareness: 3 }, pop: -3,
+        r: 'Le procès fait scandale.' }
+    ] },
+  { id: 'ps_p274_les_pieges_trop', programId: 'p274', family: 'editorial', phase: 1, when: { minSeasons: 1 },
+    titre: 'Les pièges trop prévisibles',
+    desc: 'Les farces de {programme} se répètent et le public devine les pièges. La production propose de piéger des célébrités.',
+    c: [
+      { l: 'Piéger des célébrités', icon: '🌟', cost: { purchase: 0.08 }, boost: 0.06, career: { awareness: 4, wear: -6 },
+        r: 'Les célébrités piégées font le buzz.' },
+      { l: 'Renouveler les scénarios', icon: '✍️', cost: { purchase: 0.03 }, career: { loyalty: 1, wear: -5 },
+        r: 'Les farces retrouvent de la fraîcheur.' },
+      { l: 'Garder les pièges classiques', icon: '😄', career: { loyalty: 1, wear: 4 },
+        r: 'Le public se lasse.' }
+    ] },
+
+  // — Avant que le rideau se lève (p275) · generaliste, prime —
+  { id: 'ps_p275_troupe_conflit', programId: 'p275', family: 'editorial', phase: 1,
+    titre: 'La troupe en conflit',
+    desc: 'Les coulisses de {programme} révèlent un conflit entre le metteur en scène et l’actrice principale. La troupe refuse d’en montrer les images.',
+    c: [
+      { l: 'Respecter le souhait de la troupe', icon: '🤝', boost: -0.03, career: { loyalty: 2 },
+        r: 'La troupe est reconnaissante.' },
+      { l: 'Diffuser les images du conflit', icon: '🎥', career: { awareness: 4, loyalty: -2 }, pop: -1,
+        r: 'Les images font le buzz.' },
+      { l: 'Montrer la réconciliation', icon: '💞', cost: { purchase: 0.02 }, career: { awareness: 2, loyalty: 1 },
+        r: 'La réconciliation émeut.' }
+    ] },
+  { id: 'ps_p275_grande_premiere_direct', programId: 'p275', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'La grande première en direct',
+    desc: 'La production de {programme} propose de diffuser en direct la première du spectacle après des semaines de coulisses. L’enjeu serait maximal.',
+    c: [
+      { l: 'Diffuser la première en direct', icon: '🎭', cost: { purchase: 0.12 }, boost: 0.1, career: { awareness: 4 },
+        r: 'La première est un moment intense.' },
+      { l: 'Diffuser un résumé', icon: '🎬', career: { loyalty: 1, wear: 3 },
+        r: 'Un résumé efficace.' },
+      { l: 'Diffuser la première en différé', icon: '📼', cost: { purchase: 0.04 }, boost: 0.04, career: { awareness: 1 },
+        r: 'La première est diffusée le lendemain.' }
+    ] },
+
+  // — La France a du Génie (p276) · generaliste, prime —
+  { id: 'ps_p276_invention_brevetee', programId: 'p276', family: 'image', phase: 2,
+    titre: 'L’invention brevetée',
+    desc: 'Un inventeur primé dans {programme} est accusé d’avoir copié l’invention d’un autre. Le vrai inventeur se manifeste.',
+    c: [
+      { l: 'Enquêter et rétablir la vérité', icon: '🔍', cost: { purchase: 0.03 }, career: { loyalty: 2 }, pop: 2,
+        r: 'La vérité est rétablie.' },
+      { l: 'Maintenir le prix', icon: '🏆', career: { awareness: 1 }, pop: -2,
+        r: 'La polémique s’installe.' },
+      { l: 'Récompenser les deux inventeurs', icon: '🤝', cost: { purchase: 0.04 }, career: { awareness: 2 }, pop: 1,
+        r: 'Un geste apprécié.' }
+    ] },
+  { id: 'ps_p276_fonds_des_inventeurs', programId: 'p276', family: 'strategie', phase: 3, when: { minSeasons: 1, form: ['succes', 'stable'] },
+    titre: 'Le fonds des inventeurs',
+    desc: 'La production de {programme} propose de créer un fonds pour financer les inventions des lauréats. Une banque serait partenaire.',
+    c: [
+      { l: 'Créer le fonds', icon: '💡', cost: { purchase: 0.12 }, lasting: 0.04, career: { awareness: 4 }, pop: 1,
+        r: 'Le fonds donne du sens à l’émission.' },
+      { l: 'Laisser les lauréats chercher seuls', icon: '🤷', career: { loyalty: -1, wear: 2 },
+        r: 'Les lauréats sont livrés à eux-mêmes.' },
+      { l: 'S’associer à un incubateur', icon: '🤝', cost: { purchase: 0.03 }, career: { awareness: 2, loyalty: 1 },
+        r: 'Les lauréats sont accompagnés.' }
+    ] },
+
+  // — La meilleure fanfare de France (p277) · generaliste, prime —
+  { id: 'ps_p277_fanfare_disqualifiee', programId: 'p277', family: 'editorial', phase: 1,
+    titre: 'La fanfare disqualifiée',
+    desc: 'Une fanfare favorite de {programme} a utilisé des musiciens professionnels non déclarés. Les autres fanfares protestent.',
+    c: [
+      { l: 'Disqualifier la fanfare', icon: '🚫', boost: -0.02, career: { loyalty: 1 }, pop: 2,
+        r: 'L’équité du concours est respectée.' },
+      { l: 'La laisser concourir avec une pénalité', icon: '⚖️', career: { awareness: 1, loyalty: -1, wear: 2 },
+        r: 'Un compromis contesté.' },
+      { l: 'Créer une catégorie professionnelle', icon: '🎺', cost: { purchase: 0.04 }, career: { awareness: 3, wear: -4 },
+        r: 'Le concours s’élargit.' }
+    ] },
+  { id: 'ps_p277_finale_dans_rue', programId: 'p277', family: 'audience', phase: 3, when: { minSeasons: 1 },
+    titre: 'La finale dans la rue',
+    desc: 'La production de {programme} propose une finale en plein air, dans les rues d’une grande ville. Le spectacle serait gratuit pour le public.',
+    c: [
+      { l: 'Organiser la finale dans la rue', icon: '🎉', cost: { purchase: 0.12 }, boost: 0.1, career: { awareness: 4 }, pop: 1,
+        r: 'La fête populaire est réussie.' },
+      { l: 'Finale en studio', icon: '🎬', career: { loyalty: 1, wear: 3 },
+        r: 'La finale reste classique.' },
+      { l: 'Finale dans une salle de concert', icon: '🎶', cost: { purchase: 0.04 }, boost: 0.04, career: { awareness: 2 },
+        r: 'Une finale soignée.' }
+    ] },
+
+  // — 10 euros, à table ! (p278) · generaliste, prime —
+  { id: 'ps_p278_budget_irrealiste', programId: 'p278', family: 'image', phase: 2,
+    titre: 'Le budget irréaliste',
+    desc: 'Des téléspectateurs démontrent qu’il est impossible de cuisiner les plats de {programme} avec dix euros. Ils accusent la production de tricher.',
+    c: [
+      { l: 'Publier les tickets de caisse', icon: '🧾', career: { awareness: -1, loyalty: 3 }, pop: 1,
+        r: 'La transparence convainc.' },
+      { l: 'Augmenter le budget à quinze euros', icon: '💶', cost: { purchase: 0.01 }, career: { awareness: 1, loyalty: 1 },
+        r: 'Le concept est assoupli.' },
+      { l: 'Ignorer les critiques', icon: '🤷', career: { awareness: 1 }, pop: -2,
+        r: 'La polémique dure.' }
+    ] },
+  { id: 'ps_p278_livre_des_recettes', programId: 'p278', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le livre des recettes à dix euros',
+    desc: 'Une maison d’édition propose de publier les meilleures recettes de {programme}. Le livre pourrait devenir un succès.',
+    c: [
+      { l: 'Publier le livre', icon: '📘', cost: { purchase: 0.03 }, lasting: 0.02, career: { awareness: 4 },
+        r: 'Le livre se vend très bien.' },
+      { l: 'Céder les droits', icon: '📝', cost: { commercial: 0.04 }, career: { awareness: 2, wear: 2 },
+        r: 'Le livre rapporte un peu.' },
+      { l: 'Refuser', icon: '🙅', career: { awareness: -2, loyalty: 1 },
+        r: 'Les recettes restent à l’antenne.' }
+    ] },
+
+  // — Mes voisins ouvrent un resto (p279) · generaliste, prime —
+  { id: 'ps_p279_resto_ephemere_fait', programId: 'p279', family: 'economie', phase: 1,
+    titre: 'Le resto éphémère fait faillite',
+    desc: 'Le restaurant ouvert par des voisins dans {programme} a fait faillite après l’émission. Les candidats demandent de l’aide.',
+    c: [
+      { l: 'Les accompagner pour relancer le restaurant', icon: '🍽️', cost: { purchase: 0.05 }, career: { awareness: 2 }, pop: 2,
+        r: 'Le restaurant rouvre avec succès.' },
+      { l: 'Ne pas intervenir', icon: '🤷', career: { wear: 2 }, pop: -1,
+        r: 'La production est critiquée.' },
+      { l: 'Leur consacrer un épisode de suivi', icon: '🎬', cost: { purchase: 0.03 }, boost: 0.02, career: { awareness: 3 },
+        r: 'L’épisode de suivi émeut.' }
+    ] },
+  { id: 'ps_p279_guide_des_restos', programId: 'p279', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le guide des restos de l’émission',
+    desc: 'Un guide gastronomique propose de répertorier les restaurants nés de {programme}. Les candidats seraient ravis.',
+    c: [
+      { l: 'S’associer au guide', icon: '📖', cost: { purchase: 0.02 }, lasting: 0.02, career: { awareness: 3 },
+        r: 'Le guide donne une seconde vie aux restaurants.' },
+      { l: 'Créer sa propre carte en ligne', icon: '🗺️', cost: { purchase: 0.04 }, career: { awareness: 4 },
+        r: 'La carte attire les gourmands.' },
+      { l: 'Refuser', icon: '🙅', career: { awareness: -1, loyalty: 1 },
+        r: 'Les restaurants restent anonymes.' }
+    ] },
+
+  // — Cap ou Pas Cap ? (p280) · generaliste, prime —
+  { id: 'ps_p280_defi_trop_dangereux', programId: 'p280', family: 'image', phase: 2,
+    titre: 'Le défi trop dangereux',
+    desc: 'Un défi de {programme} a été reproduit par des adolescents, causant des blessures. Les parents s’inquiètent.',
+    c: [
+      { l: 'Afficher un avertissement et retirer le défi', icon: '⚠️', boost: -0.03, pop: 2,
+        r: 'La chaîne fait preuve de responsabilité.' },
+      { l: 'Maintenir le défi', icon: '🤷', career: { awareness: 2 }, pop: -3,
+        r: 'La chaîne est critiquée.' },
+      { l: 'Produire un message de prévention', icon: '📢', cost: { purchase: 0.02 }, career: { loyalty: 1 }, pop: 1,
+        r: 'Le message est salué.' }
+    ] },
+  { id: 'ps_p280_les_defis_des', programId: 'p280', family: 'audience', phase: 3, when: { minSeasons: 1 },
+    titre: 'Les défis des téléspectateurs',
+    desc: 'La production de {programme} propose de laisser les téléspectateurs proposer les défis. Les idées affluent déjà.',
+    c: [
+      { l: 'Lancer les défis du public', icon: '📲', cost: { purchase: 0.03 }, career: { awareness: 4, wear: -6 },
+        r: 'Les défis du public renouvellent l’émission.' },
+      { l: 'Garder les défis de la production', icon: '🎬', career: { loyalty: 1, wear: 3 },
+        r: 'Les défis restent maîtrisés.' },
+      { l: 'Un défi du public par émission', icon: '🎯', cost: { purchase: 0.01 }, career: { awareness: 2, wear: -2 },
+        r: 'Un équilibre apprécié.' }
+    ] },
+
+  // — Le Défi des Générations (p281) · generaliste, prime —
+  { id: 'ps_p281_les_generations_affrontent', programId: 'p281', family: 'editorial', phase: 1,
+    titre: 'Les générations s’affrontent trop',
+    desc: 'Les débats entre générations de {programme} tournent souvent au conflit. Des téléspectateurs regrettent le manque de bienveillance.',
+    c: [
+      { l: 'Instaurer des épreuves en duo intergénérationnel', icon: '🤝', cost: { purchase: 0.03 }, career: { loyalty: 2 }, pop: 2,
+        r: 'Le jeu devient plus bienveillant.' },
+      { l: 'Garder les affrontements', icon: '⚔️', career: { awareness: 3 }, pop: -1,
+        r: 'Le jeu garde son piquant.' },
+      { l: 'Changer d’animateur', icon: '🔄', career: { loyalty: -2, wear: -4 },
+        r: 'Le ton change.' }
+    ] },
+  { id: 'ps_p281_les_generations_ecole', programId: 'p281', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Les générations à l’école',
+    desc: 'Des écoles proposent d’accueillir {programme} pour un défi entre élèves et grands-parents. Le projet est pédagogique.',
+    c: [
+      { l: 'Tourner dans les écoles', icon: '🏫', cost: { purchase: 0.06 }, career: { awareness: 4 }, pop: 2,
+        r: 'Le tournage dans les écoles est salué.' },
+      { l: 'Rester en studio', icon: '🎬', career: { loyalty: 1, wear: 3 },
+        r: 'Le jeu reste classique.' },
+      { l: 'Une émission spéciale à l’école', icon: '📚', cost: { purchase: 0.02 }, career: { awareness: 2 }, pop: 1,
+        r: 'L’émission spéciale est appréciée.' }
+    ] },
+
+  // — Demain sera gourmand (p282) · generaliste, prime —
+  { id: 'ps_p282_ingredient_futur', programId: 'p282', family: 'editorial', phase: 1,
+    titre: 'L’ingrédient du futur',
+    desc: 'La production de {programme} propose de faire cuisiner des insectes aux candidats. Le sujet divise l’équipe.',
+    c: [
+      { l: 'Tenter l’épreuve des insectes', icon: '🦗', cost: { purchase: 0.03 }, career: { awareness: 4, loyalty: -2 },
+        r: 'L’épreuve fait sensation et débat.' },
+      { l: 'Rester sur des produits classiques', icon: '🥕', career: { loyalty: 2, wear: 3 },
+        r: 'Le concours reste classique.' },
+      { l: 'Proposer une épreuve végétale innovante', icon: '🌱', cost: { purchase: 0.02 }, career: { awareness: 2, wear: -3 },
+        r: 'L’épreuve séduit.' }
+    ] },
+  { id: 'ps_p282_restaurant_futur', programId: 'p282', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le restaurant du futur',
+    desc: 'Le gagnant de {programme} se voit proposer d’ouvrir un restaurant de cuisine durable. Un investisseur est prêt à financer.',
+    c: [
+      { l: 'Coproduire le restaurant', icon: '🍽️', cost: { purchase: 0.08 }, lasting: 0.03, career: { awareness: 4 },
+        r: 'Le restaurant prolonge la marque.' },
+      { l: 'Laisser l’investisseur seul', icon: '🤷', career: { awareness: 1, wear: 2 },
+        r: 'Le restaurant ouvre sans la chaîne.' },
+      { l: 'Suivre l’ouverture en reportage', icon: '🎥', cost: { purchase: 0.03 }, boost: 0.02, career: { awareness: 2 },
+        r: 'Le reportage est apprécié.' }
+    ] },
+
+  // — Les Grimoires de Mamie Gâteau & Moi ! (p283) · generaliste, prime —
+  { id: 'ps_p283_recette_mamie_contestee', programId: 'p283', family: 'editorial', phase: 1,
+    titre: 'La recette de Mamie contestée',
+    desc: 'Une recette ancestrale présentée dans {programme} est revendiquée par une autre famille. Les deux grands-mères s’opposent.',
+    c: [
+      { l: 'Organiser un duel des grands-mères', icon: '👵', cost: { purchase: 0.03 }, boost: 0.05, career: { awareness: 4 },
+        r: 'Le duel fait le bonheur des téléspectateurs.' },
+      { l: 'Retirer la recette', icon: '🗑️', career: { loyalty: -1 }, pop: 1,
+        r: 'La polémique s’éteint.' },
+      { l: 'Créditer les deux familles', icon: '🤝', career: { awareness: -1, loyalty: 1 }, pop: 1,
+        r: 'Le compromis apaise.' }
+    ] },
+  { id: 'ps_p283_grimoire_librairie', programId: 'p283', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le grimoire en librairie',
+    desc: 'Une maison d’édition propose de publier le grimoire des recettes de {programme}. Les grands-mères seraient les autrices.',
+    c: [
+      { l: 'Publier le grimoire', icon: '📖', cost: { purchase: 0.03 }, lasting: 0.02, career: { awareness: 4 }, pop: 1,
+        r: 'Le grimoire devient un cadeau de Noël prisé.' },
+      { l: 'Céder les droits', icon: '📝', cost: { commercial: 0.04 }, career: { awareness: 2, wear: 2 },
+        r: 'Le livre rapporte un peu.' },
+      { l: 'Refuser', icon: '🙅', career: { awareness: -2, loyalty: 1 },
+        r: 'Les recettes restent à l’antenne.' }
+    ] },
+
+  // — La Meilleure Patisserie (p284) · generaliste, prime —
+  { id: 'ps_p284_gateau_achete', programId: 'p284', family: 'image', phase: 2,
+    titre: 'Le gâteau acheté',
+    desc: 'Un candidat de {programme} a présenté un gâteau acheté chez un pâtissier. La supercherie a été découverte après la diffusion.',
+    c: [
+      { l: 'Disqualifier le candidat', icon: '🚫', boost: -0.02, career: { loyalty: 1 }, pop: 2,
+        r: 'L’équité du concours est respectée.' },
+      { l: 'Ignorer l’affaire', icon: '🤷', career: { awareness: 1 }, pop: -2,
+        r: 'La crédibilité du concours en pâtit.' },
+      { l: 'Renforcer la surveillance des épreuves', icon: '👀', cost: { recurring: 0.02 }, lasting: 0.01, career: { loyalty: 2 },
+        r: 'Le concours devient irréprochable.' }
+    ] },
+  { id: 'ps_p284_version_des_enfants', programId: 'p284', family: 'audience', phase: 3, when: { minSeasons: 1, form: 'succes' },
+    titre: 'La version des enfants',
+    desc: 'Le succès de {programme} pousse la production à proposer une version junior pour Noël. Les petits pâtissiers sont nombreux.',
+    c: [
+      { l: 'Lancer la version junior', icon: '🧒', cost: { purchase: 0.12 }, boost: 0.08, career: { awareness: 5 },
+        r: 'La version junior séduit les familles.' },
+      { l: 'Une spéciale de Noël avec les anciens candidats', icon: '🎄', cost: { purchase: 0.06 }, boost: 0.05, career: { loyalty: 2 },
+        r: 'La spéciale réchauffe les cœurs.' },
+      { l: 'Ne rien changer', icon: '🙅', career: { loyalty: 1, wear: 3 },
+        r: 'Le concours suit son cours.' }
+    ] },
+
+  // — Goûtez, devinez, cuisinez ! (p285) · generaliste, prime —
+  { id: 'ps_p285_candidat_allergique', programId: 'p285', family: 'editorial', phase: 1,
+    titre: 'Le candidat allergique',
+    desc: 'Un candidat de {programme} a fait une réaction allergique lors d’une dégustation à l’aveugle. Il a été pris en charge à temps.',
+    c: [
+      { l: 'Vérifier les allergies avant chaque épreuve', icon: '🩺', cost: { recurring: 0.01 }, career: { loyalty: 1 }, pop: 2,
+        r: 'La sécurité est renforcée.' },
+      { l: 'Supprimer les dégustations à l’aveugle', icon: '🙈', career: { awareness: -1, wear: 3 }, pop: 1,
+        r: 'Le jeu perd une épreuve clé.' },
+      { l: 'Ne rien changer', icon: '🤷', career: { awareness: 1 }, pop: -2,
+        r: 'La production est critiquée.' }
+    ] },
+  { id: 'ps_p285_les_chefs_aveugle', programId: 'p285', family: 'audience', phase: 2, when: { minSeasons: 1 },
+    titre: 'Les chefs à l’aveugle',
+    desc: 'La production de {programme} propose de faire deviner des plats à des chefs étoilés les yeux bandés. Le format mettrait les stars en difficulté.',
+    c: [
+      { l: 'Inviter des chefs étoilés', icon: '⭐', cost: { purchase: 0.08 }, boost: 0.06, career: { awareness: 4 },
+        r: 'Les chefs en difficulté amusent le public.' },
+      { l: 'Garder les candidats amateurs', icon: '🧑‍🍳', career: { loyalty: 2, wear: 3 },
+        r: 'Le jeu reste accessible.' },
+      { l: 'Un chef invité par émission', icon: '🍽️', cost: { purchase: 0.03 }, boost: 0.03, career: { awareness: 2 },
+        r: 'Un équilibre apprécié.' }
+    ] },
+
+  // — Panique à la cantine (p286) · generaliste, prime —
+  { id: 'ps_p286_cantine_pas_saine', programId: 'p286', family: 'image', phase: 2,
+    titre: 'La cantine pas si saine',
+    desc: 'Une cantine présentée comme modèle dans {programme} sert en réalité des plats industriels. Un parent d’élève révèle la supercherie.',
+    c: [
+      { l: 'Enquêter et rectifier', icon: '🔍', cost: { purchase: 0.02 }, career: { loyalty: 2 }, pop: 2,
+        r: 'L’émission gagne en crédibilité.' },
+      { l: 'Ignorer la révélation', icon: '🤷', career: { awareness: 1 }, pop: -2,
+        r: 'L’émission perd en crédibilité.' },
+      { l: 'Accompagner la cantine dans sa transformation', icon: '🥗', cost: { purchase: 0.05 }, career: { awareness: 3 }, pop: 2,
+        r: 'La transformation est saluée.' }
+    ] },
+  { id: 'ps_p286_label_des_cantines', programId: 'p286', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le label des cantines',
+    desc: 'Le ministère de l’Agriculture propose à {programme} de créer un label des cantines exemplaires. L’émission y gagnerait une mission d’utilité publique.',
+    c: [
+      { l: 'Créer le label', icon: '🏅', cost: { purchase: 0.06 }, lasting: 0.04, career: { awareness: 4 }, pop: 2,
+        r: 'Le label transforme des centaines de cantines.' },
+      { l: 'Rester une émission de divertissement', icon: '🎬', career: { loyalty: 1, wear: 3 },
+        r: 'L’émission garde sa liberté.' },
+      { l: 'Soutenir le label sans le porter', icon: '🤝', cost: { purchase: 0.02 }, career: { awareness: 1 }, pop: 1,
+        r: 'Un soutien discret.' }
+    ] },
+
+  // — Un village à notre table (p287) · generaliste, prime —
+  { id: 'ps_p287_village_divise', programId: 'p287', family: 'editorial', phase: 1,
+    titre: 'Le village divisé',
+    desc: 'Le village choisi pour {programme} est divisé entre partisans et opposants au tournage. Le maire est sous pression.',
+    c: [
+      { l: 'Organiser une réunion publique', icon: '🏛️', cost: { purchase: 0.02 }, career: { loyalty: 1 }, pop: 2,
+        r: 'Le dialogue apaise les tensions.' },
+      { l: 'Changer de village', icon: '🔄', cost: { purchase: 0.05 }, career: { loyalty: 1, wear: -3 },
+        r: 'Un village enthousiaste accueille le tournage.' },
+      { l: 'Tourner malgré les opposants', icon: '🎥', career: { awareness: 2 }, pop: -2,
+        r: 'Les tensions s’exacerbent.' }
+    ] },
+  { id: 'ps_p287_tourisme_gourmand', programId: 'p287', family: 'strategie', phase: 3, when: { minSeasons: 1, form: ['succes', 'stable'] },
+    titre: 'Le tourisme gourmand',
+    desc: 'Les villages de {programme} voient affluer les touristes. Une région propose de financer une édition consacrée à ses villages.',
+    c: [
+      { l: 'Accepter le financement régional', icon: '💶', cost: { commercial: 0.08 }, career: { awareness: 2, loyalty: -2 },
+        r: 'Le budget respire, l’émission paraît moins indépendante.' },
+      { l: 'Garder le choix libre des villages', icon: '🗺️', career: { loyalty: 2, wear: 2 },
+        r: 'L’émission garde sa liberté.' },
+      { l: 'Créer une carte des villages gourmands', icon: '🗺️', cost: { purchase: 0.03 }, lasting: 0.02, career: { awareness: 3 },
+        r: 'La carte attire les gourmands.' }
     ] }
 ];
 // ---------------------------------------------------------------------------
