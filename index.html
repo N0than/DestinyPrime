@@ -14270,6 +14270,485 @@ const PROGRAM_STORY_BANK = [
         r: 'L’émission garde sa liberté.' },
       { l: 'Créer une carte des villages gourmands', icon: '🗺️', cost: { purchase: 0.03 }, lasting: 0.02, career: { awareness: 3 },
         r: 'La carte attire les gourmands.' }
+    ] },
+  // — Quitte ou Double (p288) · generaliste, prime —
+  { id: 'ps_p288_candidat_qui_mise', programId: 'p288', family: 'editorial', phase: 1,
+    titre: 'Le candidat qui mise tout',
+    desc: 'Un jeune candidat de {programme} veut miser l’intégralité de ses gains sur une dernière question. Sa famille, dans le public, le supplie d’arrêter.',
+    c: [
+      { l: 'Laisser le suspense jusqu’au bout', icon: '🎲', boost: 0.05, career: { awareness: 3 }, pop: -1,
+        r: 'Le suspense tient la France en haleine.' },
+      { l: 'Proposer une offre de sécurité', icon: '🤝', cost: { purchase: 0.02 }, career: { loyalty: 1 }, pop: 1,
+        r: 'Le candidat repart avec une somme rassurante.' },
+      { l: 'Couper la séquence de la famille', icon: '✂️', boost: -0.02, pop: 1,
+        r: 'La séquence perd en émotion.' }
+    ] },
+  { id: 'ps_p288_double_cagnotte', programId: 'p288', family: 'audience', phase: 3, when: { minSeasons: 1 },
+    titre: 'La double cagnotte',
+    desc: 'La production de {programme} propose une soirée spéciale où chaque gain est doublé. Les candidats seraient des étudiants endettés.',
+    c: [
+      { l: 'Organiser la soirée des étudiants', icon: '🎓', cost: { purchase: 0.1 }, boost: 0.08, career: { awareness: 3 }, pop: 2,
+        r: 'La soirée solidaire est saluée.' },
+      { l: 'Garder les candidats habituels', icon: '🧑', career: { loyalty: 1, wear: 3 },
+        r: 'Le jeu reste classique.' },
+      { l: 'Doubler une seule cagnotte', icon: '💰', cost: { purchase: 0.03 }, boost: 0.03, career: { awareness: 1 },
+        r: 'Un moment fort.' }
+    ] },
+
+  // — L’amour à emporter (p289) · generaliste, prime —
+  { id: 'ps_p289_rendez_vous_qui', programId: 'p289', family: 'image', phase: 2,
+    titre: 'Le rendez-vous qui finit mal',
+    desc: 'Un rendez-vous organisé par {programme} s’est terminé par une dispute violente hors caméra. La candidate porte plainte.',
+    c: [
+      { l: 'Soutenir la candidate et revoir le casting', icon: '🛡️', cost: { purchase: 0.03 }, career: { loyalty: 1 }, pop: 2,
+        r: 'La production assume ses responsabilités.' },
+      { l: 'Se dédouaner, c’était hors tournage', icon: '🤷', career: { awareness: 1 }, pop: -3,
+        r: 'La production est critiquée.' },
+      { l: 'Ajouter un accompagnement après le tournage', icon: '💬', cost: { recurring: 0.02 }, lasting: 0.01, pop: 1,
+        r: 'Les candidats se sentent protégés.' }
+    ] },
+  { id: 'ps_p289_amour_livraison_express', programId: 'p289', family: 'audience', phase: 3, when: { minSeasons: 1 },
+    titre: 'L’amour en livraison express',
+    desc: 'La production de {programme} propose de livrer les rendez-vous dans des lieux insolites, chaque semaine différents. Le concept gagnerait en surprise, au prix d’une logistique plus lourde.',
+    c: [
+      { l: 'Lancer les rendez-vous insolites', icon: '🚀', cost: { purchase: 0.06 }, career: { awareness: 4, wear: -6 },
+        r: 'Les lieux insolites renouvellent le concept.' },
+      { l: 'Garder les restaurants', icon: '🍝', career: { loyalty: 2, wear: 3 },
+        r: 'Le concept reste rassurant.' },
+      { l: 'Un lieu insolite par mois', icon: '📅', cost: { purchase: 0.02 }, career: { awareness: 2, wear: -2 },
+        r: 'Un équilibre apprécié.' }
+    ] },
+
+  // — 10 jours pour tout changer (p290) · generaliste, prime —
+  { id: 'ps_p290_changement_trop_radical', programId: 'p290', family: 'editorial', phase: 1,
+    titre: 'Le changement trop radical',
+    desc: 'Une participante de {programme} regrette son relooking et accuse la production de l’avoir poussée. Elle témoigne sur les réseaux.',
+    c: [
+      { l: 'Lui offrir de revenir à son style', icon: '🔁', cost: { purchase: 0.03 }, career: { loyalty: 1 }, pop: 2,
+        r: 'La production fait preuve d’écoute.' },
+      { l: 'Défendre le résultat', icon: '🛡️', career: { awareness: 2 }, pop: -2,
+        r: 'La polémique dure.' },
+      { l: 'Instaurer un délai de réflexion', icon: '⏳', career: { awareness: -1, wear: 3 }, pop: 1,
+        r: 'Les participants choisissent plus sereinement.' }
+    ] },
+  { id: 'ps_p290_dix_jours_pour', programId: 'p290', family: 'strategie', phase: 3, when: { minSeasons: 1, form: 'succes' },
+    titre: 'Dix jours pour une entreprise',
+    desc: 'Le succès de {programme} pousse la production à proposer une version consacrée aux petites entreprises en difficulté. Le format serait plus utile, mais aussi plus risqué.',
+    c: [
+      { l: 'Lancer la version entreprises', icon: '🏪', cost: { purchase: 0.12 }, lasting: 0.03, career: { awareness: 5 },
+        r: 'Le spin-off séduit les entrepreneurs.' },
+      { l: 'Rester sur les particuliers', icon: '🧑', career: { loyalty: 2, wear: 3 },
+        r: 'Le format reste centré.' },
+      { l: 'Un épisode spécial entreprise', icon: '🎬', cost: { purchase: 0.04 }, boost: 0.04, career: { awareness: 2 },
+        r: 'L’épisode intrigue.' }
+    ] },
+
+  // — Colocs : le choc des générations (p291) · generaliste, prime —
+  { id: 'ps_p291_colocation_qui_derape', programId: 'p291', family: 'image', phase: 2,
+    titre: 'La colocation qui dérape',
+    desc: 'Un jeune colocataire de {programme} s’est montré irrespectueux envers son aîné. Les séniors dénoncent une humiliation.',
+    c: [
+      { l: 'Recadrer le jeune à l’antenne', icon: '🎙️', career: { loyalty: -1 }, pop: 2,
+        r: 'La production défend le respect.' },
+      { l: 'Diffuser la séquence telle quelle', icon: '📺', boost: 0.03, career: { awareness: 3 }, pop: -2,
+        r: 'La séquence fait le buzz.' },
+      { l: 'Organiser une médiation filmée', icon: '🤝', cost: { purchase: 0.02 }, career: { awareness: 2 }, pop: 1,
+        r: 'La réconciliation émeut.' }
+    ] },
+  { id: 'ps_p291_colocation_trois_generations', programId: 'p291', family: 'audience', phase: 3, when: { minSeasons: 1 },
+    titre: 'La colocation à trois générations',
+    desc: 'La production de {programme} propose d’ajouter un enfant à la colocation, pour réunir trois générations sous le même toit. L’idée attendrit, mais complique le tournage.',
+    c: [
+      { l: 'Ajouter la troisième génération', icon: '👨‍👩‍👧', cost: { purchase: 0.06 }, career: { awareness: 4, wear: -8 },
+        r: 'Le trio de générations attendrit le public.' },
+      { l: 'Garder le duo', icon: '👥', career: { loyalty: 2, wear: 3 },
+        r: 'Le concept reste simple.' },
+      { l: 'Une semaine spéciale à trois', icon: '📅', cost: { purchase: 0.02 }, boost: 0.03, career: { awareness: 2 },
+        r: 'La semaine est appréciée.' }
+    ] },
+
+  // — Panique dans l'oreillette (p292) · generaliste, prime —
+  { id: 'ps_p292_oreillette_qui_humilie', programId: 'p292', family: 'image', phase: 2,
+    titre: 'L’oreillette qui humilie',
+    desc: 'Les consignes soufflées dans l’oreillette d’un candidat de {programme} l’ont poussé à humilier un inconnu. La victime proteste.',
+    c: [
+      { l: 'Retirer la séquence et s’excuser', icon: '🙏', boost: -0.03, pop: 2,
+        r: 'L’affaire est close.' },
+      { l: 'Diffuser en floutant l’inconnu', icon: '🌫️', cost: { purchase: 0.01 }, career: { awareness: 2 }, pop: -1,
+        r: 'La séquence passe, la critique aussi.' },
+      { l: 'Revoir la charte des consignes', icon: '📜', career: { loyalty: 1, wear: 2 }, pop: 1,
+        r: 'Les consignes deviennent plus bienveillantes.' }
+    ] },
+  { id: 'ps_p292_les_stars_dans', programId: 'p292', family: 'audience', phase: 3, when: { minSeasons: 1 },
+    titre: 'Les stars dans l’oreillette',
+    desc: 'La production de {programme} propose de souffler les consignes à des célébrités en pleine situation réelle. Les agents des stars se montrent intéressés.',
+    c: [
+      { l: 'Piéger des célébrités', icon: '🌟', cost: { purchase: 0.08 }, boost: 0.08, career: { awareness: 5 },
+        r: 'Les célébrités piégées font le buzz.' },
+      { l: 'Garder les anonymes', icon: '🧑', career: { loyalty: 2, wear: 3 },
+        r: 'Le jeu reste authentique.' },
+      { l: 'Une célébrité par émission', icon: '🎤', cost: { purchase: 0.03 }, boost: 0.03, career: { awareness: 2 },
+        r: 'Un équilibre apprécié.' }
+    ] },
+
+  // — Confessions dans l'Ascenseur (p293) · generaliste, prime —
+  { id: 'ps_p293_confession_trop', programId: 'p293', family: 'image', phase: 2,
+    titre: 'La confession de trop',
+    desc: 'Un participant de {programme} a confié un secret familial en pensant que la séquence serait coupée. Il demande son retrait.',
+    c: [
+      { l: 'Retirer la séquence', icon: '🗑️', boost: -0.03, pop: 2,
+        r: 'La confiance des participants est préservée.' },
+      { l: 'Diffuser la séquence', icon: '📺', career: { awareness: 3 }, pop: -3,
+        r: 'L’émission est vivement critiquée.' },
+      { l: 'Instaurer une validation des séquences', icon: '✅', cost: { recurring: 0.01 }, career: { loyalty: 1 }, pop: 1,
+        r: 'Les participants valident leurs confessions.' }
+    ] },
+  { id: 'ps_p293_ascenseur_tournee', programId: 'p293', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'L’ascenseur en tournée',
+    desc: 'La production de {programme} propose d’installer l’ascenseur dans des lieux célèbres, comme la tour Eiffel. Les confessions changeraient de décor.',
+    c: [
+      { l: 'Lancer la tournée de l’ascenseur', icon: '🗼', cost: { purchase: 0.1 }, career: { awareness: 5, wear: -8 },
+        r: 'Les lieux célèbres donnent du cachet.' },
+      { l: 'Garder l’ascenseur du studio', icon: '🛗', career: { loyalty: 2, wear: 3 },
+        r: 'Le concept reste intimiste.' },
+      { l: 'Un lieu célèbre par saison', icon: '📍', cost: { purchase: 0.03 }, career: { awareness: 2, wear: -3 },
+        r: 'Une escapade appréciée.' }
+    ] },
+
+  // — Sacrée soirée (p294) · generaliste, prime —
+  { id: 'ps_p294_les_vedettes_des', programId: 'p294', family: 'editorial', phase: 1,
+    titre: 'Les vedettes des années 1980',
+    desc: 'Les chanteurs vedettes invités dans {programme} vieillissent et certains refusent de chanter en direct. Le play-back est critiqué.',
+    c: [
+      { l: 'Imposer le direct', icon: '🎤', cost: { purchase: 0.03 }, career: { awareness: 1, loyalty: 3 },
+        r: 'Le direct donne de l’authenticité.' },
+      { l: 'Accepter le play-back', icon: '📼', career: { loyalty: -2, wear: 2 },
+        r: 'Les fans regrettent le play-back.' },
+      { l: 'Mélanger anciennes et nouvelles stars', icon: '🌟', cost: { purchase: 0.06 }, career: { awareness: 3, wear: -6 },
+        r: 'Le mélange des générations plaît.' }
+    ] },
+  { id: 'ps_p294_soiree_des_annees', programId: 'p294', family: 'audience', phase: 3, when: { minSeasons: 1 },
+    titre: 'La soirée des années 1990',
+    desc: 'La production de {programme} propose une édition consacrée aux années 1990, avec les stars de cette décennie. Le pari est de rajeunir le public sans perdre les fidèles.',
+    c: [
+      { l: 'Organiser la soirée 1990', icon: '📼', cost: { purchase: 0.12 }, boost: 0.1, career: { awareness: 4, wear: -4 },
+        r: 'La nostalgie des années 1990 séduit.' },
+      { l: 'Rester sur les années 1980', icon: '💿', career: { loyalty: 2, wear: 3 },
+        r: 'Les fidèles sont comblés.' },
+      { l: 'Inviter une star des années 1990', icon: '🎤', cost: { purchase: 0.03 }, boost: 0.03, career: { awareness: 2 },
+        r: 'La star attire un nouveau public.' }
+    ] },
+
+  // — Tous à la ferme ! (p295) · generaliste, prime —
+  { id: 'ps_p295_les_animaux_maltraites', programId: 'p295', family: 'image', phase: 2,
+    titre: 'Les animaux maltraités ?',
+    desc: 'Des défenseurs des animaux accusent {programme} de stresser les animaux de la ferme lors des épreuves. Une enquête est réclamée.',
+    c: [
+      { l: 'Faire contrôler par un vétérinaire', icon: '🩺', cost: { recurring: 0.02 }, career: { loyalty: 1 }, pop: 2,
+        r: 'Le contrôle rassure.' },
+      { l: 'Supprimer les épreuves avec animaux', icon: '🐄', career: { awareness: -2 }, pop: 1,
+        r: 'Le jeu perd son charme rural.' },
+      { l: 'Ignorer les critiques', icon: '🤷', career: { awareness: 1 }, pop: -2,
+        r: 'La polémique dure.' }
+    ] },
+  { id: 'ps_p295_ferme_pedagogique', programId: 'p295', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'La ferme pédagogique',
+    desc: 'La ferme de {programme} pourrait devenir une ferme pédagogique ouverte aux écoles. La région propose de cofinancer.',
+    c: [
+      { l: 'Ouvrir la ferme pédagogique', icon: '🏫', cost: { purchase: 0.06 }, lasting: 0.03, career: { awareness: 4 }, pop: 2,
+        r: 'La ferme accueille des milliers d’enfants.' },
+      { l: 'Garder la ferme fermée au public', icon: '🚪', career: { loyalty: 1, wear: 3 },
+        r: 'La ferme reste un décor.' },
+      { l: 'Ouvrir la ferme un week-end par an', icon: '📅', cost: { purchase: 0.02 }, career: { awareness: 2 }, pop: 1,
+        r: 'Les portes ouvertes attirent les familles.' }
+    ] },
+
+  // — Je change de métier ! (p296) · generaliste, prime —
+  { id: 'ps_p296_metier_dangereux', programId: 'p296', family: 'editorial', phase: 1,
+    titre: 'Le métier dangereux',
+    desc: 'Un participant de {programme} doit essayer le métier de couvreur en hauteur. L’assureur s’inquiète.',
+    c: [
+      { l: 'Renforcer la sécurité', icon: '🦺', cost: { purchase: 0.03 }, career: { loyalty: 2 }, pop: 1,
+        r: 'Le tournage se déroule sans incident.' },
+      { l: 'Choisir un métier moins risqué', icon: '🔄', career: { awareness: -1, wear: 3 },
+        r: 'L’épisode perd en spectaculaire.' },
+      { l: 'Tourner sans précautions particulières', icon: '⚠️', career: { awareness: 3 }, pop: -2,
+        r: 'Les images impressionnent, la production est critiquée.' }
+    ] },
+  { id: 'ps_p296_salon_des_metiers', programId: 'p296', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le salon des métiers',
+    desc: 'Pôle emploi propose à {programme} de s’associer à un salon des métiers. Les participants pourraient trouver un vrai emploi.',
+    c: [
+      { l: 'S’associer au salon', icon: '🤝', cost: { purchase: 0.03 }, career: { awareness: 4 }, pop: 2,
+        r: 'Plusieurs participants trouvent un emploi.' },
+      { l: 'Rester une émission de divertissement', icon: '🎬', career: { loyalty: 1, wear: 3 },
+        r: 'L’émission garde son ton.' },
+      { l: 'Une émission spéciale emploi', icon: '📅', cost: { purchase: 0.02 }, career: { awareness: 2 }, pop: 1,
+        r: 'L’émission spéciale est saluée.' }
+    ] },
+
+  // — On a échangé nos papas (p297) · generaliste, prime —
+  { id: 'ps_p297_pere_qui_craque', programId: 'p297', family: 'image', phase: 2,
+    titre: 'Le père qui craque',
+    desc: 'Un père de {programme} a perdu patience face aux enfants de l’autre famille. La séquence a choqué.',
+    c: [
+      { l: 'Couper la séquence', icon: '✂️', boost: -0.02, pop: 2,
+        r: 'La séquence disparaît.' },
+      { l: 'Diffuser avec un débat sur la parentalité', icon: '💬', cost: { purchase: 0.02 }, career: { awareness: 3 }, pop: 1,
+        r: 'Le débat éclaire la situation.' },
+      { l: 'Diffuser tel quel', icon: '📺', career: { awareness: 3 }, pop: -3,
+        r: 'La séquence fait scandale.' }
+    ] },
+  { id: 'ps_p297_echange_des_mamans', programId: 'p297', family: 'audience', phase: 3, when: { minSeasons: 1 },
+    titre: 'L’échange des mamans célèbres',
+    desc: 'La production de {programme} propose d’échanger des mères célèbres plutôt que des pères. Les agents sont intéressés.',
+    c: [
+      { l: 'Lancer l’échange des mères célèbres', icon: '🌟', cost: { purchase: 0.1 }, boost: 0.08, career: { awareness: 5 },
+        r: 'Les célébrités attirent le public.' },
+      { l: 'Garder les pères anonymes', icon: '👨', career: { loyalty: 2, wear: 3 },
+        r: 'Le concept reste authentique.' },
+      { l: 'Un épisode avec des mères', icon: '👩', cost: { purchase: 0.03 }, boost: 0.03, career: { awareness: 2 },
+        r: 'L’épisode est apprécié.' }
+    ] },
+
+  // — Portés disparus (p298) · cinema, prime —
+  { id: 'ps_p298_disparue_retrouvee', programId: 'p298', family: 'editorial', phase: 1,
+    titre: 'La disparue retrouvée ?',
+    desc: 'Les scénaristes de {programme} veulent révéler que la disparue de la saison 1 est vivante. Le rebondissement est risqué pour la crédibilité.',
+    c: [
+      { l: 'Oser le rebondissement', icon: '🔍', cost: { purchase: 0.03 }, boost: 0.08, career: { awareness: 4, loyalty: -2 },
+        r: 'Le rebondissement fait le buzz.' },
+      { l: 'Garder l’intrigue d’origine', icon: '📖', career: { loyalty: 3, wear: 3 },
+        r: 'Les fidèles sont rassurés.' },
+      { l: 'Laisser planer le doute', icon: '🌫️', career: { awareness: 2, loyalty: -1, wear: -3 },
+        r: 'Le mystère entretient la curiosité.' }
+    ] },
+  { id: 'ps_p298_tournage_bretagne', programId: 'p298', family: 'economie', phase: 1, when: { minSeasons: 1 },
+    titre: 'Le tournage en Bretagne',
+    desc: 'La région Bretagne propose de financer une partie de {programme} si la série y est tournée. Les décors changeraient.',
+    c: [
+      { l: 'Accepter le financement régional', icon: '🌊', cost: { commercial: 0.1 }, career: { awareness: 3, loyalty: -2 },
+        r: 'Les paysages bretons séduisent.' },
+      { l: 'Garder les décors actuels', icon: '🏠', career: { loyalty: 2, wear: 3 },
+        r: 'La série garde son identité.' },
+      { l: 'Tourner quelques épisodes en Bretagne', icon: '🎬', cost: { commercial: 0.04 }, career: { awareness: 2, loyalty: -1, wear: -3 },
+        r: 'Les épisodes bretons rafraîchissent la série.' }
+    ] },
+
+  // — Panique à la mairie (p299) · cinema, prime —
+  { id: 'ps_p299_maire_serie_politique', programId: 'p299', family: 'image', phase: 2,
+    titre: 'Le maire de la série et la politique',
+    desc: 'Le maire fictif de {programme} ressemble trop à un élu réel. Celui-ci menace de poursuites.',
+    c: [
+      { l: 'Modifier le personnage', icon: '✍️', cost: { purchase: 0.03 }, career: { loyalty: -1 }, pop: 1,
+        r: 'Le risque juridique est écarté.' },
+      { l: 'Assumer la satire', icon: '😄', career: { awareness: 4, loyalty: 2 }, pop: -1,
+        r: 'La satire fait rire et parler.' },
+      { l: 'Ajouter un avertissement de fiction', icon: '⚠️', career: { wear: 2 }, pop: 1,
+        r: 'L’avertissement suffit.' }
+    ] },
+  { id: 'ps_p299_les_elections_municipales', programId: 'p299', family: 'audience', phase: 3, when: { minSeasons: 1 },
+    titre: 'Les élections municipales',
+    desc: 'Des élections municipales réelles approchent. Les auteurs de {programme} proposent un épisode électoral en écho.',
+    c: [
+      { l: 'Écrire l’épisode électoral', icon: '🗳️', cost: { purchase: 0.04 }, boost: 0.06, career: { awareness: 3 },
+        r: 'L’épisode colle à l’actualité.' },
+      { l: 'Rester sur les intrigues prévues', icon: '📖', career: { loyalty: 1, wear: 3 },
+        r: 'La série reste intemporelle.' },
+      { l: 'Un clin d’œil dans un épisode', icon: '😉', cost: { purchase: 0.01 }, career: { awareness: 2 },
+        r: 'Le clin d’œil amuse.' }
+    ] },
+
+  // — Jusqu’au petit matin (p300) · cinema, prime —
+  { id: 'ps_p300_nuit_qui_finit', programId: 'p300', family: 'editorial', phase: 1,
+    titre: 'La nuit qui n’en finit pas',
+    desc: 'Les auteurs de {programme} proposent un épisode tourné en un seul plan-séquence, pendant toute une nuit. Le défi technique est immense.',
+    c: [
+      { l: 'Tenter le plan-séquence', icon: '🎥', cost: { purchase: 0.1 }, boost: 0.08, career: { awareness: 5 },
+        r: 'L’épisode est salué comme un exploit.' },
+      { l: 'Garder un tournage classique', icon: '🎬', career: { loyalty: 2, wear: 3 },
+        r: 'L’épisode est solide.' },
+      { l: 'Tourner en quelques longs plans', icon: '🎞️', cost: { purchase: 0.03 }, career: { awareness: 2, wear: -3 },
+        r: 'Un compromis réussi.' }
+    ] },
+  { id: 'ps_p300_les_tournages_nuit', programId: 'p300', family: 'economie', phase: 1, when: { minSeasons: 1 },
+    titre: 'Les tournages de nuit coûtent cher',
+    desc: 'Les tournages de nuit de {programme} coûtent deux fois plus cher. La production propose d’en réduire le nombre.',
+    c: [
+      { l: 'Réduire les tournages de nuit', icon: '✂️', cost: { saving: 0.08 }, career: { loyalty: -3, wear: 3 },
+        r: 'La série perd une partie de son atmosphère.' },
+      { l: 'Maintenir les nuits', icon: '🌙', boost: -0.02, career: { loyalty: 2, wear: -2 },
+        r: 'L’atmosphère est préservée.' },
+      { l: 'Tourner certaines nuits en studio', icon: '🏗️', cost: { saving: 0.03 }, career: { loyalty: -1 },
+        r: 'Un compromis discret.' }
+    ] },
+
+  // — Le port des secrets (p301) · cinema, prime —
+  { id: 'ps_p301_secret_port_revele', programId: 'p301', family: 'editorial', phase: 1,
+    titre: 'Le secret du port révélé trop tôt',
+    desc: 'Le grand secret de {programme} a fuité avant la diffusion du dernier épisode. Les fans sont furieux.',
+    c: [
+      { l: 'Tourner une fin alternative', icon: '🔄', cost: { purchase: 0.08 }, boost: 0.06, career: { loyalty: 3 },
+        r: 'La fin alternative surprend même ceux qui savaient.' },
+      { l: 'Diffuser la fin prévue', icon: '📺', career: { loyalty: -2, wear: 2 },
+        r: 'L’effet de surprise est perdu.' },
+      { l: 'Diffuser deux fins et laisser choisir', icon: '🔀', cost: { purchase: 0.05 }, boost: 0.03, career: { awareness: 4 },
+        r: 'Le choix des fans fait parler.' }
+    ] },
+  { id: 'ps_p301_saison_port', programId: 'p301', family: 'strategie', phase: 3, when: { minSeasons: 1, form: 'succes' },
+    titre: 'La saison 2 du port',
+    desc: 'Le succès de {programme} pousse le producteur à proposer une deuxième saison avec de nouveaux secrets. Prolonger peut fidéliser, ou épuiser l’intrigue.',
+    c: [
+      { l: 'Commander la saison 2', icon: '⚓', cost: { recurring: 0.12 }, lasting: 0.04, career: { awareness: 4 },
+        r: 'La saison 2 prolonge le succès.' },
+      { l: 'Clore l’histoire', icon: '🏁', career: { awareness: -2, loyalty: 3 },
+        r: 'La série reste une œuvre unique.' },
+      { l: 'Un épisode spécial de Noël', icon: '🎄', cost: { purchase: 0.06 }, boost: 0.06, career: { loyalty: 1 },
+        r: 'L’épisode spécial ravit les fans.' }
+    ] },
+
+  // — Une classe à part (p302) · cinema, prime —
+  { id: 'ps_p302_professeur_trop_moderne', programId: 'p302', family: 'image', phase: 2,
+    titre: 'Le professeur trop moderne',
+    desc: 'Le professeur héros de {programme} utilise des méthodes jugées irréalistes par des enseignants. Une tribune critique la série.',
+    c: [
+      { l: 'Inviter des enseignants à conseiller les auteurs', icon: '🎓', cost: { purchase: 0.02 }, career: { loyalty: 2 }, pop: 1,
+        r: 'La série gagne en justesse.' },
+      { l: 'Assumer la fiction', icon: '📺', career: { awareness: 2 }, pop: -1,
+        r: 'La polémique fait parler.' },
+      { l: 'Organiser un débat après l’épisode', icon: '💬', cost: { purchase: 0.01 }, career: { awareness: 2 }, pop: 1,
+        r: 'Le débat est apprécié.' }
+    ] },
+  { id: 'ps_p302_rentree_des_classes', programId: 'p302', family: 'audience', phase: 3, when: { minSeasons: 1 },
+    titre: 'La rentrée des classes',
+    desc: 'La rentrée scolaire approche. La production de {programme} propose un épisode spécial diffusé le soir de la rentrée.',
+    c: [
+      { l: 'Programmer l’épisode de rentrée', icon: '🏫', cost: { purchase: 0.04 }, boost: 0.08, career: { awareness: 2 },
+        r: 'L’épisode colle à l’actualité des familles.' },
+      { l: 'Garder la programmation', icon: '📅', career: { loyalty: 1, wear: 3 },
+        r: 'La série suit son cours.' },
+      { l: 'Un making-of avec de vrais élèves', icon: '🎥', cost: { purchase: 0.03 }, career: { awareness: 3 }, pop: 1,
+        r: 'Le making-of touche les familles.' }
+    ] },
+
+  // — Sixième sans ascenseur (p303) · cinema, prime —
+  { id: 'ps_p303_ascenseur_toujours_panne', programId: 'p303', family: 'editorial', phase: 1,
+    titre: 'L’ascenseur toujours en panne',
+    desc: 'Les auteurs de {programme} veulent enfin réparer l’ascenseur de l’immeuble, gag récurrent de la série. Les fans s’y opposent.',
+    c: [
+      { l: 'Garder l’ascenseur en panne', icon: '🛗', career: { loyalty: 3, wear: 3 },
+        r: 'Les fans sont ravis.' },
+      { l: 'Réparer l’ascenseur', icon: '🔧', career: { awareness: 2, loyalty: -3, wear: -4 },
+        r: 'La série surprend, les fans râlent.' },
+      { l: 'En faire un épisode spécial', icon: '🎉', cost: { purchase: 0.03 }, boost: 0.04, career: { awareness: 3 },
+        r: 'L’épisode de l’ascenseur fait rire.' }
+    ] },
+  { id: 'ps_p303_decor_immeuble', programId: 'p303', family: 'economie', phase: 1, when: { minSeasons: 1 },
+    titre: 'Le décor de l’immeuble',
+    desc: 'Le décor de l’immeuble de {programme} doit être reconstruit après un incendie dans le studio. L’assurance ne couvre pas tout.',
+    c: [
+      { l: 'Reconstruire à l’identique', icon: '🏗️', cost: { purchase: 0.15 }, career: { loyalty: 3 },
+        r: 'Les fans retrouvent leur immeuble.' },
+      { l: 'Déménager les personnages', icon: '🚚', cost: { purchase: 0.05 }, career: { awareness: 2, loyalty: -3, wear: -8 },
+        r: 'Le déménagement renouvelle la série.' },
+      { l: 'Tourner dans un vrai immeuble', icon: '🏢', boost: -0.03, career: { awareness: 1, wear: -3 },
+        r: 'Le réalisme change l’ambiance.' }
+    ] },
+
+  // — La faille (p304) · cinema, prime —
+  { id: 'ps_p304_faille_sismique', programId: 'p304', family: 'editorial', phase: 1,
+    titre: 'La faille sismique',
+    desc: 'Un séisme réel frappe une région quelques jours avant la diffusion de {programme}, une série sur une catastrophe sismique. Les familles des victimes s’émeuvent.',
+    c: [
+      { l: 'Reporter la diffusion', icon: '⏳', boost: -0.04, pop: 2,
+        r: 'La chaîne fait preuve de tact.' },
+      { l: 'Diffuser avec un message de soutien', icon: '💙', cost: { purchase: 0.01 }, career: { awareness: 1 }, pop: 1,
+        r: 'Le message apaise.' },
+      { l: 'Diffuser comme prévu', icon: '📺', boost: 0.03, career: { awareness: 2 }, pop: -3,
+        r: 'La chaîne est critiquée.' }
+    ] },
+  { id: 'ps_p304_serie_vendue_etranger', programId: 'p304', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'La série vendue à l’étranger',
+    desc: 'Des chaînes étrangères veulent acheter {programme}. Le distributeur propose un doublage en plusieurs langues.',
+    c: [
+      { l: 'Financer le doublage', icon: '🌍', cost: { purchase: 0.1 }, lasting: 0.03, career: { awareness: 4 },
+        r: 'La série s’exporte.' },
+      { l: 'Vendre sans doublage', icon: '📝', cost: { commercial: 0.08 }, career: { awareness: 2, wear: 2 },
+        r: 'Les ventes sont modestes.' },
+      { l: 'Garder l’exclusivité', icon: '🔒', career: { awareness: -1, loyalty: 1 },
+        r: 'La série reste française.' }
+    ] },
+
+  // — Au bord du vide (p305) · cinema, prime —
+  { id: 'ps_p305_suicide_ecran', programId: 'p305', family: 'image', phase: 2,
+    titre: 'Le suicide à l’écran',
+    desc: 'Un épisode de {programme} aborde le suicide d’un adolescent. Des psychiatres craignent un effet de contagion.',
+    c: [
+      { l: 'Ajouter une ligne d’écoute et un débat', icon: '💙', cost: { purchase: 0.02 }, career: { awareness: 2 }, pop: 2,
+        r: 'L’épisode devient un outil de prévention.' },
+      { l: 'Retirer l’épisode', icon: '🗑️', career: { loyalty: -2 }, pop: 1,
+        r: 'Les fans dénoncent la censure.' },
+      { l: 'Diffuser sans accompagnement', icon: '📺', career: { awareness: 2 }, pop: -3,
+        r: 'La chaîne est critiquée.' }
+    ] },
+  { id: 'ps_p305_public_adolescent', programId: 'p305', family: 'audience', phase: 2, when: { minSeasons: 1 },
+    titre: 'Le public adolescent',
+    desc: 'La série {programme} attire de nombreux adolescents. La production propose une version en ligne avec des bonus.',
+    c: [
+      { l: 'Lancer la version en ligne', icon: '📱', cost: { purchase: 0.04 }, lasting: 0.02, career: { awareness: 4 },
+        r: 'Les ados suivent la série partout.' },
+      { l: 'Garder la diffusion télé', icon: '📺', career: { awareness: -1, loyalty: 1 },
+        r: 'La série reste à l’antenne.' },
+      { l: 'Publier des extraits', icon: '🎬', cost: { purchase: 0.01 }, career: { awareness: 2 },
+        r: 'Les extraits circulent.' }
+    ] },
+
+  // — La maison des retrouvailles (p306) · cinema, prime —
+  { id: 'ps_p306_les_retrouvailles_qui', programId: 'p306', family: 'editorial', phase: 1,
+    titre: 'Les retrouvailles qui tournent mal',
+    desc: 'Les auteurs de {programme} proposent de faire revenir un personnage mort pour une scène de retrouvailles. Les fans sont divisés.',
+    c: [
+      { l: 'Faire revenir le personnage en rêve', icon: '💭', cost: { purchase: 0.02 }, career: { awareness: 3, loyalty: 1 },
+        r: 'La scène onirique émeut.' },
+      { l: 'Le faire revenir pour de bon', icon: '🧟', boost: 0.05, career: { awareness: 3, loyalty: -3 },
+        r: 'Le retour fait polémique.' },
+      { l: 'Ne pas le faire revenir', icon: '🪦', career: { loyalty: 2, wear: 3 },
+        r: 'La série reste cohérente.' }
+    ] },
+  { id: 'ps_p306_episode_noel', programId: 'p306', family: 'audience', phase: 3, when: { minSeasons: 1 },
+    titre: 'L’épisode de Noël',
+    desc: 'La production de {programme} propose un épisode spécial de Noël réunissant toute la famille de la série. Les fans en rêvent depuis longtemps.',
+    c: [
+      { l: 'Produire l’épisode de Noël', icon: '🎄', cost: { purchase: 0.06 }, boost: 0.08, career: { loyalty: 3 },
+        r: 'L’épisode réchauffe les cœurs.' },
+      { l: 'Rediffuser un ancien épisode', icon: '🔁', career: { loyalty: 1, wear: 3 },
+        r: 'Les fans se contentent d’une rediffusion.' },
+      { l: 'Un court épisode en ligne', icon: '📱', cost: { purchase: 0.02 }, career: { awareness: 2, loyalty: 1 },
+        r: 'Les fans apprécient le clin d’œil.' }
+    ] },
+
+  // — Bienvenue demain (p307) · cinema, prime —
+  { id: 'ps_p307_futur_trop_sombre', programId: 'p307', family: 'editorial', phase: 1,
+    titre: 'Le futur trop sombre',
+    desc: 'La série d’anticipation {programme} dépeint un futur jugé trop sombre par une partie du public. Les auteurs proposent plus d’espoir.',
+    c: [
+      { l: 'Introduire une lueur d’espoir', icon: '🌅', cost: { purchase: 0.02 }, career: { awareness: 2, loyalty: -1 }, pop: 1,
+        r: 'Le ton plus lumineux élargit le public.' },
+      { l: 'Garder le ton sombre', icon: '🌑', career: { loyalty: 3, wear: 2 },
+        r: 'Les fans apprécient la radicalité.' },
+      { l: 'Alterner les tons', icon: '🔀', cost: { purchase: 0.01 }, career: { awareness: 1, wear: -3 },
+        r: 'Un équilibre apprécié.' }
+    ] },
+  { id: 'ps_p307_futur_realite_virtuelle', programId: 'p307', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le futur en réalité virtuelle',
+    desc: 'Un studio propose de créer une expérience de réalité virtuelle dans l’univers de {programme}. Les fans pourraient explorer la ville du futur.',
+    c: [
+      { l: 'Coproduire l’expérience', icon: '🥽', cost: { purchase: 0.15 }, lasting: 0.03, career: { awareness: 5 },
+        r: 'L’expérience fait parler de la série.' },
+      { l: 'Céder la licence', icon: '📝', cost: { commercial: 0.06 }, career: { awareness: 2, wear: 2 },
+        r: 'La licence rapporte un peu.' },
+      { l: 'Refuser', icon: '🙅', career: { awareness: -2, loyalty: 1 },
+        r: 'La série reste à l’écran.' }
     ] }
 ];
 // ---------------------------------------------------------------------------
