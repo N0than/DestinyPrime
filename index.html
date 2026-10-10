@@ -10127,6 +10127,461 @@ const PROGRAM_STORY_BANK = [
         r: 'Le public apporte de l’énergie.' },
       { l: 'Garder le format en studio', icon: '🎙️', career: { loyalty: 1, wear: 3 },
         r: 'L’émission reste confidentielle.' }
+    ] },
+  // — Les Grandes Plumes (p108) · culture, access —
+  { id: 'ps_p108_ecrivain_maison_natale', programId: 'p108', family: 'editorial', phase: 1,
+    titre: 'L’écrivain et sa maison natale',
+    desc: 'Un grand écrivain accepte d’ouvrir sa maison natale aux caméras de {programme}. Il pose une condition : relire le montage final.',
+    c: [
+      { l: 'Accepter la relecture', icon: '🏠', cost: { purchase: 0.03 }, boost: 0.03, career: { awareness: 4, loyalty: -1 },
+        r: 'Le reportage est somptueux, un peu trop sage.' },
+      { l: 'Refuser la relecture et renoncer', icon: '✋', career: { awareness: -2, loyalty: 2 },
+        r: 'L’indépendance est préservée, sans le reportage.' },
+      { l: 'Proposer un entretien sans relecture dans son jardin', icon: '🌳', cost: { purchase: 0.02 }, career: { awareness: 2, loyalty: 2, wear: 2 },
+        r: 'Un entretien sincère et apprécié.' }
+    ] },
+  { id: 'ps_p108_les_maisons_ecrivains', programId: 'p108', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Les maisons d’écrivains',
+    desc: 'La fédération des maisons d’écrivains propose à {programme} une série de visites sur toute la saison. Les lieux sont souvent méconnus.',
+    c: [
+      { l: 'Produire la série complète', icon: '📚', cost: { purchase: 0.12 }, lasting: 0.04, career: { awareness: 5 },
+        r: 'La série fait découvrir des lieux oubliés.' },
+      { l: 'Une visite par mois', icon: '📅', cost: { purchase: 0.04 }, career: { awareness: 2, loyalty: 1 },
+        r: 'Un rendez-vous régulier et discret.' },
+      { l: 'Décliner', icon: '🙅', career: { awareness: -1, wear: 2 },
+        r: 'L’émission poursuit sa route habituelle.' }
+    ] },
+
+  // — On Refait l’Actu (p109) · culture, access —
+  { id: 'ps_p109_chroniqueur_galerie', programId: 'p109', family: 'image', phase: 2,
+    titre: 'Le chroniqueur et la galerie',
+    desc: 'Un chroniqueur de {programme} a vanté une exposition organisée par sa compagne. La presse dénonce un conflit d’intérêts.',
+    c: [
+      { l: 'Écarter le chroniqueur du sujet', icon: '🚪', career: { awareness: -1, loyalty: 1 }, pop: 1,
+        r: 'La rigueur de l’émission est saluée.' },
+      { l: 'Publier une charte de déontologie', icon: '📜', cost: { purchase: 0.02 }, career: { loyalty: 2 }, pop: 1,
+        r: 'La charte rassure le public.' },
+      { l: 'Ignorer la polémique', icon: '🤷', career: { awareness: 1, loyalty: -1 }, pop: -2,
+        r: 'L’émission perd en crédibilité.' }
+    ] },
+  { id: 'ps_p109_actualite_artistique_direct', programId: 'p109', family: 'audience', phase: 3, when: { minSeasons: 1 },
+    titre: 'L’actualité artistique en direct',
+    desc: 'La rédaction de {programme} propose de passer en direct pour réagir aux événements culturels de la semaine. Le format gagnerait en réactivité.',
+    c: [
+      { l: 'Passer en direct', icon: '🔴', cost: { recurring: 0.06 }, boost: 0.03, career: { awareness: 4, wear: -8 },
+        r: 'Le direct donne du nerf à l’émission.' },
+      { l: 'Garder l’enregistrement', icon: '🎬', career: { loyalty: 2, wear: 3 },
+        r: 'L’émission reste soignée mais moins réactive.' },
+      { l: 'Ajouter une séquence en direct', icon: '⏱️', cost: { purchase: 0.03 }, career: { awareness: 2, wear: -3 },
+        r: 'Un compromis apprécié.' }
+    ] },
+
+  // — Les Eclaireurs (p110) · culture, access —
+  { id: 'ps_p110_auteur_qui_parle', programId: 'p110', family: 'editorial', phase: 1,
+    titre: 'L’auteur qui ne parle pas',
+    desc: 'L’auteure invitée dans {programme} est réputée pour ne jamais accorder d’entretien. Elle accepte de venir, mais refuse de parler de son livre.',
+    c: [
+      { l: 'Faire un entretien sur sa vie et ses lectures', icon: '🎙️', boost: -0.02, career: { awareness: 4, loyalty: 1 },
+        r: 'Un entretien rare, salué par la critique.' },
+      { l: 'Annuler sa venue', icon: '🚫', career: { awareness: -2, loyalty: 1 },
+        r: 'L’émission renonce à une invitée prestigieuse.' },
+      { l: 'Faire lire son livre par un comédien', icon: '📖', cost: { purchase: 0.03 }, career: { awareness: 2, loyalty: 2 },
+        r: 'La lecture fait découvrir l’œuvre autrement.' }
+    ] },
+  { id: 'ps_p110_podcast_des_eclaireurs', programId: 'p110', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le podcast des éclaireurs',
+    desc: 'La production de {programme} propose de décliner l’émission en podcast, avec des entretiens longs inédits. Le projet demande peu de moyens, mais du temps à l’équipe.',
+    c: [
+      { l: 'Lancer le podcast', icon: '🎧', cost: { purchase: 0.05 }, lasting: 0.03, career: { awareness: 4 },
+        r: 'Le podcast trouve un public fidèle.' },
+      { l: 'Mettre les entretiens en ligne sans montage', icon: '🌐', career: { awareness: 1, wear: 2 },
+        r: 'Une initiative discrète.' },
+      { l: 'Garder l’exclusivité de l’antenne', icon: '📺', career: { awareness: -1, loyalty: 2 },
+        r: 'L’émission reste rare.' }
+    ] },
+
+  // — Magazine histoire (p111) · culture, access —
+  { id: 'ps_p111_une_polemique_historique', programId: 'p111', family: 'editorial', phase: 2,
+    titre: 'Une polémique historique',
+    desc: 'Un historien invité dans {programme} défend une thèse contestée sur la colonisation. La séquence fait débat.',
+    c: [
+      { l: 'Organiser un débat contradictoire', icon: '⚖️', cost: { purchase: 0.03 }, career: { awareness: 3, loyalty: 2 },
+        r: 'Le débat éclaire le sujet.' },
+      { l: 'Couper la séquence en replay', icon: '✂️', career: { loyalty: -2 }, pop: 1,
+        r: 'L’émission est accusée de censure.' },
+      { l: 'Laisser la séquence telle quelle', icon: '📺', career: { awareness: 2 }, pop: -2,
+        r: 'La polémique s’amplifie.' }
+    ] },
+  { id: 'ps_p111_histoire_bande_dessinee', programId: 'p111', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'L’histoire en bande dessinée',
+    desc: 'Un dessinateur propose à {programme} de raconter chaque semaine un épisode historique en bande dessinée animée. L’idée peut séduire les plus jeunes.',
+    c: [
+      { l: 'Lancer la rubrique animée', icon: '🎨', cost: { recurring: 0.04 }, lasting: 0.02, career: { awareness: 4, wear: -6 },
+        r: 'La rubrique séduit les plus jeunes.' },
+      { l: 'Publier les planches en ligne', icon: '🖼️', cost: { purchase: 0.02 }, career: { awareness: 2, loyalty: 1 },
+        r: 'Une initiative discrète.' },
+      { l: 'Décliner', icon: '🙅', career: { awareness: -1, wear: 2 },
+        r: 'L’émission garde sa forme habituelle.' }
+    ] },
+
+  // — Investigation culturelle (p113) · culture, prime —
+  { id: 'ps_p113_marche_art_enquete', programId: 'p113', family: 'image', phase: 2,
+    titre: 'Le marché de l’art enquête',
+    desc: 'Une enquête de {programme} révèle des faux dans les collections d’un musée prestigieux. Le musée menace de couper tout partenariat avec la chaîne.',
+    c: [
+      { l: 'Diffuser l’enquête', icon: '🔍', boost: -0.03, career: { awareness: 5, loyalty: 2 }, pop: 1,
+        r: 'L’enquête fait scandale et grand bruit.' },
+      { l: 'Reporter pour vérification', icon: '⏳', cost: { purchase: 0.05 }, career: { awareness: 1, loyalty: 1 },
+        r: 'La vérification renforce l’enquête.' },
+      { l: 'Renoncer à l’enquête', icon: '🗑️', career: { loyalty: -4 }, pop: -1,
+        r: 'La rédaction est déçue et le dit.' }
+    ] },
+  { id: 'ps_p113_enquete_long_cours', programId: 'p113', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'L’enquête au long cours',
+    desc: 'La rédaction de {programme} propose de consacrer une saison entière à une seule enquête sur le trafic d’antiquités. Le pari est ambitieux et risqué.',
+    c: [
+      { l: 'Lancer l’enquête au long cours', icon: '🏺', cost: { purchase: 0.2 }, lasting: 0.04, career: { awareness: 6, wear: -6 },
+        r: 'La saison captive comme un polar.' },
+      { l: 'Une enquête en deux épisodes', icon: '🎬', cost: { purchase: 0.06 }, boost: 0.03, career: { awareness: 3 },
+        r: 'Un double épisode remarqué.' },
+      { l: 'Garder des sujets variés', icon: '🗂️', career: { loyalty: 2, wear: 3 },
+        r: 'L’émission reste classique.' }
+    ] },
+
+  // — Biopic documentaire (p114) · culture, prime —
+  { id: 'ps_p114_famille_oppose_biopic', programId: 'p114', family: 'editorial', phase: 1,
+    titre: 'La famille s’oppose au biopic',
+    desc: 'La famille de l’artiste au cœur du prochain numéro de {programme} refuse que certaines lettres soient lues à l’antenne. Ces lettres éclairent pourtant toute son œuvre.',
+    c: [
+      { l: 'Respecter le souhait de la famille', icon: '🤝', boost: -0.03, career: { loyalty: 2 }, pop: 1,
+        r: 'Le portrait est plus sage, la famille reconnaissante.' },
+      { l: 'Lire les lettres', icon: '✉️', boost: 0.03, career: { awareness: 4 }, pop: -2,
+        r: 'Le portrait est saisissant, la famille porte plainte.' },
+      { l: 'Obtenir un accord après une projection privée', icon: '🎞️', cost: { purchase: 0.04 }, career: { awareness: 2, loyalty: 2 },
+        r: 'La famille donne son accord.' }
+    ] },
+  { id: 'ps_p114_biopic_fiction_documentaire', programId: 'p114', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le biopic fiction-documentaire',
+    desc: 'La production de {programme} propose un biopic hybride, mêlant archives et scènes jouées par une star. Le budget serait multiplié par trois.',
+    c: [
+      { l: 'Produire le biopic hybride', icon: '🎭', cost: { purchase: 0.4 }, boost: 0.12, career: { awareness: 6 },
+        r: 'Le biopic attire un large public.' },
+      { l: 'Rester sur le documentaire classique', icon: '📼', career: { loyalty: 2, wear: 3 },
+        r: 'La ligne de l’émission est préservée.' },
+      { l: 'Ajouter quelques scènes reconstituées', icon: '🎬', cost: { purchase: 0.1 }, boost: 0.04, career: { awareness: 3 },
+        r: 'Un compromis réussi.' }
+    ] },
+
+  // — Captation événementielle (p115) · culture, prime —
+  { id: 'ps_p115_les_droits_concert', programId: 'p115', family: 'economie', phase: 1,
+    titre: 'Les droits du concert',
+    desc: 'Les droits de captation du grand concert prévu dans {programme} ont doublé. L’artiste exige en plus un pourcentage des recettes publicitaires.',
+    c: [
+      { l: 'Accepter les conditions', icon: '💶', cost: { purchase: 0.4 }, boost: 0.12, career: { awareness: 4 },
+        r: 'Le concert est un événement très suivi.' },
+      { l: 'Renoncer au concert', icon: '🚫', boost: -0.05, career: { loyalty: -1 },
+        r: 'La soirée perd son événement.' },
+      { l: 'Négocier une diffusion en différé moins chère', icon: '⏳', cost: { purchase: 0.15 }, boost: 0.05, career: { awareness: 2 },
+        r: 'Le concert est diffusé plus tard.' }
+    ] },
+  { id: 'ps_p115_captation_realite_virtuelle', programId: 'p115', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'La captation en réalité virtuelle',
+    desc: 'Un studio propose de capter le prochain spectacle de {programme} en réalité virtuelle, pour une expérience immersive en ligne. La technologie est coûteuse mais fait parler.',
+    c: [
+      { l: 'Tenter la réalité virtuelle', icon: '🥽', cost: { purchase: 0.2 }, lasting: 0.03, career: { awareness: 5, wear: -4 },
+        r: 'L’expérience fait parler de la chaîne.' },
+      { l: 'Rester sur une captation classique', icon: '🎥', career: { loyalty: 1, wear: 3 },
+        r: 'Une captation soignée.' },
+      { l: 'Ajouter des caméras à 360 degrés', icon: '🔄', cost: { purchase: 0.06 }, career: { awareness: 3, wear: -2 },
+        r: 'Une innovation discrète.' }
+    ] },
+
+  // — Documentaire + débat (p116) · culture, prime —
+  { id: 'ps_p116_debat_sans_contradicteur', programId: 'p116', family: 'image', phase: 2,
+    titre: 'Le débat sans contradicteur',
+    desc: 'Le débat qui suit le documentaire de {programme} ne réunissait que des invités du même avis. Le médiateur reçoit des plaintes pour manque de pluralisme.',
+    c: [
+      { l: 'Garantir un contradicteur à chaque débat', icon: '⚖️', cost: { purchase: 0.02 }, career: { loyalty: 2 }, pop: 1,
+        r: 'Le pluralisme est salué.' },
+      { l: 'Défendre le choix des invités', icon: '🛡️', career: { awareness: 1 }, pop: -2,
+        r: 'Les critiques se multiplient.' },
+      { l: 'Ouvrir le débat aux questions des téléspectateurs', icon: '📞', cost: { purchase: 0.03 }, career: { awareness: 2, loyalty: 2 },
+        r: 'Le débat gagne en diversité.' }
+    ] },
+  { id: 'ps_p116_debat_trop_long', programId: 'p116', family: 'audience', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le débat trop long',
+    desc: 'Le débat qui suit les documentaires de {programme} fait chuter l’audience. La chaîne propose de le raccourcir à quinze minutes.',
+    c: [
+      { l: 'Raccourcir le débat', icon: '✂️', boost: 0.04, career: { loyalty: -2 },
+        r: 'L’audience tient mieux, les fidèles regrettent la profondeur.' },
+      { l: 'Garder le débat complet', icon: '🎙️', boost: -0.03, career: { loyalty: 3 },
+        r: 'Les fidèles restent.' },
+      { l: 'Déplacer le débat en ligne', icon: '🌐', cost: { purchase: 0.02 }, boost: 0.03, career: { awareness: 2, loyalty: -1 },
+        r: 'Le débat continue sur internet.' }
+    ] },
+
+  // — Grande soirée sciences (p117) · culture, prime —
+  { id: 'ps_p117_experience_direct', programId: 'p117', family: 'editorial', phase: 1,
+    titre: 'L’expérience en direct',
+    desc: 'Les scientifiques de {programme} proposent de réaliser en direct une expérience spectaculaire de physique. Si elle échoue, l’émission sera ridicule.',
+    c: [
+      { l: 'Tenter l’expérience en direct', icon: '⚗️', cost: { purchase: 0.06 }, boost: 0.08, career: { awareness: 5, loyalty: -1 },
+        r: 'L’expérience réussit et fait le tour des réseaux.' },
+      { l: 'Diffuser l’expérience enregistrée', icon: '🎥', cost: { purchase: 0.02 }, career: { awareness: 2, loyalty: 1 },
+        r: 'Une expérience réussie, sans frisson.' },
+      { l: 'Renoncer à l’expérience', icon: '🙅', career: { loyalty: 1, wear: 3 },
+        r: 'L’émission reste classique.' }
+    ] },
+  { id: 'ps_p117_nuit_des_etoiles', programId: 'p117', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'La nuit des étoiles',
+    desc: 'L’association des astronomes amateurs propose à {programme} une grande soirée d’observation du ciel dans toute la France. L’événement serait fédérateur, mais demande une logistique importante.',
+    c: [
+      { l: 'Organiser la nuit des étoiles en direct', icon: '🔭', cost: { purchase: 0.2 }, boost: 0.12, career: { awareness: 6 },
+        r: 'Une soirée magique et très suivie.' },
+      { l: 'Couvrir la soirée en reportage', icon: '📸', cost: { purchase: 0.04 }, boost: 0.02, career: { awareness: 2 },
+        r: 'Un beau reportage.' },
+      { l: 'Ne pas participer', icon: '🙅', career: { awareness: -2, wear: 2 },
+        r: 'La soirée se fait sans la chaîne.' }
+    ] },
+
+  // — Documentaire géopolitique (p118) · culture, prime —
+  { id: 'ps_p118_les_pressions_une', programId: 'p118', family: 'image', phase: 2,
+    titre: 'Les pressions d’une ambassade',
+    desc: 'Un documentaire de {programme} sur un pays autoritaire provoque la colère de son ambassade. Des pressions diplomatiques pèsent sur la chaîne.',
+    c: [
+      { l: 'Diffuser malgré les pressions', icon: '📣', boost: -0.02, career: { awareness: 5 }, pop: 2,
+        r: 'La chaîne défend la liberté d’informer.' },
+      { l: 'Reporter la diffusion', icon: '⏳', career: { loyalty: -3 }, pop: -1,
+        r: 'La chaîne est accusée de céder.' },
+      { l: 'Diffuser avec un débat contradictoire', icon: '⚖️', cost: { purchase: 0.03 }, career: { awareness: 3, loyalty: 2 },
+        r: 'Le débat apporte de la nuance.' }
+    ] },
+  { id: 'ps_p118_correspondant_permanent', programId: 'p118', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le correspondant permanent',
+    desc: 'La rédaction de {programme} propose d’installer un correspondant permanent dans une zone de conflit. Les documentaires gagneraient en réactivité.',
+    c: [
+      { l: 'Installer le correspondant', icon: '🎙️', cost: { recurring: 0.1 }, lasting: 0.04, career: { awareness: 5 },
+        r: 'L’émission devient une référence de l’actualité internationale.' },
+      { l: 'Travailler avec des pigistes locaux', icon: '🤝', cost: { purchase: 0.05 }, career: { awareness: 2, loyalty: 1 },
+        r: 'Des sujets réguliers, à moindre coût.' },
+      { l: 'Rester sur des sujets d’archives', icon: '📼', career: { loyalty: 1, wear: 3 },
+        r: 'L’émission perd en actualité.' }
+    ] },
+
+  // — Soirée patrimoine (p119) · culture, prime —
+  { id: 'ps_p119_les_journees_patrimoine', programId: 'p119', family: 'audience', phase: 2,
+    titre: 'Les Journées du patrimoine',
+    desc: 'Les Journées du patrimoine approchent. La production de {programme} propose une soirée en direct depuis plusieurs monuments.',
+    c: [
+      { l: 'Organiser la soirée multiplex', icon: '🏰', cost: { purchase: 0.2 }, boost: 0.12, career: { awareness: 5 },
+        r: 'La soirée fait voyager à travers la France.' },
+      { l: 'Diffuser un documentaire existant', icon: '📼', career: { loyalty: 1, wear: 3 },
+        r: 'Une soirée classique.' },
+      { l: 'Un direct depuis un seul monument', icon: '🎥', cost: { purchase: 0.06 }, boost: 0.05, career: { awareness: 2 },
+        r: 'Un direct de qualité.' }
+    ] },
+  { id: 'ps_p119_tournage_chateau_prive', programId: 'p119', family: 'economie', phase: 1, when: { minSeasons: 1 },
+    titre: 'Le tournage au château privé',
+    desc: 'Le propriétaire d’un château exceptionnel demande une forte somme pour laisser {programme} y tourner. Le lieu est pourtant idéal pour le prochain numéro.',
+    c: [
+      { l: 'Payer la somme demandée', icon: '💶', cost: { purchase: 0.15 }, boost: 0.06, career: { awareness: 3 },
+        r: 'Les images du château sont spectaculaires.' },
+      { l: 'Choisir un monument public gratuit', icon: '🏛️', career: { loyalty: 1, wear: 3 },
+        r: 'Un tournage plus classique.' },
+      { l: 'Proposer une visibilité en échange', icon: '🤝', cost: { purchase: 0.03 }, career: { awareness: 2, loyalty: -1 },
+        r: 'Le château est filmé contre une promotion discrète.' }
+    ] },
+
+  // — Concert d'archives (p120) · culture, nuit —
+  { id: 'ps_p120_les_bandes_retrouvees', programId: 'p120', family: 'economie', phase: 1,
+    titre: 'Les bandes retrouvées',
+    desc: 'Les bandes d’un concert mythique des années 1970 viennent d’être retrouvées. Les ayants droit les proposent à {programme} à prix d’or.',
+    c: [
+      { l: 'Acheter les bandes', icon: '📼', cost: { purchase: 0.3 }, boost: 0.08, career: { awareness: 5, loyalty: 2 },
+        r: 'Le concert inédit ravit les mélomanes.' },
+      { l: 'Diffuser des archives connues', icon: '🔁', career: { loyalty: 1, wear: 4 },
+        r: 'Les fidèles connaissent déjà les concerts.' },
+      { l: 'Proposer un partage avec une radio', icon: '🤝', cost: { purchase: 0.1 }, career: { awareness: 2, loyalty: 1 },
+        r: 'Le concert est diffusé en partenariat.' }
+    ] },
+  { id: 'ps_p120_les_noctambules_melomanes', programId: 'p120', family: 'audience', phase: 2, when: { minSeasons: 1 },
+    titre: 'Les noctambules mélomanes',
+    desc: 'Le public de {programme} est fidèle mais vieillissant. La production propose d’ajouter des concerts rock des années 1990.',
+    c: [
+      { l: 'Programmer des concerts des années 1990', icon: '🎸', cost: { purchase: 0.06 }, career: { awareness: 4, loyalty: -2, wear: -6 },
+        r: 'Un public plus jeune découvre l’émission.' },
+      { l: 'Rester sur les années 1960-1970', icon: '🎶', career: { loyalty: 3, wear: 3 },
+        r: 'Les fidèles sont comblés.' },
+      { l: 'Alterner les époques', icon: '🔀', cost: { purchase: 0.03 }, career: { awareness: 2, wear: -3 },
+        r: 'Un équilibre apprécié.' }
+    ] },
+
+  // — Festival live (p121) · culture, nuit —
+  { id: 'ps_p121_orage_sur_festival', programId: 'p121', family: 'editorial', phase: 1,
+    titre: 'L’orage sur le festival',
+    desc: 'Un orage menace le festival filmé en direct par {programme}. Les organisateurs envisagent d’interrompre les concerts.',
+    c: [
+      { l: 'Maintenir le direct avec des concerts acoustiques', icon: '⛈️', cost: { purchase: 0.03 }, career: { awareness: 4, loyalty: 2 },
+        r: 'L’ambiance magique sous la pluie fait le tour des réseaux.' },
+      { l: 'Basculer sur des archives du festival', icon: '📼', boost: -0.05, career: { loyalty: 2, wear: 2 },
+        r: 'La soirée perd son direct.' },
+      { l: 'Filmer les coulisses de l’attente', icon: '🎥', boost: -0.02, career: { awareness: 2, loyalty: 1 },
+        r: 'Les coulisses offrent un regard original.' }
+    ] },
+  { id: 'ps_p121_exclusivite_grand_festival', programId: 'p121', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'L’exclusivité du grand festival',
+    desc: 'Le plus grand festival d’été propose à {programme} l’exclusivité de sa diffusion pour trois ans. Les droits sont élevés.',
+    c: [
+      { l: 'Signer l’exclusivité de trois ans', icon: '🎪', cost: { recurring: 0.15 }, lasting: 0.05, career: { awareness: 5 },
+        r: 'Le festival devient le rendez-vous estival de la chaîne.' },
+      { l: 'Diffuser quelques concerts', icon: '🎶', cost: { purchase: 0.06 }, boost: 0.03, career: { awareness: 2 },
+        r: 'Quelques concerts remarqués.' },
+      { l: 'Laisser le festival à une autre chaîne', icon: '🙅', career: { awareness: -2, wear: 2 },
+        r: 'Le festival est diffusé ailleurs.' }
+    ] },
+
+  // — Opéra (p122) · culture, nuit —
+  { id: 'ps_p122_mise_scene_qui', programId: 'p122', family: 'editorial', phase: 1,
+    titre: 'La mise en scène qui choque',
+    desc: 'La mise en scène de l’opéra prévu dans {programme} transpose l’action dans un abattoir. Les puristes crient au scandale.',
+    c: [
+      { l: 'Diffuser avec une présentation du metteur en scène', icon: '🎙️', cost: { purchase: 0.02 }, career: { awareness: 4, loyalty: -1 },
+        r: 'La présentation aide à comprendre le parti pris.' },
+      { l: 'Remplacer par une mise en scène classique', icon: '🎭', cost: { purchase: 0.06 }, career: { loyalty: 3, wear: 2 },
+        r: 'Les puristes sont rassurés.' },
+      { l: 'Diffuser sans commentaire', icon: '📺', career: { awareness: 2, loyalty: -3 },
+        r: 'La polémique divise les fidèles.' }
+    ] },
+  { id: 'ps_p122_opera_cinema', programId: 'p122', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'L’opéra au cinéma',
+    desc: 'Un réseau de cinémas propose de diffuser en salle les opéras captés par {programme}. La chaîne toucherait une part des recettes.',
+    c: [
+      { l: 'Signer le partenariat', icon: '🎟️', cost: { commercial: 0.1 }, career: { awareness: 4, loyalty: -1 },
+        r: 'Les opéras voyagent dans les salles de France.' },
+      { l: 'Garder l’exclusivité de l’antenne', icon: '📺', career: { loyalty: 2, wear: 2 },
+        r: 'L’opéra reste rare.' },
+      { l: 'Organiser une seule soirée en salle', icon: '🎭', cost: { purchase: 0.04 }, career: { awareness: 2, loyalty: 1 },
+        r: 'Une soirée prestigieuse.' }
+    ] },
+
+  // — Cinéma patrimonial (p123) · culture, nuit —
+  { id: 'ps_p123_film_colorise', programId: 'p123', family: 'editorial', phase: 2,
+    titre: 'Le film colorisé',
+    desc: 'Un studio propose une version colorisée d’un classique en noir et blanc prévu dans {programme}. Les cinéphiles s’insurgent.',
+    c: [
+      { l: 'Diffuser la version originale', icon: '🎞️', boost: -0.02, career: { loyalty: 3 },
+        r: 'Les cinéphiles saluent le respect de l’œuvre.' },
+      { l: 'Diffuser la version colorisée', icon: '🎨', cost: { purchase: 0.05 }, boost: 0.05, career: { awareness: 2, loyalty: -3 },
+        r: 'Le grand public apprécie, les puristes fulminent.' },
+      { l: 'Proposer les deux versions avec un débat', icon: '⚖️', cost: { purchase: 0.06 }, career: { awareness: 3, loyalty: 1 },
+        r: 'Le débat passionne.' }
+    ] },
+  { id: 'ps_p123_restauration_film_oublie', programId: 'p123', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'La restauration d’un film oublié',
+    desc: 'La Cinémathèque propose à la chaîne de cofinancer la restauration d’un film muet français oublié, diffusé ensuite dans {programme}. Le projet est prestigieux mais coûteux.',
+    c: [
+      { l: 'Cofinancer la restauration', icon: '🎬', cost: { purchase: 0.15 }, lasting: 0.03, career: { awareness: 4 }, pop: 1,
+        r: 'Le film retrouve une seconde vie.' },
+      { l: 'Diffuser le film non restauré', icon: '📼', boost: -0.02, career: { loyalty: 1 },
+        r: 'Le film est vu, avec une image abîmée.' },
+      { l: 'Ajouter un accompagnement musical en direct', icon: '🎹', cost: { purchase: 0.06 }, career: { awareness: 3, loyalty: 2 },
+        r: 'Le ciné-concert ravit les cinéphiles.' }
+    ] },
+
+  // — Jazz & musiques du monde (p124) · culture, nuit —
+  { id: 'ps_p124_musicien_exil', programId: 'p124', family: 'editorial', phase: 1,
+    titre: 'Le musicien en exil',
+    desc: 'Un grand musicien africain exilé accepte de jouer pour {programme}, mais son gouvernement menace de sanctions les chaînes qui le diffusent. La chaîne doit choisir entre prudence et liberté.',
+    c: [
+      { l: 'Diffuser le concert', icon: '🎷', boost: -0.02, career: { awareness: 4 }, pop: 2,
+        r: 'Le concert est un moment fort et symbolique.' },
+      { l: 'Renoncer au concert', icon: '🚫', career: { loyalty: -2 }, pop: -1,
+        r: 'La chaîne est critiquée pour sa frilosité.' },
+      { l: 'Diffuser avec un documentaire sur son parcours', icon: '🎥', cost: { purchase: 0.05 }, career: { awareness: 4, loyalty: 2 },
+        r: 'Le documentaire donne du sens au concert.' }
+    ] },
+  { id: 'ps_p124_club_jazz', programId: 'p124', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le club de jazz',
+    desc: 'La production de {programme} propose de s’installer chaque semaine dans un club de jazz parisien. L’ambiance serait unique, le coût aussi.',
+    c: [
+      { l: 'S’installer au club', icon: '🎺', cost: { recurring: 0.06 }, lasting: 0.02, career: { awareness: 4, wear: -6 },
+        r: 'L’ambiance du club donne une identité forte à l’émission.' },
+      { l: 'Tourner au club une fois par mois', icon: '📅', cost: { purchase: 0.03 }, career: { awareness: 2, wear: -2 },
+        r: 'Un rendez-vous apprécié.' },
+      { l: 'Rester en studio', icon: '🎙️', career: { loyalty: 1, wear: 3 },
+        r: 'L’émission garde son format.' }
+    ] },
+
+  // — Archives TV (p125) · culture, nuit —
+  { id: 'ps_p125_les_archives_qui', programId: 'p125', family: 'image', phase: 2,
+    titre: 'Les archives qui choquent',
+    desc: 'Une archive diffusée dans {programme} contient des propos racistes d’un ancien présentateur. Des téléspectateurs s’indignent.',
+    c: [
+      { l: 'Ajouter un avertissement de contexte', icon: '⚠️', cost: { purchase: 0.01 }, career: { loyalty: 1 }, pop: 1,
+        r: 'Les archives sont remises dans leur époque.' },
+      { l: 'Retirer l’archive', icon: '🗑️', career: { loyalty: -2, wear: 2 }, pop: 1,
+        r: 'La polémique s’éteint.' },
+      { l: 'En faire une émission sur l’évolution de la télé', icon: '📺', cost: { purchase: 0.04 }, career: { awareness: 4, loyalty: 2 },
+        r: 'L’émission est saluée pour sa réflexion.' }
+    ] },
+  { id: 'ps_p125_les_archives_demande', programId: 'p125', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Les archives à la demande',
+    desc: 'La production de {programme} propose de mettre en ligne les archives sous forme de collections thématiques. Les droits en ligne restent à négocier.',
+    c: [
+      { l: 'Créer les collections en ligne', icon: '🌐', cost: { purchase: 0.1 }, lasting: 0.03, career: { awareness: 4 },
+        r: 'Les collections attirent un public nostalgique.' },
+      { l: 'Mettre en ligne quelques archives', icon: '📼', cost: { purchase: 0.03 }, career: { awareness: 2, loyalty: 1 },
+        r: 'Une initiative modeste.' },
+      { l: 'Garder les archives pour l’antenne', icon: '📺', career: { awareness: -1, loyalty: 1, wear: 2 },
+        r: 'L’émission reste confidentielle.' }
+    ] },
+
+  // — Théâtre (p126) · culture, nuit —
+  { id: 'ps_p126_piece_interdite', programId: 'p126', family: 'editorial', phase: 1,
+    titre: 'La pièce interdite',
+    desc: 'Une pièce prévue dans {programme} a été interdite dans plusieurs villes pour ses propos jugés provocateurs. La chaîne hésite à la diffuser.',
+    c: [
+      { l: 'Diffuser la pièce avec un débat', icon: '🎭', cost: { purchase: 0.03 }, career: { awareness: 4, loyalty: 2 }, pop: -1,
+        r: 'Le débat apporte de la profondeur.' },
+      { l: 'Remplacer par une pièce classique', icon: '📚', boost: -0.02, career: { loyalty: 1, wear: 3 },
+        r: 'Une soirée sans risque.' },
+      { l: 'Diffuser sans commentaire', icon: '📺', career: { awareness: 3 }, pop: -2,
+        r: 'La polémique attire des curieux.' }
+    ] },
+  { id: 'ps_p126_theatre_des_regions', programId: 'p126', family: 'strategie', phase: 3, when: { minSeasons: 1 },
+    titre: 'Le théâtre des régions',
+    desc: 'La production de {programme} propose de capter des pièces dans des théâtres de région, loin de Paris. L’initiative valoriserait les régions, au prix d’une logistique plus lourde.',
+    c: [
+      { l: 'Lancer la tournée des théâtres', icon: '🗺️', cost: { purchase: 0.12 }, career: { awareness: 4, wear: -6 }, pop: 1,
+        r: 'La tournée met en valeur les théâtres de région.' },
+      { l: 'Capter une pièce régionale par an', icon: '🎟️', cost: { purchase: 0.04 }, career: { awareness: 2, loyalty: 1 },
+        r: 'Une ouverture modeste.' },
+      { l: 'Rester sur les théâtres parisiens', icon: '🏙️', career: { loyalty: 1, wear: 3 },
+        r: 'L’émission reste parisienne.' }
+    ] },
+
+  // — Documentaire musical (p127) · culture, nuit —
+  { id: 'ps_p127_groupe_reforme', programId: 'p127', family: 'editorial', phase: 1,
+    titre: 'Le groupe reformé',
+    desc: 'Un groupe mythique se reforme pour une tournée d’adieux. Ses membres proposent à {programme} de les suivre en coulisses.',
+    c: [
+      { l: 'Suivre la tournée d’adieux', icon: '🎸', cost: { purchase: 0.2 }, boost: 0.06, career: { awareness: 6 },
+        r: 'Le documentaire émeut les fans.' },
+      { l: 'Filmer un seul concert', icon: '🎤', cost: { purchase: 0.06 }, boost: 0.03, career: { awareness: 2 },
+        r: 'Un beau concert, sans coulisses.' },
+      { l: 'Décliner', icon: '🙅', career: { awareness: -2, wear: 2 },
+        r: 'Une plateforme réalise le documentaire.' }
+    ] },
+  { id: 'ps_p127_musicien_conteste', programId: 'p127', family: 'image', phase: 2, when: { minSeasons: 1 },
+    titre: 'Le musicien contesté',
+    desc: 'Le musicien au cœur du prochain documentaire de {programme} est mis en cause pour des violences. Des collectifs demandent la déprogrammation.',
+    c: [
+      { l: 'Déprogrammer le documentaire', icon: '🚫', boost: -0.04, career: { loyalty: -1 }, pop: 2,
+        r: 'La chaîne est saluée pour sa fermeté.' },
+      { l: 'Diffuser en évoquant les accusations', icon: '⚖️', cost: { purchase: 0.03 }, career: { awareness: 3 }, pop: 1,
+        r: 'Le documentaire est nuancé.' },
+      { l: 'Diffuser tel quel', icon: '📺', career: { awareness: 2 }, pop: -3,
+        r: 'La chaîne est vivement critiquée.' }
     ] }
 ];
 // ---------------------------------------------------------------------------
