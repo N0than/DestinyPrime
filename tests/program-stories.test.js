@@ -437,6 +437,18 @@ const base=id=>DILEMMA_BANK.find(d=>d.id===id);
   ok(p.biddingHistory.filter(h=>h.programId===prog.id).length===1,'une seule trace par mise en concurrence');
   const saved=JSON.parse(JSON.stringify(gameState)); Object.assign(gameState,saved);
   ok(gameState.player.producerAgreements[0].closed===3&&gameState.player.biddingHistory[0].outcome==='conceded','mise en concurrence : état conservé après rechargement'); }
+// Option d'achat : droit de priorité au prix de l'offre concurrente, programme réservé.
+{ partie(27); const p=p0(); gameState.season=2;
+  const prog=biddingConceptCandidates()[0];
+  const pitch=createProducerPitchDilemma({kind:'exclusive',program:prog,slot:prog.slot});
+  ok(/option d’achat/.test(pitch.c[1].l)&&!/développement/.test(pitch.c[1].l),'démarchage : « Prendre une option d’achat »');
+  joue(pitch,1); ok(p.producerAgreements?.some(a=>a.programId===prog.id&&!a.closed),'option d’achat enregistrée');
+  ok(gameState.competitors.every(cp=>TIME_SLOTS.every(({key})=>pickCompetitorProgram(cp,key)?.id!==prog.id)),'programme sous option : aucune chaîne IA ne le prend');
+  gameState.season=5; const w=pickBiddingWar(); ok(w&&w.agreement&&w.program.id===prog.id,'plus tard dans la partie : le concurrent se manifeste');
+  const d=createBiddingWarDilemma(w);
+  ok(d.c[0].priority&&d.c[0].bid===w.offer&&!d.c[0].disabled&&/Exercer l’option d’achat/.test(d.c[0].l),'droit de priorité : signature au prix de l’offre, sans surenchère');
+  ok(d.desc.includes('droit de priorité')&&d.showcase[0].conditions[0].includes('droit de priorité'),'droit de priorité expliqué');
+  joue(d,0); ok(sameProgram(p.contracts[prog.slot],prog)&&p.producerAgreements.find(a=>a.programId===prog.id).closed===5,'option exercée : programme signé, option close'); }
 { partie(28); const p=p0(); gameState.season=3; ['prime','access'].forEach(installe);
   Object.entries(p.contracts).forEach(([s,c])=>{ migrateProgramCareer(c,s); c.career.seasonsCount=1; });
   const cov=biddingCoveted(); ok(cov.length,'programme convoitable');

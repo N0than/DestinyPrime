@@ -19754,7 +19754,10 @@ function pickDilemmaQueue() {
       (gameState.player.producerPitched ??= []).push(pitch.programId);
     }
   }
-  if (gameState.season >= BIDDING_WAR.minSeason && !queue.some(d => d?.isProducerPitch) && seededRandom() < BIDDING_WAR.chance) {
+  // Un concept sous option d'achat attire plus souvent un concurrent : le droit de priorité
+  // finit par jouer au fil de la partie.
+  const optionPending = (gameState.player.producerAgreements || []).some(a => !a.closed && a.season < gameState.season);
+  if (gameState.season >= BIDDING_WAR.minSeason && !queue.some(d => d?.isProducerPitch) && seededRandom() < (optionPending ? BIDDING_WAR.optionChance : BIDDING_WAR.chance)) {
     const at = [1, 0].find(i => replaceableQueueDilemma(queue[i]));
     const war = at != null ? createBiddingWarDilemma() : null;
     if (war) {
@@ -25112,8 +25115,13 @@ function competitorContractPower(competitor, program, level, slot, extra = 0) {
 }
 
 // Choix d'un programme selon la personnalité éditoriale de la chaîne.
+// Programme sous option d'achat du joueur : aucune chaîne IA ne le programme sans passer
+// par son droit de priorité (dilemme de mise en concurrence).
+function playerOptionOn(programId) {
+  return (gameState.player?.producerAgreements || []).some(a => a.programId === programId && !a.closed);
+}
 function pickCompetitorProgram(competitor, slot, { excludeId = null, genre = null } = {}) {
-  let pool = availablePrograms(competitor.type, slot).filter(p => p.id !== excludeId);
+  let pool = availablePrograms(competitor.type, slot).filter(p => p.id !== excludeId && !playerOptionOn(p.id));
   const free = pool.filter(p => !isProgramTaken(p, competitor));
   if (free.length) pool = free;
   if (genre && pool.some(p => p.editorial.genre === genre)) pool = pool.filter(p => p.editorial.genre === genre);
@@ -25873,11 +25881,11 @@ function producerPitchChoices(pitch) {
       pda: { ...zeroPda }, audienceImpacts: [{ slot: pitch.slot, targets: { ...zeroPda } }],
       pop: pitch.kind === 'rival' ? 0 : 1, r: signed },
     ...(pitch.kind === 'exclusive' ? [{
-      l: `Prendre une option de développement (${nf1(producerOptionFee(pitch.program))} M€)`,
+      l: `Prendre une option d’achat (${nf1(producerOptionFee(pitch.program))} M€)`,
       producerOption: { programId: pitch.program.id, slot: pitch.slot, fee: producerOptionFee(pitch.program) },
       finance: { recurring: 0, purchase: producerOptionFee(pitch.program), commercial: 0, category: 'P' },
       pda: { ...zeroPda }, audienceImpacts: [], pop: 0,
-      r: `Vous réservez « ${pitch.program.name} » sans le programmer : si une autre chaîne s’y intéresse, l’option vous garantit une indemnité.` }] : []),
+      r: `Vous réservez « ${pitch.program.name} » sans le programmer : si une chaîne concurrente veut le prendre plus tard, votre option d’achat vous donne un droit de priorité.` }] : []),
     { l: 'Décliner la proposition', finance: { recurring: 0, purchase: 0, commercial: 0, category: 'N' },
       pda: { ...zeroPda }, audienceImpacts: [], pop: 0,
       r: pitch.kind === 'rival'
@@ -26220,7 +26228,7 @@ function materializeCurrentDilemma() {
 //    joueur surenchérit pour le garder, ou accepte l'indemnité de transfert (rachat de ses
 //    saisons de contrat restantes) et choisit un programme de remplacement.
 const BIDDING_WAR = { chance: 0.35, minSeason: 2, overbid: 0.1, minOverbid: 0.5, offerRange: [1.2, 1.5],
-  keepShare: 0.6, optionRate: 0.1, optionMin: 0.3, optionRefund: 2 };
+  keepShare: 0.6, optionRate: 0.1, optionMin: 0.3, optionRefund: 2, optionChance: 0.6 };
 
 // Installe un programme dans la grille d'un concurrent (contrat et programmation affichée).
 function installCompetitorProgram(competitor, program, slot, level, tag = 'nouveaute') {
@@ -26297,20 +26305,26 @@ function biddingWarChoices(w) {
   const p = gameState.player, program = PROGRAM_CATALOG.find(x => x.id === w.programId);
   const rival = (gameState.competitors || []).find(c => c.name === w.rival);
   if (w.kind === 'concept') {
-    const bid = Math.round(Math.max(w.offer * (1 + BIDDING_WAR.overbid), w.offer + BIDDING_WAR.minOverbid) * 10) / 10;
+    // Option d'achat : droit de priorité, le joueur signe au prix de l'offre concurrente
+    // sans avoir à surenchérir. Sans option, il doit faire mieux que le concurrent.
+    const bid = w.agreement ? w.offer : Math.round(Math.max(w.offer * (1 + BIDDING_WAR.overbid), w.offer + BIDDING_WAR.minOverbid) * 10) / 10;
     const q = quoteProgram(w.slot, w.programId, 'interne');
     const finance = q ? { ...q.finance, purchase: q.finance.purchase - program.rights + bid, category: 'P' } : NO_FINANCE();
     const cash = q ? quoteFinance(finance).cash : -Infinity;
     const indemnity = w.agreement ? Math.round(w.agreement.fee * BIDDING_WAR.optionRefund * 10) / 10 : 0;
     return [
-      { l: `Surenchérir à ${nf1(bid)} M€ et signer « ${program.name} »`, producerDeal: { slot: w.slot, programId: w.programId, talentId: 'interne' },
-        bid, pillLabel: `${nf1(finance.purchase)} M€ + ${nf1(q?.annual || 0)} M€/an`, finance, disabled: !q || cash < TRESORERIE_CRITIQUE || bid <= w.offer,
+      { l: w.agreement ? `Exercer l’option d’achat et signer « ${program.name} » à ${nf1(bid)} M€` : `Surenchérir à ${nf1(bid)} M€ et signer « ${program.name} »`,
+        producerDeal: { slot: w.slot, programId: w.programId, talentId: 'interne' }, priority: !!w.agreement,
+        bid, pillLabel: `${nf1(finance.purchase)} M€ + ${nf1(q?.annual || 0)} M€/an`, finance,
+        disabled: !q || cash < TRESORERIE_CRITIQUE || (!w.agreement && bid <= w.offer),
         pda: ZERO_PDA(), audienceImpacts: [{ slot: w.slot, targets: ZERO_PDA() }], pop: 1,
-        r: `Votre offre de ${nf1(bid)} M€ l’emporte sur celle de ${w.rival} : « ${program.name} » rejoint votre grille.` },
+        r: w.agreement
+          ? `Votre option d’achat vous donne la priorité : vous signez « ${program.name} » au prix proposé par ${w.rival}.`
+          : `Votre offre de ${nf1(bid)} M€ l’emporte sur celle de ${w.rival} : « ${program.name} » rejoint votre grille.` },
       indemnity > 0
         ? { l: `Renoncer et percevoir l’indemnité de l’option (${nf1(indemnity)} M€)`, concede: { programId: w.programId, rival: w.rival, offer: w.offer, indemnity },
             finance: { recurring: 0, purchase: 0, commercial: indemnity, category: 'C' }, pda: ZERO_PDA(), audienceImpacts: [], pop: 0,
-            r: `${w.rival} signe « ${program.name} » ; le producteur vous verse l’indemnité prévue par votre option de développement.` }
+            r: `${w.rival} signe « ${program.name} » ; le producteur vous verse l’indemnité prévue par votre option d’achat.` }
         : { l: 'Renoncer', concede: { programId: w.programId, rival: w.rival, offer: w.offer, indemnity: 0 },
             finance: NO_FINANCE(), pda: ZERO_PDA(), audienceImpacts: [], pop: 0,
             r: `${w.rival} signe « ${program.name} ». Faute d’accord préalable, aucune indemnité n’est due.` }
@@ -26348,7 +26362,7 @@ function createBiddingWarDilemma(w = pickBiddingWar()) {
     id: `bidding-${gameState.season}-${program.id}`, isBiddingWar: true, war,
     titre: w.kind === 'concept' ? `Mise en concurrence : « ${program.name} »` : `${w.rival} convoite « ${program.name} »`,
     desc: w.kind === 'concept'
-      ? `Le producteur de « ${program.name} » a présenté son concept à plusieurs chaînes. ${w.rival} offre ${nf1(w.offer)} M€ pour la case ${slotName}.${w.agreement ? ' Votre option de développement vous garantit une indemnité si vous renoncez.' : ''}`
+      ? `Le producteur de « ${program.name} » a présenté son concept à plusieurs chaînes. ${w.rival} offre ${nf1(w.offer)} M€ pour la case ${slotName}.${w.agreement ? ' Votre option d’achat vous donne un droit de priorité : vous pouvez signer au même prix, sans surenchérir, ou renoncer contre une indemnité.' : ''}`
       : `${w.rival} propose ${nf1(w.offer)} M€ au producteur de « ${program.name} », votre programme de la case ${slotName}. Ce montant rachète ses ${Math.max(1, (current?.end ?? gameState.season) - gameState.season + 1)} saison(s) de contrat restantes.`,
     c: []
   };
@@ -26382,7 +26396,7 @@ function refreshBiddingWar(d) {
       ? [`Offre de ${w.rival} : ${nf1(w.offer)} M€`, ...signingExtraLines(q)]
       : [`Indemnité de transfert proposée par ${w.rival} : ${nf1(w.offer)} M€`],
     conditions: w.kind === 'concept'
-      ? [w.agreement ? `Option de développement signée en saison ${w.agreement.season} : indemnité de renoncement ${nf1(w.agreement.fee * BIDDING_WAR.optionRefund)} M€` : 'Aucun accord préalable : pas d’indemnité en cas de renoncement']
+      ? [w.agreement ? `Option d’achat signée en saison ${w.agreement.season} : droit de priorité au prix de ${w.rival}, ou indemnité de renoncement de ${nf1(w.agreement.fee * BIDDING_WAR.optionRefund)} M€` : 'Aucun accord préalable : pas de priorité ni d’indemnité en cas de renoncement']
       : ['Indemnité versée une seule fois, au départ effectif du programme ; vous choisirez ensuite son remplaçant'] })];
   return d;
 }
