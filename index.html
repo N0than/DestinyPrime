@@ -23546,7 +23546,7 @@ function renderSportsAuctionZone(dilemma) {
       </div>
       <div ${pop(0.25, 'sa-budget')}><span>Trésorerie <b>${nf1(p.tresorerie)} M€</b></span><span>Exposition max. <b>${nf1(ev.exposure)} M€</b></span></div>
       ${event.risk ? `<p ${pop(0.28, 'sa-note sa-warn')}>⚠️ Aléa possible : ${esc(event.risk.label.split(' : ')[0].replace(/^./, c => c.toLowerCase()))}.</p>` : ''}
-      <p ${pop(0.3, 'sa-note')}>Un seul tour, offre sous pli : les programmes en place y seront mis en pause et prolongés d’une saison.</p>
+      <p ${pop(0.3, 'sa-note')}>Un seul tour d’enchères, avec une offre sous pli : les programmes actuellement diffusés sur les créneaux concernés seront mis en pause et prolongés d’une saison.</p>
       <div ${pop(0.35, 'sa-actions')}>
         <button type="button" class="sa-btn primary" data-sa-action="participate">Participer</button>
         <button type="button" class="sa-btn" data-sa-action="pass">Passer</button>
