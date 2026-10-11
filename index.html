@@ -26285,18 +26285,29 @@ function refreshBiddingWar(d) {
   const w = d.war, program = PROGRAM_CATALOG.find(x => x.id === w.programId);
   d.c = biddingWarChoices(w);
   const q = quoteProgram(w.slot, w.programId, 'interne');
-  d.showcase = [showcaseEntry(program, w.slot, { level: 1, tag: w.rival,
+  const current = gameState.player.contracts?.[w.slot];
+  const seasons = n => `${n} saison${n > 1 ? 's' : ''}`;
+  // Même fiche que les démarchages : programme à l'antenne puis coût annuel, rachat des
+  // droits et engagement ; l'offre concurrente et les conditions viennent en notes.
+  d.showcase = [showcaseEntry(program, w.slot, { tag: w.rival,
+    stats: w.kind === 'concept'
+      ? [{ label: 'Coût annuel', value: `${nf1(q?.annual ?? program.annual)} M€` },
+         { label: 'Rachat des droits', value: `${nf1(d.c[0].bid)} M€` },
+         { label: 'Engagement', value: seasons(program.years) }]
+      : [{ label: 'Coût annuel', value: `${nf1(current?.annual ?? program.annual)} M€` },
+         { label: 'Rachat des droits', value: `${nf1(d.c[0].finance.purchase)} M€` },
+         { label: 'Engagement', value: '+1 saison' }],
     costs: w.kind === 'concept'
-      ? [`Offre de ${w.rival} : ${nf1(w.offer)} M€`, `Pour l’emporter : ${nf1(d.c[0].bid)} M€ + ${nf1(q?.annual || program.annual)} M€/an`,
-         ...(q?.termination > 0 ? [`Indemnité du programme remplacé : ${nf1(q.termination)} M€`] : [])]
-      : [`Indemnité de transfert proposée : ${nf1(w.offer)} M€`, `Pour le garder : ${nf1(d.c[0].finance.purchase)} M€, contrat prolongé d’une saison`],
+      ? [`Offre de ${w.rival} : ${nf1(w.offer)} M€`, ...signingExtraLines(q)]
+      : [`Indemnité de transfert proposée par ${w.rival} : ${nf1(w.offer)} M€`],
     conditions: w.kind === 'concept'
       ? [w.agreement ? `Option de développement signée en saison ${w.agreement.season} : indemnité de renoncement ${nf1(w.agreement.fee * BIDDING_WAR.optionRefund)} M€` : 'Aucun accord préalable : pas d’indemnité en cas de renoncement']
-      : ['Indemnité versée une seule fois, au départ effectif du programme', 'Remplacement installé immédiatement sur la case'] })];
+      : ['Indemnité versée une seule fois, au départ effectif du programme ; remplacement installé immédiatement'] })];
   d.c.filter(c => c.transferDeal).forEach(c => {
     const x = PROGRAM_CATALOG.find(y => y.id === c.transferDeal.replacementId);
-    d.showcase.push(showcaseEntry(x, w.slot, { level: 1, tag: 'Remplacement', current: { name: program.name },
-      costs: [`Droits : ${nf1(x.rights)} M€ · coût annuel : ${nf1(x.annual)} M€`] }));
+    d.showcase.push(showcaseEntry(x, w.slot, { tag: 'Remplacement', current: { name: program.name },
+      stats: [{ label: 'Coût annuel', value: `${nf1(x.annual)} M€` }, { label: 'Droits d’entrée', value: `${nf1(x.rights)} M€` },
+        { label: 'Engagement', value: seasons(x.years) }] }));
   });
   return d;
 }
