@@ -20502,6 +20502,7 @@ function chooseDilemmaOption(choiceIndex) {
   if (isSportsAuction && gameState.sportsRights?.activeAuction?.phase !== 'verdict') return;
   if (dilemma.isProducerPitch) refreshProducerPitch(dilemma);
   if (dilemma.isBiddingWar) refreshBiddingWar(dilemma);
+  if (dilemma.isReplacementChoice) refreshReplacementDilemma(dilemma);
   // Dilemme relié à la grille : reconstruit sur la grille du moment. S'il n'est plus
   // éligible, il a été remplacé : le joueur découvre le nouveau dilemme avant de choisir.
   const key = dynamicDilemmaKey(dilemma);
@@ -20548,6 +20549,8 @@ function chooseMaterialized(choiceIndex, dilemma) {
   // Occupation temporaire (téléfilms de Noël, événement de streamer) : le programme
   // habituel est mis en pause pour la saison, l'événement prend la case.
   if (choice.slotEvent) installSlotEvent(choice.slotEvent);
+  // Retour à la programmation initiale de la case (aucun contrat, aucun coût).
+  if (choice.restoreDefault && !player.contracts?.[choice.restoreDefault.slot]) delete player.grilleOverrides?.[choice.restoreDefault.slot];
   if (dilemma.isBiddingWar) applyBiddingWarChoice(dilemma, choice);
   if (choice.producerOption) {
     const o = choice.producerOption;
@@ -21655,7 +21658,7 @@ function render() {
     if (phase === 'choosing' && (gameState.dilemmaQueue || []).some(d => !programStoryDilemmaValid(d))) revalidateProgramStoryQueue();
     if (phase === 'choosing') refreshProducerPitch(gameState.dilemmaQueue?.[gameState.currentDilemmaIndex]);
     if (phase === 'choosing') materializeCurrentDilemma();
-    if (phase === 'choosing') refreshBiddingWar(gameState.dilemmaQueue?.[gameState.currentDilemmaIndex]);
+    if (phase === 'choosing') { refreshBiddingWar(gameState.dilemmaQueue?.[gameState.currentDilemmaIndex]); refreshReplacementDilemma(gameState.dilemmaQueue?.[gameState.currentDilemmaIndex]); }
     const dilemmaIndex = phase === 'result' ? gameState.currentDilemmaIndex - 1 : gameState.currentDilemmaIndex;
     const dilemma = gameState.dilemmaQueue[dilemmaIndex];
 
@@ -26245,15 +26248,15 @@ function biddingWarChoices(w) {
       pda: ZERO_PDA(), audienceImpacts: [], pop: 1,
       r: `Le producteur reste : « ${program.name} » est prolongé d’une saison sur votre grille.` }
   ];
-  biddingReplacements(w.slot, current?.annual || 0).forEach(x => {
-    const finance = { recurring: x.annual - (current?.annual || 0), purchase: x.rights, commercial: w.offer, category: 'C' };
-    choices.push({ l: `Accepter ${nf1(w.offer)} M€ et programmer « ${x.name} »`,
-      transferDeal: { slot: w.slot, programId: w.programId, rival: w.rival, indemnity: w.offer, replacementId: x.id },
-      pillLabel: `+${nf1(w.offer)} M€ · ${nf1(x.rights)} M€ + ${nf1(x.annual)} M€/an`,
-      finance, disabled: !current || current.id !== w.programId || !rival,
-      pda: ZERO_PDA(), audienceImpacts: [{ slot: w.slot, targets: ZERO_PDA() }], pop: 0,
-      r: `« ${program.name} » part chez ${w.rival} contre ${nf1(w.offer)} M€ ; « ${x.name} » prend sa case.` });
-  });
+  // Céder le programme : l'indemnité est encaissée et la case revient à sa programmation
+  // initiale ; le remplaçant se choisit dans un dilemme qui suit immédiatement.
+  choices.push({ l: `Accepter ${nf1(w.offer)} M€ et céder « ${program.name} »`,
+    transferDeal: { slot: w.slot, programId: w.programId, rival: w.rival, indemnity: w.offer },
+    pillLabel: `+${nf1(w.offer)} M€`,
+    finance: { recurring: -(current?.annual || 0), purchase: 0, commercial: w.offer, category: 'C' },
+    disabled: !current || current.id !== w.programId || !rival,
+    pda: ZERO_PDA(), audienceImpacts: [{ slot: w.slot, targets: ZERO_PDA() }], pop: 0,
+    r: `« ${program.name} » part chez ${w.rival} contre ${nf1(w.offer)} M€. Il vous reste à choisir son remplaçant.` });
   return choices;
 }
 
@@ -26302,13 +26305,33 @@ function refreshBiddingWar(d) {
       : [`Indemnité de transfert proposée par ${w.rival} : ${nf1(w.offer)} M€`],
     conditions: w.kind === 'concept'
       ? [w.agreement ? `Option de développement signée en saison ${w.agreement.season} : indemnité de renoncement ${nf1(w.agreement.fee * BIDDING_WAR.optionRefund)} M€` : 'Aucun accord préalable : pas d’indemnité en cas de renoncement']
-      : ['Indemnité versée une seule fois, au départ effectif du programme ; remplacement installé immédiatement'] })];
-  d.c.filter(c => c.transferDeal).forEach(c => {
-    const x = PROGRAM_CATALOG.find(y => y.id === c.transferDeal.replacementId);
-    d.showcase.push(showcaseEntry(x, w.slot, { tag: 'Remplacement', current: { name: program.name },
-      stats: [{ label: 'Coût annuel', value: `${nf1(x.annual)} M€` }, { label: 'Droits d’entrée', value: `${nf1(x.rights)} M€` },
-        { label: 'Engagement', value: seasons(x.years) }] }));
-  });
+      : ['Indemnité versée une seule fois, au départ effectif du programme ; vous choisirez ensuite son remplaçant'] })];
+  return d;
+}
+
+// Remplacement d'un programme cédé : deux programmes du catalogue adaptés à la chaîne,
+// à la case et à la trésorerie, ou retour à la programmation initiale de la case.
+function createReplacementDilemma(slot, leaving) {
+  return refreshReplacementDilemma({ id: `replacement-${gameState.season}-${slot}`, isReplacementChoice: true,
+    replaceSlot: slot, leavingId: leaving.id, leavingName: leaving.name,
+    titre: `Remplacer « ${leaving.name} »`, c: [] });
+}
+function initialProgramming(slot, channel = gameState.player) {
+  return PROGRAM_GRID[channel.type]?.[slot] || '';
+}
+function refreshReplacementDilemma(d) {
+  if (!d?.isReplacementChoice) return d;
+  const slot = d.replaceSlot, initial = initialProgramming(slot), now = onAirProgram(slot);
+  const options = biddingReplacements(slot, 0);
+  d.desc = `« ${d.leavingName} » a quitté votre case ${slotLabelOf(slot)}. Choisissez sa relève parmi les programmes adaptés à votre chaîne et à votre trésorerie, ou revenez à la programmation initiale de la case.`;
+  d.c = [
+    ...options.map(x => signingChoice(`Programmer « ${x.name} »`, slot, x.id, { r: `« ${x.name} » prend la case laissée par « ${d.leavingName} ».` })),
+    { l: `Revenir à la programmation initiale (« ${initial} »)`, restoreDefault: { slot }, pillLabel: 'Sans coût',
+      finance: NO_FINANCE(), pda: ZERO_PDA(), audienceImpacts: [], pop: 0,
+      r: `La case ${slotLabelOf(slot)} retrouve sa programmation d’origine, « ${initial} », sans coût supplémentaire.` }
+  ];
+  d.showcase = options.map(x => showcaseEntry(x, slot, { tag: 'Remplacement', current: now,
+    stats: signingStats(quoteProgram(slot, x.id, 'interne')) }));
   return d;
 }
 
@@ -26336,9 +26359,10 @@ function applyBiddingWarChoice(dilemma, choice) {
       p.coutTalentsSaison = Math.max(0, (p.coutTalentsSaison || 0) - (leaving.talentAnnual || 0));
       installCompetitorProgram(rival, program, w.slot, contractInvestLevel(leaving), 'offensive');
       rival.budget = Math.max(0, (rival.budget || 0) - w.offer);
-      const q = quoteProgram(w.slot, choice.transferDeal.replacementId, 'interne');
-      if (q) executeProgramSigning(w.slot, q, { skipFinance: true });
-      record.outcome = 'transferred'; record.indemnity = w.offer; record.replacementId = choice.transferDeal.replacementId;
+      delete p.grilleOverrides?.[w.slot];
+      record.outcome = 'transferred'; record.indemnity = w.offer;
+      // Dilemme de remplacement, joué juste après celui-ci.
+      gameState.dilemmaQueue?.splice((gameState.currentDilemmaIndex || 0) + 1, 0, createReplacementDilemma(w.slot, program));
     }
   }
   if (choice.producerDeal) record.outcome = 'won';

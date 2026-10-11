@@ -443,19 +443,33 @@ const base=id=>DILEMMA_BANK.find(d=>d.id===id);
   const {slot,contract}=cov[0]; const prog=PROGRAM_CATALOG.find(x=>x.id===contract.id);
   const rival=gameState.competitors[0]; rival.budget=500;
   const d=createBiddingWarDilemma({kind:'coveted',program:prog,slot,rival:rival.name,offer:exclusivityFee(prog,{contract})});
-  ok(d.c[0].keepProgram&&d.c.slice(1).every(c=>c.transferDeal&&c.transferDeal.replacementId!==prog.id),'convoité : garder ou céder avec remplacement');
-  ok(d.c.length>=2,'convoité : au moins un remplacement finançable');
-  const repl=d.c[1].transferDeal.replacementId, com=p.commercialSaison;
+  ok(d.c.length===2&&d.c[0].keepProgram&&d.c[1].transferDeal,'convoité : garder ou céder, sans remplacement proposé en même temps');
+  const com=p.commercialSaison;
   joue(d,1);
-  ok(sameProgram(activeContract(rival,slot),prog)&&p.contracts[slot].id===repl,'transfert : programme chez le concurrent, remplacement installé');
+  ok(sameProgram(activeContract(rival,slot),prog)&&!p.contracts[slot],'transfert : programme chez le concurrent, case libérée');
   ok(near(p.commercialSaison-com,d.war.offer),'indemnité de transfert versée une fois');
-  ok(p.contracts[slot].career.seasonNumber===1,'remplacement lancé en saison 1');
+  const next=gameState.dilemmaQueue[1];
+  ok(next&&next.isReplacementChoice&&next.replaceSlot===slot,'remplacement proposé juste après');
+  ok(next.c.length>=2&&next.c.at(-1).restoreDefault&&next.c.at(-1).l.includes(initialProgramming(slot)),'remplacement : programmes adaptés ou programmation initiale');
+  ok(next.c.slice(0,-1).every(c=>c.producerDeal&&!c.disabled)&&next.showcase.length===next.c.length-1,'remplacements finançables, avec leur fiche');
+  const repl=next.c[0].producerDeal.programId, achats=p.achatsSaison, qr=quoteProgram(slot,repl,'interne');
+  gameState.currentDilemmaIndex=1; gameState.dilemmaPhase='choosing'; gameState.step=6; chooseDilemmaOption(0);
+  ok(p.contracts[slot]?.id===repl&&p.contracts[slot].career.seasonNumber===1,'remplacement installé, lancé en saison 1');
+  ok(near(p.achatsSaison-achats,qr.finance.purchase),'remplacement payé une fois');
   ok(!biddingCoveted().some(x=>x.contract.id===prog.id),'pas de nouvelle proposition pour ce programme'); }
 { partie(28); const p=p0(); gameState.season=3; ['prime','access'].forEach(installe);
   Object.entries(p.contracts).forEach(([s,c])=>{ migrateProgramCareer(c,s); c.career.seasonsCount=1; });
   const {slot,contract}=biddingCoveted()[0]; const prog=PROGRAM_CATALOG.find(x=>x.id===contract.id), end=contract.end;
   const d=createBiddingWarDilemma({kind:'coveted',program:prog,slot,rival:gameState.competitors[0].name,offer:exclusivityFee(prog,{contract})});
-  joue(d,0); ok(sameProgram(p.contracts[slot],prog)&&p.contracts[slot].end===end+1,'surenchère : programme gardé et prolongé'); }
+  joue(d,0); ok(sameProgram(p.contracts[slot],prog)&&p.contracts[slot].end===end+1&&!gameState.dilemmaQueue.some(x=>x.isReplacementChoice),'surenchère : programme gardé et prolongé, pas de remplacement'); }
+// Céder puis revenir à la programmation initiale de la case : aucun coût.
+{ partie(28); const p=p0(); gameState.season=3; ['prime','access'].forEach(installe);
+  Object.entries(p.contracts).forEach(([s,c])=>{ migrateProgramCareer(c,s); c.career.seasonsCount=1; });
+  const {slot,contract}=biddingCoveted()[0]; const prog=PROGRAM_CATALOG.find(x=>x.id===contract.id);
+  const d=createBiddingWarDilemma({kind:'coveted',program:prog,slot,rival:gameState.competitors[0].name,offer:exclusivityFee(prog,{contract})});
+  joue(d,1); const next=gameState.dilemmaQueue[1], t=p.tresorerie, g=p.coutGrilleEngageSaison;
+  gameState.currentDilemmaIndex=1; gameState.dilemmaPhase='choosing'; gameState.step=6; chooseDilemmaOption(next.c.length-1);
+  ok(!p.contracts[slot]&&onAirProgram(slot).name===initialProgramming(slot)&&p.coutGrilleEngageSaison===g,'programmation initiale rétablie, sans coût'); }
 // Saisons de programme : 1 au lancement, migration des anciennes parties.
 { partie(29); const p=p0(); ['prime','access'].forEach(installe);
   ok(Object.values(p.contracts).every(c=>migrateProgramCareer(c).seasonNumber===1),'programmes lancés en saison 1');
