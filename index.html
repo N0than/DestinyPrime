@@ -24186,12 +24186,9 @@ function renewalCardHtml(slot, name, historic, stats, opts = {}) {
   const { pda, season, pausedBy } = programSlotPda(slot);
   const pdaTitle = !pausedBy ? 'PDA actuelle du programme'
     : season != null ? `PDA du programme en saison ${season}, sa dernière saison diffusée` : 'PDA estimée du programme hors événement';
-  // Saison du programme (1 au lancement) et contrat restant, distincts de la saison de la partie.
-  const career = contract ? migrateProgramCareer(contract, slot) : null;
-  const left = contract ? contractSeasonsLeft(contract) : 0;
-  const seasonSub = career ? `Saison ${career.seasonNumber} du programme · ${left > 0 ? `${left} saison${left > 1 ? 's' : ''} de contrat restante${left > 1 ? 's' : ''}` : 'fin de contrat'}` : '';
   return flipCardHtml({ ...opts, key: slot, name, stats,
-    ...(pausedBy ? { sub: `En pause cette saison : ${pausedBy.icon} ${pausedBy.name}` } : seasonSub ? { sub: seasonSub } : {}),
+    // Saison du programme et contrat restant : non affichés sous le créneau.
+    ...(pausedBy ? { sub: `En pause cette saison : ${pausedBy.icon} ${pausedBy.name}` } : {}),
     pdaBadge: Number.isFinite(pda) ? `<span class="gr-pda pg-badge-${slotMeta?.accent || 'gris'}" title="${esc(pdaTitle)}">${nf1(pda)}% PDA${season != null ? ` · S${season}` : ''}</span>` : '',
     artHtml: art ? `<img src="${art}" alt="" width="320" height="180" decoding="async">` : '',
     ribbon: historic ? '⭐ Historique' : '',
@@ -25881,7 +25878,7 @@ function producerPitchChoices(pitch) {
       pda: { ...zeroPda }, audienceImpacts: [{ slot: pitch.slot, targets: { ...zeroPda } }],
       pop: pitch.kind === 'rival' ? 0 : 1, r: signed },
     ...(pitch.kind === 'exclusive' ? [{
-      l: `Prendre une option d’achat (${nf1(producerOptionFee(pitch.program))} M€)`,
+      l: 'Prendre une option d’achat',
       producerOption: { programId: pitch.program.id, slot: pitch.slot, fee: producerOptionFee(pitch.program) },
       finance: { recurring: 0, purchase: producerOptionFee(pitch.program), commercial: 0, category: 'P' },
       pda: { ...zeroPda }, audienceImpacts: [], pop: 0,
