@@ -1899,7 +1899,8 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
   scroll-snap-type: x mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
 .gr-track::-webkit-scrollbar { display: none; }
 .gr-track > .gr-card { flex: 0 0 72%; scroll-snap-align: start; }
-.gr-facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; margin: 4px 10px 2px; }
+.gr-facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; margin: 2px 0 4px; }
+.gr-name-row .gr-slot-badge { flex: none; }
 .gr-fact { display: flex; flex-direction: column; gap: 1px; padding: 5px 6px; border-radius: 8px; background: rgba(255,255,255,0.7);
   border: 1px solid rgba(22,19,14,0.06); min-width: 0; }
 .gr-fact > span { font-size: 8px; font-weight: 700; letter-spacing: .3px; text-transform: uppercase; color: var(--gris); }
@@ -24225,6 +24226,7 @@ function flipCardHtml(o) {
       ${flippable ? `
       <div class="gr-face gr-back" inert>
         <span class="gr-back-head"><span class="gr-name">${esc(o.name)}</span>${o.pdaBadge || ''}</span>
+        ${o.backHtml || ''}
         ${choices.map(ch => `<button type="button" class="gr-opt${ch === picked ? ' selected' : ''}" data-gr-choice="${ch.index}">
           <span>${esc(ch.label)}</span><span class="gr-opt-cost ${ch.costCls}">${esc(ch.cost)}</span></button>`).join('')}
         <button type="button" class="gr-back-close" data-gr-close>↺ Retour</button>
@@ -24400,9 +24402,10 @@ function replacementCarouselHtml(dilemma, phase) {
     return flipCardHtml({ key: `opt-${index}`, name: program.name, stats: [],
       artHtml: art ? `<img src="${art}" alt="" width="320" height="180" decoding="async">` : '',
       ribbon: deal ? 'Remplacement' : 'Programmation initiale',
-      badge: `${slotMeta ? `${slotMeta.icon} ` : ''}${slotLabelOf(slot)}`,
+      // Badge du créneau sur la ligne du titre, aligné à droite ; chiffres clés au verso.
+      pdaBadge: `<span class="gr-slot-badge">${slotMeta ? `${slotMeta.icon} ` : ''}${esc(slotLabelOf(slot))}</span>`,
       sub: deal ? programGenreLabel(program) : 'Programme d’origine de la case, sans contrat',
-      extraHtml: deal ? facts([['Coût annuel', `${nf1(q?.annual ?? program.annual)} M€`], ['Droits', `${nf1(program.rights)} M€`],
+      backHtml: deal ? facts([['Coût annuel', `${nf1(q?.annual ?? program.annual)} M€`], ['Droits', `${nf1(program.rights)} M€`],
         ['Engagement', `${program.years} saison${program.years > 1 ? 's' : ''}`]])
         : facts([['Coût annuel', '0 M€'], ['Droits', '0 M€'], ['Engagement', 'Aucun']]),
       choices: choice.disabled ? [] : [action], picked: picked === index ? 0 : null, readonly: phase !== 'choosing' });
