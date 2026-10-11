@@ -1655,9 +1655,14 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
   border: 1px solid rgba(255,255,255,0.35); white-space: nowrap; }
 @media (min-width: 600px) { .dsc-art { aspect-ratio: auto; height: 240px; } .dsc-name { font-size: 26px; } }
 .dsc-body { min-width: 0; padding: 0 4px 2px; }
-.dsc-badges { display: flex; flex-wrap: wrap; gap: 4px; margin: 4px 0; }
 .dsc-line { font-size: 11px; line-height: 1.35; color: #334155; }
 .dsc-muted { color: var(--gris); }
+.dsc-now { margin-top: 2px; font-size: 12px; }
+.dsc-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin: 8px 0 2px; }
+.dsc-stat { display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start; gap: 4px; min-width: 0; }
+.dsc-stat span { font-size: 9px; font-weight: 800; letter-spacing: .4px; text-transform: uppercase; color: var(--gris); line-height: 1.2; }
+.dsc-stat b { font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 700; color: var(--bleu); white-space: nowrap;
+  padding: 3px 9px; border-radius: 999px; background: rgba(37,99,235,0.08); border: 1px solid rgba(37,99,235,0.18); }
 .dilemma-card .dsc-line b { color: var(--ink); }
 /* Offre retirée (démarchage devenu impossible) : visible, mais non jouable. */
 .choice[disabled] { opacity: 0.5; cursor: not-allowed; }
@@ -25839,10 +25844,9 @@ function createProducerPitchDilemma(pitch = pickProducerPitch()) {
 // grille, retrouvée par son identifiant), case, programme remplacé, coûts et conditions.
 function producerPitchShowcase(pitch) {
   const q = pitch.program && quoteProgram(pitch.slot, pitch.program.id, 'interne');
-  return showcaseEntry(pitch.program, pitch.slot, { level: 1,
+  return showcaseEntry(pitch.program, pitch.slot, {
     tag: pitch.kind === 'rival' ? (pitch.competitor?.name || 'Concurrent') : 'Concept inédit',
-    costs: signingCostLines(q),
-    conditions: [`Prise d’effet immédiate · contrat de ${pitch.program.years} saison(s)`] });
+    stats: signingStats(q), costs: signingExtraLines(q) });
 }
 
 // Montants à jour au moment de jouer le dilemme : la grille ou la trésorerie ont pu
@@ -25948,11 +25952,11 @@ function onAirProgram(slot, channel = gameState.player) {
 
 // Vitrine d'un dilemme qui touche la grille : illustration, case, programme actuel, niveau
 // de production, coûts et conditions. Les données sont sérialisables (identifiants).
-function showcaseEntry(program, slot, { level, costs = [], conditions = [], tag = 'Proposé', current } = {}) {
+function showcaseEntry(program, slot, { level, costs = [], conditions = [], stats = [], tag = 'Proposé', current } = {}) {
   const now = current || onAirProgram(slot);
   return { programId: program.id, name: program.name, format: program.format || null, slot,
     level: Number.isInteger(level) ? level : (Number.isInteger(program.level) ? program.level : null),
-    current: now?.name || null, currentId: now?.id || null, costs, conditions, tag };
+    current: now?.name || null, currentId: now?.id || null, costs, conditions, stats, tag };
 }
 function dilemmaShowcaseHtml(dilemma) {
   if (!dilemma?.showcase?.length) return '';
@@ -25965,13 +25969,27 @@ function dilemmaShowcaseHtml(dilemma) {
         <figcaption class="dsc-cap"><span class="dsc-name">${esc(e.name)}</span><span class="dsc-slot">${slotMeta ? `${slotMeta.icon} ` : ''}${esc(slotLabelOf(e.slot))}</span></figcaption>
       </figure>
       <div class="dsc-body">
-        ${Number.isInteger(e.level) ? `<div class="dsc-badges">${investBadge(e.level)}</div>` : ''}
-        ${e.current ? `<div class="dsc-line">À l’antenne : <b>« ${esc(e.current)} »</b></div>` : ''}
+        ${e.current ? `<div class="dsc-line dsc-now">À l’antenne : <b>« ${esc(e.current)} »</b></div>` : ''}
+        ${e.stats?.length ? `<div class="dsc-stats">${e.stats.map(x => `<div class="dsc-stat"><span>${esc(x.label)}</span><b>${esc(x.value)}</b></div>`).join('')}</div>` : ''}
         ${e.costs.map(x => `<div class="dsc-line">${esc(x)}</div>`).join('')}
         ${e.conditions.map(x => `<div class="dsc-line dsc-muted">${esc(x)}</div>`).join('')}
       </div>
     </div>`;
   }).join('')}</div>`;
+}
+// Chiffres clés d'une signature, en trois colonnes : coût annuel, rachat d'exclusivité
+// (ou droits d'entrée pour un concept que personne ne diffuse) et engagement.
+function signingStats(q) {
+  if (!q) return [];
+  return [
+    { label: 'Coût annuel', value: `${nf1(q.annual)} M€` },
+    q.buyout > 0 ? { label: 'Rachat d’exclusivité', value: `${nf1(q.buyout)} M€` } : { label: 'Droits d’entrée', value: `${nf1(q.program.rights)} M€` },
+    { label: 'Engagement', value: `${q.program.years} saison${q.program.years > 1 ? 's' : ''}` }
+  ];
+}
+// Ligne complémentaire : indemnité due au programme remplacé, le cas échéant.
+function signingExtraLines(q) {
+  return q?.termination > 0 ? [`Indemnité du programme remplacé : ${nf1(q.termination)} M€`] : [];
 }
 function signingCostLines(q) {
   if (!q) return [];
