@@ -25872,8 +25872,8 @@ function refreshProducerPitch(dilemma) {
 const DILEMMA_PROGRAM_FICHES = {
   dp_polar_regions: { name: 'Polar en régions', slot: 'prime', format: 'fiction', target: 's50', annual: 6, rights: 8, years: 2, power: 2.6, level: 2,
     pitch: 'Chaque semaine, une enquête policière dans une ville différente de France.' },
-  dp_polar_metropole: { name: 'Brigade Métropole', slot: 'prime', format: 'fiction', target: 'a2549', annual: 8, rights: 11, years: 2, power: 2.9, level: 3,
-    pitch: 'Un polar urbain sombre, tourné de nuit au cœur d’une grande métropole.' },
+  dp_polar_episode: { name: 'Polar en régions : l’épisode', slot: 'prime', format: 'fiction', target: 's50', annual: 0, rights: 2.5, years: 1, power: 0, level: 1, oneShot: true,
+    pitch: 'Un unitaire policier tourné dans une ville de région, diffusé une soirée en prime.' },
   dp_noel_telefilms: { name: 'Les Noëls enchantés', slot: 'apresmidi', format: 'fiction', target: 'a2549', annual: 0, rights: 2.5, years: 1, power: 1.6, level: 1, temporary: true,
     pitch: 'Une collection de téléfilms romantiques et enneigés, chaque après-midi dès novembre.' },
   dp_streamer_rallye: { name: 'Le Grand Rallye des Streamers', slot: 'prime', format: 'divertissement', target: 'j1524', annual: 0, rights: 8, years: 1, power: 3.2, level: 3, temporary: true,
@@ -25998,22 +25998,29 @@ function signingChoice(label, slot, programId, { r, pop = 0 } = {}) {
 const DYNAMIC_DILEMMAS = {
   // Polar régional : produire un vrai polar en prime, ou ne rien produire.
   d61: {
-    eligible: () => !slotTakenByEvent('prime') && ['dp_polar_regions', 'dp_polar_metropole'].some(id => quoteProgram('prime', id, 'interne')),
+    eligible: () => !slotTakenByEvent('prime') && !!quoteProgram('prime', 'dp_polar_regions', 'interne'),
+    // Option 1 : un épisode unitaire, diffusé une soirée sans toucher à la grille.
+    // Option 2 : la série de déclinaison locale, qui remplace le programme du prime.
     build: base => {
       const now = onAirProgram('prime');
-      const show = (id, tag) => {
-        const q = quoteProgram('prime', id, 'interne');
-        return showcaseEntry(findProgram(id), 'prime', { tag, costs: signingCostLines(q),
-          conditions: [`Lancement immédiat en prime, saison 1 du programme · contrat de ${findProgram(id).years} saisons`] });
-      };
+      const episode = findProgram('dp_polar_episode'), series = findProgram('dp_polar_regions');
+      const q = quoteProgram('prime', 'dp_polar_regions', 'interne');
       return { ...base, dynamicOf: 'd61',
-        desc: `Un producteur propose une collection de polars pour votre prime, où vous diffusez actuellement « ${now.name} ». Le polar retenu le remplacerait dès cette saison.`,
-        showcase: [show('dp_polar_regions', 'Option 1'), show('dp_polar_metropole', 'Option 2')],
+        desc: `Un producteur propose des fictions policières tournées chaque semaine dans une ville différente, pour votre prime où vous diffusez actuellement « ${now.name} ». Vous pouvez tester le concept avec un épisode ou lancer la série.`,
+        showcase: [
+          showcaseEntry(episode, 'prime', { tag: 'Option 1', current: now,
+            costs: [`Production de l’épisode : ${nf1(episode.rights)} M€`],
+            conditions: [`Une soirée en prime cette saison · « ${now.name} » reste à l’antenne`] }),
+          showcaseEntry(series, 'prime', { tag: 'Option 2', current: now, costs: signingCostLines(q),
+            conditions: [`Remplace « ${now.name} » dès cette saison · saison 1 du programme · contrat de ${series.years} saisons`] })
+        ],
         c: [
-          signingChoice(`Produire « Polar en régions » (production standard)`, 'prime', 'dp_polar_regions',
-            { r: `« Polar en régions » remplace « ${now.name} » en prime : il séduit les 50 ans et plus.`, pop: 3 }),
-          signingChoice(`Produire « Brigade Métropole » (production ambitieuse)`, 'prime', 'dp_polar_metropole',
-            { r: `« Brigade Métropole » remplace « ${now.name} » en prime : moins fédérateur, salué par la critique.`, pop: 1 }),
+          { l: 'Produire un épisode', pillLabel: `${nf1(episode.rights)} M€`,
+            finance: { recurring: 0, purchase: episode.rights, commercial: 0, category: 'P' }, pda: ZERO_PDA(),
+            audienceImpacts: [{ slot: 'prime', targets: { j1524: -0.2, a2549: 0.2, s50: 0.8, csp: 0 } }], pop: 1,
+            r: `L’épisode réunit les 50 ans et plus le temps d’une soirée ; « ${now.name} » garde sa case.` },
+          signingChoice('Produire une série de déclinaison locale', 'prime', 'dp_polar_regions',
+            { r: `« ${series.name} » remplace « ${now.name} » en prime : il séduit les 50 ans et plus.`, pop: 3 }),
           { l: 'Ne rien produire', finance: NO_FINANCE(), pda: ZERO_PDA(), audienceImpacts: [], pop: 0,
             r: `Vous gardez « ${now.name} » en prime, sans coût supplémentaire.` }
         ] };

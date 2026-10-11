@@ -327,12 +327,12 @@ const base=id=>DILEMMA_BANK.find(d=>d.id===id);
 { partie(21); const p=p0(); const avant=onAirProgram('prime');
   gameState.dilemmaQueue=[base('d61'),...fillers()]; gameState.currentDilemmaIndex=0;
   const d=materializeCurrentDilemma();
-  ok(d.c.length===3&&d.c[2].l==='Ne rien produire','polar : 3 choix dont « Ne rien produire »');
+  ok(d.c.map(c=>c.l).join('|')==='Produire un épisode|Produire une série de déclinaison locale|Ne rien produire','polar : épisode, série locale ou rien');
   ok(d.desc.includes(avant.name)&&d.showcase.length===2&&d.showcase.every(e=>e.current===avant.name&&e.level&&e.costs.length),'polar : vitrine (programme actuel, niveau, coûts)');
   ok(dilemmaShowcaseHtml(d).includes('Polar en régions')&&dilemmaShowcaseHtml(d).includes('<img'),'polar : illustration affichée');
   const q=quoteProgram('prime','dp_polar_regions','interne');
   const achats=p.achatsSaison, deltas=JSON.stringify(p.slotAudienceDeltas||{});
-  const {before}=joue(base('d61'),0);
+  const {before}=joue(base('d61'),1);
   const c=p.contracts.prime;
   ok(c.id==='dp_polar_regions'&&activeContract(p,'prime').id==='dp_polar_regions','polar produit : il remplace le prime');
   ok(c.career.seasonNumber===1&&c.end===gameState.season+q.program.years-1,'polar : saison 1, contrat de '+q.program.years+' saisons');
@@ -347,8 +347,15 @@ const base=id=>DILEMMA_BANK.find(d=>d.id===id);
   const art1=TvPrograms.forProgram(findProgram('dp_polar_regions')); ok(art1&&art1===TvPrograms.forProgram(JSON.parse(JSON.stringify(c))),'polar : illustration stable après sauvegarde'); }
 { partie(21); const p=p0(); const avant=JSON.stringify(p.contracts.prime), t=p.tresorerie, g=p.coutGrilleEngageSaison, achats=p.achatsSaison;
   joue(base('d61'),2);
+  ok(!findProgram('dp_polar_metropole'),'polar : plus de « Brigade Métropole »');
   ok(JSON.stringify(p.contracts.prime)===avant&&p.coutGrilleEngageSaison===g&&p.achatsSaison===achats,'polar refusé : grille et coûts inchangés');
   ok(gameState.lastConsequence.deltas&&!(gameState.lastConsequence.audience||[]).some(a=>a.slot==='prime'&&a.value),'polar refusé : aucun impact d’audience'); }
+// Polar : un épisode unitaire, payé une fois, sans toucher à la grille.
+{ partie(21); const p=p0(); installe('prime'); const avant=JSON.stringify(p.contracts.prime), achats=p.achatsSaison, g=p.coutGrilleEngageSaison;
+  joue(base('d61'),0);
+  ok(JSON.stringify(p.contracts.prime)===avant&&p.coutGrilleEngageSaison===g,'polar épisode : le prime garde son programme');
+  ok(near(p.achatsSaison-achats,findProgram('dp_polar_episode').rights),'polar épisode : production payée une fois');
+  ok(p.slotAudienceDeltas.prime.s50>0,'polar épisode : soirée suivie par les 50 ans et plus'); }
 // Téléfilms de Noël : remplacement temporaire du vrai programme, restauré ensuite.
 { partie(22); const p=p0(); installe('apresmidi'); const reg=p.contracts.apresmidi; ok(reg,'programme d’après-midi en place');
   const name=reg.name, end=reg.end, g=p.coutGrilleEngageSaison;
