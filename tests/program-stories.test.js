@@ -257,6 +257,63 @@ const nouvellePartie=()=>{ resetGame(); const p=gameState.player; p.name='Joueur
   globalThis.localStorage={getItem:()=>{throw Error('bloqué');},setItem:()=>{throw Error('bloqué');}};
   partie(31); ok(gameState.dilemmaQueue.length>=3,'tirage intact sans stockage');
   delete globalThis.localStorage; }
+
+// ——— Dilemmes qui changent la grille ———
+ok(!DILEMMA_BANK.some(d=>d.id==='d32'),'« Fin de la pub après 20h » supprimé');
+ok(DILEMMA_BANK.find(d=>d.id==='d_pub1').titre==='Recrutement du directeur de régie publicitaire','titre de la régie');
+// Festival Rock/Metal : chaque réponse inscrit un programme, avec son niveau de production.
+const festival=DILEMMA_BANK.find(d=>d.id==='d70');
+ok(festival.c.every(c=>c.grille&&Number.isInteger(c.grille.level)),'festival : toutes les réponses touchent la grille');
+ok(new Set(festival.c.map(c=>c.grille.level)).size===festival.c.length,'festival : niveaux de production distincts');
+{ partie(5); const p=gameState.player;
+  gameState.dilemmaQueue=[festival, ...DILEMMA_BANK.filter(d=>!d.grille&&!d.requiresRight&&!d.types).slice(0,2)];
+  gameState.currentDilemmaIndex=0; gameState.dilemmaPhase='choosing';
+  chooseDilemmaOption(0);
+  const c=p.contracts.prime;
+  ok(c&&c.name===festival.c[0].grille.programme&&c.investLevel===3&&c.power>0,'festival en prime : programme inscrit, production élevée');
+  ok(channelSlotProfile(p,'prime').level===3,'niveau de production pris en compte par la grille');
+  // Renouvellement : le programme à l'antenne est proposé, avec la possibilité de le prolonger.
+  const tail=gameState.dilemmaQueue.slice(gameState.currentDilemmaIndex);
+  const renewal=tail.find(d=>d.isCareerDilemma&&d.careerSlot==='prime'||d.isGridRenewal&&d.gridPrograms.some(g=>g.slot==='prime'));
+  ok(renewal,'programme du dilemme proposé au renouvellement');
+  if(renewal.isGridRenewal) ok(renewal.gridPrograms.find(g=>g.slot==='prime').name===c.name,'renouvellement : le programme à l’antenne, pas l’ancien');
+  const end=c.end; applyCareerDilemmaChoice({careerSlot:'prime',programId:c.id},{careerAction:'renew'});
+  ok(c.end===end+1,'programme du dilemme prolongé'); }
+
+// ——— Démarchage de producteurs ———
+{ partie(8); const p=gameState.player;
+  const free=PROGRAM_CATALOG.find(x=>x.channelType===p.type&&!programHolder(x)&&!sameProgram(p.contracts[x.slot],x)&&quoteProgram(x.slot,x.id,'interne')?.allowed);
+  const pitch=createProducerPitchDilemma({kind:'exclusive', program:free, slot:free.slot});
+  const slot=pitch.pitchSlot, prog=PROGRAM_CATALOG.find(x=>x.id===pitch.programId);
+  ok(pitch&&pitch.c.length===2&&pitch.c[0].producerDeal,'démarchage : signer ou décliner');
+  ok(!programHolder(prog),'concept exclusif : programme que personne ne diffuse');
+  gameState.dilemmaQueue=[pitch, ...DILEMMA_BANK.filter(d=>!d.grille&&!d.requiresRight&&!d.types).slice(0,2)];
+  gameState.currentDilemmaIndex=0; gameState.dilemmaPhase='choosing';
+  const tres=p.tresorerie;
+  chooseDilemmaOption(0);
+  ok(sameProgram(p.contracts[slot],prog),'concept exclusif signé sur sa case');
+  ok(p.tresorerie<tres+gameState.lastConsequence.deltas.revenusPub,'signature payée'); }
+{ partie(9); const p=gameState.player;
+  // Programme d'une chaîne concurrente : le producteur propose de le rapatrier.
+  const rivals=[]; gameState.competitors.forEach(cp=>TIME_SLOTS.forEach(({key})=>{ const ct=activeContract(cp,key);
+    const prog=ct&&PROGRAM_CATALOG.find(x=>x.channelType===p.type&&x.slot===key&&sameProgram(ct,x));
+    if(prog&&quoteProgram(key,prog.id,'interne')?.allowed) rivals.push({kind:'rival',program:prog,slot:key,competitor:cp}); }));
+  ok(rivals.length,'au moins un programme concurrent rachetable');
+  const pitch=createProducerPitchDilemma(rivals[0]);
+  ok(/vous propose/.test(pitch.titre)&&pitch.desc.includes(rivals[0].competitor.name),'démarchage : programme d’une autre chaîne');
+  gameState.dilemmaQueue=[pitch, ...DILEMMA_BANK.filter(d=>!d.grille&&!d.requiresRight&&!d.types).slice(0,2)];
+  gameState.currentDilemmaIndex=0; gameState.dilemmaPhase='choosing';
+  chooseDilemmaOption(0);
+  ok(sameProgram(p.contracts[rivals[0].slot],rivals[0].program)&&!sameProgram(activeContract(rivals[0].competitor,rivals[0].slot),rivals[0].program),'programme racheté : il quitte le concurrent');
+  // Offre devenue impossible : seul le refus reste jouable.
+  const again=createProducerPitchDilemma(rivals[0]); refreshProducerPitch(again);
+  ok(again.c[0].disabled&&!again.c[1].disabled,'offre retirée quand le programme n’est plus disponible'); }
+// Tirage : un démarchage apparaît certaines saisons, jamais en saison 1.
+{ let seen=0; for(let k=1;k<=12;k++){ partie(100+k); gameState.season=3; const q=pickDilemmaQueue(); if(q.some(d=>d.isProducerPitch)) seen++; }
+  ok(seen>=2&&seen<=11,'démarchages tirés certaines saisons ('+seen+'/12)');
+  partie(7); gameState.season=1; ok(!pickDilemmaQueue().some(d=>d.isProducerPitch),'pas de démarchage en saison 1'); }
+// Grilles concurrentes : un vrai programme, jamais un projet anonyme.
+{ partie(11); ok(gameState.competitors.every(cp=>competitorView(cp).every(v=>!v.masked&&v.name)),'grilles concurrentes : programmes nommés'); }
 `;
 const context = { console };
 vm.runInNewContext(scripts.slice(0, -1).join('\n') + tests

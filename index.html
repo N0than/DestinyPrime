@@ -1636,6 +1636,9 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
   transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease, background 0.12s ease;
 }
 .choice:hover { border-color: rgba(255,255,255,0.95); background: rgba(255,255,255,0.85); }
+/* Offre retirée (démarchage devenu impossible) : visible, mais non jouable. */
+.choice[disabled] { opacity: 0.5; cursor: not-allowed; }
+.choice[disabled]:hover { border-color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.65); }
 .choice:active { transform: scale(0.98); }
 .choice-row { display: flex; align-items: center; gap: 12px; }
 .choice-icon {
@@ -3933,14 +3936,6 @@ const DILEMMA_BANK = [
     ]
   },
   {
-    id: 'd32', titre: "Fin de la pub après 20h",
-    desc: "L'État décide de supprimer la publicité de soirée sur l'audiovisuel public.",
-    c: [
-      { l: "Accepter la suppression et avancer l'heure des primes", finance: {"recurring":0,"purchase":15,"commercial":0,"category":"P"}, pda: { j1524: +1, a2549: +2, s50: +5, csp: +4 }, r: "Plébiscite des téléspectateurs satisfaits de la ponctualité.", pop: 4 },
-      { l: "Gaver la tranche 19h-20h de spots de parrainage", finance: {"recurring":0,"purchase":0,"commercial":8,"category":"C"}, pda: { j1524: -1, a2549: -2, s50: -2, csp: -2 }, r: "Recettes sauvées, mais l'antenne devient illisible.", pop: -2 }
-    ]
-  },
-  {
     id: 'd33', titre: "Montage orienté à la ferme",
     desc: "Un agriculteur accuse le montage de le faire passer pour un goujat psychopathe.",
     c: [
@@ -4239,10 +4234,11 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd70', titre: "Retransmission d'un festival Rock/Metal",
-    desc: "Diffuser en direct le plus grand festival de musique extrême de France.",
+    desc: "Diffuser en direct le plus grand festival de musique extrême de France. La production propose plusieurs dispositifs, du grand direct de soirée à la simple captation de nuit.",
     c: [
-      { l: "Diffuser les grands concerts à partir de minuit", finance: {"recurring":0,"purchase":3,"commercial":0,"category":"P"}, pda: { j1524: +6, a2549: +1, s50: -4, csp: +1 }, r: "Public rock enthousiaste, excellente image alternative.", pop: -2 },
-      { l: "Programmer une rediffusion de variété française", finance: {"recurring":0,"purchase":5,"commercial":0,"category":"P"}, pda: { j1524: -3, a2549: 0, s50: +5, csp: +1 }, r: "Prudence éditoriale classique sans étincelle.", pop: 3 }
+      { l: "En faire l'événement du prime, en direct et en multicam", finance: {"recurring":6,"purchase":0,"commercial":0,"category":"R"}, pda: { j1524: +8, a2549: +3, s50: -6, csp: 0 }, r: "Le festival prend la soirée : énorme succès chez les jeunes, les seniors zappent.", pop: -1, grille: { slot: 'prime', programme: "Festival Rock/Metal en direct", level: 3, power: 0.4, format: 'evenement' } },
+      { l: "Diffuser les grands concerts à partir de minuit", finance: {"recurring":2,"purchase":0,"commercial":0,"category":"R"}, pda: { j1524: +6, a2549: +1, s50: -4, csp: +1 }, r: "Public rock enthousiaste, excellente image alternative.", pop: -2, grille: { slot: 'nuit', programme: "Nuits du festival Rock/Metal", level: 2, power: 0.15, format: 'evenement' } },
+      { l: "Programmer une rediffusion de variété française", finance: {"recurring":1,"purchase":0,"commercial":0,"category":"R"}, pda: { j1524: -3, a2549: 0, s50: +5, csp: +1 }, r: "Prudence éditoriale classique sans étincelle.", pop: 3, grille: { slot: 'nuit', programme: "Rediffusion de variétés françaises", level: 1, power: 0, format: 'magazine' } }
     ]
   },
   {
@@ -6468,7 +6464,7 @@ const DILEMMA_BANK = [
   }
 ,
   {
-    id: 'd_pub1', titre: "Recrutement du Directeur de Régie",
+    id: 'd_pub1', titre: "Recrutement du directeur de régie publicitaire",
     desc: "Un grand ponte de la pub propose ses services contre une rémunération très élevée.",
     c: [
       { l: "Engager ce cador à prix d'or", finance: {"recurring":4,"purchase":0,"commercial":10,"category":"R"}, pda: { j1524: 0, a2549: 0, s50: 0, csp: 0 }, r: "Un salaire d'un million, mais un réseau commercial qui fait exploser les recettes annuelles !", pop: 1 },
@@ -19704,6 +19700,15 @@ function pickDilemmaQueue() {
     queue[1] = createRegieOpportunityDilemma();
     gameState.player.lastRegieOpportunity = gameState.season;
   }
+  // Démarchage d'un producteur : concept exclusif ou programme d'une chaîne concurrente.
+  if (gameState.season >= PRODUCER_PITCH.minSeason && seededRandom() < PRODUCER_PITCH.chance) {
+    const at = [0, 1].find(i => queue[i] && DILEMMA_BANK.includes(queue[i]) && !queue[i].requiresRight);
+    const pitch = at != null ? createProducerPitchDilemma() : null;
+    if (pitch) {
+      queue[at] = pitch;
+      (gameState.player.producerPitched ??= []).push(pitch.programId);
+    }
+  }
   // Histoires de programmes : elles prennent la place de dilemmes génériques restants. La
   // dernière position est laissée aux renouvellements quand la grille en attend.
   placeProgramStories(queue, selectCareerDecisions().length > 0 || recurringRightsToRenew(o => o.ownerId === 'player').length > 0);
@@ -19721,27 +19726,51 @@ function pickDilemmaQueue() {
   return withRenewalDilemmas(queue);
 }
 
-function withRenewalDilemmas(queue) {
+// Dilemmes de fin de saison, calculés sur la grille du moment : renouvellement des
+// programmes (un par un ou toute la grille), droits sportifs, puis talents.
+function buildRenewalDilemmas() {
   const pendingRenewals = selectCareerDecisions()
     .filter(pending => createCareerRenewalDilemma(pending));
   // Droit sportif annuel diffusé cette saison : il fait partie de la programmation et se
   // reconduit (ou se lâche) avec la grille, sur sa propre carte.
   const sportsRenewals = recurringRightsToRenew(o => o.ownerId === 'player');
+  let main = [];
   if (pendingRenewals.length + sportsRenewals.length >= 2) {
-    queue[queue.length - 1] = createGridRenewalDilemma(pendingRenewals, sportsRenewals);
+    main = [createGridRenewalDilemma(pendingRenewals, sportsRenewals)];
   } else if (sportsRenewals.length) {
-    queue[queue.length - 1] = createSportsRenewalDilemma(sportsRenewals[0]);
+    main = [createSportsRenewalDilemma(sportsRenewals[0])];
   } else {
-    pendingRenewals.forEach((pending, i) => {
-      const careerDilemma = createCareerRenewalDilemma(pending);
-      if (i === 0) queue[queue.length - 1] = careerDilemma;
-      else queue.push(careerDilemma);
-    });
+    main = pendingRenewals.map(pending => createCareerRenewalDilemma(pending));
   }
   // Les talents en fin de contrat ferment la saison : un arbitrage de plus, après la grille.
-  const talentDilemma = createTalentRenewalDilemma(pendingTalentRenewals());
-  if (talentDilemma) queue.push(talentDilemma);
+  return { main, talent: createTalentRenewalDilemma(pendingTalentRenewals()) };
+}
+
+function withRenewalDilemmas(queue) {
+  const { main, talent } = buildRenewalDilemmas();
+  if (main.length) { queue[queue.length - 1] = main[0]; queue.push(...main.slice(1)); }
+  if (talent) queue.push(talent);
   return queue;
+}
+
+const isRenewalDilemma = d => !!(d && (d.isCareerDilemma || d.isGridRenewal || d.isTalentRenewal || d.isSportsRenewal));
+
+// Un dilemme joué en cours de saison peut changer la grille (programme inscrit sur une
+// case, nouvelle signature) : les renouvellements encore à venir sont recalculés pour
+// proposer le programme réellement à l'antenne, avec la possibilité de le prolonger.
+function refreshRenewalTail() {
+  const queue = gameState.dilemmaQueue || [];
+  const index = gameState.currentDilemmaIndex || 0;
+  const tail = queue.slice(index + 1);
+  const hadRenewals = tail.some(isRenewalDilemma);
+  const regular = tail.filter(d => !isRenewalDilemma(d));
+  const { main, talent } = buildRenewalDilemmas();
+  // Le renouvellement occupait déjà la dernière place de la saison : il la garde. Sinon,
+  // il s'ajoute en fin de saison sans retirer de dilemme.
+  const rebuilt = [...regular, ...main];
+  if (talent) rebuilt.push(talent);
+  if (!hadRenewals && !main.length && !talent) return;
+  gameState.dilemmaQueue = [...queue.slice(0, index + 1), ...rebuilt];
 }
 
 // Un programme signé après le tirage de la file (conférence de rentrée, grille de
@@ -20425,6 +20454,8 @@ function chooseDilemmaOption(choiceIndex) {
   if (!programStoryDilemmaValid(dilemma)) { revalidateProgramStoryQueue(); render(); return; }
   const isSportsAuction = dilemma.type === 'sports_rights_auction';
   if (isSportsAuction && gameState.sportsRights?.activeAuction?.phase !== 'verdict') return;
+  if (dilemma.isProducerPitch) refreshProducerPitch(dilemma);
+  if (dilemma.c[choiceIndex].disabled) return;
   const choice = isSportsAuction ? buildSportsAuctionChoice(dilemma)
     : dilemma.c[choiceIndex].gridRenewal === 'custom' ? buildGridRenewalCustomChoice(dilemma, dilemma.c[choiceIndex])
     : dilemma.c[choiceIndex].talentRenewal ? buildTalentRenewalChoice(dilemma, dilemma.c[choiceIndex])
@@ -20448,6 +20479,13 @@ function chooseDilemmaOption(choiceIndex) {
   const calculatedAvant = getCalculatedPDAs().find(item => item.channel === player);
   const pdaCibleAvant = calculatedAvant.pda[player.target];
   if (dilemma.isProgramStory) applyProgramStoryChoice(dilemma, choice);
+  // Démarchage accepté : le programme est signé sur sa case (le flux financier, déjà
+  // chiffré dans le choix, est appliqué plus bas avec celui des autres dilemmes).
+  if (choice.producerDeal) {
+    const deal = choice.producerDeal;
+    const q = quoteProgram(deal.slot, deal.programId, deal.talentId);
+    if (q) executeProgramSigning(deal.slot, q, { skipFinance: true });
+  }
   const resolvedAudienceImpacts = applyDilemmaAudienceImpacts(dilemma, choice, popAvant);
   const calculatedApresImpact = getCalculatedPDAs().find(item => item.channel === player);
   const slotAudienceDeltas = resolvedAudienceImpacts.map(impact => {
@@ -20501,16 +20539,22 @@ function chooseDilemmaOption(choiceIndex) {
   } else if (choice.grille) {
     const slot=choice.grille.slot;
     const annual=Math.max(0,choice.finance.recurring);
+    // Niveau de production (1 à 3) et puissance propres à la réponse choisie, s'ils sont
+    // précisés : un direct événementiel ne pèse pas comme une rediffusion.
+    const power=Number(choice.grille.power||0);
     player.contracts[slot]={id:'editorial-'+dilemma.id+'-'+choiceIndex, name:choice.grille.programme,
-      annual, talent:'Équipe du programme', talentAnnual:0, power:0,
+      annual, talent:'Équipe du programme', talentAnnual:0, power,
+      ...(Number.isInteger(choice.grille.level) ? {investLevel:choice.grille.level} : {}),
       target:player.target, end:gameState.season, source:'dilemma', slot,
       audienceDeltas:{},
-      career:createProgramCareer({power:0, format:'magazine'}, slot),
+      career:createProgramCareer({power, format:choice.grille.format||'magazine'}, slot),
       editorial:programEditorialProfile({name:choice.grille.programme, channelType:player.type, slot})};
     player.coutTalentsSaison=Math.max(0,player.coutTalentsSaison-decisionQuote.replacedTalent);
     player.grilleOverrides[slot]=choice.grille.programme;
   }
   player.decisionHistory.push({id:dilemma.id, choice:isSportsAuction ? -1 : choiceIndex, season:gameState.season, ...decisionQuote.finance});
+  // La grille vient de changer : les renouvellements de fin de saison suivent.
+  if (choice.grille || choice.producerDeal) refreshRenewalTail();
   if (isSportsAuction) recordSportsAuctionOutcome(dilemma);
   if (dilemma.isSportsRenewal) applySportsRenewalChoice(dilemma.rightsEventId, choice.sportsRenewal);
   const talentCost = isSportsDeal ? null : DILEMMA_TALENT_COST[dilemma.id];
@@ -21541,6 +21585,7 @@ function render() {
     // Seconde validation avant affichage : une histoire dont le programme a quitté l'antenne
     // (remplacé, case prise par un droit…) cède sa place avant d'être montrée.
     if (phase === 'choosing' && (gameState.dilemmaQueue || []).some(d => !programStoryDilemmaValid(d))) revalidateProgramStoryQueue();
+    if (phase === 'choosing') refreshProducerPitch(gameState.dilemmaQueue?.[gameState.currentDilemmaIndex]);
     const dilemmaIndex = phase === 'result' ? gameState.currentDilemmaIndex - 1 : gameState.currentDilemmaIndex;
     const dilemma = gameState.dilemmaQueue[dilemmaIndex];
 
@@ -21620,7 +21665,7 @@ function render() {
             const badgeText = custom ? gridRenewalSummary(dilemma)
               : choice.talentRenewal ? talentRenewalSummary(dilemma, choice.talentRenewal === 'all') : financeLabel(choice);
             return `
-            <button class="choice" data-idx="${i}">
+            <button class="choice" data-idx="${i}"${choice.disabled ? ' disabled aria-disabled="true"' : ''}>
               <div class="choice-row">
                 <span class="choice-icon ${accent}" aria-hidden="true">${esc(icon)}</span>
                 <div class="choice-content">
@@ -21719,6 +21764,7 @@ function render() {
     } else if (phase === 'choosing') {
       app.querySelectorAll('.choice').forEach(btn => {
         btn.onclick = () => {
+          if (btn.disabled) return;
           const choicesEl = document.querySelector('#choice-zone .choices');
           btn.classList.add('selected');
 
@@ -24528,7 +24574,7 @@ function applyFinance(f, excludedSlot=null) {
 }
 // Rachat / signature : modifications de l'état, partagées par la validation et la
 // prévisualisation (exécutée sur une copie isolée de l'état du jeu).
-function executeProgramSigning(slot, quote) {
+function executeProgramSigning(slot, quote, { skipFinance = false } = {}) {
   const p=gameState.player;
   const {program,talent,annual,holder,buyout}=quote;
   // 1. Instantané chez le vendeur : dernière PDA calculée, avant toute modification des grilles.
@@ -24536,7 +24582,8 @@ function executeProgramSigning(slot, quote) {
   const previous=p.contracts[slot];
   delete p.contracts[slot];
   // 2. Rachat selon les règles financières actuelles (droits, indemnité, rachat d'exclusivité).
-  applyFinance(quote.finance);
+  // Signé depuis un dilemme, le flux est comptabilisé par le dilemme lui-même.
+  if(!skipFinance) applyFinance(quote.finance);
   if(holder) {
     // 3. Grille du vendeur : retrait du programme et remplacement par son IA.
     releaseCompetitorProgram(holder.competitor,holder.slot,buyout);
@@ -25037,11 +25084,12 @@ function planCompetitorSeason(competitor, index) {
     competitor.contracts[slot] = makeCompetitorContract(competitor, d.program, slot, d.level,
       { seasonsCount: d.seasonsCount, tag: d.tag, extraPower: d.extraPower });
     if (firstSeason) competitor.contracts[slot].end = gameState.season + Math.floor(marketRandom() * 3);
-    // Part d'incertitude des intentions : niveau approximatif ou projet non dévoilé.
+    // Part d'incertitude des intentions : le niveau annoncé peut être approximatif. Le
+    // programme, lui, est toujours dévoilé (un vrai titre dans la grille, jamais un projet anonyme).
     const noisy = marketRandom() < GAME_BALANCE.market.intentionNoise;
     announced[slot] = {
       level: noisy && !d.isNew ? Math.max(0, Math.min(3, d.level + (marketRandom() < 0.5 ? -1 : 1))) : d.level,
-      masked: noisy && d.isNew
+      masked: false
     };
   });
   competitor.plan = {
@@ -25109,7 +25157,7 @@ function competitorView(competitor) {
     return { slot: key, name: d.name, genre: d.genre, format: d.format, target: d.target, tag: d.tag, isNew: d.isNew,
       prevName: d.prevName, prevLevel: d.prevLevel, isSportsEvent: !!d.isSportsEvent, buyout: !!d.buyout, icon: d.icon || null, pausedName: d.pausedName || null,
       level: confirmed ? d.level : a.level ?? d.level,
-      masked: !confirmed && !!a.masked,
+      masked: false,
       reaction: reaction && reaction.expires >= gameState.season ? reaction.action : null };
   });
 }
@@ -25202,7 +25250,7 @@ function competitorDecryptage(competitor) {
     maintien: 'maintient son', economie: 'allège son', franchise: 'décline une franchise en', riposte: 'riposte en',
     evenement: 'frappe un grand coup en' };
   const verb = lead.buyout ? 'reprogramme son' : verbs[lead.tag] || 'mise sur son';
-  let sentence = `${competitor.name} ${verb} ${slotLabel(lead.slot)} avec ${lead.masked ? 'un projet encore confidentiel' : `« ${lead.name} » (${genre})`}`;
+  let sentence = `${competitor.name} ${verb} ${slotLabel(lead.slot)} avec « ${lead.name} » (${genre})`;
   const prio = GAME_BALANCE.competitors.profiles[competitor.strategy]?.targetPriority;
   const focused = view.filter(x => x.target === prio && x.level >= 2).length;
   const savings = view.filter(x => x.tag === 'economie' && !x.buyout);
@@ -25598,6 +25646,100 @@ function createRegieOpportunityDilemma() {
   };
 }
 
+// ---------------------------------------------------------------------------
+// DÉMARCHAGE DE PRODUCTEURS — dilemmes dynamiques
+// ---------------------------------------------------------------------------
+// Un producteur frappe à la porte : soit avec un concept exclusif (programme du catalogue
+// que personne ne diffuse), soit avec un programme à l'antenne d'une chaîne concurrente
+// qu'il propose de rapatrier. Accepter signe réellement le programme sur sa case, avec
+// les règles habituelles (droits, indemnité de l'ancien programme, rachat d'exclusivité).
+const PRODUCER_PITCH = { chance: 0.5, minSeason: 2, rivalShare: 0.5, topExclusive: 8 };
+
+function producerPitchSlots() {
+  const p = gameState.player;
+  return TIME_SLOTS.map(s => s.key)
+    .filter(slot => p.contracts?.[slot]?.sportsPause !== gameState.season && !sportsBroadcastOn(p, slot));
+}
+
+function pickProducerPitch() {
+  const p = gameState.player;
+  const slots = producerPitchSlots();
+  const pitched = new Set(p.producerPitched || []);
+  const fresh = (program, slot) => !pitched.has(program.id) && !sameProgram(p.contracts?.[slot], program)
+    && quoteProgram(slot, program.id, 'interne')?.allowed;
+  const rivals = [];
+  (gameState.competitors || []).forEach(competitor => slots.forEach(slot => {
+    const contract = activeContract(competitor, slot);
+    const program = contract && PROGRAM_CATALOG.find(x => x.channelType === p.type && x.slot === slot && sameProgram(contract, x));
+    if (program && fresh(program, slot)) rivals.push({ kind: 'rival', program, slot, competitor });
+  }));
+  const exclusives = PROGRAM_CATALOG
+    .filter(x => x.channelType === p.type && slots.includes(x.slot) && !programHolder(x) && fresh(x, x.slot))
+    .sort((a, b) => b.power - a.power).slice(0, PRODUCER_PITCH.topExclusive)
+    .map(program => ({ kind: 'exclusive', program, slot: program.slot }));
+  const useRival = rivals.length && (!exclusives.length || seededRandom() < PRODUCER_PITCH.rivalShare);
+  const pool = useRival ? rivals : exclusives;
+  return pool.length ? pool[Math.floor(seededRandom() * pool.length)] : null;
+}
+
+function producerPitchChoices(pitch) {
+  const zeroPda = { j1524: 0, a2549: 0, s50: 0, csp: 0 };
+  const q = quoteProgram(pitch.slot, pitch.program.id, 'interne');
+  const current = gameState.player.contracts?.[pitch.slot];
+  const signed = pitch.kind === 'rival'
+    ? `« ${pitch.program.name} » quitte ${pitch.competitor.name} et rejoint votre grille : une partie de son public le suit.`
+    : `« ${pitch.program.name} » arrive en exclusivité sur votre grille${current ? ` à la place de « ${current.name} »` : ''}.`;
+  const cost = q ? `${nf1(q.finance.purchase)} M€${q.annual > 0 ? ` + ${nf1(q.annual)} M€/an` : ''}` : '';
+  return [
+    { l: pitch.kind === 'rival' ? `Racheter « ${pitch.program.name} »` : 'Signer l’exclusivité',
+      producerDeal: { slot: pitch.slot, programId: pitch.program.id, talentId: 'interne' },
+      pillLabel: cost ? `Signature : ${cost}` : 'Signature',
+      finance: q ? { ...q.finance, category: 'P' } : { recurring: 0, purchase: 0, commercial: 0, category: 'N' },
+      pda: { ...zeroPda }, audienceImpacts: [{ slot: pitch.slot, targets: { ...zeroPda } }],
+      pop: pitch.kind === 'rival' ? 0 : 1, r: signed },
+    { l: 'Décliner la proposition', finance: { recurring: 0, purchase: 0, commercial: 0, category: 'N' },
+      pda: { ...zeroPda }, audienceImpacts: [], pop: 0,
+      r: pitch.kind === 'rival'
+        ? `Vous laissez « ${pitch.program.name} » chez ${pitch.competitor.name}. Votre grille ne bouge pas.`
+        : 'Le producteur ira frapper à la porte d’une autre chaîne. Votre grille ne bouge pas.' }
+  ];
+}
+
+function createProducerPitchDilemma(pitch = pickProducerPitch()) {
+  if (!pitch) return null;
+  const p = gameState.player;
+  const { program, slot } = pitch;
+  const current = p.contracts?.[slot];
+  const slotName = slotLabelOf(slot);
+  const replaced = current ? ` Il prendrait la place de « ${current.name} ».` : '';
+  return {
+    id: `producer-${gameState.season}-${program.id}`, isProducerPitch: true, pitchKind: pitch.kind,
+    pitchSlot: slot, programId: program.id, competitorName: pitch.competitor?.name || null,
+    titre: pitch.kind === 'rival' ? `Un producteur vous propose « ${program.name} »` : `Concept exclusif : « ${program.name} »`,
+    desc: pitch.kind === 'rival'
+      ? `Le producteur de « ${program.name} », à l'antenne de ${pitch.competitor.name}, est prêt à rejoindre votre chaîne sur la case ${slotName}.${replaced} Le rachat d'exclusivité s'ajoute aux droits.`
+      : `Un producteur vous réserve « ${program.name} », un concept que personne n'a encore signé, pour votre case ${slotName}.${replaced}`,
+    c: producerPitchChoices(pitch)
+  };
+}
+
+// Montants à jour au moment de jouer le dilemme : la grille ou la trésorerie ont pu
+// changer depuis le tirage. Une offre devenue impossible ne propose plus que le refus.
+function refreshProducerPitch(dilemma) {
+  if (!dilemma?.isProducerPitch) return dilemma;
+  const program = PROGRAM_CATALOG.find(x => x.id === dilemma.programId);
+  const holder = program && programHolder(program);
+  const pitch = { kind: dilemma.pitchKind, program, slot: dilemma.pitchSlot,
+    competitor: holder?.competitor || (gameState.competitors || []).find(c => c.name === dilemma.competitorName) };
+  const q = program && quoteProgram(dilemma.pitchSlot, program.id, 'interne');
+  dilemma.c = producerPitchChoices(pitch);
+  if (!q?.allowed || (dilemma.pitchKind === 'rival' && !holder)) {
+    dilemma.c[0].disabled = true;
+    dilemma.c[0].l += ' (offre retirée)';
+  }
+  return dilemma;
+}
+
 function applyRegieDecision(regie) {
   const p = gameState.player;
   const cfg = GAME_BALANCE.regie;
@@ -25634,7 +25776,7 @@ function renderRadarCards(slot) {
     const isPlayer = r.channel === p;
     const v = r.view;
     const genre = v.genre ? (GENRE_LABELS[v.genre] || v.genre) : '—';
-    const programName = v.masked ? 'Projet en développement' : v.name;
+    const programName = v.name;
     const clash = isPlayer ? null : confrontationLabel(mine, v, target, slot);
     const clashMeta = clash && RADAR_CLASH_SHORT[clash];
     const investLabel = GAME_BALANCE.market.investLabels[v.level] || '—';
@@ -25689,7 +25831,7 @@ function renderCompetitorSheet(c) {
   const gap = pda - playerRow.pda[target];
   const view = competitorView(c);
   const firstSeason = view.every(v => v.prevName === null);
-  const label = v => v.masked ? 'Projet en développement' : `« ${v.name} »`;
+  const label = v => `« ${v.name} »`;
   const changes = firstSeason ? [] : view.flatMap(v => {
     const out = [];
     if (v.isSportsEvent) out.push(v.pausedName
@@ -25723,7 +25865,7 @@ function renderCompetitorSheet(c) {
       <div class="radar-section-title">Grille ${c.plan?.confirmed ? 'confirmée' : 'annoncée'}</div>
       ${view.map(v => `<div class="radar-grid-row">
         <span class="radar-grid-slot">${slotLabelOf(v.slot)}</span>
-        <span class="radar-grid-program">${v.icon ? `${v.icon} ` : ''}${esc(v.masked ? 'Projet en développement' : v.name)}</span>
+        <span class="radar-grid-program">${v.icon ? `${v.icon} ` : ''}${esc(v.name)}</span>
         ${investBadge(v.level)}${v.buyout ? '' : strategyBadge(v.tag)}
       </div>`).join('')}
     </div>
