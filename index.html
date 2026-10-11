@@ -1658,11 +1658,8 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .dsc-line { font-size: 11px; line-height: 1.35; color: #334155; }
 .dsc-muted { color: var(--gris); }
 .dsc-now { margin-top: 2px; font-size: 12px; }
-.dsc-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin: 8px 0 2px; }
-.dsc-stat { display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start; gap: 4px; min-width: 0; }
-.dsc-stat span { font-size: 9px; font-weight: 800; letter-spacing: .4px; text-transform: uppercase; color: var(--gris); line-height: 1.2; }
-.dsc-stat b { font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 700; color: var(--bleu); white-space: nowrap;
-  padding: 3px 9px; border-radius: 999px; background: rgba(37,99,235,0.08); border: 1px solid rgba(37,99,235,0.18); }
+.dsc-now-name { font-size: 13px; font-weight: 700; color: var(--ink); }
+.dsc-list > .dsc-sa { margin-top: 0; }
 .dilemma-card .dsc-line b { color: var(--ink); }
 /* Offre retirée (démarchage devenu impossible) : visible, mais non jouable. */
 .choice[disabled] { opacity: 0.5; cursor: not-allowed; }
@@ -25964,26 +25961,34 @@ function dilemmaShowcaseHtml(dilemma) {
     const program = findProgram(e.programId) || { id: e.programId, name: e.name, format: e.format };
     const art = programArt(program);
     const slotMeta = TIME_SLOTS.find(s => s.key === e.slot);
+    // Fiche chiffrée (dilemmes producteurs) : même gabarit que les droits sportifs.
+    if (e.stats?.length) return `<div class="sa-inline dsc-sa">
+      <figure class="sa-illu">${art ? `<img src="${art}" alt="" aria-hidden="true">` : ''}<span class="sa-illu-tier">${esc(e.tag)}</span>
+        <figcaption class="sa-illu-cap"><span class="sa-illu-name">${esc(e.name)}</span><span class="sa-illu-slot">${slotMeta ? `${slotMeta.icon} ` : ''}${esc(slotLabelOf(e.slot))}</span></figcaption>
+      </figure>
+      ${e.current ? `<div class="sa-row"><span class="sa-row-label">À l’antenne</span><span class="dsc-now-name">« ${esc(e.current)} »</span></div>` : ''}
+      <div class="sa-stats">${e.stats.map(x => `<div class="sa-stat"><span>${esc(x.label)}</span><b>${esc(x.value)}</b></div>`).join('')}</div>
+      ${[...e.costs, ...e.conditions].map(x => `<p class="sa-note">${esc(x)}</p>`).join('')}
+    </div>`;
     return `<div class="dsc-card">
       <figure class="dsc-art">${art ? `<img src="${art}" alt="" width="320" height="180" decoding="async">` : ''}<span class="dsc-tag">${esc(e.tag)}</span>
         <figcaption class="dsc-cap"><span class="dsc-name">${esc(e.name)}</span><span class="dsc-slot">${slotMeta ? `${slotMeta.icon} ` : ''}${esc(slotLabelOf(e.slot))}</span></figcaption>
       </figure>
       <div class="dsc-body">
         ${e.current ? `<div class="dsc-line dsc-now">À l’antenne : <b>« ${esc(e.current)} »</b></div>` : ''}
-        ${e.stats?.length ? `<div class="dsc-stats">${e.stats.map(x => `<div class="dsc-stat"><span>${esc(x.label)}</span><b>${esc(x.value)}</b></div>`).join('')}</div>` : ''}
         ${e.costs.map(x => `<div class="dsc-line">${esc(x)}</div>`).join('')}
         ${e.conditions.map(x => `<div class="dsc-line dsc-muted">${esc(x)}</div>`).join('')}
       </div>
     </div>`;
   }).join('')}</div>`;
 }
-// Chiffres clés d'une signature, en trois colonnes : coût annuel, rachat d'exclusivité
+// Chiffres clés d'une signature, en trois colonnes : coût annuel, rachat des droits
 // (ou droits d'entrée pour un concept que personne ne diffuse) et engagement.
 function signingStats(q) {
   if (!q) return [];
   return [
     { label: 'Coût annuel', value: `${nf1(q.annual)} M€` },
-    q.buyout > 0 ? { label: 'Rachat d’exclusivité', value: `${nf1(q.buyout)} M€` } : { label: 'Droits d’entrée', value: `${nf1(q.program.rights)} M€` },
+    q.buyout > 0 ? { label: 'Rachat des droits', value: `${nf1(q.buyout)} M€` } : { label: 'Droits d’entrée', value: `${nf1(q.program.rights)} M€` },
     { label: 'Engagement', value: `${q.program.years} saison${q.program.years > 1 ? 's' : ''}` }
   ];
 }
