@@ -1899,6 +1899,11 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
   scroll-snap-type: x mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
 .gr-track::-webkit-scrollbar { display: none; }
 .gr-track > .gr-card { flex: 0 0 72%; scroll-snap-align: start; }
+.gr-facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; margin: 4px 10px 2px; }
+.gr-fact { display: flex; flex-direction: column; gap: 1px; padding: 5px 6px; border-radius: 8px; background: rgba(255,255,255,0.7);
+  border: 1px solid rgba(22,19,14,0.06); min-width: 0; }
+.gr-fact > span { font-size: 8px; font-weight: 700; letter-spacing: .3px; text-transform: uppercase; color: var(--gris); }
+.gr-fact b { font-size: 11.5px; line-height: 1.2; color: var(--ink); white-space: nowrap; }
 @media (min-width: 640px) { .gr-track > .gr-card { flex-basis: 250px; } }
 .gr-dots { display: flex; justify-content: center; gap: 6px; margin-top: 8px; }
 .gr-dot { width: 7px; height: 7px; padding: 0; border: 0; border-radius: 999px; background: var(--border); cursor: pointer; transition: width .2s, background .2s; }
@@ -21672,7 +21677,8 @@ function render() {
       : phase === 'choosing' && sportEvent ? renderSportsAuctionZone(dilemma) : '';
     if (sportsResult) {
       zoneHtml = renderSportsVerdictZone(gameState.lastConsequence);
-    } else if (phase === 'choosing' && sportEvent) {
+    } else if (phase === 'choosing' && (sportEvent || dilemma.isReplacementChoice)) {
+      // Enchère, ou remplacement : les actions sont portées par les cartes.
       zoneHtml = '';
     } else if (phase === 'result') {
       const cq = gameState.lastConsequence;
@@ -21790,6 +21796,7 @@ function render() {
                 { label: 'Usure', value: dilemma.careerStats.wear, wear: true }],
                 { readonly: true, single: true })}
             </div>` : ''}
+            ${dilemma.isReplacementChoice ? replacementCarouselHtml(dilemma, phase) : ''}
             ${dilemma.isGridRenewal ? `
             <div class="gr-carousel" data-gr-carousel>
               <div class="gr-cards gr-track" data-gr-cards="grid" aria-label="Programmes à reconduire">${dilemma.gridPrograms.map(g => {
@@ -21833,6 +21840,7 @@ function render() {
     bindTickerInteractions(app);
     bindRenewalCarousel(app);
     if (phase === 'choosing' && (dilemma.isGridRenewal || dilemma.isTalentRenewal)) bindRenewalCards(app, dilemma);
+    if (phase === 'choosing' && dilemma.isReplacementChoice) bindReplacementCards(app);
     if (phase === 'choosing' && sportEvent) {
       bindSportsAuctionZone(app);
     } else if (phase === 'choosing') {
@@ -24209,6 +24217,7 @@ function flipCardHtml(o) {
         <span class="gr-name-row"><span class="gr-name">${esc(o.name)}</span>${o.pdaBadge || ''}</span>
         ${o.badge ? `<span class="gr-slot-row"><span class="gr-slot-badge">${esc(o.badge)}</span></span>` : ''}
         ${o.sub ? `<span class="gr-sub">${esc(o.sub)}</span>` : ''}
+        ${o.extraHtml || ''}
         ${o.single ? `<span class="gr-stats">${o.stats.map(st => `<span class="gr-stat${st.wear ? ' is-wear' : ''}"><span class="gr-wear-label">${esc(st.label)}</span>${mercatoStarsHtml(starsOf(st), starsTitle(st))}</span>`).join('')}</span>`
           : o.stats.map(st => `<span class="gr-wear${st.wear ? ' is-wear' : ''}"><span class="gr-wear-label" title="${esc(st.title || st.label)}">${esc(st.label)}</span>${mercatoStarsHtml(starsOf(st), starsTitle(st))}</span>`).join('')}
         ${choices.length ? `<span class="gr-pick ${picked ? picked.action : ''}" data-gr-pick>${picked ? esc(picked.badge) : ''}</span>` : ''}
@@ -24372,6 +24381,59 @@ function bindRenewalCards(root, dilemma) {
         pill.className = `choice-pill ${deck.pillCls()}`;
       }
     });
+  });
+}
+// Remplacement d'un programme cédé : carrousel de cartes retournables (comme les
+// renouvellements). Recto : illustration et chiffres clés ; verso : bouton d'action.
+function replacementCarouselHtml(dilemma, phase) {
+  const slot = dilemma.replaceSlot, slotMeta = TIME_SLOTS.find(s => s.key === slot);
+  const picked = phase !== 'choosing' ? gameState.player.decisionHistory?.at(-1)?.id === dilemma.id ? gameState.player.decisionHistory.at(-1).choice : null : null;
+  const facts = list => `<span class="gr-facts">${list.map(([k, v]) => `<span class="gr-fact"><span>${esc(k)}</span><b>${esc(v)}</b></span>`).join('')}</span>`;
+  const cards = dilemma.c.map((choice, index) => {
+    const deal = choice.producerDeal;
+    const program = deal ? findProgram(deal.programId) : { id: `initial:${gameState.player.type}:${slot}`, name: initialProgramming(slot), slot, channelType: gameState.player.type };
+    const q = deal ? quoteProgram(slot, deal.programId, 'interne') : null;
+    const art = programArt(program);
+    const action = { index, label: deal ? 'Programmer ce programme' : 'Revenir à la programmation initiale',
+      cost: choice.pillLabel || 'Sans coût', costCls: deal ? 'cost' : 'free', action: deal ? 'renew' : 'stop',
+      badge: deal ? '✔ Programmé' : '↺ Programmation initiale' };
+    return flipCardHtml({ key: `opt-${index}`, name: program.name, stats: [],
+      artHtml: art ? `<img src="${art}" alt="" width="320" height="180" decoding="async">` : '',
+      ribbon: deal ? 'Remplacement' : 'Programmation initiale',
+      badge: `${slotMeta ? `${slotMeta.icon} ` : ''}${slotLabelOf(slot)}`,
+      sub: deal ? programGenreLabel(program) : 'Programme d’origine de la case, sans contrat',
+      extraHtml: deal ? facts([['Coût annuel', `${nf1(q?.annual ?? program.annual)} M€`], ['Droits', `${nf1(program.rights)} M€`],
+        ['Engagement', `${program.years} saison${program.years > 1 ? 's' : ''}`]])
+        : facts([['Coût annuel', '0 M€'], ['Droits', '0 M€'], ['Engagement', 'Aucun']]),
+      choices: choice.disabled ? [] : [action], picked: picked === index ? 0 : null, readonly: phase !== 'choosing' });
+  });
+  return `
+            <div class="gr-carousel" data-gr-carousel>
+              <div class="gr-cards gr-track" data-gr-cards="replacement" aria-label="Programmes de remplacement">${cards.join('')}</div>
+              <button type="button" class="gr-nav prev" data-gr-nav="-1" aria-label="Programme précédent">‹</button>
+              <button type="button" class="gr-nav next" data-gr-nav="1" aria-label="Programme suivant">›</button>
+              <div class="gr-dots" role="tablist">${dilemma.c.map((c, i) => `<button type="button" class="gr-dot${i === 0 ? ' active' : ''}" data-gr-dot="${i}" aria-label="Option ${i + 1}"></button>`).join('')}</div>
+            </div>`;
+}
+function bindReplacementCards(root) {
+  const container = root.querySelector('[data-gr-cards="replacement"]');
+  if (!container) return;
+  const setFlipped = (card, on) => {
+    card.classList.toggle('flipped', on);
+    card.querySelector('.gr-front')?.toggleAttribute('inert', on);
+    card.querySelector('.gr-back')?.toggleAttribute('inert', !on);
+  };
+  container.querySelectorAll('.gr-card.flippable').forEach(card => {
+    const front = card.querySelector('.gr-front');
+    const open = () => {
+      container.querySelectorAll('.gr-card.flipped').forEach(other => { if (other !== card) setFlipped(other, false); });
+      setFlipped(card, true);
+      card.querySelector('.gr-opt')?.focus({ preventScroll: true });
+    };
+    front.onclick = open;
+    front.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } };
+    card.querySelector('[data-gr-close]').onclick = () => { setFlipped(card, false); front.focus({ preventScroll: true }); };
+    card.querySelectorAll('[data-gr-choice]').forEach(btn => btn.onclick = () => chooseDilemmaOption(Number(btn.dataset.grChoice)));
   });
 }
 // Carrousel des programmes à reconduire : défilement natif avec aimantation,
@@ -25959,7 +26021,7 @@ function showcaseEntry(program, slot, { level, costs = [], conditions = [], stat
     current: now?.name || null, currentId: now?.id || null, costs, conditions, stats, tag };
 }
 function dilemmaShowcaseHtml(dilemma) {
-  if (!dilemma?.showcase?.length) return '';
+  if (!dilemma?.showcase?.length || dilemma.isReplacementChoice) return '';
   return `<div class="dsc-list">${dilemma.showcase.map(e => {
     const program = findProgram(e.programId) || { id: e.programId, name: e.name, format: e.format };
     const art = programArt(program);
