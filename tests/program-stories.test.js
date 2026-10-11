@@ -356,6 +356,16 @@ const base=id=>DILEMMA_BANK.find(d=>d.id===id);
   ok(JSON.stringify(p.contracts.prime)===avant&&p.coutGrilleEngageSaison===g,'polar épisode : le prime garde son programme');
   ok(near(p.achatsSaison-achats,findProgram('dp_polar_episode').rights),'polar épisode : production payée une fois');
   ok(p.slotAudienceDeltas.prime.s50>0,'polar épisode : soirée suivie par les 50 ans et plus'); }
+// Changement d'animateur : seulement si un jeu est programmé, nommé dans le dilemme.
+{ partie(31); const p=p0();
+  const jeu=PROGRAM_CATALOG.find(x=>x.channelType===p.type&&PROGRAM_FAMILIES.jeu.test(x)&&!programHolder(x)&&quoteProgram(x.slot,x.id,'interne')?.allowed);
+  const sansJeu=!gridProgramsOf(p).some(x=>PROGRAM_FAMILIES.jeu.test(x));
+  if(sansJeu) ok(!dynamicDilemmaEligible(base('d49')),'animateur : aucun jeu, aucun dilemme');
+  signe(jeu.slot,jeu.id);
+  gameState.dilemmaQueue=[base('d49'),...fillers()]; gameState.currentDilemmaIndex=0;
+  const d=materializeCurrentDilemma(), game=dilemmaProgramMatch(base('d49'));
+  ok(d.titre.includes(p.contracts[game.slot].name)&&d.desc.includes(slotLabelOf(game.slot))&&!/ench[eè]res|objets anciens/i.test(d.titre+d.desc),'animateur : le jeu programmé est nommé');
+  ok(d.c.map(c=>c.l).join('|')==='Recruter un animateur charismatique|Miser sur une jeune pousse','animateur : charismatique ou jeune pousse'); }
 // Téléfilms de Noël : remplacement temporaire du vrai programme, restauré ensuite.
 { partie(22); const p=p0(); installe('apresmidi'); const reg=p.contracts.apresmidi; ok(reg,'programme d’après-midi en place');
   const name=reg.name, end=reg.end, g=p.coutGrilleEngageSaison;

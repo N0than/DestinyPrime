@@ -4098,11 +4098,11 @@ const DILEMMA_BANK = [
     ]
   },
   {
-    id: 'd49', titre: "Animation du jeu d'enchères",
-    desc: "Le jeu de vente d'objets anciens en après-midi doit changer d'animateur.",
+    id: 'd49', titre: "Changement d'animateur",
+    desc: "Votre jeu doit changer d'animateur.",
     c: [
-      { l: "Engager un antiquaire charismatique et excentrique", finance: {"recurring":5,"purchase":0,"commercial":0,"category":"R"}, pda: { j1524: -1, a2549: +1, s50: +6, csp: +3 }, r: "Succès monumental sur la tranche 16h-18h.", pop: 4 },
-      { l: "Reprogrammer de vieilles fictions télé", finance: {"recurring":-2,"purchase":0,"commercial":0,"category":"E"}, pda: { j1524: +1, a2549: +2, s50: 0, csp: -2 }, r: "Remplissage sans relief mais coûts réduits au minimum.", pop: -1 }
+      { l: "Recruter un animateur charismatique", finance: {"recurring":5,"purchase":0,"commercial":0,"category":"R"}, pda: { j1524: -1, a2549: +2, s50: +6, csp: +2 }, r: "Une figure connue du public : le jeu gagne en notoriété et fidélise les plus âgés.", pop: 4 },
+      { l: "Miser sur une jeune pousse", finance: {"recurring":1,"purchase":0,"commercial":0,"category":"R"}, pda: { j1524: +4, a2549: +2, s50: -1, csp: 0 }, r: "Un visage neuf et spontané : les jeunes adhèrent, les fidèles prennent leurs marques.", pop: 1 }
     ]
   },
   {
@@ -6788,7 +6788,7 @@ const DILEMMA_FLAVOR = {
   d46: [{ diverti: 4, protection: -4 }, { protection: 4, diverti: -4 }],
   d47: [{ diverti: 4, inedit: -2 }, { culture: 4, prodFR: 4, creation: 2 }],
   d48: [{ info: 4, culture: 2, debat: 2 }, { info: -4, culture: -2 }],
-  d49: [{ culture: 2, renouveles: 2 }, { fiction: 2, renouveles: -2 }],
+  d49: [{ renouveles: 2 }, { renouveles: 1 }],
   d50: [{ creation: -2 }, { creation: 4, prodFR: 2 }],
   d51: [{ diverti: 4, prodEU: -2, inedit: 2 }, { diverti: -2, prodFR: 2 }],
   d52: [{ culture: 2, debat: 2 }, { sport: 2, culture: -2 }],
@@ -7025,7 +7025,7 @@ const DILEMMA_TALENT_COST = {
   d13: [7, 0],
   d21: [5, 8],
   d41: [0, 3],
-  d49: [5, 0],
+  d49: [5, 1],
   d51: [12, 3],
   d53: [2, 4],
   d54: [5, 0],
@@ -23546,7 +23546,7 @@ function renderSportsAuctionZone(dilemma) {
       </div>
       <div ${pop(0.25, 'sa-budget')}><span>Trésorerie <b>${nf1(p.tresorerie)} M€</b></span><span>Exposition max. <b>${nf1(ev.exposure)} M€</b></span></div>
       ${event.risk ? `<p ${pop(0.28, 'sa-note sa-warn')}>⚠️ Aléa possible : ${esc(event.risk.label.split(' : ')[0].replace(/^./, c => c.toLowerCase()))}.</p>` : ''}
-      <p ${pop(0.3, 'sa-note')}>Un seul tour, offre sous pli : l’audience viendra de la diffusion en saison ${gameState.season + 1}, les programmes en place y seront mis en pause et prolongés d’une saison.${event.recurring ? ` Droit annuel : le prix remporté entre dans le coût de grille de la saison ${gameState.season + 1} (rien n’est payé aujourd’hui) et y reste à chaque reconduction.` : ''}</p>
+      <p ${pop(0.3, 'sa-note')}>Un seul tour, offre sous pli : les programmes en place y seront mis en pause et prolongés d’une saison.</p>
       <div ${pop(0.35, 'sa-actions')}>
         <button type="button" class="sa-btn primary" data-sa-action="participate">Participer</button>
         <button type="button" class="sa-btn" data-sa-action="pass">Passer</button>
@@ -26105,6 +26105,15 @@ function signingChoice(label, slot, programId, { r, pop = 0 } = {}) {
 // reconstruits à l'affichage et à la validation. Un dilemme devenu inéligible est
 // remplacé par le mécanisme habituel (revalidateProgramStoryQueue).
 const DYNAMIC_DILEMMAS = {
+  // Changement d'animateur : le dilemme nomme le jeu réellement à l'antenne.
+  d49: {
+    eligible: () => !!dilemmaProgramMatch(DILEMMA_BANK.find(d => d.id === 'd49')),
+    build: base => {
+      const game = dilemmaProgramMatch(base), name = game.contract?.name || onAirProgram(game.slot).name;
+      return { ...base, dynamicOf: 'd49', titre: `Nouvel animateur pour « ${name} »`,
+        desc: `« ${name} », votre jeu de la case ${slotLabelOf(game.slot)}, doit changer d'animateur. Le producteur hésite entre une figure charismatique et une jeune pousse prometteuse.` };
+    }
+  },
   // Polar régional : produire un vrai polar en prime, ou ne rien produire.
   d61: {
     eligible: () => !slotTakenByEvent('prime') && !!quoteProgram('prime', 'dp_polar_regions', 'interne'),
