@@ -1637,15 +1637,24 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 }
 .choice:hover { border-color: rgba(255,255,255,0.95); background: rgba(255,255,255,0.85); }
 /* Vitrine d'un dilemme qui touche la grille : programme proposé et conditions. */
-.dsc-list { display: grid; gap: 10px; margin-top: 12px; }
-.dsc-card { display: grid; grid-template-columns: 112px 1fr; gap: 10px; align-items: start; text-align: left;
-  background: rgba(255,255,255,0.7); border: 1px solid rgba(15,23,42,0.08); border-radius: 12px; padding: 8px; }
-.dsc-art { position: relative; display: block; border-radius: 8px; overflow: hidden; aspect-ratio: 16 / 9; background: rgba(15,23,42,0.06); }
-.dsc-art img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.dsc-tag { position: absolute; left: 4px; top: 4px; font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.3px;
-  background: rgba(15,23,42,0.75); color: #fff; padding: 2px 6px; border-radius: 999px; max-width: calc(100% - 8px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.dsc-body { min-width: 0; }
-.dsc-title { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 13px; line-height: 1.2; color: var(--ink); }
+.dsc-list { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; margin-top: 12px; width: 100%; align-self: stretch; box-sizing: border-box; }
+.dsc-card { display: grid; gap: 10px; text-align: left; width: 100%; box-sizing: border-box;
+  background: rgba(255,255,255,0.7); border: 1px solid rgba(15,23,42,0.08); border-radius: 16px; padding: 8px; }
+/* Illustration pleine largeur, mise en forme des droits sportifs (.sa-illu). */
+.dsc-art { position: relative; display: block; margin: 0; aspect-ratio: 16 / 9; border-radius: 12px; overflow: hidden; background: #2f3b6e;
+  box-shadow: 0 10px 24px -16px rgba(15,23,42,0.55); }
+.dsc-art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+.dsc-tag { position: absolute; left: 10px; top: 10px; font-family: 'Space Grotesk', sans-serif; font-size: 9.5px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: .5px; padding: 4px 9px; border-radius: 999px; background: rgba(255,255,255,0.92); color: var(--bleu);
+  box-shadow: 0 4px 10px -6px rgba(15,23,42,0.5); max-width: calc(100% - 20px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dsc-cap { position: absolute; left: 0; right: 0; bottom: 0; display: flex; align-items: flex-end; justify-content: space-between; gap: 8px;
+  padding: 28px 12px 10px; background: linear-gradient(180deg, rgba(15,23,42,0) 0%, rgba(15,23,42,0.72) 70%); color: #fff; }
+.dsc-name { font-family: 'Anton', sans-serif; font-size: 22px; line-height: 1.05; text-transform: uppercase; letter-spacing: .2px;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.35); min-width: 0; }
+.dsc-slot { flex: none; font-size: 10.5px; font-weight: 700; padding: 4px 9px; border-radius: 999px; background: rgba(255,255,255,0.18);
+  border: 1px solid rgba(255,255,255,0.35); white-space: nowrap; }
+@media (min-width: 600px) { .dsc-art { aspect-ratio: auto; height: 240px; } .dsc-name { font-size: 26px; } }
+.dsc-body { min-width: 0; padding: 0 4px 2px; }
 .dsc-badges { display: flex; flex-wrap: wrap; gap: 4px; margin: 4px 0; }
 .dsc-line { font-size: 11px; line-height: 1.35; color: #334155; }
 .dsc-muted { color: var(--gris); }
@@ -25952,10 +25961,11 @@ function dilemmaShowcaseHtml(dilemma) {
     const art = programArt(program);
     const slotMeta = TIME_SLOTS.find(s => s.key === e.slot);
     return `<div class="dsc-card">
-      <span class="dsc-art">${art ? `<img src="${art}" alt="" width="320" height="180" decoding="async">` : ''}<span class="dsc-tag">${esc(e.tag)}</span></span>
+      <figure class="dsc-art">${art ? `<img src="${art}" alt="" width="320" height="180" decoding="async">` : ''}<span class="dsc-tag">${esc(e.tag)}</span>
+        <figcaption class="dsc-cap"><span class="dsc-name">${esc(e.name)}</span><span class="dsc-slot">${slotMeta ? `${slotMeta.icon} ` : ''}${esc(slotLabelOf(e.slot))}</span></figcaption>
+      </figure>
       <div class="dsc-body">
-        <div class="dsc-title">${esc(e.name)}</div>
-        <div class="dsc-badges"><span class="pg-pda-badge pg-badge-${slotMeta?.accent || 'gris'}">${slotMeta ? `${slotMeta.icon} ` : ''}${esc(slotLabelOf(e.slot))}</span>${Number.isInteger(e.level) ? investBadge(e.level) : ''}</div>
+        ${Number.isInteger(e.level) ? `<div class="dsc-badges">${investBadge(e.level)}</div>` : ''}
         ${e.current ? `<div class="dsc-line">À l’antenne : <b>« ${esc(e.current)} »</b></div>` : ''}
         ${e.costs.map(x => `<div class="dsc-line">${esc(x)}</div>`).join('')}
         ${e.conditions.map(x => `<div class="dsc-line dsc-muted">${esc(x)}</div>`).join('')}
