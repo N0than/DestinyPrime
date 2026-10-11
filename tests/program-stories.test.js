@@ -240,6 +240,23 @@ for(let season=1;season<=4;season++){
   if(gameState.step!==6) break;
 }
 ok(Object.values(gameState.player.programStories||{}).every(r=>r.log.every(l=>PROGRAM_STORY_BANK.some(d=>d.id===l.id))),'journal cohérent après plusieurs saisons');
+// ——— Tirage des dilemmes d'une partie à l'autre ———
+// Chaque nouvelle partie reçoit sa propre graine : les premiers dilemmes ne se répètent plus.
+const nouvellePartie=()=>{ resetGame(); const p=gameState.player; p.name='Joueur'; p.type='generaliste'; p.target='a2549';
+  finalizeChannelSetup(); launchFirstSeason(); return (gameState.dilemmaBaseQueue||gameState.dilemmaQueue).map(d=>d.id).join(','); };
+{ let r=7; Math.random=()=>{r=(Math.imul(r,1103515245)+12345)>>>0; return r/4294967296;};
+  const debuts=new Set(Array.from({length:8},nouvellePartie));
+  ok(debuts.size>=6,'premiers dilemmes variés d’une partie à l’autre ('+debuts.size+'/8)');
+  const graines=new Set(Array.from({length:8},()=>{resetGame(); ensureCampaign(); return gameState.campaign.seed;}));
+  ok(graines.size===8&&!graines.has(0),'graine propre à chaque partie'); }
+// Mémoire entre parties : à graine identique, les dilemmes que l'on vient de jouer passent après les autres.
+{ const store={}; globalThis.localStorage={getItem:k=>store[k]??null,setItem:(k,v)=>{store[k]=String(v);}};
+  partie(31); const vus=gameState.seenDilemmaIds.slice();
+  partie(31); const revus=gameState.seenDilemmaIds.filter(id=>vus.includes(id)&&DILEMMA_BANK.some(d=>d.id===id));
+  ok(vus.length&&!revus.length,'dilemmes récents écartés à la partie suivante');
+  globalThis.localStorage={getItem:()=>{throw Error('bloqué');},setItem:()=>{throw Error('bloqué');}};
+  partie(31); ok(gameState.dilemmaQueue.length>=3,'tirage intact sans stockage');
+  delete globalThis.localStorage; }
 `;
 const context = { console };
 vm.runInNewContext(scripts.slice(0, -1).join('\n') + tests

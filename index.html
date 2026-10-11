@@ -19679,7 +19679,9 @@ function pickDilemmaQueue() {
   const pool = getEligibleDilemmas().filter(d => (!isMercatoSeason() || !MERCATO_OVERLAP_DILEMMAS.includes(d.id))
     && d.type !== 'sports_rights_auction');
   const available = pool.filter(d => !gameState.seenDilemmaIds.includes(d.id));
-  let queue = shuffle(available).slice(0, 3);
+  const recent = new Set(recentDilemmaIds());
+  const mixed = shuffle(available);
+  let queue = [...mixed.filter(d => !recent.has(d.id)), ...mixed.filter(d => recent.has(d.id))].slice(0, 3);
   if (queue.length < 3) {
     gameState.seenDilemmaIds = [];
     const usedIds = new Set(queue.map(d => d.id));
@@ -19691,6 +19693,7 @@ function pickDilemmaQueue() {
   const rightDilemma = pool.find(d => d.requiresRight && !queue.includes(d));
   if (rightDilemma) queue[0] = rightDilemma;
   gameState.seenDilemmaIds.push(...queue.map(d => d.id));
+  rememberDilemmas(queue.map(d => d.id));
   ensureCampaign();
   const event = STORY_EVENTS.find(e=>e.eligible(gameState.player)&&!gameState.player.eventsSeen.includes(e.id));
   if(event) { queue[queue.length-1]=event; gameState.player.eventsSeen.push(event.id); }
@@ -22150,6 +22153,30 @@ function financeLabel(choice) {
   const f = choice.finance;
   return FINANCE_LABELS[f.category] + (f.category === 'N' ? '' : ' : ' + nf1(Math.abs(f.recurring) + f.purchase + f.commercial) + ' M€');
 }
+// Graine propre à chaque partie. Une graine fixe faisait tirer les mêmes dilemmes, dans le
+// même ordre, à chaque nouvelle partie.
+function newCampaignSeed() {
+  let x = 0;
+  try { x = crypto.getRandomValues(new Uint32Array(1))[0]; } catch (e) { /* pas de crypto */ }
+  x = (x || Math.floor(Math.random() * 4294967295)) >>> 0;
+  return x || 88675123;
+}
+
+// Mémoire d'une partie à l'autre (dans ce navigateur) : les dilemmes joués récemment
+// passent après ceux que le joueur n'a pas encore vus.
+const RECENT_DILEMMAS_KEY = 'audienceMasters.recentDilemmas';
+const RECENT_DILEMMAS_MAX = 60;
+function recentDilemmaIds() {
+  try { const v = JSON.parse(localStorage.getItem(RECENT_DILEMMAS_KEY) || '[]'); return Array.isArray(v) ? v : []; }
+  catch (e) { return []; }
+}
+function rememberDilemmas(ids) {
+  try {
+    const keep = [...ids, ...recentDilemmaIds().filter(id => !ids.includes(id))].slice(0, RECENT_DILEMMAS_MAX);
+    localStorage.setItem(RECENT_DILEMMAS_KEY, JSON.stringify(keep));
+  } catch (e) { /* stockage indisponible : le tirage reste aléatoire */ }
+}
+
 function ensureCampaign() {
   const p = gameState.player;
   p.commercialSaison ??= 0; p.achatsSaison ??= 0;
@@ -22158,7 +22185,7 @@ function ensureCampaign() {
   gameState.competitors ??= [];
   gameState.competitors.forEach(migrateCompetitorStrategy);
   gameState.competitorEvents ??= [];
-  gameState.campaign ??= { deadline: 5, status: 'active', seed: 12345 };
+  gameState.campaign ??= { deadline: 5, status: 'active', seed: newCampaignSeed() };
   ensureSportsRightsState();
 }
 // Flux aléatoire propre au marché concurrentiel : il ne consomme pas celui de la
