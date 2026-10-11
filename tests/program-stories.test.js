@@ -285,7 +285,7 @@ ok(new Set(festival.c.map(c=>c.grille.level)).size===festival.c.length,'festival
   const free=PROGRAM_CATALOG.find(x=>x.channelType===p.type&&!programHolder(x)&&!sameProgram(p.contracts[x.slot],x)&&quoteProgram(x.slot,x.id,'interne')?.allowed);
   const pitch=createProducerPitchDilemma({kind:'exclusive', program:free, slot:free.slot});
   const slot=pitch.pitchSlot, prog=PROGRAM_CATALOG.find(x=>x.id===pitch.programId);
-  ok(pitch&&pitch.c.length===2&&pitch.c[0].producerDeal,'démarchage : signer ou décliner');
+  ok(pitch&&pitch.c.length===3&&pitch.c[0].producerDeal&&pitch.c[1].producerOption,'démarchage : signer, option ou décliner');
   ok(!programHolder(prog),'concept exclusif : programme que personne ne diffuse');
   gameState.dilemmaQueue=[pitch, ...DILEMMA_BANK.filter(d=>!d.grille&&!d.requiresRight&&!d.types).slice(0,2)];
   gameState.currentDilemmaIndex=0; gameState.dilemmaPhase='choosing';
@@ -314,10 +314,157 @@ ok(new Set(festival.c.map(c=>c.grille.level)).size===festival.c.length,'festival
   partie(7); gameState.season=1; ok(!pickDilemmaQueue().some(d=>d.isProducerPitch),'pas de démarchage en saison 1'); }
 // Grilles concurrentes : un vrai programme, jamais un projet anonyme.
 { partie(11); ok(gameState.competitors.every(cp=>competitorView(cp).every(v=>!v.masked&&v.name)),'grilles concurrentes : programmes nommés'); }
+// ——— Dilemmes reliés à la grille active ———
+const fillers=()=>DILEMMA_BANK.filter(d=>!d.grille&&!d.requiresRight&&!d.types&&!DYNAMIC_DILEMMAS[d.id]).slice(0,2);
+function joue(d,i){ gameState.dilemmaQueue=[d,...fillers()]; gameState.currentDilemmaIndex=0; gameState.dilemmaPhase='choosing';
+  const live=materializeCurrentDilemma(); const before={t:p0().tresorerie,g:p0().coutGrilleEngageSaison,h:p0().decisionHistory.length};
+  chooseDilemmaOption(i); return {live,before}; }
+const p0=()=>gameState.player;
+// Programme réel signé sur une case (partie neuve : grille par défaut, sans contrat).
+const installe=slot=>{ const x=PROGRAM_CATALOG.find(y=>y.channelType===p0().type&&y.slot===slot&&!programHolder(y)&&quoteProgram(slot,y.id,'interne')?.allowed); return signe(slot,x.id); };
+const base=id=>DILEMMA_BANK.find(d=>d.id===id);
+// Polar régional : 3 choix, production réelle sur le prime, refus sans effet.
+{ partie(21); const p=p0(); const avant=onAirProgram('prime');
+  gameState.dilemmaQueue=[base('d61'),...fillers()]; gameState.currentDilemmaIndex=0;
+  const d=materializeCurrentDilemma();
+  ok(d.c.length===3&&d.c[2].l==='Ne rien produire','polar : 3 choix dont « Ne rien produire »');
+  ok(d.desc.includes(avant.name)&&d.showcase.length===2&&d.showcase.every(e=>e.current===avant.name&&e.level&&e.costs.length),'polar : vitrine (programme actuel, niveau, coûts)');
+  ok(dilemmaShowcaseHtml(d).includes('Polar en régions')&&dilemmaShowcaseHtml(d).includes('<img'),'polar : illustration affichée');
+  const q=quoteProgram('prime','dp_polar_regions','interne');
+  const achats=p.achatsSaison, deltas=JSON.stringify(p.slotAudienceDeltas||{});
+  const {before}=joue(base('d61'),0);
+  const c=p.contracts.prime;
+  ok(c.id==='dp_polar_regions'&&activeContract(p,'prime').id==='dp_polar_regions','polar produit : il remplace le prime');
+  ok(c.career.seasonNumber===1&&c.end===gameState.season+q.program.years-1,'polar : saison 1, contrat de '+q.program.years+' saisons');
+  ok(p.decisionHistory.length===before.h+1,'polar : une seule décision enregistrée');
+  ok(near(p.achatsSaison-achats,q.finance.purchase),'polar : droits payés une seule fois');
+  ok(Object.values(p.slotAudienceDeltas.prime||{}).every(v=>v===0)&&deltas==='{}','polar : audience mesurée sur le programme, sans bonus forfaitaire en plus');
+  const saved=JSON.parse(JSON.stringify(gameState)); Object.assign(gameState,saved);
+  ok(activeContract(gameState.player,'prime').name==='Polar en régions'&&findProgram(gameState.player.contracts.prime.id).level===2,'polar : fiche persistante après rechargement');
+  // Saison suivante : le programme diffusé passe à sa saison 2, contrat restant décompté.
+  const c2=gameState.player.contracts.prime; c2.career.history.push({season:gameState.season}); gameState.season++; advanceProgramSeasonNumbers();
+  ok(c2.career.seasonNumber===2&&contractSeasonsLeft(c2)===c2.end-gameState.season,'polar : saison 2 l’année suivante');
+  const art1=TvPrograms.forProgram(findProgram('dp_polar_regions')); ok(art1&&art1===TvPrograms.forProgram(JSON.parse(JSON.stringify(c))),'polar : illustration stable après sauvegarde'); }
+{ partie(21); const p=p0(); const avant=JSON.stringify(p.contracts.prime), t=p.tresorerie, g=p.coutGrilleEngageSaison, achats=p.achatsSaison;
+  joue(base('d61'),2);
+  ok(JSON.stringify(p.contracts.prime)===avant&&p.coutGrilleEngageSaison===g&&p.achatsSaison===achats,'polar refusé : grille et coûts inchangés');
+  ok(gameState.lastConsequence.deltas&&!(gameState.lastConsequence.audience||[]).some(a=>a.slot==='prime'&&a.value),'polar refusé : aucun impact d’audience'); }
+// Téléfilms de Noël : remplacement temporaire du vrai programme, restauré ensuite.
+{ partie(22); const p=p0(); installe('apresmidi'); const reg=p.contracts.apresmidi; ok(reg,'programme d’après-midi en place');
+  const name=reg.name, end=reg.end, g=p.coutGrilleEngageSaison;
+  gameState.dilemmaQueue=[base('d73'),...fillers()]; gameState.currentDilemmaIndex=0;
+  const d=materializeCurrentDilemma();
+  ok(d.desc.includes('« '+name+' »')&&d.desc.includes('Souhaitez-vous le remplacer temporairement'),'Noël : cite le vrai programme');
+  joue(base('d73'),0);
+  ok(activeContract(p,'apresmidi').id==='dp_noel_telefilms'&&reg.sportsPause===gameState.season&&reg.end===end+1,'Noël : programme remplacé, contrat habituel conservé');
+  ok(p.coutGrilleEngageSaison===g-reg.annual,'Noël : coût du programme habituel suspendu une seule fois');
+  // Sauvegarde / rechargement.
+  const saved=JSON.parse(JSON.stringify(gameState)); Object.assign(gameState,saved);
+  ok(activeContract(gameState.player,'apresmidi').name==='Les Noëls enchantés','Noël : persistant après rechargement');
+  gameState.season++; restorePausedPrograms();
+  const back=activeContract(gameState.player,'apresmidi');
+  ok(back&&back.name===name&&!back.isSlotEvent,'Noël : programme habituel restauré à la fin de la période'); }
+{ partie(22); const p=p0(); installe('apresmidi'); const name=p.contracts.apresmidi.name, t=p.tresorerie, achats=p.achatsSaison;
+  joue(base('d73'),1);
+  ok(activeContract(p,'apresmidi').name===name&&p.achatsSaison===achats&&!(p.slotEvents||[]).length,'Noël refusé : aucun coût, rien ne change'); }
+// Remplacement décidé pendant l'événement : rien n'est restauré par-dessus.
+{ partie(23); const p=p0(); installe('apresmidi'); joue(base('d73'),0);
+  const alt=PROGRAM_CATALOG.find(x=>x.channelType===p.type&&x.slot==='apresmidi'&&!programHolder(x)&&!sameProgram(p.contracts.apresmidi,x));
+  executeProgramSigning('apresmidi',quoteProgram('apresmidi',alt.id,'interne'));
+  gameState.season++; restorePausedPrograms();
+  ok(sameProgram(activeContract(p,'apresmidi'),alt),'nouvelle programmation conservée à la fin de l’événement'); }
+// Événement de streamer : case libre, installation, refus, fin.
+{ partie(24); const p=p0(); ['prime','nuit','access'].forEach(installe); gameState.dilemmaQueue=[base('d66'),...fillers()]; gameState.currentDilemmaIndex=0;
+  const d=materializeCurrentDilemma(); const slot=d.eventSlot, name=activeContract(p,slot)?.name;
+  ok(slot&&d.showcase[0].current===onAirProgram(slot).name&&d.showcase[0].level===3&&d.showcase[0].conditions.length===2,'streamer : vitrine (case, programme actuel, niveau, période)');
+  joue(base('d66'),0);
+  ok(activeContract(p,slot).id==='dp_streamer_rallye','streamer installé dans la vraie grille');
+  ok(slotTakenByEvent(slot)&&!producerPitchSlots().includes(slot),'streamer : case réservée, aucun chevauchement');
+  gameState.dilemmaQueue=[base('d66'),...fillers()]; const d2=materializeCurrentDilemma(); ok(d2.eventSlot!==slot,'streamer : pas deux événements sur la même case');
+  gameState.season++; restorePausedPrograms(); ok(!activeContract(p,slot)||activeContract(p,slot).name===name,'streamer : fin de l’événement, programme habituel de retour'); }
+{ partie(24); const p=p0(); const grid=JSON.stringify(p.contracts), achats=p.achatsSaison; joue(base('d66'),1);
+  ok(!(p.slotEvents||[]).length&&p.achatsSaison===achats,'streamer refusé : pas d’événement, pas de coût'); }
+// Le Grodeal : uniquement s'il est diffusé chez un concurrent.
+{ partie(25); const p=p0(); const grodeal=PROGRAM_CATALOG.find(x=>x.id==='p478');
+  ok(grodeal&&grodeal.name==='Le Grodeal','fiche stable p478');
+  gameState.competitors.forEach(cp=>{ if(sameProgram(cp.contracts?.access,grodeal)) releaseCompetitorProgram(cp,'access',0); });
+  ok(!dynamicDilemmaEligible(base('d34'))&&!getEligibleDilemmas().some(d=>d.id==='d34'),'Grodeal absent : dilemme non déclenché');
+  const cp=gameState.competitors.find(c=>c.type===grodeal.channelType)||gameState.competitors[0];
+  installCompetitorProgram(cp,grodeal,'access',2);
+  ok(dynamicDilemmaEligible(base('d34')),'Grodeal diffusé chez '+cp.name+' : dilemme éligible');
+  gameState.dilemmaQueue=[base('d34'),...fillers()]; gameState.currentDilemmaIndex=0;
+  const d=materializeCurrentDilemma(); const now=onAirProgram('access').name;
+  ok(d.showcase[0].tag===cp.name&&d.showcase[0].current===now&&d.c.at(-1).l==='Ne rien faire et conserver « '+now+' »','Grodeal : vitrine et « Ne rien faire »');
+  // Ne rien faire.
+  const avant=JSON.stringify(p.contracts.access); joue(base('d34'),d.c.length-1);
+  ok(JSON.stringify(p.contracts.access)===avant&&sameProgram(activeContract(cp,'access'),grodeal),'Grodeal : ne rien faire, grilles inchangées');
+  // Acquisition : le programme garde sa numérotation (3 saisons chez le concurrent).
+  activeContract(cp,'access').career.seasonsCount=3;
+  const q=quoteProgram('access','p478','interne'); joue(base('d34'),0);
+  ok(sameProgram(p.contracts.access,grodeal)&&!sameProgram(activeContract(cp,'access'),grodeal),'Grodeal acquis en access, retiré au concurrent');
+  ok(p.contracts.access.career.seasonNumber===4,'Grodeal : numérotation conservée ('+p.contracts.access.career.seasonNumber+')');
+  ok(!dynamicDilemmaEligible(base('d34')),'Grodeal acquis : plus d’éligibilité');
+  // Devenu inéligible dans la file : remplacé par le mécanisme habituel.
+  gameState.dilemmaQueue=[base('d34'),...fillers()]; gameState.currentDilemmaIndex=0; gameState.dilemmaPhase='choosing';
+  chooseDilemmaOption(0); ok(gameState.dilemmaQueue[0].id!=='d34','Grodeal inéligible : dilemme remplacé'); }
+// Mise en concurrence : concept sans accord, avec option, programme convoité.
+{ partie(26); const p=p0(); gameState.season=3;
+  const prog=biddingConceptCandidates()[0]; ok(prog,'concept disponible');
+  const d=createBiddingWarDilemma({kind:'concept',program:prog,slot:prog.slot,rival:gameState.competitors[0].name,offer:prog.rights*1.3,agreement:null});
+  ok(d.c[0].bid>d.war.offer&&d.c[1].concede&&d.c[1].concede.indemnity===0&&!d.c[1].finance.commercial,'concept : surenchère gagnante, renoncement sans indemnité faute d’accord');
+  ok(d.showcase[0].costs.some(x=>x.includes('Pour l’emporter'))&&d.showcase[0].conditions[0].includes('Aucun accord'),'concept : montant et justification affichés');
+  joue(d,0); ok(sameProgram(p.contracts[prog.slot],prog),'surenchère : programme signé');
+  const t=p.tresorerie; ok(p.decisionHistory.at(-1).purchase>=d.c[0].bid,'surenchère : montant payé'); }
+{ partie(27); const p=p0(); gameState.season=3;
+  const prog=biddingConceptCandidates()[0]; const fee=producerOptionFee(prog);
+  p.producerAgreements=[{programId:prog.id,slot:prog.slot,fee,season:2}];
+  const w=pickBiddingWar(); ok(w&&w.kind==='concept'&&w.agreement&&w.program.id===prog.id,'option signée : mise en concurrence du concept');
+  const d=createBiddingWarDilemma(w); const ind=d.c[1].concede.indemnity;
+  ok(ind>0&&d.c[1].finance.commercial===ind,'option : indemnité de renoncement justifiée');
+  const com=p.commercialSaison; joue(d,1);
+  ok(near(p.commercialSaison-com,ind),'indemnité versée une seule fois');
+  const rival=gameState.competitors.find(c=>c.name===w.rival);
+  ok(sameProgram(activeContract(rival,prog.slot),prog)&&!sameProgram(p.contracts[prog.slot],prog),'concept cédé : diffusé par le concurrent seulement');
+  ok(p.producerAgreements[0].closed===3&&!pickBiddingWarAgain(),'pas de seconde indemnité');
+  function pickBiddingWarAgain(){ const x=pickBiddingWar(); return x&&x.agreement; }
+  ok(p.biddingHistory.filter(h=>h.programId===prog.id).length===1,'une seule trace par mise en concurrence');
+  const saved=JSON.parse(JSON.stringify(gameState)); Object.assign(gameState,saved);
+  ok(gameState.player.producerAgreements[0].closed===3&&gameState.player.biddingHistory[0].outcome==='conceded','mise en concurrence : état conservé après rechargement'); }
+{ partie(28); const p=p0(); gameState.season=3; ['prime','access'].forEach(installe);
+  Object.entries(p.contracts).forEach(([s,c])=>{ migrateProgramCareer(c,s); c.career.seasonsCount=1; });
+  const cov=biddingCoveted(); ok(cov.length,'programme convoitable');
+  const {slot,contract}=cov[0]; const prog=PROGRAM_CATALOG.find(x=>x.id===contract.id);
+  const rival=gameState.competitors[0]; rival.budget=500;
+  const d=createBiddingWarDilemma({kind:'coveted',program:prog,slot,rival:rival.name,offer:exclusivityFee(prog,{contract})});
+  ok(d.c[0].keepProgram&&d.c.slice(1).every(c=>c.transferDeal&&c.transferDeal.replacementId!==prog.id),'convoité : garder ou céder avec remplacement');
+  ok(d.c.length>=2,'convoité : au moins un remplacement finançable');
+  const repl=d.c[1].transferDeal.replacementId, com=p.commercialSaison;
+  joue(d,1);
+  ok(sameProgram(activeContract(rival,slot),prog)&&p.contracts[slot].id===repl,'transfert : programme chez le concurrent, remplacement installé');
+  ok(near(p.commercialSaison-com,d.war.offer),'indemnité de transfert versée une fois');
+  ok(p.contracts[slot].career.seasonNumber===1,'remplacement lancé en saison 1');
+  ok(!biddingCoveted().some(x=>x.contract.id===prog.id),'pas de nouvelle proposition pour ce programme'); }
+{ partie(28); const p=p0(); gameState.season=3; ['prime','access'].forEach(installe);
+  Object.entries(p.contracts).forEach(([s,c])=>{ migrateProgramCareer(c,s); c.career.seasonsCount=1; });
+  const {slot,contract}=biddingCoveted()[0]; const prog=PROGRAM_CATALOG.find(x=>x.id===contract.id), end=contract.end;
+  const d=createBiddingWarDilemma({kind:'coveted',program:prog,slot,rival:gameState.competitors[0].name,offer:exclusivityFee(prog,{contract})});
+  joue(d,0); ok(sameProgram(p.contracts[slot],prog)&&p.contracts[slot].end===end+1,'surenchère : programme gardé et prolongé'); }
+// Saisons de programme : 1 au lancement, migration des anciennes parties.
+{ partie(29); const p=p0(); ['prime','access'].forEach(installe);
+  ok(Object.values(p.contracts).every(c=>migrateProgramCareer(c).seasonNumber===1),'programmes lancés en saison 1');
+  const c=Object.values(p.contracts)[0]; c.career.seasonNumber=0; migrateProgramCareer(c); ok(c.career.seasonNumber===1,'saison 0 normalisée à 1');
+  delete c.career.seasonNumber; c.career.seasonsCount=2; c.career.history=[]; migrateProgramCareer(c); ok(c.career.seasonNumber===3,'ancienne partie : numéro reconstitué');
+  const expired={end:gameState.season-2}; ok(contractSeasonsLeft(expired)===0,'contrat expiré jamais réactivé'); }
+// Tirage : mises en concurrence certaines saisons, jamais en saison 1, jamais à la place d'une enchère.
+{ let wars=0; for(let k=1;k<=16;k++){ partie(300+k); gameState.season=3; ['prime','access'].forEach(installe);
+    const q=pickDilemmaQueue(); const w=q.filter(d=>d.isBiddingWar); ok(w.length<=1,'une mise en concurrence au plus');
+    if(w.length){ wars++; ok(gameState.player.biddingHistory.at(-1).outcome==='pending','tirage tracé'); } }
+  ok(wars>=1&&wars<=14,'mises en concurrence tirées certaines saisons ('+wars+'/16)');
+  partie(7); gameState.season=1; ok(!pickDilemmaQueue().some(d=>d.isBiddingWar),'pas de mise en concurrence en saison 1'); }
 `;
 const context = { console };
 vm.runInNewContext(scripts.slice(0, -1).join('\n') + tests
   + '\nglobalThis.__summary=[PROGRAM_STORY_BANK.length,new Set(PROGRAM_STORY_BANK.map(d=>d.programId)).size];',
   context, { filename: 'audience-masters-program-stories.js' });
 const [count, programs] = context.__summary;
-console.log(`OK program stories: bank (${count} dilemmas, ${programs} programs), eligibility, second validation, economy, memory, repetition, buyout, draw, context, compatibility`);
+console.log(`OK program stories: bank (${count} dilemmas, ${programs} programs), eligibility, second validation, economy, memory, repetition, buyout, draw, context, compatibility, grid-linked dilemmas, bidding wars, program seasons`);
