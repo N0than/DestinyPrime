@@ -1835,21 +1835,41 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .vg-item.warn { border-left-color:#d97706; } .vg-item.bad { border-left-color:var(--rouge); } .vg-item.good { border-left-color:var(--vert); }
 .vg-season { flex:none; font-size:9.5px; font-weight:800; color:var(--gris); }
 .vg-empty { margin:0; font-size:11.5px; color:var(--gris); }
-.eh-slide.studio-slide { display:flex; flex-direction:column; }
-.of-studio { display:flex; flex-direction:column; gap:8px; flex:1; min-height:0; padding:0; text-align:left; }
-.of-studio-head { align-items:center; }
-.of-info-btn { flex:none; width:24px; height:24px; border-radius:50%; border:1px solid rgba(37,99,235,0.3); cursor:pointer; padding:0;
-  font:italic 800 12px/22px Georgia, 'Times New Roman', serif; color:var(--bleu); background:rgba(255,255,255,0.9); }
-.of-info-btn.active { color:#fff; background:var(--bleu); border-color:var(--bleu); }
-.of-info-btn:focus-visible { outline:2px solid var(--bleu); outline-offset:2px; }
-.of-studio .eh-subtitle { margin:0; }
-.of-tabs { display:flex; gap:6px; flex-wrap:wrap; }
+/* Studio : contenu calé dans la hauteur du slider (fixée par les autres écrans), jamais l'inverse. */
+.eh-slide.studio-slide { position:relative; }
+.of-studio { position:absolute; inset:0; display:flex; flex-direction:column; gap:8px; padding:0; text-align:left; overflow:hidden; }
+.of-studio-head { align-items:center; flex:none; }
+.of-info-badge { flex:none; font:800 10px 'Space Grotesk', sans-serif; text-transform:uppercase; letter-spacing:.5px; padding:4px 10px; border-radius:999px;
+  border:1px solid rgba(37,99,235,0.35); background:rgba(37,99,235,0.08); color:var(--bleu); cursor:pointer; }
+.of-info-badge.active { background:var(--bleu); border-color:var(--bleu); color:#fff; }
+.of-info-badge:focus-visible { outline:2px solid var(--bleu); outline-offset:2px; }
+.of-info { flex:1; min-height:0; overflow:auto; display:flex; flex-direction:column; justify-content:center; gap:10px; padding:14px 16px;
+  border-radius:14px; background:rgba(255,255,255,0.7); border:1px solid rgba(15,23,42,0.08); }
+.of-info[hidden], .of-main[hidden] { display:none; }
+.of-info p { margin:0; font-size:13px; line-height:1.5; color:#334155; }
+.of-main { flex:1; min-height:0; display:flex; flex-direction:column; gap:8px; }
+.of-main .of-note { margin:0; flex:none; }
+.of-studio .of-form { flex:1; min-height:0; display:flex; flex-direction:column; flex-wrap:nowrap; gap:6px; margin:0; }
+.of-gauge { flex:1 1 0; min-height:0; display:flex; flex-direction:column; gap:3px; }
+.of-gauge-head { flex:none; display:flex; justify-content:space-between; gap:8px; font-size:9.5px; font-weight:800; text-transform:uppercase; letter-spacing:.4px; color:var(--gris); }
+.of-gauge-head b { font-size:11px; text-transform:none; letter-spacing:0; color:var(--ink); }
+.of-gauge-track { flex:1; min-height:22px; display:flex; gap:3px; }
+.of-seg { flex:1 1 0; min-width:0; padding:0 2px; border:0; border-radius:6px; cursor:pointer; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  font:700 10px 'Space Grotesk', sans-serif; color:var(--gris); background:rgba(15,23,42,0.07); transition:background .15s ease, color .15s ease; }
+.of-seg.fill { background:rgba(37,99,235,0.35); color:#fff; }
+.of-seg.on { background:var(--bleu); color:#fff; }
+.of-seg:disabled { cursor:not-allowed; opacity:.55; }
+.of-seg:focus-visible { outline:2px solid var(--bleu); outline-offset:1px; }
+.of-form-actions { flex:none; display:flex; gap:6px; }
+.of-form-actions button { flex:1; }
+.of-form-actions .ghost { flex:0 0 auto; border-color:transparent; background:none; color:var(--gris); }
+.of-tabs { flex:none; display:flex; gap:6px; flex-wrap:wrap; }
 .of-tab { font:700 10.5px 'Space Grotesk', sans-serif; padding:5px 10px; border-radius:999px; border:1px solid rgba(15,23,42,0.12); background:rgba(255,255,255,0.7); color:var(--gris); cursor:pointer; }
 .of-tab.active { background:var(--ink); border-color:var(--ink); color:#fff; }
 .of-tab.add { color:var(--bleu); border-style:dashed; border-color:rgba(37,99,235,0.4); }
 .of-card { flex:1; display:flex; flex-direction:column; min-height:0; border-radius:16px; overflow:hidden; background:#fff; border:1px solid rgba(15,23,42,0.08);
   box-shadow:0 18px 36px -24px rgba(15,23,42,0.45); }
-.of-card-art { position:relative; margin:0; flex:1 1 140px; min-height:140px; background:linear-gradient(135deg, #1e3a8a, #7c3aed); }
+.of-card-art { position:relative; margin:0; flex:1 1 0; min-height:70px; background:linear-gradient(135deg, #1e3a8a, #7c3aed); }
 .of-card-art img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; }
 .of-card-tag { position:absolute; left:10px; top:10px; font:800 9.5px 'Space Grotesk', sans-serif; text-transform:uppercase; letter-spacing:.5px;
   padding:4px 9px; border-radius:999px; background:rgba(255,255,255,0.92); color:var(--bleu); }
@@ -1868,20 +1888,13 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .of-range em { font-style:normal; font-size:11px; color:var(--gris); }
 .of-range .of-stars { font-size:11px; }
 .of-card-cost { font-size:11px; color:var(--gris); }
-.of-studio .of-form { align-content:flex-start; row-gap:8px; }
-.of-studio .of-form label { margin:0; }
-.of-form button.ghost { flex:1 1 100%; border-color:transparent; background:none; color:var(--gris); }
 .of-lock { color:#b45309; }
-.of-form select:disabled, .of-form button:disabled { opacity:.5; cursor:not-allowed; }
 .of-note { margin:0; font-size:11px; line-height:1.4; color:var(--gris); }
-.of-actions, .of-form { display:flex; flex-wrap:wrap; gap:6px; margin-top:4px; }
-.of-form label { display:flex; flex-direction:column; gap:2px; flex:1 1 45%; font-size:9.5px; font-weight:700; text-transform:uppercase; letter-spacing:.3px; color:var(--gris); }
-.of-form select { font:inherit; font-size:12px; text-transform:none; letter-spacing:0; color:var(--ink); padding:6px 8px; border-radius:8px; border:1px solid rgba(22,19,14,0.15); background:#fff; }
-.of-actions button, .of-form button { font:700 11px 'Space Grotesk', sans-serif; padding:7px 10px; border-radius:999px; border:1px solid rgba(37,99,235,0.3); background:rgba(37,99,235,0.06); color:var(--bleu); cursor:pointer; }
-.of-actions button.primary, .of-form button.primary { background:var(--bleu); color:#fff; border-color:var(--bleu); }
+.of-actions { display:flex; flex-wrap:wrap; gap:6px; margin-top:4px; }
+.of-actions button, .of-form-actions button { font:700 11px 'Space Grotesk', sans-serif; padding:7px 10px; border-radius:999px; border:1px solid rgba(37,99,235,0.3); background:rgba(37,99,235,0.06); color:var(--bleu); cursor:pointer; }
+.of-actions button.primary, .of-form-actions button.primary { background:var(--bleu); color:#fff; border-color:var(--bleu); }
 .of-actions button.ghost { border-color:transparent; background:none; color:var(--gris); }
-.of-actions button:disabled { opacity:.45; cursor:not-allowed; }
-.of-form button.primary { flex:1 1 100%; }
+.of-actions button:disabled, .of-form-actions button:disabled { opacity:.45; cursor:not-allowed; }
 /* ---- MERCATO DES TALENTS : cartes ---- */
 .mercato-cards { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; align-items: stretch; }
 .mercato-cards.single { grid-template-columns: minmax(0, calc(50% - 5px)); justify-content: center; }
@@ -28116,34 +28129,66 @@ function studioProjectCardHtml(f, editable, cfg) {
     </div>
   </article>`;
 }
+// Réglages du studio en jauges : un segment par option, toujours visibles et cliquables.
+const STUDIO_SHORT = { divertissement: 'Divert.', magazine: 'Magazine', realite: 'Téléréal.', jeune: 'Jeune', apresmidi: 'Ap.-midi' };
+function studioDraft() {
+  const p = gameState.player, slots = TIME_SLOTS.filter(t => !slotTakenByEvent(t.key));
+  const d = gameState.studioDraft || {};
+  return { slot: slots.some(t => t.key === d.slot) ? d.slot : (slots[0]?.key || 'matin'), concept: d.concept || 'jeu',
+    positioning: d.positioning || 'populaire', target: d.target || p.target, budget: String(d.budget || 2) };
+}
+function studioGaugeOptions(field) {
+  const cfg = ORIGINAL_FORMATS;
+  if (field === 'slot') return TIME_SLOTS.filter(t => !slotTakenByEvent(t.key)).map(t => ({ value: t.key, short: `${t.icon} ${STUDIO_SHORT[t.key] || t.label}`, label: slotLabelOf(t.key) }));
+  if (field === 'target') return AUDIENCE_TARGETS.map(t => ({ value: t.key, short: t.short, label: t.full }));
+  const obj = { concept: cfg.concepts, positioning: cfg.positionings, budget: cfg.budgets }[field];
+  return Object.entries(obj).map(([k, v]) => ({ value: k, short: STUDIO_SHORT[k] || v.label, label: v.label }));
+}
+function studioGaugeHtml(field, label, draft, off) {
+  const opts = studioGaugeOptions(field), sel = draft[field];
+  const idx = opts.findIndex(o => o.value === sel);
+  // Budget : jauge cumulative (remplie jusqu'au niveau choisi) ; autres critères : un segment actif.
+  const cumulative = field === 'budget';
+  return `<div class="of-gauge" data-of-gauge="${field}"${cumulative ? ' data-cumulative="1"' : ''}>
+    <div class="of-gauge-head"><span>${label}</span><b data-of-gauge-value>${esc(opts[idx]?.label || '')}</b></div>
+    <div class="of-gauge-track" role="radiogroup" aria-label="${label}">${opts.map((o, i) =>
+      `<button type="button" role="radio" class="of-seg${i === idx ? ' on' : cumulative && i < idx ? ' fill' : ''}" aria-checked="${i === idx}" data-of-action="pick" data-of-field="${field}" data-of-value="${esc(o.value)}" data-of-label="${esc(o.label)}"${off}>${esc(o.short)}</button>`).join('')}</div>
+  </div>`;
+}
 function renderStudioSlide() {
-  const p = ensureConsequenceState(), cfg = ORIGINAL_FORMATS, editable = studioEditable();
+  const cfg = ORIGINAL_FORMATS, editable = studioEditable();
   const all = originalProjects();
-  const opt = (obj, sel) => Object.entries(obj).map(([k, v]) => `<option value="${k}"${k === sel ? ' selected' : ''}>${esc(v.label)}</option>`).join('');
   const off = editable ? '' : ' disabled';
   // Formulaire affiché tant qu'aucun projet n'existe, ou à la demande (« + Nouveau format »).
   const showForm = all.length < cfg.maxProjects && (!all.length || gameState.studioForm);
   const focus = all.find(f => f.id === gameState.studioFocus) || all[all.length - 1];
-  const slots = TIME_SLOTS.filter(t => !slotTakenByEvent(t.key));
+  const draft = studioDraft();
   const form = `<div class="of-form">
-      <label>Créneau<select data-of-field="slot"${off}>${slots.map(t => `<option value="${t.key}">${t.icon} ${esc(slotLabelOf(t.key))}</option>`).join('')}</select></label>
-      <label>Concept<select data-of-field="concept"${off}>${opt(cfg.concepts, 'jeu')}</select></label>
-      <label>Positionnement<select data-of-field="positioning"${off}>${opt(cfg.positionings, 'populaire')}</select></label>
-      <label>Cible<select data-of-field="target"${off}>${AUDIENCE_TARGETS.map(t => `<option value="${t.key}"${t.key === p.target ? ' selected' : ''}>${esc(t.full)}</option>`).join('')}</select></label>
-      <label>Budget<select data-of-field="budget"${off}>${opt(cfg.budgets, '2')}</select></label>
-      <button type="button" class="primary" data-of-action="design"${off}>Concevoir le format</button>
-      ${all.length ? '<button type="button" class="ghost" data-of-action="cancel">Annuler</button>' : ''}
+      ${studioGaugeHtml('slot', 'Créneau', draft, off)}
+      ${studioGaugeHtml('concept', 'Concept', draft, off)}
+      ${studioGaugeHtml('positioning', 'Positionnement', draft, off)}
+      ${studioGaugeHtml('target', 'Cible', draft, off)}
+      ${studioGaugeHtml('budget', 'Budget', draft, off)}
+      <div class="of-form-actions">
+        ${all.length ? '<button type="button" class="ghost" data-of-action="cancel">Annuler</button>' : ''}
+        <button type="button" class="primary" data-of-action="design"${off}>Concevoir le format</button>
+      </div>
     </div>`;
   return `<div class="of-studio" data-of-studio>
     <div class="perf-head of-studio-head">
       <div class="eh-title">Studio de création</div>
-      <button type="button" class="of-info-btn" data-of-action="info" aria-expanded="false" aria-label="Afficher les informations du studio">i</button>
+      <button type="button" class="of-info-badge" data-of-action="info" aria-expanded="false">Infos</button>
     </div>
-    <p class="eh-subtitle of-info" hidden>Un format maison coûte moins cher dans la durée et peut rapporter des droits, mais son potentiel réel reste incertain. Pilote et test affinent l’estimation et décalent le lancement d’une saison.</p>
-    ${editable ? '' : '<p class="of-note of-lock">🔒 Les créations se décident en début de saison, avant le premier dilemme.</p>'}
-    ${showForm ? form : `
-    ${all.length > 1 || all.length < cfg.maxProjects ? `<div class="of-tabs">${all.map(f => `<button type="button" class="of-tab${f === focus ? ' active' : ''}" data-of-action="focus" data-of-focus="${esc(f.id)}">${esc(f.name)}</button>`).join('')}${all.length < cfg.maxProjects && editable ? '<button type="button" class="of-tab add" data-of-action="new">+ Nouveau format</button>' : ''}</div>` : ''}
-    ${focus ? studioProjectCardHtml(focus, editable, cfg) : ''}`}
+    <div class="of-info" hidden>
+      <p>Un format maison coûte moins cher dans la durée et peut rapporter des droits, mais son potentiel réel reste incertain.</p>
+      <p>Pilote et test affinent l’estimation et décalent le lancement d’une saison.</p>
+    </div>
+    <div class="of-main">
+      ${editable ? '' : '<p class="of-note of-lock">🔒 Les créations se décident en début de saison, avant le premier dilemme.</p>'}
+      ${showForm ? form : `
+      ${all.length > 1 || all.length < cfg.maxProjects ? `<div class="of-tabs">${all.map(f => `<button type="button" class="of-tab${f === focus ? ' active' : ''}" data-of-action="focus" data-of-focus="${esc(f.id)}">${esc(f.name)}</button>`).join('')}${all.length < cfg.maxProjects && editable ? '<button type="button" class="of-tab add" data-of-action="new">+ Nouveau format</button>' : ''}</div>` : ''}
+      ${focus ? studioProjectCardHtml(focus, editable, cfg) : ''}`}
+    </div>
   </div>`;
 }
 function bindOriginalStudio(app) {
@@ -28155,9 +28200,19 @@ function bindOriginalStudio(app) {
       if (!btn || btn.disabled) return;
       const action = btn.dataset.ofAction;
       // Texte d'aide : affiché ou masqué sans redessiner l'écran.
+      // Infos : le contenu de l'écran laisse place au texte d'aide (et inversement).
       if (action === 'info') {
-        const info = studio.querySelector('.of-info'), on = info.hidden;
-        info.hidden = !on; btn.classList.toggle('active', on); btn.setAttribute('aria-expanded', String(on));
+        const info = studio.querySelector('.of-info'), main = studio.querySelector('.of-main'), on = info.hidden;
+        info.hidden = !on; main.hidden = on; btn.classList.toggle('active', on); btn.setAttribute('aria-expanded', String(on));
+        return;
+      }
+      if (action === 'pick') {
+        if (!studioEditable()) return;
+        const field = btn.dataset.ofField;
+        gameState.studioDraft = { ...studioDraft(), [field]: btn.dataset.ofValue };
+        const gauge = btn.closest('[data-of-gauge]'), segs = [...gauge.querySelectorAll('.of-seg')], idx = segs.indexOf(btn);
+        segs.forEach((b, i) => { b.classList.toggle('on', i === idx); b.classList.toggle('fill', !!gauge.dataset.cumulative && i < idx); b.setAttribute('aria-checked', String(i === idx)); });
+        gauge.querySelector('[data-of-gauge-value]').textContent = btn.dataset.ofLabel;
         return;
       }
       if (action === 'focus') { gameState.studioFocus = btn.dataset.ofFocus; gameState.studioForm = false; render(); return; }
@@ -28166,8 +28221,8 @@ function bindOriginalStudio(app) {
       const id = btn.closest('[data-of-id]')?.dataset.ofId;
       if (action === 'new') { gameState.studioForm = true; render(); return; }
       if (action === 'design') {
-        const val = f => studio.querySelector(`[data-of-field="${f}"]`)?.value;
-        const f = designOriginalFormat({ concept: val('concept'), positioning: val('positioning'), target: val('target'), slot: val('slot'), budget: Number(val('budget')) });
+        const d = studioDraft();
+        const f = designOriginalFormat({ concept: d.concept, positioning: d.positioning, target: d.target, slot: d.slot, budget: Number(d.budget) });
         // Validation : le formulaire laisse place à la carte du nouveau format.
         if (f) { gameState.studioFocus = f.id; gameState.studioForm = false; }
       } else if (action === 'pilot' || action === 'test') developOriginalFormat(id, action);
