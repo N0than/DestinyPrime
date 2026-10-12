@@ -2130,6 +2130,7 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .sa-info-btn { position:absolute; top:8px; right:8px; z-index:2; width:26px; height:26px; border-radius:50%; border:0; cursor:pointer;
   font:italic 800 13px/26px Georgia, 'Times New Roman', serif; color:var(--bleu); background:rgba(255,255,255,0.92);
   box-shadow:0 4px 10px -6px rgba(15,23,42,0.5); padding:0; }
+.sa-illu-corner.with-info { right:42px; }
 .sa-info-btn[aria-expanded="true"] { color:#fff; background:var(--bleu); }
 .sa-info-btn:focus-visible { outline:2px solid #fff; outline-offset:2px; }
 .sa-info-pop { position:absolute; top:40px; right:8px; left:8px; z-index:2; padding:9px 11px; border-radius:12px; font-size:11.5px; line-height:1.4;
@@ -23514,7 +23515,7 @@ function sportsIllustrationHtml(event, { overlay = '', corner = '', info = '' } 
   return `<figure class="sa-illu">
     ${art ? `<img src="${art}" alt="" aria-hidden="true">` : ''}
     <span class="sa-illu-tier ${event.tier}">${tierLabel}</span>
-    ${corner ? `<span class="sa-illu-corner">${corner}</span>` : ''}
+    ${corner ? `<span class="sa-illu-corner${info ? ' with-info' : ''}">${corner}</span>` : ''}
     ${info ? `<button type="button" class="sa-info-btn" aria-label="Informations sur l’enchère" aria-expanded="false"
       onclick="const t=this.nextElementSibling;t.hidden=!t.hidden;this.setAttribute('aria-expanded',String(!t.hidden))">i</button>
     <span class="sa-info-pop" role="note" hidden>${info}</span>` : ''}
@@ -23572,7 +23573,8 @@ function renderSportsAuctionZone(dilemma) {
   const pct = v => b.max > b.min ? Math.max(0, Math.min(100, (v - b.min) / (b.max - b.min) * 100)) : 100;
   const sealed = interested.length;
   return `<div class="sa-inline" data-sa-zone>
-    ${sportsIllustrationHtml(event, { overlay: slotCap, corner: 'Tour unique · sous pli' })}
+    ${sportsIllustrationHtml(event, { overlay: slotCap, corner: 'Tour unique · sous pli',
+      info: 'Vous ne paierez que ce qu’il faut pour battre la meilleure offre concurrente, dans la limite de la vôtre. À offre égale, la chaîne la plus forte sur les 4 ans et plus l’emporte.' })}
     ${b.canBid ? `<div ${pop(0.05, 'sa-gauge')}>
       <div class="sa-gauge-head">
         <span class="sa-gauge-label">Votre offre</span>
@@ -23596,7 +23598,6 @@ function renderSportsAuctionZone(dilemma) {
       <span class="sa-row-label">${sealed ? `${sealed} ${sealed > 1 ? 'offres concurrentes sous pli' : 'offre concurrente sous pli'}` : 'Aucune offre concurrente annoncée'}</span>
       ${sealed ? `<div class="sa-rivals">${interested.map((r, k) => `<span class="sa-envelope sa-pop ${r.interest.key}" style="--d:${0.2 + k * 0.1}s"><span aria-hidden="true">✉️</span> <b>${esc(r.name)}</b> <span aria-hidden="true">${r.interest.icon}</span></span>`).join('')}</div>` : ''}
     </div>
-    <p ${pop(0.3, 'sa-note')}>Vous ne paierez que ce qu’il faut pour battre la meilleure offre concurrente, dans la limite de la vôtre. À offre égale, la chaîne la plus forte sur les 4 ans et plus l’emporte.</p>
     <div ${pop(0.35, 'sa-actions')}>
       ${b.canBid ? '<button type="button" class="sa-btn primary" data-sa-action="submit">Déposer mon offre</button>' : ''}
       <button type="button" class="sa-btn${b.canBid ? '' : ' primary'}" data-sa-action="withdraw">Se retirer</button>
