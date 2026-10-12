@@ -60,7 +60,9 @@ ok(gameState.season===2,'S2');
 ok(p.budgetGrilleAnnuel===p.coutGrilleEngageSaison,'S2 budget = engaged');
 const s2Grid=p.coutGrilleEngageSaison;
 const pda2=getCalculatedPDAs().find(r=>r.channel===p).pda[p.target];
-ok(near(p.tresorerie,p.tresorerieDebutSaison-s2Grid+p.revenusPubPrevisionnels),'S2 open: one debit + credit');
+// Seul autre flux possible à l'ouverture : un engagement échu (ex. garantie d'audience non
+// tenue), payé une fois et compté dans les achats de la saison.
+ok(near(p.tresorerie,p.tresorerieDebutSaison-s2Grid+p.revenusPubPrevisionnels-p.achatsSaison),'S2 open: one debit + credit');
 ok(p.grillePayeeSaison===2,'S2 grid flagged paid');
 out.push({S1_fin_grille:gridEnd,S2_grille_payee:s2Grid,lancement:13,S2_reprend_du_reel:s2Grid!==13||gridEnd===13});
 // Seuil de faillite à l'ouverture : jugé après le crédit des recettes publicitaires.

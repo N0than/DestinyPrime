@@ -328,7 +328,7 @@ const base=id=>DILEMMA_BANK.find(d=>d.id===id);
   gameState.dilemmaQueue=[base('d61'),...fillers()]; gameState.currentDilemmaIndex=0;
   const d=materializeCurrentDilemma();
   ok(d.c.map(c=>c.l).join('|')==='Produire un épisode|Produire une série de déclinaison locale|Ne rien produire','polar : épisode, série locale ou rien');
-  ok(d.desc.includes(avant.name)&&d.showcase.length===2&&d.showcase.every(e=>e.current===avant.name&&e.level&&e.costs.length),'polar : vitrine (programme actuel, niveau, coûts)');
+  ok(d.desc.includes(avant.name)&&d.showcase.length===1&&d.showcase[0].current===avant.name&&d.showcase[0].level&&d.c.length===3,'polar : une seule illustration, options dans les choix');
   ok(dilemmaShowcaseHtml(d).includes('Polar en régions')&&dilemmaShowcaseHtml(d).includes('<img'),'polar : illustration affichée');
   const q=quoteProgram('prime','dp_polar_regions','interne');
   const achats=p.achatsSaison, deltas=JSON.stringify(p.slotAudienceDeltas||{});

@@ -26427,16 +26427,10 @@ const DYNAMIC_DILEMMAS = {
     build: base => {
       const now = onAirProgram('prime');
       const episode = findProgram('dp_polar_episode'), series = findProgram('dp_polar_regions');
-      const q = quoteProgram('prime', 'dp_polar_regions', 'interne');
       return { ...base, dynamicOf: 'd61',
         desc: `Un producteur propose des fictions policières tournées chaque semaine dans une ville différente, pour votre prime où vous diffusez actuellement « ${now.name} ». Vous pouvez tester le concept avec un épisode ou lancer la série.`,
-        showcase: [
-          showcaseEntry(episode, 'prime', { tag: 'Option 1', current: now,
-            costs: [`Production de l’épisode : ${nf1(episode.rights)} M€`],
-            conditions: [`Une soirée en prime cette saison · « ${now.name} » reste à l’antenne`] }),
-          showcaseEntry(series, 'prime', { tag: 'Option 2', current: now, costs: signingCostLines(q),
-            conditions: [`Remplace « ${now.name} » dès cette saison · saison 1 du programme · contrat de ${series.years} saisons`] })
-        ],
+        // Une seule illustration (le concept) : les options et leurs coûts sont portés par les choix.
+        showcase: [showcaseEntry(series, 'prime', { tag: 'Concept proposé', current: now })],
         c: [
           { l: 'Produire un épisode', pillLabel: `${nf1(episode.rights)} M€`,
             finance: { recurring: 0, purchase: episode.rights, commercial: 0, category: 'P' }, pda: ZERO_PDA(),
