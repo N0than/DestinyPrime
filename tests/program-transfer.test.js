@@ -120,8 +120,14 @@ ok(JSON.stringify(p.contracts.prime.transfer)===keep,'renewal: no new transfer')
 // Saison complète réelle.
 ({ p, prog, seller } = scenario()); signProgram('prime',prog.id,'interne');const acqA=JSON.stringify(p.contracts.prime.transfer.acquired);
 // Un dilemme qui remplace lui-même le programme du prime (refonte du samedi soir) sortirait du
-// sujet : il est remplacé par un dilemme de régie, sans effet sur la grille.
-gameState.dilemmaQueue=gameState.dilemmaQueue.map(d=>d.c?.some(c=>c.grille?.slot==='prime')?DILEMMA_BANK.find(x=>x.id==='d_pub13'&&!gameState.dilemmaQueue.includes(x))||d:d);
+// sujet : il est remplacé par un dilemme de régie, sans effet sur la grille. Même chose pour le
+// polar régional, dont le pilote peut commander une série qui prendrait le prime la saison suivante.
+// Le remplaçant est un dilemme de régie encore absent de la file (jamais l'original par défaut).
+{ const used=new Set(gameState.dilemmaQueue);
+  gameState.dilemmaQueue=gameState.dilemmaQueue.map(d=>{
+    if(!(d.c?.some(c=>c.grille?.slot==='prime')||d.id==='d61')) return d;
+    const r=DILEMMA_BANK.find(x=>/^d_pub/.test(x.id)&&!used.has(x)&&!x.c.some(c=>c.grille));
+    used.add(r); return r; }); }
 while(gameState.step===6){if(gameState.dilemmaPhase==='result')continueAfterConsequence();else{const d=gameState.dilemmaQueue[gameState.currentDilemmaIndex];if(d.type==='sports_rights_auction'){startSportsRightsAuction(d.rightsEventId,d.id);sportsAuctionPass();}chooseDilemmaOption(0);}}
 gameState.renewalDue=false;startNewSeason();
 ok(p.contracts.prime?.id===prog.id&&p.contracts.prime.transfer.applied&&JSON.stringify(p.contracts.prime.transfer.acquired)===acqA,'full season change keeps the acquired audience');
