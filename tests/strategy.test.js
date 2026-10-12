@@ -73,10 +73,21 @@ const exclusive=()=>{ const p=p0(); return PROGRAM_CATALOG.find(x=>x.channelType
   const r1=negotiationReaction(d,'aggressive',producerPartnerId(prog)), r2=negotiationReaction(d,'aggressive',producerPartnerId(prog));
   ok(r1===r2,'réaction tirée une fois, identique au rechargement');
   gameState.dilemmaQueue=[d,...fillers()]; gameState.currentDilemmaIndex=0; gameState.dilemmaPhase='choosing'; gameState.step=6;
-  chooseDilemmaOption(2);
+  const desc0=d.desc; chooseDilemmaOption(2);
   ok(gameState.currentDilemmaIndex===0&&gameState.dilemmaPhase==='choosing'&&d.negotiationState?.reaction==='counter','contre-proposition sans consommer le dilemme');
   ok(d.c.length===2&&d.c[0].negotiation.counter&&d.c[1].negotiationAbandon,'accepter ou abandonner');
   ok(!p.contracts[prog.slot]||!sameProgram(p.contracts[prog.slot],prog),'rien n’est signé avant la validation');
+  // Tour suivant : même carte, contexte inchangé, encart porté par l'état de négociation.
+  const st=d.negotiationState, offre=dealTermsFor(quoteProgram(prog.slot,prog.id,'interne'),'aggressive');
+  ok(d.desc===desc0&&st.round===2&&st.partner==='producer'&&st.offer.annual===offre.annual&&/contre-propose/.test(st.message),'tour 2 : contexte fixe, offre du joueur mémorisée');
+  ok(d.c[0].l==='Accepter la contre-offre'&&d.c[1].l==='Quitter la négociation','actions du tour issues de la logique');
+  const html=negotiationRoundHtml(st,'<div class="choices neg-choices"></div>',true);
+  const changed=negotiationTermRows(st.offer,st.terms).filter(r=>r.changed).map(r=>r.label);
+  ok(html.includes('Tour 2 · Contre-offre')&&html.includes('Votre offre :')&&html.includes('neg-reveal')&&html.includes('étudie votre proposition'),'encart : badge du tour, rappel, réflexion');
+  ok(changed.includes('Exclusivité')&&changed.includes('Coût annuel')&&!changed.includes('Durée')&&(html.match(/neg-changed/g)||[]).length===changed.length,'surbrillance limitée aux conditions qui changent');
+  ok(!negotiationRoundHtml(st,'',false).includes('neg-reveal')&&negotiationOfferLine({purchase:2,annual:1.5,years:2,exclusive:true})==='2,0 M€ + 1,5 M€/an pour deux saisons','sans animation : étape affichée directement ; rappel généré des conditions');
+  const tre=p.tresorerie, ach=p.achatsSaison; chooseDilemmaOption(2); chooseDilemmaOption(3);
+  ok(d.negotiationState===st&&p.tresorerie===tre&&p.achatsSaison===ach&&gameState.currentDilemmaIndex===0,'double clic sur un ancien choix : sans effet');
   const terms=d.c[0].negotiation.terms; chooseDilemmaOption(0);
   const c=p.contracts[prog.slot];
   ok(sameProgram(c,prog)&&near(c.annual,terms.annual)&&c.exclusive,'contre-proposition signée à ses conditions');
