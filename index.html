@@ -1693,53 +1693,59 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .co-line.co-certain { color: #334155; }
 .co-line.co-risk { color: #b45309; }
 .choice.selected .co-line { color: rgba(255,255,255,0.85); }
-/* Négociation à plusieurs tours : la contre-offre arrive sur la table, dans la même carte. */
-.choice.neg-picked[disabled] { opacity: 1; animation: negPick .26s ease-out; }
-@keyframes negPick { 0% { transform: scale(1); } 45% { transform: scale(1.025); box-shadow: 0 0 0 3px rgba(37,99,235,0.25), 0 25px 50px -12px rgba(15,23,42,0.2); } 100% { transform: scale(1); } }
-.choices.neg-fade-out { transition: opacity .3s ease; opacity: 0; pointer-events: none; }
-.neg-round { display: flex; flex-direction: column; gap: 10px; }
-.neg-recap { margin: 0; font-size: 12.5px; line-height: 1.35; color: #334155; padding: 8px 12px; border-radius: 12px;
-  background: rgba(255,255,255,0.55); border: 1px dashed rgba(15,23,42,0.15); }
-.neg-recap span { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 10px; text-transform: uppercase; letter-spacing: .5px; color: var(--gris); margin-right: 4px; }
-.neg-partner { display: flex; align-items: center; gap: 10px; }
-.neg-avatar { width: 40px; height: 40px; flex: none; border-radius: 50%; display: grid; place-items: center; font-size: 19px;
+/* Négociation à plusieurs tours : la contre-offre arrive sur la table, dans la carte du dilemme.
+   Tour 1 : aucun mouvement sur le choix retenu, les autres choix se replient. */
+.choice.neg-choice:active { transform: none; }
+.choice.neg-kept, .choice.neg-kept[disabled] { opacity: 1; cursor: default; border-color: rgba(37,99,235,0.45);
+  background: rgba(255,255,255,0.8); box-shadow: 0 0 0 1px rgba(37,99,235,0.25) inset, 0 18px 36px -24px rgba(15,23,42,0.35); }
+.choice.neg-kept:hover { border-color: rgba(37,99,235,0.45); background: rgba(255,255,255,0.8); }
+.choice.neg-kept .choice-eyebrow { color: var(--bleu); }
+.choice.neg-gone { opacity: 0; pointer-events: none; overflow: hidden; height: 0 !important; padding-top: 0; padding-bottom: 0; border-width: 0; margin-top: -10px;
+  transition: opacity .16s ease, height .22s ease .1s, padding .22s ease .1s, margin .22s ease .1s, border-width .22s ease .1s; }
+.choice.neg-gone.neg-first { margin-top: 0; margin-bottom: -10px; }
+.neg-table { display: grid; grid-template-rows: 1fr; }
+.neg-table > .neg-offer { min-height: 0; overflow: hidden; }
+.neg-offer { display: flex; flex-direction: column; gap: 8px; text-align: left; padding: 12px 14px; border-radius: 14px;
+  background: rgba(255,251,235,0.9); border: 1px solid rgba(245,158,11,0.35); }
+.neg-offer-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.neg-partner { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.neg-avatar { width: 36px; height: 36px; flex: none; border-radius: 50%; display: grid; place-items: center; font-size: 17px;
   background: #fff; border: 1px solid rgba(15,23,42,0.1); box-shadow: 0 6px 14px -10px rgba(15,23,42,0.6); }
 .neg-partner-txt { display: flex; flex-direction: column; min-width: 0; }
 .neg-partner-txt b { font-family: 'Space Grotesk', sans-serif; font-size: 12px; color: var(--ink); }
 .neg-status { display: grid; font-size: 12px; color: var(--gris); }
 .neg-status > span { grid-area: 1 / 1; }
 .neg-thinking { display: inline-flex; align-items: center; gap: 6px; }
-.neg-thinking[hidden] { display: none; }
+.neg-thinking.neg-off { visibility: hidden; }
+.neg-chip b { font-weight: 700; color: var(--ink); }
 .neg-dots { display: inline-flex; gap: 3px; }
 .neg-dots i { width: 5px; height: 5px; border-radius: 50%; background: var(--bleu); animation: negDot 0.9s ease-in-out infinite; }
 .neg-dots i:nth-child(2) { animation-delay: .15s; } .neg-dots i:nth-child(3) { animation-delay: .3s; }
 @keyframes negDot { 0%, 80%, 100% { opacity: .25; transform: translateY(0); } 40% { opacity: 1; transform: translateY(-3px); } }
-.neg-offer { display: flex; flex-direction: column; gap: 8px; text-align: left; padding: 12px 14px; border-radius: 14px;
-  background: rgba(255,255,255,0.8); border: 1px solid rgba(245,158,11,0.35); box-shadow: 0 18px 36px -22px rgba(15,23,42,0.45); }
 .neg-round-badge { align-self: flex-start; font-family: 'Space Grotesk', sans-serif; font-size: 9.5px; font-weight: 800; text-transform: uppercase;
   letter-spacing: .6px; padding: 4px 9px; border-radius: 999px; color: #92400e; background: rgba(245,158,11,0.16); border: 1px solid rgba(245,158,11,0.4); }
-.neg-message { margin: 0; font-size: 13.5px; line-height: 1.4; color: #334155; }
-.neg-terms { margin: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 2px; }
-.neg-term { display: flex; justify-content: space-between; gap: 10px; padding: 4px 8px; border-radius: 8px; font-size: 12px; }
-.neg-term dt { color: var(--gris); }
-.neg-term dd { margin: 0; text-align: right; color: var(--ink); }
-.neg-term dd s { color: var(--gris); font-weight: 500; margin-right: 2px; }
-/* Phases de la transition (≈ 1,5 s) : réflexion, arrivée de l'encart, puis choix. */
-.neg-reveal .neg-replied { animation: negIn .25s ease both; animation-delay: var(--neg-think); }
+.dilemma-card p.neg-message { margin: 0; font-size: 13.5px; line-height: 1.4; color: #334155; }
+.neg-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.neg-chip { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: rgba(255,255,255,0.85); border: 1px solid rgba(15,23,42,0.1); color: #334155; }
+.neg-chip s { color: var(--gris); font-weight: 500; }
+.sa-stat b[data-neg-to] { font-variant-numeric: tabular-nums; }
+/* Phases (≈ 1,5 s) : l'encart s'ouvre et le partenaire réfléchit, puis sa réponse arrive,
+   les montants évoluent dans les blocs, enfin les choix du tour apparaissent. */
+.neg-reveal.neg-table { animation: negOpen .28s ease both; }
+.neg-reveal .neg-replied, .neg-reveal .neg-reply { animation: negIn .3s ease both; animation-delay: var(--neg-think); }
+.neg-reveal .neg-reply { animation-name: negRise; }
 .neg-reveal .neg-thinking { animation: negOut .2s ease both; animation-delay: calc(var(--neg-think) - 120ms); }
-.neg-reveal .neg-recap { animation: negIn .25s ease both; }
-.neg-reveal .neg-offer { animation: negRise var(--neg-offer) cubic-bezier(.2,.8,.2,1) both; animation-delay: var(--neg-think); }
-.neg-reveal .neg-changed { animation: negAmber 1.1s ease-out both; animation-delay: calc(var(--neg-think) + var(--neg-offer) - 120ms); }
-.neg-reveal .neg-choices { animation: negIn var(--neg-choices) ease both; animation-delay: calc(var(--neg-think) + var(--neg-offer)); }
-.neg-reveal .neg-choices .choice { animation: none; }
+.neg-revealing .neg-stat-changed, .neg-reveal .neg-changed { animation: negAmber 1.1s ease-out both; animation-delay: var(--neg-think); }
+.neg-revealing .neg-new { animation: negIn var(--neg-choices) ease both; animation-delay: calc(var(--neg-think) + var(--neg-offer)); }
+@keyframes negOpen { from { grid-template-rows: 0fr; opacity: 0; } to { grid-template-rows: 1fr; opacity: 1; } }
 @keyframes negIn { from { opacity: 0; visibility: hidden; } to { opacity: 1; visibility: visible; } }
 @keyframes negOut { from { opacity: 1; } to { opacity: 0; visibility: hidden; } }
-@keyframes negRise { from { opacity: 0; transform: translateY(14px); visibility: hidden; } to { opacity: 1; transform: none; visibility: visible; } }
-@keyframes negAmber { 0% { background: rgba(245,158,11,0); } 25% { background: rgba(245,158,11,0.28); box-shadow: inset 0 0 0 1px rgba(245,158,11,0.55); } 100% { background: rgba(245,158,11,0); } }
+@keyframes negRise { from { opacity: 0; transform: translateY(8px); visibility: hidden; } to { opacity: 1; transform: none; visibility: visible; } }
+@keyframes negAmber { 0% { background: rgba(245,158,11,0); } 25% { background: rgba(245,158,11,0.26); box-shadow: inset 0 0 0 1px rgba(245,158,11,0.55); } 100% { background: rgba(245,158,11,0); } }
 @media (prefers-reduced-motion: reduce) {
-  .neg-reveal .neg-replied, .neg-reveal .neg-thinking, .neg-reveal .neg-recap, .neg-reveal .neg-offer, .neg-reveal .neg-changed, .neg-reveal .neg-choices,
-  .choice.neg-picked[disabled], .neg-dots i { animation: none !important; }
-  .choices.neg-fade-out { transition: none; }
+  .neg-reveal.neg-table, .neg-reveal .neg-replied, .neg-reveal .neg-reply, .neg-reveal .neg-thinking, .neg-revealing .neg-stat-changed,
+  .neg-reveal .neg-changed, .neg-revealing .neg-new, .neg-dots i { animation: none !important; }
+  .choice.neg-gone { transition: none; }
 }
 .choice .cl { font-family: 'Anton', sans-serif; text-transform: uppercase; font-size: 14px; letter-spacing: 0.3px; display: block; color: var(--ink); line-height: 1.25; }
 .choice-caption { display: block; margin-top: 3px; font-size: 11px; color: var(--gris); }
@@ -21847,6 +21853,9 @@ function render() {
     const dilemma = gameState.dilemmaQueue[dilemmaIndex];
 
     let zoneHtml;
+    const negRound = phase === 'choosing' ? negotiationCounter(dilemma) : null;
+    negRevealing = !!negRound && negotiationReveal === `${dilemma.id}|${negRound.round}` && !prefersReducedMotion();
+    negotiationReveal = null;
     const sportEvent = sportsEventOfDilemma(dilemma);
     const sportsResult = phase === 'result' && gameState.lastConsequence?.sportsAuction;
     // Pendant l'enchère comme lors de tout réaffichage du même dilemme, la carte reste en
@@ -21912,9 +21921,9 @@ function render() {
         </div>
       `;
     } else {
-      const negRound = dilemma.negotiationState?.reaction === 'counter' ? dilemma.negotiationState : null;
       const choicesHtml = `
-        <div class="choices${negRound ? ' neg-choices' : ''}">
+        <div class="choices">
+          ${negRound ? negotiationKeptChoiceHtml(negRound) : ''}${negRound ? '<div class="choices neg-new">' : ''}
           ${dilemma.c.map((choice, i) => {
             const accent = i % 2 === 0 ? 'accent' : 'neutral';
             const icon = responseEmoji(dilemma, choice, i);
@@ -21924,7 +21933,7 @@ function render() {
             const badgeText = custom ? gridRenewalSummary(dilemma)
               : choice.talentRenewal ? talentRenewalSummary(dilemma, choice.talentRenewal === 'all') : financeLabel(choice);
             return `
-            <button class="choice" data-idx="${i}"${choice.disabled ? ' disabled aria-disabled="true"' : ''}>
+            <button class="choice${choice.negotiation && !choice.negotiation.counter ? ' neg-choice' : ''}" data-idx="${i}"${choice.disabled ? ' disabled aria-disabled="true"' : ''}>
               <div class="choice-row">
                 <span class="choice-icon ${accent}" aria-hidden="true">${esc(icon)}</span>
                 <div class="choice-content">
@@ -21937,20 +21946,17 @@ function render() {
                 <span class="choice-pill ${badgeCls}">${badgeText}</span>
               </div>
             </button>
-          `; }).join('')}
+          `; }).join('')}${negRound ? '</div>' : ''}
         </div>
       `;
-      const revealKey = negRound ? `${dilemma.id}|${negRound.round}` : null;
-      negRevealing = !!revealKey && negotiationReveal === revealKey && !prefersReducedMotion();
-      negotiationReveal = null;
-      zoneHtml = negRound ? negotiationRoundHtml(negRound, choicesHtml, negRevealing) : choicesHtml;
+      zoneHtml = choicesHtml;
     }
 
     app.innerHTML = `
       ${renderMasthead("Saison " + gameState.season, "Audience Masters", true)}
       ${renderTicker()}
       ${renderCampaignPanel()}
-      <div class="dilemma-container${phase === 'choosing' ? entrance : ''}">
+      <div class="dilemma-container${phase === 'choosing' ? entrance : ''}${negRevealing ? ' neg-revealing' : ''}" style="--neg-think:${NEG_REVEAL.think}ms;--neg-offer:${NEG_REVEAL.offer}ms;--neg-choices:${NEG_REVEAL.choices}ms">
         <div class="dilemma-card dilemma-hero${phase === 'result' ? ' is-result' : ''}${sportEvent ? ` sa-hero sa-phase-${phase === 'result' ? 'verdict' : gameState.sportsRights?.activeAuction?.phase || 'market'}` : ''}">
           <div class="dc-head">
             <span class="dc-head-left"><span class="dc-live-pill"><span class="dc-live-dot"></span>${sportEvent ? rightsMarketLabel(sportEvent) : dilemma.isProgramStory ? esc(dilemma.storyLabel) : 'Événement'}</span>${channelPillHtml()}</span>
@@ -21961,6 +21967,7 @@ function render() {
             <p>${sportEvent ? esc(sportEvent.pitch) : dilemma.desc}</p>
             ${sportsBlock}
             ${dilemmaShowcaseHtml(dilemma)}
+            ${negotiationTableHtml(dilemma, negRevealing)}
             ${dilemma.isSportsRenewal && playerRecurringRight(dilemma.rightsEventId) ? `
             <div class="gr-cards gr-single" data-gr-cards="single">${sportsRenewalCardHtml(playerRecurringRight(dilemma.rightsEventId), { readonly: true, single: true })}</div>` : ''}
             ${dilemma.isProgramStory && gameState.player.contracts[dilemma.storySlot]?.id === dilemma.programId ? `
@@ -22030,24 +22037,28 @@ function render() {
       bindSportsAuctionZone(app);
     } else if (phase === 'choosing') {
       const zone = document.getElementById('choice-zone');
-      if (negRevealing) runNegotiationReveal(zone);
-      app.querySelectorAll('.choice').forEach(btn => {
+      if (negRevealing) runNegotiationReveal(app);
+      app.querySelectorAll('button.choice').forEach(btn => {
         btn.onclick = () => {
           // Verrou immédiat : un seul choix par tour, quels que soient les clics suivants.
           if (btn.disabled || zone.dataset.locked) return;
           zone.dataset.locked = '1';
           const choicesEl = zone.querySelector('.choices');
           zone.querySelectorAll('.choice').forEach(b => { b.disabled = true; b.tabIndex = -1; });
-          btn.classList.add('selected', 'neg-picked');
           const choiceIdx = parseInt(btn.dataset.idx, 10);
           const choice = dilemma.c[choiceIdx];
-          // Proposition de négociation : les choix s'effacent en fondu, la carte reste en place.
-          const negotiating = choice?.negotiation && !choice.negotiation.counter;
-          if (negotiating) { negZoneHeight = zone.offsetHeight; zone.style.minHeight = `${negZoneHeight}px`; }
-          if (choicesEl) choicesEl.classList.add(negotiating ? 'neg-fade-out' : 'slide-out-up');
+          // Proposition de négociation (tour 1) : aucun mouvement, le choix retenu reste en
+          // place et les autres se replient avant la réponse du partenaire.
+          if (choice?.negotiation && !choice.negotiation.counter) {
+            collapseOtherChoices(zone, btn);
+            setTimeout(() => chooseDilemmaOption(choiceIdx), prefersReducedMotion() ? 0 : NEG_REVEAL.collapse);
+            return;
+          }
+          btn.classList.add('selected');
+          if (choicesEl) choicesEl.classList.add('slide-out-up');
           setTimeout(() => {
             chooseDilemmaOption(choiceIdx);
-          }, negotiating && !prefersReducedMotion() ? 320 : 220);
+          }, 220);
         };
       });
     } else {
@@ -26336,6 +26347,8 @@ function showcaseEntry(program, slot, { level, costs = [], conditions = [], stat
 }
 function dilemmaShowcaseHtml(dilemma) {
   if (!dilemma?.showcase?.length || dilemma.isReplacementChoice) return '';
+  // Contre-offre en cours : les montants des blocs suivent les conditions du partenaire.
+  const negChanges = negotiationStatChanges(dilemma);
   return `<div class="dsc-list">${dilemma.showcase.map(e => {
     const program = findProgram(e.programId) || { id: e.programId, name: e.name, format: e.format };
     const art = programArt(program);
@@ -26358,7 +26371,7 @@ function dilemmaShowcaseHtml(dilemma) {
       return `<div class="sa-inline dsc-sa">
       ${illustrationInfoHtml(front, `Synopsis · ${esc(e.name)}`, esc(synopsis), 'Afficher le synopsis du programme')}
       ${e.current ? `<div class="sa-row"><span class="sa-row-label">À l’antenne</span><span class="dsc-now-row"><span class="dsc-now-name">« ${esc(e.current)} »</span>${pdaBadge(nowPda, 'PDA actuelle de votre programme sur cette case')}</span></div>` : ''}
-      <div class="sa-stats">${e.stats.map(x => `<div class="sa-stat"><span>${esc(x.label)}</span><b>${esc(x.value)}</b></div>`).join('')}</div>
+      <div class="sa-stats">${e.stats.map(x => negotiationStatHtml(x, negChanges?.[x.label], negRevealing)).join('')}</div>
       ${[...e.costs, ...e.conditions].map(x => `<p class="sa-note">${esc(x)}</p>`).join('')}
     </div>`;
     }
@@ -26987,7 +27000,8 @@ function dealTermsFor(q, strategy, counter = false) {
   const purchase = round(Math.max(0, q.finance.purchase - negotiable + negotiable * rule.price));
   const savings = (1 - rule.price) * (negotiable + q.annual * q.program.years);
   const bonus = rule.bonus ? round(Math.max(0.3, savings * rule.bonus)) : 0;
-  return { strategy, counter, annual, purchase, years: q.program.years + (rule.extraYears || 0),
+  return { strategy, counter, annual, purchase, rights: round((q.program.rights || 0) * rule.price), buyout: round((q.buyout || 0) * rule.price),
+    years: q.program.years + (rule.extraYears || 0),
     exclusive: !!rule.exclusive, bonus, annualDelta: round(annual - q.annual) };
 }
 function dealFinance(q, terms) {
@@ -27049,9 +27063,10 @@ function applyNegotiationReaction(dilemma, choice) {
   }
   const terms = dealTermsFor(q, neg.strategy, true);
   // Le contexte du dilemme reste en place : la réponse du partenaire et ses nouvelles
-  // conditions sont portées par l'encart du tour suivant (negotiationRoundHtml).
+  // conditions sont portées par l'encart du tour suivant (negotiationTableHtml) et les blocs de la vitrine.
   dilemma.negotiationState = { strategy: neg.strategy, reaction: 'counter', terms, offer: { ...neg.terms },
     round: (dilemma.negotiationState?.round || 1) + 1, partner: isSportsProgram(program) ? 'agency' : 'producer',
+    offerLabel: choice.l, offerPill: choice.pillLabel || '',
     message: `${who} de « ${program.name} » refuse votre proposition et contre-propose.` };
   dilemma.c = [
     { l: 'Accepter la contre-offre', producerDeal: { ...choice.producerDeal }, negotiation: { strategy: neg.strategy, terms, counter: true },
@@ -27413,8 +27428,8 @@ function channelStability() {
 // ---------------------------------------------------------------------------
 // Effet purement visuel : les conséquences restent appliquées une seule fois par
 // chooseDilemmaOption. negotiationReveal désigne le tour qui vient d'être ouvert.
-let negotiationReveal = null, negRevealing = false, negZoneHeight = 0;
-const NEG_REVEAL = { think: 700, offer: 380, choices: 300 };
+let negotiationReveal = null, negRevealing = false;
+const NEG_REVEAL = { collapse: 360, think: 620, offer: 360, choices: 260, count: 520 };
 function prefersReducedMotion() {
   return typeof window !== 'undefined' && !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 }
@@ -27422,63 +27437,130 @@ const SEASON_WORDS = ['', 'une', 'deux', 'trois', 'quatre', 'cinq', 'six'];
 function seasonsLabel(n) {
   return `${SEASON_WORDS[n] || n} saison${n > 1 ? 's' : ''}`;
 }
-// Rappel de la proposition du joueur, à partir des conditions réellement proposées.
-function negotiationOfferLine(t) {
-  const price = [t.purchase > 0 ? `${nf1(t.purchase)} M€` : '', `${nf1(t.annual)} M€/an`].filter(Boolean).join(' + ');
-  return `${price} pour ${seasonsLabel(t.years)}${t.exclusive ? '' : ', sans exclusivité'}`;
+function negotiationCounter(dilemma) {
+  return dilemma?.negotiationState?.reaction === 'counter' ? dilemma.negotiationState : null;
 }
-function negotiationTermRows(offer, terms) {
-  const yesNo = v => v ? 'Oui' : 'Non';
-  return [
-    { label: 'À la signature', from: `${nf1(offer.purchase)} M€`, to: `${nf1(terms.purchase)} M€`, changed: offer.purchase !== terms.purchase },
-    { label: 'Coût annuel', from: `${nf1(offer.annual)} M€/an`, to: `${nf1(terms.annual)} M€/an`, changed: offer.annual !== terms.annual },
-    { label: 'Durée', from: seasonsLabel(offer.years), to: seasonsLabel(terms.years), changed: offer.years !== terms.years },
-    { label: 'Exclusivité', from: yesNo(offer.exclusive), to: yesNo(terms.exclusive), changed: offer.exclusive !== terms.exclusive },
-    { label: 'Prime de succès', from: offer.bonus ? `${nf1(offer.bonus)} M€` : 'Aucune', to: terms.bonus ? `${nf1(terms.bonus)} M€` : 'Aucune', changed: (offer.bonus || 0) !== (terms.bonus || 0) }
-  ];
+// Blocs chiffrés de la vitrine : valeurs affichées avant la contre-offre (devis) et après.
+function negotiationStatChanges(dilemma) {
+  const st = negotiationCounter(dilemma);
+  if (!st || !dilemma.isProducerPitch) return null;
+  const q = quoteProgram(dilemma.pitchSlot, dilemma.programId, 'interne'), t = st.terms;
+  if (!q) return null;
+  return {
+    'Coût annuel': { from: q.annual, to: t.annual, unit: 'M€' },
+    'Rachat des droits': { from: q.buyout || 0, to: t.buyout ?? q.buyout ?? 0, unit: 'M€' },
+    'Droits d’entrée': { from: q.program.rights || 0, to: t.rights ?? q.program.rights ?? 0, unit: 'M€' },
+    'Engagement': { from: q.program.years, to: t.years, unit: 'saisons' }
+  };
 }
-function negotiationRoundHtml(state, choicesHtml, reveal) {
-  const agency = state.partner === 'agency';
+function negotiationStatText(v, unit) {
+  return unit === 'saisons' ? `${v} saison${v > 1 ? 's' : ''}` : `${nf1(v)} M€`;
+}
+function negotiationStatHtml(x, change, reveal) {
+  if (!change) return `<div class="sa-stat"><span>${esc(x.label)}</span><b>${esc(x.value)}</b></div>`;
+  const moved = change.from !== change.to;
+  const shown = reveal && moved ? change.from : change.to;
+  const attrs = reveal && moved ? ` data-neg-from="${change.from}" data-neg-to="${change.to}" data-neg-unit="${change.unit}"` : '';
+  return `<div class="sa-stat${moved ? ' neg-stat-changed' : ''}"><span>${esc(x.label)}</span><b${attrs}>${esc(negotiationStatText(shown, change.unit))}</b></div>`;
+}
+// Conditions sans bloc dédié (exclusivité, prime) : pastilles de l'encart, comparées à l'offre du joueur.
+function negotiationChips(offer, terms) {
+  const chips = [];
+  const yesNo = v => v ? 'oui' : 'non', bonus = v => v ? `${nf1(v)} M€` : 'aucune';
+  const exclChanged = !!offer && offer.exclusive !== terms.exclusive;
+  chips.push({ label: 'Exclusivité', text: yesNo(terms.exclusive), from: exclChanged ? yesNo(offer.exclusive) : '', changed: exclChanged });
+  const bonusChanged = !!offer && (offer.bonus || 0) !== (terms.bonus || 0);
+  if (terms.bonus || offer?.bonus) chips.push({ label: 'Prime de succès', text: bonus(terms.bonus), from: bonusChanged ? bonus(offer.bonus) : '', changed: bonusChanged });
+  return chips;
+}
+// Encart de contre-offre, intégré à la carte du dilemme sous la vitrine.
+function negotiationTableHtml(dilemma, reveal) {
+  const st = negotiationCounter(dilemma);
+  if (!st) return '';
+  const agency = st.partner === 'agency';
   const who = agency ? 'L’agence' : 'Le producteur';
-  const rows = state.offer ? negotiationTermRows(state.offer, state.terms) : [];
+  const chips = negotiationChips(st.offer, st.terms);
   return `
-    <div class="neg-round${reveal ? ' neg-reveal' : ''}" style="--neg-think:${NEG_REVEAL.think}ms;--neg-offer:${NEG_REVEAL.offer}ms;--neg-choices:${NEG_REVEAL.choices}ms">
-      ${state.offer ? `<p class="neg-recap"><span>Votre offre :</span> ${esc(negotiationOfferLine(state.offer))}</p>` : ''}
-      <div class="neg-partner">
-        <span class="neg-avatar" aria-hidden="true">${agency ? '🏟️' : '🎬'}</span>
-        <div class="neg-partner-txt">
-          <b>${who}</b>
-          <span class="neg-status">
-            <span class="neg-thinking" role="status"${reveal ? '' : ' hidden'}><span class="neg-dots" aria-hidden="true"><i></i><i></i><i></i></span>${who} étudie votre proposition…</span>
-            <span class="neg-replied">a fait une contre-offre</span>
-          </span>
+    <div class="neg-table${reveal ? ' neg-reveal' : ''}" style="--neg-think:${NEG_REVEAL.think}ms">
+      <div class="neg-offer">
+        <span class="neg-round-badge neg-replied">Tour ${st.round || 2} · Contre-offre</span>
+        <div class="neg-offer-head">
+          <div class="neg-partner">
+            <span class="neg-avatar" aria-hidden="true">${agency ? '🏟️' : '🎬'}</span>
+            <div class="neg-partner-txt">
+              <b>${who}</b>
+              <span class="neg-status">
+                <span class="neg-thinking${reveal ? '' : ' neg-off'}" role="status" aria-label="${who} étudie votre proposition…"><span class="neg-dots" aria-hidden="true"><i></i><i></i><i></i></span><span aria-hidden="true">étudie votre proposition…</span></span>
+                <span class="neg-replied">a fait une contre-offre</span>
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="neg-reply">
+          <p class="neg-message">${esc(st.message || `${who} refuse votre proposition et contre-propose.`)}</p>
+          ${chips.length ? `<div class="neg-chips">${chips.map(c => `<span class="neg-chip${c.changed ? ' neg-changed' : ''}">${esc(c.label)} : ${c.from ? `<s>${esc(c.from)}</s> ` : ''}<b>${esc(c.text)}</b></span>`).join('')}</div>` : ''}
         </div>
       </div>
-      <div class="neg-offer">
-        <span class="neg-round-badge">Tour ${state.round || 2} · Contre-offre</span>
-        <p class="neg-message">${esc(state.message || `${who} refuse votre proposition et contre-propose.`)}</p>
-        ${rows.length ? `<dl class="neg-terms">${rows.map(r => `<div class="neg-term${r.changed ? ' neg-changed' : ''}"><dt>${r.label}</dt><dd>${r.changed ? `<s>${esc(r.from)}</s> ` : ''}<b>${esc(r.to)}</b></dd></div>`).join('')}</dl>` : ''}
-      </div>
-      ${choicesHtml}
     </div>`;
 }
-// Déroulé du tour : réflexion (≈ 700 ms), arrivée de la contre-offre, puis choix.
-// Les nouveaux boutons restent inertes (souris et clavier) jusqu'à leur apparition.
-function runNegotiationReveal(zone) {
-  const round = zone?.querySelector('.neg-round.neg-reveal');
-  if (!round) return;
-  const choices = round.querySelector('.neg-choices');
-  if (choices) choices.inert = true;
-  // Zone de dialogue stabilisée : elle ne se rétracte pas pendant la transition.
-  if (negZoneHeight) zone.style.minHeight = `${negZoneHeight}px`;
-  negZoneHeight = 0;
-  const total = NEG_REVEAL.think + NEG_REVEAL.offer + NEG_REVEAL.choices;
-  setTimeout(() => { if (choices) choices.inert = false; }, NEG_REVEAL.think + NEG_REVEAL.offer);
+// Choix du tour 1 retenu : il reste en place, au-dessus des actions du nouveau tour.
+function negotiationKeptChoiceHtml(st) {
+  if (!st?.offerLabel) return '';
+  return `
+    <div class="choice neg-kept" aria-disabled="true">
+      <div class="choice-row">
+        <span class="choice-icon accent" aria-hidden="true">✍️</span>
+        <div class="choice-content">
+          <div class="choice-eyebrow-row"><span class="choice-eyebrow">Votre offre · tour ${(st.round || 2) - 1}</span></div>
+          <span class="cl">${esc(st.offerLabel)}</span>
+        </div>
+        ${st.offerPill ? `<span class="choice-pill cost">${esc(st.offerPill)}</span>` : ''}
+      </div>
+    </div>`;
+}
+// Tour 1 : le choix retenu ne bouge pas, les autres se replient.
+function collapseOtherChoices(zone, picked) {
+  const all = [...zone.querySelectorAll('.choice')];
+  picked.classList.add('neg-kept');
+  // Même contenu que la carte « Votre offre » du tour suivant : rien ne change au passage.
+  const eyebrow = picked.querySelector('.choice-eyebrow'), icon = picked.querySelector('.choice-icon');
+  if (eyebrow) eyebrow.textContent = 'Votre offre · tour 1';
+  if (icon) { icon.textContent = '✍️'; icon.className = 'choice-icon accent'; }
+  picked.querySelector('.choice-outlook')?.remove();
+  all.filter(b => b !== picked).forEach(b => {
+    b.style.height = `${b.offsetHeight}px`;
+    if (b === all[0]) b.classList.add('neg-first');
+  });
+  void zone.offsetHeight;
+  all.filter(b => b !== picked).forEach(b => b.classList.add('neg-gone'));
+}
+// Déroulé du tour : réflexion, arrivée de la réponse, montants qui évoluent dans les blocs,
+// puis actions. Les nouveaux boutons restent inertes (souris et clavier) jusqu'à leur apparition.
+function runNegotiationReveal(app) {
+  const card = app.querySelector('.dilemma-hero');
+  const zone = app.querySelector('#choice-zone');
+  const fresh = zone?.querySelector('.neg-new');
+  if (fresh) fresh.inert = true;
   setTimeout(() => {
-    round.classList.remove('neg-reveal');
-    round.querySelector('.neg-thinking')?.setAttribute('hidden', '');
-    zone.style.minHeight = '';
-  }, total + 400);
+    card?.querySelectorAll('[data-neg-to]').forEach(el => animateNegotiationValue(el));
+  }, NEG_REVEAL.think);
+  setTimeout(() => { if (fresh) fresh.inert = false; }, NEG_REVEAL.think + NEG_REVEAL.offer);
+  setTimeout(() => {
+    app.querySelectorAll('.neg-reveal, .neg-revealing').forEach(el => el.classList.remove('neg-reveal', 'neg-revealing'));
+    app.querySelector('.neg-thinking')?.classList.add('neg-off');
+  }, NEG_REVEAL.think + NEG_REVEAL.offer + NEG_REVEAL.choices + 900);
+}
+function animateNegotiationValue(el) {
+  const from = Number(el.dataset.negFrom), to = Number(el.dataset.negTo), unit = el.dataset.negUnit;
+  const done = () => { el.textContent = negotiationStatText(to, unit); };
+  if (unit === 'saisons' || typeof requestAnimationFrame !== 'function') { setTimeout(done, NEG_REVEAL.count / 2); return; }
+  const start = performance.now();
+  const step = now => {
+    const k = Math.min(1, (now - start) / NEG_REVEAL.count), e = 1 - Math.pow(1 - k, 3);
+    el.textContent = negotiationStatText(Math.round((from + (to - from) * e) * 10) / 10, unit);
+    if (k < 1) requestAnimationFrame(step); else done();
+  };
+  requestAnimationFrame(step);
 }
 function choiceOutlookHtml(o, choice) {
   if (!o || choice?.negotiation) return '';
