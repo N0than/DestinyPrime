@@ -1884,6 +1884,8 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .gr-art.gr-art-talent img { inset: 12% auto auto 50%; width: auto; height: 76%; aspect-ratio: 1; transform: translateX(-50%); object-fit: contain;
   border-radius: 50%; background: #fff; box-shadow: 0 6px 18px rgba(15,23,42,0.14); }
 .gr-slot-badge { flex-shrink: 0; padding: 3px 9px; border-radius: 999px; font-family: 'Space Grotesk', sans-serif; font-size: 10px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase; color: var(--ink); background: var(--paper-dark); white-space: nowrap; }
+.gr-art-badge { position: absolute; right: 6px; bottom: 6px; max-width: calc(100% - 12px); overflow: hidden; text-overflow: ellipsis;
+  background: rgba(255,255,255,0.92); box-shadow: 0 1px 4px rgba(0,0,0,.15); }
 .gr-single .gr-name { font-size: 15px; }
 /* Nom du programme entre guillemets : passe à la ligne d'un bloc s'il ne tient pas sur la ligne du titre. */
 .dc-title-keep { display: inline-block; max-width: 100%; }
@@ -2146,7 +2148,7 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 /* Safari iOS peut laisser les badges positionnés visibles à travers une face 3D.
    Masquer explicitement ceux de la face inactive, sans interrompre sa rotation. */
 .tl-card.flipped .tl-front :is(.tl-flip-hint, .tl-badges),
-.gr-card.flipped .gr-front :is(.gr-flip-hint, .gr-historic),
+.gr-card.flipped .gr-front :is(.gr-flip-hint, .gr-historic, .gr-art-badge),
 .pm-card.flipped .pm-front .pm-tag,
 .sa-illu-flippable.flipped .sa-illu-front :is(.sa-illu-tier, .sa-illu-corner, .sa-info-btn),
 .tl-card:not(.flipped) .tl-back-close,
@@ -23284,7 +23286,7 @@ function sportsRenewalCardHtml(rec, opts = {}) {
     pdaBadge: Number.isFinite(pda) ? `<span class="gr-pda pg-badge-${slotMeta?.accent || 'gris'}" title="PDA actuelle de l’événement">${nf1(pda)}% PDA</span>` : '',
     artHtml: art ? `<img src="${art}" alt="" width="320" height="180" decoding="async">` : '',
     ribbon: `${event.icon} Droit annuel`,
-    badge: `${slotMeta ? `${slotMeta.icon} ` : ''}${sportsSlotsLabel(event)}` });
+    artBadge: `${slotMeta ? `${slotMeta.icon} ` : ''}${sportsSlotsLabel(event)}` });
 }
 // Un seul arbitrage en fin de saison et le droit sportif est seul concerné : dilemme
 // de renouvellement au format d'un programme.
@@ -24247,7 +24249,7 @@ function renewalCardHtml(slot, name, historic, stats, opts = {}) {
     pdaBadge: Number.isFinite(pda) ? `<span class="gr-pda pg-badge-${slotMeta?.accent || 'gris'}" title="${esc(pdaTitle)}">${nf1(pda)}% PDA${season != null ? ` · S${season}` : ''}</span>` : '',
     artHtml: art ? `<img src="${art}" alt="" width="320" height="180" decoding="async">` : '',
     ribbon: historic ? '⭐ Historique' : '',
-    badge: `${slotMeta ? `${slotMeta.icon} ` : ''}${slotLabelOf(slot)}` });
+    artBadge: `${slotMeta ? `${slotMeta.icon} ` : ''}${slotLabelOf(slot)}` });
 }
 
 // Carte d'un talent en fin de contrat : portrait, genre et critères du panneau Talents.
@@ -24271,7 +24273,7 @@ function flipCardHtml(o) {
     <div class="gr-card${flippable ? ' flippable' : ''}${picked ? ' picked' : ''}" data-gr-slot="${esc(o.key)}">
      <div class="gr-flip">
       <div class="gr-face gr-front"${flippable ? ` role="button" tabindex="0" aria-label="${esc(o.name)} : choisir son avenir"` : ''}>
-        <span class="gr-art${o.artCls ? ` ${o.artCls}` : ''}">${o.artHtml || ''}${o.ribbon ? `<span class="gr-historic">${esc(o.ribbon)}</span>` : ''}${flippable ? '<span class="gr-flip-hint" aria-hidden="true">↻</span>' : ''}</span>
+        <span class="gr-art${o.artCls ? ` ${o.artCls}` : ''}">${o.artHtml || ''}${o.artBadge ? `<span class="gr-slot-badge gr-art-badge" title="${esc(o.artBadge)}">${esc(o.artBadge)}</span>` : ''}${o.ribbon ? `<span class="gr-historic">${esc(o.ribbon)}</span>` : ''}${flippable ? '<span class="gr-flip-hint" aria-hidden="true">↻</span>' : ''}</span>
         <span class="gr-name-row"><span class="gr-name">${esc(o.name)}</span>${o.pdaBadge || ''}</span>
         ${o.badge ? `<span class="gr-slot-row"><span class="gr-slot-badge">${esc(o.badge)}</span></span>` : ''}
         ${o.sub ? `<span class="gr-sub">${esc(o.sub)}</span>` : ''}
