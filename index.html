@@ -1835,13 +1835,10 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .vg-item.warn { border-left-color:#d97706; } .vg-item.bad { border-left-color:var(--rouge); } .vg-item.good { border-left-color:var(--vert); }
 .vg-season { flex:none; font-size:9.5px; font-weight:800; color:var(--gris); }
 .vg-empty { margin:0; font-size:11.5px; color:var(--gris); }
-.of-sheet { position:fixed; inset:0; z-index:60; display:flex; align-items:flex-end; justify-content:center; background:rgba(15,23,42,0.45); padding:16px 12px 0; }
-.of-panel { width:100%; max-width:520px; max-height:85vh; overflow-y:auto; background:var(--paper, #f8fafc); border-radius:18px 18px 0 0; box-shadow:0 -10px 30px -12px rgba(15,23,42,0.4); }
-.of-top { position:sticky; top:0; display:flex; align-items:center; justify-content:space-between; gap:8px; padding:14px 16px 10px; background:inherit; }
-.of-title { font-family:'Space Grotesk', sans-serif; font-size:13px; font-weight:800; color:var(--ink); }
-.of-close { border:0; background:rgba(15,23,42,0.06); width:30px; height:30px; border-radius:50%; cursor:pointer; font-size:13px; color:var(--ink); }
-.of-body { display:flex; flex-direction:column; gap:8px; padding:0 16px 18px; }
-.pm-card-original .of-art { display:flex; align-items:center; justify-content:center; font-size:30px; background:linear-gradient(135deg, #1e3a8a, #7c3aed); }
+.of-studio { display:flex; flex-direction:column; gap:8px; padding:4px 2px; text-align:left; }
+.of-count { font-size:10px; font-weight:800; padding:3px 9px; border-radius:999px; background:rgba(37,99,235,0.1); color:var(--bleu); }
+.of-lock { color:#b45309; }
+.of-form select:disabled, .of-form button:disabled { opacity:.5; cursor:not-allowed; }
 .of-note { margin:0; font-size:11px; line-height:1.4; color:var(--gris); }
 .of-project { display:flex; flex-direction:column; gap:3px; padding:9px 10px; border-radius:10px; background:#fff; border:1px solid rgba(37,99,235,0.18); }
 .of-head { display:flex; justify-content:space-between; gap:8px; font-size:13px; color:var(--ink); }
@@ -21255,8 +21252,6 @@ function renderTicker() {
   const talentsSlideHtml = renderTalentsSlide();
   const slide = gameState.hudSlide || 0;
 
-  const editableStudio = gameState.step === 6 && gameState.dilemmaPhase === 'choosing' && gameState.currentDilemmaIndex === 0;
-  const studioSheet = gameState.studioOpen && editableStudio ? renderOriginalStudio(gameState.studioOpen) : '';
   return `
     <div class="hud-wrap">
       <div class="hud-panel">
@@ -21292,6 +21287,7 @@ function renderTicker() {
               <div class="eh-slide">${globalAudienceShareHtml}</div>
               <div class="eh-slide eco-slide-wrap">${ecoBilanSlideHtml}</div>
               <div class="eh-slide evo-slide">${evolutionChartHtml}</div>
+              <div class="eh-slide studio-slide">${renderStudioSlide()}</div>
               <div class="eh-slide talents-slide">${talentsSlideHtml}</div>
               <div class="eh-slide perf-slide-wrap">${statStarsHtml}</div>
               <div class="eh-slide arcom-slide-wrap">${arcomSlideHtml}</div>
@@ -21306,11 +21302,10 @@ function renderTicker() {
         </div>
       </div>
     </div>
-    ${studioSheet}
   `;
 }
 
-const HUD_SLIDE_COUNT = 8;
+const HUD_SLIDE_COUNT = 9;
 
 // En mode Concurrence, le slider est figé sur la grille : on n'en sort
 // qu'après être revenu sur « Ma grille ».
@@ -28043,88 +28038,70 @@ function renderProgramManager(slot) {
     ${editable?`
     <div class="pm-pick-head"><span>Choisir un programme</span>${c?'<button type="button" class="pm-pick-cancel" data-pm-cancel>Annuler</button>':''}</div>
     <div class="pm-carousel" data-pm-carousel="${slot}" aria-label="Programmes disponibles">
-      ${originalStudioCardHtml(slot)}${ordered.map(x=>programCardHtml(slot,x,c)).join('')}
+      ${ordered.map(x=>programCardHtml(slot,x,c)).join('')}
     </div>
     <span class="program-manager-feedback" aria-live="polite"></span>`:(c?'':note)}
     </section>`;
 }
-// Studio des formats originaux : concevoir, tester ou lancer (action de gestion, avant
-// le premier dilemme de la saison, comme les autres changements de programmation).
-function renderOriginalStudio(slot) {
-  const p = ensureConsequenceState(), cfg = ORIGINAL_FORMATS;
-  const projects = originalProjects().filter(f => f.slot === slot);
+// Studio de création (écran du slider) : concevoir, tester ou lancer un format original sur
+// le créneau de son choix. Action de gestion, ouverte avant le premier dilemme de la saison,
+// comme les autres changements de programmation ; consultable le reste du temps.
+function studioEditable() {
+  return gameState.step === 6 && gameState.dilemmaPhase === 'choosing' && gameState.currentDilemmaIndex === 0;
+}
+function renderStudioSlide() {
+  const p = ensureConsequenceState(), cfg = ORIGINAL_FORMATS, editable = studioEditable();
   const all = originalProjects();
   const opt = (obj, sel) => Object.entries(obj).map(([k, v]) => `<option value="${k}"${k === sel ? ' selected' : ''}>${esc(v.label)}</option>`).join('');
   const stageLabel = { concept: 'Concept', pilot: 'Pilote tourné', test: 'Test réalisé' };
   const uncertainty = { direct: 'incertitude forte', test: 'incertitude moyenne', pilot: 'incertitude faible' };
+  const off = editable ? '' : ' disabled';
   const card = f => {
     const q = quoteProgram(f.slot, f.id, 'interne');
     const ready = originalLaunchable(f);
     const dev = k => Math.round(f.annual * cfg.devCost[k] * 10) / 10;
+    const slotMeta = TIME_SLOTS.find(t => t.key === f.slot);
     return `<div class="of-project" data-of-id="${esc(f.id)}">
       <div class="of-head"><b>${esc(f.name)}</b><span class="of-stage">${stageLabel[f.stage] || ''}</span></div>
-      <div class="of-line">${esc(cfg.concepts[f.concept].label)} · ${esc(cfg.positionings[f.positioning].label)} · ${esc(AUDIENCE_TARGETS.find(t => t.key === f.target)?.short || f.target)} · ${esc(cfg.budgets[f.budget].label)}</div>
+      <div class="of-line">${slotMeta ? `${slotMeta.icon} ` : ''}${esc(slotLabelOf(f.slot))} · ${esc(cfg.concepts[f.concept].label)} · ${esc(cfg.positionings[f.positioning].label)} · ${esc(AUDIENCE_TARGETS.find(t => t.key === f.target)?.short || f.target)} · ${esc(cfg.budgets[f.budget].label)}</div>
       <div class="of-line">📈 Potentiel estimé <b>${nf1(f.estimate.min)} – ${nf1(f.estimate.max)}</b> <span class="of-muted">(${uncertainty[f.estimate.stage]})</span></div>
       <div class="of-line">📌 ${nf1(f.annual)} M€/an · création ${nf1(f.rights)} M€ · format détenu par la chaîne</div>
       <div class="of-actions">
-        ${f.stage === 'concept' ? `<button type="button" data-of-action="pilot">Pilote (${nf1(dev('pilot'))} M€)</button>
-        <button type="button" data-of-action="test">Test limité (${nf1(dev('test'))} M€)</button>` : ''}
-        <button type="button" class="primary" data-of-action="launch"${ready && q?.allowed ? '' : ' disabled'}>${ready ? `Lancer (${nf1(q?.finance.purchase ?? f.rights)} M€)` : `Prêt en saison ${f.readySeason}`}</button>
-        <button type="button" class="ghost" data-of-action="abandon">Abandonner</button>
+        ${f.stage === 'concept' ? `<button type="button" data-of-action="pilot"${off}>Pilote (${nf1(dev('pilot'))} M€)</button>
+        <button type="button" data-of-action="test"${off}>Test limité (${nf1(dev('test'))} M€)</button>` : ''}
+        <button type="button" class="primary" data-of-action="launch"${editable && ready && q?.allowed ? '' : ' disabled'}>${ready ? `Lancer (${nf1(q?.finance.purchase ?? f.rights)} M€)` : `Prêt en saison ${f.readySeason}`}</button>
+        <button type="button" class="ghost" data-of-action="abandon"${off}>Abandonner</button>
       </div>
     </div>`;
   };
-  return `<div class="of-sheet" role="dialog" aria-modal="true" aria-label="Format original" data-of-studio="${slot}">
-   <div class="of-panel">
-    <div class="of-top"><span class="of-title">✨ Format original · ${esc(slotLabelOf(slot))}</span><button type="button" class="of-close" data-of-action="close" aria-label="Fermer">✕</button></div>
-    <div class="of-body">
-      <p class="of-note">Un format maison coûte moins cher dans la durée et peut rapporter des droits, mais son potentiel réel reste incertain. Pilote et test affinent l’estimation et décalent le lancement d’une saison.</p>
-      ${projects.map(card).join('')}
-      ${all.length < cfg.maxProjects ? `<div class="of-form">
-        <label>Concept<select data-of-field="concept">${opt(cfg.concepts, 'jeu')}</select></label>
-        <label>Positionnement<select data-of-field="positioning">${opt(cfg.positionings, 'populaire')}</select></label>
-        <label>Cible<select data-of-field="target">${AUDIENCE_TARGETS.map(t => `<option value="${t.key}"${t.key === p.target ? ' selected' : ''}>${esc(t.full)}</option>`).join('')}</select></label>
-        <label>Budget<select data-of-field="budget">${opt(cfg.budgets, '2')}</select></label>
-        <button type="button" class="primary" data-of-action="design">Concevoir le format</button>
-      </div>` : `<p class="of-note">Deux projets maximum en développement.</p>`}
-    </div>
-   </div>
+  const slots = TIME_SLOTS.filter(t => !slotTakenByEvent(t.key));
+  return `<div class="of-studio" data-of-studio>
+    <div class="vg-head"><span class="vg-title">Studio de création</span>${all.length ? `<span class="of-count">${all.length} projet${all.length > 1 ? 's' : ''} en cours</span>` : ''}</div>
+    <p class="of-note">Un format maison coûte moins cher dans la durée et peut rapporter des droits, mais son potentiel réel reste incertain. Pilote et test affinent l’estimation et décalent le lancement d’une saison.</p>
+    ${editable ? '' : '<p class="of-note of-lock">🔒 Les créations se décident en début de saison, avant le premier dilemme.</p>'}
+    ${all.map(card).join('')}
+    ${all.length < cfg.maxProjects ? `<div class="of-form">
+      <label>Créneau<select data-of-field="slot"${off}>${slots.map(t => `<option value="${t.key}">${t.icon} ${esc(slotLabelOf(t.key))}</option>`).join('')}</select></label>
+      <label>Concept<select data-of-field="concept"${off}>${opt(cfg.concepts, 'jeu')}</select></label>
+      <label>Positionnement<select data-of-field="positioning"${off}>${opt(cfg.positionings, 'populaire')}</select></label>
+      <label>Cible<select data-of-field="target"${off}>${AUDIENCE_TARGETS.map(t => `<option value="${t.key}"${t.key === p.target ? ' selected' : ''}>${esc(t.full)}</option>`).join('')}</select></label>
+      <label>Budget<select data-of-field="budget"${off}>${opt(cfg.budgets, '2')}</select></label>
+      <button type="button" class="primary" data-of-action="design"${off}>Concevoir le format</button>
+    </div>` : `<p class="of-note">Deux projets maximum en développement.</p>`}
   </div>`;
 }
-// Entrée du studio dans le carrousel de programmes de la case.
-function originalStudioCardHtml(slot) {
-  const n = originalProjects().filter(f => f.slot === slot).length;
-  return `<article class="pm-card pm-card-original"><div class="pm-flip"><div class="pm-face pm-front">
-    <span class="pm-art of-art" aria-hidden="true">✨</span>
-    <span class="pm-body">
-      <span class="pm-genre">Création maison</span>
-      <span class="pm-name">Format original</span>
-      <span class="pm-meta">${n ? `${n} projet${n > 1 ? 's' : ''} en cours` : 'Concevoir, tester, lancer'}</span>
-      <button type="button" class="pm-buy" data-of-open="${slot}">${n ? 'Ouvrir' : 'Créer'}</button>
-    </span>
-  </div></div></article>`;
-}
 function bindOriginalStudio(app) {
-  app.querySelectorAll('[data-of-open]').forEach(btn => {
-    btn.onclick = e => { e.stopPropagation(); gameState.studioOpen = btn.dataset.ofOpen; render(); };
-  });
   app.querySelectorAll('[data-of-studio]').forEach(studio => {
     if (studio.dataset.bound) return;
     studio.dataset.bound = '1';
-    const slot = studio.dataset.ofStudio;
     studio.addEventListener('click', e => {
-      if (e.target === studio) { gameState.studioOpen = null; render(); return; }
       const btn = e.target.closest('[data-of-action]');
-      if (!btn || btn.disabled) return;
-      if (btn.dataset.ofAction === 'close') { gameState.studioOpen = null; render(); return; }
-      const editable = gameState.step === 6 && gameState.dilemmaPhase === 'choosing' && gameState.currentDilemmaIndex === 0;
-      if (!editable) return;
+      if (!btn || btn.disabled || !studioEditable()) return;
       const id = btn.closest('[data-of-id]')?.dataset.ofId;
       const action = btn.dataset.ofAction;
-      gameState.studioOpen = slot;
       if (action === 'design') {
         const val = f => studio.querySelector(`[data-of-field="${f}"]`)?.value;
-        designOriginalFormat({ concept: val('concept'), positioning: val('positioning'), target: val('target'), slot, budget: Number(val('budget')) });
+        designOriginalFormat({ concept: val('concept'), positioning: val('positioning'), target: val('target'), slot: val('slot'), budget: Number(val('budget')) });
       } else if (action === 'pilot' || action === 'test') developOriginalFormat(id, action);
       else if (action === 'launch') {
         if (launchOriginalFormat(id)) {
