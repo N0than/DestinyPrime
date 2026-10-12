@@ -366,6 +366,11 @@ const base=id=>DILEMMA_BANK.find(d=>d.id===id);
   const d=materializeCurrentDilemma(), game=dilemmaProgramMatch(base('d49'));
   ok(d.titre.includes(p.contracts[game.slot].name)&&d.desc.includes(slotLabelOf(game.slot))&&!/ench[eè]res|objets anciens/i.test(d.titre+d.desc),'animateur : le jeu programmé est nommé');
   ok(d.c.map(c=>c.l).join('|')==='Recruter un animateur charismatique|Miser sur une jeune pousse','animateur : charismatique ou jeune pousse'); }
+// Sélection pour l'Eurovision : seulement si la chaîne diffuse l'Eurovision.
+{ partie(32); const p=p0();
+  ok(!getEligibleDilemmas().some(d=>d.id==='d40'),'Eurovision non diffusée : pas de sélection');
+  (gameState.sportsRights.owned??=[]).push({ownerId:'player',eventId:'eurovision_junior',broadcastSeason:gameState.season,slots:['access']});
+  ok(getEligibleDilemmas().some(d=>d.id==='d40'),'Eurovision diffusée : sélection possible'); }
 // Téléfilms de Noël : remplacement temporaire du vrai programme, restauré ensuite.
 { partie(22); const p=p0(); installe('apresmidi'); const reg=p.contracts.apresmidi; ok(reg,'programme d’après-midi en place');
   const name=reg.name, end=reg.end, g=p.coutGrilleEngageSaison;
@@ -429,7 +434,7 @@ const base=id=>DILEMMA_BANK.find(d=>d.id===id);
   const prog=biddingConceptCandidates()[0]; ok(prog,'concept disponible');
   const d=createBiddingWarDilemma({kind:'concept',program:prog,slot:prog.slot,rival:gameState.competitors[0].name,offer:prog.rights*1.3,agreement:null});
   ok(d.c[0].bid>d.war.offer&&d.c[1].concede&&d.c[1].concede.indemnity===0&&!d.c[1].finance.commercial,'concept : surenchère gagnante, renoncement sans indemnité faute d’accord');
-  ok(d.showcase[0].stats[1].value===nf1(d.c[0].bid)+' M€'&&d.showcase[0].costs[0].includes('Offre de')&&d.showcase[0].conditions[0].includes('Aucun accord'),'concept : montant et justification affichés');
+  ok(d.showcase[0].stats[1].value===nf1(d.c[0].bid)+' M€'&&d.showcase[0].costs[0].includes('Offre de')&&!d.showcase[0].conditions.length,'concept : montant et justification affichés');
   joue(d,0); ok(sameProgram(p.contracts[prog.slot],prog),'surenchère : programme signé');
   const t=p.tresorerie; ok(p.decisionHistory.at(-1).purchase>=d.c[0].bid,'surenchère : montant payé'); }
 { partie(27); const p=p0(); gameState.season=3;

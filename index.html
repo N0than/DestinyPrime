@@ -4036,6 +4036,8 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd40', titre: "Sélection pour l'Eurovision",
+    // Seulement si la chaîne diffuse l'Eurovision (programme à l'antenne ou droits de l'Eurovision Junior).
+    eligibleIf: () => playerAirsEurovision(),
     desc: "Choix entre une chanson traditionnelle régionale et un titre pop anglophone.",
     c: [
       { l: "Choisir le groupe régional en langue locale", finance: {"recurring":0,"purchase":4,"commercial":0,"category":"P"}, pda: { j1524: -2, a2549: 0, s50: +4, csp: +3 }, r: "Soutien territorial fort, mais score modeste en Europe.", pop: 4 },
@@ -7203,6 +7205,11 @@ function gridProgramsOf(channel = gameState.player) {
     return { slot: key, name: normalizeAudienceText(label), format: contract?.format || '', kind, contract };
   });
 }
+// La chaîne diffuse l'Eurovision : un programme du même nom à l'antenne, ou les droits de
+// l'Eurovision Junior diffusés cette saison.
+function playerAirsEurovision(channel = gameState.player) {
+  return playerBroadcastsRight('eurovision_junior') || gridProgramsOf(channel).some(p => /eurovision/.test(p.name));
+}
 // Programme qui rend le dilemme jouable (null si la grille n'en a pas).
 function dilemmaProgramMatch(dilemma, channel = gameState.player) {
   const need = dilemma.requiresProgram;
@@ -7228,6 +7235,8 @@ function getEligibleDilemmas() {
       && (gameState.player.decisionHistory || []).some(h => h.id === d.id && h.commercial > 0)) return false;
     // Dilemme lié à un programme de la grille (téléréalité, jeu, talk…) : seulement s'il est à l'antenne.
     if (d.requiresProgram && !dilemmaProgramMatch(d)) return false;
+    // Condition propre au dilemme (ex. Eurovision : seulement si la chaîne le diffuse).
+    if (d.eligibleIf && !d.eligibleIf()) return false;
     // Dilemme lié à un droit (cérémonie, événement) : seulement pour la chaîne qui le diffuse.
     if (d.requiresRight) return playerBroadcastsRight(d.requiresRight);
     // Dilemme relié à la grille active (polar, Noël, streamer, « Le Grodeal ») : ses conditions
@@ -21788,7 +21797,7 @@ function render() {
             <span class="dc-season-pill">${seasonPillLabel()}</span>
           </div>
           <div class="dc-body">
-            <h2>${sportEvent ? esc(sportEvent.headline) : dilemma.isCareerDilemma || dilemma.isTalentRenewal || dilemma.isSportsRenewal || dilemma.isProgramStory ? dilemma.titre.replace(/« [^»]*»(?: \?)?/, m => `<span class="dc-title-keep">${m}</span>`) : dilemma.titre}</h2>
+            <h2>${sportEvent ? esc(sportEvent.headline) : dilemma.isCareerDilemma || dilemma.isTalentRenewal || dilemma.isSportsRenewal || dilemma.isProgramStory || dilemma.isBiddingWar || dilemma.isProducerPitch || dilemma.isReplacementChoice ? dilemma.titre.replace(/« [^»]*»(?: \?)?/, m => `<span class="dc-title-keep">${m}</span>`) : dilemma.titre}</h2>
             <p>${sportEvent ? esc(sportEvent.pitch) : dilemma.desc}</p>
             ${sportsBlock}
             ${dilemmaShowcaseHtml(dilemma)}
@@ -23628,14 +23637,13 @@ function renderSportsVerdictInline(cq) {
   const tail = (html) => `<div class="sa-pop sa-tail" style="--d:${after + 0.1}s">${html}</div>`;
   if (v.outcome === 'won') {
     return `<div class="sa-inline sa-verdict">
-      ${sportsIllustrationHtml(event, { overlay: stamp('won', 'Droits remportés'), info: SPORTS_PRICE_RULE })}
+      ${sportsIllustrationHtml(event, { overlay: stamp('won', 'Droits remportés'), info: `${SPORTS_PRICE_RULE}<br><br>✅ ${v.tieBreak ? 'À offre égale, vous l’emportez grâce à votre part d’audience plus forte sur les 4 ans et plus' : 'Prix payé : juste au-dessus de la deuxième offre'}${v.playerLastBid > v.price ? ` (vous aviez proposé ${nf1(v.playerLastBid)} M€)` : ''}. Diffusion en saison ${v.season + 1} · ${esc(sportsSlotsLabel(event))}.${event.recurring ? ` Droit annuel : renouvelable chaque fin de saison à ${nf1(v.price)} M€.` : ''}` })}
       ${rows}
       ${tail(`<div class="sa-ledger">
         <div><span>Droits (débités)</span><b>${nf1(v.price)} M€</b></div>
         <div><span>Production prévisionnelle</span><b>${nf1(event.productionCost)} M€</b></div>
         <div class="total"><span>Engagement total</span><b>${nf1(v.price + event.productionCost)} M€</b></div>
-      </div>
-      <p class="sa-note">✅ ${v.tieBreak ? 'À offre égale, vous l’emportez grâce à votre part d’audience plus forte sur les 4 ans et plus' : 'Prix payé : juste au-dessus de la deuxième offre'}${v.playerLastBid > v.price ? ` (vous aviez proposé ${nf1(v.playerLastBid)} M€)` : ''}. Diffusion en saison ${v.season + 1} · ${esc(sportsSlotsLabel(event))}.${event.recurring ? ` Droit annuel : renouvelable chaque fin de saison à ${nf1(v.price)} M€.` : ''}</p>`)}
+      </div>`)}
     </div>`;
   }
   const est = evaluateSportsRight(event, gameState.player);
@@ -26416,7 +26424,7 @@ function refreshBiddingWar(d) {
       ? [`Offre de ${w.rival} : ${nf1(w.offer)} M€`, ...signingExtraLines(q)]
       : [`Indemnité de transfert proposée par ${w.rival} : ${nf1(w.offer)} M€`],
     conditions: w.kind === 'concept'
-      ? [w.agreement ? `Option d’achat signée en saison ${w.agreement.season} : droit de priorité au prix de ${w.rival}, ou indemnité de renoncement de ${nf1(w.agreement.fee * BIDDING_WAR.optionRefund)} M€` : 'Aucun accord préalable : pas de priorité ni d’indemnité en cas de renoncement']
+      ? (w.agreement ? [`Option d’achat signée en saison ${w.agreement.season} : droit de priorité au prix de ${w.rival}, ou indemnité de renoncement de ${nf1(w.agreement.fee * BIDDING_WAR.optionRefund)} M€`] : [])
       : ['Indemnité versée une seule fois, au départ effectif du programme ; vous choisirez ensuite son remplaçant'] })];
   return d;
 }
