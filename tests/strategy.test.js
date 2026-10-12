@@ -153,9 +153,12 @@ const exclusive=()=>{ const p=p0(); return PROGRAM_CATALOG.find(x=>x.channelType
   const com=p.commercialSaison; gameState.season++; processCommitments(); processCommitments();
   ok(p.commercialSaison>com,'revenus dérivés d’un format à succès');
   const once=p.commercialSaison; processCommitments(); ok(p.commercialSaison===once,'pas de double crédit');
-  // Exploitation : revente des droits proposée au renouvellement d’un format détenu.
+  // Exploitation : la cession des droits n'est plus proposée au renouvellement, seulement au studio.
   c.end=gameState.season; const ren=createCareerRenewalDilemma({slot:'access',programId:c.id});
-  ok(ren.c.some(x=>x.resale>0)&&!ren.c.some(x=>x.refuseRevaluation),'format détenu : revente possible, pas de revalorisation');
+  ok(!ren.c.some(x=>x.resale||/Céder les droits/.test(x.l))&&!ren.c.some(x=>x.refuseRevaluation),'format détenu : pas de cession au renouvellement, pas de revalorisation');
+  const valeur=formatResaleValue(c), com2=p.commercialSaison, vendu=sellOriginalFormat(c.id);
+  ok(vendu===valeur&&near(p.commercialSaison-com2,valeur)&&c.stopped&&c.end===gameState.season&&p.originalFormats[c.id].soldSeason===gameState.season,'studio : droits cédés, valeur encaissée, dernière saison');
+  ok(sellOriginalFormat(c.id)===0&&near(p.commercialSaison-com2,valeur),'cession unique');
   // Lancement direct : plus rapide, plus incertain.
   const g=designOriginalFormat({concept:'fiction',positioning:'premium',target:'csp',slot:'prime',budget:3});
   ok(g.estimate.stage==='direct'&&(g.estimate.max-g.estimate.min)/g.power>(f.estimate.max-f.estimate.min)/f.power,'lancement direct plus incertain que le pilote');
