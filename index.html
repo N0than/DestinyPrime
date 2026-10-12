@@ -27246,9 +27246,9 @@ const ORIGINAL_FORMATS = {
     realite: { label: 'Téléréalité', format: 'divertissement', names: ['Une maison pour tous', 'Le Grand Saut', 'Nouvelle vie', 'Cap au large'] }
   },
   positionings: {
-    populaire: { label: 'Populaire', fit: { access: 1.08, prime: 1.06, apresmidi: 1.04 } },
+    populaire: { label: 'Grand public', fit: { access: 1.08, prime: 1.06, apresmidi: 1.04 } },
     premium: { label: 'Premium', fit: { prime: 1.08, nuit: 1.06 } },
-    jeune: { label: 'Jeune et décalé', fit: { access: 1.06, nuit: 1.08 } }
+    jeune: { label: 'Décalé', fit: { access: 1.06, nuit: 1.08 } }
   },
   budgets: { 1: { label: 'Économique', cost: 0.7, power: 0.85 }, 2: { label: 'Standard', cost: 1, power: 1 }, 3: { label: 'Ambitieux', cost: 1.45, power: 1.15 } },
   luck: [0.6, 1.45],          // amplitude du potentiel caché autour de la référence
@@ -28100,7 +28100,6 @@ function studioProjectCardHtml(f, editable, cfg) {
   const q = quoteProgram(f.slot, f.id, 'interne');
   const ready = originalLaunchable(f);
   const dev = k => Math.round(f.annual * cfg.devCost[k] * 10) / 10;
-  const slotMeta = TIME_SLOTS.find(t => t.key === f.slot);
   const art = programArt(f);
   const stageLabel = { concept: 'Concept', pilot: 'Pilote tourné', test: 'Test réalisé' };
   const off = editable ? '' : ' disabled';
@@ -28108,10 +28107,10 @@ function studioProjectCardHtml(f, editable, cfg) {
   return `<article class="of-card" data-of-id="${esc(f.id)}">
     <figure class="of-card-art">${art ? `<img src="${art}" alt="" decoding="async">` : ''}
       <span class="of-card-tag">${esc(stageLabel[f.stage] || '')}</span>
-      <figcaption><span class="of-card-name">${esc(f.name)}</span><span class="of-card-slot">${slotMeta ? `${slotMeta.icon} ` : ''}${esc(slotLabelOf(f.slot))}</span></figcaption>
+      <figcaption><span class="of-card-name">${esc(f.name)}</span><span class="of-card-slot">${esc(slotLabelOf(f.slot))}</span></figcaption>
     </figure>
     <div class="of-card-body">
-      <div class="of-card-genre">${esc(cfg.concepts[f.concept].label)} · ${esc(cfg.positionings[f.positioning].label)} · ${esc(AUDIENCE_TARGETS.find(t => t.key === f.target)?.short || f.target)} · ${esc(cfg.budgets[f.budget].label)}</div>
+      <div class="of-card-genre">${esc(cfg.concepts[f.concept].label)} · ${esc(cfg.positionings[f.positioning].label)} · ${esc(STUDIO_PRODUCTION[f.budget] || cfg.budgets[f.budget].label)}</div>
       <div class="of-ind"><span>Potentiel d’audience</span>${studioStarsHtml(mid)}</div>
       <div class="of-card-cost">${nf1(f.annual)} M€/an · création ${nf1(f.rights)} M€ · format détenu par la chaîne</div>
       <div class="of-actions">
@@ -28123,17 +28122,18 @@ function studioProjectCardHtml(f, editable, cfg) {
   </article>`;
 }
 // Réglages du studio en jauges : un segment par option, toujours visibles et cliquables.
-const STUDIO_SHORT = { divertissement: 'Divert.', magazine: 'Magazine', realite: 'Téléréal.', jeune: 'Jeune', apresmidi: 'Ap.-midi' };
+const STUDIO_SHORT = { divertissement: 'Divert.', magazine: 'Magazine', realite: 'Téléréal.' };
+const STUDIO_PRODUCTION = { 1: 'production économique', 2: 'production standard', 3: 'production ambitieuse' };
 function studioDraft() {
-  const p = gameState.player, slots = TIME_SLOTS.filter(t => !slotTakenByEvent(t.key));
+  const slots = TIME_SLOTS.filter(t => !slotTakenByEvent(t.key));
   const d = gameState.studioDraft || {};
+  // Cible : toujours celle de référence de la partie (aucun réglage).
   return { slot: slots.some(t => t.key === d.slot) ? d.slot : (slots[0]?.key || 'matin'), concept: d.concept || 'jeu',
-    positioning: d.positioning || 'populaire', target: d.target || p.target, budget: String(d.budget || 2) };
+    positioning: d.positioning || 'populaire', target: gameState.player.target, budget: String(d.budget || 2) };
 }
 function studioGaugeOptions(field) {
   const cfg = ORIGINAL_FORMATS;
-  if (field === 'slot') return TIME_SLOTS.filter(t => !slotTakenByEvent(t.key)).map(t => ({ value: t.key, short: `${t.icon} ${STUDIO_SHORT[t.key] || t.label}`, label: slotLabelOf(t.key) }));
-  if (field === 'target') return AUDIENCE_TARGETS.map(t => ({ value: t.key, short: t.short, label: t.full }));
+  if (field === 'slot') return TIME_SLOTS.filter(t => !slotTakenByEvent(t.key)).map(t => ({ value: t.key, short: t.label, label: t.label }));
   const obj = { concept: cfg.concepts, positioning: cfg.positionings, budget: cfg.budgets }[field];
   return Object.entries(obj).map(([k, v]) => ({ value: k, short: STUDIO_SHORT[k] || v.label, label: v.label }));
 }
@@ -28158,10 +28158,9 @@ function renderStudioSlide() {
   const draft = studioDraft();
   const form = `<div class="of-form">
       ${studioGaugeHtml('slot', 'Créneau', draft, off)}
-      ${studioGaugeHtml('concept', 'Concept', draft, off)}
+      ${studioGaugeHtml('concept', 'Genre', draft, off)}
       ${studioGaugeHtml('positioning', 'Positionnement', draft, off)}
-      ${studioGaugeHtml('target', 'Cible', draft, off)}
-      ${studioGaugeHtml('budget', 'Budget', draft, off)}
+      ${studioGaugeHtml('budget', 'Niveau de production', draft, off)}
       <div class="of-form-actions">
         ${all.length ? '<button type="button" class="ghost" data-of-action="cancel">Annuler</button>' : ''}
         <button type="button" class="primary" data-of-action="design"${off}>Concevoir le format</button>
