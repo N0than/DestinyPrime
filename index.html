@@ -21879,7 +21879,7 @@ function render() {
                     <span class="choice-eyebrow ${accent}">Option ${i + 1}</span>
                   </div>
                   <span class="cl">${choice.l}</span>
-                  ${choiceOutlookHtml(choice.outlook)}
+                  ${choiceOutlookHtml(choice.outlook, choice)}
                 </div>
                 <span class="choice-pill ${badgeCls}">${badgeText}</span>
               </div>
@@ -26904,9 +26904,9 @@ function applyContractRevaluations() {
 // partenaire est tirée une fois (stableRandom) et dépend de la relation commerciale.
 const NEGOTIATION = {
   strategies: {
-    secure:   { label: 'Sécurisée',  price: 1.08, extraYears: 1, exclusive: true,  bonus: 0,   accept: 1,    trust: 1 },
-    balanced: { label: 'Équilibrée', price: 0.92, extraYears: 0, exclusive: true,  bonus: 1.2, accept: 0.72, trust: 0 },
-    aggressive: { label: 'Agressive', price: 0.78, extraYears: 0, exclusive: false, bonus: 1,  accept: 0.38, trust: -1 }
+    secure:   { label: 'Achat au prix',  price: 1.08, extraYears: 1, exclusive: true,  bonus: 0,   accept: 1,    trust: 1 },
+    balanced: { label: 'Négociation modérée', price: 0.92, extraYears: 0, exclusive: true,  bonus: 1.2, accept: 0.72, trust: 0 },
+    aggressive: { label: 'Négociation agressive', price: 0.78, extraYears: 0, exclusive: false, bonus: 1,  accept: 0.38, trust: -1 }
   },
   // La prime de performance rend, en cas de succès, une part de l'économie négociée
   // (bonus = facteur × économie sur la durée du contrat) : aucune stratégie n'est gratuite.
@@ -26958,7 +26958,7 @@ function negotiatedChoice(pitch, q, strategy, { r, pop = 0 } = {}) {
   const terms = dealTermsFor(q, strategy);
   const zero = { j1524: 0, a2549: 0, s50: 0, csp: 0 };
   const risk = strategy === 'secure' ? null : strategy === 'balanced' ? 'Le partenaire peut demander un ajustement' : 'Risque élevé de refus ou de contre-proposition';
-  return { l: `${s.label} : ${strategy === 'secure' ? 'signer sans discuter les garanties' : strategy === 'balanced' ? 'négocier un prix maîtrisé avec prime' : 'négocier fort le prix'}`,
+  return { l: s.label,
     producerDeal: { slot: pitch.slot, programId: pitch.program.id, talentId: 'interne' },
     negotiation: { strategy, terms },
     pillLabel: `${nf1(terms.purchase)} M€ + ${nf1(terms.annual)} M€/an`,
@@ -26987,7 +26987,7 @@ function applyNegotiationReaction(dilemma, choice) {
   }
   const terms = dealTermsFor(q, neg.strategy, true);
   dilemma.negotiationState = { strategy: neg.strategy, reaction: 'counter', terms };
-  dilemma.desc = `${who} de « ${program.name} » refuse votre offre ${NEGOTIATION.strategies[neg.strategy].label.toLowerCase()} et contre-propose : ${nf1(terms.purchase)} M€ à la signature, ${nf1(terms.annual)} M€/an et une prime de ${nf1(terms.bonus)} M€ en cas de succès.`;
+  dilemma.desc = `${who} de « ${program.name} » refuse votre proposition et contre-propose : ${nf1(terms.purchase)} M€ à la signature, ${nf1(terms.annual)} M€/an et une prime de ${nf1(terms.bonus)} M€ en cas de succès.`;
   dilemma.c = [
     { l: 'Accepter la contre-proposition', producerDeal: { ...choice.producerDeal }, negotiation: { strategy: neg.strategy, terms, counter: true },
       pillLabel: `${nf1(terms.purchase)} M€ + ${nf1(terms.annual)} M€/an`, finance: dealFinance(q, terms),
@@ -27343,8 +27343,8 @@ function channelStability() {
 
 // Lisibilité : conséquences certaines (montants, durées), estimées (audience,
 // popularité) et risques incertains, sans révéler les résultats cachés du moteur.
-function choiceOutlookHtml(o) {
-  if (!o) return '';
+function choiceOutlookHtml(o, choice) {
+  if (!o || choice?.negotiation) return '';
   const rows = [['certain', '📌', o.certain], ['estimate', '📈', o.estimate], ['risk', '⚠️', o.risk]]
     .filter(([, , list]) => list?.length)
     .map(([cls, icon, list]) => `<span class="co-line co-${cls}"><span aria-hidden="true">${icon}</span> ${list.map(esc).join(' · ')}</span>`);
