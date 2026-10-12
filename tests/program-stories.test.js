@@ -373,7 +373,8 @@ const base=id=>DILEMMA_BANK.find(d=>d.id===id);
   ok(getEligibleDilemmas().some(d=>d.id==='d40'),'Eurovision diffusée : sélection possible'); }
 // Programme sportif : agence de droits sportifs, compétition, offre exclusive.
 { partie(33,'sport'); const p=p0();
-  const comp=PROGRAM_CATALOG.find(x=>x.channelType===p.type&&isSportsProgram(x)&&!programHolder(x));
+  const comp=PROGRAM_CATALOG.find(x=>x.name==='Coupe Davis');
+  ok(isSportsProgram(comp)&&!isSportsProgram(PROGRAM_CATALOG.find(x=>x.name==='La récré des grands')),'Coupe Davis : agence ; La récré des grands : producteur');
   const d=createProducerPitchDilemma({kind:'exclusive',program:comp,slot:comp.slot});
   ok(d.titre.startsWith('Offre exclusive')&&d.desc.startsWith('Une agence de droits sportifs')&&/compétition/.test(d.desc)&&!/concept|producteur/i.test(d.titre+d.desc),'sport : agence, compétition, offre exclusive');
   ok(d.showcase[0].tag==='Compétition inédite','sport : étiquette compétition');

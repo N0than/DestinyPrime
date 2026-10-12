@@ -25941,12 +25941,33 @@ function producerPitchChoices(pitch) {
 function producerOptionFee(program) {
   return Math.round(Math.max(BIDDING_WAR.optionMin, program.rights * BIDDING_WAR.optionRate) * 10) / 10;
 }
-// Programme sportif : il est proposé par une agence de droits sportifs, et il s'agit
-// d'une compétition plutôt que d'un concept.
-// Les magazines sportifs (journal, débrief, documentaires…) restent proposés par un producteur.
-const SPORTS_MAGAZINE_RE = /journal|t[ée]l[ée]foot|r[ée]sum[ée]|highlight|fitness|portrait|matinale|actualit|mercato|sant[ée]|archive|documentaire|data|d[ée]bat|d[ée]brief|interview|quiz|apr[èe]s-match|tribune|l[ée]gendes|gym/i;
+// Retransmission d'une compétition sportive : elle est proposée par une agence de droits
+// sportifs (« compétition », « offre exclusive »). Liste arbitrée programme par programme :
+// les magazines, documentaires, divertissements et jeux sportifs (Téléfoot, Le débrief,
+// La récré des grands, Campus contre campus…) restent des émissions de producteur.
+const SPORTS_COMPETITION_IDS = new Set([
+  'p176', // Biathlon
+  'p177', // Sports émergents
+  'p180', // Multisports
+  'p181', // Sports mécaniques
+  'p182', // Cyclisme
+  'p183', // Surf
+  'p192', // Football total
+  'p193', // Rugby Européen
+  'p194', // Sports de combat
+  'p195', // Coupe Davis
+  'p196', // Basket Français
+  'p197', // Coupe d'Europe de Handball
+  'p198', // Grand prix F1
+  'p199', // Multiplex européen
+  'p200', // Sports US en direct
+  'p201', // Sports de combat en direct
+  'p202', // Caisses à savon
+  'p206', // Basket US
+  'p207'  // Sports mécaniques nocturnes
+]);
 function isSportsProgram(program) {
-  return program?.editorial?.genre === 'sport' && !SPORTS_MAGAZINE_RE.test(program.name || '');
+  return !!program && SPORTS_COMPETITION_IDS.has(program.id);
 }
 function createProducerPitchDilemma(pitch = pickProducerPitch()) {
   if (!pitch) return null;
