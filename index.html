@@ -1884,13 +1884,11 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .of-stars i { font-style:normal; color:rgba(15,23,42,0.15); }
 .of-stars i.on { color:#f59e0b; }
 .of-stars i.half { background:linear-gradient(90deg, #f59e0b 50%, rgba(15,23,42,0.15) 50%); -webkit-background-clip:text; background-clip:text; color:transparent; }
-.of-range { display:inline-flex; align-items:center; gap:4px; }
-.of-range em { font-style:normal; font-size:11px; color:var(--gris); }
-.of-range .of-stars { font-size:11px; }
 .of-card-cost { font-size:11px; color:var(--gris); }
 .of-lock { color:#b45309; }
 .of-note { margin:0; font-size:11px; line-height:1.4; color:var(--gris); }
-.of-actions { display:flex; flex-wrap:wrap; gap:6px; margin-top:4px; }
+.of-actions { display:flex; flex-wrap:nowrap; gap:6px; margin-top:4px; }
+.of-card .of-actions button { flex:1 1 0; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; padding:7px 6px; }
 .of-actions button, .of-form-actions button { font:700 11px 'Space Grotesk', sans-serif; padding:7px 10px; border-radius:999px; border:1px solid rgba(37,99,235,0.3); background:rgba(37,99,235,0.06); color:var(--bleu); cursor:pointer; }
 .of-actions button.primary, .of-form-actions button.primary { background:var(--bleu); color:#fff; border-color:var(--bleu); }
 .of-actions button.ghost { border-color:transparent; background:none; color:var(--gris); }
@@ -28105,8 +28103,6 @@ function studioProjectCardHtml(f, editable, cfg) {
   const slotMeta = TIME_SLOTS.find(t => t.key === f.slot);
   const art = programArt(f);
   const stageLabel = { concept: 'Concept', pilot: 'Pilote tourné', test: 'Test réalisé' };
-  const reliability = { direct: 1, test: 2, pilot: 3 }[f.estimate.stage] || 1;
-  const reliabilityLabel = { 1: 'faible', 2: 'moyenne', 3: 'bonne' }[reliability];
   const off = editable ? '' : ' disabled';
   const mid = (f.estimate.min + f.estimate.max) / 2;
   return `<article class="of-card" data-of-id="${esc(f.id)}">
@@ -28117,12 +28113,9 @@ function studioProjectCardHtml(f, editable, cfg) {
     <div class="of-card-body">
       <div class="of-card-genre">${esc(cfg.concepts[f.concept].label)} · ${esc(cfg.positionings[f.positioning].label)} · ${esc(AUDIENCE_TARGETS.find(t => t.key === f.target)?.short || f.target)} · ${esc(cfg.budgets[f.budget].label)}</div>
       <div class="of-ind"><span>Potentiel d’audience</span>${studioStarsHtml(mid)}</div>
-      <div class="of-ind"><span>Fourchette estimée</span><span class="of-range">${studioStarsHtml(f.estimate.min)}<em>→</em>${studioStarsHtml(f.estimate.max)}</span></div>
-      <div class="of-ind"><span>Fiabilité de l’estimation</span><span class="of-stars" aria-label="${reliabilityLabel}">${[1, 2, 3].map(i => `<i class="${reliability >= i ? 'on' : ''}">★</i>`).join('')}</span></div>
       <div class="of-card-cost">${nf1(f.annual)} M€/an · création ${nf1(f.rights)} M€ · format détenu par la chaîne</div>
       <div class="of-actions">
-        ${f.stage === 'concept' ? `<button type="button" data-of-action="pilot"${off}>Pilote (${nf1(dev('pilot'))} M€)</button>
-        <button type="button" data-of-action="test"${off}>Test limité (${nf1(dev('test'))} M€)</button>` : ''}
+        ${f.stage === 'concept' ? `<button type="button" data-of-action="pilot"${off}>Pilote (${nf1(dev('pilot'))} M€)</button>` : ''}
         <button type="button" class="primary" data-of-action="launch"${editable && ready && q?.allowed ? '' : ' disabled'}>${ready ? `Lancer (${nf1(q?.finance.purchase ?? f.rights)} M€)` : `Prêt en saison ${f.readySeason}`}</button>
         <button type="button" class="ghost" data-of-action="abandon"${off}>Abandonner</button>
       </div>
@@ -28181,7 +28174,7 @@ function renderStudioSlide() {
     </div>
     <div class="of-info" hidden>
       <p>Un format maison coûte moins cher dans la durée et peut rapporter des droits, mais son potentiel réel reste incertain.</p>
-      <p>Pilote et test affinent l’estimation et décalent le lancement d’une saison.</p>
+      <p>Un pilote affine l’estimation et décale le lancement d’une saison.</p>
     </div>
     <div class="of-main">
       ${editable ? '' : '<p class="of-note of-lock">🔒 Les créations se décident en début de saison, avant le premier dilemme.</p>'}
@@ -28225,7 +28218,7 @@ function bindOriginalStudio(app) {
         const f = designOriginalFormat({ concept: d.concept, positioning: d.positioning, target: d.target, slot: d.slot, budget: Number(d.budget) });
         // Validation : le formulaire laisse place à la carte du nouveau format.
         if (f) { gameState.studioFocus = f.id; gameState.studioForm = false; }
-      } else if (action === 'pilot' || action === 'test') developOriginalFormat(id, action);
+      } else if (action === 'pilot') developOriginalFormat(id, 'pilot');
       else if (action === 'launch') {
         if (launchOriginalFormat(id)) {
           const p = gameState.player, audience = getCalculatedPDAs().find(c => c.channel === p).pda[p.target];
