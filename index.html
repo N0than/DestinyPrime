@@ -1703,39 +1703,29 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .choice.neg-gone { opacity: 0; pointer-events: none; overflow: hidden; height: 0 !important; padding-top: 0; padding-bottom: 0; border-width: 0; margin-top: -10px;
   transition: opacity .16s ease, height .22s ease .1s, padding .22s ease .1s, margin .22s ease .1s, border-width .22s ease .1s; }
 .choice.neg-gone.neg-first { margin-top: 0; margin-bottom: -10px; }
-.neg-table { display: grid; grid-template-rows: 1fr; }
-.neg-table > .neg-offer { min-height: 0; overflow: hidden; }
-.neg-offer { display: flex; flex-direction: column; gap: 8px; text-align: left; padding: 12px 14px; border-radius: 14px;
-  background: rgba(255,251,235,0.9); border: 1px solid rgba(245,158,11,0.35); }
-.neg-offer-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-.neg-partner { display: flex; align-items: center; gap: 10px; min-width: 0; }
-.neg-avatar { width: 36px; height: 36px; flex: none; border-radius: 50%; display: grid; place-items: center; font-size: 17px;
-  background: #fff; border: 1px solid rgba(15,23,42,0.1); box-shadow: 0 6px 14px -10px rgba(15,23,42,0.6); }
-.neg-partner-txt { display: flex; flex-direction: column; min-width: 0; }
-.neg-partner-txt b { font-family: 'Space Grotesk', sans-serif; font-size: 12px; color: var(--ink); }
-.neg-status { display: grid; font-size: 12px; color: var(--gris); }
+.neg-row { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+.neg-round-badge { align-self: flex-start; font-family: 'Space Grotesk', sans-serif; font-size: 9.5px; font-weight: 800; text-transform: uppercase;
+  letter-spacing: .6px; padding: 4px 9px; border-radius: 999px; color: #fff; background: var(--rouge); box-shadow: 0 6px 14px -8px rgba(225,29,72,0.7); }
+.neg-status { display: grid; font-size: 13px; font-weight: 700; color: var(--ink); }
 .neg-status > span { grid-area: 1 / 1; }
-.neg-thinking { display: inline-flex; align-items: center; gap: 6px; }
+.neg-thinking { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; color: var(--gris); }
 .neg-thinking.neg-off { visibility: hidden; }
-.neg-chip b { font-weight: 700; color: var(--ink); }
 .neg-dots { display: inline-flex; gap: 3px; }
-.neg-dots i { width: 5px; height: 5px; border-radius: 50%; background: var(--bleu); animation: negDot 0.9s ease-in-out infinite; }
+.neg-dots i { width: 5px; height: 5px; border-radius: 50%; background: var(--rouge); animation: negDot 0.9s ease-in-out infinite; }
 .neg-dots i:nth-child(2) { animation-delay: .15s; } .neg-dots i:nth-child(3) { animation-delay: .3s; }
 @keyframes negDot { 0%, 80%, 100% { opacity: .25; transform: translateY(0); } 40% { opacity: 1; transform: translateY(-3px); } }
-.neg-round-badge { align-self: flex-start; font-family: 'Space Grotesk', sans-serif; font-size: 9.5px; font-weight: 800; text-transform: uppercase;
-  letter-spacing: .6px; padding: 4px 9px; border-radius: 999px; color: #92400e; background: rgba(245,158,11,0.16); border: 1px solid rgba(245,158,11,0.4); }
-.dilemma-card p.neg-message { margin: 0; font-size: 13.5px; line-height: 1.4; color: #334155; }
-.neg-chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.neg-chip { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: rgba(255,255,255,0.85); border: 1px solid rgba(15,23,42,0.1); color: #334155; }
+.neg-chips-wrap { display: grid; grid-template-rows: 1fr; }
+.neg-chips { display: flex; flex-wrap: wrap; gap: 6px; min-height: 0; overflow: hidden; }
+.neg-chip { font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: rgba(255,251,235,0.95); border: 1px solid rgba(245,158,11,0.4); color: #92400e; }
 .neg-chip s { color: var(--gris); font-weight: 500; }
+.neg-chip b { font-weight: 800; color: var(--ink); }
 .sa-stat b[data-neg-to] { font-variant-numeric: tabular-nums; }
-/* Phases (≈ 1,5 s) : l'encart s'ouvre et le partenaire réfléchit, puis sa réponse arrive,
-   les montants évoluent dans les blocs, enfin les choix du tour apparaissent. */
-.neg-reveal.neg-table { animation: negOpen .28s ease both; }
-.neg-reveal .neg-replied, .neg-reveal .neg-reply { animation: negIn .3s ease both; animation-delay: var(--neg-think); }
-.neg-reveal .neg-reply { animation-name: negRise; }
+/* Phases (≈ 1,5 s) : le partenaire réfléchit, sa réponse arrive, les montants évoluent dans
+   les blocs et les badges de changement s'ouvrent dessous, enfin les choix du tour apparaissent. */
+.neg-reveal .neg-replied { animation: negIn .3s ease both; animation-delay: var(--neg-think); }
 .neg-reveal .neg-thinking { animation: negOut .2s ease both; animation-delay: calc(var(--neg-think) - 120ms); }
-.neg-revealing .neg-stat-changed, .neg-reveal .neg-changed { animation: negAmber 1.1s ease-out both; animation-delay: var(--neg-think); }
+.neg-chips-wrap.neg-reveal { animation: negOpen var(--neg-offer) ease both; animation-delay: var(--neg-think); }
+.neg-revealing .neg-stat-changed, .neg-chips-wrap.neg-reveal .neg-changed { animation: negAmber 1.1s ease-out both; animation-delay: var(--neg-think); }
 .neg-revealing .neg-new { animation: negIn var(--neg-choices) ease both; animation-delay: calc(var(--neg-think) + var(--neg-offer)); }
 @keyframes negOpen { from { grid-template-rows: 0fr; opacity: 0; } to { grid-template-rows: 1fr; opacity: 1; } }
 @keyframes negIn { from { opacity: 0; visibility: hidden; } to { opacity: 1; visibility: visible; } }
@@ -1743,8 +1733,8 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 @keyframes negRise { from { opacity: 0; transform: translateY(8px); visibility: hidden; } to { opacity: 1; transform: none; visibility: visible; } }
 @keyframes negAmber { 0% { background: rgba(245,158,11,0); } 25% { background: rgba(245,158,11,0.26); box-shadow: inset 0 0 0 1px rgba(245,158,11,0.55); } 100% { background: rgba(245,158,11,0); } }
 @media (prefers-reduced-motion: reduce) {
-  .neg-reveal.neg-table, .neg-reveal .neg-replied, .neg-reveal .neg-reply, .neg-reveal .neg-thinking, .neg-revealing .neg-stat-changed,
-  .neg-reveal .neg-changed, .neg-revealing .neg-new, .neg-dots i { animation: none !important; }
+  .neg-reveal .neg-replied, .neg-reveal .neg-thinking, .neg-chips-wrap.neg-reveal, .neg-revealing .neg-stat-changed,
+  .neg-chips-wrap.neg-reveal .neg-changed, .neg-revealing .neg-new, .neg-dots i { animation: none !important; }
   .choice.neg-gone { transition: none; }
 }
 .choice .cl { font-family: 'Anton', sans-serif; text-transform: uppercase; font-size: 14px; letter-spacing: 0.3px; display: block; color: var(--ink); line-height: 1.25; }
@@ -21967,7 +21957,6 @@ function render() {
             <p>${sportEvent ? esc(sportEvent.pitch) : dilemma.desc}</p>
             ${sportsBlock}
             ${dilemmaShowcaseHtml(dilemma)}
-            ${negotiationTableHtml(dilemma, negRevealing)}
             ${dilemma.isSportsRenewal && playerRecurringRight(dilemma.rightsEventId) ? `
             <div class="gr-cards gr-single" data-gr-cards="single">${sportsRenewalCardHtml(playerRecurringRight(dilemma.rightsEventId), { readonly: true, single: true })}</div>` : ''}
             ${dilemma.isProgramStory && gameState.player.contracts[dilemma.storySlot]?.id === dilemma.programId ? `
@@ -26349,6 +26338,7 @@ function dilemmaShowcaseHtml(dilemma) {
   if (!dilemma?.showcase?.length || dilemma.isReplacementChoice) return '';
   // Contre-offre en cours : les montants des blocs suivent les conditions du partenaire.
   const negChanges = negotiationStatChanges(dilemma);
+  const negRow = negChanges ? negotiationShowcaseRows(dilemma, negRevealing) : null;
   return `<div class="dsc-list">${dilemma.showcase.map(e => {
     const program = findProgram(e.programId) || { id: e.programId, name: e.name, format: e.format };
     const art = programArt(program);
@@ -26370,8 +26360,9 @@ function dilemmaShowcaseHtml(dilemma) {
         <figcaption class="sa-illu-cap"><span class="sa-illu-name">${esc(e.name)}</span><span class="sa-illu-slot">${slotMeta ? `${slotMeta.icon} ` : ''}${esc(slotLabelOf(e.slot))}</span></figcaption>`;
       return `<div class="sa-inline dsc-sa">
       ${illustrationInfoHtml(front, `Synopsis · ${esc(e.name)}`, esc(synopsis), 'Afficher le synopsis du programme')}
-      ${e.current ? `<div class="sa-row"><span class="sa-row-label">À l’antenne</span><span class="dsc-now-row"><span class="dsc-now-name">« ${esc(e.current)} »</span>${pdaBadge(nowPda, 'PDA actuelle de votre programme sur cette case')}</span></div>` : ''}
+      ${negRow ? negRow.head : e.current ? `<div class="sa-row"><span class="sa-row-label">À l’antenne</span><span class="dsc-now-row"><span class="dsc-now-name">« ${esc(e.current)} »</span>${pdaBadge(nowPda, 'PDA actuelle de votre programme sur cette case')}</span></div>` : ''}
       <div class="sa-stats">${e.stats.map(x => negotiationStatHtml(x, negChanges?.[x.label], negRevealing)).join('')}</div>
+      ${negRow ? negRow.chips : ''}
       ${[...e.costs, ...e.conditions].map(x => `<p class="sa-note">${esc(x)}</p>`).join('')}
     </div>`;
     }
@@ -27063,7 +27054,7 @@ function applyNegotiationReaction(dilemma, choice) {
   }
   const terms = dealTermsFor(q, neg.strategy, true);
   // Le contexte du dilemme reste en place : la réponse du partenaire et ses nouvelles
-  // conditions sont portées par l'encart du tour suivant (negotiationTableHtml) et les blocs de la vitrine.
+  // conditions sont portées par la vitrine du tour suivant (negotiationShowcaseRows) et ses blocs chiffrés.
   dilemma.negotiationState = { strategy: neg.strategy, reaction: 'counter', terms, offer: { ...neg.terms },
     round: (dilemma.negotiationState?.round || 1) + 1, partner: isSportsProgram(program) ? 'agency' : 'producer',
     offerLabel: choice.l, offerPill: choice.pillLabel || '',
@@ -27473,35 +27464,26 @@ function negotiationChips(offer, terms) {
   if (terms.bonus || offer?.bonus) chips.push({ label: 'Prime de succès', text: bonus(terms.bonus), from: bonusChanged ? bonus(offer.bonus) : '', changed: bonusChanged });
   return chips;
 }
-// Encart de contre-offre, intégré à la carte du dilemme sous la vitrine.
-function negotiationTableHtml(dilemma, reveal) {
+// Contre-offre dans la vitrine : le badge du tour remplace « À l'antenne », la réponse du
+// partenaire remplace la ligne du programme diffusé, et les principaux changements sans bloc
+// dédié (exclusivité, prime) apparaissent en badges sous les blocs chiffrés.
+function negotiationShowcaseRows(dilemma, reveal) {
   const st = negotiationCounter(dilemma);
-  if (!st) return '';
-  const agency = st.partner === 'agency';
-  const who = agency ? 'L’agence' : 'Le producteur';
-  const chips = negotiationChips(st.offer, st.terms);
-  return `
-    <div class="neg-table${reveal ? ' neg-reveal' : ''}" style="--neg-think:${NEG_REVEAL.think}ms">
-      <div class="neg-offer">
-        <span class="neg-round-badge neg-replied">Tour ${st.round || 2} · Contre-offre</span>
-        <div class="neg-offer-head">
-          <div class="neg-partner">
-            <span class="neg-avatar" aria-hidden="true">${agency ? '🏟️' : '🎬'}</span>
-            <div class="neg-partner-txt">
-              <b>${who}</b>
-              <span class="neg-status">
-                <span class="neg-thinking${reveal ? '' : ' neg-off'}" role="status" aria-label="${who} étudie votre proposition…"><span class="neg-dots" aria-hidden="true"><i></i><i></i><i></i></span><span aria-hidden="true">étudie votre proposition…</span></span>
-                <span class="neg-replied">a fait une contre-offre</span>
-              </span>
-            </div>
-          </div>
-        </div>
-        <div class="neg-reply">
-          <p class="neg-message">${esc(st.message || `${who} refuse votre proposition et contre-propose.`)}</p>
-          ${chips.length ? `<div class="neg-chips">${chips.map(c => `<span class="neg-chip${c.changed ? ' neg-changed' : ''}">${esc(c.label)} : ${c.from ? `<s>${esc(c.from)}</s> ` : ''}<b>${esc(c.text)}</b></span>`).join('')}</div>` : ''}
-        </div>
-      </div>
-    </div>`;
+  if (!st) return null;
+  const who = st.partner === 'agency' ? 'L’agence' : 'Le producteur';
+  const chips = negotiationChips(st.offer, st.terms).filter(c => c.changed);
+  const head = `
+      <div class="sa-row neg-row${reveal ? ' neg-reveal' : ''}">
+        <span class="neg-round-badge">Tour ${st.round || 2} · Contre-offre</span>
+        <span class="neg-status">
+          <span class="neg-thinking${reveal ? '' : ' neg-off'}" role="status"><span class="neg-dots" aria-hidden="true"><i></i><i></i><i></i></span>${who} étudie votre proposition…</span>
+          <span class="neg-replied">${who} vous propose une contre-proposition</span>
+        </span>
+      </div>`;
+  const chipsHtml = chips.length ? `
+      <div class="neg-chips-wrap${reveal ? ' neg-reveal' : ''}"><div class="neg-chips">${chips.map(c =>
+        `<span class="neg-chip neg-changed">${esc(c.label)} : <s>${esc(c.from)}</s> <b>${esc(c.text)}</b></span>`).join('')}</div></div>` : '';
+  return { head, chips: chipsHtml };
 }
 // Choix du tour 1 retenu : il reste en place, au-dessus des actions du nouveau tour.
 function negotiationKeptChoiceHtml(st) {
