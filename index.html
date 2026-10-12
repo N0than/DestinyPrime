@@ -1890,11 +1890,16 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .of-art-flip.flipped .of-art-inner { transform:rotateY(180deg); }
 .of-art-face { position:absolute; inset:0; backface-visibility:hidden; -webkit-backface-visibility:hidden; overflow:hidden; }
 .of-art-front { background:linear-gradient(135deg, #1e3a8a, #7c3aed); }
-.of-art-back { transform:rotateY(180deg); display:flex; flex-direction:column; justify-content:center; gap:6px; padding:12px 44px 12px 14px; text-align:left;
+.of-art-back { transform:rotateY(180deg); display:flex; flex-direction:column; justify-content:center; gap:5px; padding:8px 10px; overflow:hidden; text-align:left;
   background:linear-gradient(135deg, #1e293b, #312e81); color:#fff; }
-.of-art-title { font:800 9.5px 'Space Grotesk', sans-serif; text-transform:uppercase; letter-spacing:.5px; color:rgba(255,255,255,0.7); }
+.of-art-title { padding-right:34px; font:800 9.5px 'Space Grotesk', sans-serif; text-transform:uppercase; letter-spacing:.5px; color:rgba(255,255,255,0.7); }
 .of-art-back p { margin:0; font-size:11.5px; line-height:1.4; color:rgba(255,255,255,0.92); }
 .of-art-back .of-art-lock { font-size:10px; color:rgba(255,255,255,0.65); }
+.of-sale { display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:6px; }
+.of-sale-opt { display:flex; flex-direction:column; gap:4px; min-width:0; padding:7px 8px; border-radius:10px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.14); }
+.of-sale-head { font:800 10px 'Space Grotesk', sans-serif; color:#fff; }
+.of-sale-terms { flex:1; font-size:9.5px; line-height:1.3; color:rgba(255,255,255,0.8); }
+.of-sale .of-sell { align-self:stretch; padding:5px 6px; font-size:10px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .of-sell { align-self:flex-start; font:700 11px 'Space Grotesk', sans-serif; padding:7px 12px; border-radius:999px; border:0; cursor:pointer; background:#fff; color:var(--ink); }
 .of-sell:disabled { opacity:.45; cursor:not-allowed; }
 .of-card-art figcaption { position:absolute; left:0; right:0; bottom:0; display:flex; align-items:flex-end; justify-content:space-between; gap:8px;
@@ -21089,6 +21094,7 @@ function startNewSeason() {
   // Engagements échus (primes, pénalités, revenus dérivés, conséquences de crise),
   // puis évaluations à venir des formats détenus pour la saison qui commence.
   processCommitments();
+  payFormatRoyalties();
   scheduleFormatRevenues();
   player.lastArcomResult = null;
   player.rentabiliteGrille = player.coutGrilleEngageSaison > 0 ? -100 : 0;
@@ -27082,6 +27088,13 @@ const COMMITMENT_HANDLERS = {
     applyFinance({ recurring: 0, purchase: 0, commercial: amount, category: 'C' });
     return { status: 'resolved', outcome: 'paid', tone: 'good', text: `Droits de « ${contract.name} » : ${nf1(amount)} M€ de revenus dérivés.` };
   },
+  // Format cédé à un diffuseur national : il rejoint la grille de l'acquéreur.
+  formatSold(e, p) {
+    const f = p.originalFormats?.[e.programId], rival = (gameState.competitors || []).find(c => c.name === e.rival);
+    if (!f || !rival) return { status: 'void' };
+    installCompetitorProgram(rival, f, f.slot, Number(f.budget) || 2, 'offensive');
+    return { status: 'resolved', tone: 'neutral', text: `« ${f.name} » est désormais diffusé par ${rival.name}.` };
+  },
   // Conséquence différée d'une crise (amende, perte de fidélité…), décrite par la crise.
   crisisAftermath(e, p) {
     const fx = e.effect || {};
@@ -27282,6 +27295,7 @@ const ORIGINAL_FORMATS = {
   creation: { direct: 0.6, developed: 0.3 },// coût de création au lancement
   derivedRate: 0.12,          // revenus dérivés d'un format détenu à succès
   resaleBase: 0.4,            // revente des droits : part du coût annuel + notoriété
+  sale: { national: 1.5, foreignUpfront: 0.5, foreignRoyalty: 0.25 }, // cession : prix national, ou avance + royalties annuelles
   maxProjects: 3,            // emplacements du studio (projets et formats lancés encore à l'antenne)
   spinoffAwareness: 55
 };
@@ -27374,19 +27388,51 @@ function scheduleFormatRevenues() {
     registerCommitment({ kind: 'formatRevenue', key: `fmtrev:${c.id}:${gameState.season}`, programId: c.id, slot, programName: c.name });
   });
 }
-// Cession des droits d'un format lancé (Studio de création, en début de saison) : la valeur
-// est encaissée tout de suite ; le programme termine la saison à l'antenne puis quitte la grille.
-function sellOriginalFormat(id) {
-  const p = ensureConsequenceState(), f = p.originalFormats[id];
+// Cession des droits d'un format lancé (Studio de création, à tout moment de la saison) :
+// - diffuseur étranger : avance encaissée tout de suite, puis royalties chaque saison ; le
+//   programme reste sur votre grille ;
+// - diffuseur national : prix de cession seul ; le programme termine la saison chez vous, puis
+//   rejoint la grille du concurrent acquéreur.
+function formatSaleOffers(f) {
+  const p = gameState.player, cfg = ORIGINAL_FORMATS.sale;
   const contract = f && p.contracts?.[f.slot]?.id === f.id ? p.contracts[f.slot] : null;
-  if (!f || f.stage !== 'launched' || f.soldSeason || !contract || contract.ownership !== 'owned') return 0;
-  const value = formatResaleValue(contract);
-  applyFinance({ recurring: 0, purchase: 0, commercial: value, category: 'C' });
+  if (!contract) return null;
+  const base = formatResaleValue(contract), r = v => Math.round(v * 10) / 10;
+  const buyer = [...(gameState.competitors || [])].sort((a, b) => (b.budget || 0) - (a.budget || 0))[0] || null;
+  return { contract, foreign: { upfront: r(base * cfg.foreignUpfront), royalty: r(base * cfg.foreignRoyalty) },
+    national: { price: r(base * cfg.national), buyer: buyer?.name || null } };
+}
+function sellOriginalFormat(id, mode = 'national') {
+  const p = ensureConsequenceState(), f = p.originalFormats[id];
+  if (!f || f.stage !== 'launched' || f.soldSeason) return 0;
+  const offers = formatSaleOffers(f);
+  if (!offers || offers.contract.ownership !== 'owned') return 0;
+  if (mode === 'foreign') {
+    if (f.foreignSale) return 0;
+    const { upfront, royalty } = offers.foreign;
+    applyFinance({ recurring: 0, purchase: 0, commercial: upfront, category: 'C' });
+    f.foreignSale = { season: gameState.season, upfront, royalty };
+    pushSignal(`« ${f.name} » adapté à l’étranger : ${nf1(upfront)} M€ encaissés, puis ${nf1(royalty)} M€ de royalties chaque saison.`, { kind: 'format', tone: 'good', key: `foreign:${id}` });
+    return upfront;
+  }
+  const { price, buyer } = offers.national, contract = offers.contract;
+  applyFinance({ recurring: 0, purchase: 0, commercial: price, category: 'C' });
   contract.end = Math.min(contract.end, gameState.season);
   contract.stopped = true;
-  f.soldSeason = gameState.season;
-  pushSignal(`Droits de « ${f.name} » cédés à un diffuseur étranger : +${nf1(value)} M€. Dernière saison à l’antenne.`, { kind: 'format', tone: 'good', key: `sold:${id}` });
-  return value;
+  f.soldSeason = gameState.season; f.buyer = buyer;
+  if (buyer) registerCommitment({ kind: 'formatSold', key: `fmtsold:${id}`, programId: id, rival: buyer, programName: f.name });
+  pushSignal(`Droits de « ${f.name} » cédés${buyer ? ` à ${buyer}` : ''} : +${nf1(price)} M€. Dernière saison sur votre antenne.`, { kind: 'format', tone: 'good', key: `sold:${id}` });
+  return price;
+}
+// Royalties des formats adaptés à l'étranger, versées à chaque nouvelle saison.
+function payFormatRoyalties() {
+  Object.values(ensureConsequenceState().originalFormats).forEach(f => {
+    const fs = f.foreignSale;
+    if (!fs || gameState.season <= fs.season || fs.paidSeason === gameState.season) return;
+    applyFinance({ recurring: 0, purchase: 0, commercial: fs.royalty, category: 'C' });
+    fs.paidSeason = gameState.season;
+    pushSignal(`Royalties de « ${f.name} » à l’étranger : +${nf1(fs.royalty)} M€.`, { kind: 'format', tone: 'good', key: `royalty:${f.id}:${gameState.season}` });
+  });
 }
 function formatResaleValue(contract) {
   return Math.round(contract.annual * (ORIGINAL_FORMATS.resaleBase + (contract.career?.awareness || 0) / 100) * 10) / 10;
@@ -28125,7 +28171,12 @@ function renderProgramManager(slot) {
 // Studio de création (écran du slider) : concevoir, tester ou lancer un format original sur
 // le créneau de son choix. Action de gestion, ouverte avant le premier dilemme de la saison,
 // comme les autres changements de programmation ; consultable le reste du temps.
+// Conception, pilote, abandon et cession : à tout moment de la saison. Le lancement modifie la
+// grille : il reste, comme les autres changements de programmation, avant le premier dilemme.
 function studioEditable() {
+  return gameState.step === 6;
+}
+function studioCanLaunch() {
   return gameState.step === 6 && gameState.dilemmaPhase === 'choosing' && gameState.currentDilemmaIndex === 0;
 }
 // Barème en étoiles (sur 5) d'une valeur de potentiel, demi-étoiles comprises.
@@ -28155,14 +28206,13 @@ function studioFormatCardHtml(f, editable, cfg) {
     ? `<p class="of-card-note">${f.soldSeason ? `Droits cédés · dernière saison à l’antenne (saison ${f.soldSeason}).` : `À l’antenne depuis la saison ${f.launchedSeason}.`}</p>`
     : `<div class="of-actions">
         ${f.stage === 'concept' ? `<button type="button" data-of-action="pilot"${off}>Pilote (${nf1(dev('pilot'))} M€)</button>` : ''}
-        <button type="button" class="primary" data-of-action="launch"${editable && ready && q?.allowed ? '' : ' disabled'}>${ready ? `Lancer (${nf1(q?.finance.purchase ?? f.rights)} M€)` : `Prêt en saison ${f.readySeason}`}</button>
+        <button type="button" class="primary" data-of-action="launch"${studioCanLaunch() && ready && q?.allowed ? '' : ' disabled'} title="${ready && !studioCanLaunch() ? 'Lancement en début de saison, avant le premier dilemme' : ''}">${!ready ? `Prêt en saison ${f.readySeason}` : studioCanLaunch() ? `Lancer (${nf1(q?.finance.purchase ?? f.rights)} M€)` : `Lancer en saison ${gameState.season + 1}`}</button>
         <button type="button" class="ghost" data-of-action="abandon"${off}>Abandonner</button>
       </div>`;
   // Format lancé : badge « i » sur l'illustration, qui se retourne sur la cession des droits.
-  const contract = launched && gameState.player.contracts?.[f.slot]?.id === f.id ? gameState.player.contracts[f.slot] : null;
-  const value = contract ? formatResaleValue(contract) : 0;
+  const offers = launched ? formatSaleOffers(f) : null;
   const front = `${art ? `<img src="${art}" alt="" decoding="async">` : ''}
-      <span class="of-card-tag">${f.soldSeason ? 'Droits cédés' : stageLabel[f.stage] || ''}</span>
+      <span class="of-card-tag">${f.soldSeason ? 'Droits cédés' : f.foreignSale ? 'Adapté à l’étranger' : stageLabel[f.stage] || ''}</span>
       <figcaption><span class="of-card-name">${esc(f.name)}</span><span class="of-card-slot">${esc(slotLabelOf(f.slot))}</span></figcaption>`;
   const art_ = !launched ? `<figure class="of-card-art">${front}</figure>` : `<figure class="of-card-art of-art-flip">
       <div class="of-art-inner">
@@ -28173,10 +28223,19 @@ function studioFormatCardHtml(f, editable, cfg) {
           <button type="button" class="sa-info-btn is-back" data-of-action="artflip" aria-label="Revenir à l’illustration">↺</button>
           <span class="of-art-title">Droits du format</span>
           ${f.soldSeason
-            ? `<p>Droits cédés en saison ${f.soldSeason} : « ${esc(f.name)} » termine la saison à l’antenne puis quitte votre grille.</p>`
-            : `<p>Un diffuseur étranger rachète le format pour <b>${nf1(value)} M€</b>. Le programme termine la saison à l’antenne, puis quitte votre grille.</p>
-          <button type="button" class="of-sell" data-of-action="sell"${editable && contract ? '' : ' disabled'}>Céder les droits (+${nf1(value)} M€)</button>
-          ${editable ? '' : '<p class="of-art-lock">Cession possible en début de saison, avant le premier dilemme.</p>'}`}
+            ? `<p>Droits cédés${f.buyer ? ` à ${esc(f.buyer)}` : ''} en saison ${f.soldSeason} : « ${esc(f.name)} » termine la saison sur votre antenne, puis rejoint sa grille.</p>`
+            : `<div class="of-sale">
+              <div class="of-sale-opt">
+                <span class="of-sale-head">🌍 Diffuseur étranger</span>
+                <span class="of-sale-terms">${f.foreignSale ? `✓ Adapté en saison ${f.foreignSale.season} : ${nf1(f.foreignSale.royalty)} M€/an de royalties.` : offers ? `${nf1(offers.foreign.upfront)} M€ puis ${nf1(offers.foreign.royalty)} M€/an de royalties. Le programme reste chez vous.` : ''}</span>
+                ${f.foreignSale ? '' : `<button type="button" class="of-sell" data-of-action="sell" data-of-mode="foreign"${editable && offers ? '' : ' disabled'}>Céder</button>`}
+              </div>
+              <div class="of-sale-opt">
+                <span class="of-sale-head">📺 Diffuseur national</span>
+                <span class="of-sale-terms">${offers ? `${nf1(offers.national.price)} M€, sans royalties. Le programme rejoint ${esc(offers.national.buyer || 'un concurrent')} la saison suivante.` : ''}</span>
+                <button type="button" class="of-sell" data-of-action="sell" data-of-mode="national"${editable && offers ? '' : ' disabled'}>Céder</button>
+              </div>
+            </div>`}
         </div>
       </div>
     </figure>`;
@@ -28253,6 +28312,7 @@ function renderStudioSlide() {
       <p>Un format maison coûte moins cher dans la durée et peut rapporter des droits, mais son potentiel réel reste incertain.</p>
       <p>Un pilote affine l’estimation et décale le lancement d’une saison.</p>
       <p>Trois formats au plus en même temps : un format lancé reste dans le studio tant qu’il est à l’antenne.</p>
+      <p>Conception, pilote et cession des droits à tout moment de la saison ; lancement en début de saison. Cession à l’étranger : avance et royalties chaque saison, le programme reste chez vous. Cession nationale : un prix plus élevé, sans royalties, et le programme part chez le concurrent.</p>
     </div>
     <div class="of-main">
       ${showForm ? form : `<div class="of-tabs">${tabs}</div>${current ? studioFormatCardHtml(current, editable, cfg) : blank}`}
@@ -28306,13 +28366,13 @@ function bindOriginalStudio(app) {
         if (f) { gameState.studioForm = false; gameState.studioSel = studioSlotFormats().findIndex(x => x.id === f.id); }
       } else if (action === 'pilot') developOriginalFormat(id, 'pilot');
       else if (action === 'launch') {
-        if (launchOriginalFormat(id)) {
+        if (studioCanLaunch() && launchOriginalFormat(id)) {
           const p = gameState.player, audience = getCalculatedPDAs().find(c => c.channel === p).pda[p.target];
           p.pdaHistorySeason = [audience]; p.pdaMoyenneSaison = audience; p.pdaFinSaison = audience;
           reevaluateAdRevenue(); refreshRenewalDilemmas(); refreshEconomy();
         }
       } else if (action === 'abandon') abandonOriginalFormat(id);
-      else if (action === 'sell') { if (sellOriginalFormat(id)) refreshEconomy(); }
+      else if (action === 'sell') { if (sellOriginalFormat(id, btn.dataset.ofMode)) refreshEconomy(); }
       render();
     });
   });

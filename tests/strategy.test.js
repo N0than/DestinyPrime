@@ -156,9 +156,19 @@ const exclusive=()=>{ const p=p0(); return PROGRAM_CATALOG.find(x=>x.channelType
   // Exploitation : la cession des droits n'est plus proposée au renouvellement, seulement au studio.
   c.end=gameState.season; const ren=createCareerRenewalDilemma({slot:'access',programId:c.id});
   ok(!ren.c.some(x=>x.resale||/Céder les droits/.test(x.l))&&!ren.c.some(x=>x.refuseRevaluation),'format détenu : pas de cession au renouvellement, pas de revalorisation');
-  const valeur=formatResaleValue(c), com2=p.commercialSaison, vendu=sellOriginalFormat(c.id);
-  ok(vendu===valeur&&near(p.commercialSaison-com2,valeur)&&c.stopped&&c.end===gameState.season&&p.originalFormats[c.id].soldSeason===gameState.season,'studio : droits cédés, valeur encaissée, dernière saison');
-  ok(sellOriginalFormat(c.id)===0&&near(p.commercialSaison-com2,valeur),'cession unique');
+  // Cession à l'étranger : avance tout de suite, royalties à chaque saison, programme conservé.
+  const fo=p.originalFormats[c.id], offres=formatSaleOffers(fo), com2=p.commercialSaison;
+  ok(offres.national.price>offres.foreign.upfront&&offres.foreign.royalty>0,'national : prix plus élevé ; étranger : avance + royalties');
+  ok(sellOriginalFormat(c.id,'foreign')===offres.foreign.upfront&&near(p.commercialSaison-com2,offres.foreign.upfront)&&!c.stopped&&fo.foreignSale,'étranger : avance encaissée, programme conservé');
+  ok(sellOriginalFormat(c.id,'foreign')===0,'étranger : une seule adaptation');
+  // Cession nationale : prix seul, dernière saison chez soi, puis grille de l'acquéreur.
+  const com3=p.commercialSaison, vendu=sellOriginalFormat(c.id,'national');
+  ok(vendu===offres.national.price&&near(p.commercialSaison-com3,vendu)&&c.stopped&&c.end===gameState.season&&fo.soldSeason===gameState.season&&fo.buyer,'national : prix encaissé, dernière saison');
+  ok(sellOriginalFormat(c.id,'national')===0,'cession unique');
+  const s0=gameState.season; gameState.season++; const com4=p.commercialSaison; payFormatRoyalties(); payFormatRoyalties();
+  ok(near(p.commercialSaison-com4,fo.foreignSale.royalty),'royalties versées une fois par saison');
+  processCommitments(); const acq=gameState.competitors.find(x=>x.name===fo.buyer);
+  ok(acq.contracts[fo.slot]?.id===fo.id,'le format rejoint la grille de l’acquéreur'); gameState.season=s0;
   // Lancement direct : plus rapide, plus incertain.
   const g=designOriginalFormat({concept:'fiction',positioning:'premium',target:'csp',slot:'prime',budget:3});
   ok(g.estimate.stage==='direct'&&(g.estimate.max-g.estimate.min)/g.power>(f.estimate.max-f.estimate.min)/f.power,'lancement direct plus incertain que le pilote');
