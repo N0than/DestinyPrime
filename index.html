@@ -1694,15 +1694,10 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .co-line.co-risk { color: #b45309; }
 .choice.selected .co-line { color: rgba(255,255,255,0.85); }
 /* Négociation à plusieurs tours : la contre-offre arrive sur la table, dans la carte du dilemme.
-   Tour 1 : aucun mouvement sur le choix retenu, les autres choix se replient. */
+   Tour 1 : aucun mouvement au clic, tous les choix (le choix retenu compris) se replient. */
 .choice.neg-choice:active { transform: none; }
-.choice.neg-kept, .choice.neg-kept[disabled] { opacity: 1; cursor: default; border-color: rgba(37,99,235,0.45);
-  background: rgba(255,255,255,0.8); box-shadow: 0 0 0 1px rgba(37,99,235,0.25) inset, 0 18px 36px -24px rgba(15,23,42,0.35); }
-.choice.neg-kept:hover { border-color: rgba(37,99,235,0.45); background: rgba(255,255,255,0.8); }
-.choice.neg-kept .choice-eyebrow { color: var(--bleu); }
-.choice.neg-gone { opacity: 0; pointer-events: none; overflow: hidden; height: 0 !important; padding-top: 0; padding-bottom: 0; border-width: 0; margin-top: -10px;
-  transition: opacity .16s ease, height .22s ease .1s, padding .22s ease .1s, margin .22s ease .1s, border-width .22s ease .1s; }
-.choice.neg-gone.neg-first { margin-top: 0; margin-bottom: -10px; }
+.choices.neg-gone { opacity: 0; pointer-events: none; overflow: hidden; height: 0 !important;
+  transition: opacity .11s ease, height .15s ease .07s; }
 .neg-row { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
 .neg-round-badge { align-self: flex-start; font-family: 'Space Grotesk', sans-serif; font-size: 9.5px; font-weight: 800; text-transform: uppercase;
   letter-spacing: .6px; padding: 4px 9px; border-radius: 999px; color: #fff; background: var(--rouge); box-shadow: 0 6px 14px -8px rgba(225,29,72,0.7); }
@@ -1722,10 +1717,10 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .sa-stat b[data-neg-to] { font-variant-numeric: tabular-nums; }
 /* Phases (≈ 1,5 s) : le partenaire réfléchit, sa réponse arrive, les montants évoluent dans
    les blocs et les badges de changement s'ouvrent dessous, enfin les choix du tour apparaissent. */
-.neg-reveal .neg-replied { animation: negIn .3s ease both; animation-delay: var(--neg-think); }
-.neg-reveal .neg-thinking { animation: negOut .2s ease both; animation-delay: calc(var(--neg-think) - 120ms); }
+.neg-reveal .neg-replied { animation: negIn .21s ease both; animation-delay: var(--neg-think); }
+.neg-reveal .neg-thinking { animation: negOut .14s ease both; animation-delay: calc(var(--neg-think) - 85ms); }
 .neg-chips-wrap.neg-reveal { animation: negOpen var(--neg-offer) ease both; animation-delay: var(--neg-think); }
-.neg-revealing .neg-stat-changed, .neg-chips-wrap.neg-reveal .neg-changed { animation: negAmber 1.1s ease-out both; animation-delay: var(--neg-think); }
+.neg-revealing .neg-stat-changed, .neg-chips-wrap.neg-reveal .neg-changed { animation: negAmber .77s ease-out both; animation-delay: var(--neg-think); }
 .neg-revealing .neg-new { animation: negIn var(--neg-choices) ease both; animation-delay: calc(var(--neg-think) + var(--neg-offer)); }
 @keyframes negOpen { from { grid-template-rows: 0fr; opacity: 0; } to { grid-template-rows: 1fr; opacity: 1; } }
 @keyframes negIn { from { opacity: 0; visibility: hidden; } to { opacity: 1; visibility: visible; } }
@@ -1735,7 +1730,7 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 @media (prefers-reduced-motion: reduce) {
   .neg-reveal .neg-replied, .neg-reveal .neg-thinking, .neg-chips-wrap.neg-reveal, .neg-revealing .neg-stat-changed,
   .neg-chips-wrap.neg-reveal .neg-changed, .neg-revealing .neg-new, .neg-dots i { animation: none !important; }
-  .choice.neg-gone { transition: none; }
+  .choices.neg-gone { transition: none; }
 }
 .choice .cl { font-family: 'Anton', sans-serif; text-transform: uppercase; font-size: 14px; letter-spacing: 0.3px; display: block; color: var(--ink); line-height: 1.25; }
 .choice-caption { display: block; margin-top: 3px; font-size: 11px; color: var(--gris); }
@@ -21913,7 +21908,7 @@ function render() {
     } else {
       const choicesHtml = `
         <div class="choices">
-          ${negRound ? negotiationKeptChoiceHtml(negRound) : ''}${negRound ? '<div class="choices neg-new">' : ''}
+          ${negRound ? '<div class="choices neg-new">' : ''}
           ${dilemma.c.map((choice, i) => {
             const accent = i % 2 === 0 ? 'accent' : 'neutral';
             const icon = responseEmoji(dilemma, choice, i);
@@ -22036,10 +22031,10 @@ function render() {
           zone.querySelectorAll('.choice').forEach(b => { b.disabled = true; b.tabIndex = -1; });
           const choiceIdx = parseInt(btn.dataset.idx, 10);
           const choice = dilemma.c[choiceIdx];
-          // Proposition de négociation (tour 1) : aucun mouvement, le choix retenu reste en
-          // place et les autres se replient avant la réponse du partenaire.
+          // Proposition de négociation (tour 1) : aucun mouvement, les choix se replient
+          // avant la réponse du partenaire.
           if (choice?.negotiation && !choice.negotiation.counter) {
-            collapseOtherChoices(zone, btn);
+            collapseChoices(zone);
             setTimeout(() => chooseDilemmaOption(choiceIdx), prefersReducedMotion() ? 0 : NEG_REVEAL.collapse);
             return;
           }
@@ -27057,7 +27052,6 @@ function applyNegotiationReaction(dilemma, choice) {
   // conditions sont portées par la vitrine du tour suivant (negotiationShowcaseRows) et ses blocs chiffrés.
   dilemma.negotiationState = { strategy: neg.strategy, reaction: 'counter', terms, offer: { ...neg.terms },
     round: (dilemma.negotiationState?.round || 1) + 1, partner: isSportsProgram(program) ? 'agency' : 'producer',
-    offerLabel: choice.l, offerPill: choice.pillLabel || '',
     message: `${who} de « ${program.name} » refuse votre proposition et contre-propose.` };
   dilemma.c = [
     { l: 'Accepter la contre-offre', producerDeal: { ...choice.producerDeal }, negotiation: { strategy: neg.strategy, terms, counter: true },
@@ -27420,7 +27414,8 @@ function channelStability() {
 // Effet purement visuel : les conséquences restent appliquées une seule fois par
 // chooseDilemmaOption. negotiationReveal désigne le tour qui vient d'être ouvert.
 let negotiationReveal = null, negRevealing = false;
-const NEG_REVEAL = { collapse: 360, think: 620, offer: 360, choices: 260, count: 520 };
+// Durées réduites de 30 % par rapport au premier réglage (≈ 1,1 s au total).
+const NEG_REVEAL = { collapse: 250, think: 430, offer: 250, choices: 180, count: 360 };
 function prefersReducedMotion() {
   return typeof window !== 'undefined' && !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 }
@@ -27485,36 +27480,13 @@ function negotiationShowcaseRows(dilemma, reveal) {
         `<span class="neg-chip neg-changed">${esc(c.label)} : <s>${esc(c.from)}</s> <b>${esc(c.text)}</b></span>`).join('')}</div></div>` : '';
   return { head, chips: chipsHtml };
 }
-// Choix du tour 1 retenu : il reste en place, au-dessus des actions du nouveau tour.
-function negotiationKeptChoiceHtml(st) {
-  if (!st?.offerLabel) return '';
-  return `
-    <div class="choice neg-kept" aria-disabled="true">
-      <div class="choice-row">
-        <span class="choice-icon accent" aria-hidden="true">✍️</span>
-        <div class="choice-content">
-          <div class="choice-eyebrow-row"><span class="choice-eyebrow">Votre offre · tour ${(st.round || 2) - 1}</span></div>
-          <span class="cl">${esc(st.offerLabel)}</span>
-        </div>
-        ${st.offerPill ? `<span class="choice-pill cost">${esc(st.offerPill)}</span>` : ''}
-      </div>
-    </div>`;
-}
-// Tour 1 : le choix retenu ne bouge pas, les autres se replient.
-function collapseOtherChoices(zone, picked) {
-  const all = [...zone.querySelectorAll('.choice')];
-  picked.classList.add('neg-kept');
-  // Même contenu que la carte « Votre offre » du tour suivant : rien ne change au passage.
-  const eyebrow = picked.querySelector('.choice-eyebrow'), icon = picked.querySelector('.choice-icon');
-  if (eyebrow) eyebrow.textContent = 'Votre offre · tour 1';
-  if (icon) { icon.textContent = '✍️'; icon.className = 'choice-icon accent'; }
-  picked.querySelector('.choice-outlook')?.remove();
-  all.filter(b => b !== picked).forEach(b => {
-    b.style.height = `${b.offsetHeight}px`;
-    if (b === all[0]) b.classList.add('neg-first');
-  });
-  void zone.offsetHeight;
-  all.filter(b => b !== picked).forEach(b => b.classList.add('neg-gone'));
+// Tour 1 : aucun mouvement au clic ; la liste des choix, choix retenu compris, se replie.
+function collapseChoices(zone) {
+  const list = zone.querySelector('.choices');
+  if (!list) return;
+  list.style.height = `${list.offsetHeight}px`;
+  void list.offsetHeight;
+  list.classList.add('neg-gone');
 }
 // Déroulé du tour : réflexion, arrivée de la réponse, montants qui évoluent dans les blocs,
 // puis actions. Les nouveaux boutons restent inertes (souris et clavier) jusqu'à leur apparition.

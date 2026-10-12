@@ -73,7 +73,7 @@ const exclusive=()=>{ const p=p0(); return PROGRAM_CATALOG.find(x=>x.channelType
   const r1=negotiationReaction(d,'aggressive',producerPartnerId(prog)), r2=negotiationReaction(d,'aggressive',producerPartnerId(prog));
   ok(r1===r2,'réaction tirée une fois, identique au rechargement');
   gameState.dilemmaQueue=[d,...fillers()]; gameState.currentDilemmaIndex=0; gameState.dilemmaPhase='choosing'; gameState.step=6;
-  const desc0=d.desc, d0agg=d.c[2]; chooseDilemmaOption(2);
+  const desc0=d.desc; chooseDilemmaOption(2);
   ok(gameState.currentDilemmaIndex===0&&gameState.dilemmaPhase==='choosing'&&d.negotiationState?.reaction==='counter','contre-proposition sans consommer le dilemme');
   ok(d.c.length===2&&d.c[0].negotiation.counter&&d.c[1].negotiationAbandon,'accepter ou abandonner');
   ok(!p.contracts[prog.slot]||!sameProgram(p.contracts[prog.slot],prog),'rien n’est signé avant la validation');
@@ -81,10 +81,9 @@ const exclusive=()=>{ const p=p0(); return PROGRAM_CATALOG.find(x=>x.channelType
   const st=d.negotiationState, offre=dealTermsFor(quoteProgram(prog.slot,prog.id,'interne'),'aggressive');
   ok(d.desc===desc0&&st.round===2&&st.partner==='producer'&&st.offer.annual===offre.annual&&st.terms.rights!=null&&/contre-propose/.test(st.message),'tour 2 : contexte fixe, offre du joueur mémorisée');
   ok(d.c[0].l==='Accepter la contre-offre'&&d.c[1].l==='Quitter la négociation','actions du tour issues de la logique');
-  ok(st.offerLabel==='Négociation agressive'&&st.offerPill===d0agg.pillLabel,'choix du tour 1 conservé (intitulé et badge)');
-  const rows=negotiationShowcaseRows(d,true), html=rows.head+rows.chips, kept=negotiationKeptChoiceHtml(st);
+  const rows=negotiationShowcaseRows(d,true), html=rows.head+rows.chips;
   const vitrine=dilemmaShowcaseHtml(d);
-  ok(html.includes('Tour 2 · Contre-offre')&&html.includes('neg-reveal')&&html.includes('étudie votre proposition')&&html.includes('vous propose une contre-proposition')&&kept.includes('Votre offre')&&!/<button/.test(kept),'vitrine : badge du tour, réflexion, réponse ; offre retenue non cliquable');
+  ok(html.includes('Tour 2 · Contre-offre')&&html.includes('neg-reveal')&&html.includes('étudie votre proposition')&&html.includes('vous propose une contre-proposition'),'vitrine : badge du tour, réflexion, réponse');
   ok(vitrine.includes('Tour 2 · Contre-offre')&&!vitrine.includes('À l’antenne')&&vitrine.indexOf('neg-chips')>vitrine.indexOf('sa-stats'),'« À l’antenne » remplacé, badges de changement sous les blocs');
   const ch=negotiationStatChanges(d), q=quoteProgram(prog.slot,prog.id,'interne');
   ok(ch['Coût annuel'].from===q.annual&&ch['Coût annuel'].to===st.terms.annual&&ch['Engagement'].to===st.terms.years,'blocs : montants du devis vers ceux de la contre-offre');
