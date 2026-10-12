@@ -2126,6 +2126,15 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .sa-illu-tier { left:10px; }
 .sa-illu-tier.mega { color:#b45309; }
 .sa-illu-corner { right:10px; color:var(--ink); }
+/* Bouton d'information de l'enchère, en haut à droite de l'illustration. */
+.sa-info-btn { position:absolute; top:8px; right:8px; z-index:2; width:26px; height:26px; border-radius:50%; border:0; cursor:pointer;
+  font:italic 800 13px/26px Georgia, 'Times New Roman', serif; color:var(--bleu); background:rgba(255,255,255,0.92);
+  box-shadow:0 4px 10px -6px rgba(15,23,42,0.5); padding:0; }
+.sa-info-btn[aria-expanded="true"] { color:#fff; background:var(--bleu); }
+.sa-info-btn:focus-visible { outline:2px solid #fff; outline-offset:2px; }
+.sa-info-pop { position:absolute; top:40px; right:8px; left:8px; z-index:2; padding:9px 11px; border-radius:12px; font-size:11.5px; line-height:1.4;
+  color:var(--ink); background:rgba(255,255,255,0.96); box-shadow:0 10px 24px -12px rgba(15,23,42,0.55); }
+.sa-info-pop[hidden] { display:none; }
 .sa-illu-cap { position:absolute; left:0; right:0; bottom:0; display:flex; align-items:flex-end; justify-content:space-between; gap:8px;
   padding:28px 12px 10px; background:linear-gradient(180deg, rgba(15,23,42,0) 0%, rgba(15,23,42,0.72) 70%); color:#fff; }
 .sa-illu-name { font-family:'Anton', sans-serif; font-size:22px; line-height:1.05; text-transform:uppercase; letter-spacing:.2px;
@@ -23498,7 +23507,7 @@ function sportsStars(n) {
   return `<span class="mercato-stars" role="img" aria-label="${v} sur 5">${'★'.repeat(v)}<span class="off">${'★'.repeat(5 - v)}</span></span>`;
 }
 // Illustration de l'événement (même moteur que les cartes de programmes), avec ses repères.
-function sportsIllustrationHtml(event, { overlay = '', corner = '' } = {}) {
+function sportsIllustrationHtml(event, { overlay = '', corner = '', info = '' } = {}) {
   const art = typeof TvPrograms !== 'undefined'
     ? TvPrograms.dataUri({ seed: `sports-rights:${event.id}`, genre: 'sport', ...event.illustration }) : '';
   const tierLabel = isCinemaRight(event) || isThemedRight(event) ? event.kindLabel : event.tier === 'mega' ? 'Méga-événement' : 'Événement premium';
@@ -23506,6 +23515,9 @@ function sportsIllustrationHtml(event, { overlay = '', corner = '' } = {}) {
     ${art ? `<img src="${art}" alt="" aria-hidden="true">` : ''}
     <span class="sa-illu-tier ${event.tier}">${tierLabel}</span>
     ${corner ? `<span class="sa-illu-corner">${corner}</span>` : ''}
+    ${info ? `<button type="button" class="sa-info-btn" aria-label="Informations sur l’enchère" aria-expanded="false"
+      onclick="const t=this.nextElementSibling;t.hidden=!t.hidden;this.setAttribute('aria-expanded',String(!t.hidden))">i</button>
+    <span class="sa-info-pop" role="note" hidden>${info}</span>` : ''}
     <figcaption class="sa-illu-cap">
       <span class="sa-illu-name"><span aria-hidden="true">${event.icon}</span> ${esc(event.name)}</span>
       ${overlay}
@@ -23530,7 +23542,8 @@ function renderSportsAuctionZone(dilemma) {
     const audience = event.stars ?? (Object.values(event.audiencePower).reduce((s, v) => s + v, 0) / 4) * (event.tier === 'mega' ? 3.6 : 3.2);
     const pub = 2 + (event.commercialAttractiveness - 1) * 10;
     return `<div class="sa-inline" data-sa-zone>
-      ${sportsIllustrationHtml(event, { overlay: slotCap })}
+      ${sportsIllustrationHtml(event, { overlay: slotCap,
+        info: 'Un seul tour d’enchères, avec une offre sous pli : les programmes actuellement diffusés sur les créneaux concernés seront mis en pause et prolongés d’une saison.' })}
       <div ${pop(0.05, 'sa-stats')}>
         <div class="sa-stat"><span>Prix de départ</span><b>${nf1(event.reservePrice)} M€</b></div>
         <div class="sa-stat"><span>Valeur estimée</span><b>${sportsAmount(ev.minValue)}–${sportsAmount(ev.maxValue)} M€</b></div>
@@ -23546,7 +23559,6 @@ function renderSportsAuctionZone(dilemma) {
       </div>
       <div ${pop(0.25, 'sa-budget')}><span>Trésorerie <b>${nf1(p.tresorerie)} M€</b></span><span>Exposition max. <b>${nf1(ev.exposure)} M€</b></span></div>
       ${event.risk ? `<p ${pop(0.28, 'sa-note sa-warn')}>⚠️ Aléa possible : ${esc(event.risk.label.split(' : ')[0].replace(/^./, c => c.toLowerCase()))}.</p>` : ''}
-      <p ${pop(0.3, 'sa-note')}>Un seul tour d’enchères, avec une offre sous pli : les programmes actuellement diffusés sur les créneaux concernés seront mis en pause et prolongés d’une saison.</p>
       <div ${pop(0.35, 'sa-actions')}>
         <button type="button" class="sa-btn primary" data-sa-action="participate">Participer</button>
         <button type="button" class="sa-btn" data-sa-action="pass">Passer</button>
