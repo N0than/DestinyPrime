@@ -1839,10 +1839,7 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .eh-slide.studio-slide { position:relative; }
 .of-studio { position:absolute; inset:0; display:flex; flex-direction:column; gap:8px; padding:0; text-align:left; overflow:hidden; }
 .of-studio-head { align-items:center; flex:none; }
-.of-info-badge { flex:none; font:800 10px 'Space Grotesk', sans-serif; text-transform:uppercase; letter-spacing:.5px; padding:4px 10px; border-radius:999px;
-  border:1px solid rgba(37,99,235,0.35); background:rgba(37,99,235,0.08); color:var(--bleu); cursor:pointer; }
-.of-info-badge.active { background:var(--bleu); border-color:var(--bleu); color:#fff; }
-.of-info-badge:focus-visible { outline:2px solid var(--bleu); outline-offset:2px; }
+.of-info-toggle:focus-visible { outline:2px solid var(--bleu); outline-offset:2px; }
 .of-info { flex:1; min-height:0; overflow:auto; display:flex; flex-direction:column; justify-content:center; gap:10px; padding:14px 16px;
   border-radius:14px; background:rgba(255,255,255,0.7); border:1px solid rgba(15,23,42,0.08); }
 .of-info[hidden], .of-main[hidden] { display:none; }
@@ -28169,7 +28166,7 @@ function renderStudioSlide() {
   return `<div class="of-studio" data-of-studio>
     <div class="perf-head of-studio-head">
       <div class="eh-title">Studio de création</div>
-      <button type="button" class="of-info-badge" data-of-action="info" aria-expanded="false">Infos</button>
+      <button type="button" class="radar-toggle of-info-toggle" data-of-action="info" aria-expanded="false">Infos</button>
     </div>
     <div class="of-info" hidden>
       <p>Un format maison coûte moins cher dans la durée et peut rapporter des droits, mais son potentiel réel reste incertain.</p>
