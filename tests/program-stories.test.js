@@ -371,6 +371,14 @@ const base=id=>DILEMMA_BANK.find(d=>d.id===id);
   ok(!getEligibleDilemmas().some(d=>d.id==='d40'),'Eurovision non diffusée : pas de sélection');
   (gameState.sportsRights.owned??=[]).push({ownerId:'player',eventId:'eurovision_junior',broadcastSeason:gameState.season,slots:['access']});
   ok(getEligibleDilemmas().some(d=>d.id==='d40'),'Eurovision diffusée : sélection possible'); }
+// Programme sportif : agence de droits sportifs, compétition, offre exclusive.
+{ partie(33,'sport'); const p=p0();
+  const comp=PROGRAM_CATALOG.find(x=>x.channelType===p.type&&isSportsProgram(x)&&!programHolder(x));
+  const d=createProducerPitchDilemma({kind:'exclusive',program:comp,slot:comp.slot});
+  ok(d.titre.startsWith('Offre exclusive')&&d.desc.startsWith('Une agence de droits sportifs')&&/compétition/.test(d.desc)&&!/concept|producteur/i.test(d.titre+d.desc),'sport : agence, compétition, offre exclusive');
+  ok(d.showcase[0].tag==='Compétition inédite','sport : étiquette compétition');
+  const mag=PROGRAM_CATALOG.find(x=>x.name==='Journal des sports');
+  ok(mag&&!isSportsProgram(mag),'magazine sportif : reste un concept de producteur'); }
 // Téléfilms de Noël : remplacement temporaire du vrai programme, restauré ensuite.
 { partie(22); const p=p0(); installe('apresmidi'); const reg=p.contracts.apresmidi; ok(reg,'programme d’après-midi en place');
   const name=reg.name, end=reg.end, g=p.coutGrilleEngageSaison;
