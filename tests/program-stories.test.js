@@ -285,7 +285,7 @@ ok(new Set(festival.c.map(c=>c.grille.level)).size===festival.c.length,'festival
   const free=PROGRAM_CATALOG.find(x=>x.channelType===p.type&&!programHolder(x)&&!sameProgram(p.contracts[x.slot],x)&&quoteProgram(x.slot,x.id,'interne')?.allowed);
   const pitch=createProducerPitchDilemma({kind:'exclusive', program:free, slot:free.slot});
   const slot=pitch.pitchSlot, prog=PROGRAM_CATALOG.find(x=>x.id===pitch.programId);
-  ok(pitch&&pitch.c.length===3&&pitch.c[0].producerDeal&&pitch.c[1].producerOption,'démarchage : signer, option ou décliner');
+  ok(pitch&&pitch.c.length===5&&pitch.c.slice(0,3).every(c=>c.producerDeal&&c.negotiation)&&pitch.c[3].producerOption,'démarchage : signer, option ou décliner');
   ok(!programHolder(prog),'concept exclusif : programme que personne ne diffuse');
   gameState.dilemmaQueue=[pitch, ...DILEMMA_BANK.filter(d=>!d.grille&&!d.requiresRight&&!d.types).slice(0,2)];
   gameState.currentDilemmaIndex=0; gameState.dilemmaPhase='choosing';
@@ -307,7 +307,7 @@ ok(new Set(festival.c.map(c=>c.grille.level)).size===festival.c.length,'festival
   ok(sameProgram(p.contracts[rivals[0].slot],rivals[0].program)&&!sameProgram(activeContract(rivals[0].competitor,rivals[0].slot),rivals[0].program),'programme racheté : il quitte le concurrent');
   // Offre devenue impossible : seul le refus reste jouable.
   const again=createProducerPitchDilemma(rivals[0]); refreshProducerPitch(again);
-  ok(again.c[0].disabled&&!again.c[1].disabled,'offre retirée quand le programme n’est plus disponible'); }
+  ok(again.c.filter(c=>c.producerDeal).every(c=>c.disabled)&&!again.c.at(-1).disabled,'offre retirée quand le programme n’est plus disponible'); }
 // Tirage : un démarchage apparaît certaines saisons, jamais en saison 1.
 { let seen=0; for(let k=1;k<=12;k++){ partie(100+k); gameState.season=3; const q=pickDilemmaQueue(); if(q.some(d=>d.isProducerPitch)) seen++; }
   ok(seen>=2&&seen<=11,'démarchages tirés certaines saisons ('+seen+'/12)');
@@ -465,8 +465,8 @@ const base=id=>DILEMMA_BANK.find(d=>d.id===id);
 { partie(27); const p=p0(); gameState.season=2;
   const prog=biddingConceptCandidates()[0];
   const pitch=createProducerPitchDilemma({kind:'exclusive',program:prog,slot:prog.slot});
-  ok(/option d’achat/.test(pitch.c[1].l)&&!/développement/.test(pitch.c[1].l),'démarchage : « Prendre une option d’achat »');
-  joue(pitch,1); ok(p.producerAgreements?.some(a=>a.programId===prog.id&&!a.closed),'option d’achat enregistrée');
+  ok(/option d’achat/.test(pitch.c[3].l)&&!/développement/.test(pitch.c[3].l),'démarchage : « Prendre une option d’achat »');
+  joue(pitch,3); ok(p.producerAgreements?.some(a=>a.programId===prog.id&&!a.closed),'option d’achat enregistrée');
   ok(gameState.competitors.every(cp=>TIME_SLOTS.every(({key})=>pickCompetitorProgram(cp,key)?.id!==prog.id)),'programme sous option : aucune chaîne IA ne le prend');
   gameState.season=5; const w=pickBiddingWar(); ok(w&&w.agreement&&w.program.id===prog.id,'plus tard dans la partie : le concurrent se manifeste');
   const d=createBiddingWarDilemma(w);

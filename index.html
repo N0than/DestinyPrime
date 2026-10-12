@@ -1688,6 +1688,11 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .choice-pill.save { color: var(--vert); background: rgba(5,150,105,0.08); border-color: rgba(5,150,105,0.2); }
 .choice-pill.cost { color: var(--rouge); background: rgba(225,29,72,0.08); border-color: rgba(225,29,72,0.2); }
 .choice-pill.neutral { color: var(--gris); background: var(--paper-dark); }
+.choice-outlook { display: flex; flex-direction: column; gap: 2px; margin-top: 5px; text-transform: none; letter-spacing: 0; }
+.co-line { font-family: 'Space Grotesk', sans-serif; font-size: 10.5px; font-weight: 600; line-height: 1.35; color: var(--gris); }
+.co-line.co-certain { color: #334155; }
+.co-line.co-risk { color: #b45309; }
+.choice.selected .co-line { color: rgba(255,255,255,0.85); }
 .choice .cl { font-family: 'Anton', sans-serif; text-transform: uppercase; font-size: 14px; letter-spacing: 0.3px; display: block; color: var(--ink); line-height: 1.25; }
 .choice-caption { display: block; margin-top: 3px; font-size: 11px; color: var(--gris); }
 
@@ -1772,6 +1777,39 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .program-manager-box:focus-visible { outline:2px solid var(--bleu); outline-offset:2px; }
 .program-manager-feedback { display:block; min-height:0; margin-top:3px; color:var(--rouge); font-size:9.5px; }
 .program-manager-feedback:empty { margin-top:0; }
+.vg { display:flex; flex-direction:column; gap:8px; padding:4px 2px; text-align:left; }
+.vg-head { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.vg-title { font-family:'Space Grotesk', sans-serif; font-size:11px; font-weight:800; letter-spacing:.5px; text-transform:uppercase; color:var(--ink); }
+.vg-stab { font-size:10px; font-weight:800; padding:3px 9px; border-radius:999px; background:rgba(5,150,105,0.1); color:var(--vert); }
+.vg-stab.warn { background:rgba(217,119,6,0.12); color:#b45309; }
+.vg-stab.bad { background:rgba(225,29,72,0.1); color:var(--rouge); }
+.vg-sub { font-size:9.5px; font-weight:800; letter-spacing:.4px; text-transform:uppercase; color:var(--gris); }
+.vg-list { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:5px; }
+.vg-item { display:flex; gap:8px; align-items:baseline; font-size:11.5px; line-height:1.4; color:#334155; padding:6px 9px; border-radius:9px; background:rgba(255,255,255,0.7); border-left:3px solid rgba(100,116,139,0.35); }
+.vg-item.warn { border-left-color:#d97706; } .vg-item.bad { border-left-color:var(--rouge); } .vg-item.good { border-left-color:var(--vert); }
+.vg-season { flex:none; font-size:9.5px; font-weight:800; color:var(--gris); }
+.vg-empty { margin:0; font-size:11.5px; color:var(--gris); }
+.of-sheet { position:fixed; inset:0; z-index:60; display:flex; align-items:flex-end; justify-content:center; background:rgba(15,23,42,0.45); padding:16px 12px 0; }
+.of-panel { width:100%; max-width:520px; max-height:85vh; overflow-y:auto; background:var(--paper, #f8fafc); border-radius:18px 18px 0 0; box-shadow:0 -10px 30px -12px rgba(15,23,42,0.4); }
+.of-top { position:sticky; top:0; display:flex; align-items:center; justify-content:space-between; gap:8px; padding:14px 16px 10px; background:inherit; }
+.of-title { font-family:'Space Grotesk', sans-serif; font-size:13px; font-weight:800; color:var(--ink); }
+.of-close { border:0; background:rgba(15,23,42,0.06); width:30px; height:30px; border-radius:50%; cursor:pointer; font-size:13px; color:var(--ink); }
+.of-body { display:flex; flex-direction:column; gap:8px; padding:0 16px 18px; }
+.pm-card-original .of-art { display:flex; align-items:center; justify-content:center; font-size:30px; background:linear-gradient(135deg, #1e3a8a, #7c3aed); }
+.of-note { margin:0; font-size:11px; line-height:1.4; color:var(--gris); }
+.of-project { display:flex; flex-direction:column; gap:3px; padding:9px 10px; border-radius:10px; background:#fff; border:1px solid rgba(37,99,235,0.18); }
+.of-head { display:flex; justify-content:space-between; gap:8px; font-size:13px; color:var(--ink); }
+.of-stage { font-size:9.5px; font-weight:800; text-transform:uppercase; letter-spacing:.4px; color:var(--bleu); }
+.of-line { font-size:11px; line-height:1.4; color:#334155; }
+.of-muted { color:var(--gris); }
+.of-actions, .of-form { display:flex; flex-wrap:wrap; gap:6px; margin-top:4px; }
+.of-form label { display:flex; flex-direction:column; gap:2px; flex:1 1 45%; font-size:9.5px; font-weight:700; text-transform:uppercase; letter-spacing:.3px; color:var(--gris); }
+.of-form select { font:inherit; font-size:12px; text-transform:none; letter-spacing:0; color:var(--ink); padding:6px 8px; border-radius:8px; border:1px solid rgba(22,19,14,0.15); background:#fff; }
+.of-actions button, .of-form button { font:700 11px 'Space Grotesk', sans-serif; padding:7px 10px; border-radius:999px; border:1px solid rgba(37,99,235,0.3); background:rgba(37,99,235,0.06); color:var(--bleu); cursor:pointer; }
+.of-actions button.primary, .of-form button.primary { background:var(--bleu); color:#fff; border-color:var(--bleu); }
+.of-actions button.ghost { border-color:transparent; background:none; color:var(--gris); }
+.of-actions button:disabled { opacity:.45; cursor:not-allowed; }
+.of-form button.primary { flex:1 1 100%; }
 /* ---- MERCATO DES TALENTS : cartes ---- */
 .mercato-cards { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; align-items: stretch; }
 .mercato-cards.single { grid-template-columns: minmax(0, calc(50% - 5px)); justify-content: center; }
@@ -6766,7 +6804,7 @@ const DILEMMA_BANK = [
     id: 'd_pub30', titre: "Satisfait ou remboursé !",
     desc: "Proposer aux annonceurs de rembourser le spot s'il ne réalise pas le score d'audience prévu.",
     c: [
-      { l: "Adopter la garantie d'audience", finance: {"recurring":0,"purchase":0,"commercial":6,"category":"C"}, pda: { j1524: 0, a2549: 0, s50: 0, csp: 0 }, r: "Les marques signent en confiance, augmentant significativement le volume de ventes.", pop: 1 },
+      { l: "Adopter la garantie d'audience", commitment: { kind: 'adGuarantee', amount: 4 }, finance: {"recurring":0,"purchase":0,"commercial":6,"category":"C"}, pda: { j1524: 0, a2549: 0, s50: 0, csp: 0 }, r: "Les marques signent en confiance, augmentant significativement le volume de ventes.", pop: 1 },
       { l: "Rester sur le tarif plaquette", finance: {"recurring":0,"purchase":0,"commercial":0,"category":"N"}, pda: { j1524: 0, a2549: 0, s50: 0, csp: 0 }, r: "Pas de risque financier pris en cas de baisse de régime des audiences.", pop: 0 }
     ]
   }
@@ -19803,6 +19841,14 @@ function pickDilemmaQueue() {
       (gameState.player.biddingHistory ??= []).push({ programId: war.war.programId, season: gameState.season, kind: war.war.kind, rival: war.war.rival, outcome: 'pending' });
     }
   }
+  // Crise contextuelle mûre : une seule, à la place d'un dilemme ordinaire.
+  const crisis = gameState.pendingCrisis ? createCrisisDilemma(gameState.pendingCrisis) : null;
+  if (crisis) {
+    // Jamais en dernière position : celle-ci revient aux renouvellements de fin de saison.
+    const at = [1, 0].find(i => replaceableQueueDilemma(queue[i]));
+    if (at != null) { queue[at] = crisis; ensureConsequenceState().crisisWatch[gameState.pendingCrisis.key].queued = gameState.season; }
+  }
+  gameState.pendingCrisis = null;
   // Histoires de programmes : elles prennent la place de dilemmes génériques restants. La
   // dernière position est laissée aux renouvellements quand la grille en attend.
   placeProgramStories(queue, selectCareerDecisions().length > 0 || recurringRightsToRenew(o => o.ownerId === 'player').length > 0);
@@ -20551,6 +20597,11 @@ function chooseDilemmaOption(choiceIndex) {
   if (isSportsAuction && gameState.sportsRights?.activeAuction?.phase !== 'verdict') return;
   if (dilemma.isProducerPitch) refreshProducerPitch(dilemma);
   if (dilemma.isBiddingWar) refreshBiddingWar(dilemma);
+  // Négociation : la réaction du partenaire est connue avant la signature. Une
+  // contre-proposition (ou une rupture) transforme le dilemme sans le consommer.
+  const negotiated = dilemma.c[choiceIndex];
+  if (negotiated?.negotiation && !negotiated.negotiation.counter && !negotiated.disabled
+    && !applyNegotiationReaction(dilemma, negotiated)) { render(); return; }
   if (dilemma.isReplacementChoice) refreshReplacementDilemma(dilemma);
   // Dilemme relié à la grille : reconstruit sur la grille du moment. S'il n'est plus
   // éligible, il a été remplacé : le joueur découvre le nouveau dilemme avant de choisir.
@@ -20595,6 +20646,11 @@ function chooseMaterialized(choiceIndex, dilemma) {
     const q = quoteProgram(deal.slot, deal.programId, deal.talentId);
     if (q) executeProgramSigning(deal.slot, q, { skipFinance: true });
   }
+  // Conditions négociées (prix, durée, exclusivité, prime) et engagements associés.
+  if (choice.negotiation) applyDealTerms(choice);
+  if (choice.negotiationAbandon) adjustPartner(choice.negotiationAbandon.partnerId, -1, 'négociation abandonnée');
+  if (dilemma.isCrisis) applyCrisisChoice(dilemma, choice);
+  if (choice.commitment) registerCommitment({ ...choice.commitment, key: `${choice.commitment.kind}:${dilemma.id}:${gameState.season}` });
   // Occupation temporaire (téléfilms de Noël, événement de streamer) : le programme
   // habituel est mis en pause pour la saison, l'événement prend la case.
   if (choice.slotEvent) installSlotEvent(choice.slotEvent);
@@ -20867,7 +20923,10 @@ function startNewSeason() {
   expireContracts();
   advanceProgramSeasonNumbers();
   expireTalents();
+  applyContractRevaluations();
   planCompetitorSeasons();
+  // Vulnérabilités : signaux faibles, prévention et crise éventuelle (une au plus).
+  gameState.pendingCrisis = updateCrisisWatch();
   gameState.currentDilemmaIndex = 0;
   gameState.dilemmaQueue = pickDilemmaQueue();
   gameState.dilemmaPhase = 'choosing';
@@ -20900,6 +20959,10 @@ function startNewSeason() {
   activateSportsBroadcasts();
   // Programme racheté dont la première diffusion intervient cette saison.
   applyPendingProgramTransfers();
+  // Engagements échus (primes, pénalités, revenus dérivés, conséquences de crise),
+  // puis évaluations à venir des formats détenus pour la saison qui commence.
+  processCommitments();
+  scheduleFormatRevenues();
   player.lastArcomResult = null;
   player.rentabiliteGrille = player.coutGrilleEngageSaison > 0 ? -100 : 0;
   const seedPdaCible = getCalculatedPDAs().find(item => item.channel === player).pda[player.target];
@@ -21089,6 +21152,22 @@ function renderHudHeadOnly({ status = null } = {}) {
     </div>`;
 }
 
+// Tableau de bord « Vigilance » : signaux faibles, conséquences de la saison et
+// engagements en cours. Aucune nouvelle ressource à gérer, seulement de l'information.
+function renderVigilanceSlide() {
+  const p = ensureConsequenceState();
+  const stability = channelStability();
+  const signals = [...p.seasonSignals].filter(s => s.season >= gameState.season - 1).reverse().slice(0, 6);
+  const kindLabel = { performanceBonus: 'Prime de performance', adGuarantee: 'Garantie d’audience', poached: 'Départ d’un programme',
+    formatRevenue: 'Revenus dérivés', crisisAftermath: 'Suite d’une crise' };
+  const pending = pendingCommitments(c => c.kind !== 'formatRevenue').slice(0, 5);
+  return `<div class="vg">
+    <div class="vg-head"><span class="vg-title">Vigilance</span><span class="vg-stab ${stability.tone}">Stabilité : ${stability.label}</span></div>
+    ${signals.length ? `<ul class="vg-list">${signals.map(s => `<li class="vg-item ${s.tone}"><span class="vg-season">S${s.season}</span>${esc(s.text)}</li>`).join('')}</ul>`
+      : '<p class="vg-empty">Aucun signal particulier : la chaîne est sereine.</p>'}
+    ${pending.length ? `<div class="vg-sub">Engagements en cours</div><ul class="vg-list">${pending.map(c => `<li class="vg-item"><span class="vg-season">S${c.dueSeason}</span>${esc(kindLabel[c.kind] || 'Engagement')}${c.programName ? ` · « ${esc(c.programName)} »` : ''}${c.amount ? ` · ${nf1(c.amount)} M€` : ''}</li>`).join('')}</ul>` : ''}
+  </div>`;
+}
 function renderTicker() {
   ensureCompetitorPlans();
   const p = gameState.player;
@@ -21115,6 +21194,8 @@ function renderTicker() {
   const talentsSlideHtml = renderTalentsSlide();
   const slide = gameState.hudSlide || 0;
 
+  const editableStudio = gameState.step === 6 && gameState.dilemmaPhase === 'choosing' && gameState.currentDilemmaIndex === 0;
+  const studioSheet = gameState.studioOpen && editableStudio ? renderOriginalStudio(gameState.studioOpen) : '';
   return `
     <div class="hud-wrap">
       <div class="hud-panel">
@@ -21153,6 +21234,7 @@ function renderTicker() {
               <div class="eh-slide talents-slide">${talentsSlideHtml}</div>
               <div class="eh-slide perf-slide-wrap">${statStarsHtml}</div>
               <div class="eh-slide arcom-slide-wrap">${arcomSlideHtml}</div>
+              <div class="eh-slide vigilance-slide">${renderVigilanceSlide()}</div>
             </div>
           </div>
           <div class="eh-slider-nav">
@@ -21163,10 +21245,11 @@ function renderTicker() {
         </div>
       </div>
     </div>
+    ${studioSheet}
   `;
 }
 
-const HUD_SLIDE_COUNT = 7;
+const HUD_SLIDE_COUNT = 8;
 
 // En mode Concurrence, le slider est figé sur la grille : on n'en sort
 // qu'après être revenu sur « Ma grille ».
@@ -21796,6 +21879,7 @@ function render() {
                     <span class="choice-eyebrow ${accent}">Option ${i + 1}</span>
                   </div>
                   <span class="cl">${choice.l}</span>
+                  ${choiceOutlookHtml(choice.outlook)}
                 </div>
                 <span class="choice-pill ${badgeCls}">${badgeText}</span>
               </div>
@@ -22359,6 +22443,7 @@ function ensureCampaign() {
   gameState.competitorEvents ??= [];
   gameState.campaign ??= { deadline: 5, status: 'active', seed: newCampaignSeed() };
   ensureSportsRightsState();
+  ensureConsequenceState(p);
 }
 // Flux aléatoire propre au marché concurrentiel : il ne consomme pas celui de la
 // campagne (tirage des dilemmes, réactions), dont les séquences restent inchangées.
@@ -23955,7 +24040,9 @@ function createCareerRenewalDilemma(pending) {
   const slotDaypart = slotMeta?.daypart || pending.slot;
   const zeroPda = { j1524:0, a2549:0, s50:0, csp:0 };
   // Un programme devenu culte ouvre, une seule fois, l'arbitrage de franchise.
-  if (c.historic && !c.franchiseOffered) {
+  const formatSpinoff = (contract.ownership === 'owned' || contract.ownership === 'coproduction')
+    && c.awareness >= ORIGINAL_FORMATS.spinoffAwareness && c.seasonsCount >= 2;
+  if ((c.historic || formatSpinoff) && !c.franchiseOffered) {
     const spinSlot = franchiseSpinoffSlot(pending.slot);
     if (spinSlot) return createFranchiseDilemma(contract, c, pending.slot, spinSlot);
   }
@@ -23973,9 +24060,37 @@ function createCareerRenewalDilemma(pending) {
       { l:`Relancer totalement (${nf1(contract.annual*GAME_BALANCE.programCareer.relaunchCostRate)} M€)`, careerAction:'relaunch', pda:{...zeroPda}, audienceImpact:{slot:pending.slot,value:0.5}, pop:1,
         finance:{recurring:0,purchase:contract.annual*GAME_BALANCE.programCareer.relaunchCostRate,commercial:0,category:'P'}, r:'Le programme repart avec une nouvelle ambition, au prix d’une partie de sa fidélité.' },
       { l:'Arrêter le programme', careerAction:'stop', pda:{...zeroPda}, audienceImpact:{slot:pending.slot,value:c.historic||c.loyalty>=75?-0.4:-0.15}, pop:c.historic||c.loyalty>=75?-3:0,
-        finance:{recurring:-contract.annual,purchase:0,commercial:0,category:'E'}, r:'La case est libérée pour préparer un nouveau programme.' }
-    ]
+        finance:{recurring:-contract.annual,purchase:0,commercial:0,category:'E'}, r:'La case est libérée pour préparer un nouveau programme.' },
+      ...renewalExtraChoices(contract, c, pending.slot)
+    ].map(ch => revaluedRenewal(contract, ch))
   };
+}
+// Revalorisation demandée par le producteur après un succès primé : le renouvellement
+// coûte plus cher dès la saison suivante ; le refuser expose à un départ du programme.
+function revaluedRenewal(contract, choice) {
+  const rv = contract.revaluation;
+  if (!rv || choice.careerAction !== 'renew' || choice.refuseRevaluation) return choice;
+  const delta = Math.round(contract.annual * rv.rate * 10) / 10;
+  return { ...choice, l: `Renouveler avec revalorisation (+${nf1(delta)} M€/an)`, revaluation: delta,
+    outlook: { certain: [`+${nf1(delta)} M€/an dès la saison ${gameState.season + 1}`], estimate: [], risk: [] } };
+}
+function renewalExtraChoices(contract, c, slot) {
+  const zero = { j1524:0, a2549:0, s50:0, csp:0 }, extra = [];
+  if (contract.revaluation) {
+    const partnerId = contractPartnerId(contract);
+    extra.push({ l:'Renouveler sans revalorisation', careerAction:'renew', refuseRevaluation:true, cardUi:{ label:'Refuser la hausse', badge:'✔ Renouvelé' },
+      pda:{...zero}, audienceImpact:{slot,value:0}, pop:0, finance:{recurring:0,purchase:0,commercial:0,category:'N'},
+      outlook:{ certain:['Coût inchangé'], estimate:[], risk:[`Le producteur peut céder le programme à un concurrent (${relationLabel(partnerId)})`] },
+      r:'Vous tenez le budget : reste à savoir si le producteur suivra.' });
+  }
+  if (contract.ownership === 'owned') {
+    const value = formatResaleValue(contract);
+    extra.push({ l:`Céder les droits du format (+${nf1(value)} M€)`, careerAction:'stop', resale:value, cardUi:{ label:'Céder les droits', badge:'💼 Cédé' },
+      pda:{...zero}, audienceImpact:{slot,value:-0.15}, pop:0, finance:{recurring:-contract.annual,purchase:0,commercial:value,category:'C'},
+      outlook:{ certain:[`+${nf1(value)} M€ de cession`, 'Le programme quitte la grille en fin de saison'], estimate:[], risk:[] },
+      r:'Le format part chez un diffuseur étranger : la valeur créée est encaissée.' });
+  }
+  return extra;
 }
 
 function applyCareerDilemmaChoice(dilemma, choice) {
@@ -23984,6 +24099,28 @@ function applyCareerDilemmaChoice(dilemma, choice) {
   if (!contract || contract.id !== dilemma.programId) return false;
   const c = migrateProgramCareer(contract, dilemma.careerSlot);
   const action = choice.careerAction;
+  const partnerId = contractPartnerId(contract);
+  if (action !== 'stop') {
+    if (choice.revaluation) {
+      contract.nextAnnual = Math.round((contract.annual + choice.revaluation) * 10) / 10;
+      contract.nextAnnualFrom = gameState.season + 1;
+      delete contract.revaluation;
+      adjustPartner(partnerId, 1, 'revalorisation acceptée');
+    } else if (choice.refuseRevaluation) {
+      delete contract.revaluation;
+      const chance = 0.45 + partnerTrust(partnerId) * 0.12;
+      if (stableRandom(`reval|${contract.id}|${gameState.season}`) >= chance) {
+        // Le producteur part : dernière saison à l'antenne, puis le programme rejoint un concurrent.
+        const rival = [...(gameState.competitors || [])].sort((a, b) => (b.budget || 0) - (a.budget || 0))[0];
+        contract.end = Math.min(contract.end, gameState.season); contract.stopped = true;
+        adjustPartner(partnerId, -2, 'revalorisation refusée');
+        if (rival) registerCommitment({ kind: 'poached', key: `poached:${contract.id}`, programId: contract.id, rival: rival.name });
+        pushSignal(`Le producteur de « ${contract.name} » refuse de continuer sans revalorisation : le programme partira${rival ? ` chez ${rival.name}` : ''} en fin de saison.`, { kind: 'consequence', tone: 'bad', key: `reval:${contract.id}` });
+        return true;
+      }
+      pushSignal(`Le producteur de « ${contract.name} » accepte de continuer sans revalorisation.`, { kind: 'consequence', tone: 'good', key: `reval:${contract.id}` });
+    } else if (action === 'renew') adjustPartner(partnerId, 1, 'contrat reconduit');
+  } else if (contract.end > gameState.season && !choice.resale) adjustPartner(partnerId, -2, 'rupture anticipée');
   if (action === 'stop') {
     // Arrêt en fin de saison : le programme termine la saison à l'antenne (son audience
     // et les recettes publicitaires associées restent acquises). Son coût annuel est déjà
@@ -24310,7 +24447,7 @@ const CAREER_ACTION_UI = {
 };
 function careerChoiceCards(dilemma) {
   return (dilemma?.c || []).map((choice, index) => {
-    const ui = CAREER_ACTION_UI[choice.careerAction] || { label: choice.l.replace(/\s*\([^)]*M€\)\s*$/, ''), badge: '✔ Choisi' };
+    const ui = choice.cardUi || CAREER_ACTION_UI[choice.careerAction] || { label: choice.l.replace(/\s*\([^)]*M€\)\s*$/, ''), badge: '✔ Choisi' };
     const f = choice.finance || { recurring: 0, purchase: 0 };
     const cost = f.purchase > 0 ? `${nf1(f.purchase)} M€` : f.recurring < 0 ? `−${nf1(-f.recurring)} M€/an` : f.recurring > 0 ? `+${nf1(f.recurring)} M€/an` : 'Sans frais';
     const costCls = f.purchase > 0 || f.recurring > 0 ? 'cost' : f.recurring < 0 ? 'save' : 'free';
@@ -25932,13 +26069,18 @@ function producerPitchChoices(pitch) {
     ? `« ${pitch.program.name} » quitte ${pitch.competitor.name} et rejoint votre grille : une partie de son public le suit.`
     : `« ${pitch.program.name} » arrive en exclusivité sur votre grille${current ? ` à la place de « ${current.name} »` : ''}.`;
   const cost = q ? `${nf1(q.finance.purchase)} M€${q.annual > 0 ? ` + ${nf1(q.annual)} M€/an` : ''}` : '';
+  // Trois stratégies de négociation (sécurisée, équilibrée, agressive) sur les quatre
+  // variables du contrat ; un concept exclusif signé devient une coproduction.
+  const deals = q ? ['secure', 'balanced', 'aggressive'].map(strategy => {
+    const ch = negotiatedChoice(pitch, q, strategy, { r: signed, pop: pitch.kind === 'rival' ? 0 : 1 });
+    ch.negotiation.ownership = pitch.kind === 'exclusive' ? 'coproduction' : 'licence';
+    return ch;
+  }) : [{ l: pitch.kind === 'rival' ? `Racheter « ${pitch.program.name} »` : 'Signer l’exclusivité',
+      producerDeal: { slot: pitch.slot, programId: pitch.program.id, talentId: 'interne' }, pillLabel: 'Indisponible',
+      finance: { recurring: 0, purchase: 0, commercial: 0, category: 'N' }, disabled: true,
+      pda: { ...zeroPda }, audienceImpacts: [], pop: 0, r: signed }];
   return [
-    { l: pitch.kind === 'rival' ? `Racheter « ${pitch.program.name} »` : 'Signer l’exclusivité',
-      producerDeal: { slot: pitch.slot, programId: pitch.program.id, talentId: 'interne' },
-      pillLabel: cost ? `Signature : ${cost}` : 'Signature',
-      finance: q ? { ...q.finance, category: 'P' } : { recurring: 0, purchase: 0, commercial: 0, category: 'N' },
-      pda: { ...zeroPda }, audienceImpacts: [{ slot: pitch.slot, targets: { ...zeroPda } }],
-      pop: pitch.kind === 'rival' ? 0 : 1, r: signed },
+    ...deals,
     ...(pitch.kind === 'exclusive' ? [{
       l: 'Prendre une option d’achat',
       producerOption: { programId: pitch.program.id, slot: pitch.slot, fee: producerOptionFee(pitch.program) },
@@ -26028,10 +26170,12 @@ function refreshProducerPitch(dilemma) {
   const pitch = { kind: dilemma.pitchKind, program, slot: dilemma.pitchSlot,
     competitor: holder?.competitor || (gameState.competitors || []).find(c => c.name === dilemma.competitorName) };
   const q = program && quoteProgram(dilemma.pitchSlot, program.id, 'interne');
+  // Négociation en cours (contre-proposition) : les choix du partenaire restent affichés.
+  if (dilemma.negotiationState) return dilemma;
   dilemma.c = producerPitchChoices(pitch);
   if (program) dilemma.showcase = [producerPitchShowcase(pitch)];
   if (!q?.allowed || (dilemma.pitchKind === 'rival' && !holder)) {
-    dilemma.c[0].disabled = true;
+    dilemma.c.filter(c => c.producerDeal).forEach(c => { c.disabled = true; });
     dilemma.c[0].l += ' (offre retirée)';
   }
   return dilemma;
@@ -26060,7 +26204,7 @@ function dilemmaProgramFiche(id, channel = gameState.player) {
     editorial: programEditorialProfile({ name: f.name, channelType: channel.type, slot: f.slot, format: f.format }) };
 }
 function findProgram(id) {
-  return PROGRAM_CATALOG.find(x => x.id === id) || dilemmaProgramFiche(id);
+  return PROGRAM_CATALOG.find(x => x.id === id) || dilemmaProgramFiche(id) || gameState.player?.originalFormats?.[id] || null;
 }
 function programArt(program) {
   return program && typeof TvPrograms !== 'undefined' ? TvPrograms.forProgram(program) : '';
@@ -26361,7 +26505,7 @@ function biddingCoveted() {
   const p = gameState.player, slots = producerPitchSlots();
   const seen = new Set((p.biddingHistory || []).map(h => h.programId));
   return slots.map(slot => ({ slot, contract: p.contracts?.[slot] }))
-    .filter(({ slot, contract }) => contract && !contract.stopped && contract.end >= gameState.season
+    .filter(({ slot, contract }) => contract && !contract.stopped && !contract.exclusive && contract.end >= gameState.season
       && PROGRAM_CATALOG.some(x => x.id === contract.id) && !seen.has(contract.id)
       && (contract.career?.seasonsCount || 0) >= 1);
 }
@@ -26573,6 +26717,639 @@ function applyBiddingWarChoice(dilemma, choice) {
   if (pending) Object.assign(pending, record); else p.biddingHistory.push(record);
 }
 
+// ---------------------------------------------------------------------------
+// MOTEUR COMMUN DE CONSÉQUENCES — mémoire des décisions, engagements différés,
+// relations commerciales légères et signaux de saison
+// ---------------------------------------------------------------------------
+// Une décision (négociation, format original, crise) peut produire un effet immédiat
+// (porté par le choix et appliqué une seule fois par le dilemme), un engagement futur
+// (prime de performance, revalorisation, pénalité…), un risque conditionnel ou un
+// événement différé. Les engagements sont réévalués à l'ouverture de chaque saison et
+// changent d'état une seule fois (pending → resolved / void) : jamais deux applications.
+// Aucun calcul économique ni d'audience parallèle : tout passe par applyFinance, les
+// contrats et la carrière des programmes.
+const CONSEQUENCES = {
+  signalsKept: 12,          // signaux conservés pour le tableau de bord
+  trustMin: -3, trustMax: 3 // mémoire relationnelle (non affichée en jauge)
+};
+function ensureConsequenceState(p = gameState.player) {
+  if (!p) return p;
+  p.commitments ??= [];
+  p.partners ??= {};
+  p.seasonSignals ??= [];
+  p.originalFormats ??= {};
+  p.crisisWatch ??= {};
+  p.crisisHistory ??= [];
+  return p;
+}
+// Aléa reproductible et indépendant des flux de la campagne : même partie, même clé,
+// même tirage (une négociation ou un potentiel ne se « relancent » pas en rechargeant).
+function stableRandom(key) {
+  ensureCampaign();
+  gameState.campaign.hashSeed ??= (gameState.campaign.seed >>> 0) || 2463534242;
+  let h = 2166136261 ^ gameState.campaign.hashSeed;
+  const s = String(key);
+  for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+  h ^= h >>> 13; h = Math.imul(h, 0x5bd1e995); h ^= h >>> 15;
+  return (h >>> 0) / 4294967296;
+}
+function pushSignal(text, { kind = 'info', tone = 'neutral', key = null } = {}) {
+  const p = ensureConsequenceState();
+  if (key && p.seasonSignals.some(s => s.key === key && s.season === gameState.season)) return;
+  p.seasonSignals.push({ season: gameState.season, text, kind, tone, key });
+  if (p.seasonSignals.length > CONSEQUENCES.signalsKept) p.seasonSignals.splice(0, p.seasonSignals.length - CONSEQUENCES.signalsKept);
+}
+// Engagement différé : une seule entrée en attente par clé (pas de double prime ni de
+// double pénalité si la même décision est rejouée).
+function registerCommitment(spec) {
+  const p = ensureConsequenceState();
+  const key = spec.key || `${spec.kind}:${spec.programId || ''}:${spec.season ?? gameState.season}`;
+  if (p.commitments.some(c => c.key === key && c.status === 'pending')) return null;
+  const entry = { id: `cm-${gameState.season}-${p.commitments.length + 1}`, key, status: 'pending',
+    season: gameState.season, dueSeason: gameState.season + 1, ...spec };
+  p.commitments.push(entry);
+  return entry;
+}
+function pendingCommitments(filter = () => true) {
+  return (ensureConsequenceState().commitments || []).filter(c => c.status === 'pending' && filter(c));
+}
+// Relation commerciale légère, rattachée au partenaire réellement représenté (le
+// producteur d'un programme du catalogue, une agence de droits, une chaîne concurrente).
+function partnerTrust(partnerId) {
+  return ensureConsequenceState().partners[partnerId]?.trust || 0;
+}
+function adjustPartner(partnerId, delta, reason) {
+  if (!partnerId || !delta) return;
+  const p = ensureConsequenceState();
+  const rel = p.partners[partnerId] ??= { trust: 0, notes: [] };
+  rel.trust = Math.max(CONSEQUENCES.trustMin, Math.min(CONSEQUENCES.trustMax, rel.trust + delta));
+  rel.notes.push({ season: gameState.season, delta, reason });
+  if (rel.notes.length > 6) rel.notes.shift();
+}
+function producerPartnerId(program) {
+  if (!program) return null;
+  return isSportsProgram(program) ? 'agence-droits-sportifs' : `producteur:${program.id}`;
+}
+function contractPartnerId(contract) {
+  if (!contract || contract.ownership === 'owned') return null;
+  return contract.partnerId || producerPartnerId(findProgram(contract.id));
+}
+function relationLabel(partnerId) {
+  const t = partnerTrust(partnerId);
+  return t >= 2 ? 'relation de confiance' : t <= -2 ? 'relation tendue' : t > 0 ? 'relation cordiale' : t < 0 ? 'relation fragilisée' : 'relation neutre';
+}
+
+// Traitement des engagements à l'ouverture de la saison (après la remise à zéro des
+// compteurs de saison) : chaque entrée échue est résolue ou annulée une seule fois.
+const COMMITMENT_HANDLERS = {
+  // Prime de performance négociée : due si le programme a dépassé l'audience attendue
+  // la saison de sa signature. Une prime payée ouvre une demande de revalorisation.
+  performanceBonus(e, p) {
+    const h = seasonCareerEntry(e);
+    if (!h) return { status: 'void', text: `Prime de performance de « ${e.programName} » sans objet : le programme n’a pas été diffusé.` };
+    const contract = p.contracts?.[e.slot]?.id === e.programId ? p.contracts[e.slot] : null;
+    const success = h && h.performance - h.expected >= NEGOTIATION.successMargin;
+    if (!success) return { status: 'resolved', outcome: 'missed', text: `« ${e.programName} » n’a pas atteint son objectif : la prime de performance (${nf1(e.amount)} M€) n’est pas due.` };
+    applyFinance({ recurring: 0, purchase: e.amount, commercial: 0, category: 'P' });
+    adjustPartner(e.partnerId, 1, 'prime honorée');
+    if (contract && (!contract.ownership || contract.ownership === 'licence' || contract.ownership === 'coproduction')) {
+      contract.revaluation = { rate: contract.ownership === 'coproduction' ? NEGOTIATION.revaluationRate / 2 : NEGOTIATION.revaluationRate, from: gameState.season };
+    }
+    return { status: 'resolved', outcome: 'paid', tone: 'warn',
+      text: `Succès de « ${e.programName} » : la prime de performance de ${nf1(e.amount)} M€ est versée. Le producteur demandera une revalorisation au renouvellement.` };
+  },
+  // Garantie d'audience vendue aux annonceurs : pénalité si la PDA a reculé.
+  adGuarantee(e, p) {
+    const h = gameState.history.find(x => x.season === e.season);
+    const fell = !!h && Number.isFinite(h.pdaDebut) && h.pdaCible < h.pdaDebut;
+    if (!fell) return { status: 'resolved', outcome: 'kept', tone: 'good', text: 'Garantie d’audience tenue : aucune compensation n’est due aux annonceurs.' };
+    applyFinance({ recurring: 0, purchase: e.amount, commercial: 0, category: 'P' });
+    return { status: 'resolved', outcome: 'penalty', tone: 'bad', text: `Garantie d’audience non tenue : ${nf1(e.amount)} M€ de compensation versés aux annonceurs.` };
+  },
+  // Producteur parti après un refus de revalorisation : le programme rejoint un concurrent.
+  poached(e, p) {
+    const program = findProgram(e.programId);
+    const rival = (gameState.competitors || []).find(c => c.name === e.rival);
+    if (program && rival && PROGRAM_CATALOG.some(x => x.id === program.id) && !programHolder(program)) {
+      installCompetitorProgram(rival, program, program.slot, 2, 'offensive');
+      return { status: 'resolved', tone: 'bad', text: `« ${program.name} » est désormais diffusé par ${rival.name}.` };
+    }
+    return { status: 'void' };
+  },
+  // Revenus dérivés d'un format détenu ou coproduit (ventes, plateformes, produits dérivés).
+  formatRevenue(e, p) {
+    const contract = seasonContractSnapshot(e);
+    const h = seasonCareerEntry(e);
+    if (!contract || !h) return { status: 'void' };
+    if (h.performance < h.expected) return { status: 'resolved', outcome: 'none', text: `« ${contract.name} » n’a pas généré de revenus dérivés cette saison.` };
+    const share = contract.ownership === 'coproduction' ? 0.5 : 1;
+    const amount = Math.round(contract.annual * ORIGINAL_FORMATS.derivedRate * share * Math.max(0.5, (contract.career.awareness || 0) / 50) * 10) / 10;
+    if (amount <= 0) return { status: 'resolved', outcome: 'none' };
+    applyFinance({ recurring: 0, purchase: 0, commercial: amount, category: 'C' });
+    return { status: 'resolved', outcome: 'paid', tone: 'good', text: `Droits de « ${contract.name} » : ${nf1(amount)} M€ de revenus dérivés.` };
+  },
+  // Conséquence différée d'une crise (amende, perte de fidélité…), décrite par la crise.
+  crisisAftermath(e, p) {
+    const fx = e.effect || {};
+    if (fx.chance != null && stableRandom(`${e.key}|aftermath`) >= fx.chance)
+      return { status: 'resolved', outcome: 'spared', tone: 'good', text: fx.sparedText || 'Le risque ne s’est pas concrétisé.' };
+    if (fx.purchase) applyFinance({ recurring: 0, purchase: fx.purchase, commercial: 0, category: 'P' });
+    if (fx.pop) p.popularite = Math.max(0, Math.min(100, p.popularite + fx.pop));
+    if (fx.loyalty && e.slot) { const c = p.contracts?.[e.slot]; if (c?.career) c.career.loyalty = Math.max(0, c.career.loyalty + fx.loyalty); }
+    return { status: 'resolved', outcome: 'applied', tone: 'bad', text: fx.text || 'Les conséquences de la crise se font sentir.' };
+  }
+};
+// Programme tel qu'il était à la clôture de la saison de l'engagement (même s'il a
+// expiré depuis) et sa ligne de carrière pour cette saison.
+function seasonContractSnapshot(e) {
+  const snap = gameState.history.find(h => h.season === e.season)?.contracts?.[e.slot];
+  if (snap && snap.id === e.programId) return snap;
+  const live = gameState.player.contracts?.[e.slot];
+  return live && live.id === e.programId ? live : null;
+}
+function seasonCareerEntry(e) {
+  return (seasonContractSnapshot(e)?.career?.history || []).find(x => x.season === e.season) || null;
+}
+function processCommitments() {
+  const p = ensureConsequenceState();
+  p.commitments.forEach(e => {
+    if (e.status !== 'pending' || e.dueSeason > gameState.season) return;
+    const handler = COMMITMENT_HANDLERS[e.kind];
+    const res = handler ? handler(e, p) : { status: 'void' };
+    e.status = res.status || 'resolved';
+    e.outcome = res.outcome || null;
+    e.resolvedSeason = gameState.season;
+    if (res.text) pushSignal(res.text, { kind: 'consequence', tone: res.tone || 'neutral', key: e.key });
+  });
+  // Mémoire limitée aux décisions utiles : les engagements résolus depuis longtemps sont oubliés.
+  p.commitments = p.commitments.filter(e => e.status === 'pending' || gameState.season - (e.resolvedSeason ?? e.season) <= 3);
+}
+// Revalorisations de contrat convenues pour la saison suivante (même règle que les talents :
+// le coût de grille suit dès l'ouverture, avant le paiement de la grille).
+function applyContractRevaluations() {
+  const p = gameState.player;
+  Object.values(p.contracts || {}).forEach(c => {
+    if (c.nextAnnual == null || gameState.season < c.nextAnnualFrom) return;
+    p.coutGrilleEngageSaison += c.nextAnnual - c.annual;
+    c.annual = c.nextAnnual;
+    delete c.nextAnnual; delete c.nextAnnualFrom;
+  });
+}
+
+// ---------------------------------------------------------------------------
+// NÉGOCIATIONS COURTES — proposition, stratégie, réaction, contre-proposition, validation
+// ---------------------------------------------------------------------------
+// Quatre variables : prix (droits, rachat et coût annuel), durée, exclusivité et prime de
+// performance. Trois stratégies, aucune systématiquement optimale. La réaction du
+// partenaire est tirée une fois (stableRandom) et dépend de la relation commerciale.
+const NEGOTIATION = {
+  strategies: {
+    secure:   { label: 'Sécurisée',  price: 1.08, extraYears: 1, exclusive: true,  bonus: 0,   accept: 1,    trust: 1 },
+    balanced: { label: 'Équilibrée', price: 0.92, extraYears: 0, exclusive: true,  bonus: 1.2, accept: 0.72, trust: 0 },
+    aggressive: { label: 'Agressive', price: 0.78, extraYears: 0, exclusive: false, bonus: 1,  accept: 0.38, trust: -1 }
+  },
+  // La prime de performance rend, en cas de succès, une part de l'économie négociée
+  // (bonus = facteur × économie sur la durée du contrat) : aucune stratégie n'est gratuite.
+  counter: { price: 0.97, bonus: 1.5, exclusive: true },
+  trustWeight: 0.08,          // probabilité d'accord par point de confiance
+  breakdownTrust: -2,         // relation trop dégradée : la négociation peut être rompue
+  successMargin: 0.5,         // performance − attendu pour déclencher une prime
+  revaluationRate: 0.15       // revalorisation demandée après un succès primé
+};
+function dealTermsFor(q, strategy, counter = false) {
+  const s = NEGOTIATION.strategies[strategy];
+  const rule = counter ? { ...s, ...NEGOTIATION.counter } : s;
+  const negotiable = (q.program.rights || 0) + (q.buyout || 0);
+  const round = v => Math.round(v * 10) / 10;
+  const annual = round(q.annual * rule.price);
+  const purchase = round(Math.max(0, q.finance.purchase - negotiable + negotiable * rule.price));
+  const savings = (1 - rule.price) * (negotiable + q.annual * q.program.years);
+  const bonus = rule.bonus ? round(Math.max(0.3, savings * rule.bonus)) : 0;
+  return { strategy, counter, annual, purchase, years: q.program.years + (rule.extraYears || 0),
+    exclusive: !!rule.exclusive, bonus, annualDelta: round(annual - q.annual) };
+}
+function dealFinance(q, terms) {
+  return { ...q.finance, purchase: terms.purchase, recurring: Math.round((q.finance.recurring + terms.annualDelta) * 10) / 10, category: 'P' };
+}
+function negotiationReaction(dilemma, strategy, partnerId) {
+  const s = NEGOTIATION.strategies[strategy];
+  if (s.accept >= 1) return 'accepted';
+  const trust = partnerTrust(partnerId);
+  const roll = stableRandom(`neg|${dilemma.id}|${strategy}`);
+  const chance = Math.max(0.05, Math.min(0.95, s.accept + trust * NEGOTIATION.trustWeight));
+  if (roll < chance) return 'accepted';
+  if (strategy === 'aggressive' && trust <= NEGOTIATION.breakdownTrust && roll > 0.85) return 'breakdown';
+  return 'counter';
+}
+// Lignes « certain / estimé / risque » d'une offre négociée.
+function dealOutlook(q, terms, { reactionRisk = null } = {}) {
+  const certain = [`${nf1(terms.purchase)} M€ à la signature · ${nf1(terms.annual)} M€/an`, `Engagement : ${terms.years} saison${terms.years > 1 ? 's' : ''}${terms.exclusive ? ' · exclusivité' : ' · sans exclusivité'}`];
+  if (terms.bonus) certain.push(`Prime de ${nf1(terms.bonus)} M€ si le programme dépasse son audience attendue`);
+  const stars = Math.max(1, Math.min(5, Math.round(programPotentialStars(q.program.power))));
+  const estimate = [`Potentiel d’audience ${'★'.repeat(stars)}${'☆'.repeat(5 - stars)}`];
+  const risk = [];
+  if (reactionRisk) risk.push(reactionRisk);
+  if (!terms.exclusive) risk.push('Sans exclusivité, un concurrent pourra convoiter le programme');
+  if (terms.bonus) risk.push('Un succès primé entraînera une demande de revalorisation');
+  return { certain, estimate, risk };
+}
+function negotiatedChoice(pitch, q, strategy, { r, pop = 0 } = {}) {
+  const s = NEGOTIATION.strategies[strategy];
+  const terms = dealTermsFor(q, strategy);
+  const zero = { j1524: 0, a2549: 0, s50: 0, csp: 0 };
+  const risk = strategy === 'secure' ? null : strategy === 'balanced' ? 'Le partenaire peut demander un ajustement' : 'Risque élevé de refus ou de contre-proposition';
+  return { l: `${s.label} : ${strategy === 'secure' ? 'signer sans discuter les garanties' : strategy === 'balanced' ? 'négocier un prix maîtrisé avec prime' : 'négocier fort le prix'}`,
+    producerDeal: { slot: pitch.slot, programId: pitch.program.id, talentId: 'interne' },
+    negotiation: { strategy, terms },
+    pillLabel: `${nf1(terms.purchase)} M€ + ${nf1(terms.annual)} M€/an`,
+    finance: dealFinance(q, terms), pda: { ...zero }, audienceImpacts: [{ slot: pitch.slot, targets: { ...zero } }], pop,
+    outlook: dealOutlook(q, terms, { reactionRisk: risk }), r };
+}
+// Contre-proposition : le dilemme reste ouvert, ses choix deviennent « accepter » ou
+// « abandonner ». La réaction est mémorisée sur le dilemme (aucun nouveau tirage).
+function applyNegotiationReaction(dilemma, choice) {
+  const neg = choice.negotiation;
+  const program = findProgram(choice.producerDeal.programId);
+  const partnerId = producerPartnerId(program);
+  const reaction = dilemma.negotiationState?.reaction || negotiationReaction(dilemma, neg.strategy, partnerId);
+  if (reaction === 'accepted') return true;
+  const q = quoteProgram(choice.producerDeal.slot, choice.producerDeal.programId, 'interne');
+  const zero = { j1524: 0, a2549: 0, s50: 0, csp: 0 };
+  const who = isSportsProgram(program) ? 'L’agence' : 'Le producteur';
+  if (reaction === 'breakdown' || !q) {
+    adjustPartner(partnerId, -2, 'rupture de négociation');
+    dilemma.negotiationState = { strategy: neg.strategy, reaction: 'breakdown' };
+    dilemma.desc = `${who} de « ${program.name} » rompt la discussion : la relation était déjà trop dégradée pour une offre aussi basse.`;
+    dilemma.c = [{ l: 'Prendre acte', finance: NO_FINANCE(), pda: { ...zero }, audienceImpacts: [], pop: -1,
+      r: `« ${program.name} » ne rejoindra pas votre grille.` }];
+    dilemma.showcase = [];
+    return false;
+  }
+  const terms = dealTermsFor(q, neg.strategy, true);
+  dilemma.negotiationState = { strategy: neg.strategy, reaction: 'counter', terms };
+  dilemma.desc = `${who} de « ${program.name} » refuse votre offre ${NEGOTIATION.strategies[neg.strategy].label.toLowerCase()} et contre-propose : ${nf1(terms.purchase)} M€ à la signature, ${nf1(terms.annual)} M€/an et une prime de ${nf1(terms.bonus)} M€ en cas de succès.`;
+  dilemma.c = [
+    { l: 'Accepter la contre-proposition', producerDeal: { ...choice.producerDeal }, negotiation: { strategy: neg.strategy, terms, counter: true },
+      pillLabel: `${nf1(terms.purchase)} M€ + ${nf1(terms.annual)} M€/an`, finance: dealFinance(q, terms),
+      pda: { ...zero }, audienceImpacts: [{ slot: choice.producerDeal.slot, targets: { ...zero } }], pop: 0,
+      outlook: dealOutlook(q, terms), r: choice.r },
+    { l: 'Abandonner la négociation', negotiationAbandon: { partnerId }, finance: NO_FINANCE(), pda: { ...zero }, audienceImpacts: [], pop: 0,
+      r: `Vous en restez là : « ${program.name} » ne rejoint pas votre grille.` }
+  ];
+  return false;
+}
+// Conditions négociées appliquées au contrat signé, engagements enregistrés.
+function applyDealTerms(choice) {
+  const neg = choice.negotiation, deal = choice.producerDeal;
+  if (!neg || !deal) return;
+  const p = gameState.player, contract = p.contracts?.[deal.slot];
+  if (!contract || contract.id !== deal.programId) return;
+  const program = findProgram(deal.programId), partnerId = producerPartnerId(program), t = neg.terms;
+  contract.annual = t.annual;
+  contract.end = gameState.season + t.years - 1;
+  contract.exclusive = t.exclusive;
+  contract.partnerId = partnerId;
+  contract.dealStrategy = neg.strategy;
+  contract.ownership = neg.ownership || 'licence';
+  if (t.bonus) registerCommitment({ kind: 'performanceBonus', key: `bonus:${deal.programId}:${gameState.season}`,
+    programId: deal.programId, programName: contract.name, slot: deal.slot, partnerId, amount: t.bonus, decision: neg.strategy });
+  adjustPartner(partnerId, neg.counter ? 0 : NEGOTIATION.strategies[neg.strategy].trust, `négociation ${neg.strategy}`);
+}
+
+// ---------------------------------------------------------------------------
+// FORMATS ORIGINAUX — concevoir, tester ou lancer, exploiter
+// ---------------------------------------------------------------------------
+// Un format original est une fiche persistante (gameState.player.originalFormats) que
+// findProgram retrouve comme un programme du catalogue : il se signe, s'illustre, se
+// renouvelle et vieillit avec les mêmes mécanismes. Son potentiel réel est caché : il
+// découle des caractéristiques du format et d'un aléa reproductible (stableRandom).
+// Pilote et test réduisent l'incertitude de l'estimation sans modifier le potentiel.
+const ORIGINAL_FORMATS = {
+  concepts: {
+    jeu: { label: 'Jeu', format: 'jeu', names: ['Le Grand Défi', 'Question de temps', 'Tout ou rien', 'La Dernière Manche', 'Le Mot juste'] },
+    divertissement: { label: 'Divertissement', format: 'divertissement', names: ['Le Grand Plateau', 'Tous en scène', 'La Folle Soirée', 'Show devant !'] },
+    fiction: { label: 'Fiction', format: 'fiction', names: ['Les Héritiers', 'Ligne de front', 'Rive gauche', 'Les Insoumises'] },
+    magazine: { label: 'Magazine', format: 'magazine', names: ['Le Mag des curieux', 'Vu d’ici', 'Grand angle', 'Au cœur du sujet'] },
+    realite: { label: 'Téléréalité', format: 'divertissement', names: ['Une maison pour tous', 'Le Grand Saut', 'Nouvelle vie', 'Cap au large'] }
+  },
+  positionings: {
+    populaire: { label: 'Populaire', fit: { access: 1.08, prime: 1.06, apresmidi: 1.04 } },
+    premium: { label: 'Premium', fit: { prime: 1.08, nuit: 1.06 } },
+    jeune: { label: 'Jeune et décalé', fit: { access: 1.06, nuit: 1.08 } }
+  },
+  budgets: { 1: { label: 'Économique', cost: 0.7, power: 0.85 }, 2: { label: 'Standard', cost: 1, power: 1 }, 3: { label: 'Ambitieux', cost: 1.45, power: 1.15 } },
+  luck: [0.6, 1.45],          // amplitude du potentiel caché autour de la référence
+  uncertainty: { direct: 0.4, test: 0.22, pilot: 0.1 },
+  devCost: { pilot: 0.35, test: 0.15 },   // en part du coût annuel
+  creation: { direct: 0.6, developed: 0.3 },// coût de création au lancement
+  derivedRate: 0.12,          // revenus dérivés d'un format détenu à succès
+  resaleBase: 0.4,            // revente des droits : part du coût annuel + notoriété
+  maxProjects: 2,
+  spinoffAwareness: 55
+};
+function slotReference(type, slot) {
+  const pool = PROGRAM_CATALOG.filter(x => x.channelType === type && x.slot === slot);
+  const med = arr => { const v = [...arr].sort((a, b) => a - b); return v.length ? v[Math.floor(v.length / 2)] : 0; };
+  return { power: med(pool.map(x => x.power)) || 2, annual: med(pool.map(x => x.annual)) || 4 };
+}
+// Conception : fiche complète, potentiel caché compris. Aucune dépense.
+function designOriginalFormat({ concept, positioning, target, slot, budget }) {
+  const p = ensureConsequenceState(), cfg = ORIGINAL_FORMATS;
+  const c = cfg.concepts[concept], pos = cfg.positionings[positioning], b = cfg.budgets[budget];
+  if (!c || !pos || !b || !TIME_SLOTS.some(s => s.key === slot)) return null;
+  const n = Object.keys(p.originalFormats).length + 1;
+  const id = `of-${gameState.season}-${n}`;
+  const ref = slotReference(p.type, slot);
+  const taken = new Set([...PROGRAM_CATALOG.map(x => x.name), ...Object.values(p.originalFormats).map(x => x.name)]);
+  const names = c.names.filter(x => !taken.has(x));
+  const name = names.length ? names[Math.floor(stableRandom(`ofname|${id}`) * names.length)] : `${c.names[0]} ${n}`;
+  const fit = (pos.fit[slot] || 0.96) * (target === p.target ? 1.04 : 0.97);
+  const luck = cfg.luck[0] + stableRandom(`ofpot|${concept}|${positioning}|${target}|${slot}|${budget}|${id}`) * (cfg.luck[1] - cfg.luck[0]);
+  const round = v => Math.round(v * 100) / 100;
+  const fiche = { id, name, concept, positioning, target, slot, budget, format: c.format,
+    channelType: p.type, preferredSlot: slot, years: 1, level: budget, ownership: 'owned', original: true,
+    annual: Math.round(ref.annual * b.cost * 10) / 10, rights: 0,
+    power: round(ref.power * b.power * fit * luck),   // potentiel réel (caché)
+    reference: round(ref.power * b.power * fit),      // ce que l'étude de marché peut voir
+    stage: 'concept', designedSeason: gameState.season, readySeason: gameState.season, pitch: `${c.label} ${pos.label.toLowerCase()}` };
+  fiche.editorial = programEditorialProfile({ name, channelType: p.type, slot, format: c.format });
+  fiche.rights = Math.round(fiche.annual * cfg.creation.direct * 10) / 10;
+  fiche.estimate = originalEstimate(fiche, 'direct');
+  p.originalFormats[id] = fiche;
+  return fiche;
+}
+// Estimation visible : centrée sur le potentiel réel avec un biais reproductible, dont
+// l'amplitude dépend du niveau d'étude (lancement direct, test limité, pilote).
+function originalEstimate(f, stage) {
+  const u = ORIGINAL_FORMATS.uncertainty[stage];
+  const bias = (stableRandom(`ofest|${f.id}|${stage}`) * 2 - 1) * u * 0.6;
+  const center = f.power * (1 + bias);
+  const round = v => Math.round(v * 10) / 10;
+  return { stage, min: round(center * (1 - u)), max: round(center * (1 + u)) };
+}
+function originalProjects() {
+  return Object.values(ensureConsequenceState().originalFormats).filter(f => f.stage !== 'launched' && f.stage !== 'abandoned');
+}
+// Pilote ou test limité : dépense immédiate, estimation affinée, lancement possible la
+// saison suivante (le lancement direct fait gagner une saison mais reste plus incertain).
+function developOriginalFormat(id, kind) {
+  const p = ensureConsequenceState(), f = p.originalFormats[id];
+  if (!f || f.stage !== 'concept' || !ORIGINAL_FORMATS.devCost[kind]) return false;
+  const cost = Math.round(f.annual * ORIGINAL_FORMATS.devCost[kind] * 10) / 10;
+  if (quoteFinance({ recurring: 0, purchase: cost, commercial: 0, category: 'P' }).cash < TRESORERIE_CRITIQUE) return false;
+  applyFinance({ recurring: 0, purchase: cost, commercial: 0, category: 'P' });
+  f.stage = kind; f.devCost = cost; f.readySeason = gameState.season + 1;
+  f.estimate = originalEstimate(f, kind);
+  f.rights = Math.round(f.annual * ORIGINAL_FORMATS.creation.developed * 10) / 10;
+  p.decisionHistory.push({ id: `original-${kind}-${id}`, choice: 0, season: gameState.season, recurring: 0, purchase: cost, commercial: 0, category: 'P' });
+  pushSignal(`${kind === 'pilot' ? 'Pilote' : 'Test limité'} de « ${f.name} » : potentiel estimé entre ${nf1(f.estimate.min)} et ${nf1(f.estimate.max)}. Lancement possible dès la saison ${f.readySeason}.`, { kind: 'format', key: `dev:${id}` });
+  return true;
+}
+function originalLaunchable(f) {
+  return !!f && f.stage !== 'launched' && f.stage !== 'abandoned' && gameState.season >= f.readySeason;
+}
+// Lancement : signature sur la case avec les mécanismes d'acquisition existants
+// (devis, coût de grille, indemnité du programme remplacé, carrière en saison 1).
+function launchOriginalFormat(id) {
+  const p = ensureConsequenceState(), f = p.originalFormats[id];
+  if (!originalLaunchable(f)) return false;
+  const q = quoteProgram(f.slot, f.id, 'interne');
+  if (!q?.allowed) return false;
+  executeProgramSigning(f.slot, q);
+  const c = p.contracts[f.slot];
+  if (c) { c.ownership = 'owned'; c.original = true; c.partnerId = null; c.exclusive = true; }
+  f.stage = 'launched'; f.launchedSeason = gameState.season;
+  registerCommitment({ kind: 'formatRevenue', key: `fmtrev:${f.id}:${gameState.season}`, programId: f.id, slot: f.slot, programName: f.name });
+  return true;
+}
+function abandonOriginalFormat(id) {
+  const f = ensureConsequenceState().originalFormats[id];
+  if (!f || f.stage === 'launched') return false;
+  f.stage = 'abandoned';
+  return true;
+}
+// Revenus dérivés : chaque saison d'antenne d'un format détenu ou coproduit ouvre une
+// évaluation à la saison suivante (une seule par saison et par programme).
+function scheduleFormatRevenues() {
+  Object.entries(gameState.player.contracts || {}).forEach(([slot, c]) => {
+    if (c.ownership !== 'owned' && c.ownership !== 'coproduction') return;
+    registerCommitment({ kind: 'formatRevenue', key: `fmtrev:${c.id}:${gameState.season}`, programId: c.id, slot, programName: c.name });
+  });
+}
+function formatResaleValue(contract) {
+  return Math.round(contract.annual * (ORIGINAL_FORMATS.resaleBase + (contract.career?.awareness || 0) / 100) * 10) / 10;
+}
+function ownershipLabel(contract) {
+  return { owned: 'Format détenu par la chaîne', coproduction: 'Coproduction', licence: 'Sous licence' }[contract?.ownership || 'licence'];
+}
+
+// ---------------------------------------------------------------------------
+// CRISES CONTEXTUELLES — vulnérabilité, signal faible, dilemme, conséquences
+// ---------------------------------------------------------------------------
+// Les crises naissent des vulnérabilités réelles de la chaîne (talent en fin de contrat,
+// trésorerie, conformité ARCOM, dépendance à un programme usé, production sous-financée).
+// Saison N : signal faible (tableau de bord, sans dilemme). Saison N+1, si la
+// vulnérabilité persiste : une crise au plus, à la place d'un dilemme ordinaire.
+// Corriger la vulnérabilité entre-temps l'écarte (prévention).
+const CRISIS = { minSeason: 3, cooldown: 2, keyCooldown: 4, cashFloorMin: 15, cashFloorRate: 0.25,
+  arcomThreshold: 60, dependencyShare: 0.38, dependencyWear: 45, talentEffect: 0.3, underfundedPower: 3 };
+function crisisDetectors() {
+  const p = gameState.player, season = gameState.season, out = [];
+  // 1. Talent dont dépend la grille, en fin de contrat.
+  (p.talents || []).forEach(t => {
+    if (!(t.until === season || t.until === season + 1) || talentRetiring(t)) return;
+    const effect = talentPrograms(t).length ? talentAudienceEffect(t) : 0;
+    if (effect < CRISIS.talentEffect) return;
+    out.push({ key: `talent:${t.id}`, kind: 'talent', ripe: t.until === season, data: { talentId: t.id, name: t.name, effect },
+      signal: `Le contrat de ${t.name} arrive à échéance ; un concurrent manifeste déjà son intérêt.` });
+  });
+  // 2. Trésorerie fragile au regard du coût de grille.
+  const floor = Math.max(CRISIS.cashFloorMin, (p.coutGrilleEngageSaison || 0) * CRISIS.cashFloorRate);
+  if (p.tresorerie < floor) out.push({ key: 'cash', kind: 'cash', ripe: true, data: { cash: p.tresorerie, floor },
+    signal: `Trésorerie fragile (${nf1(p.tresorerie)} M€) : l’actionnaire surveille les dépenses de la chaîne.` });
+  // 3. Conformité ARCOM dégradée.
+  const arcom = computeArcomCompliance().arcomScore;
+  if (arcom < CRISIS.arcomThreshold) out.push({ key: 'arcom', kind: 'arcom', ripe: true, data: { score: arcom },
+    signal: `Conformité ARCOM dégradée (${arcom}/100) : le régulateur suit la chaîne de près.` });
+  // 4. Dépendance à un programme qui s'use.
+  const row = getCalculatedPDAs().find(r => r.channel === p);
+  if (row) {
+    const shares = TIME_SLOTS.map(({ key }) => ({ slot: key, v: Math.max(0, row.slots[key]?.[p.target] || 0) }));
+    const total = shares.reduce((s, x) => s + x.v, 0);
+    const top = shares.sort((a, b) => b.v - a.v)[0];
+    const c = top && p.contracts?.[top.slot];
+    if (c && total > 0 && top.v / total >= CRISIS.dependencyShare && (c.career?.wear || 0) >= CRISIS.dependencyWear)
+      out.push({ key: `dependency:${c.id}`, kind: 'dependency', ripe: true, data: { slot: top.slot, programId: c.id, name: c.name, share: Math.round(top.v / total * 100) },
+        signal: `« ${c.name} » porte ${Math.round(top.v / total * 100)} % de votre audience, mais le programme s’use.` });
+  }
+  // 5. Programme ambitieux produit avec un budget interne.
+  Object.entries(p.contracts || {}).forEach(([slot, c]) => {
+    if (slot !== 'prime' || c.stopped || contractInvestLevel(c) !== 1 || (c.power || 0) < CRISIS.underfundedPower) return;
+    out.push({ key: `underfunded:${c.id}`, kind: 'underfunded', ripe: true, data: { slot, programId: c.id, name: c.name },
+      signal: `Tournage sous tension pour « ${c.name} » : un programme ambitieux produit avec des moyens internes.` });
+  });
+  return out;
+}
+// Ouverture de saison : signaux, prévention et éventuelle crise mûre (une au plus).
+function updateCrisisWatch() {
+  const p = ensureConsequenceState(), season = gameState.season;
+  const found = crisisDetectors();
+  const keys = new Set(found.map(v => v.key));
+  Object.entries(p.crisisWatch).forEach(([key, w]) => {
+    if (keys.has(key)) return;
+    if (!w.triggered) pushSignal(`Risque écarté : ${w.preventText || 'la situation s’est redressée'}.`, { kind: 'prevention', tone: 'good', key: `ok:${key}` });
+    delete p.crisisWatch[key];
+  });
+  found.forEach(v => {
+    const w = p.crisisWatch[v.key];
+    if (!w) {
+      p.crisisWatch[v.key] = { since: season, kind: v.kind, data: v.data, preventText: CRISIS_PREVENT_TEXT[v.kind] };
+      pushSignal(v.signal, { kind: 'signal', tone: 'warn', key: `sig:${v.key}` });
+    } else w.data = v.data;
+  });
+  if (season < CRISIS.minSeason) return null;
+  const last = p.crisisHistory.at(-1);
+  if (last && season - last.season < CRISIS.cooldown) return null;
+  const ripe = found.find(v => {
+    const w = p.crisisWatch[v.key];
+    const lastSame = [...p.crisisHistory].reverse().find(h => h.key === v.key);
+    return v.ripe && w && w.since < season && !w.triggered && w.queued !== season && !(lastSame && season - lastSame.season < CRISIS.keyCooldown);
+  });
+  return ripe || null;
+}
+const CRISIS_PREVENT_TEXT = {
+  talent: 'le talent est sécurisé', cash: 'la trésorerie est repassée au-dessus du seuil d’alerte',
+  arcom: 'la conformité ARCOM est rétablie', dependency: 'la grille ne dépend plus d’un programme usé',
+  underfunded: 'la production est correctement financée'
+};
+// Dilemme de crise, construit sur l'état réel de la chaîne.
+function createCrisisDilemma(v) {
+  if (!v) return null;
+  const p = gameState.player, zero = { j1524: 0, a2549: 0, s50: 0, csp: 0 };
+  const base = { id: `crisis-${gameState.season}-${v.key}`, isCrisis: true, crisisKey: v.key, crisisKind: v.kind };
+  const choice = (l, extra) => ({ l, finance: NO_FINANCE(), pda: { ...zero }, audienceImpacts: [], pop: 0, ...extra });
+  const round = x => Math.round(x * 10) / 10;
+  if (v.kind === 'talent') {
+    const t = (p.talents || []).find(x => x.id === v.data.talentId); if (!t) return null;
+    const rival = [...(gameState.competitors || [])].sort((a, b) => (b.budget || 0) - (a.budget || 0))[0];
+    const raise = round(t.annual * 0.25);
+    return { ...base, titre: `${rival?.name || 'Un concurrent'} veut débaucher ${t.name}`,
+      desc: `${t.name} reçoit une offre concurrente alors que son contrat s’achève cette saison. Ses programmes lui doivent ${nf1(v.data.effect)} pt d’audience.`,
+      c: [
+        choice(`Retenir ${t.name} : deux saisons de plus`, { crisisAction: { type: 'talentRetain', talentId: t.id, raise }, pillLabel: `+${nf1(raise)} M€/an`, pillCls: 'cost', pop: 1,
+          outlook: { certain: [`+${nf1(raise)} M€/an dès la saison ${gameState.season + 1}`, 'Contrat prolongé de deux saisons'], estimate: ['Audience de ses programmes préservée'], risk: [] },
+          r: `${t.name} reste : la revalorisation pèsera sur la grille dès la saison prochaine.` }),
+        choice('Préparer son remplacement', { crisisAction: { type: 'talentPrepare', talentId: t.id }, pillLabel: 'Sans coût', pillCls: 'save',
+          outlook: { certain: [`${t.name} part en fin de saison`], estimate: ['Baisse de fidélité limitée sur ses programmes'], risk: [] },
+          r: 'La relève se prépare : le départ sera encaissé sans brutalité.' }),
+        choice('Ne rien faire et parier sur sa loyauté', { crisisAction: { type: 'talentGamble', talentId: t.id }, pillLabel: 'Sans coût', pillCls: 'save',
+          outlook: { certain: ['Aucune dépense'], estimate: [], risk: ['Départ brutal possible et perte de fidélité'] },
+          r: 'Vous misez sur l’attachement de votre vedette à la chaîne.' })
+      ] };
+  }
+  if (v.kind === 'cash') {
+    const costly = Object.entries(p.contracts || {}).filter(([, c]) => !c.stopped && c.annual > 0).sort((a, b) => b[1].annual - a[1].annual)[0];
+    const cut = costly ? round(costly[1].annual * 0.25) : 0;
+    const raise = round(Math.max(2, (p.coutGrilleEngageSaison || 0) * 0.12));
+    return { ...base, titre: 'L’actionnaire exige un plan d’économies',
+      desc: `Avec ${nf1(p.tresorerie)} M€ en caisse, l’actionnaire réclame un plan pour éviter la crise financière.`,
+      c: [
+        ...(costly ? [choice(`Réduire le budget de « ${costly[1].name} »`, { crisisAction: { type: 'cashCut', slot: costly[0], programId: costly[1].id, cut }, pillLabel: `−${nf1(cut)} M€/an`, pillCls: 'save',
+          outlook: { certain: [`−${nf1(cut)} M€/an dès la saison ${gameState.season + 1}`], estimate: ['Le programme perd un peu de potentiel'], risk: [] },
+          r: `« ${costly[1].name} » se serre la ceinture : économies garanties, ambition revue à la baisse.` })] : []),
+        choice('Opération commerciale d’urgence', { finance: { recurring: 0, purchase: 0, commercial: raise, category: 'C' }, pop: -4,
+          outlook: { certain: [`+${nf1(raise)} M€ immédiatement`, 'Popularité −4'], estimate: [], risk: [] },
+          r: 'Les annonceurs remplissent la caisse, le public trouve l’antenne envahissante.' }),
+        choice('Refuser le plan', { crisisAction: { type: 'aftermath', effect: { chance: 0.6, pop: -4, text: 'L’actionnaire impose ses coupes : la confiance des équipes s’effrite.', sparedText: 'La saison rassure l’actionnaire : aucun plan n’est imposé.' } },
+          outlook: { certain: ['Aucune dépense'], estimate: [], risk: ['L’actionnaire peut imposer ses coupes la saison prochaine'] },
+          r: 'Vous défendez votre stratégie face à l’actionnaire.' })
+      ] };
+  }
+  if (v.kind === 'arcom') {
+    return { ...base, titre: 'Mise en demeure de l’ARCOM',
+      desc: `Le régulateur constate un score de conformité de ${v.data.score}/100 et menace la chaîne de sanctions.`,
+      c: [
+        choice('Présenter un plan de conformité', { finance: { recurring: 0, purchase: 2.5, commercial: 0, category: 'P' }, pop: 1,
+          outlook: { certain: ['2,5 M€ de mise en conformité'], estimate: ['Le dossier se referme si la grille suit les obligations'], risk: [] },
+          r: 'Le régulateur prend acte de vos engagements.' }),
+        choice('Contester la mise en demeure', { crisisAction: { type: 'aftermath', effect: { chance: 0.5, purchase: 5, pop: -2, text: 'Le Conseil d’État confirme la sanction : 5 M€ d’amende.', sparedText: 'Le recours aboutit : aucune amende n’est prononcée.' } },
+          outlook: { certain: ['Aucune dépense immédiate'], estimate: [], risk: ['Amende de 5 M€ possible la saison prochaine'] },
+          r: 'Vos avocats déposent un recours.' }),
+        choice('Accepter la sanction', { finance: { recurring: 0, purchase: 1.5, commercial: 0, category: 'P' }, pop: -2,
+          outlook: { certain: ['1,5 M€ d’amende', 'Popularité −2'], estimate: [], risk: [] },
+          r: 'L’amende est réglée, l’image de la chaîne en pâtit.' })
+      ] };
+  }
+  if (v.kind === 'dependency' || v.kind === 'underfunded') {
+    const c = p.contracts?.[v.data.slot]; if (!c || c.id !== v.data.programId) return null;
+    if (v.kind === 'dependency') {
+      const cost = round(c.annual * GAME_BALANCE.programCareer.relaunchCostRate);
+      return { ...base, titre: `« ${c.name} » s’essouffle`,
+        desc: `Votre programme phare porte ${v.data.share} % de votre audience, mais son usure inquiète les annonceurs.`,
+        c: [
+          choice('Relancer la formule maintenant', { crisisAction: { type: 'relaunch', slot: v.data.slot, programId: c.id }, finance: { recurring: 0, purchase: cost, commercial: 0, category: 'P' },
+            outlook: { certain: [`${nf1(cost)} M€ de relance`], estimate: ['Usure réduite, potentiel relancé'], risk: ['Une partie du public fidèle peut décrocher'] },
+            r: `« ${c.name} » se réinvente avant de décrocher.` }),
+          choice('Maintenir le programme tel quel', { crisisAction: { type: 'aftermath', slot: v.data.slot, effect: { chance: 0.7, loyalty: -15, pop: -1, text: `Le public de « ${c.name} » se lasse : fidélité en baisse.`, sparedText: `« ${c.name} » tient encore une saison.` } },
+            outlook: { certain: ['Aucune dépense'], estimate: [], risk: ['Chute de fidélité probable la saison prochaine'] },
+            r: 'Vous misez sur la solidité du rendez-vous.' })
+        ] };
+    }
+    const cost = round(c.annual * 0.3);
+    return { ...base, titre: `Retard de production sur « ${c.name} »`,
+      desc: `Faute de moyens, le tournage de « ${c.name} » prend du retard et la qualité menace de décrocher.`,
+      c: [
+        choice('Renforcer le budget de production', { crisisAction: { type: 'fund', slot: v.data.slot, programId: c.id }, finance: { recurring: 0, purchase: cost, commercial: 0, category: 'P' },
+          outlook: { certain: [`${nf1(cost)} M€ de rallonge`, 'Production externe (★★)'], estimate: ['Qualité préservée'], risk: [] },
+          r: 'La production reçoit les moyens de ses ambitions.' }),
+        choice('Accepter une qualité dégradée', { crisisAction: { type: 'degrade', slot: v.data.slot, programId: c.id },
+          outlook: { certain: ['Aucune dépense'], estimate: ['Potentiel en baisse, usure accélérée'], risk: [] },
+          r: 'Le programme sort à l’heure, mais il se voit à l’écran.' })
+      ] };
+  }
+  return null;
+}
+function applyCrisisChoice(dilemma, choice) {
+  const p = ensureConsequenceState(), a = choice.crisisAction;
+  p.crisisHistory.push({ key: dilemma.crisisKey, kind: dilemma.crisisKind, season: gameState.season, choice: choice.l });
+  if (p.crisisWatch[dilemma.crisisKey]) p.crisisWatch[dilemma.crisisKey].triggered = gameState.season;
+  if (!a) return;
+  const c = a.slot ? p.contracts?.[a.slot] : null;
+  const t = a.talentId ? (p.talents || []).find(x => x.id === a.talentId) : null;
+  if (a.type === 'talentRetain' && t) { t.until = talentContractEnd(t, Math.max(t.until, gameState.season + 2)); t.nextAnnual = Math.round((t.annual + a.raise) * 10) / 10; t.nextAnnualFrom = gameState.season + 1; }
+  if (a.type === 'talentPrepare' && t) {
+    const slot = talentPrograms(t)[0]?.slot;
+    registerCommitment({ kind: 'crisisAftermath', key: `aft:${dilemma.crisisKey}:${gameState.season}`, slot, effect: { loyalty: -4, text: `Le départ de ${t.name} est encaissé en douceur.` } });
+  }
+  if (a.type === 'talentGamble' && t) {
+    const slot = talentPrograms(t)[0]?.slot;
+    registerCommitment({ kind: 'crisisAftermath', key: `aft:${dilemma.crisisKey}:${gameState.season}`, slot,
+      effect: { chance: 0.6, loyalty: -12, pop: -2, text: `${t.name} claque la porte pour la concurrence : le public suit.`, sparedText: `${t.name} quitte la chaîne en bons termes.` } });
+  }
+  if (a.type === 'cashCut' && c && c.id === a.programId) {
+    c.nextAnnual = Math.max(0, Math.round((c.annual - a.cut) * 10) / 10); c.nextAnnualFrom = gameState.season + 1;
+    if (c.career) c.career.potential = Math.max(0, c.career.potential - 0.2);
+  }
+  if (a.type === 'aftermath') registerCommitment({ kind: 'crisisAftermath', key: `aft:${dilemma.crisisKey}:${gameState.season}`, slot: a.slot || null, effect: a.effect });
+  if (a.type === 'relaunch' && c?.career) { c.career.wear = Math.max(0, c.career.wear - 30); c.career.potential += 0.5; c.career.loyalty = Math.max(0, c.career.loyalty - 6); }
+  if (a.type === 'fund' && c) { c.investLevel = Math.max(2, contractInvestLevel(c)); }
+  if (a.type === 'degrade' && c?.career) { c.career.potential = Math.max(0, c.career.potential - 0.3); c.career.wear = Math.min(100, c.career.wear + 10); }
+}
+// Indicateur synthétique (non géré par le joueur) : nombre de vulnérabilités suivies.
+function channelStability() {
+  const n = Object.keys(ensureConsequenceState().crisisWatch).length;
+  return n === 0 ? { label: 'Solide', tone: 'good' } : n === 1 ? { label: 'Sous surveillance', tone: 'warn' } : { label: 'Fragile', tone: 'bad' };
+}
+
+// Lisibilité : conséquences certaines (montants, durées), estimées (audience,
+// popularité) et risques incertains, sans révéler les résultats cachés du moteur.
+function choiceOutlookHtml(o) {
+  if (!o) return '';
+  const rows = [['certain', '📌', o.certain], ['estimate', '📈', o.estimate], ['risk', '⚠️', o.risk]]
+    .filter(([, , list]) => list?.length)
+    .map(([cls, icon, list]) => `<span class="co-line co-${cls}"><span aria-hidden="true">${icon}</span> ${list.map(esc).join(' · ')}</span>`);
+  return rows.length ? `<span class="choice-outlook">${rows.join('')}</span>` : '';
+}
 function applyRegieDecision(regie) {
   const p = gameState.player;
   const cfg = GAME_BALANCE.regie;
@@ -26980,10 +27757,99 @@ function renderProgramManager(slot) {
     ${editable?`
     <div class="pm-pick-head"><span>Choisir un programme</span>${c?'<button type="button" class="pm-pick-cancel" data-pm-cancel>Annuler</button>':''}</div>
     <div class="pm-carousel" data-pm-carousel="${slot}" aria-label="Programmes disponibles">
-      ${ordered.map(x=>programCardHtml(slot,x,c)).join('')}
+      ${originalStudioCardHtml(slot)}${ordered.map(x=>programCardHtml(slot,x,c)).join('')}
     </div>
     <span class="program-manager-feedback" aria-live="polite"></span>`:(c?'':note)}
     </section>`;
+}
+// Studio des formats originaux : concevoir, tester ou lancer (action de gestion, avant
+// le premier dilemme de la saison, comme les autres changements de programmation).
+function renderOriginalStudio(slot) {
+  const p = ensureConsequenceState(), cfg = ORIGINAL_FORMATS;
+  const projects = originalProjects().filter(f => f.slot === slot);
+  const all = originalProjects();
+  const opt = (obj, sel) => Object.entries(obj).map(([k, v]) => `<option value="${k}"${k === sel ? ' selected' : ''}>${esc(v.label)}</option>`).join('');
+  const stageLabel = { concept: 'Concept', pilot: 'Pilote tourné', test: 'Test réalisé' };
+  const uncertainty = { direct: 'incertitude forte', test: 'incertitude moyenne', pilot: 'incertitude faible' };
+  const card = f => {
+    const q = quoteProgram(f.slot, f.id, 'interne');
+    const ready = originalLaunchable(f);
+    const dev = k => Math.round(f.annual * cfg.devCost[k] * 10) / 10;
+    return `<div class="of-project" data-of-id="${esc(f.id)}">
+      <div class="of-head"><b>${esc(f.name)}</b><span class="of-stage">${stageLabel[f.stage] || ''}</span></div>
+      <div class="of-line">${esc(cfg.concepts[f.concept].label)} · ${esc(cfg.positionings[f.positioning].label)} · ${esc(AUDIENCE_TARGETS.find(t => t.key === f.target)?.short || f.target)} · ${esc(cfg.budgets[f.budget].label)}</div>
+      <div class="of-line">📈 Potentiel estimé <b>${nf1(f.estimate.min)} – ${nf1(f.estimate.max)}</b> <span class="of-muted">(${uncertainty[f.estimate.stage]})</span></div>
+      <div class="of-line">📌 ${nf1(f.annual)} M€/an · création ${nf1(f.rights)} M€ · format détenu par la chaîne</div>
+      <div class="of-actions">
+        ${f.stage === 'concept' ? `<button type="button" data-of-action="pilot">Pilote (${nf1(dev('pilot'))} M€)</button>
+        <button type="button" data-of-action="test">Test limité (${nf1(dev('test'))} M€)</button>` : ''}
+        <button type="button" class="primary" data-of-action="launch"${ready && q?.allowed ? '' : ' disabled'}>${ready ? `Lancer (${nf1(q?.finance.purchase ?? f.rights)} M€)` : `Prêt en saison ${f.readySeason}`}</button>
+        <button type="button" class="ghost" data-of-action="abandon">Abandonner</button>
+      </div>
+    </div>`;
+  };
+  return `<div class="of-sheet" role="dialog" aria-modal="true" aria-label="Format original" data-of-studio="${slot}">
+   <div class="of-panel">
+    <div class="of-top"><span class="of-title">✨ Format original · ${esc(slotLabelOf(slot))}</span><button type="button" class="of-close" data-of-action="close" aria-label="Fermer">✕</button></div>
+    <div class="of-body">
+      <p class="of-note">Un format maison coûte moins cher dans la durée et peut rapporter des droits, mais son potentiel réel reste incertain. Pilote et test affinent l’estimation et décalent le lancement d’une saison.</p>
+      ${projects.map(card).join('')}
+      ${all.length < cfg.maxProjects ? `<div class="of-form">
+        <label>Concept<select data-of-field="concept">${opt(cfg.concepts, 'jeu')}</select></label>
+        <label>Positionnement<select data-of-field="positioning">${opt(cfg.positionings, 'populaire')}</select></label>
+        <label>Cible<select data-of-field="target">${AUDIENCE_TARGETS.map(t => `<option value="${t.key}"${t.key === p.target ? ' selected' : ''}>${esc(t.full)}</option>`).join('')}</select></label>
+        <label>Budget<select data-of-field="budget">${opt(cfg.budgets, '2')}</select></label>
+        <button type="button" class="primary" data-of-action="design">Concevoir le format</button>
+      </div>` : `<p class="of-note">Deux projets maximum en développement.</p>`}
+    </div>
+   </div>
+  </div>`;
+}
+// Entrée du studio dans le carrousel de programmes de la case.
+function originalStudioCardHtml(slot) {
+  const n = originalProjects().filter(f => f.slot === slot).length;
+  return `<article class="pm-card pm-card-original"><div class="pm-flip"><div class="pm-face pm-front">
+    <span class="pm-art of-art" aria-hidden="true">✨</span>
+    <span class="pm-body">
+      <span class="pm-genre">Création maison</span>
+      <span class="pm-name">Format original</span>
+      <span class="pm-meta">${n ? `${n} projet${n > 1 ? 's' : ''} en cours` : 'Concevoir, tester, lancer'}</span>
+      <button type="button" class="pm-buy" data-of-open="${slot}">${n ? 'Ouvrir' : 'Créer'}</button>
+    </span>
+  </div></div></article>`;
+}
+function bindOriginalStudio(app) {
+  app.querySelectorAll('[data-of-open]').forEach(btn => {
+    btn.onclick = e => { e.stopPropagation(); gameState.studioOpen = btn.dataset.ofOpen; render(); };
+  });
+  app.querySelectorAll('[data-of-studio]').forEach(studio => {
+    if (studio.dataset.bound) return;
+    studio.dataset.bound = '1';
+    const slot = studio.dataset.ofStudio;
+    studio.addEventListener('click', e => {
+      if (e.target === studio) { gameState.studioOpen = null; render(); return; }
+      const btn = e.target.closest('[data-of-action]');
+      if (!btn || btn.disabled) return;
+      if (btn.dataset.ofAction === 'close') { gameState.studioOpen = null; render(); return; }
+      const editable = gameState.step === 6 && gameState.dilemmaPhase === 'choosing' && gameState.currentDilemmaIndex === 0;
+      if (!editable) return;
+      const id = btn.closest('[data-of-id]')?.dataset.ofId;
+      const action = btn.dataset.ofAction;
+      gameState.studioOpen = slot;
+      if (action === 'design') {
+        const val = f => studio.querySelector(`[data-of-field="${f}"]`)?.value;
+        designOriginalFormat({ concept: val('concept'), positioning: val('positioning'), target: val('target'), slot, budget: Number(val('budget')) });
+      } else if (action === 'pilot' || action === 'test') developOriginalFormat(id, action);
+      else if (action === 'launch') {
+        if (launchOriginalFormat(id)) {
+          const p = gameState.player, audience = getCalculatedPDAs().find(c => c.channel === p).pda[p.target];
+          p.pdaHistorySeason = [audience]; p.pdaMoyenneSaison = audience; p.pdaFinSaison = audience;
+          reevaluateAdRevenue(); refreshRenewalDilemmas(); refreshEconomy();
+        }
+      } else if (action === 'abandon') abandonOriginalFormat(id);
+      render();
+    });
+  });
 }
 // Fiche du programme à l'antenne : illustration, contrat, production et indicateurs, puis « Modifier ».
 function programOverviewHtml(slot, c, editable) {
@@ -27009,6 +27875,7 @@ function programOverviewHtml(slot, c, editable) {
           ${c.stopped?'<span class="bad">Arrêté</span>':`<span><b>${nf1(c.annual)} M€</b>/an</span><span>Fin S${c.end}</span>`}
           <span>${seasons<=1?'Saison 1':`Saison ${seasons}`}</span>
           ${c.acquiredFrom?`<span class="gold">Racheté à ${esc(c.acquiredFrom)}</span>`:''}
+          ${c.ownership&&c.ownership!=='licence'?`<span class="gold">${esc(ownershipLabel(c))}</span>`:''}
         </span>
       </span>
     </div>
@@ -27251,6 +28118,7 @@ function bindGridSlotFocus(root) {
 }
 function bindCampaignPanel(app) {
   bindGridSlotFocus(app);
+  bindOriginalStudio(app);
   app.querySelectorAll('[data-picker-trigger]').forEach(trigger=>{
     trigger.onclick=()=>{
       const select=document.getElementById(trigger.dataset.pickerTrigger);
