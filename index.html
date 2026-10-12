@@ -23549,6 +23549,11 @@ function sportsIllustrationHtml(event, { overlay = '', corner = '', info = '' } 
       <span class="sa-illu-name"><span aria-hidden="true">${event.icon}</span> ${esc(event.name)}</span>
       ${overlay}
     </figcaption>`;
+  return illustrationInfoHtml(front, `<span aria-hidden="true">${event.icon}</span> ${esc(event.name)}`, info);
+}
+// Recto illustré et verso d'information partagés par les droits et les programmes.
+// Les contenus sont du HTML préparé par l'appelant ; les textes doivent être échappés.
+function illustrationInfoHtml(front, title, info, label = 'Afficher les informations') {
   if (!info) return `<figure class="sa-illu">
     ${front}
   </figure>`;
@@ -23561,10 +23566,10 @@ function sportsIllustrationHtml(event, { overlay = '', corner = '', info = '' } 
     <div class="sa-illu-inner">
       <div class="sa-illu-face sa-illu-front">
         ${front}
-        <button type="button" class="sa-info-btn" aria-label="Afficher les informations" onclick="${flip}">i</button>
+        <button type="button" class="sa-info-btn" aria-label="${esc(label)}" onclick="${flip}">i</button>
       </div>
       <div class="sa-illu-face sa-illu-back" inert>
-        <span class="sa-illu-back-title"><span aria-hidden="true">${event.icon}</span> ${esc(event.name)}</span>
+        <span class="sa-illu-back-title">${title}</span>
         <p class="sa-illu-back-text">${info}</p>
         <button type="button" class="sa-info-btn is-back" aria-label="Revenir à l’illustration" onclick="${flip}">↺</button>
       </div>
@@ -26139,11 +26144,13 @@ function dilemmaShowcaseHtml(dilemma) {
       const holderPda = holder ? rows.find(r => r.channel === holder.competitor)?.slots?.[holder.slot]?.[p.target] : null;
       const nowPda = e.current ? programSlotPda(e.slot).pda : null;
       const pdaBadge = (v, title) => Number.isFinite(v) ? `<span class="gr-pda pg-badge-${accent}" title="${esc(title)}">${nf1(v)}% PDA</span>` : '';
+      const synopsis = dilemma.isProducerPitch || dilemma.isBiddingWar
+        ? (program.pitch || (typeof TvPrograms !== 'undefined' ? TvPrograms.pitch(program) : '')) : '';
+      const front = `${art ? `<img src="${art}" alt="" aria-hidden="true">` : ''}<span class="sa-illu-tier">${esc(e.tag)}</span>
+        ${Number.isFinite(holderPda) ? `<span class="sa-illu-corner dsc-pda${synopsis ? ' with-info' : ''}" title="PDA du programme sur ${esc(holder.competitor.name)}">${nf1(holderPda)}% PDA</span>` : ''}
+        <figcaption class="sa-illu-cap"><span class="sa-illu-name">${esc(e.name)}</span><span class="sa-illu-slot">${slotMeta ? `${slotMeta.icon} ` : ''}${esc(slotLabelOf(e.slot))}</span></figcaption>`;
       return `<div class="sa-inline dsc-sa">
-      <figure class="sa-illu">${art ? `<img src="${art}" alt="" aria-hidden="true">` : ''}<span class="sa-illu-tier">${esc(e.tag)}</span>
-        ${Number.isFinite(holderPda) ? `<span class="sa-illu-corner dsc-pda" title="PDA du programme sur ${esc(holder.competitor.name)}">${nf1(holderPda)}% PDA</span>` : ''}
-        <figcaption class="sa-illu-cap"><span class="sa-illu-name">${esc(e.name)}</span><span class="sa-illu-slot">${slotMeta ? `${slotMeta.icon} ` : ''}${esc(slotLabelOf(e.slot))}</span></figcaption>
-      </figure>
+      ${illustrationInfoHtml(front, `Synopsis · ${esc(e.name)}`, esc(synopsis), 'Afficher le synopsis du programme')}
       ${e.current ? `<div class="sa-row"><span class="sa-row-label">À l’antenne</span><span class="dsc-now-row"><span class="dsc-now-name">« ${esc(e.current)} »</span>${pdaBadge(nowPda, 'PDA actuelle de votre programme sur cette case')}</span></div>` : ''}
       <div class="sa-stats">${e.stats.map(x => `<div class="sa-stat"><span>${esc(x.label)}</span><b>${esc(x.value)}</b></div>`).join('')}</div>
       ${[...e.costs, ...e.conditions].map(x => `<p class="sa-note">${esc(x)}</p>`).join('')}

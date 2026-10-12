@@ -518,6 +518,38 @@ const base=id=>DILEMMA_BANK.find(d=>d.id===id);
     if(w.length){ wars++; ok(gameState.player.biddingHistory.at(-1).outcome==='pending','tirage tracé'); } }
   ok(wars>=1&&wars<=14,'mises en concurrence tirées certaines saisons ('+wars+'/16)');
   partie(7); gameState.season=1; ok(!pickDilemmaQueue().some(d=>d.isBiddingWar),'pas de mise en concurrence en saison 1'); }
+
+// Synopsis consultable depuis les illustrations de producteurs et de mise en concurrence.
+{
+  partie(26); gameState.season=3;
+  const prog=biddingConceptCandidates()[0]; ok(prog,'concept pour le synopsis');
+  const pitch=createProducerPitchDilemma({kind:'exclusive',program:prog,slot:prog.slot});
+  const war=createBiddingWarDilemma({kind:'concept',program:prog,slot:prog.slot,
+    rival:gameState.competitors[0].name,offer:prog.rights*1.3,agreement:null});
+  for(const d of [pitch,war]) {
+    const markup=dilemmaShowcaseHtml(d), synopsis=prog.pitch||TvPrograms.pitch(prog);
+    ok(synopsis&&markup.includes(esc(synopsis)),'synopsis du programme proposé affiché');
+    ok(markup.includes('aria-label="Afficher le synopsis du programme"'),'bouton synopsis accessible');
+    ok(markup.includes('class="sa-illu-face sa-illu-back" inert'),'verso initialement inactif');
+    ok(markup.includes('aria-label="Revenir à l’illustration"'),'retour à l’illustration');
+  }
+  const original=prog.pitch;
+  try {
+    prog.pitch='<b>Synopsis & personnages</b>';
+    const markup=dilemmaShowcaseHtml(pitch);
+    ok(markup.includes(esc(prog.pitch))&&!markup.includes(prog.pitch),'synopsis échappé');
+  } finally { if(original===undefined) delete prog.pitch; else prog.pitch=original; }
+  const holder=gameState.competitors.flatMap(cp=>TIME_SLOTS.map(({key})=>({cp,key,c:activeContract(cp,key)})))
+    .find(x=>x.c&&PROGRAM_CATALOG.some(p=>p.id===x.c.id&&p.channelType===gameState.player.type));
+  ok(holder,'programme concurrent pour vérifier le badge PDA');
+  const rivalProgram=PROGRAM_CATALOG.find(p=>p.id===holder.c.id);
+  const rivalPitch=createProducerPitchDilemma({kind:'rival',program:rivalProgram,slot:holder.key,competitor:holder.cp});
+  ok(dilemmaShowcaseHtml(rivalPitch).includes('dsc-pda with-info'),'badge PDA décalé pour le bouton i');
+  const event=Object.values(SPORT_RIGHTS_EVENTS)[0];
+  const sports=sportsIllustrationHtml(event,{info:SPORTS_PRICE_RULE});
+  ok(sports.includes(SPORTS_PRICE_RULE)&&sports.includes('Afficher les informations'),'informations sportives conservées');
+  ok(!sportsIllustrationHtml(event).includes('sa-info-btn'),'illustration sportive sans information inchangée');
+}
 `;
 const context = { console };
 vm.runInNewContext(scripts.slice(0, -1).join('\n') + tests
