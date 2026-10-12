@@ -1846,18 +1846,20 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .of-info p { margin:0; font-size:13px; line-height:1.5; color:#334155; }
 .of-main { flex:1; min-height:0; display:flex; flex-direction:column; gap:8px; }
 .of-main .of-note { margin:0; flex:none; }
-.of-studio .of-form { flex:1; min-height:0; display:flex; flex-direction:column; flex-wrap:nowrap; gap:6px; margin:0; }
-.of-gauge { flex:1 1 0; min-height:0; display:flex; flex-direction:column; gap:3px; }
-.of-gauge-head { flex:none; display:flex; justify-content:space-between; gap:8px; font-size:9.5px; font-weight:800; text-transform:uppercase; letter-spacing:.4px; color:var(--gris); }
+.of-studio .of-form { flex:1; min-height:0; display:grid; grid-template-columns:minmax(0,1fr);
+  /* 4 jauges (intitulé + piste) puis le bouton : pistes et bouton se partagent la hauteur à parts égales. */
+  grid-template-rows:repeat(4, auto minmax(0,1fr)) minmax(0,1fr); row-gap:4px; margin:0; }
+.of-gauge { display:contents; }
+.of-gauge-head { display:flex; margin-top:2px; justify-content:space-between; gap:8px; font-size:9.5px; font-weight:800; text-transform:uppercase; letter-spacing:.4px; color:var(--gris); }
 .of-gauge-head b { font-size:11px; text-transform:none; letter-spacing:0; color:var(--ink); }
-.of-gauge-track { flex:1; min-height:22px; display:flex; gap:3px; }
+.of-gauge-track { min-height:22px; display:flex; gap:3px; }
 .of-seg { flex:1 1 0; min-width:0; padding:0 2px; border:0; border-radius:6px; cursor:pointer; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
   font:700 10px 'Space Grotesk', sans-serif; color:var(--gris); background:rgba(15,23,42,0.07); transition:background .15s ease, color .15s ease; }
 .of-seg.fill { background:rgba(37,99,235,0.35); color:#fff; }
 .of-seg.on { background:var(--bleu); color:#fff; }
 .of-seg:disabled { cursor:not-allowed; opacity:.55; }
 .of-seg:focus-visible { outline:2px solid var(--bleu); outline-offset:1px; }
-.of-form-actions { flex:none; display:flex; gap:6px; }
+.of-form-actions { min-height:22px; display:flex; gap:6px; }
 .of-form-actions button { flex:1; }
 .of-form-actions .ghost { flex:0 0 auto; border-color:transparent; background:none; color:var(--gris); }
 .of-tabs { flex:none; display:flex; gap:6px; flex-wrap:wrap; }
