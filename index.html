@@ -2143,6 +2143,15 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
   background:linear-gradient(160deg, #ffffff, #eef3ff); border:1px solid rgba(37,99,235,0.18); color:var(--ink); }
 .sa-illu-back-title { font-family:'Space Grotesk', sans-serif; font-size:10px; font-weight:800; letter-spacing:.5px; text-transform:uppercase; color:var(--bleu); }
 .dilemma-card .sa-illu-back .sa-illu-back-text { margin:0; font-size:12px; line-height:1.45; color:var(--ink); text-align:left; }
+/* Safari iOS peut laisser les badges positionnés visibles à travers une face 3D.
+   Masquer explicitement ceux de la face inactive, sans interrompre sa rotation. */
+.tl-card.flipped .tl-front :is(.tl-flip-hint, .tl-badges),
+.gr-card.flipped .gr-front :is(.gr-flip-hint, .gr-historic),
+.pm-card.flipped .pm-front .pm-tag,
+.sa-illu-flippable.flipped .sa-illu-front :is(.sa-illu-tier, .sa-illu-corner, .sa-info-btn),
+.tl-card:not(.flipped) .tl-back-close,
+.gr-card:not(.flipped) .gr-back-close,
+.sa-illu-flippable:not(.flipped) .sa-illu-back .sa-info-btn { visibility:hidden; }
 @media (prefers-reduced-motion: reduce) { .sa-illu-inner { transition:none; } }
 .sa-illu-cap { position:absolute; left:0; right:0; bottom:0; display:flex; align-items:flex-end; justify-content:space-between; gap:8px;
   padding:28px 12px 10px; background:linear-gradient(180deg, rgba(15,23,42,0) 0%, rgba(15,23,42,0.72) 70%); color:#fff; }
