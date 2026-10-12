@@ -1698,6 +1698,13 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .choice.neg-choice:active { transform: none; }
 .choices.neg-gone { opacity: 0; pointer-events: none; overflow: hidden; height: 0 !important;
   transition: opacity .11s ease, height .15s ease .07s; }
+.pilot-result { display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; border-radius: 12px; text-align: left;
+  background: rgba(255,255,255,0.7); border: 1px solid rgba(15,23,42,0.08); }
+.pilot-result-head { font-family: 'Space Grotesk', sans-serif; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; color: var(--gris); }
+.pilot-result-row { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; color: var(--ink); }
+.pilot-result-row b { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.pilot-result-row.muted { color: var(--gris); }
+.pilot-result .impact-badge { align-self: flex-start; }
 .neg-row { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
 .neg-round-badge { align-self: flex-start; font-family: 'Space Grotesk', sans-serif; font-size: 9.5px; font-weight: 800; text-transform: uppercase;
   letter-spacing: .6px; padding: 4px 9px; border-radius: 999px; color: #fff; background: var(--rouge); box-shadow: 0 6px 14px -8px rgba(225,29,72,0.7); }
@@ -20681,6 +20688,8 @@ function chooseMaterialized(choiceIndex, dilemma) {
 
   const calculatedAvant = getCalculatedPDAs().find(item => item.channel === player);
   const pdaCibleAvant = calculatedAvant.pda[player.target];
+  // Pilote : audience mesurée sur la case, face au programme actuel, avant toute modification.
+  const pilotTest = choice.pilotTest ? runPilotTest(choice.pilotTest) : null;
   if (dilemma.isProgramStory) applyProgramStoryChoice(dilemma, choice);
   // Démarchage accepté : le programme est signé sur sa case (le flux financier, déjà
   // chiffré dans le choix, est appliqué plus bas avec celui des autres dilemmes).
@@ -20694,6 +20703,7 @@ function chooseMaterialized(choiceIndex, dilemma) {
   if (choice.negotiationAbandon) adjustPartner(choice.negotiationAbandon.partnerId, -1, 'négociation abandonnée');
   if (dilemma.isCrisis) applyCrisisChoice(dilemma, choice);
   if (choice.commitment) registerCommitment({ ...choice.commitment, key: `${choice.commitment.kind}:${dilemma.id}:${gameState.season}` });
+  if (choice.pilotOrder) schedulePilotOrder(choice.pilotOrder);
   // Occupation temporaire (téléfilms de Noël, événement de streamer) : le programme
   // habituel est mis en pause pour la saison, l'événement prend la case.
   if (choice.slotEvent) installSlotEvent(choice.slotEvent);
@@ -20837,6 +20847,12 @@ function chooseMaterialized(choiceIndex, dilemma) {
     },
     competitorEvent: competitorReactions[0] || null
   };
+  // Pilote diffusé : son audience est montrée, puis la commande de la suite est proposée
+  // juste après, dans un dilemme dédié.
+  if (pilotTest) {
+    gameState.lastConsequence.pilotTest = pilotTest;
+    gameState.dilemmaQueue?.splice(gameState.currentDilemmaIndex + 1, 0, createPilotOrderDilemma(pilotTest));
+  }
   if (isSportsAuction) {
     const a = gameState.sportsRights.activeAuction;
     gameState.lastConsequence.sportsAuction = { eventId: a.eventId, season: a.season, ...a.result };
@@ -21002,6 +21018,8 @@ function startNewSeason() {
   activateSportsBroadcasts();
   // Programme racheté dont la première diffusion intervient cette saison.
   applyPendingProgramTransfers();
+  // Séries commandées après un pilote : elles entrent dans la grille de cette saison.
+  installScheduledPrograms();
   // Engagements échus (primes, pénalités, revenus dérivés, conséquences de crise),
   // puis évaluations à venir des formats détenus pour la saison qui commence.
   processCommitments();
@@ -21894,6 +21912,7 @@ function render() {
           <div class="dilemma-card consequence-card">
             <div class="dc-body">
               <p>${esc(cq.resultat)}</p>
+              ${cq.pilotTest ? pilotResultHtml(cq.pilotTest) : ''}
               ${cq.competitorEvent ? `<div class="program-manager-note"><b>🚨 LA CONCURRENCE RÉAGIT</b><br>${esc(cq.competitorEvent.channel)} lance une ${esc(cq.competitorEvent.action)} sur le créneau ${esc(TIME_SLOTS.find(s=>s.key===cq.competitorEvent.slot)?.label || cq.competitorEvent.slot)}.</div>` : ''}
               ${badgesHtml ? `<div class="impact-badges">${badgesHtml}</div>` : ''}
             </div>
@@ -26247,7 +26266,7 @@ function refreshProducerPitch(dilemma) {
 const DILEMMA_PROGRAM_FICHES = {
   dp_polar_regions: { name: 'Polar en régions', slot: 'prime', format: 'fiction', target: 's50', annual: 6, rights: 8, years: 2, power: 2.6, level: 2,
     pitch: 'Chaque semaine, une enquête policière dans une ville différente de France.' },
-  dp_polar_episode: { name: 'Polar en régions : l’épisode', slot: 'prime', format: 'fiction', target: 's50', annual: 0, rights: 2.5, years: 1, power: 0, level: 1, oneShot: true,
+  dp_polar_episode: { name: 'Polar en régions : le pilote', slot: 'prime', format: 'fiction', target: 's50', annual: 0, rights: 2.5, years: 1, power: 0, level: 1, oneShot: true,
     pitch: 'Un unitaire policier tourné dans une ville de région, diffusé une soirée en prime.' },
   dp_noel_telefilms: { name: 'Les Noëls enchantés', slot: 'apresmidi', format: 'fiction', target: 'a2549', annual: 0, rights: 2.5, years: 1, power: 1.6, level: 1, temporary: true,
     pitch: 'Une collection de téléfilms romantiques et enneigés, chaque après-midi dès novembre.' },
@@ -26328,6 +26347,102 @@ function showcaseEntry(program, slot, { level, costs = [], conditions = [], stat
   return { programId: program.id, name: program.name, format: program.format || null, slot,
     level: Number.isInteger(level) ? level : (Number.isInteger(program.level) ? program.level : null),
     current: now?.name || null, currentId: now?.id || null, costs, conditions, stats, tag };
+}
+// ---------------------------------------------------------------------------
+// PILOTES — audience mesurée, commande de la suite, installation la saison suivante
+// ---------------------------------------------------------------------------
+// PDA (cible de la chaîne) que la série ferait sur la case : simulée sur une copie de l'état.
+function projectedSlotPda(slot, programId) {
+  if (!quoteProgram(slot, programId, 'interne')) return null;
+  const real = gameState;
+  gameState = cloneGameStateValue(real);
+  try {
+    const q = quoteProgram(slot, programId, 'interne');
+    executeProgramSigning(slot, q, { skipFinance: true });
+    const p = gameState.player;
+    return getCalculatedPDAs().find(c => c.channel === p)?.slots?.[slot]?.[p.target] ?? null;
+  } finally {
+    gameState = real;
+  }
+}
+// Le pilote donne une mesure proche, mais pas identique, du potentiel de la série (± 12 %).
+function runPilotTest({ slot, programId, pilotId }) {
+  const series = findProgram(programId), pilot = findProgram(pilotId) || series;
+  const now = onAirProgram(slot), current = programSlotPda(slot).pda;
+  const projected = projectedSlotPda(slot, programId);
+  if (!series || !Number.isFinite(projected)) return null;
+  const factor = 0.88 + 0.24 * stableRandom(`pilot|${programId}|${gameState.season}`);
+  const pda = Math.round(projected * factor * 10) / 10;
+  const test = { slot, programId, pilotId, name: series.name, pilotName: pilot.name, season: gameState.season,
+    pda, currentPda: Number.isFinite(current) ? Math.round(current * 10) / 10 : null, currentName: now?.name || null };
+  const p = ensureConsequenceState();
+  p.pilotTests = { ...(p.pilotTests || {}), [programId]: test };
+  return test;
+}
+function pilotVerdict(t) {
+  if (!Number.isFinite(t.currentPda)) return { cls: 'flat', text: 'Première mesure sur cette case' };
+  const gap = Math.round((t.pda - t.currentPda) * 10) / 10;
+  return gap > 0.05 ? { cls: 'up', text: `+${nf1(gap)} pt face à « ${t.currentName} »` }
+    : gap < -0.05 ? { cls: 'down', text: `${nf1(gap)} pt face à « ${t.currentName} »` }
+    : { cls: 'flat', text: `Au niveau de « ${t.currentName} »` };
+}
+function pilotResultHtml(t) {
+  const v = pilotVerdict(t), slotMeta = TIME_SLOTS.find(s => s.key === t.slot);
+  return `<div class="pilot-result">
+    <div class="pilot-result-head">📺 Audience du pilote · ${slotMeta ? `${slotMeta.icon} ` : ''}${esc(slotLabelOf(t.slot))}</div>
+    <div class="pilot-result-row"><span>« ${esc(t.name)} » (pilote)</span><b>${nf1(t.pda)} % PDA</b></div>
+    ${Number.isFinite(t.currentPda) ? `<div class="pilot-result-row muted"><span>« ${esc(t.currentName)} » (programme actuel)</span><b>${nf1(t.currentPda)} % PDA</b></div>` : ''}
+    <span class="impact-badge ${v.cls}">${esc(v.text)}</span>
+  </div>`;
+}
+// Dilemme de suite : commander de nouveaux épisodes pour la saison suivante, ou en rester là.
+function createPilotOrderDilemma(t) {
+  const series = findProgram(t.programId), q = quoteProgram(t.slot, t.programId, 'interne');
+  const next = gameState.season + 1, slotName = slotLabelOf(t.slot);
+  const compare = Number.isFinite(t.currentPda)
+    ? `, contre ${nf1(t.currentPda)} % pour « ${t.currentName} »` : '';
+  const rights = q ? q.program.rights : series.rights, annual = q ? q.annual : series.annual;
+  const running = gameState.player.contracts?.[t.slot];
+  const notice = running && running.end >= next
+    ? ` « ${running.name} » étant sous contrat jusqu’à la saison ${running.end}, une indemnité de rupture sera due à l’installation.` : '';
+  return { id: `pilot-order-${t.season}-${t.programId}`, isPilotOrder: true, programId: t.programId,
+    titre: `Commander la suite de « ${t.name} » ?`,
+    desc: `Le pilote de « ${t.name} » a réuni ${nf1(t.pda)} % de PDA sur la case ${slotName}${compare}. Le producteur peut tourner de nouveaux épisodes : la série entrerait dans votre grille à la saison ${next}.${notice}`,
+    showcase: [showcaseEntry(series, t.slot, { tag: 'Pilote diffusé' })],
+    c: [
+      { l: `Commander de nouveaux épisodes pour la saison ${next}`, pillLabel: `${nf1(rights)} M€ + ${nf1(annual)} M€/an`, pillCls: 'cost',
+        pilotOrder: { slot: t.slot, programId: t.programId, season: next, name: t.name },
+        finance: NO_FINANCE(), pda: ZERO_PDA(), audienceImpacts: [], pop: 1,
+        r: `« ${t.name} » entrera dans votre grille en ${slotName} à la saison ${next} ; droits et coût annuel seront réglés à son installation.` },
+      { l: 'Ne pas donner suite', finance: NO_FINANCE(), pda: ZERO_PDA(), audienceImpacts: [], pop: 0,
+        r: t.currentName ? `Le pilote reste sans suite : « ${t.currentName} » garde la case ${slotName}.` : 'Le pilote reste sans suite.' }
+    ] };
+}
+function scheduledProgramOrder(programId) {
+  return (gameState.player?.scheduledPrograms || []).find(o => o.programId === programId && !o.done) || null;
+}
+function schedulePilotOrder(order) {
+  const p = ensureConsequenceState();
+  if (scheduledProgramOrder(order.programId)) return;
+  p.scheduledPrograms.push({ ...order, ordered: gameState.season });
+}
+// Ouverture de saison : la série commandée est signée sur sa case (droits et coût annuel
+// réglés à cet instant, comme une signature). Une case devenue indisponible annule la commande.
+function installScheduledPrograms() {
+  const p = ensureConsequenceState();
+  p.scheduledPrograms.forEach(o => {
+    if (o.done || o.season > gameState.season) return;
+    const q = quoteProgram(o.slot, o.programId, 'interne');
+    if (q?.allowed && !slotTakenByEvent(o.slot)) {
+      executeProgramSigning(o.slot, q);
+      o.done = 'installed';
+      pushSignal(`« ${o.name} » fait son entrée en ${slotLabelOf(o.slot)}, comme commandé après son pilote.`, { kind: 'consequence', tone: 'good' });
+    } else {
+      o.done = 'cancelled';
+      pushSignal(`Commande de « ${o.name} » annulée : la case ${slotLabelOf(o.slot)} n’est pas disponible.`, { kind: 'consequence', tone: 'warn' });
+    }
+  });
+  p.scheduledPrograms = p.scheduledPrograms.filter(o => !o.done || gameState.season - o.season <= 1);
 }
 function dilemmaShowcaseHtml(dilemma) {
   if (!dilemma?.showcase?.length || dilemma.isReplacementChoice) return '';
@@ -26421,21 +26536,24 @@ const DYNAMIC_DILEMMAS = {
   },
   // Polar régional : produire un vrai polar en prime, ou ne rien produire.
   d61: {
-    eligible: () => !slotTakenByEvent('prime') && !!quoteProgram('prime', 'dp_polar_regions', 'interne'),
-    // Option 1 : un épisode unitaire, diffusé une soirée sans toucher à la grille.
+    eligible: () => !slotTakenByEvent('prime') && !!quoteProgram('prime', 'dp_polar_regions', 'interne')
+      && gameState.player.contracts?.prime?.id !== 'dp_polar_regions' && !scheduledProgramOrder('dp_polar_regions'),
+    // Option 1 : un pilote, diffusé une soirée sans toucher à la grille ; son audience est
+    // mesurée face au programme de la case et ouvre une commande pour la saison suivante.
     // Option 2 : la série de déclinaison locale, qui remplace le programme du prime.
     build: base => {
       const now = onAirProgram('prime');
       const episode = findProgram('dp_polar_episode'), series = findProgram('dp_polar_regions');
       return { ...base, dynamicOf: 'd61',
-        desc: `Un producteur propose des fictions policières tournées chaque semaine dans une ville différente, pour votre prime où vous diffusez actuellement « ${now.name} ». Vous pouvez tester le concept avec un épisode ou lancer la série.`,
+        desc: `Un producteur propose des fictions policières tournées chaque semaine dans une ville différente, pour votre prime où vous diffusez actuellement « ${now.name} ». Vous pouvez tester le concept avec un pilote ou lancer la série.`,
         // Une seule illustration (le concept) : les options et leurs coûts sont portés par les choix.
         showcase: [showcaseEntry(series, 'prime', { tag: 'Concept proposé', current: now })],
         c: [
-          { l: 'Produire un épisode', pillLabel: `${nf1(episode.rights)} M€`,
+          { l: 'Produire un pilote', pillLabel: `${nf1(episode.rights)} M€`,
+            pilotTest: { slot: 'prime', programId: 'dp_polar_regions', pilotId: 'dp_polar_episode' },
             finance: { recurring: 0, purchase: episode.rights, commercial: 0, category: 'P' }, pda: ZERO_PDA(),
             audienceImpacts: [{ slot: 'prime', targets: { j1524: -0.2, a2549: 0.2, s50: 0.8, csp: 0 } }], pop: 1,
-            r: `L’épisode réunit les 50 ans et plus le temps d’une soirée ; « ${now.name} » garde sa case.` },
+            r: `Le pilote est diffusé un soir en prime ; « ${now.name} » garde sa case.` },
           signingChoice('Produire une série de déclinaison locale', 'prime', 'dp_polar_regions',
             { r: `« ${series.name} » remplace « ${now.name} » en prime : il séduit les 50 ans et plus.`, pop: 3 }),
           { l: 'Ne rien produire', finance: NO_FINANCE(), pda: ZERO_PDA(), audienceImpacts: [], pop: 0,
@@ -26795,6 +26913,7 @@ function ensureConsequenceState(p = gameState.player) {
   p.originalFormats ??= {};
   p.crisisWatch ??= {};
   p.crisisHistory ??= [];
+  p.scheduledPrograms ??= [];
   return p;
 }
 // Aléa reproductible et indépendant des flux de la campagne : même partie, même clé,

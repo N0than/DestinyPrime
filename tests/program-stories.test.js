@@ -327,7 +327,7 @@ const base=id=>DILEMMA_BANK.find(d=>d.id===id);
 { partie(21); const p=p0(); const avant=onAirProgram('prime');
   gameState.dilemmaQueue=[base('d61'),...fillers()]; gameState.currentDilemmaIndex=0;
   const d=materializeCurrentDilemma();
-  ok(d.c.map(c=>c.l).join('|')==='Produire un épisode|Produire une série de déclinaison locale|Ne rien produire','polar : épisode, série locale ou rien');
+  ok(d.c.map(c=>c.l).join('|')==='Produire un pilote|Produire une série de déclinaison locale|Ne rien produire','polar : pilote, série locale ou rien');
   ok(d.desc.includes(avant.name)&&d.showcase.length===1&&d.showcase[0].current===avant.name&&d.showcase[0].level&&d.c.length===3,'polar : une seule illustration, options dans les choix');
   ok(dilemmaShowcaseHtml(d).includes('Polar en régions')&&dilemmaShowcaseHtml(d).includes('<img'),'polar : illustration affichée');
   const q=quoteProgram('prime','dp_polar_regions','interne');
@@ -355,7 +355,27 @@ const base=id=>DILEMMA_BANK.find(d=>d.id===id);
   joue(base('d61'),0);
   ok(JSON.stringify(p.contracts.prime)===avant&&p.coutGrilleEngageSaison===g,'polar épisode : le prime garde son programme');
   ok(near(p.achatsSaison-achats,findProgram('dp_polar_episode').rights),'polar épisode : production payée une fois');
-  ok(p.slotAudienceDeltas.prime.s50>0,'polar épisode : soirée suivie par les 50 ans et plus'); }
+  ok(p.slotAudienceDeltas.prime.s50>0,'polar épisode : soirée suivie par les 50 ans et plus');
+  // Pilote : audience mesurée face au programme actuel, puis commande proposée juste après.
+  const pt=gameState.lastConsequence.pilotTest, next=gameState.dilemmaQueue[gameState.currentDilemmaIndex];
+  ok(pt&&pt.pda>0&&Number.isFinite(pt.currentPda)&&pt.currentName===JSON.parse(avant).name&&pilotResultHtml(pt).includes('% PDA'),'pilote : audience comparée au programme actuel');
+  ok(next?.isPilotOrder&&next.c.length===2&&next.c[0].pilotOrder.season===gameState.season+1&&next.desc.includes(nf1(pt.pda))&&/indemnité/.test(next.desc),'pilote : commande de nouveaux épisodes proposée, indemnité signalée');
+  const g2=p.coutGrilleEngageSaison, a2=p.achatsSaison, prime0=JSON.stringify(p.contracts.prime);
+  continueAfterConsequence(); ok(gameState.dilemmaPhase==='choosing'&&gameState.dilemmaQueue[gameState.currentDilemmaIndex]===next,'pilote : la commande est le dilemme suivant');
+  chooseDilemmaOption(0);
+  ok(JSON.stringify(p.contracts.prime)===prime0&&p.coutGrilleEngageSaison===g2&&p.achatsSaison===a2&&scheduledProgramOrder('dp_polar_regions'),'commande : rien ne change cette saison, série inscrite pour la suivante');
+  ok(!DYNAMIC_DILEMMAS.d61.eligible(),'commande en cours : le polar n’est plus proposé');
+  const saved=JSON.parse(JSON.stringify(p.scheduledPrograms));
+  gameState.season++; p.achatsSaison=0; const g3=p.coutGrilleEngageSaison; installScheduledPrograms();
+  const serie=findProgram('dp_polar_regions');
+  ok(p.contracts.prime.id==='dp_polar_regions'&&p.contracts.prime.annual===serie.annual&&p.achatsSaison>=serie.rights&&p.coutGrilleEngageSaison!==g3,'saison suivante : série installée en prime, droits et coût annuel réglés');
+  installScheduledPrograms(); ok(p.scheduledPrograms.every(o=>o.done)&&saved.length===1,'installation unique, commande sauvegardable'); }
+// Pilote sans suite : la grille de la saison suivante est inchangée.
+{ partie(22); const p=p0(); installe('prime'); joue(base('d61'),0);
+  const next=gameState.dilemmaQueue[gameState.currentDilemmaIndex]; ok(next?.isPilotOrder,'pilote : dilemme de suite');
+  continueAfterConsequence(); chooseDilemmaOption(1); const prime=p.contracts.prime.id;
+  ok(!scheduledProgramOrder('dp_polar_regions'),'sans suite : aucune commande');
+  gameState.season++; installScheduledPrograms(); ok(p.contracts.prime.id===prime,'sans suite : le prime garde son programme'); }
 // Changement d'animateur : seulement si un jeu est programmé, nommé dans le dilemme.
 { partie(31); const p=p0();
   const jeu=PROGRAM_CATALOG.find(x=>x.channelType===p.type&&PROGRAM_FAMILIES.jeu.test(x)&&!programHolder(x)&&quoteProgram(x.slot,x.id,'interne')?.allowed);
