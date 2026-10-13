@@ -2289,6 +2289,8 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .sa-illu-corner.with-info { right:42px; }
 .sa-info-btn:focus-visible { outline:2px solid var(--bleu); outline-offset:2px; }
 .sa-info-btn.is-back { color:#fff; background:var(--bleu); font:800 14px/26px system-ui, sans-serif; }
+.sa-illu-back-text .sa-back-line { display:block; }
+.sa-illu-back-text .sa-back-line + .sa-back-line { margin-top:3px; }
 /* Illustration retournable (même mouvement que les cartes de renouvellement). */
 .sa-illu.sa-illu-flippable { overflow:visible; background:none; box-shadow:none; perspective:1000px; }
 .sa-illu-inner { position:absolute; inset:0; transform-style:preserve-3d; transition:transform .45s cubic-bezier(.2,.7,.2,1); }
@@ -26406,11 +26408,11 @@ function onAirProgram(slot, channel = gameState.player) {
 
 // Vitrine d'un dilemme qui touche la grille : illustration, case, programme actuel, niveau
 // de production, coûts et conditions. Les données sont sérialisables (identifiants).
-function showcaseEntry(program, slot, { level, costs = [], conditions = [], stats = [], tag = 'Proposé', current } = {}) {
+function showcaseEntry(program, slot, { level, costs = [], conditions = [], stats = [], tag = 'Proposé', current, flip = false } = {}) {
   const now = current || onAirProgram(slot);
   return { programId: program.id, name: program.name, format: program.format || null, slot,
     level: Number.isInteger(level) ? level : (Number.isInteger(program.level) ? program.level : null),
-    current: now?.name || null, currentId: now?.id || null, costs, conditions, stats, tag };
+    current: now?.name || null, currentId: now?.id || null, costs, conditions, stats, tag, ...(flip ? { flip: true } : {}) };
 }
 // ---------------------------------------------------------------------------
 // PILOTES — audience mesurée, commande de la suite, installation la saison suivante
@@ -26542,6 +26544,16 @@ function dilemmaShowcaseHtml(dilemma) {
       ${[...e.costs, ...e.conditions].map(x => `<p class="sa-note">${esc(x)}</p>`).join('')}
     </div>`;
     }
+    // Événement temporaire (streamer, téléfilms de Noël) : illustration des droits sportifs, dont
+    // le badge « i » retourne la carte sur les conditions (programme en place, coûts, calendrier).
+    if (e.flip) {
+      const lines = [e.current ? `À l’antenne : « ${esc(e.current)} »` : '', ...e.costs.map(esc), ...e.conditions.map(esc)].filter(Boolean);
+      const front = `${art ? `<img src="${art}" alt="" aria-hidden="true">` : ''}<span class="sa-illu-tier">${esc(e.tag)}</span>
+        <figcaption class="sa-illu-cap"><span class="sa-illu-name">${esc(e.name)}</span><span class="sa-illu-slot">${slotMeta ? `${slotMeta.icon} ` : ''}${esc(slotLabelOf(e.slot))}</span></figcaption>`;
+      return `<div class="sa-inline dsc-sa">
+      ${illustrationInfoHtml(front, `Conditions · ${esc(e.name)}`, lines.map(l => `<span class="sa-back-line">${l}</span>`).join(''), 'Afficher les conditions')}
+    </div>`;
+    }
     return `<div class="dsc-card">
       <figure class="dsc-art">${art ? `<img src="${art}" alt="" width="320" height="180" decoding="async">` : ''}<span class="dsc-tag">${esc(e.tag)}</span>
         <figcaption class="dsc-cap"><span class="dsc-name">${esc(e.name)}</span><span class="dsc-slot">${slotMeta ? `${slotMeta.icon} ` : ''}${esc(slotLabelOf(e.slot))}</span></figcaption>
@@ -26636,7 +26648,7 @@ const DYNAMIC_DILEMMAS = {
       const back = gameState.season + 1;
       return { ...base, dynamicOf: 'd73',
         desc: `Vous diffusez actuellement « ${now.name} » sur le créneau ${slotLabelOf('apresmidi')}. Souhaitez-vous le remplacer temporairement par des téléfilms de Noël dès novembre ?`,
-        showcase: [showcaseEntry(q.fiche, 'apresmidi', { tag: 'Temporaire', current: now,
+        showcase: [showcaseEntry(q.fiche, 'apresmidi', { tag: 'Temporaire', current: now, flip: true,
           costs: [`Achat de la collection : ${nf1(q.fiche.rights)} M€`, ...(q.pausedAnnual > 0 ? [`« ${now.name} » sort de la grille cette saison : −${nf1(q.pausedAnnual)} M€`] : [])],
           conditions: [`Dès maintenant et jusqu’à la fin de la saison ${gameState.season}`, `« ${now.name} » reprend en saison ${back}, contrat prolongé d’une saison`] })],
         c: [
@@ -26658,7 +26670,7 @@ const DYNAMIC_DILEMMAS = {
       const q = quoteSlotEvent(slot, 'dp_streamer_rallye');
       return { ...base, dynamicOf: 'd66', eventSlot: slot,
         desc: `Des influenceurs organisent une course automobile diffusée sur Twitch et vous proposent de la co-diffuser sur votre case ${slotLabelOf(slot)}, à la place de « ${now.name} ».`,
-        showcase: [showcaseEntry(q.fiche, slot, { tag: 'Événement', current: now,
+        showcase: [showcaseEntry(q.fiche, slot, { tag: 'Événement', current: now, flip: true,
           costs: [`Coût de production : ${nf1(q.fiche.rights)} M€`, ...(q.pausedAnnual > 0 ? [`« ${now.name} » sort de la grille cette saison : −${nf1(q.pausedAnnual)} M€`] : [])],
           conditions: [`Prise d’effet immédiate, diffusion jusqu’à la fin de la saison ${gameState.season}`, `« ${now.name} » reprend en saison ${gameState.season + 1}`] })],
         c: [
