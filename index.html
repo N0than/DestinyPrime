@@ -1688,11 +1688,6 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .choice-pill.save { color: var(--vert); background: rgba(5,150,105,0.08); border-color: rgba(5,150,105,0.2); }
 .choice-pill.cost { color: var(--rouge); background: rgba(225,29,72,0.08); border-color: rgba(225,29,72,0.2); }
 .choice-pill.neutral { color: var(--gris); background: var(--paper-dark); }
-.choice-outlook { display: flex; flex-direction: column; gap: 2px; margin-top: 5px; text-transform: none; letter-spacing: 0; }
-.co-line { font-family: 'Space Grotesk', sans-serif; font-size: 10.5px; font-weight: 600; line-height: 1.35; color: var(--gris); }
-.co-line.co-certain { color: #334155; }
-.co-line.co-risk { color: #b45309; }
-.choice.selected .co-line { color: rgba(255,255,255,0.85); }
 /* Négociation à plusieurs tours : la contre-offre arrive sur la table, dans la carte du dilemme.
    Tour 1 : aucun mouvement au clic, tous les choix (le choix retenu compris) se replient. */
 .choice.neg-choice:active { transform: none; }
@@ -22027,7 +22022,6 @@ function render() {
                     <span class="choice-eyebrow ${accent}">Option ${i + 1}</span>
                   </div>
                   <span class="cl">${choice.l}</span>
-                  ${choiceOutlookHtml(choice.outlook, choice)}
                 </div>
                 <span class="choice-pill ${badgeCls}">${badgeText}</span>
               </div>
@@ -27869,13 +27863,6 @@ function animateNegotiationValue(el) {
     if (k < 1) requestAnimationFrame(step); else done();
   };
   requestAnimationFrame(step);
-}
-function choiceOutlookHtml(o, choice) {
-  if (!o || choice?.negotiation) return '';
-  const rows = [['certain', '📌', o.certain], ['estimate', '📈', o.estimate], ['risk', '⚠️', o.risk]]
-    .filter(([, , list]) => list?.length)
-    .map(([cls, icon, list]) => `<span class="co-line co-${cls}"><span aria-hidden="true">${icon}</span> ${list.map(esc).join(' · ')}</span>`);
-  return rows.length ? `<span class="choice-outlook">${rows.join('')}</span>` : '';
 }
 function applyRegieDecision(regie) {
   const p = gameState.player;
