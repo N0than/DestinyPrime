@@ -2280,6 +2280,7 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .sa-illu-back-text .sa-back-line { display:block; }
 .sa-illu-back-text .sa-back-line + .sa-back-line { margin-top:3px; }
 .sa-back-stars { display:inline-flex; align-items:center; gap:6px; font-weight:700; }
+.sa-illu-back-text .sa-back-potential { display:block; margin-top:8px; }
 /* Illustration retournable (même mouvement que les cartes de renouvellement). */
 .sa-illu.sa-illu-flippable { overflow:visible; background:none; box-shadow:none; perspective:1000px; }
 .sa-illu-inner { position:absolute; inset:0; transform-style:preserve-3d; transition:transform .45s cubic-bezier(.2,.7,.2,1); }
@@ -26512,7 +26513,8 @@ function dilemmaShowcaseHtml(dilemma) {
         ${Number.isFinite(holderPda) ? `<span class="sa-illu-corner dsc-pda${synopsis ? ' with-info' : ''}" title="PDA du programme sur ${esc(holder.competitor.name)}">${nf1(holderPda)}% PDA</span>` : ''}
         <figcaption class="sa-illu-cap"><span class="sa-illu-name">${esc(e.name)}</span><span class="sa-illu-slot">${slotMeta ? `${slotMeta.icon} ` : ''}${esc(slotLabelOf(e.slot))}</span></figcaption>`;
       return `<div class="sa-inline dsc-sa">
-      ${illustrationInfoHtml(front, `Synopsis · ${esc(e.name)}`, esc(synopsis), 'Afficher le synopsis du programme')}
+      ${illustrationInfoHtml(front, `Synopsis · ${esc(e.name)}`, synopsis ? `${esc(synopsis)}${Number.isFinite(program.power)
+        ? `<span class="sa-back-line sa-back-potential"><span class="sa-back-stars">Potentiel d’audience ${studioStarsHtml(program.power)}</span></span>` : ''}` : '', 'Afficher le synopsis du programme')}
       ${negRow ? negRow.head : e.current ? `<div class="sa-row"><span class="sa-row-label">À l’antenne</span><span class="dsc-now-row"><span class="dsc-now-name">« ${esc(e.current)} »</span>${pdaBadge(nowPda, 'PDA actuelle de votre programme sur cette case')}</span></div>` : ''}
       <div class="sa-stats">${e.stats.map(x => negotiationStatHtml(x, negChanges?.[x.label], negRevealing)).join('')}</div>
       ${negRow ? negRow.chips : ''}
