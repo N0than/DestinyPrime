@@ -55,7 +55,10 @@ const exclusive=()=>{ const p=p0(); return PROGRAM_CATALOG.find(x=>x.channelType
   ok(sec.negotiation.strategy==='secure'&&bal.negotiation.strategy==='balanced'&&agr.negotiation.strategy==='aggressive','trois stratégies');
   ok(sec.finance.purchase>bal.finance.purchase&&bal.finance.purchase>agr.finance.purchase,'prix : sécurisée > équilibrée > agressive');
   ok(sec.negotiation.terms.years===prog.years+1&&sec.negotiation.terms.exclusive&&!agr.negotiation.terms.exclusive,'durée et exclusivité');
-  ok(!sec.negotiation.terms.bonus&&bal.negotiation.terms.bonus>0&&agr.negotiation.terms.bonus>bal.negotiation.terms.bonus,'prime de performance');
+  ok([sec,bal,agr].every(x=>x.negotiation.terms.bonus==null),'plus de prime de performance');
+  ok(agr.negotiation.terms.annual<=Math.round(dealTermsFor(quoteProgram(prog.slot,prog.id,'interne'),'secure').annual*0.62/1.08*10)/10+0.1,'négociation agressive : prix nettement plus bas');
+  { const reac=[]; for(let k=0;k<60;k++){ const dd={...pitch,id:'neg-'+k}; reac.push(negotiationReaction(dd,'aggressive',producerPartnerId(prog)),negotiationReaction(dd,'balanced',producerPartnerId(prog))); }
+    ok(reac.filter(r=>r==='counter').length/reac.length>=0.85,'contre-offres quasi systématiques ('+reac.filter(r=>r==='counter').length+'/'+reac.length+')'); }
   ok(sec.outlook.certain.length&&agr.outlook.risk.length,'conséquences certaines et risques affichés');
   const achats=p.achatsSaison; joue(pitch,0);
   const c=p.contracts[prog.slot];
@@ -98,29 +101,21 @@ const exclusive=()=>{ const p=p0(); return PROGRAM_CATALOG.find(x=>x.channelType
   const terms=d.c[0].negotiation.terms; chooseDilemmaOption(0);
   const c=p.contracts[prog.slot];
   ok(sameProgram(c,prog)&&near(c.annual,terms.annual)&&c.exclusive,'contre-proposition signée à ses conditions');
-  ok(pendingCommitments(e=>e.kind==='performanceBonus'&&e.programId===prog.id).length===1,'prime de performance enregistrée');
+  ok(!pendingCommitments(e=>e.kind==='performanceBonus').length,'aucune prime de performance enregistrée');
   ok(partnerTrust(producerPartnerId(prog))===0,'négociation agressive puis compromis : relation inchangée'); }
-// Prime de performance due après un succès, puis revalorisation au renouvellement.
-{ partie(13); gameState.season=2; const p=p0(); const prog=exclusive();
-  const d=createProducerPitchDilemma({kind:'exclusive',program:prog,slot:prog.slot});
-  d.negotiationState=null; const bal=d.c[1];
-  // Accord forcé pour isoler la prime.
-  bal.negotiation.counter=false; d.negotiationState={reaction:'accepted'};
-  gameState.dilemmaQueue=[d,...fillers()]; gameState.currentDilemmaIndex=0; gameState.dilemmaPhase='choosing'; gameState.step=6;
-  chooseMaterialized(1,d);
-  const c=p.contracts[prog.slot], bonus=bal.negotiation.terms.bonus;
-  ok(c&&pendingCommitments(e=>e.kind==='performanceBonus').length===1,'prime en attente');
-  c.career.history.push({season:2,performance:9,expected:5});
-  gameState.history.push({season:2,contracts:JSON.parse(JSON.stringify(p.contracts))});
-  gameState.season=3; const achats=p.achatsSaison; processCommitments(); processCommitments();
-  ok(near(p.achatsSaison-achats,bonus),'prime versée une seule fois');
-  ok(c.revaluation&&c.revaluation.rate>0,'revalorisation demandée après le succès');
-  c.end=gameState.season; const ren=createCareerRenewalDilemma({slot:prog.slot,programId:c.id});
+// Revalorisation au renouvellement (mécanisme conservé, posée ici directement).
+{ partie(13); gameState.season=3; const p=p0(); const prog=exclusive();
+  executeProgramSigning(prog.slot,quoteProgram(prog.slot,prog.id,'interne')); const c=p.contracts[prog.slot];
+  c.revaluation={rate:0.15,from:3}; c.end=gameState.season;
+  const ren=createCareerRenewalDilemma({slot:prog.slot,programId:c.id});
   const up=ren.c.find(x=>x.revaluation), keep=ren.c.find(x=>x.refuseRevaluation);
   ok(up&&keep&&up.outlook.certain.length&&keep.outlook.risk.length,'renouveler avec ou sans revalorisation');
   const annual=c.annual; applyCareerDilemmaChoice(ren,up);
   ok(c.nextAnnual>annual&&!c.revaluation,'revalorisation programmée');
-  gameState.season++; applyContractRevaluations(); ok(near(c.annual,annual+up.revaluation),'coût annuel revalorisé à l’ouverture'); }
+  gameState.season++; applyContractRevaluations(); ok(near(c.annual,annual+up.revaluation),'coût annuel revalorisé à l’ouverture');
+  // Ancienne sauvegarde : une prime de performance en attente est annulée sans effet.
+  registerCommitment({kind:'performanceBonus',key:'old-bonus',programId:prog.id,slot:prog.slot,amount:2}); const ach=p.achatsSaison; gameState.season++; processCommitments();
+  ok(p.achatsSaison===ach&&!pendingCommitments(e=>e.kind==='performanceBonus').length,'ancienne prime de performance : sans objet'); }
 // Refus de revalorisation : le producteur peut partir chez un concurrent.
 { let left=false;
   for(let k=0;k<30&&!left;k++){ partie(500+k); gameState.season=3; const p=p0(); const prog=exclusive();
@@ -247,4 +242,4 @@ for(const [seed,type,cash] of [[31,'generaliste',500],[32,'sport',60],[33,'cultu
 `;
 const context = { console };
 vm.runInNewContext(scripts.slice(0, -1).join('\n') + tests, context, { filename: 'audience-masters-strategy.js' });
-console.log('OK strategy: consequence engine, negotiations, counter-offers, performance bonus, revaluation, original formats, ownership, contextual crises, prevention, three dilemmas, multi-season sequence, saves');
+console.log('OK strategy: consequence engine, negotiations, counter-offers, revaluation, original formats, ownership, contextual crises, prevention, three dilemmas, multi-season sequence, saves');
