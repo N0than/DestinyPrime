@@ -2279,6 +2279,7 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .sa-info-btn.is-back { color:#fff; background:var(--bleu); font:800 14px/26px system-ui, sans-serif; }
 .sa-illu-back-text .sa-back-line { display:block; }
 .sa-illu-back-text .sa-back-line + .sa-back-line { margin-top:3px; }
+.sa-back-stars { display:inline-flex; align-items:center; gap:6px; font-weight:700; }
 /* Illustration retournable (même mouvement que les cartes de renouvellement). */
 .sa-illu.sa-illu-flippable { overflow:visible; background:none; box-shadow:none; perspective:1000px; }
 .sa-illu-inner { position:absolute; inset:0; transform-style:preserve-3d; transition:transform .45s cubic-bezier(.2,.7,.2,1); }
@@ -2744,9 +2745,9 @@ function renderProgramGrid(type, pdaCible, overrides) {
     const isKeySlot = slot.key === 'prime';
     // Quatre icônes : le badge « Clé » s'efface pour garder le titre sur une seule ligne.
     const showKeyTag = isKeySlot && icons.length < 4;
-    const sportOn = sportsBroadcastOn(gameState.player, slot.key);
+    const sportOn = sportsBroadcastOn(gameState.player, slot.key) || slotEventOn(gameState.player, slot.key);
     const isUpdated = !sportOn && !!(overrides && overrides[slot.key]);
-    const programme = sportOn ? `${SPORT_RIGHTS_EVENTS[sportOn.eventId].icon} ${SPORT_RIGHTS_EVENTS[sportOn.eventId].name}` : isUpdated ? overrides[slot.key] : grid[slot.key];
+    const programme = sportOn ? (sportOn.eventId ? `${SPORT_RIGHTS_EVENTS[sportOn.eventId].icon} ${SPORT_RIGHTS_EVENTS[sportOn.eventId].name}` : sportOn.name) : isUpdated ? overrides[slot.key] : grid[slot.key];
     return `
       <details class="pg-slot-editor" data-slot-editor="${slot.key}">
       <summary class="pg-row${isKeySlot ? ' pg-row-key' : ''}" aria-label="Modifier le créneau ${slot.label}">
@@ -21335,11 +21336,11 @@ function renderTicker() {
           <div class="eh-slider" id="eh-slider">
             <div class="eh-slider-track" id="eh-slider-track" style="transform: translateX(-${slide * 100}%);">
               <div class="eh-slide programming-slide">${programGridHtml}</div>
+              <div class="eh-slide studio-slide">${renderStudioSlide()}</div>
+              <div class="eh-slide talents-slide">${talentsSlideHtml}</div>
               <div class="eh-slide">${globalAudienceShareHtml}</div>
               <div class="eh-slide eco-slide-wrap">${ecoBilanSlideHtml}</div>
               <div class="eh-slide evo-slide">${evolutionChartHtml}</div>
-              <div class="eh-slide studio-slide">${renderStudioSlide()}</div>
-              <div class="eh-slide talents-slide">${talentsSlideHtml}</div>
               <div class="eh-slide perf-slide-wrap">${statStarsHtml}</div>
               <div class="eh-slide arcom-slide-wrap">${arcomSlideHtml}</div>
             </div>
@@ -26385,7 +26386,8 @@ function showcaseEntry(program, slot, { level, costs = [], conditions = [], stat
   const now = current || onAirProgram(slot);
   return { programId: program.id, name: program.name, format: program.format || null, slot,
     level: Number.isInteger(level) ? level : (Number.isInteger(program.level) ? program.level : null),
-    current: now?.name || null, currentId: now?.id || null, costs, conditions, stats, tag, ...(flip ? { flip: true } : {}) };
+    current: now?.name || null, currentId: now?.id || null, costs, conditions, stats, tag,
+    ...(flip ? { flip: true, pitch: program.pitch || null, power: Number.isFinite(program.power) ? program.power : null } : {}) };
 }
 // ---------------------------------------------------------------------------
 // PILOTES — audience mesurée, commande de la suite, installation la saison suivante
@@ -26520,7 +26522,9 @@ function dilemmaShowcaseHtml(dilemma) {
     // Événement temporaire (streamer, téléfilms de Noël) : illustration des droits sportifs, dont
     // le badge « i » retourne la carte sur les conditions (programme en place, coûts, calendrier).
     if (e.flip) {
-      const lines = [e.current ? `À l’antenne : « ${esc(e.current)} »` : '', ...e.costs.map(esc), ...e.conditions.map(esc)].filter(Boolean);
+      const lines = [e.pitch ? `<em>${esc(e.pitch)}</em>` : '',
+        Number.isFinite(e.power) ? `<span class="sa-back-stars">Potentiel d’audience ${studioStarsHtml(e.power)}</span>` : '',
+        e.current ? `À l’antenne : « ${esc(e.current)} »` : '', ...e.costs.map(esc), ...e.conditions.map(esc)].filter(Boolean);
       const front = `${art ? `<img src="${art}" alt="" aria-hidden="true">` : ''}<span class="sa-illu-tier">${esc(e.tag)}</span>
         <figcaption class="sa-illu-cap"><span class="sa-illu-name">${esc(e.name)}</span><span class="sa-illu-slot">${slotMeta ? `${slotMeta.icon} ` : ''}${esc(slotLabelOf(e.slot))}</span></figcaption>`;
       return `<div class="sa-inline dsc-sa">
@@ -28113,6 +28117,19 @@ function renderProgramManager(slot) {
         <span class="pm-ov-name">${e.icon} ${esc(e.name)}</span>
         <p class="sa-note">L’événement occupe ce créneau toute la saison ${gameState.season} (${esc(sportsSlotsLabel(e))}). Droits payés ${nf1(sportOn.acquisitionPrice)} M€, production ${nf1(sportOn.productionCost)} M€.</p>
         ${paused?`<p class="sa-note">« ${esc(paused.name)} » est en pause cette saison et reprend ensuite : son contrat est prolongé jusqu’en saison ${paused.end}.</p>`:''}
+      </div>
+    </section>`;
+  }
+  const slotEvent=slotEventOn(p,slot);
+  if(slotEvent) {
+    const fiche=dilemmaProgramFiche(slotEvent.programId,p);
+    return `<section class="program-manager" aria-label="Diffusion exceptionnelle">
+      <div class="pm-overview sa-onair">
+        <span class="sa-kicker">📜 Diffusion exceptionnelle</span>
+        <span class="pm-ov-name">${esc(slotEvent.name)}</span>
+        ${fiche?.pitch?`<p class="sa-note">${esc(fiche.pitch)}</p>`:''}
+        <p class="sa-note">L’événement occupe ce créneau toute la saison ${slotEvent.season}.</p>
+        ${slotEvent.paused?`<p class="sa-note">« ${esc(slotEvent.paused.name)} » est en pause cette saison et reprend ensuite.</p>`:''}
       </div>
     </section>`;
   }
