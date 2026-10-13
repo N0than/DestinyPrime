@@ -435,6 +435,29 @@ const base=id=>DILEMMA_BANK.find(d=>d.id===id);
   gameState.season++; restorePausedPrograms(); ok(!activeContract(p,slot)||activeContract(p,slot).name===name,'streamer : fin de l’événement, programme habituel de retour'); }
 { partie(24); const p=p0(); const grid=JSON.stringify(p.contracts), achats=p.achatsSaison; joue(base('d66'),1);
   ok(!(p.slotEvents||[]).length&&p.achatsSaison===achats,'streamer refusé : pas d’événement, pas de coût'); }
+// Package indivisible : lot sous scellés, une compétition différente par case, tout ou rien.
+{ partie(41,'sport'); const p=p0(); installe('prime'); const reg=p.contracts.prime, end=reg.end, achats=p.achatsSaison;
+  gameState.dilemmaQueue=[base('d246'),...fillers()]; gameState.currentDilemmaIndex=0;
+  const d=materializeCurrentDilemma(), lot=d.blindLot;
+  ok(materializeCurrentDilemma().blindLot===lot,'lot : contenu stable d’un affichage à l’autre');
+  ok(lot.items.length===5&&new Set(lot.items.map(i=>i.name)).size===5&&lot.items.every(i=>isSportsProgram(findProgram(i.programId))),'lot : un sport différent du catalogue par case');
+  ok(lot.items.filter(i=>i.gem).length===1&&lot.items.filter(i=>!i.gem).every(i=>i.power<2),'lot : une pépite, le reste en remplissage');
+  ok(d.c.length===3&&d.c[2].l==='Ne rien prendre','lot : porte de sortie');
+  ok(lot.price>=BLIND_LOT.minPrice&&lot.totalPaused===reg.annual,'lot : prix et programme mis en pause');
+  chooseDilemmaOption(0);
+  ok(TIME_SLOTS.every(t=>activeContract(p,t.key)?.isSlotEvent),'lot entier : toute la grille diffuse du sport');
+  ok(lot.items.every(i=>activeContract(p,i.slot).name===i.name),'lot entier : chaque case reçoit sa compétition');
+  ok(reg.sportsPause===gameState.season&&reg.end===end+1&&p.achatsSaison===achats+lot.price,'lot entier : prix payé, programme habituel en pause');
+  gameState.season++; restorePausedPrograms();
+  ok(activeContract(p,'prime')?.name===reg.name,'lot : programmes habituels de retour la saison suivante'); }
+{ partie(42,'sport'); const p=p0(); const achats=p.achatsSaison; const {live}=joue(base('d246'),1); const lot=live.blindLot;
+  const gem=lot.items.find(i=>i.gem);
+  ok(lot.extractOk ? (p.slotEvents.length===1&&activeContract(p,gem.slot).name===gem.name&&p.achatsSaison===achats+BLIND_LOT.gemPrice)
+    : (!(p.slotEvents||[]).length&&p.achatsSaison===achats),'pépite seule : installée si le vendeur accepte, rien sinon'); }
+{ partie(43,'sport'); const p=p0(); const achats=p.achatsSaison; joue(base('d246'),2);
+  ok(!(p.slotEvents||[]).length&&p.achatsSaison===achats,'lot refusé : aucun coût, grille inchangée'); }
+{ partie(44,'sport'); const p=p0(); ['prime','nuit','access'].forEach(slot=>installSlotEvent({slot,programId:'dp_streamer_rallye'}));
+  ok(!dynamicDilemmaEligible(base('d246')),'lot : pas proposé si la grille est déjà occupée par des événements'); }
 // Le Grodeal : uniquement s'il est diffusé chez un concurrent.
 { partie(25); const p=p0(); const grodeal=PROGRAM_CATALOG.find(x=>x.id==='p478');
   ok(grodeal&&grodeal.name==='Le Grodeal','fiche stable p478');

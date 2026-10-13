@@ -2279,6 +2279,38 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .sa-info-btn.is-back { color:#fff; background:var(--bleu); font:800 14px/26px system-ui, sans-serif; }
 .sa-illu-back-text .sa-back-line { display:block; }
 .sa-illu-back-text .sa-back-line + .sa-back-line { margin-top:3px; }
+/* Package indivisible : lot de compétitions sous scellés, révélé carte par carte. */
+.bl-lot { margin-top:12px; display:flex; flex-direction:column; gap:8px; }
+.bl-head { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.bl-price { font-family:'Space Grotesk', sans-serif; font-weight:800; font-size:13px; color:var(--ink); }
+.bl-cards { display:grid; grid-template-columns:repeat(var(--n, 5), minmax(0, 1fr)); gap:6px; }
+.bl-card { perspective:600px; aspect-ratio:3 / 4; }
+.bl-inner { position:relative; width:100%; height:100%; transform-style:preserve-3d; }
+.bl-face { position:absolute; inset:0; border-radius:10px; overflow:hidden; backface-visibility:hidden; -webkit-backface-visibility:hidden;
+  display:flex; flex-direction:column; align-items:center; justify-content:flex-end; padding:5px 3px; text-align:center; }
+.bl-front { background:repeating-linear-gradient(135deg, #1e293b 0 8px, #273449 8px 16px); color:#fff; justify-content:center; gap:6px; }
+.bl-seal { width:26px; height:26px; border-radius:50%; background:#dc2626; color:#fff; display:grid; place-items:center;
+  font-family:'Space Grotesk', sans-serif; font-weight:800; font-size:14px; box-shadow:0 0 0 3px rgba(220,38,38,.25); }
+.bl-slot { font-size:9px; font-weight:700; letter-spacing:.3px; text-transform:uppercase; line-height:1.2; }
+.bl-back { transform:rotateY(180deg); background:#0f172a; color:#fff; }
+.bl-back img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:.85; }
+.bl-back::after { content:''; position:absolute; inset:0; background:linear-gradient(180deg, transparent 35%, rgba(2,6,23,.85)); }
+.bl-back > span { position:relative; z-index:1; }
+.bl-name { font-size:9.5px; font-weight:800; line-height:1.15; }
+.bl-back .bl-slot { font-size:8px; opacity:.8; }
+.bl-gem { position:absolute !important; top:4px; left:50%; transform:translateX(-50%); white-space:nowrap; font-size:8px; font-weight:800;
+  padding:2px 5px; border-radius:999px; background:#f59e0b; color:#1f1300; }
+.bl-card.is-gem .bl-back { box-shadow:0 0 0 2px #f59e0b inset; }
+.bl-lot.revealed .bl-inner { animation:bl-flip .7s cubic-bezier(.2,.8,.2,1) var(--d, 0s) both; }
+.bl-lot.revealed .bl-card.is-away .bl-back { filter:grayscale(.85) brightness(.7); }
+.bl-lot.revealed .bl-card.is-gem { animation:bl-glow 1s ease var(--d, 0s) both; }
+@keyframes bl-flip { from { transform:rotateY(0); } to { transform:rotateY(180deg); } }
+@keyframes bl-glow { 0%, 60% { transform:scale(1); } 80% { transform:scale(1.08); } 100% { transform:scale(1); } }
+@media (prefers-reduced-motion: reduce) {
+  .bl-lot.revealed .bl-inner { animation:none; transform:rotateY(180deg); }
+  .bl-lot.revealed .bl-card.is-gem { animation:none; }
+}
+.bl-hint { font-style:italic; }
 .sa-back-stars { display:inline-flex; align-items:center; gap:6px; font-weight:700; }
 .sa-illu-back-text .sa-back-potential { display:block; margin-top:8px; }
 /* Illustration retournable (même mouvement que les cartes de renouvellement). */
@@ -20771,6 +20803,7 @@ function chooseMaterialized(choiceIndex, dilemma) {
   // Occupation temporaire (téléfilms de Noël, événement de streamer) : le programme
   // habituel est mis en pause pour la saison, l'événement prend la case.
   if (choice.slotEvent) installSlotEvent(choice.slotEvent);
+  if (choice.blindLot) applyBlindLotChoice(dilemma, choice.blindLot);
   // Retour à la programmation initiale de la case (aucun contrat, aucun coût).
   if (choice.restoreDefault && !player.contracts?.[choice.restoreDefault.slot]) delete player.grilleOverrides?.[choice.restoreDefault.slot];
   if (dilemma.isBiddingWar) applyBiddingWarChoice(dilemma, choice);
@@ -20846,7 +20879,7 @@ function chooseMaterialized(choiceIndex, dilemma) {
   }
   player.decisionHistory.push({id:dilemma.id, choice:isSportsAuction ? -1 : choiceIndex, season:gameState.season, ...decisionQuote.finance});
   // La grille vient de changer : les renouvellements de fin de saison suivent.
-  if (choice.grille || choice.producerDeal || choice.slotEvent || choice.transferDeal || choice.keepProgram) refreshRenewalTail();
+  if (choice.grille || choice.producerDeal || choice.slotEvent || choice.blindLot || choice.transferDeal || choice.keepProgram) refreshRenewalTail();
   if (isSportsAuction) recordSportsAuctionOutcome(dilemma);
   if (dilemma.isSportsRenewal) applySportsRenewalChoice(dilemma.rightsEventId, choice.sportsRenewal);
   const talentCost = isSportsDeal ? null : DILEMMA_TALENT_COST[dilemma.id];
@@ -22020,6 +22053,7 @@ function render() {
             <p>${sportEvent ? esc(sportEvent.pitch) : dilemma.desc}</p>
             ${sportsBlock}
             ${dilemmaShowcaseHtml(dilemma)}
+            ${blindLotHtml(dilemma, phase)}
             ${dilemma.isSportsRenewal && playerRecurringRight(dilemma.rightsEventId) ? `
             <div class="gr-cards gr-single" data-gr-cards="single">${sportsRenewalCardHtml(playerRecurringRight(dilemma.rightsEventId), { readonly: true, single: true })}</div>` : ''}
             ${dilemma.isProgramStory && gameState.player.contracts[dilemma.storySlot]?.id === dilemma.programId ? `
@@ -26348,12 +26382,12 @@ function slotEventOn(channel, slot, season = gameState.season) {
 function slotEventContract(channel, slot) {
   const e = slotEventOn(channel, slot);
   if (!e) return null;
-  const fiche = dilemmaProgramFiche(e.programId, channel);
+  const fiche = dilemmaProgramFiche(e.programId, channel) || PROGRAM_CATALOG.find(x => x.id === e.programId);
   return { id: e.programId, name: e.name, annual: 0, power: e.power, target: e.target, end: gameState.season,
     talentAnnual: 0, investLevel: e.level, format: fiche?.format, isSlotEvent: true, editorial: fiche?.editorial };
 }
 function installSlotEvent(spec) {
-  const p = gameState.player, fiche = dilemmaProgramFiche(spec.programId);
+  const p = gameState.player, fiche = dilemmaProgramFiche(spec.programId) || PROGRAM_CATALOG.find(x => x.id === spec.programId);
   if (!fiche || slotTakenByEvent(spec.slot)) return null;
   const regular = p.contracts?.[spec.slot];
   let paused = null;
@@ -26362,7 +26396,8 @@ function installSlotEvent(spec) {
     paused = { id: regular.id, name: regular.name, annual: regular.annual };
   }
   const event = { programId: fiche.id, name: fiche.name, slot: spec.slot, season: gameState.season,
-    power: fiche.power, level: fiche.level, target: fiche.target, paused };
+    power: spec.power ?? fiche.power, level: spec.level ?? fiche.level ?? 2, target: fiche.target, paused,
+    ...(spec.tag ? { tag: spec.tag } : {}) };
   (p.slotEvents ??= []).push(event);
   return event;
 }
@@ -26580,6 +26615,101 @@ function signingChoice(label, slot, programId, { r, pop = 0 } = {}) {
     pda: ZERO_PDA(), audienceImpacts: [{ slot, targets: ZERO_PDA() }], pop, r };
 }
 
+// ---------------------------------------------------------------------------
+// PACKAGE INDIVISIBLE (d246) — un lot de compétitions acheté à l'aveugle
+// ---------------------------------------------------------------------------
+// Un vendeur de droits propose un lot sous scellés : une compétition du catalogue par case
+// libre de la grille, dont une seule pépite et beaucoup de remplissage. Le contenu n'est
+// dévoilé qu'après la décision. Pris en entier, le lot occupe toute la grille jusqu'à la fin
+// de la saison (programmes habituels en pause, prolongés d'une saison, comme un événement).
+// Arracher la pépite seule est un pari : le vendeur peut refuser de découper et partir.
+const BLIND_LOT = { minSlots: 3, minPrice: 28, margin: 12, gemPower: 4.6, fillerPower: [1, 1.7],
+  gemPrice: 14, extractChance: 0.4, hintReliability: 0.75 };
+function blindLotSlots() { return TIME_SLOTS.map(t => t.key).filter(slot => !slotTakenByEvent(slot)); }
+function blindLotPausedAnnual(slot) {
+  const c = gameState.player.contracts?.[slot];
+  return c && c.end >= gameState.season && c.sportsPause !== gameState.season ? c.annual : 0;
+}
+function createBlindLot() {
+  const slots = blindLotSlots();
+  const onAir = new Set(slots.map(slot => onAirProgram(slot).name));
+  const seen = new Set(), pool = [];
+  PROGRAM_CATALOG.filter(isSportsProgram).forEach(x => {
+    if (!seen.has(x.name) && !onAir.has(x.name)) { seen.add(x.name); pool.push(x); }
+  });
+  for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(seededRandom() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
+  const gem = pool.find(x => x.power >= 4) || pool[0];
+  const fillers = [...pool.filter(x => x !== gem && x.power < 4), ...pool.filter(x => x !== gem && x.power >= 4)];
+  const gemIndex = Math.floor(seededRandom() * slots.length);
+  const [lo, hi] = BLIND_LOT.fillerPower;
+  let f = 0;
+  const items = slots.map((slot, i) => {
+    const program = i === gemIndex ? gem : fillers[f++];
+    return { slot, programId: program.id, name: program.name, gem: i === gemIndex,
+      power: i === gemIndex ? BLIND_LOT.gemPower : Math.round((lo + seededRandom() * (hi - lo)) * 10) / 10 };
+  });
+  // Indice du vendeur : deux cases, dont l'une cache la pépite… le plus souvent.
+  const reliable = seededRandom() < BLIND_LOT.hintReliability;
+  const gemSlot = slots[gemIndex];
+  const others = slots.filter(s => s !== gemSlot);
+  const pickOther = () => others[Math.floor(seededRandom() * others.length)];
+  let hint;
+  if (reliable) hint = [gemSlot, pickOther()];
+  else { const a = pickOther(); hint = [a, others.filter(s => s !== a)[0] || a]; }
+  hint = [...new Set(hint)].sort((a, b) => slots.indexOf(a) - slots.indexOf(b));
+  const totalPaused = slots.reduce((sum, slot) => sum + blindLotPausedAnnual(slot), 0);
+  const rivals = gameState.competitors || [];
+  return { season: gameState.season, items, hint, reliable,
+    extractOk: seededRandom() < BLIND_LOT.extractChance,
+    price: Math.max(BLIND_LOT.minPrice, Math.round(totalPaused + BLIND_LOT.margin)), totalPaused,
+    gemPaused: blindLotPausedAnnual(gemSlot),
+    rival: rivals.length ? rivals[Math.floor(seededRandom() * rivals.length)].name : 'un concurrent' };
+}
+// Décision : le lot entier, la pépite seule (si le vendeur accepte) ou rien.
+function applyBlindLotChoice(dilemma, { mode }) {
+  const lot = dilemma.blindLot;
+  if (!lot) return;
+  const install = mode === 'all' ? lot.items : mode === 'gem' && lot.extractOk ? lot.items.filter(it => it.gem) : [];
+  install.forEach(it => installSlotEvent({ slot: it.slot, programId: it.programId, power: it.power,
+    level: it.gem ? 3 : 1, tag: it.gem ? 'Pépite' : 'Lot sportif' }));
+  lot.outcome = { mode, installed: install.map(it => it.slot) };
+}
+// Lot sous scellés : cartes retournées avant la décision, révélées une à une ensuite.
+function blindLotHtml(dilemma, phase) {
+  const lot = dilemma.blindLot;
+  if (!lot) return '';
+  const revealed = phase === 'result' && !!lot.outcome;
+  const installed = new Set(lot.outcome?.installed || []);
+  const cards = lot.items.map((it, k) => {
+    const meta = TIME_SLOTS.find(t => t.key === it.slot);
+    const program = findProgram(it.programId);
+    const art = programArt(program);
+    const away = revealed && !installed.has(it.slot);
+    return `<div class="bl-card${it.gem && revealed ? ' is-gem' : ''}${away ? ' is-away' : ''}" style="--d:${(0.25 + k * 0.35).toFixed(2)}s">
+      <div class="bl-inner">
+        <div class="bl-face bl-front"><span class="bl-seal" aria-hidden="true">?</span><span class="bl-slot">${meta?.icon || ''} ${esc(meta?.label || it.slot)}</span></div>
+        <div class="bl-face bl-back">${art ? `<img src="${art}" alt="" aria-hidden="true">` : ''}
+          ${it.gem ? '<span class="bl-gem">★ Pépite</span>' : ''}
+          <span class="bl-name">${esc(it.name)}</span><span class="bl-slot">${esc(meta?.label || it.slot)}</span></div>
+      </div>
+    </div>`;
+  }).join('');
+  const hintLabel = lot.hint.map(slotLabelOf).join(' ou ');
+  const gem = lot.items.find(it => it.gem);
+  const mode = lot.outcome?.mode;
+  const gemLine = `★ La pépite : « ${esc(gem.name)} », case ${esc(slotLabelOf(gem.slot))}.`;
+  const verdict = !revealed ? '' : mode === 'all' ? `${gemLine} Les ${lot.items.length} cases passent au sport.`
+    : mode === 'gem' && installed.size ? `${gemLine} Le reste du lot repart chez le vendeur.`
+    : `${gemLine} Le lot part chez ${esc(lot.rival)}.`;
+  return `<div class="bl-lot${revealed ? ' revealed' : ''}" aria-label="Lot de compétitions sous scellés">
+    <div class="bl-head"><span class="sa-row-label">${revealed ? 'Contenu du lot' : `Lot sous scellés · ${lot.items.length} compétitions`}</span><span class="bl-price">${nf1(lot.price)} M€</span></div>
+    <div class="bl-cards" style="--n:${lot.items.length}">${cards}</div>
+    ${revealed ? `<p class="sa-note bl-verdict">${verdict}</p>` : `
+    <p class="sa-note bl-hint">🕵️ Selon le vendeur, la pépite serait sur la case ${esc(hintLabel)}. À prendre avec prudence : il a intérêt à vendre.</p>
+    <p class="sa-note">Tout ou rien : chaque case reçoit une compétition jusqu’à la fin de la saison ${lot.season}.${lot.totalPaused > 0 ? ` Vos programmes en pause sortent de la grille cette saison (−${nf1(lot.totalPaused)} M€) et reprennent en saison ${lot.season + 1}.` : ''}</p>`}
+  </div>`;
+}
+
 // Dilemmes reliés à la grille active : leur texte, leurs coûts et leurs choix sont
 // reconstruits à l'affichage et à la validation. Un dilemme devenu inéligible est
 // remplacé par le mécanisme habituel (revalidateProgramStoryQueue).
@@ -26662,6 +26792,31 @@ const DYNAMIC_DILEMMAS = {
         ] };
     }
   },
+  // Package indivisible : un lot de compétitions sous scellés, une par case libre.
+  d246: {
+    eligible: () => blindLotSlots().length >= BLIND_LOT.minSlots,
+    build: (base, prev) => {
+      const lot = prev?.blindLot?.season === gameState.season && !prev.blindLot.outcome
+        && prev.blindLot.items.every(it => !slotTakenByEvent(it.slot)) ? prev.blindLot : createBlindLot();
+      const gem = lot.items.find(it => it.gem), next = gameState.season + 1;
+      return { ...base, dynamicOf: 'd246', blindLot: lot,
+        desc: `Un vendeur de droits propose un lot de ${lot.items.length} compétitions sous scellés, une par case de votre grille. Il contient une pépite et beaucoup de remplissage, mais le vendeur refuse d’en dévoiler le contenu avant signature… et de le découper.`,
+        c: [
+          { l: 'Acheter le lot entier, à l’aveugle', pillLabel: `${nf1(lot.price)} M€`, blindLot: { mode: 'all' },
+            finance: { recurring: -lot.totalPaused, purchase: lot.price, commercial: 0, category: 'P' }, pda: ZERO_PDA(),
+            audienceImpacts: lot.items.map(it => ({ slot: it.slot, targets: ZERO_PDA() })), pop: 2,
+            r: `Les scellés tombent : « ${gem.name} » est la pépite, en ${slotLabelOf(gem.slot).toLowerCase()}. Toute la grille passe au sport jusqu’à la fin de la saison ; vos programmes habituels reprennent en saison ${next}.` },
+          { l: 'Tenter d’arracher la pépite seule', pillLabel: `${nf1(BLIND_LOT.gemPrice)} M€ si accepté`, blindLot: { mode: 'gem' },
+            finance: lot.extractOk ? { recurring: -lot.gemPaused, purchase: BLIND_LOT.gemPrice, commercial: 0, category: 'P' } : NO_FINANCE(),
+            pda: ZERO_PDA(), audienceImpacts: lot.extractOk ? [{ slot: gem.slot, targets: ZERO_PDA() }] : [], pop: lot.extractOk ? 1 : -1,
+            r: lot.extractOk
+              ? `Le vendeur cède, à contrecœur : « ${gem.name} » s’installe en ${slotLabelOf(gem.slot).toLowerCase()} jusqu’à la fin de la saison.`
+              : `Le vendeur refuse de découper et claque la porte : le lot part chez ${lot.rival}, pépite comprise.` },
+          { l: 'Ne rien prendre', blindLot: { mode: 'none' }, finance: NO_FINANCE(), pda: ZERO_PDA(), audienceImpacts: [], pop: 0,
+            r: `Vous laissez passer le lot : ${lot.rival} rafle la pépite… et tout le remplissage. Votre grille ne bouge pas.` }
+        ] };
+    }
+  },
   // Succès intergalactique : uniquement si un concurrent diffuse vraiment « Le Grodeal ».
   d34: {
     holder: () => { const program = PROGRAM_CATALOG.find(x => x.id === 'p478'); return program ? programHolder(program) : null; },
@@ -26695,7 +26850,7 @@ function materializeCurrentDilemma() {
   if (!key) return d;
   if (!DYNAMIC_DILEMMAS[key].eligible()) { revalidateProgramStoryQueue(); return queue[i]; }
   const base = DILEMMA_BANK.find(x => x.id === key);
-  queue[i] = DYNAMIC_DILEMMAS[key].build(base);
+  queue[i] = DYNAMIC_DILEMMAS[key].build(base, d);
   return queue[i];
 }
 
@@ -28126,7 +28281,7 @@ function renderProgramManager(slot) {
   }
   const slotEvent=slotEventOn(p,slot);
   if(slotEvent) {
-    const fiche=dilemmaProgramFiche(slotEvent.programId,p);
+    const fiche=findProgram(slotEvent.programId);
     return `<section class="program-manager" aria-label="Diffusion exceptionnelle">
       <div class="pm-overview sa-onair">
         <span class="sa-kicker">📜 Diffusion exceptionnelle</span>
