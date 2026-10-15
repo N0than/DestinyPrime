@@ -29,7 +29,7 @@ let launched=0;
 for(const [type,labels] of Object.entries(expected)){
  setup(type);
  const options=studioGaugeOptions('concept');
- assert(JSON.stringify(options.map(o=>o.label))===JSON.stringify(labels),'six genres exacts : '+type);
+ assert(JSON.stringify(options.map(o=>o.label))===JSON.stringify(labels.map(l=>l.replace(/ sportif$| originale$/g,''))),'six genres exacts : '+type);
  allIds.push(...options.map(o=>o.value));
  gameState.studioDraft={concept:'incompatible'};
  assert(options.some(o=>o.value===studioDraft().concept),'brouillon invalide corrigé : '+type);
@@ -41,12 +41,12 @@ for(const [type,labels] of Object.entries(expected)){
   for(const slot of TIME_SLOTS.map(s=>s.key)){
    const p=setup(type),start=p.tresorerie,spent=p.achatsSaison;
    const f=designOriginalFormat({concept:option.value,positioning:'populaire',target:'invalid',slot,budget:2,requestId:'validation'});
-   assert(f&&f.target===p.target&&f.conceptLabel===option.label,'genre conçu / cible de référence : '+option.value);
+   assert(f&&f.target===p.target&&f.conceptLabel===ORIGINAL_FORMATS.concepts[option.value].label,'genre conçu / cible de référence : '+option.value);
    assert(near(start-p.tresorerie,.25)&&near(p.achatsSaison-spent,.25),'250 000 € : '+option.value);
    assert(designOriginalFormat({requestId:'validation'})===f&&near(start-p.tresorerie,.25),'confirmation idempotente');
    assert(f.editorial.genre===ORIGINAL_FORMATS.concepts[option.value].editorialGenre,'profil éditorial : '+option.value);
    assert(Number.isFinite(f.power)&&Number.isFinite(f.annual),'potentiel / coût valides');
-   assert(programGenreLabel(f)===option.label,'libellé distinct en programmation');
+   assert(programGenreLabel(f)===ORIGINAL_FORMATS.concepts[option.value].label,'libellé distinct en programmation');
    assert(launchOriginalFormat(f.id)&&p.contracts[slot].id===f.id,'lancement : '+option.value+'/'+slot);
    assert(!launchOriginalFormat(f.id),'lancement unique');
    const calc=getCalculatedPDAs();

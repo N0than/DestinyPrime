@@ -1829,20 +1829,19 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .of-info p { margin:0; font-size:13px; line-height:1.5; color:#334155; }
 .of-main { flex:1; min-height:0; display:flex; flex-direction:column; gap:8px; }
 .of-main .of-note { margin:0; flex:none; }
-.of-studio .of-form { flex:1; min-height:0; display:grid; grid-template-columns:minmax(0,1fr);
-  /* 4 jauges (intitulé + piste) puis le bouton : pistes et bouton se partagent la hauteur à parts égales. */
-  grid-template-rows:repeat(4, auto minmax(0,1fr)) minmax(0,1fr); row-gap:4px; margin:0; }
-.of-gauge { display:contents; }
-.of-gauge-head { display:flex; margin-top:2px; justify-content:space-between; gap:8px; font-size:9.5px; font-weight:800; text-transform:uppercase; letter-spacing:.4px; color:var(--gris); }
-.of-gauge-head b { font-size:11px; text-transform:none; letter-spacing:0; color:var(--ink); }
-.of-gauge-track { min-height:22px; display:flex; gap:3px; }
+.of-studio .of-form { flex:1; min-height:0; display:flex; flex-direction:column;
+  /* Chaque intitulé reste proche de son sélecteur ; l'espace libre sépare les groupes et les actions. */
+  justify-content:space-between; gap:8px; padding:2px 0; margin:0; overflow-y:auto; }
+.of-gauge { flex:none; min-width:0; display:flex; flex-direction:column; gap:4px; }
+.of-gauge-head { display:flex; justify-content:space-between; gap:8px; font-size:9.5px; font-weight:800; text-transform:uppercase; letter-spacing:.4px; color:var(--gris); }
+.of-gauge-track { min-height:34px; display:flex; gap:3px; }
 .of-seg { flex:1 1 0; min-width:0; padding:0 2px; border:0; border-radius:6px; cursor:pointer; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
   font:700 10px 'Space Grotesk', sans-serif; color:var(--gris); background:rgba(15,23,42,0.07); transition:background .15s ease, color .15s ease; }
 .of-seg.fill { background:rgba(37,99,235,0.35); color:#fff; }
 .of-seg.on { background:var(--bleu); color:#fff; }
 .of-seg:disabled { cursor:not-allowed; opacity:.55; }
 .of-seg:focus-visible { outline:2px solid var(--bleu); outline-offset:1px; }
-.of-form-actions { min-height:22px; display:flex; gap:6px; }
+.of-form-actions { flex:none; min-height:34px; display:flex; gap:6px; }
 .of-form-actions button { flex:1; }
 .of-studio .of-form-actions button { border-radius:6px; }
 .of-form-actions .ghost { flex:0 0 auto; border-color:transparent; background:none; color:var(--gris); }
@@ -2045,8 +2044,7 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .gr-talent-card :is(.gr-name-row, .gr-back-head) { flex-wrap: nowrap; gap: 8px; }
 .gr-talent-card :is(.gr-name-row, .gr-back-head) .gr-name { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .gr-talent-card .gr-role-badge { flex: 0 1 auto; max-width: 55%; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.of-design-cost { margin: 0; font-size: 12px; font-weight: 800; color: var(--ink); }
-.of-gauge[data-of-gauge="concept"] .of-gauge-track { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.of-gauge[data-of-gauge="concept"] .of-gauge-track { flex-wrap: nowrap; }
 .of-gauge[data-of-gauge="concept"] .of-seg { min-height: 25px; }
 .gr-fact { display: flex; flex-direction: column; gap: 1px; padding: 5px 6px; border-radius: 8px; background: rgba(255,255,255,0.7);
   border: 1px solid rgba(22,19,14,0.06); min-width: 0; }
@@ -28440,7 +28438,19 @@ function studioFormatCardHtml(f, editable, cfg) {
     </div>
   </article>`;
 }
-const STUDIO_SHORT = { divertissement: 'Divert.', magazine: 'Magazine', realite: 'Téléréal.' };
+const STUDIO_SHORT = {
+  divertissement: 'Divert.', magazine: 'Mag.', realite: 'Télé-r.', talk_show: 'Talk',
+  sport_magazine: 'Mag.', sport_talk: 'Talk', sport_documentaire: 'Docu',
+  sport_competition: 'Compét.', sport_debat: 'Débat', sport_divertissement: 'Divert.',
+  culture_documentaire: 'Docu', culture_magazine: 'Mag.', culture_vulgarisation: 'Vulga.',
+  culture_investigation: 'Enquête', culture_debat: 'Débat', culture_exploration: 'Explor.',
+  info_talk: 'Talk', info_debat: 'Débat', info_documentaire: 'Docu',
+  info_investigation: 'Enquête', info_interview: 'Interv.', info_decryptage: 'Décrypt.',
+  cinema_drame: 'Drame', cinema_comedie: 'Comédie', cinema_polar: 'Polar',
+  cinema_imaginaire: 'SF/Fant.', cinema_telefilm: 'Téléfilm', cinema_magazine: 'Mag.',
+  jeunesse_animation: 'Anim.', jeunesse_fiction: 'Fiction', jeunesse_jeu: 'Jeu',
+  jeunesse_educatif: 'Éduc.', jeunesse_divertissement: 'Divert.', jeunesse_aventure: 'Avent.'
+};
 const STUDIO_PRODUCTION = { 1: 'production économique', 2: 'production standard', 3: 'production ambitieuse' };
 function studioDraft() {
   const slots = TIME_SLOTS.filter(t => !slotTakenByEvent(t.key));
@@ -28452,7 +28462,7 @@ function studioDraft() {
 function studioGaugeOptions(field) {
   const cfg = ORIGINAL_FORMATS;
   if (field === 'slot') return TIME_SLOTS.filter(t => !slotTakenByEvent(t.key)).map(t => ({ value: t.key, short: t.label, label: t.label }));
-  if (field === 'concept') return studioConcepts().map(c => ({ value: c.id, short: STUDIO_SHORT[c.id] || c.label, label: c.label }));
+  if (field === 'concept') return studioConcepts().map(c => ({ value: c.id, short: STUDIO_SHORT[c.id] || c.label, label: c.label.replace(/ sportif$| originale$/g, '') }));
   const obj = { positioning: cfg.positionings, budget: cfg.budgets }[field];
   return Object.entries(obj).map(([k, v]) => ({ value: k, short: STUDIO_SHORT[k] || v.label, label: v.label }));
 }
@@ -28462,9 +28472,9 @@ function studioGaugeHtml(field, label, draft, off) {
   // Budget : jauge cumulative (remplie jusqu'au niveau choisi) ; autres critères : un segment actif.
   const cumulative = field === 'budget';
   return `<div class="of-gauge" data-of-gauge="${field}"${cumulative ? ' data-cumulative="1"' : ''}>
-    <div class="of-gauge-head"><span>${label}</span><b data-of-gauge-value>${esc(opts[idx]?.label || '')}</b></div>
+    <div class="of-gauge-head"><span>${label}</span></div>
     <div class="of-gauge-track" role="radiogroup" aria-label="${label}">${opts.map((o, i) =>
-      `<button type="button" role="radio" class="of-seg${i === idx ? ' on' : cumulative && i < idx ? ' fill' : ''}" aria-checked="${i === idx}" data-of-action="pick" data-of-field="${field}" data-of-value="${esc(o.value)}" data-of-label="${esc(o.label)}"${off}>${esc(o.short)}</button>`).join('')}</div>
+      `<button type="button" role="radio" class="of-seg${i === idx ? ' on' : cumulative && i < idx ? ' fill' : ''}" aria-checked="${i === idx}" data-of-action="pick" data-of-field="${field}" data-of-value="${esc(o.value)}" data-of-label="${esc(o.label)}" aria-label="${esc(o.label)}" title="${esc(o.label)}"${off}>${esc(o.short)}</button>`).join('')}</div>
   </div>`;
 }
 function renderStudioSlide() {
@@ -28482,11 +28492,10 @@ function renderStudioSlide() {
       ${studioGaugeHtml('concept', 'Genre', draft, off)}
       ${studioGaugeHtml('positioning', 'Positionnement', draft, off)}
       ${studioGaugeHtml('budget', 'Niveau de production', draft, off)}
-      <p class="of-design-cost">Conception du format — 250 000 €</p>
       ${gameState.player.tresorerie < cfg.designCost ? '<p class="of-card-note" role="status">Trésorerie insuffisante pour concevoir ce format.</p>' : ''}
       <div class="of-form-actions">
         <button type="button" class="ghost" data-of-action="cancel">Annuler</button>
-        <button type="button" class="primary" data-of-action="design"${!editable || gameState.player.tresorerie < cfg.designCost ? ' disabled' : ''}>Concevoir le format</button>
+        <button type="button" class="primary" data-of-action="design"${!editable || gameState.player.tresorerie < cfg.designCost ? ' disabled' : ''}>Concevoir le format — 250 000 €</button>
       </div>
     </div>`;
   const tabs = Array.from({ length: cfg.maxProjects }, (_, i) => {
@@ -28535,7 +28544,6 @@ function bindOriginalStudio(app) {
         gameState.studioDraft = { ...studioDraft(), [field]: btn.dataset.ofValue };
         const gauge = btn.closest('[data-of-gauge]'), segs = [...gauge.querySelectorAll('.of-seg')], idx = segs.indexOf(btn);
         segs.forEach((b, i) => { b.classList.toggle('on', i === idx); b.classList.toggle('fill', !!gauge.dataset.cumulative && i < idx); b.setAttribute('aria-checked', String(i === idx)); });
-        gauge.querySelector('[data-of-gauge-value]').textContent = btn.dataset.ofLabel;
         return;
       }
       // Illustration d'un format lancé : recto ↔ droits du format, sans redessiner l'écran.
