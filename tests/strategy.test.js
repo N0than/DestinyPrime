@@ -223,7 +223,7 @@ const exclusive=()=>{ const p=p0(); return PROGRAM_CATALOG.find(x=>x.channelType
 // renouvellement ou arrêt, sans dérive de trésorerie ni double comptage.
 for(const [seed,type,cash] of [[31,'generaliste',500],[32,'sport',60],[33,'culture',20]]){
   partie(seed,type,cash); const p=p0();
-  const f=designOriginalFormat({concept:'divertissement',positioning:'populaire',target:p.target,slot:'access',budget:2});
+  const f=designOriginalFormat({concept:studioConcepts(type)[1].id,positioning:'populaire',target:p.target,slot:'access',budget:2});
   ok(f&&launchOriginalFormat(f.id),'lancement en saison 1 ('+type+')');
   const pick=cur=>{ if(cur?.isCrisis) return cur.c.length-1; if(cur?.isProducerPitch) return 1; return 0; };
   for(let s=0;s<4&&gameState.step!==8;s++){

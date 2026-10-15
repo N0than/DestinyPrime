@@ -2042,6 +2042,12 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .gr-track > .gr-card { flex: 0 0 72%; scroll-snap-align: start; }
 .gr-facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; margin: 2px 0 4px; }
 .gr-name-row .gr-slot-badge { flex: none; }
+.gr-talent-card :is(.gr-name-row, .gr-back-head) { flex-wrap: nowrap; gap: 8px; }
+.gr-talent-card :is(.gr-name-row, .gr-back-head) .gr-name { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gr-talent-card .gr-role-badge { flex: 0 1 auto; max-width: 55%; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.of-design-cost { margin: 0; font-size: 12px; font-weight: 800; color: var(--ink); }
+.of-gauge[data-of-gauge="concept"] .of-gauge-track { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.of-gauge[data-of-gauge="concept"] .of-seg { min-height: 25px; }
 .gr-fact { display: flex; flex-direction: column; gap: 1px; padding: 5px 6px; border-radius: 8px; background: rgba(255,255,255,0.7);
   border: 1px solid rgba(22,19,14,0.06); min-width: 0; }
 .gr-fact > span { font-size: 8px; font-weight: 700; letter-spacing: .3px; text-transform: uppercase; color: var(--gris); }
@@ -21156,6 +21162,10 @@ function goHome() {
 }
 
 function resetGame() {
+  delete gameState.studioDraft;
+  delete gameState.studioForm;
+  delete gameState.studioSel;
+  delete gameState.studioDesignRequestId;
   delete gameState.campaign;
   delete gameState.talentRetirement;
   delete gameState.sportsRights;
@@ -24548,7 +24558,8 @@ function talentRenewalCardHtml(t, opts = {}) {
     .map(c => ({ label: opts.single ? c.label : c.short, title: c.label, stars: c.value }));
   return flipCardHtml({ ...opts, key: t.id, name: t.name, stats, artCls: 'gr-art-talent',
     artHtml: `<img src="${MERCATO_AVATARS[t.id] || ''}" alt="" width="64" height="64" decoding="async">`,
-    ribbon: TALENT_TIERS[talentTier(t)]?.label || '', badge: genre, sub: t.role });
+    ribbon: TALENT_TIERS[talentTier(t)]?.label || '', badge: genre, talentCard: true,
+    nameBadge: `<span class="gr-slot-badge gr-role-badge" title="${esc(t.role)}">${esc(t.shortRole || MERCATO_TALENTS.find(x => x.id === t.id)?.shortRole || t.role)}</span>` });
 }
 
 // Carte retournable (programme ou talent) : recto illustré, choix d'avenir au verso.
@@ -24559,11 +24570,11 @@ function flipCardHtml(o) {
   const starsOf = st => st.stars ?? programWearStars(st.value);
   const starsTitle = st => st.stars != null ? (st.title || st.label) : `${st.label} (${st.value}/100)`;
   return `
-    <div class="gr-card${flippable ? ' flippable' : ''}${picked ? ' picked' : ''}" data-gr-slot="${esc(o.key)}">
+    <div class="gr-card${o.talentCard ? ' gr-talent-card' : ''}${flippable ? ' flippable' : ''}${picked ? ' picked' : ''}" data-gr-slot="${esc(o.key)}">
      <div class="gr-flip">
       <div class="gr-face gr-front"${flippable ? ` role="button" tabindex="0" aria-label="${esc(o.name)} : choisir son avenir"` : ''}>
         <span class="gr-art${o.artCls ? ` ${o.artCls}` : ''}">${o.artHtml || ''}${o.artBadge ? `<span class="gr-slot-badge gr-art-badge" title="${esc(o.artBadge)}">${esc(o.artBadge)}</span>` : ''}${o.ribbon ? `<span class="gr-historic">${esc(o.ribbon)}</span>` : ''}${flippable ? '<span class="gr-flip-hint" aria-hidden="true">↻</span>' : ''}</span>
-        <span class="gr-name-row"><span class="gr-name">${esc(o.name)}</span>${o.pdaBadge || ''}</span>
+        <span class="gr-name-row"><span class="gr-name">${esc(o.name)}</span>${o.nameBadge || ''}${o.pdaBadge || ''}</span>
         ${o.badge ? `<span class="gr-slot-row"><span class="gr-slot-badge">${esc(o.badge)}</span></span>` : ''}
         ${o.sub ? `<span class="gr-sub">${esc(o.sub)}</span>` : ''}
         ${o.extraHtml || ''}
@@ -24573,7 +24584,7 @@ function flipCardHtml(o) {
       </div>
       ${flippable ? `
       <div class="gr-face gr-back" inert>
-        <span class="gr-back-head"><span class="gr-name">${esc(o.name)}</span>${o.pdaBadge || ''}</span>
+        <span class="gr-back-head"><span class="gr-name">${esc(o.name)}</span>${o.nameBadge || ''}${o.pdaBadge || ''}</span>
         ${o.backHtml || ''}
         ${choices.map(ch => `<button type="button" class="gr-opt${ch === picked ? ' selected' : ''}" data-gr-choice="${ch.index}">
           <span>${esc(ch.label)}</span><span class="gr-opt-cost ${ch.costCls}">${esc(ch.cost)}</span></button>`).join('')}
@@ -24812,6 +24823,7 @@ function bindRenewalCarousel(root) {
 }
 // Libellé de genre affiché sur les cartes illustrées (conférence de rentrée, choix du programme).
 function programGenreLabel(program) {
+  if (program.original && program.concept) return originalConceptLabel(program);
   const tvp = typeof TvPrograms !== 'undefined' ? TvPrograms : null;
   const family = tvp ? tvp.classify(program).genre : 'generique';
   return family !== 'generique' ? tvp.GENRES[family].label : (GENRE_LABELS[program.editorial?.genre] || 'Programme');
@@ -27398,12 +27410,53 @@ function applyDealTerms(choice) {
 // Pilote et test réduisent l'incertitude de l'estimation sans modifier le potentiel.
 const ORIGINAL_FORMATS = {
   concepts: {
-    jeu: { label: 'Jeu', format: 'jeu', names: ['Le Grand Défi', 'Question de temps', 'Tout ou rien', 'La Dernière Manche', 'Le Mot juste'] },
-    divertissement: { label: 'Divertissement', format: 'divertissement', names: ['Le Grand Plateau', 'Tous en scène', 'La Folle Soirée', 'Show devant !'] },
-    fiction: { label: 'Fiction', format: 'fiction', names: ['Les Héritiers', 'Ligne de front', 'Rive gauche', 'Les Insoumises'] },
-    magazine: { label: 'Magazine', format: 'magazine', names: ['Le Mag des curieux', 'Vu d’ici', 'Grand angle', 'Au cœur du sujet'] },
-    realite: { label: 'Téléréalité', format: 'divertissement', names: ['Une maison pour tous', 'Le Grand Saut', 'Nouvelle vie', 'Cap au large'] }
+    jeu: { label: 'Jeu', format: 'jeu', editorialGenre: 'diverti', slots: ['matin', 'apresmidi', 'access'], names: ['Le Grand Défi', 'Question de temps', 'Tout ou rien', 'La Dernière Manche', 'Le Mot juste'] },
+    divertissement: { label: 'Divertissement', format: 'divertissement', editorialGenre: 'diverti', slots: ['access', 'prime'], names: ['Le Grand Plateau', 'Tous en scène', 'La Folle Soirée', 'Show devant !'] },
+    fiction: { label: 'Fiction', format: 'fiction', editorialGenre: 'fiction', slots: ['prime'], names: ['Les Héritiers', 'Ligne de front', 'Rive gauche', 'Les Insoumises'] },
+    magazine: { label: 'Magazine', format: 'magazine', editorialGenre: 'diverti', slots: ['matin', 'apresmidi', 'access'], names: ['Le Mag des curieux', 'Vu d’ici', 'Grand angle', 'Au cœur du sujet'] },
+    realite: { label: 'Télé-réalité', format: 'divertissement', editorialGenre: 'diverti', slots: ['access', 'prime'], names: ['Une maison pour tous', 'Le Grand Saut', 'Nouvelle vie', 'Cap au large'] },
+    talk_show: { label: 'Talk-show', format: 'magazine', editorialGenre: 'diverti', slots: ['access', 'nuit'], names: ['On en parle', 'Le Salon du soir'] },
+    sport_magazine: { label: 'Magazine sportif', format: 'magazine', editorialGenre: 'sport', slots: ['access', 'prime'], names: ['Au cœur du vestiaire', 'Terrain ouvert'] },
+    sport_talk: { label: 'Talk-show sportif', format: 'magazine', editorialGenre: 'sport', slots: ['access', 'nuit'], names: ['Le Canapé des champions', 'Après le match'] },
+    sport_documentaire: { label: 'Documentaire sportif', format: 'documentaire', editorialGenre: 'sport', slots: ['apresmidi', 'prime'], names: ['Les Coulisses de la victoire', 'Vies de champions'] },
+    sport_competition: { label: 'Compétition originale', format: 'sport', editorialGenre: 'sport', slots: ['apresmidi', 'prime'], names: ['Le Trophée des régions', 'Le Défi des clubs'] },
+    sport_debat: { label: 'Débat sportif', format: 'magazine', editorialGenre: 'sport', slots: ['access', 'prime'], names: ['Le Débat des tribunes', 'Le Grand Arbitrage'] },
+    sport_divertissement: { label: 'Divertissement sportif', format: 'divertissement', editorialGenre: 'sport', slots: ['apresmidi', 'prime'], names: ['Les Athlètes font le show', 'À vous de jouer !'] },
+    culture_documentaire: { label: 'Documentaire', format: 'documentaire', editorialGenre: 'culture', slots: ['apresmidi', 'prime'], names: ['Mémoires du monde', 'Les Routes du savoir'] },
+    culture_magazine: { label: 'Magazine culturel', format: 'magazine', editorialGenre: 'culture', slots: ['access', 'prime'], names: ['Les Arts en mouvement', 'Le Journal des cultures'] },
+    culture_vulgarisation: { label: 'Vulgarisation', format: 'magazine', editorialGenre: 'culture', slots: ['apresmidi', 'access'], names: ['La Science à portée de main', 'Comprendre le monde'] },
+    culture_investigation: { label: 'Investigation', format: 'documentaire', editorialGenre: 'culture', slots: ['prime', 'nuit'], names: ['Enquête sur notre histoire', 'Les Archives dévoilées'] },
+    culture_debat: { label: "Débat d’idées", format: 'magazine', editorialGenre: 'culture', slots: ['access', 'prime'], names: ['Les Idées en dialogue', 'La Fabrique du débat'] },
+    culture_exploration: { label: 'Exploration', format: 'documentaire', editorialGenre: 'culture', slots: ['apresmidi', 'prime'], names: ['Horizons inconnus', 'Aux frontières du savoir'] },
+    info_talk: { label: 'Talk-show', format: 'magazine', editorialGenre: 'info', slots: ['access', 'prime'], names: ['Le Plateau de l’actualité', 'Regards sur le jour'] },
+    info_debat: { label: 'Débat', format: 'magazine', editorialGenre: 'info', slots: ['access', 'prime'], names: ['Le Débat public', 'Les Voix de la cité'] },
+    info_documentaire: { label: 'Documentaire', format: 'documentaire', editorialGenre: 'info', slots: ['apresmidi', 'prime'], names: ['Une semaine dans le monde', 'L’Actualité au long cours'] },
+    info_investigation: { label: 'Investigation', format: 'documentaire', editorialGenre: 'info', slots: ['prime', 'nuit'], names: ['L’Enquête ouverte', 'Les Faits derrière les mots'] },
+    info_interview: { label: 'Interview', format: 'magazine', editorialGenre: 'info', slots: ['matin', 'access'], names: ['Le Grand Entretien', 'Face aux questions'] },
+    info_decryptage: { label: 'Décryptage', format: 'magazine', editorialGenre: 'info', slots: ['access', 'prime'], names: ['Les Clés de l’actualité', 'Le Monde expliqué'] },
+    cinema_drame: { label: 'Série dramatique', format: 'fiction', editorialGenre: 'fiction', slots: ['prime'], names: ['Les Jours fragiles', 'La Maison des absents'] },
+    cinema_comedie: { label: 'Comédie', format: 'fiction', editorialGenre: 'fiction', slots: ['access', 'prime'], names: ['Les Voisins du quatrième', 'Une famille presque parfaite'] },
+    cinema_polar: { label: 'Thriller / Polar', format: 'fiction', editorialGenre: 'fiction', slots: ['prime', 'nuit'], names: ['La Dernière Piste', 'Les Ombres du port'] },
+    cinema_imaginaire: { label: 'Science-fiction / Fantastique', format: 'fiction', editorialGenre: 'fiction', slots: ['prime', 'nuit'], names: ['Les Portes du temps', 'L’Autre Horizon'] },
+    cinema_telefilm: { label: 'Téléfilm', format: 'fiction', editorialGenre: 'fiction', slots: ['apresmidi', 'prime'], names: ['Un été pour revenir', 'Le Rendez-vous oublié'] },
+    cinema_magazine: { label: 'Magazine cinéma', format: 'magazine', editorialGenre: 'culture', slots: ['access', 'nuit'], names: ['Derrière la caméra', 'Le Fauteuil du cinéphile'] },
+    jeunesse_animation: { label: 'Animation', format: 'animation', editorialGenre: 'jeunesse', slots: ['matin', 'apresmidi'], names: ['La Planète des petits robots', 'Les Amis de la forêt'] },
+    jeunesse_fiction: { label: 'Fiction jeunesse', format: 'fiction', editorialGenre: 'jeunesse', slots: ['apresmidi', 'access'], names: ['Le Club du mercredi', 'Les Secrets du collège'] },
+    jeunesse_jeu: { label: 'Jeu jeunesse', format: 'jeu', editorialGenre: 'jeunesse', slots: ['matin', 'apresmidi'], names: ['Le Défi des petits génies', 'La Cour des champions'] },
+    jeunesse_educatif: { label: 'Éducatif', format: 'magazine', editorialGenre: 'jeunesse', slots: ['matin', 'apresmidi'], names: ['Les Petits Explorateurs du savoir', 'Pourquoi ça marche ?'] },
+    jeunesse_divertissement: { label: 'Divertissement jeunesse', format: 'divertissement', editorialGenre: 'jeunesse', slots: ['apresmidi', 'access'], names: ['Le Goûter des copains', 'Tous à la récré !'] },
+    jeunesse_aventure: { label: 'Aventure', format: 'divertissement', editorialGenre: 'jeunesse', slots: ['apresmidi', 'prime'], names: ['L’Île des jeunes aventuriers', 'Mission cabane'] }
   },
+  // Sélection du Studio uniquement ; les concepts historiques restent lisibles.
+  conceptsByChannel: {
+    generaliste: ['fiction', 'divertissement', 'jeu', 'realite', 'magazine', 'talk_show'],
+    sport: ['sport_magazine', 'sport_talk', 'sport_documentaire', 'sport_competition', 'sport_debat', 'sport_divertissement'],
+    culture: ['culture_documentaire', 'culture_magazine', 'culture_vulgarisation', 'culture_investigation', 'culture_debat', 'culture_exploration'],
+    info: ['info_talk', 'info_debat', 'info_documentaire', 'info_investigation', 'info_interview', 'info_decryptage'],
+    cinema: ['cinema_drame', 'cinema_comedie', 'cinema_polar', 'cinema_imaginaire', 'cinema_telefilm', 'cinema_magazine'],
+    jeunesse: ['jeunesse_animation', 'jeunesse_fiction', 'jeunesse_jeu', 'jeunesse_educatif', 'jeunesse_divertissement', 'jeunesse_aventure']
+  },
+  designCost: 0.25,           // M€ : conception ponctuelle, distincte du lancement
   positionings: {
     populaire: { label: 'Grand public', fit: { access: 1.08, prime: 1.06, apresmidi: 1.04 } },
     premium: { label: 'Premium', fit: { prime: 1.08, nuit: 1.06 } },
@@ -27425,30 +27478,47 @@ function slotReference(type, slot) {
   const med = arr => { const v = [...arr].sort((a, b) => a - b); return v.length ? v[Math.floor(v.length / 2)] : 0; };
   return { power: med(pool.map(x => x.power)) || 2, annual: med(pool.map(x => x.annual)) || 4 };
 }
-// Conception : fiche complète, potentiel caché compris. Aucune dépense.
-function designOriginalFormat({ concept, positioning, target, slot, budget }) {
+function studioConcepts(type = gameState.player.type) {
+  return (ORIGINAL_FORMATS.conceptsByChannel[type] || []).map(id => ({ id, ...ORIGINAL_FORMATS.concepts[id] }));
+}
+function originalConceptLabel(f) {
+  return f.conceptLabel || ORIGINAL_FORMATS.concepts[f.concept]?.label || f.pitch || 'Format original';
+}
+// Conception payée une seule fois ; une confirmation rejouée retrouve sa fiche.
+function designOriginalFormat({ concept, positioning, slot, budget, requestId = null }) {
   const p = ensureConsequenceState(), cfg = ORIGINAL_FORMATS;
-  const c = cfg.concepts[concept], pos = cfg.positionings[positioning], b = cfg.budgets[budget];
-  if (!c || !pos || !b || !TIME_SLOTS.some(s => s.key === slot)) return null;
+  const previous = requestId && Object.values(p.originalFormats).find(f => f.designRequestId === requestId);
+  if (previous) return previous;
+  const c = studioConcepts(p.type).find(c => c.id === concept), pos = cfg.positionings[positioning], b = cfg.budgets[budget];
+  if (!c || !pos || !b || !TIME_SLOTS.some(s => s.key === slot) || slotTakenByEvent(slot)
+    || studioSlotFormats().length >= cfg.maxProjects || !Number.isFinite(p.tresorerie) || p.tresorerie < cfg.designCost) return null;
+  const target = p.target; // Même cible de référence que la chaîne, sans sélecteur supplémentaire.
   const n = Object.keys(p.originalFormats).length + 1;
   const id = `of-${gameState.season}-${n}`;
   const ref = slotReference(p.type, slot);
   const taken = new Set([...PROGRAM_CATALOG.map(x => x.name), ...Object.values(p.originalFormats).map(x => x.name)]);
   const names = c.names.filter(x => !taken.has(x));
   const name = names.length ? names[Math.floor(stableRandom(`ofname|${id}`) * names.length)] : `${c.names[0]} ${n}`;
-  const fit = (pos.fit[slot] || 0.96) * (target === p.target ? 1.04 : 0.97);
+  // Au plus 4 % de modulation entre créneaux : aucune prime de puissance supplémentaire.
+  const fit = (pos.fit[slot] || 0.96) * 1.04 * (c.slots.includes(slot) ? 1 : 0.96);
   const luck = cfg.luck[0] + stableRandom(`ofpot|${concept}|${positioning}|${target}|${slot}|${budget}|${id}`) * (cfg.luck[1] - cfg.luck[0]);
   const round = v => Math.round(v * 100) / 100;
-  const fiche = { id, name, concept, positioning, target, slot, budget, format: c.format,
+  const fiche = { id, name, concept, conceptLabel: c.label, designRequestId: requestId, designCost: cfg.designCost, positioning, target, slot, budget, format: c.format,
     channelType: p.type, preferredSlot: slot, years: 1, level: budget, ownership: 'owned', original: true,
     annual: Math.round(ref.annual * b.cost * 10) / 10, rights: 0,
     power: round(ref.power * b.power * fit * luck),   // potentiel réel (caché)
     reference: round(ref.power * b.power * fit),      // ce que l'étude de marché peut voir
     stage: 'concept', designedSeason: gameState.season, readySeason: gameState.season, pitch: `${c.label} ${pos.label.toLowerCase()}` };
-  fiche.editorial = programEditorialProfile({ name, channelType: p.type, slot, format: c.format });
+  fiche.editorial = programEditorialProfile({ name, channelType: p.type, slot, format: c.format, genre: c.editorialGenre });
   fiche.rights = Math.round(fiche.annual * cfg.creation.direct * 10) / 10;
   fiche.estimate = originalEstimate(fiche, 'direct');
+  applyFinance({ recurring: 0, purchase: cfg.designCost, commercial: 0, category: 'P' });
   p.originalFormats[id] = fiche;
+  p.decisionHistory.push({ id: `original-design-${id}`, choice: 0, season: gameState.season,
+    recurring: 0, purchase: cfg.designCost, commercial: 0, category: 'P' });
+  refreshEconomy();
+  pushSignal(`Conception du format — 250 000 € : « ${name} ». Trésorerie : ${Math.round(p.tresorerie * 1e6).toLocaleString('fr-FR')} €.`,
+    { kind: 'format', key: `design:${id}` });
   return fiche;
 }
 // Estimation visible : centrée sur le potentiel réel avec un biais reproductible, dont
@@ -28363,9 +28433,9 @@ function studioFormatCardHtml(f, editable, cfg) {
   return `<article class="of-card${launched ? ' on-air' : ''}" data-of-id="${esc(f.id)}">
     ${art_}
     <div class="of-card-body">
-      <div class="of-card-genre">${esc(cfg.concepts[f.concept].label)} · ${esc(cfg.positionings[f.positioning].label)} · ${esc(STUDIO_PRODUCTION[f.budget] || cfg.budgets[f.budget].label)}</div>
+      <div class="of-card-genre">${esc(originalConceptLabel(f))} · ${esc(cfg.positionings[f.positioning].label)} · ${esc(STUDIO_PRODUCTION[f.budget] || cfg.budgets[f.budget].label)}</div>
       <div class="of-ind"><span>Potentiel d’audience</span>${studioStarsHtml(mid)}</div>
-      <div class="of-card-cost">${nf1(f.annual)} M€/an${launched ? '' : ` · création ${nf1(f.rights)} M€`} · format détenu par la chaîne</div>
+      <div class="of-card-cost">${nf1(f.annual)} M€/an${launched ? '' : ` · lancement ${nf1(f.rights)} M€`} · format détenu par la chaîne</div>
       ${actions}
     </div>
   </article>`;
@@ -28374,15 +28444,16 @@ const STUDIO_SHORT = { divertissement: 'Divert.', magazine: 'Magazine', realite:
 const STUDIO_PRODUCTION = { 1: 'production économique', 2: 'production standard', 3: 'production ambitieuse' };
 function studioDraft() {
   const slots = TIME_SLOTS.filter(t => !slotTakenByEvent(t.key));
-  const d = gameState.studioDraft || {};
+  const d = gameState.studioDraft || {}, concepts = studioConcepts();
   // Cible : toujours celle de référence de la partie (aucun réglage).
-  return { slot: slots.some(t => t.key === d.slot) ? d.slot : (slots[0]?.key || 'matin'), concept: d.concept || 'jeu',
+  return { slot: slots.some(t => t.key === d.slot) ? d.slot : (slots[0]?.key || 'matin'), concept: concepts.some(c => c.id === d.concept) ? d.concept : concepts[0]?.id,
     positioning: d.positioning || 'populaire', target: gameState.player.target, budget: String(d.budget || 2) };
 }
 function studioGaugeOptions(field) {
   const cfg = ORIGINAL_FORMATS;
   if (field === 'slot') return TIME_SLOTS.filter(t => !slotTakenByEvent(t.key)).map(t => ({ value: t.key, short: t.label, label: t.label }));
-  const obj = { concept: cfg.concepts, positioning: cfg.positionings, budget: cfg.budgets }[field];
+  if (field === 'concept') return studioConcepts().map(c => ({ value: c.id, short: STUDIO_SHORT[c.id] || c.label, label: c.label }));
+  const obj = { positioning: cfg.positionings, budget: cfg.budgets }[field];
   return Object.entries(obj).map(([k, v]) => ({ value: k, short: STUDIO_SHORT[k] || v.label, label: v.label }));
 }
 function studioGaugeHtml(field, label, draft, off) {
@@ -28411,9 +28482,11 @@ function renderStudioSlide() {
       ${studioGaugeHtml('concept', 'Genre', draft, off)}
       ${studioGaugeHtml('positioning', 'Positionnement', draft, off)}
       ${studioGaugeHtml('budget', 'Niveau de production', draft, off)}
+      <p class="of-design-cost">Conception du format — 250 000 €</p>
+      ${gameState.player.tresorerie < cfg.designCost ? '<p class="of-card-note" role="status">Trésorerie insuffisante pour concevoir ce format.</p>' : ''}
       <div class="of-form-actions">
         <button type="button" class="ghost" data-of-action="cancel">Annuler</button>
-        <button type="button" class="primary" data-of-action="design"${off}>Concevoir le format</button>
+        <button type="button" class="primary" data-of-action="design"${!editable || gameState.player.tresorerie < cfg.designCost ? ' disabled' : ''}>Concevoir le format</button>
       </div>
     </div>`;
   const tabs = Array.from({ length: cfg.maxProjects }, (_, i) => {
@@ -28431,6 +28504,7 @@ function renderStudioSlide() {
     </div>
     <div class="of-info" hidden>
       <p>Un format maison coûte moins cher dans la durée et peut rapporter des droits, mais son potentiel réel reste incertain.</p>
+      <p>Conception du format — 250 000 €, débités immédiatement et non remboursables. Le pilote et le lancement sont facturés séparément.</p>
       <p>Un pilote affine l’estimation et décale le lancement d’une saison.</p>
       <p>Trois formats au plus en même temps : un format lancé reste dans le studio tant qu’il est à l’antenne.</p>
       <p>Conception, pilote et cession des droits à tout moment de la saison ; lancement en début de saison. Cession à l’étranger : avance et royalties chaque saison, le programme reste chez vous. Cession nationale : un prix plus élevé, sans royalties, et le programme part chez le concurrent.</p>
@@ -28478,11 +28552,15 @@ function bindOriginalStudio(app) {
       if (action === 'cancel') { gameState.studioForm = false; render(); return; }
       if (!studioEditable()) return;
       const id = btn.closest('[data-of-id]')?.dataset.ofId;
-      if (action === 'new') { gameState.studioForm = true; render(); return; }
+      if (action === 'new') {
+        gameState.studioDesignRequestId = `design-${gameState.season}-${Object.keys(ensureConsequenceState().originalFormats).length + 1}`;
+        gameState.studioForm = true; render(); return;
+      }
       if (action === 'design') {
-        if (studioSlotFormats().length >= ORIGINAL_FORMATS.maxProjects) return;
+        if (!gameState.studioForm || studioSlotFormats().length >= ORIGINAL_FORMATS.maxProjects) return;
+        btn.disabled = true;
         const d = studioDraft();
-        const f = designOriginalFormat({ concept: d.concept, positioning: d.positioning, target: d.target, slot: d.slot, budget: Number(d.budget) });
+        const f = designOriginalFormat({ concept: d.concept, positioning: d.positioning, slot: d.slot, budget: Number(d.budget), requestId: gameState.studioDesignRequestId });
         // Validation : les critères laissent place à la carte du nouveau format.
         if (f) { gameState.studioForm = false; gameState.studioSel = studioSlotFormats().findIndex(x => x.id === f.id); }
       } else if (action === 'pilot') developOriginalFormat(id, 'pilot');
