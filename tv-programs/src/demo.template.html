@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Démo tv-programs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #121316; --gris: #6b7280; --bleu: #2563eb; --rouge: #e11d48; --gold: #d97706;
+  --card: rgba(255,255,255,0.65); --card-border: rgba(255,255,255,0.85); --line: rgba(148,163,184,0.25);
+  --bg: linear-gradient(180deg, #dbeafe 0%, #eff6ff 25%, #f8fafc 55%, #e0f2fe 100%);
+  --chip: rgba(255,255,255,0.7); --chip-on: #121316; --chip-on-text: #fff;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ink: #f1f5f9; --gris: #94a3b8; --card: rgba(30,41,59,0.7); --card-border: rgba(148,163,184,0.25); --line: rgba(148,163,184,0.2);
+    --bg: linear-gradient(180deg, #0f172a 0%, #111c33 50%, #0b1324 100%); --chip: rgba(30,41,59,0.8); --chip-on: #f1f5f9; --chip-on-text: #0f172a;
+  }
+}
+:root[data-theme="dark"] {
+  --ink: #f1f5f9; --gris: #94a3b8; --card: rgba(30,41,59,0.7); --card-border: rgba(148,163,184,0.25); --line: rgba(148,163,184,0.2);
+  --bg: linear-gradient(180deg, #0f172a 0%, #111c33 50%, #0b1324 100%); --chip: rgba(30,41,59,0.8); --chip-on: #f1f5f9; --chip-on-text: #0f172a;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); background-color: #eff6ff; color: var(--ink); font-family: 'Plus Jakarta Sans', system-ui, sans-serif; min-height: 100vh; }
+main { max-width: 1120px; margin: 0 auto; padding: 28px 16px 60px; }
+.kicker { font-size: 11px; font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase; color: var(--rouge); }
+h1 { font-family: 'Anton', sans-serif; font-weight: 400; font-size: clamp(30px, 6vw, 46px); text-transform: uppercase; letter-spacing: .5px; line-height: 1.05; margin: 6px 0 8px; }
+h2 { font-family: 'Anton', sans-serif; font-weight: 400; font-size: 24px; text-transform: uppercase; letter-spacing: .4px; margin: 38px 0 4px; }
+.lead { max-width: 720px; color: var(--gris); font-size: 14.5px; line-height: 1.55; }
+.sub { color: var(--gris); font-size: 13px; margin-bottom: 14px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 18px 0 16px; }
+.chip { border: 1px solid var(--line); background: var(--chip); color: var(--ink); border-radius: 999px; padding: 6px 12px; font: 700 12px 'Plus Jakarta Sans', sans-serif; cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--chip-on); color: var(--chip-on-text); border-color: transparent; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
+.card {
+  display: flex; flex-direction: column; min-width: 0; text-align: left; overflow: hidden;
+  background: var(--card); border: 1px solid var(--card-border); border-radius: 18px; backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+  box-shadow: 0 25px 50px -12px rgba(15,23,42,0.12);
+}
+.card-art { position: relative; aspect-ratio: 16 / 9; background: rgba(148,163,184,0.15); }
+.card-art img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; object-fit: cover; }
+.card-body { padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 4px; }
+.pill { align-self: flex-start; font-size: 9.5px; font-weight: 800; letter-spacing: .4px; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; background: rgba(37,99,235,0.12); color: var(--bleu); }
+.card-title { font-family: 'Anton', sans-serif; font-weight: 400; font-size: 17px; text-transform: uppercase; letter-spacing: .3px; line-height: 1.15; }
+.card-pitch { font-size: 12px; color: var(--gris); line-height: 1.4; }
+.card-meta { font-size: 10.5px; color: var(--gris); margin-top: 2px; font-family: ui-monospace, monospace; }
+.tools { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 12px 0 14px; }
+.tools label { font-size: 12px; font-weight: 700; color: var(--gris); display: flex; gap: 6px; align-items: center; }
+select, input[type="text"] { font: 600 13px 'Plus Jakarta Sans', sans-serif; padding: 6px 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--chip); color: var(--ink); }
+.explorer { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+.explorer figure { border-radius: 14px; overflow: hidden; border: 1px solid var(--card-border); background: var(--card); }
+.explorer img { width: 100%; aspect-ratio: 16 / 9; display: block; }
+.explorer figcaption { font-size: 10.5px; color: var(--gris); padding: 5px 8px; font-family: ui-monospace, monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sizes { display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-end; }
+.sizes figure { text-align: center; font-size: 11px; color: var(--gris); max-width: 100%; }
+.sizes img { display: block; border-radius: 10px; margin-bottom: 4px; max-width: 100%; height: auto; }
+.status { margin-top: 30px; font-size: 12px; color: var(--gris); }
+@media (max-width: 560px) {
+  .grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; }
+  .card-body { padding: 8px 9px 10px; }
+  .card-title { font-size: 14px; }
+  .card-pitch { font-size: 11px; }
+  .explorer { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+}
+</style>
+</head>
+<body>
+<main>
+  <div class="kicker">Style DiceBear personnalisé · tv-programs</div>
+  <h1>Illustrations de programmes TV</h1>
+  <p class="lead">Chaque illustration est composée localement à partir de calques SVG modulaires (décor, personnages, objet central, accessoires, éléments décoratifs, palette) sélectionnés par genre. Le rendu est déterministe : un même programme produit toujours la même image, deux programmes d’un même genre obtiennent des compositions différentes. Aucun appel réseau, aucune IA générative.</p>
+
+  <div class="chips" id="genre-chips" role="group" aria-label="Filtrer par genre"></div>
+  <div class="grid" id="program-grid"></div>
+
+  <h2>Explorateur</h2>
+  <p class="sub">Même genre, graines différentes : la variété des compositions d’une même famille graphique.</p>
+  <div class="tools">
+    <label>Genre <select id="ex-genre"></select></label>
+    <label>Sous-genre <input type="text" id="ex-sub" placeholder="ex. football, nature…" size="14"></label>
+    <label>Palette <select id="ex-palette"><option value="">Auto (selon la graine)</option></select></label>
+  </div>
+  <div class="explorer" id="explorer"></div>
+
+  <h2>Petites et grandes tailles</h2>
+  <p class="sub">Le même SVG vectoriel, net de la vignette au plein écran (ratio 16:9 conservé).</p>
+  <div class="sizes" id="sizes"></div>
+
+  <p class="status" id="status"></p>
+</main>
+
+<!-- tv-programs:scripts -->
+<script>
+/* tv-programs:programs */
+(function () {
+  const $ = id => document.getElementById(id);
+  const t0 = performance.now();
+  let active = 'tous';
+
+  const genreLabel = p => TvPrograms.GENRES[TvPrograms.classify(p).genre].label;
+
+  function renderGrid() {
+    const list = PROGRAMS.filter(p => active === 'tous' || TvPrograms.classify(p).genre === active);
+    $('program-grid').innerHTML = list.map(p => {
+      const { genre, subgenre } = TvPrograms.classify(p);
+      return `<article class="card">
+        <div class="card-art"><img alt="" loading="lazy" src="${TvPrograms.forProgram(p)}"></div>
+        <div class="card-body">
+          <span class="pill">${genreLabel(p)}</span>
+          <div class="card-title">${p.title}</div>
+          <div class="card-pitch">${TvPrograms.pitch(p)}</div>
+          <div class="card-meta">${genre}${subgenre ? ' / ' + subgenre : ''} · seed ${p.id}</div>
+        </div>
+      </article>`;
+    }).join('');
+  }
+
+  function renderChips() {
+    const genres = ['tous', ...new Set(PROGRAMS.map(p => TvPrograms.classify(p).genre))];
+    $('genre-chips').innerHTML = genres.map(g => `<button class="chip" data-g="${g}" aria-pressed="${g === active}">${g === 'tous' ? 'Tous' : TvPrograms.GENRES[g].label}</button>`).join('');
+  }
+  $('genre-chips').addEventListener('click', e => {
+    const b = e.target.closest('[data-g]');
+    if (!b) return;
+    active = b.dataset.g;
+    renderChips();
+    renderGrid();
+  });
+
+  function renderExplorer() {
+    const genre = $('ex-genre').value, subgenre = $('ex-sub').value.trim(), palette = $('ex-palette').value;
+    $('explorer').innerHTML = Array.from({ length: 12 }, (_, i) => {
+      const seed = `exemple-${i + 1}`;
+      return `<figure><img alt="" src="${TvPrograms.dataUri({ seed, genre, subgenre, palette: palette || undefined })}"><figcaption>${genre}${subgenre ? '/' + subgenre : ''} · ${seed}</figcaption></figure>`;
+    }).join('');
+  }
+  $('ex-genre').innerHTML = Object.entries(TvPrograms.GENRES).map(([k, v]) => `<option value="${k}">${v.label}</option>`).join('');
+  $('ex-palette').innerHTML += Object.keys(TvPrograms.PALETTES).map(k => `<option value="${k}">${k}</option>`).join('');
+  ['ex-genre', 'ex-sub', 'ex-palette'].forEach(id => $(id).addEventListener('input', renderExplorer));
+
+  const sample = PROGRAMS[0];
+  $('sizes').innerHTML = [96, 160, 240, 400].map(w => `<figure><img alt="" width="${w}" height="${Math.round(w * 9 / 16)}" src="${TvPrograms.forProgram(sample)}">${w} px</figure>`).join('');
+
+  renderChips();
+  renderGrid();
+  renderExplorer();
+  const ms = performance.now() - t0;
+  const again = performance.now();
+  PROGRAMS.forEach(p => TvPrograms.forProgram(p));
+  $('status').textContent = `${PROGRAMS.length} programmes + 12 variations générées en ${ms.toFixed(0)} ms · second passage (cache) : ${(performance.now() - again).toFixed(1)} ms.`;
+})();
+</script>
+</body>
+</html>
