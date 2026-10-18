@@ -458,6 +458,25 @@ const base=id=>DILEMMA_BANK.find(d=>d.id===id);
   ok(!(p.slotEvents||[]).length&&p.achatsSaison===achats,'lot refusé : aucun coût, grille inchangée'); }
 { partie(44,'sport'); const p=p0(); ['prime','nuit','access'].forEach(slot=>installSlotEvent({slot,programId:'dp_streamer_rallye'}));
   ok(!dynamicDilemmaEligible(base('d246')),'lot : pas proposé si la grille est déjà occupée par des événements'); }
+// Lot de demandes sport : plateforme, NBA, finale, catalogue, parts de marché.
+{ partie(51,'sport'); const p=p0();
+  ok(!PROGRAM_CATALOG.some(x=>x.name==='Grand prix F1'||x.name==='Basket US'),'catalogue : Grand prix F1 et Basket US retirés');
+  ok(SPORT_RIGHTS_EVENTS.nba&&SPORT_RIGHTS_EVENTS.nba.recurring&&SPORT_RIGHTS_EVENTS.nba.preferredSlots.join()==='nuit','droit NBA annuel, la nuit');
+  ok(base('d97').c.length===3&&base('d112').c.length===4&&base('d222').c.length===3,'porte de sortie ajoutée');
+  const ids=()=>getEligibleDilemmas().map(d=>d.id);
+  ok(!ids().includes('d251')&&ids().includes('d254'),'numérique : réservé aux plateformes');
+  joue(base('d254'),0);
+  ok(p.isPlatform&&ids().includes('d251')&&!ids().includes('d254'),'plateforme lancée : dilemmes numériques ouverts');
+  ok(!dynamicDilemmaEligible(base('d79')),'finale : aucun droit, pas de dilemme');
+  (gameState.sportsRights.owned??=[]).push({ownerId:'player',eventId:'top14',broadcastSeason:gameState.season,slots:['prime']});
+  gameState.dilemmaQueue=[base('d79'),...fillers()]; gameState.currentDilemmaIndex=0;
+  ok(materializeCurrentDilemma().titre==='Finale du Top 14 : grand spectacle ou simple diffusion ?','finale : « du Top 14 »');
+  gameState.sportsRights.owned=[{ownerId:'player',eventId:'nba',broadcastSeason:gameState.season,slots:['nuit']}];
+  gameState.dilemmaQueue=[base('d79'),...fillers()];
+  ok(materializeCurrentDilemma().titre.startsWith('Finale de la NBA'),'finale : « de la NBA »');
+  joue(base('d97'),0);
+  const c=getCalculatedPDAs();
+  ok(TIME_SLOTS.every(t=>['j1524','a2549','s50','csp'].every(a=>Math.abs(c.reduce((s,r)=>s+r.slots[t.key][a],0)-100)<1e-6)),'parts de marché : 100 % sur chaque case'); }
 // Le Grodeal : uniquement s'il est diffusé chez un concurrent.
 { partie(25); const p=p0(); const grodeal=PROGRAM_CATALOG.find(x=>x.id==='p478');
   ok(grodeal&&grodeal.name==='Le Grodeal','fiche stable p478');
