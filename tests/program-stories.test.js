@@ -473,7 +473,7 @@ const base=id=>DILEMMA_BANK.find(d=>d.id===id);
   ok(materializeCurrentDilemma().titre==='Finale du Top 14 : grand spectacle ou simple diffusion ?','finale : « du Top 14 »');
   gameState.sportsRights.owned=[{ownerId:'player',eventId:'nba',broadcastSeason:gameState.season,slots:['nuit']}];
   gameState.dilemmaQueue=[base('d79'),...fillers()];
-  ok(materializeCurrentDilemma().titre.startsWith('Finale de la NBA'),'finale : « de la NBA »');
+  ok(materializeCurrentDilemma().titre.startsWith('Finale du basket US'),'finale : « du basket US »');
   joue(base('d97'),0);
   const c=getCalculatedPDAs();
   ok(TIME_SLOTS.every(t=>['j1524','a2549','s50','csp'].every(a=>Math.abs(c.reduce((s,r)=>s+r.slots[t.key][a],0)-100)<1e-6)),'parts de marché : 100 % sur chaque case'); }
