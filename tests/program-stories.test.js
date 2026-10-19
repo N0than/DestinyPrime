@@ -477,6 +477,18 @@ const base=id=>DILEMMA_BANK.find(d=>d.id===id);
   joue(base('d97'),0);
   const c=getCalculatedPDAs();
   ok(TIME_SLOTS.every(t=>['j1524','a2549','s50','csp'].every(a=>Math.abs(c.reduce((s,r)=>s+r.slots[t.key][a],0)-100)<1e-6)),'parts de marché : 100 % sur chaque case'); }
+// Lot de demandes : dilemmes supprimés, derby conditionnel, scoop aléatoire, numérique sans parts d'audience.
+{ partie(52,'sport'); const p0_=p0();
+  ['d203','d96','d141','d243','d100','d84'].forEach(id=>ok(!DILEMMA_BANK.some(d=>d.id===id),'dilemme supprimé '+id));
+  ok(!getEligibleDilemmas().some(d=>d.id==='d81'),'derby : aucun championnat, pas de dilemme');
+  (gameState.sportsRights.owned??=[]).push({ownerId:'player',eventId:'ligue1',broadcastSeason:gameState.season,slots:['prime']});
+  ok(getEligibleDilemmas().some(d=>d.id==='d81'),'derby : Ligue 1 diffusée, dilemme possible');
+  ok(['d251','d188','d190','d204','d254'].every(id=>DILEMMA_BANK.find(d=>d.id===id).c.every(c=>Object.values(c.pda).every(v=>v===0))),'numérique : aucun effet direct sur les parts d’audience');
+  const outcomes=new Set(); for(let i=0;i<40;i++){ gameState.campaign.seed=((i*2654435761)>>>0)||7; const r=joue(base('d161'),0); outcomes.add(gameState.lastConsequence.resultat.slice(0,12)); }
+  ok(outcomes.size===2,'scoop : issue confirmée ou démentie tirée au sort');
+  ok(studioSlideHidden()===false,'studio : visible avec une grille normale');
+  TIME_SLOTS.forEach(t=>{ if(!slotTakenByEvent(t.key)) installSlotEvent({slot:t.key,programId:'dp_streamer_rallye'}); });
+  ok(studioSlideHidden()&&hudSlideCount()===7,'studio : masqué quand toute la grille est en événements'); }
 // Le Grodeal : uniquement s'il est diffusé chez un concurrent.
 { partie(25); const p=p0(); const grodeal=PROGRAM_CATALOG.find(x=>x.id==='p478');
   ok(grodeal&&grodeal.name==='Le Grodeal','fiche stable p478');

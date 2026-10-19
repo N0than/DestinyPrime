@@ -4537,8 +4537,9 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd81', titre: "Le derby que tout le monde attend",
-    desc: "Deux villes, une haine recuite, un stade en fusion. Ton service marketing te demande si on en fait un événement ou un match de plus.",
+    desc: "Deux villes rivales, des tribunes en ébullition et la fierté locale en jeu. Ton équipe marketing veut sortir le grand jeu : campagne de promo, plateau au stade et consultants vedettes.",
     types: ['sport'],
+    eligibleIf: () => playerBroadcastsRight('ligue1') || playerBroadcastsRight('top14'),
     c: [
       { l: "Créer une soirée spéciale autour du derby", finance: {"recurring":0,"purchase":4,"commercial":0,"category":"P"}, pda: { j1524: +9, a2549: +8, s50: +6, csp: +5 }, r: "Dépense raisonnable, l'audience s'envole. Les réseaux sociaux s'enflamment positivement.", pop: 3 },
       { l: "Rester sur le format habituel", finance: {"recurring":0,"purchase":1,"commercial":0,"category":"P"}, pda: { j1524: +4, a2549: +5, s50: +4, csp: +4 }, r: "L'audience progresse nettement : dépense raisonnable. La confiance du public progresse.", pop: 2 }
@@ -4560,15 +4561,6 @@ const DILEMMA_BANK = [
     c: [
       { l: "Installer une vraie cellule data", finance: {"recurring":5,"purchase":0,"commercial":0,"category":"R"}, pda: { j1524: +8, a2549: +6, s50: +2, csp: +6 }, r: "Les courbes d'audience grimpent : budget maîtrisé. La confiance du public progresse.", pop: 2 },
       { l: "Rester sur les statistiques classiques", finance: {"recurring":0,"purchase":0,"commercial":0,"category":"N"}, pda: { j1524: +3, a2549: +3, s50: +3, csp: +4 }, r: "L'audience progresse nettement : budget maîtrisé. Bon retour côté opinion publique.", pop: 1 }
-    ]
-  },
-  {
-    id: 'd84', titre: "Le transfert du siècle est à vendre",
-    desc: "Un intermédiaire propose l'annonce en exclusivité, chronomètre en main. Le prix est indécent, l'audience potentielle aussi.",
-    types: ['sport'],
-    c: [
-      { l: "Payer très cher l'exclusivité", finance: {"recurring":0,"purchase":7,"commercial":0,"category":"P"}, pda: { j1524: +9, a2549: +8, s50: +4, csp: +6 }, r: "Budget maîtrisé, les scores explosent sur toutes les cibles. Le public est conquis.", pop: 3 },
-      { l: "Partager l'info, la jouer collectif", finance: {"recurring":0,"purchase":1,"commercial":0,"category":"P"}, pda: { j1524: +4, a2549: +5, s50: +4, csp: +5 }, r: "L'audience progresse nettement : budget maîtrisé. La confiance du public progresse.", pop: 2 }
     ]
   },
   {
@@ -5068,15 +5060,6 @@ const DILEMMA_BANK = [
     ]
   },
   {
-    id: 'd96', titre: "NBA : la nuit américaine",
-    desc: "Les matchs commencent quand la France dort. Tu peux ouvrir la nuit ou raconter la NBA le lendemain matin.",
-    types: ['sport'],
-    c: [
-      { l: "Acheter un package nocturne en direct", finance: {"recurring":0,"purchase":18,"commercial":0,"category":"P"}, pda: { j1524: +10, a2549: +7, s50: +2, csp: +5 }, r: "Mise conséquente sur la table, les scores explosent sur toutes les cibles. L'accueil est positif.", pop: 2 },
-      { l: "Produire un magazine NBA quotidien", finance: {"recurring":6,"purchase":0,"commercial":0,"category":"R"}, pda: { j1524: +6, a2549: +5, s50: +2, csp: +4 }, r: "L'audience progresse nettement : dépense raisonnable. L'accueil est positif.", pop: 2 }
-    ]
-  },
-  {
     id: 'd97', titre: "Basket français : le parquet national",
     desc: "Le championnat cherche une vitrine. Tu peux la lui offrir en entier ou par morceaux.",
     types: ['sport'],
@@ -5102,15 +5085,6 @@ const DILEMMA_BANK = [
     c: [
       { l: "Investir sur les équipes nationales", finance: {"recurring":0,"purchase":6,"commercial":0,"category":"P"}, pda: { j1524: +4, a2549: +5, s50: +5, csp: +4 }, r: "Effort financier contenu, le public suit en nombre. L'accueil est positif.", pop: 2 },
       { l: "Limiter le nombre de matchs diffusés", finance: {"recurring":0,"purchase":2,"commercial":0,"category":"P"}, pda: { j1524: +2, a2549: +3, s50: +4, csp: +3 }, r: "Le public suit en nombre : dépense raisonnable. L'accueil est positif.", pop: 1 }
-    ]
-  },
-  {
-    id: 'd100', titre: "Ski : l'hiver en direct",
-    desc: "La Coupe du monde s'étale de novembre à mars, souvent à 10h du matin. Les finales, elles, font toujours du monde.",
-    types: ['sport'],
-    c: [
-      { l: "Acheter toute la saison de ski", finance: {"recurring":0,"purchase":10,"commercial":0,"category":"P"}, pda: { j1524: +4, a2549: +5, s50: +8, csp: +6 }, r: "Enveloppe généreuse débloquée, les courbes d'audience grimpent. Bon retour côté opinion publique.", pop: 2 },
-      { l: "Se concentrer sur les finales", finance: {"recurring":0,"purchase":4,"commercial":0,"category":"P"}, pda: { j1524: +2, a2549: +3, s50: +5, csp: +5 }, r: "Effort financier contenu, l'audience progresse nettement. Bon retour côté opinion publique.", pop: 1 }
     ]
   },
   {
@@ -5414,7 +5388,7 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd135', titre: "Polémique arbitrale : à chaud ou à froid",
-    desc: "L'action tourne en boucle sur les réseaux. Ton plateau est encore debout, tes nerfs aussi.",
+    desc: "Une décision arbitrale suffit parfois à embraser les réseaux en quelques minutes. Ta rédaction propose d’en débattre dans l’après-match.",
     types: ['sport'],
     c: [
       { l: "Analyser à chaud, tout de suite", finance: {"recurring":0,"purchase":1,"commercial":0,"category":"P"}, pda: { j1524: +7, a2549: +6, s50: +3, csp: +4 }, r: "Budget maîtrisé, les courbes d'audience grimpent. L'accueil est positif.", pop: 2 },
@@ -5464,15 +5438,6 @@ const DILEMMA_BANK = [
     c: [
       { l: "Créer un multiplex sur tous les terrains", finance: {"recurring":3,"purchase":0,"commercial":0,"category":"R"}, pda: { j1524: +6, a2549: +8, s50: +6, csp: +5 }, r: "L'audience s'envole : effort financier contenu. La confiance du public progresse.", pop: 2 },
       { l: "Une seule grande affiche, bien produite", finance: {"recurring":1,"purchase":0,"commercial":0,"category":"R"}, pda: { j1524: +4, a2549: +5, s50: +4, csp: +4 }, r: "Les courbes d'audience grimpent : effort financier contenu. La confiance du public progresse.", pop: 2 }
-    ]
-  },
-  {
-    id: 'd141', titre: "Samedi soir : la case reine",
-    desc: "La meilleure case de la semaine est libre. Le match premium coûte cher, le magazine coûte peu.",
-    types: ['sport'],
-    c: [
-      { l: "Programmer le match premium", finance: {"recurring":0,"purchase":5,"commercial":0,"category":"P"}, pda: { j1524: +8, a2549: +8, s50: +4, csp: +5 }, r: "Les scores explosent sur toutes les cibles : effort financier contenu. L'accueil est positif.", pop: 2 },
-      { l: "Produire un magazine maison", finance: {"recurring":2,"purchase":0,"commercial":0,"category":"R"}, pda: { j1524: +4, a2549: +5, s50: +4, csp: +4 }, r: "Le public suit en nombre : effort financier contenu. Bon retour côté opinion publique.", pop: 2 }
     ]
   },
   {
@@ -5648,11 +5613,15 @@ const DILEMMA_BANK = [
     ]
   },
   {
-    id: 'd161', titre: "Un scoop mercato à 23h47",
-    desc: "Une seule source, une info énorme, un concurrent qui creuse le même sujet.",
+    id: 'd161', titre: "23h47 : le scoop ou le flop ?",
+    desc: "Ta rédaction tient une bombe sur le mercato, mais une seule source la confirme. Un concurrent est sur le coup. Publier avant tout le monde ou vérifier avant de s’emballer ?",
     types: ['sport'],
     c: [
-      { l: "Diffuser immédiatement et prendre le risque", finance: {"recurring":0,"purchase":2,"commercial":0,"category":"P"}, pda: { j1524: +8, a2549: +7, s50: +3, csp: +4 }, r: "Budget maîtrisé, le public suit en nombre. Ni éclat ni polémique à signaler.", pop: 0 },
+      { l: "Diffuser immédiatement et prendre le risque", finance: {"recurring":0,"purchase":2,"commercial":0,"category":"P"}, pda: { j1524: +8, a2549: +7, s50: +3, csp: +4 }, r: "", pop: 0,
+        randomOutcomes: [
+          { chance: 0.5, r: "L’info est confirmée. Le transfert est officialisé : ta source avait raison. La rédaction a devancé toute la concurrence et ton scoop est repris partout sur les réseaux.", pop: 3, pda: { j1524: +9, a2549: +8, s50: +3, csp: +5 } },
+          { chance: 0.5, r: "Le scoop fait pschitt. Le club dément et ta source se rétracte : le transfert n’aura pas lieu. Tu dois rectifier à l’antenne pendant que tes concurrents se régalent.", pop: -4, pda: { j1524: -2, a2549: -3, s50: -1, csp: -2 } }
+        ] },
       { l: "Attendre une deuxième source", finance: {"recurring":0,"purchase":0,"commercial":0,"category":"N"}, pda: { j1524: +4, a2549: +5, s50: +4, csp: +6 }, r: "Opération qui préserve les comptes, l'audience progresse nettement. Le public est conquis.", pop: 4 }
     ]
   },
@@ -5792,8 +5761,8 @@ const DILEMMA_BANK = [
     ]
   },
   {
-    id: 'd177', titre: "Une équipe féminine à suivre de l'intérieur",
-    desc: "Le vestiaire est prêt à s'ouvrir. Le budget inside n'est pas prévu.",
+    id: 'd177', titre: "Dans le vestiaire des championnes",
+    desc: "Une équipe féminine t’ouvre ses portes : entraînements, vestiaire, soirs de victoire et lendemains de défaite. De quoi vivre la saison de l’intérieur… à condition de trouver le budget pour y envoyer tes caméras.",
     types: ['sport'],
     c: [
       { l: "Produire un inside complet", finance: {"recurring":0,"purchase":4,"commercial":0,"category":"P"}, pda: { j1524: +7, a2549: +8, s50: +5, csp: +6 }, r: "Les scores explosent sur toutes les cibles : budget maîtrisé. Les réseaux sociaux s'enflamment positivement.", pop: 4 },
@@ -5811,7 +5780,7 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd179', titre: "Les 100 moments qui ont marqué le sport",
-    desc: "Un projet d'archives ambitieux. En prime, c'est un événement. En digital, c'est un feuilleton.",
+    desc: "Ta rédaction a déniché cent moments de légende dans les archives. De quoi faire vibrer les nostalgiques et découvrir le sport aux plus jeunes.",
     types: ['sport'],
     c: [
       { l: "Produire un grand prime événementiel", finance: {"recurring":0,"purchase":5,"commercial":0,"category":"P"}, pda: { j1524: +9, a2549: +7, s50: +6, csp: +5 }, r: "Effort financier contenu, les scores explosent sur toutes les cibles. L'image de la chaîne y gagne beaucoup.", pop: 3 },
@@ -6026,15 +5995,6 @@ const DILEMMA_BANK = [
     ]
   },
   {
-    id: 'd203', titre: "Vendre ou exporter",
-    desc: "Un distributeur veut ton catalogue et paie cash. Ou tu construis toi-même ton offre à l'étranger.",
-    types: ['sport'],
-    c: [
-      { l: "Vendre le catalogue à un distributeur", finance: {"recurring":0,"purchase":0,"commercial":15,"category":"C"}, pda: { j1524: +2, a2549: +3, s50: +2, csp: +4 }, r: "Opération qui préserve les comptes, quelques points d'audience s'ajoutent. L'opinion publique reste neutre.", pop: 0 },
-      { l: "Développer ta propre offre internationale", finance: {"recurring":0,"purchase":8,"commercial":0,"category":"P"}, pda: { j1524: +5, a2549: +5, s50: +2, csp: +5 }, r: "Les courbes d'audience grimpent : mise conséquente sur la table. L'image de la chaîne y gagne beaucoup.", pop: 3 }
-    ]
-  },
-  {
     id: 'd204', titre: "Une plateforme de streaming frappe à la porte",
     desc: "Une plateforme te propose un gros chèque pour intégrer tes contenus à son catalogue en exclusivité.",
     types: ['sport'],
@@ -6054,7 +6014,7 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd206', titre: "Une chaîne 100% archives",
-    desc: "Ton catalogue peut vivre seul sur un canal dédié, ou remplir les trous de l'antenne principale.",
+    desc: "Votre catalogue regorge de pépites de l’histoire du sport. La rédaction propose de lancer une chaîne YouTube dédiée.",
     types: ['sport'],
     c: [
       { l: "Créer une chaîne archives dédiée", finance: {"recurring":0,"purchase":5,"commercial":0,"category":"P"}, pda: { j1524: +3, a2549: +4, s50: +7, csp: +4 }, r: "Dépense raisonnable, les courbes d'audience grimpent. L'accueil est positif.", pop: 2 },
@@ -6261,8 +6221,8 @@ const DILEMMA_BANK = [
     ]
   },
   {
-    id: 'd229', titre: "Une charte d'indépendance éditoriale",
-    desc: "Un sponsor demande gentiment qu'on parle moins d'un sujet. Tu peux graver ton indépendance dans le marbre, ou faire une exception.",
+    id: 'd229', titre: "L’indépendance éditoriale se négocie-t-elle ?",
+    desc: "Un sponsor veut faire taire un sujet qui le dérange et te pousse à infléchir la ligne de ta rédaction.",
     types: ['sport'],
     c: [
       { l: "Refuser toute pression commerciale", finance: {"recurring":0,"purchase":4,"commercial":0,"category":"P"}, pda: { j1524: +4, a2549: +6, s50: +6, csp: +8 }, r: "Budget maîtrisé, le public répond présent en masse. Les réseaux sociaux s'enflamment positivement.", pop: 5 },
@@ -6384,15 +6344,6 @@ const DILEMMA_BANK = [
     c: [
       { l: "Investir massivement dans de nouveaux droits", finance: {"recurring":0,"purchase":20,"commercial":0,"category":"P"}, pda: { j1524: +9, a2549: +9, s50: +6, csp: +6 }, r: "Le public répond présent en masse : facture salée mais assumée. L'image de la chaîne y gagne beaucoup.", pop: 3 },
       { l: "Optimiser la grille et les programmes existants", finance: {"recurring":0,"purchase":4,"commercial":0,"category":"P"}, pda: { j1524: +4, a2549: +5, s50: +4, csp: +4 }, r: "Les courbes d'audience grimpent : budget maîtrisé. Bon retour côté opinion publique.", pop: 2 }
-    ]
-  },
-  {
-    id: 'd243', titre: "La trésorerie tire la langue",
-    desc: "Les échéances arrivent, la banque appelle. Certains droits peuvent être revendus vite.",
-    types: ['sport'],
-    c: [
-      { l: "Revendre une partie des droits", finance: {"recurring":0,"purchase":0,"commercial":15,"category":"C"}, pda: { j1524: -4, a2549: -5, s50: -3, csp: -3 }, r: "Quelques téléspectateurs décrochent : effort budgétaire conséquent. L'opinion publique se crispe.", pop: -4 },
-      { l: "Conserver le portefeuille et serrer les dents", finance: {"recurring":0,"purchase":3,"commercial":0,"category":"P"}, pda: { j1524: +5, a2549: +5, s50: +3, csp: +4 }, r: "Budget maîtrisé, le public suit en nombre. Les réseaux sociaux s'enflamment positivement.", pop: 3 }
     ]
   },
   {
@@ -6630,8 +6581,8 @@ const DILEMMA_BANK = [
     ]
   },
   {
-    id: 'd271', titre: "Une académie de commentateurs",
-    desc: "Former les talents de demain prend trois ans. Recruter des stars prend un chèque.",
+    id: 'd271', titre: "Des pépites ou des vedettes ?",
+    desc: "Ton directeur des sports propose de lancer un concours de commentateurs. 12 épisodes pour former les voix de demain… ou un gros chèque pour s’offrir celles que tout le monde connaît déjà.",
     types: ['sport'],
     c: [
       { l: "Créer une académie interne", finance: {"recurring":3,"purchase":0,"commercial":0,"category":"R"}, pda: { j1524: +8, a2549: +6, s50: +3, csp: +6 }, r: "Dépense raisonnable, le public suit en nombre. Les réseaux sociaux s'enflamment positivement.", pop: 4 },
@@ -7436,6 +7387,10 @@ function playerBroadcastsRight(eventId) {
 }
 // Dilemmes du numérique (abonnements, churn, application, alertes…) : réservés aux chaînes
 // devenues plateformes par abonnement (dilemme « Devenir une plateforme ? »).
+// Les conséquences du numérique ne touchent ni les parts d'audience de la grille ni les
+// cibles : seulement la popularité, la publicité (commercial) et la trésorerie.
+const DIGITAL_DILEMMA_IDS = ['d179', 'd184', 'd186', 'd187', 'd188', 'd189', 'd190', 'd204', 'd205', 'd210', 'd239', 'd249', 'd251', 'd252', 'd254', 'd256', 'd258'];
+DILEMMA_BANK.forEach(d => { if (DIGITAL_DILEMMA_IDS.includes(d.id)) d.c.forEach(c => { c.pda = { j1524: 0, a2549: 0, s50: 0, csp: 0 }; }); });
 const PLATFORM_DILEMMA_IDS = ['d184', 'd186', 'd187', 'd188', 'd189', 'd204', 'd239', 'd249', 'd251', 'd252', 'd256', 'd258'];
 function getEligibleDilemmas() {
   const type = gameState.player.type;
@@ -12201,7 +12156,7 @@ const PROGRAM_STORY_BANK = [
     ] },
   { id: 'ps_p186_mercato_hiver', programId: 'p186', family: 'audience', phase: 3, when: { minSeasons: 1 },
     titre: 'Le mercato d’hiver',
-    desc: 'Le mercato d’hiver approche. La production de {programme} propose de passer en quotidienne pendant un mois.',
+    desc: 'Le mercato d’hiver approche. La production de « {programme} » propose de passer en direct pendant un mois.',
     c: [
       { l: 'Passer en quotidienne', icon: '📅', cost: { purchase: 0.08 }, boost: 0.06, career: { awareness: 3, wear: 4 },
         r: 'Les fans suivent chaque jour les rumeurs.' },
@@ -20728,11 +20683,18 @@ function chooseDilemmaOption(choiceIndex) {
 function chooseMaterialized(choiceIndex, dilemma) {
   if (!dilemma?.c?.[choiceIndex] || dilemma.c[choiceIndex].disabled) return;
   const isSportsAuction = dilemma.type === 'sports_rights_auction';
-  const choice = isSportsAuction ? buildSportsAuctionChoice(dilemma)
+  let choice = isSportsAuction ? buildSportsAuctionChoice(dilemma)
     : dilemma.c[choiceIndex].gridRenewal === 'custom' ? buildGridRenewalCustomChoice(dilemma, dilemma.c[choiceIndex])
     : dilemma.c[choiceIndex].talentRenewal ? buildTalentRenewalChoice(dilemma, dilemma.c[choiceIndex])
     : dilemma.c[choiceIndex];
   ensureCampaign();
+  // Conséquence aléatoire (scoop confirmé ou démenti…) : tirée au moment du choix.
+  if (choice.randomOutcomes?.length) {
+    let roll = seededRandom(), outcome = choice.randomOutcomes[choice.randomOutcomes.length - 1];
+    for (const o of choice.randomOutcomes) { if (roll < o.chance) { outcome = o; break; } roll -= o.chance; }
+    const { randomOutcomes, ...rest } = choice;
+    choice = { ...rest, ...outcome };
+  }
   // La grille du joueur se fige au premier dilemme : les intentions concurrentes
   // annoncées deviennent la programmation confirmée de la saison.
   if (gameState.currentDilemmaIndex === 0) confirmCompetitorPlans();
@@ -21309,7 +21271,7 @@ function renderTicker() {
   const arcomSlideHtml = renderArcomSlide(compliance, ARCOM_CONVENTIONS[p.type]);
   const ecoBilanSlideHtml = renderEcoBilanSlide(p);
   const talentsSlideHtml = renderTalentsSlide();
-  const slide = gameState.hudSlide || 0;
+  const slide = Math.min(gameState.hudSlide || 0, hudSlideCount() - 1);
 
   return `
     <div class="hud-wrap">
@@ -21343,7 +21305,7 @@ function renderTicker() {
           <div class="eh-slider" id="eh-slider">
             <div class="eh-slider-track" id="eh-slider-track" style="transform: translateX(-${slide * 100}%);">
               <div class="eh-slide programming-slide">${programGridHtml}</div>
-              <div class="eh-slide studio-slide">${renderStudioSlide()}</div>
+              ${studioSlideHidden() ? '' : `<div class="eh-slide studio-slide">${renderStudioSlide()}</div>`}
               <div class="eh-slide talents-slide">${talentsSlideHtml}</div>
               <div class="eh-slide">${globalAudienceShareHtml}</div>
               <div class="eh-slide eco-slide-wrap">${ecoBilanSlideHtml}</div>
@@ -21354,7 +21316,7 @@ function renderTicker() {
           </div>
           <div class="eh-slider-nav">
             <div class="eh-slider-dots" id="eh-slider-dots">
-              ${Array.from({ length: HUD_SLIDE_COUNT }, (_, i) => `<button class="eh-dot${slide === i ? ' active' : ''}" data-slide="${i}" aria-label="Écran ${i + 1}"></button>`).join('')}
+              ${Array.from({ length: hudSlideCount() }, (_, i) => `<button class="eh-dot${slide === i ? ' active' : ''}" data-slide="${i}" aria-label="Écran ${i + 1}"></button>`).join('')}
             </div>
           </div>
         </div>
@@ -21363,7 +21325,9 @@ function renderTicker() {
   `;
 }
 
-const HUD_SLIDE_COUNT = 8;
+// Studio de création masqué quand toute la grille est occupée par des événements.
+function studioSlideHidden() { return TIME_SLOTS.every(t => slotTakenByEvent(t.key)); }
+function hudSlideCount() { return studioSlideHidden() ? 7 : 8; }
 
 // En mode Concurrence, le slider est figé sur la grille : on n'en sort
 // qu'après être revenu sur « Ma grille ».
@@ -21394,10 +21358,16 @@ function bindTickerInteractions(app) {
     document.getElementById('hud-toggle').classList.toggle('open', isOpen);
     document.getElementById('hud-toggle').setAttribute('aria-expanded', isOpen);
     gameState.hudExpanded = isOpen;
+    // Refermé, le slider revient à la grille de la chaîne à sa réouverture.
+    if (!isOpen) { gameState.hudSlide = 0; goToHudSlide(0); }
   };
+  // Un clic sur le dilemme referme le slider ouvert.
+  document.querySelector('#app .dilemma-container')?.addEventListener('pointerdown', () => {
+    if (gameState.hudExpanded) document.getElementById('hud-toggle').click();
+  }, true);
   const goToHudSlide = idx => {
     if (isHudSliderLocked()) idx = 0;
-    const clamped = Math.max(0, Math.min(HUD_SLIDE_COUNT - 1, idx));
+    const clamped = Math.max(0, Math.min(hudSlideCount() - 1, idx));
     gameState.hudSlide = clamped;
     document.getElementById('eh-slider-track').style.transform = `translateX(-${clamped * 100}%)`;
     document.querySelectorAll('.eh-dot').forEach(d => d.classList.toggle('active', parseInt(d.dataset.slide, 10) === clamped));
@@ -24077,6 +24047,8 @@ const PROGRAM_PITCH_OVERRIDES = {
   p334: 'Rivalités, exploits et esprit d’équipe : au cœur des compétitions universitaires, les campus s’affrontent et les champions de demain se révèlent.',
   p428: 'Des sportifs revivent le match qui a changé leur destin, entre images d’archives, confidences et émotions intactes.',
   p330: 'Des disciplines insolites, des règles improbables et des passionnés : une immersion décalée dans les sports les plus surprenants.',
+  p430: 'Skate, BMX, parkour et basket de rue : rencontre avec les passionnés qui transforment la ville en terrain de jeu, entre défis, figures spectaculaires et liberté.',
+  p182: 'Échappées et sprints haletants : de Milan-San Remo au Tour de Lombardie, en passant par le Tour des Flandres, Paris-Roubaix et Liège-Bastogne-Liège, vis les grandes classiques de la saison sur ton antenne.',
   p431: 'Les meilleurs joueurs d’e-sport s’affrontent dans une compétition où réflexes, stratégie et sang-froid sont les clés pour décrocher la Manette d’or.'
 };
 const PROGRAM_CATALOG = PROGRAM_CATALOG_DATA.map(([id,channelType,slot,format,name,target,annual,rights,years,power,genre,pitch,kind]) => ({
@@ -28279,7 +28251,7 @@ function auditProgramCareers() {
   console.table(lines); return lines;
 }
 const STORY_EVENTS = [
- {id:'story_sponsor',titre:'Le sponsor demande un droit de regard',desc:'Votre précédent contrat commercial attire de nouvelles exigences éditoriales.',eligible:p=>p.decisionHistory.some(x=>x.commercial>0),c:[
+ {id:'story_sponsor',titre:'Le sponsor demande un droit de regard',desc:'Il n’a pas seulement acheté de la visibilité : il veut désormais censurer, corriger et valider chaque publication.',eligible:p=>p.decisionHistory.some(x=>x.commercial>0),c:[
   {l:'Refuser et indemniser le partenaire',b:-2,pop:3,pda:{csp:2},r:'Votre indépendance est préservée.',finance:{recurring:0,purchase:2,commercial:0,category:'P'}},
   {l:'Accepter une opération sponsorisée',b:4,pop:-4,pda:{a2549:1},r:'La marque paie cette opération ponctuelle.',finance:{recurring:0,purchase:0,commercial:4,category:'C'}}]},
  {id:'story_talent',titre:'Votre vedette reçoit une offre concurrente',desc:'Le recrutement d’une vedette a attiré l’attention des autres chaînes.',eligible:p=>Object.values(p.contracts).some(c=>c.talent==='Prod. Internationale'),c:[
