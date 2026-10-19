@@ -4582,12 +4582,12 @@ const DILEMMA_BANK = [
     ]
   },
   {
-    id: 'd88', titre: "Rugby féminin : la vague monte",
-    desc: "Les audiences grimpent, les fédérations démarchent. Personne n'a encore posé de case fixe à l'antenne.",
+    id: 'd88', titre: "Sport féminin : prendre la vague",
+    desc: "Les audiences progressent et les fédérations frappent à ta porte. Aucune chaîne n’a encore installé de rendez-vous régulier. Ta rédaction y voit un terrain à conquérir.",
     types: ['sport'],
     c: [
-      { l: "Créer une case dédiée toute l'année", finance: {"recurring":5,"purchase":0,"commercial":0,"category":"R"}, pda: { j1524: +5, a2549: +6, s50: +6, csp: +5 }, r: "L'audience progresse nettement : effort financier contenu. Le public est conquis.", pop: 4 },
-      { l: "Diffuser ponctuellement, sans engagement", finance: {"recurring":0,"purchase":2,"commercial":0,"category":"P"}, pda: { j1524: +2, a2549: +3, s50: +4, csp: +3 }, r: "Le public suit en nombre : dépense raisonnable. Ni éclat ni polémique à signaler.", pop: 0 }
+      { l: "Ouvrir une case fixe et miser sur l’essor du sport féminin", finance: {"recurring":5,"purchase":0,"commercial":0,"category":"R"}, pda: { j1524: +5, a2549: +6, s50: +6, csp: +5 }, r: "Un créneau fixe s’installe sur la grille : l’audience progresse nettement, le public est conquis.", pop: 4 },
+      { l: "Privilégier certains rendez-vous, au risque de laisser un concurrent devenir la chaîne de référence", finance: {"recurring":0,"purchase":2,"commercial":0,"category":"P"}, pda: { j1524: +2, a2549: +3, s50: +4, csp: +3 }, r: "Quelques rendez-vous sont retenus : le public suit, mais un concurrent prend la place de référence.", pop: 0 }
     ]
   },
   {
@@ -5959,8 +5959,8 @@ const DILEMMA_BANK = [
     ]
   },
   {
-    id: 'd199', titre: "La réalité augmentée sur le terrain",
-    desc: "Trajectoires, hors-jeu, vitesse de course affichés en direct. Beau, cher, et parfois envahissant.",
+    id: 'd199', titre: "La data entre en jeu",
+    desc: "Trajectoires, lignes de hors-jeu, vitesse de course : la réalisation veut enrichir les matchs avec des statistiques incrustées en direct.",
     types: ['sport'],
     c: [
       { l: "Enrichir l'image en réalité augmentée", finance: {"recurring":0,"purchase":6,"commercial":0,"category":"P"}, pda: { j1524: +9, a2549: +6, s50: +1, csp: +5 }, r: "Les courbes d'audience grimpent : effort financier contenu. La confiance du public progresse.", pop: 2 },
@@ -6094,12 +6094,12 @@ const DILEMMA_BANK = [
     ]
   },
   {
-    id: 'd215', titre: "Le salon du sport",
-    desc: "Tu peux créer le tien ou y venir en simple média accrédité.",
+    id: 'd215', titre: "Le sport fait salon",
+    desc: "La rédaction veut réunir tout le sport sous un même toit pour devenir un acteur référent du monde du sport.",
     types: ['sport'],
     c: [
-      { l: "Créer ton propre salon du sport", finance: {"recurring":0,"purchase":7,"commercial":0,"category":"P"}, pda: { j1524: +7, a2549: +6, s50: +5, csp: +6 }, r: "Effort financier contenu, les scores explosent sur toutes les cibles. La confiance du public progresse.", pop: 2 },
-      { l: "Y participer comme média", finance: {"recurring":0,"purchase":2,"commercial":0,"category":"P"}, pda: { j1524: +3, a2549: +4, s50: +4, csp: +5 }, r: "Le public suit en nombre : effort financier contenu. La confiance du public progresse.", pop: 1 }
+      { l: "Régler la facture", finance: {"recurring":0,"purchase":7,"commercial":0,"category":"P"}, pda: { j1524: +7, a2549: +6, s50: +5, csp: +6 }, r: "Le salon ouvre sous ta marque : la facture est lourde, mais la chaîne devient une référence du sport.", pop: 2 },
+      { l: "Laisser l’espace à un concurrent et se faire accréditer pour couvrir l’événement", finance: {"recurring":0,"purchase":2,"commercial":0,"category":"P"}, pda: { j1524: +3, a2549: +4, s50: +4, csp: +5 }, r: "Un concurrent occupe le salon ; tu le couvres en média accrédité, sans la facture.", pop: 1 }
     ]
   },
   {
@@ -7385,6 +7385,7 @@ function dilemmaProgramMatch(dilemma, channel = gameState.player) {
 function playerBroadcastsRight(eventId) {
   return (gameState.sportsRights?.owned || []).some(o => o.ownerId === 'player' && o.eventId === eventId && o.broadcastSeason === gameState.season);
 }
+const SPORT_FEMININ_PROGRAM = 'Sport féminin : le rendez-vous';
 // Dilemmes du numérique (abonnements, churn, application, alertes…) : réservés aux chaînes
 // devenues plateformes par abonnement (dilemme « Devenir une plateforme ? »).
 // Les conséquences du numérique et de l'événementiel (salon, festival, convention, fan zone…)
@@ -26756,6 +26757,22 @@ const DYNAMIC_DILEMMAS = {
             r: `« ${q.fiche.name} » prend l’antenne : les 15-24 ans sont au rendez-vous, les plus âgés zappent.` },
           { ...base.c[1] }
         ] };
+    }
+  },
+  // Sport féminin : le rendez-vous fixe prend un créneau encore libre (sans programme ni droit
+  // ni événement). Le programme devient ensuite un programme classique, reconductible.
+  d88: {
+    freeSlot: () => TIME_SLOTS.map(t => t.key).find(slot => !gameState.player.contracts?.[slot] && !slotTakenByEvent(slot)) || null,
+    eligible: () => !!DYNAMIC_DILEMMAS.d88.freeSlot()
+      && !Object.values(gameState.player.contracts || {}).some(c => c?.name === SPORT_FEMININ_PROGRAM),
+    build: base => {
+      const slot = DYNAMIC_DILEMMAS.d88.freeSlot();
+      const [keep, ...rest] = base.c;
+      return { ...base, dynamicOf: 'd88', eventSlot: slot, c: [
+        { ...keep, grille: { slot, programme: SPORT_FEMININ_PROGRAM, power: 3, level: 2, format: 'magazine' },
+          r: `« ${SPORT_FEMININ_PROGRAM} » prend le créneau ${slotLabelOf(slot).toLowerCase()} : un rendez-vous fixe, reconductible chaque saison.` },
+        ...rest
+      ] };
     }
   },
   // Finale d'une compétition dont la chaîne diffuse les droits cette saison.

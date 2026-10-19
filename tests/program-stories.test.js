@@ -489,6 +489,17 @@ const base=id=>DILEMMA_BANK.find(d=>d.id===id);
   ok(studioSlideHidden()===false,'studio : visible avec une grille normale');
   TIME_SLOTS.forEach(t=>{ if(!slotTakenByEvent(t.key)) installSlotEvent({slot:t.key,programId:'dp_streamer_rallye'}); });
   ok(studioSlideHidden()&&hudSlideCount()===7,'studio : masqué quand toute la grille est en événements'); }
+// Sport féminin : le rendez-vous prend un créneau libre, devient un programme classique.
+{ partie(53,'sport'); const p=p0();
+  ok(!getEligibleDilemmas().some(d=>d.id==='d88')||DYNAMIC_DILEMMAS.d88.eligible(),'sport féminin : éligible seulement avec un créneau libre');
+  gameState.dilemmaQueue=[base('d88'),...fillers()]; gameState.currentDilemmaIndex=0; gameState.dilemmaPhase='choosing';
+  const d=materializeCurrentDilemma(), slot=d.eventSlot;
+  ok(slot&&!p.contracts[slot],'sport féminin : créneau libre choisi');
+  ok(d.titre==='Sport féminin : prendre la vague'&&d.c[0].grille.slot===slot,'sport féminin : titre et créneau');
+  joue(base('d88'),0);
+  ok(activeContract(p,slot)?.name===SPORT_FEMININ_PROGRAM&&p.contracts[slot].end===gameState.season,'sport féminin : programme installé sur la case');
+  ok(!DYNAMIC_DILEMMAS.d88.freeSlot()||DYNAMIC_DILEMMAS.d88.freeSlot()!==slot,'sport féminin : la case n’est plus proposée');
+  ok(!DYNAMIC_DILEMMAS.d88.eligible(),'sport féminin : pas de second rendez-vous fixe'); }
 // Le Grodeal : uniquement s'il est diffusé chez un concurrent.
 { partie(25); const p=p0(); const grodeal=PROGRAM_CATALOG.find(x=>x.id==='p478');
   ok(grodeal&&grodeal.name==='Le Grodeal','fiche stable p478');
