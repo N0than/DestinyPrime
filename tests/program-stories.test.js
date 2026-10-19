@@ -483,7 +483,7 @@ const base=id=>DILEMMA_BANK.find(d=>d.id===id);
   ok(!getEligibleDilemmas().some(d=>d.id==='d81'),'derby : aucun championnat, pas de dilemme');
   (gameState.sportsRights.owned??=[]).push({ownerId:'player',eventId:'ligue1',broadcastSeason:gameState.season,slots:['prime']});
   ok(getEligibleDilemmas().some(d=>d.id==='d81'),'derby : Ligue 1 diffusée, dilemme possible');
-  ok(['d251','d188','d190','d204','d254'].every(id=>DILEMMA_BANK.find(d=>d.id===id).c.every(c=>Object.values(c.pda).every(v=>v===0))),'numérique : aucun effet direct sur les parts d’audience');
+  ok(['d251','d188','d190','d204','d254','d215','d216','d223'].every(id=>DILEMMA_BANK.find(d=>d.id===id).c.every(c=>Object.values(c.pda).every(v=>v===0))),'numérique : aucun effet direct sur les parts d’audience');
   const outcomes=new Set(); for(let i=0;i<40;i++){ gameState.campaign.seed=((i*2654435761)>>>0)||7; const r=joue(base('d161'),0); outcomes.add(gameState.lastConsequence.resultat.slice(0,12)); }
   ok(outcomes.size===2,'scoop : issue confirmée ou démentie tirée au sort');
   ok(studioSlideHidden()===false,'studio : visible avec une grille normale');

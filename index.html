@@ -5614,7 +5614,7 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd161', titre: "23h47 : le scoop ou le flop ?",
-    desc: "Ta rédaction tient une bombe sur le mercato, mais une seule source la confirme. Un concurrent est sur le coup. Publier avant tout le monde ou vérifier avant de s’emballer ?",
+    desc: "Ta rédaction tient une bombe sur le mercato, mais une seule source la confirme. Un concurrent est sur le coup.",
     types: ['sport'],
     c: [
       { l: "Diffuser immédiatement et prendre le risque", finance: {"recurring":0,"purchase":2,"commercial":0,"category":"P"}, pda: { j1524: +8, a2549: +7, s50: +3, csp: +4 }, r: "", pop: 0,
@@ -7387,9 +7387,11 @@ function playerBroadcastsRight(eventId) {
 }
 // Dilemmes du numérique (abonnements, churn, application, alertes…) : réservés aux chaînes
 // devenues plateformes par abonnement (dilemme « Devenir une plateforme ? »).
-// Les conséquences du numérique ne touchent ni les parts d'audience de la grille ni les
-// cibles : seulement la popularité, la publicité (commercial) et la trésorerie.
-const DIGITAL_DILEMMA_IDS = ['d179', 'd184', 'd186', 'd187', 'd188', 'd189', 'd190', 'd204', 'd205', 'd210', 'd239', 'd249', 'd251', 'd252', 'd254', 'd256', 'd258'];
+// Les conséquences du numérique et de l'événementiel (salon, festival, convention, fan zone…)
+// ne touchent ni les parts d'audience de la grille ni les cibles : seulement la popularité,
+// la publicité (commercial) et la trésorerie.
+const EVENT_DILEMMA_IDS = ['d110', 'd214', 'd215', 'd216', 'd218', 'd219', 'd220', 'd222', 'd223'];
+const DIGITAL_DILEMMA_IDS = [...EVENT_DILEMMA_IDS, 'd179', 'd184', 'd186', 'd187', 'd188', 'd189', 'd190', 'd204', 'd205', 'd210', 'd239', 'd249', 'd251', 'd252', 'd254', 'd256', 'd258'];
 DILEMMA_BANK.forEach(d => { if (DIGITAL_DILEMMA_IDS.includes(d.id)) d.c.forEach(c => { c.pda = { j1524: 0, a2549: 0, s50: 0, csp: 0 }; }); });
 const PLATFORM_DILEMMA_IDS = ['d184', 'd186', 'd187', 'd188', 'd189', 'd204', 'd239', 'd249', 'd251', 'd252', 'd256', 'd258'];
 function getEligibleDilemmas() {
