@@ -4519,7 +4519,7 @@ const DILEMMA_BANK = [
 ,
   {
     id: 'd79', titre: "Finale : grand spectacle ou simple diffusion ?",
-    desc: "Pour la finale, ton réalisateur voit grand : cérémonie d’ouverture, invités de prestige et caméras au plus près du terrain.",
+    desc: "Pour la finale, le réalisateur voit grand : cérémonie d’ouverture, invités de prestige et caméras au plus près du terrain. La direction financière, elle, a déjà repéré le devis avec beaucoup de zéros. Reste à savoir si la soirée mérite un tel déploiement ou si le coup d’envoi suffit.",
     types: ['generaliste', 'sport'],
     c: [
       { l: "Produire un show XXL, plein écran", finance: {"recurring":0,"purchase":7,"commercial":0,"category":"P"}, pda: { j1524: +7, a2549: +8, s50: +5, csp: +5 }, r: "Dépense raisonnable, le public répond présent en masse. L'accueil est positif.", pop: 2 },
@@ -4528,16 +4528,16 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd80', titre: "Mercato : la machine à rumeurs",
-    desc: "Les rumeurs tombent toutes les vingt minutes et ton public ne dort plus. Reste à savoir si tu ouvres l'antenne tous les soirs ou une fois par semaine.",
+    desc: "Les rumeurs tombent toutes les vingt minutes et le public ne dort plus. La rédaction hésite entre une émission quotidienne, pour suivre chaque feuilleton en direct, et un grand rendez-vous hebdomadaire, plus posé. Dans les deux cas, un transfert démenti à 22h reste le risque du métier.",
     types: ['sport'],
     c: [
       { l: "Lancer une émission quotidienne mercato", finance: {"recurring":6,"purchase":0,"commercial":0,"category":"R"}, pda: { j1524: +10, a2549: +8, s50: +4, csp: +5 }, r: "Les scores explosent sur toutes les cibles : dépense raisonnable. L'image de la chaîne y gagne beaucoup.", pop: 3 },
-      { l: "Un grand rendez-vous hebdomadaire", finance: {"recurring":2,"purchase":0,"commercial":0,"category":"R"}, pda: { j1524: +5, a2549: +5, s50: +4, csp: +4 }, r: "Les courbes d'audience grimpent : dépense raisonnable. L'accueil est positif.", pop: 2 }
+      { l: "Programmer un grand rendez-vous hebdomadaire", finance: {"recurring":2,"purchase":0,"commercial":0,"category":"R"}, pda: { j1524: +5, a2549: +5, s50: +4, csp: +4 }, r: "Les courbes d'audience grimpent : dépense raisonnable. L'accueil est positif.", pop: 2 }
     ]
   },
   {
     id: 'd81', titre: "Le derby que tout le monde attend",
-    desc: "Deux villes rivales, des tribunes en ébullition et la fierté locale en jeu. Ton équipe marketing veut sortir le grand jeu : campagne de promo, plateau au stade et consultants vedettes.",
+    desc: "Deux villes rivales, des tribunes en ébullition et la fierté locale en jeu. L’équipe marketing veut sortir le grand jeu : campagne de promo, plateau au stade et consultants vedettes. Reste à savoir si un derby de plus mérite vraiment un dispositif de finale.",
     types: ['sport'],
     eligibleIf: () => playerBroadcastsRight('ligue1') || playerBroadcastsRight('top14'),
     c: [
@@ -4547,16 +4547,16 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd82', titre: "VAR : l'écran qui divise la France",
-    desc: "Décision litigieuse, stade en furie, réseaux en ébullition. Ton consultant arbitrage est prêt à décortiquer l'action image par image.",
+    desc: "Décision litigieuse, stade en furie, réseaux en ébullition. Le consultant arbitrage est prêt à décortiquer l’action image par image, quitte à prolonger le débat pour dix minutes de plus. Passer vite à la suite du match reste la solution des prudents, au risque de laisser la polémique aux concurrents.",
     types: ['sport'],
     c: [
       { l: "Décrypter l'action en direct, à chaud", finance: {"recurring":0,"purchase":2,"commercial":0,"category":"P"}, pda: { j1524: +8, a2549: +7, s50: +3, csp: +5 }, r: "L'audience progresse nettement : dépense raisonnable. L'accueil est positif.", pop: 2 },
-      { l: "Passer vite à la suite, le match continue", finance: {"recurring":0,"purchase":0,"commercial":0,"category":"N"}, pda: { j1524: +3, a2549: +4, s50: +4, csp: +4 }, r: "Dépense raisonnable, l'audience progresse nettement. La confiance du public progresse.", pop: 1 }
+      { l: "Passer vite à la suite du match", finance: {"recurring":0,"purchase":0,"commercial":0,"category":"N"}, pda: { j1524: +3, a2549: +4, s50: +4, csp: +4 }, r: "Dépense raisonnable, l'audience progresse nettement. La confiance du public progresse.", pop: 1 }
     ]
   },
   {
     id: 'd83', titre: "Data : les chiffres derrière le jeu",
-    desc: "Les xG et les courses sans ballon fascinent une partie de ton public et endorment l'autre. Il faut trancher.",
+    desc: "Les xG et les courses sans ballon fascinent une partie du public et endorment l’autre. La rédaction hésite entre installer une vraie cellule data, qui change le regard sur le match, et s’en tenir aux statistiques classiques, que tout le monde comprend. Il faut trancher.",
     types: ['sport'],
     c: [
       { l: "Installer une vraie cellule data", finance: {"recurring":5,"purchase":0,"commercial":0,"category":"R"}, pda: { j1524: +8, a2549: +6, s50: +2, csp: +6 }, r: "Les courbes d'audience grimpent : budget maîtrisé. La confiance du public progresse.", pop: 2 },
@@ -4583,7 +4583,7 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd88', titre: "Sport féminin : prendre la vague",
-    desc: "Les audiences progressent et les fédérations frappent à ta porte. Aucune chaîne n’a encore installé de rendez-vous régulier. Ta rédaction y voit un terrain à conquérir.",
+    desc: "Les audiences progressent et les fédérations frappent à la porte de la chaîne. Aucune chaîne n’a encore installé de rendez-vous régulier, et la rédaction y voit un terrain à conquérir. Reste à choisir entre une case fixe, qui engage, et quelques rendez-vous ciblés, qui laissent la place à un concurrent.",
     types: ['sport'],
     c: [
       { l: "Ouvrir une case fixe et miser sur l’essor du sport féminin", finance: {"recurring":5,"purchase":0,"commercial":0,"category":"R"}, pda: { j1524: +5, a2549: +6, s50: +6, csp: +5 }, r: "Un créneau fixe s’installe sur la grille : l’audience progresse nettement, le public est conquis.", pop: 4 },
@@ -4611,7 +4611,7 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd91', titre: "Circuit féminin : le package sur la table",
-    desc: "Une offre premium arrive avec toute la saison dedans. Ou tu picores les grands tournois.",
+    desc: "Une offre premium arrive avec toute la saison dedans. La direction des sports pourrait aussi se contenter des grands tournois, plus faciles à installer dans la grille. Entre l’abondance du package et la sélection, la chaîne doit décider ce que le public viendra vraiment chercher.",
     types: ['sport'],
     c: [
       { l: "Acheter le package premium complet", finance: {"recurring":0,"purchase":10,"commercial":0,"category":"P"}, pda: { j1524: +5, a2549: +6, s50: +5, csp: +6 }, r: "Effort budgétaire conséquent, les courbes d'audience grimpent. Bon retour côté opinion publique.", pop: 2 },
@@ -5052,7 +5052,7 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd95', titre: "Athlétisme : la piste toute l'année",
-    desc: "Entre les meetings et les championnats, la saison est longue et inégale. Ton programmateur veut de la régularité.",
+    desc: "Entre les meetings et les championnats, la saison est longue et inégale. Le programmateur réclame de la régularité pour fidéliser le public, quand les grands rendez-vous suffiraient peut-être à attirer les curieux. Reste à savoir si un meeting de février mérite la même place qu’un championnat.",
     types: ['sport'],
     c: [
       { l: "Acheter toute la saison de meetings", finance: {"recurring":0,"purchase":9,"commercial":0,"category":"P"}, pda: { j1524: +5, a2549: +6, s50: +6, csp: +6 }, r: "L'audience progresse nettement : effort budgétaire conséquent. L'accueil est positif.", pop: 2 },
@@ -5061,7 +5061,7 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd97', titre: "Basket français : le parquet national",
-    desc: "Le championnat cherche une vitrine. Tu peux la lui offrir en entier ou par morceaux.",
+    desc: "Le championnat cherche une vitrine, et la chaîne peut la lui offrir en entier ou par morceaux. Devenir diffuseur principal donne une identité, mais engage beaucoup ; se partager les affiches garde de la souplesse. Reste une troisième voie : laisser le parquet à un autre diffuseur.",
     types: ['sport'],
     c: [
       { l: "Devenir diffuseur principal du championnat", finance: {"recurring":0,"purchase":11,"commercial":0,"category":"P"}, pda: { j1524: +5, a2549: +6, s50: +4, csp: +5 }, r: "Effort budgétaire conséquent, l'audience progresse nettement. La confiance du public progresse.", pop: 2 },
@@ -5080,7 +5080,7 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd99', titre: "Volley : la Ligue des nations",
-    desc: "Le volley français brille à l'international mais reste discret en grille. Combien de matchs peux-tu vraiment porter ?",
+    desc: "Le volley français brille à l’international mais reste discret en grille. La rédaction se demande combien de matchs la chaîne peut vraiment porter sans transformer la case en salle d’attente. Entre soutenir les équipes nationales et limiter le nombre de matchs, chaque option garde ses arguments.",
     types: ['sport'],
     c: [
       { l: "Investir sur les équipes nationales", finance: {"recurring":0,"purchase":6,"commercial":0,"category":"P"}, pda: { j1524: +4, a2549: +5, s50: +5, csp: +4 }, r: "Effort financier contenu, le public suit en nombre. L'accueil est positif.", pop: 2 },
@@ -5107,7 +5107,7 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd103', titre: "Surf : le circuit et la vague parfaite",
-    desc: "Les compétitions démarrent quand la houle décide, jamais quand ta grille le voudrait.",
+    desc: "Les compétitions démarrent quand la houle décide, jamais quand la grille le voudrait. La rédaction hésite entre acheter le circuit international, au rythme imprévisible, et créer un magazine hebdomadaire, plus facile à programmer. Dans les deux cas, la mer garde le dernier mot sur l’horaire.",
     types: ['sport'],
     c: [
       { l: "Acheter le circuit international", finance: {"recurring":0,"purchase":6,"commercial":0,"category":"P"}, pda: { j1524: +9, a2549: +6, s50: +2, csp: +4 }, r: "Les courbes d'audience grimpent : budget maîtrisé. L'accueil est positif.", pop: 2 },
@@ -5125,7 +5125,7 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd105', titre: "MMA : la cage ou la tradition",
-    desc: "Le MMA explose chez les moins de 25 ans et fait grincer une partie de ta rédaction. La décision remonte jusqu'à toi.",
+    desc: "Le MMA explose chez les moins de 25 ans et fait grincer une partie de la rédaction. Une grande soirée combat séduirait un public jeune, quand les sports traditionnels font l’identité de la chaîne. Les avis divergent, et la décision remonte jusqu’à la direction.",
     types: ['sport'],
     c: [
       { l: "Lancer une grande soirée combat", finance: {"recurring":0,"purchase":9,"commercial":0,"category":"P"}, pda: { j1524: +10, a2549: +7, s50: 0, csp: +3 }, r: "L'audience progresse nettement : mise conséquente sur la table. Bon retour côté opinion publique.", pop: 1 },
@@ -5134,7 +5134,7 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd106', titre: "E-sport : l'audience qui ne regarde pas la TV",
-    desc: "Des millions de spectateurs, tous sur Twitch, aucun sur ton antenne. Les droits sont encore abordables.",
+    desc: "Des millions de spectateurs, tous sur Twitch, aucun sur l’antenne de la chaîne. Les droits de la compétition sont encore abordables, et la rédaction y voit une porte d’entrée vers un public absent de la télévision. Un magazine e-sport serait plus prudent, mais moins visible.",
     types: ['sport'],
     c: [
       { l: "Acheter les droits de la compétition", finance: {"recurring":0,"purchase":8,"commercial":0,"category":"P"}, pda: { j1524: +11, a2549: +6, s50: -4, csp: +3 }, r: "L'audience progresse nettement : enveloppe généreuse débloquée. L'accueil est positif.", pop: 2 },
@@ -5151,8 +5151,8 @@ const DILEMMA_BANK = [
     ]
   },
   {
-    id: 'd108', titre: "Skate : le sport qui ne te ressemble pas",
-    desc: "Une compétition de skate, un public jeune, une esthétique qui ne colle pas à ta grille actuelle. C'est justement l'intérêt.",
+    id: 'd108', titre: "Skate : un sport qui ne ressemble pas à la grille",
+    desc: "Une compétition de skate, un public jeune, une esthétique qui ne colle pas à la grille actuelle. C’est justement l’intérêt, selon la rédaction, qui voudrait créer un rendez-vous à l’année. Reste à savoir si la chaîne doit s’engager ou se limiter aux grands événements.",
     types: ['sport'],
     c: [
       { l: "Créer un rendez-vous jeune à l'année", finance: {"recurring":4,"purchase":0,"commercial":0,"category":"R"}, pda: { j1524: +10, a2549: +6, s50: +1, csp: +3 }, r: "Budget maîtrisé, les courbes d'audience grimpent. L'accueil est positif.", pop: 2 },
@@ -5169,11 +5169,11 @@ const DILEMMA_BANK = [
     ]
   },
   {
-    id: 'd110', titre: "Sports urbains : ton propre festival",
-    desc: "Le street, le 3x3, la glisse : tout un monde qui vit sans toi. Tu peux le regarder ou l'organiser.",
+    id: 'd110', titre: "Sports urbains : un festival maison",
+    desc: "Le street, le 3x3, la glisse : tout un monde qui vit sans la chaîne. La rédaction peut continuer à le regarder de loin ou organiser son propre événement urbain, au risque de découvrir ce qu’est une autorisation de skatepark. Les compétitions classiques offrent un cadre plus rassurant.",
     types: ['sport'],
     c: [
-      { l: "Créer ton propre événement urbain", finance: {"recurring":0,"purchase":8,"commercial":0,"category":"P"}, pda: { j1524: +11, a2549: +7, s50: 0, csp: +3 }, r: "Le public suit en nombre : effort budgétaire conséquent. L'accueil est positif.", pop: 2 },
+      { l: "Créer un événement urbain maison", finance: {"recurring":0,"purchase":8,"commercial":0,"category":"P"}, pda: { j1524: +11, a2549: +7, s50: 0, csp: +3 }, r: "Le public suit en nombre : effort budgétaire conséquent. L'accueil est positif.", pop: 2 },
       { l: "Rester sur les compétitions classiques", finance: {"recurring":0,"purchase":2,"commercial":0,"category":"P"}, pda: { j1524: +5, a2549: +6, s50: +3, csp: +4 }, r: "Le public suit en nombre : dépense raisonnable. Bon retour côté opinion publique.", pop: 2 }
     ]
   },
@@ -5234,8 +5234,8 @@ const DILEMMA_BANK = [
     ]
   },
   {
-    id: 'd117', titre: "Le duo qui portera tes soirées",
-    desc: "Ton commentateur historique part à la retraite. Deux stars du micro sont libres, et ton académie interne a des jeunes qui piaffent.",
+    id: 'd117', titre: "Le duo qui portera les soirées",
+    desc: "Le commentateur historique part à la retraite. Deux stars du micro sont libres, tandis que l’académie interne compte des jeunes qui piaffent d’impatience. La direction des sports doit choisir entre une valeur sûre et une génération à construire, sous le regard d’un public attaché à l’ancienne voix.",
     types: ['sport'],
     c: [
       { l: "Signer deux stars du commentaire", finance: {"recurring":8,"purchase":0,"commercial":0,"category":"R"}, pda: { j1524: +6, a2549: +7, s50: +5, csp: +5 }, r: "Les courbes d'audience grimpent : mise conséquente sur la table. L'accueil est positif.", pop: 2 },
@@ -5252,20 +5252,20 @@ const DILEMMA_BANK = [
     ]
   },
   {
-    id: 'd119', titre: "Ton consultant met le feu",
-    desc: "Il tape sur les entraîneurs, les arbitres et parfois sur ta chaîne. Les extraits tournent partout, les fédérations appellent.",
+    id: 'd119', titre: "Un consultant qui met le feu",
+    desc: "Le consultant tape sur les entraîneurs, les arbitres et parfois sur la chaîne elle-même. Les extraits tournent partout et les fédérations appellent. La rédaction hésite entre laisser le buzz faire son travail et encadrer strictement ses interventions, au risque d’éteindre ce qui fait venir le public.",
     types: ['sport'],
     c: [
-      { l: "Le laisser provoquer, le buzz paye", finance: {"recurring":0,"purchase":0,"commercial":0,"category":"N"}, pda: { j1524: +8, a2549: +5, s50: -3, csp: 0 }, r: "Un frémissement positif se confirme : solution économe qui rassure le CFO. L'opinion publique se crispe.", pop: -2 },
-      { l: "Encadrer strictement ses interventions", finance: {"recurring":0,"purchase":2,"commercial":0,"category":"P"}, pda: { j1524: +2, a2549: +3, s50: +4, csp: +4 }, r: "Les courbes d'audience grimpent : budget maîtrisé. Le public est conquis.", pop: 3 }
+      { l: "Laisser le consultant provoquer, le buzz paye", finance: {"recurring":0,"purchase":0,"commercial":0,"category":"N"}, pda: { j1524: +8, a2549: +5, s50: -3, csp: 0 }, r: "Un frémissement positif se confirme : solution économe qui rassure le CFO. L'opinion publique se crispe.", pop: -2 },
+      { l: "Encadrer strictement les interventions du consultant", finance: {"recurring":0,"purchase":2,"commercial":0,"category":"P"}, pda: { j1524: +2, a2549: +3, s50: +4, csp: +4 }, r: "Les courbes d'audience grimpent : budget maîtrisé. Le public est conquis.", pop: 3 }
     ]
   },
   {
-    id: 'd120', titre: "Ta journaliste vedette veut plus",
-    desc: "Elle a l'agenda, les sources et une offre du concurrent dans son sac. Tu peux lui offrir une vitrine ou parier sur la relève.",
+    id: 'd120', titre: "La journaliste vedette veut plus",
+    desc: "La journaliste dispose de l’agenda, des sources et d’une offre du concurrent. Elle réclame une vitrine à son nom, tandis que la rédaction pourrait aussi parier sur la relève. Entre retenir la vedette et préparer la suite, aucun choix n’est sans risque.",
     types: ['sport'],
     c: [
-      { l: "Lui offrir une exclusivité à son nom", finance: {"recurring":6,"purchase":0,"commercial":0,"category":"R"}, pda: { j1524: +5, a2549: +7, s50: +6, csp: +5 }, r: "Dépense raisonnable, l'audience progresse nettement. Bon retour côté opinion publique.", pop: 2 },
+      { l: "Offrir à la journaliste une exclusivité à son nom", finance: {"recurring":6,"purchase":0,"commercial":0,"category":"R"}, pda: { j1524: +5, a2549: +7, s50: +6, csp: +5 }, r: "Dépense raisonnable, l'audience progresse nettement. Bon retour côté opinion publique.", pop: 2 },
       { l: "Miser sur une nouvelle génération", finance: {"recurring":1,"purchase":0,"commercial":0,"category":"R"}, pda: { j1524: +3, a2549: +4, s50: +3, csp: +4 }, r: "Dépense raisonnable, l'audience progresse nettement. L'accueil est positif.", pop: 1 }
     ]
   },
@@ -5289,11 +5289,11 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd123', titre: "L'analyse tactique mérite-t-elle une case ?",
-    desc: "Ton public expert réclame du fond, ton public grand public décroche au bout de deux minutes.",
+    desc: "Le public expert réclame du fond, le grand public décroche au bout de deux minutes. La rédaction hésite entre une émission tactique et data, plus ambitieuse, et une chronique courte dans le magazine, plus digeste. Les schémas de jeu ont leurs fans, mais pas tous devant le même écran.",
     types: ['sport'],
     c: [
       { l: "Créer une émission tactique et data", finance: {"recurring":3,"purchase":0,"commercial":0,"category":"R"}, pda: { j1524: +7, a2549: +7, s50: +3, csp: +8 }, r: "Budget maîtrisé, l'audience s'envole. Bon retour côté opinion publique.", pop: 2 },
-      { l: "Une chronique courte dans le magazine", finance: {"recurring":1,"purchase":0,"commercial":0,"category":"R"}, pda: { j1524: +3, a2549: +4, s50: +3, csp: +5 }, r: "Dépense raisonnable, l'audience progresse nettement. La confiance du public progresse.", pop: 1 }
+      { l: "Insérer une chronique courte dans le magazine", finance: {"recurring":1,"purchase":0,"commercial":0,"category":"R"}, pda: { j1524: +3, a2549: +4, s50: +3, csp: +5 }, r: "Dépense raisonnable, l'audience progresse nettement. La confiance du public progresse.", pop: 1 }
     ]
   },
   {
@@ -5316,16 +5316,16 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd126', titre: "Avant-match : trente minutes à remplir",
-    desc: "Le coup d'envoi est à 21h. Ce que tu fais avant décide de qui sera encore là après.",
+    desc: "Le coup d’envoi est à 21h. Ce qui se passe avant décidera de qui sera encore là après. La rédaction peut imaginer un grand show d’avant-match ou un format court pour entrer vite dans le match. Trente minutes, c’est long quand le public a déjà la télécommande en main.",
     types: ['sport'],
     c: [
       { l: "Créer un grand show d'avant-match", finance: {"recurring":5,"purchase":0,"commercial":0,"category":"R"}, pda: { j1524: +7, a2549: +7, s50: +4, csp: +5 }, r: "Les courbes d'audience grimpent : effort financier contenu. L'accueil est positif.", pop: 2 },
-      { l: "Format court, on entre vite dans le match", finance: {"recurring":1,"purchase":0,"commercial":0,"category":"R"}, pda: { j1524: +3, a2549: +4, s50: +3, csp: +4 }, r: "Budget maîtrisé, les courbes d'audience grimpent. L'accueil est positif.", pop: 1 }
+      { l: "Réduire le format pour entrer vite dans le match", finance: {"recurring":1,"purchase":0,"commercial":0,"category":"R"}, pda: { j1524: +3, a2549: +4, s50: +3, csp: +4 }, r: "Budget maîtrisé, les courbes d'audience grimpent. L'accueil est positif.", pop: 1 }
     ]
   },
   {
     id: 'd127', titre: "Après-match : jusqu'où prolonger ?",
-    desc: "Le match est fini, le public reste. Ton équipe est debout depuis 6h.",
+    desc: "Le match est fini, le public reste. L’équipe est debout depuis 6h et le débrief pourrait durer jusqu’à minuit. La rédaction hésite entre prolonger l’antenne pour garder les téléspectateurs et conclure vite pour rendre l’antenne. Un consultant fatigué reste un consultant, mais pas toujours le meilleur.",
     types: ['sport'],
     c: [
       { l: "Débriefer jusqu'à minuit", finance: {"recurring":4,"purchase":0,"commercial":0,"category":"R"}, pda: { j1524: +8, a2549: +7, s50: +2, csp: +4 }, r: "Les courbes d'audience grimpent : effort financier contenu. Bon retour côté opinion publique.", pop: 2 },
@@ -5334,7 +5334,7 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd128', titre: "Le talk du lundi soir",
-    desc: "Deux consultants qui se détestent, un plateau, et une productrice qui te demande jusqu'où elle peut les laisser aller.",
+    desc: "Deux consultants qui se détestent, un plateau et une productrice qui demande jusqu’où elle peut les laisser aller. L’audience aime les étincelles, la rédaction craint l’incendie. Entre autoriser la confrontation frontale et modérer fortement les échanges, le lundi soir se joue sur le ton.",
     types: ['sport'],
     c: [
       { l: "Autoriser la confrontation frontale", finance: {"recurring":0,"purchase":0,"commercial":0,"category":"N"}, pda: { j1524: +9, a2549: +7, s50: +2, csp: +3 }, r: "Les courbes d'audience grimpent : opération qui préserve les comptes. L'accueil est positif.", pop: 1 },
@@ -5343,7 +5343,7 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd129', titre: "L'interview que tout le monde veut",
-    desc: "Un agent te propose l'entretien exclusif contre un chèque. La presse écrite attend au portillon.",
+    desc: "Un agent propose à la chaîne l’entretien exclusif contre un chèque. La presse écrite attend au portillon, dans l’espoir de partager l’interview. Payer assure l’exclusivité, mais pas la franchise des réponses. Partager réduit la facture, au prix de la primeur.",
     types: ['sport'],
     c: [
       { l: "Payer pour l'exclusivité", finance: {"recurring":0,"purchase":5,"commercial":0,"category":"P"}, pda: { j1524: +7, a2549: +7, s50: +5, csp: +6 }, r: "Effort financier contenu, le public répond présent en masse. La confiance du public progresse.", pop: 2 },
@@ -5352,7 +5352,7 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd130', titre: "Dans l’intimité d’une légende",
-    desc: "La famille d’une légende du sport te donne accès à des archives inédites. De quoi produire une série documentaire ambitieuse, mais coûteuse.",
+    desc: "La famille d’une légende du sport ouvre ses archives inédites à la chaîne. La rédaction y voit une série documentaire ambitieuse, mais coûteuse. Un portrait pour le Journal du soir serait plus léger, quitte à laisser dormir une partie des images.",
     types: ['sport'],
     c: [
       { l: "Produire une série documentaire premium", finance: {"recurring":0,"purchase":9,"commercial":0,"category":"P"}, pda: { j1524: +5, a2549: +7, s50: +7, csp: +7 }, r: "L'audience s'envole : mise conséquente sur la table. Bon retour côté opinion publique.", pop: 2 },
@@ -5379,7 +5379,7 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd134', titre: "Un jeune champion à suivre",
-    desc: "Il a 19 ans et il va exploser. Tu peux le filmer sur trois saisons ou faire un beau portrait tout de suite.",
+    desc: "Il a 19 ans et il va exploser. La rédaction peut le filmer sur trois saisons, au rythme de sa carrière, ou réaliser un beau portrait tout de suite. Un pari au long cours demande de la patience, et personne ne sait si le jeune champion tiendra ses promesses.",
     types: ['sport'],
     c: [
       { l: "Financer une série au long cours", finance: {"recurring":0,"purchase":4,"commercial":0,"category":"P"}, pda: { j1524: +8, a2549: +6, s50: +2, csp: +4 }, r: "Les courbes d'audience grimpent : dépense raisonnable. L'accueil est positif.", pop: 2 },
@@ -5388,7 +5388,7 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd135', titre: "Polémique arbitrale : à chaud ou à froid",
-    desc: "Une décision arbitrale suffit parfois à embraser les réseaux en quelques minutes. Ta rédaction propose d’en débattre dans l’après-match.",
+    desc: "Une décision arbitrale suffit parfois à embraser les réseaux en quelques minutes. La rédaction propose d’en débattre dans l’après-match, quand le plateau est encore debout et les nerfs aussi. Attendre le lendemain laisse le temps de vérifier les faits, mais pas celui de la polémique.",
     types: ['sport'],
     c: [
       { l: "Analyser à chaud, tout de suite", finance: {"recurring":0,"purchase":1,"commercial":0,"category":"P"}, pda: { j1524: +7, a2549: +6, s50: +3, csp: +4 }, r: "Budget maîtrisé, les courbes d'audience grimpent. L'accueil est positif.", pop: 2 },
@@ -5424,7 +5424,7 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd139', titre: "Deux matchs, une seule régie",
-    desc: "Même horaire, même intérêt, moyens limités. Ton directeur des opérations attend un arbitrage.",
+    desc: "Même horaire, même intérêt, moyens limités. Le directeur des opérations attend un arbitrage entre doubler les équipes de production, avec le coût que cela suppose, et prioriser l’affiche principale, au risque de frustrer les supporters du second match.",
     types: ['sport'],
     c: [
       { l: "Doubler les équipes de production", finance: {"recurring":4,"purchase":0,"commercial":0,"category":"R"}, pda: { j1524: +6, a2549: +7, s50: +4, csp: +4 }, r: "Le public suit en nombre : budget maîtrisé. L'accueil est positif.", pop: 2 },
@@ -5433,11 +5433,11 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd140', titre: "Dimanche après-midi : multiplex ou affiche",
-    desc: "Six matchs à 15h. Tu peux tout suivre en même temps ou tout miser sur un seul.",
+    desc: "Six matchs à 15h. La rédaction peut tout suivre en même temps, au risque du zapping permanent, ou tout miser sur une seule affiche, bien produite. Le multiplex plaît aux passionnés, l’affiche rassure les téléspectateurs qui préfèrent un seul récit.",
     types: ['sport'],
     c: [
       { l: "Créer un multiplex sur tous les terrains", finance: {"recurring":3,"purchase":0,"commercial":0,"category":"R"}, pda: { j1524: +6, a2549: +8, s50: +6, csp: +5 }, r: "L'audience s'envole : effort financier contenu. La confiance du public progresse.", pop: 2 },
-      { l: "Une seule grande affiche, bien produite", finance: {"recurring":1,"purchase":0,"commercial":0,"category":"R"}, pda: { j1524: +4, a2549: +5, s50: +4, csp: +4 }, r: "Les courbes d'audience grimpent : effort financier contenu. La confiance du public progresse.", pop: 2 }
+      { l: "Miser sur une seule grande affiche, bien produite", finance: {"recurring":1,"purchase":0,"commercial":0,"category":"R"}, pda: { j1524: +4, a2549: +5, s50: +4, csp: +4 }, r: "Les courbes d'audience grimpent : effort financier contenu. La confiance du public progresse.", pop: 2 }
     ]
   },
   {
@@ -5450,8 +5450,8 @@ const DILEMMA_BANK = [
     ]
   },
   {
-    id: 'd143', titre: "La nuit t'appartient",
-    desc: "Entre minuit et 6h, ton antenne tourne à vide. La NBA, elle, joue en direct.",
+    id: 'd143', titre: "La nuit appartient à la NBA",
+    desc: "Entre minuit et 6h, l’antenne tourne à vide. La NBA, elle, joue en direct, et la direction des sports y voit une occasion de remplir la nuit. Reste à choisir entre diffuser chaque match en direct et rediffuser les grands matchs de la veille, moins exigeants pour les équipes.",
     types: ['sport'],
     c: [
       { l: "Diffuser la NBA en direct chaque nuit", finance: {"recurring":4,"purchase":0,"commercial":0,"category":"R"}, pda: { j1524: +10, a2549: +7, s50: +1, csp: +5 }, r: "Effort financier contenu, l'audience progresse nettement. La confiance du public progresse.", pop: 2 },
@@ -5488,7 +5488,7 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd147', titre: "Euro féminin : le tournoi qui monte",
-    desc: "Les stades se remplissent, les records d'audience tombent ailleurs en Europe. Tu peux tout prendre ou attendre les demies.",
+    desc: "Les stades se remplissent et les records d’audience tombent ailleurs en Europe. La chaîne peut tout prendre ou attendre les demies, en espérant que le tournoi lui offre de belles affiches au bon moment. Attendre coûte moins, mais le public ne s’enflamme pas sur commande.",
     types: ['sport'],
     c: [
       { l: "Acheter tous les matchs du tournoi", finance: {"recurring":0,"purchase":10,"commercial":0,"category":"P"}, pda: { j1524: +7, a2549: +8, s50: +5, csp: +6 }, r: "Effort budgétaire conséquent, les scores explosent sur toutes les cibles. Les réseaux sociaux s'enflamment positivement.", pop: 4 },
@@ -5496,8 +5496,8 @@ const DILEMMA_BANK = [
     ]
   },
   {
-    id: 'd148', titre: "Mondial féminin : combien tu crois au foot féminin ?",
-    desc: "Le tournoi se joue à l'autre bout du monde, souvent à des horaires impossibles. Les droits complets sont proposés maintenant.",
+    id: 'd148', titre: "Mondial féminin : jusqu’où croire au foot féminin ?",
+    desc: "Le tournoi se joue à l’autre bout du monde, souvent à des horaires impossibles. Les droits complets sont proposés maintenant. La rédaction hésite entre tout acheter et ne retenir que les matchs de l’équipe de France, quitte à ne suivre la compétition qu’à travers elle.",
     types: ['sport'],
     c: [
       { l: "Acheter les droits complets", finance: {"recurring":0,"purchase":12,"commercial":0,"category":"P"}, pda: { j1524: +8, a2549: +8, s50: +5, csp: +6 }, r: "L'audience s'envole : enveloppe généreuse débloquée. Le public est conquis.", pop: 5 },
@@ -5505,11 +5505,11 @@ const DILEMMA_BANK = [
     ]
   },
   {
-    id: 'd149', titre: "Le sport universitaire, terrain vierge",
-    desc: "Aux États-Unis c'est une industrie, en France c'est un désert médiatique. Tu peux créer la compétition qui manque.",
+    id: 'd149', titre: "Sport universitaire : un terrain vierge",
+    desc: "Aux États-Unis, c’est une industrie ; en France, c’est un désert médiatique. La rédaction propose de créer la compétition qui manque, quand la prudence recommanderait de diffuser ponctuellement quelques finales. Bâtir une ligue demande du temps, et un public qui ne sait pas encore qu’il l’attend.",
     types: ['sport'],
     c: [
-      { l: "Créer ta propre compétition universitaire", finance: {"recurring":0,"purchase":4,"commercial":0,"category":"P"}, pda: { j1524: +7, a2549: +5, s50: +3, csp: +4 }, r: "Effort financier contenu, le public suit en nombre. La confiance du public progresse.", pop: 2 },
+      { l: "Créer une compétition universitaire maison", finance: {"recurring":0,"purchase":4,"commercial":0,"category":"P"}, pda: { j1524: +7, a2549: +5, s50: +3, csp: +4 }, r: "Effort financier contenu, le public suit en nombre. La confiance du public progresse.", pop: 2 },
       { l: "Diffuser ponctuellement quelques finales", finance: {"recurring":0,"purchase":1,"commercial":0,"category":"P"}, pda: { j1524: +2, a2549: +3, s50: +2, csp: +3 }, r: "Quelques points d'audience s'ajoutent : budget maîtrisé. Bon retour côté opinion publique.", pop: 1 }
     ]
   },
@@ -5533,7 +5533,7 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd152', titre: "La star se blesse",
-    desc: "Sortie sur civière à la 20e minute. Ton antenne bascule ou continue comme si de rien n'était.",
+    desc: "Sortie sur civière à la 20e minute. L’antenne bascule vers une édition spéciale ou continue comme si de rien n’était. Le public veut des nouvelles, la grille veut ses horaires, et la rédaction sait qu’une soirée spéciale se décide en quelques minutes.",
     types: ['sport'],
     c: [
       { l: "Transformer la soirée en émission spéciale", finance: {"recurring":0,"purchase":2,"commercial":0,"category":"P"}, pda: { j1524: +6, a2549: +6, s50: +4, csp: +4 }, r: "Budget maîtrisé, les courbes d'audience grimpent. Les réseaux sociaux s'enflamment positivement.", pop: 3 },
@@ -5559,8 +5559,8 @@ const DILEMMA_BANK = [
     ]
   },
   {
-    id: 'd155', titre: "Violences en tribunes",
-    desc: "Les images existent, tes caméras les ont. Les diffuser informe, ou nourrit ce que tu filmes.",
+    id: 'd155', titre: "Violences en tribunes : montrer ou non ?",
+    desc: "Les images existent, les caméras de la chaîne les ont. Les diffuser informe, mais peut nourrir ce qu’elles filment. La rédaction doit choisir entre documenter ce qui s’est passé et limiter la diffusion des images, dans un contexte où chaque plan sera commenté.",
     types: ['sport'],
     c: [
       { l: "Diffuser les images et documenter", finance: {"recurring":0,"purchase":1,"commercial":0,"category":"P"}, pda: { j1524: +8, a2549: +6, s50: +3, csp: +2 }, r: "Budget maîtrisé, le public suit en nombre. La confiance du public progresse.", pop: 1 },
@@ -5568,8 +5568,8 @@ const DILEMMA_BANK = [
     ]
   },
   {
-    id: 'd156', titre: "Envahissement de terrain",
-    desc: "Des centaines de personnes sur la pelouse, le direct continue. Ta réalisatrice attend l'ordre.",
+    id: 'd156', titre: "Envahissement de terrain : montrer ou couper ?",
+    desc: "Des centaines de personnes sur la pelouse, le direct continue. La réalisatrice attend l’ordre : montrer ce qui se passe ou couper les images et rester en plateau. Entre informer et ne pas amplifier, les secondes comptent, et le plateau n’a pas de plan B.",
     types: ['sport'],
     c: [
       { l: "Continuer le direct, montrer ce qui se passe", finance: {"recurring":0,"purchase":1,"commercial":0,"category":"P"}, pda: { j1524: +6, a2549: +6, s50: +3, csp: +3 }, r: "Effort financier contenu, le public suit en nombre. La confiance du public progresse.", pop: 1 },
@@ -5586,12 +5586,12 @@ const DILEMMA_BANK = [
     ]
   },
   {
-    id: 'd158', titre: "Ton présentateur dérape",
-    desc: "Une phrase de trop en fin d'émission. Les communiqués tombent, les annonceurs s'inquiètent.",
+    id: 'd158', titre: "Un présentateur dérape",
+    desc: "Une phrase de trop en fin d’émission. Les communiqués tombent, les annonceurs s’inquiètent. La direction doit choisir entre suspendre immédiatement le présentateur et le soutenir publiquement en assumant, deux réponses qui n’auront pas le même effet sur les partenaires.",
     types: ['sport'],
     c: [
-      { l: "Le suspendre immédiatement", finance: {"recurring":0,"purchase":4,"commercial":0,"category":"P"}, pda: { j1524: +3, a2549: +5, s50: +6, csp: +6 }, r: "Effort financier contenu, l'audience progresse nettement. Le public est conquis.", pop: 3 },
-      { l: "Le soutenir publiquement et assumer", finance: {"recurring":0,"purchase":0,"commercial":0,"category":"N"}, pda: { j1524: +8, a2549: +6, s50: -3, csp: +1 }, r: "Opération qui préserve les comptes, le public suit en nombre. L'opinion publique se crispe.", pop: -1 }
+      { l: "Suspendre immédiatement le présentateur", finance: {"recurring":0,"purchase":4,"commercial":0,"category":"P"}, pda: { j1524: +3, a2549: +5, s50: +6, csp: +6 }, r: "Effort financier contenu, l'audience progresse nettement. Le public est conquis.", pop: 3 },
+      { l: "Soutenir publiquement le présentateur et assumer", finance: {"recurring":0,"purchase":0,"commercial":0,"category":"N"}, pda: { j1524: +8, a2549: +6, s50: -3, csp: +1 }, r: "Opération qui préserve les comptes, le public suit en nombre. L'opinion publique se crispe.", pop: -1 }
     ]
   },
   {
@@ -5604,8 +5604,8 @@ const DILEMMA_BANK = [
     ]
   },
   {
-    id: 'd160', titre: "Un club ferme la porte à tes caméras",
-    desc: "Le président t'accuse de parti pris et interdit l'accès. Tes équipes attendent devant le portail.",
+    id: 'd160', titre: "Un club ferme la porte aux caméras",
+    desc: "Le président du club accuse la chaîne de parti pris et interdit l’accès. Les équipes attendent devant le portail, caméra à l’épaule. La rédaction peut accepter le bras de fer publiquement ou négocier discrètement en coulisses, ce qui laisse moins de matière aux journaux du soir.",
     types: ['sport'],
     c: [
       { l: "Accepter le bras de fer publiquement", finance: {"recurring":0,"purchase":1,"commercial":0,"category":"P"}, pda: { j1524: +4, a2549: +5, s50: +4, csp: +4 }, r: "L'audience progresse nettement : effort financier contenu. Bon retour côté opinion publique.", pop: 1 },
@@ -5614,13 +5614,13 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd161', titre: "23h47 : le scoop ou le flop ?",
-    desc: "Ta rédaction tient une bombe sur le mercato, mais une seule source la confirme. Un concurrent est sur le coup.",
+    desc: "À 23h47, la rédaction tient une bombe sur le mercato, mais une seule source la confirme. Un concurrent est sur le coup et les minutes comptent. Diffuser immédiatement offre la primeur, avec un risque de démenti ; attendre une deuxième source protège la crédibilité, au risque d’être doublé.",
     types: ['sport'],
     c: [
       { l: "Diffuser immédiatement et prendre le risque", finance: {"recurring":0,"purchase":2,"commercial":0,"category":"P"}, pda: { j1524: +8, a2549: +7, s50: +3, csp: +4 }, r: "", pop: 0,
         randomOutcomes: [
-          { chance: 0.5, r: "L’info est confirmée. Le transfert est officialisé : ta source avait raison. La rédaction a devancé toute la concurrence et ton scoop est repris partout sur les réseaux.", pop: 3, pda: { j1524: +9, a2549: +8, s50: +3, csp: +5 } },
-          { chance: 0.5, r: "Le scoop fait pschitt. Le club dément et ta source se rétracte : le transfert n’aura pas lieu. Tu dois rectifier à l’antenne pendant que tes concurrents se régalent.", pop: -4, pda: { j1524: -2, a2549: -3, s50: -1, csp: -2 } }
+          { chance: 0.5, r: "L’info est confirmée. Le transfert est officialisé : la source avait raison. La rédaction a devancé toute la concurrence et le scoop est repris partout sur les réseaux.", pop: 3, pda: { j1524: +9, a2549: +8, s50: +3, csp: +5 } },
+          { chance: 0.5, r: "Le scoop fait pschitt. Le club dément et la source se rétracte : le transfert n’aura pas lieu. La rédaction doit rectifier à l’antenne pendant que les concurrents se régalent.", pop: -4, pda: { j1524: -2, a2549: -3, s50: -1, csp: -2 } }
         ] },
       { l: "Attendre une deuxième source", finance: {"recurring":0,"purchase":0,"commercial":0,"category":"N"}, pda: { j1524: +4, a2549: +5, s50: +4, csp: +6 }, r: "Opération qui préserve les comptes, l'audience progresse nettement. Le public est conquis.", pop: 4 }
     ]
@@ -5636,7 +5636,7 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd163', titre: "Exploit français en pleine nuit",
-    desc: "Une médaille inattendue tombe alors que ton antenne diffuse une rediffusion.",
+    desc: "Une médaille inattendue tombe alors que l’antenne diffuse une rediffusion. La rédaction peut tout déprogrammer pour basculer en direct, avec les moyens que cela mobilise à une heure creuse, ou garder la grille et traiter l’exploit le lendemain. Le public français, lui, ne dort probablement pas.",
     types: ['sport'],
     c: [
       { l: "Déprogrammer tout et basculer en direct", finance: {"recurring":0,"purchase":1,"commercial":0,"category":"P"}, pda: { j1524: +7, a2549: +7, s50: +6, csp: +5 }, r: "Dépense raisonnable, le public répond présent en masse. Les réseaux sociaux s'enflamment positivement.", pop: 4 },
@@ -5663,16 +5663,16 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd166', titre: "Un club français en finale européenne",
-    desc: "Toute la France va regarder. Ta rédaction spéciale coûte cher mais fera la différence à l'écran.",
+    desc: "Toute la France va regarder. La rédaction spéciale coûte cher, mais elle devrait faire la différence à l’écran. L’équipe habituelle connaît le sujet et la maison, sans avoir l’habitude d’un tel rendez-vous. Envoyer une rédaction sur place ou rester sur les moyens habituels : l’arbitrage se joue sur l’image.",
     types: ['sport'],
     c: [
       { l: "Envoyer une rédaction spéciale sur place", finance: {"recurring":0,"purchase":5,"commercial":0,"category":"P"}, pda: { j1524: +9, a2549: +9, s50: +6, csp: +6 }, r: "L'audience s'envole : effort financier contenu. Le public est conquis.", pop: 3 },
-      { l: "Y aller avec l'équipe habituelle", finance: {"recurring":0,"purchase":1,"commercial":0,"category":"P"}, pda: { j1524: +4, a2549: +5, s50: +4, csp: +5 }, r: "Les courbes d'audience grimpent : dépense raisonnable. L'accueil est positif.", pop: 2 }
+      { l: "Envoyer l'équipe habituelle", finance: {"recurring":0,"purchase":1,"commercial":0,"category":"P"}, pda: { j1524: +4, a2549: +5, s50: +4, csp: +5 }, r: "Les courbes d'audience grimpent : dépense raisonnable. L'accueil est positif.", pop: 2 }
     ]
   },
   {
     id: 'd167', titre: "L'outsider français y croit",
-    desc: "Une équipe qu'on n'attendait pas avance de tour en tour. Tu peux embarquer le pays ou rester neutre.",
+    desc: "Une équipe qu’on n’attendait pas avance de tour en tour. La rédaction peut embarquer le pays dans l’aventure, avec une campagne autour de l’équipe, ou rester factuelle et neutre. L’enthousiasme fait de l’audience, mais un conte de fées s’arrête parfois en quart.",
     types: ['sport'],
     c: [
       { l: "Créer une campagne autour de l'équipe", finance: {"recurring":0,"purchase":3,"commercial":0,"category":"P"}, pda: { j1524: +8, a2549: +7, s50: +5, csp: +4 }, r: "Effort financier contenu, l'audience s'envole. Le public est conquis.", pop: 4 },
@@ -5708,7 +5708,7 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd171', titre: "Le favori tombe",
-    desc: "Élimination du grand favori en huitièmes. Ta soirée entière était construite autour de lui.",
+    desc: "Élimination du grand favori en huitièmes. La soirée entière était construite autour de lui, et la grille se retrouve à reconstruire. La rédaction doit choisir entre une reconstruction en urgence et le maintien du programme prévu, en espérant que le public reste pour le reste du tableau.",
     types: ['sport'],
     c: [
       { l: "Reconstruire toute la soirée en urgence", finance: {"recurring":0,"purchase":2,"commercial":0,"category":"P"}, pda: { j1524: +6, a2549: +7, s50: +5, csp: +5 }, r: "Le public suit en nombre : dépense raisonnable. Les réseaux sociaux s'enflamment positivement.", pop: 4 },
@@ -5717,7 +5717,7 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd172', titre: "Deux champions se détestent",
-    desc: "La rivalité est réelle et vend des audiences. Ton rédacteur en chef n'est pas à l'aise.",
+    desc: "La rivalité est réelle et vend des audiences. Le rédacteur en chef n’est pas à l’aise à l’idée d’en faire un feuilleton. Exploiter le duel et le mettre en scène attirera les curieux ; rester factuel, sans dramatisation, protège la crédibilité de la rédaction.",
     types: ['sport'],
     c: [
       { l: "Exploiter le duel et le mettre en scène", finance: {"recurring":0,"purchase":0,"commercial":0,"category":"N"}, pda: { j1524: +9, a2549: +8, s50: +4, csp: +4 }, r: "Les scores explosent sur toutes les cibles : opération qui préserve les comptes. Le public est conquis.", pop: 3 },
@@ -5726,7 +5726,7 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd173', titre: "Le rematch se négocie",
-    desc: "Le promoteur a compris ce que valait la revanche. Il te fait payer le premier combat deux fois.",
+    desc: "Le promoteur a compris ce que valait la revanche : il fait payer le premier combat deux fois. La chaîne peut acheter l’exclusivité du rematch ou se contenter d’un résumé, ce qui coûte moins, mais n’offre pas le même spectacle.",
     types: ['sport'],
     c: [
       { l: "Acheter l'exclusivité du rematch", finance: {"recurring":0,"purchase":7,"commercial":0,"category":"P"}, pda: { j1524: +9, a2549: +8, s50: +5, csp: +5 }, r: "Dépense raisonnable, l'audience s'envole. L'image de la chaîne y gagne beaucoup.", pop: 3 },
@@ -5753,38 +5753,38 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd176', titre: "Une championne française domine",
-    desc: "Elle gagne tout et personne ne connaît son histoire. Tu peux la raconter en profondeur ou l'inviter vingt minutes.",
+    desc: "Elle gagne tout et personne ne connaît son histoire. La rédaction peut la raconter en profondeur, avec une série documentaire, ou l’inviter vingt minutes en plateau pour une simple interview. Une série demande du temps et des moyens ; l’interview ne laisse que quelques minutes pour tout dire.",
     types: ['sport'],
     c: [
-      { l: "Créer une série documentaire sur elle", finance: {"recurring":0,"purchase":4,"commercial":0,"category":"P"}, pda: { j1524: +7, a2549: +7, s50: +5, csp: +6 }, r: "Budget maîtrisé, le public répond présent en masse. Le public est conquis.", pop: 4 },
-      { l: "Une simple interview en plateau", finance: {"recurring":0,"purchase":1,"commercial":0,"category":"P"}, pda: { j1524: +3, a2549: +4, s50: +4, csp: +5 }, r: "Budget maîtrisé, le public suit en nombre. L'opinion publique reste neutre.", pop: 0 }
+      { l: "Créer une série documentaire sur la championne", finance: {"recurring":0,"purchase":4,"commercial":0,"category":"P"}, pda: { j1524: +7, a2549: +7, s50: +5, csp: +6 }, r: "Budget maîtrisé, le public répond présent en masse. Le public est conquis.", pop: 4 },
+      { l: "Inviter la championne pour une simple interview en plateau", finance: {"recurring":0,"purchase":1,"commercial":0,"category":"P"}, pda: { j1524: +3, a2549: +4, s50: +4, csp: +5 }, r: "Budget maîtrisé, le public suit en nombre. L'opinion publique reste neutre.", pop: 0 }
     ]
   },
   {
     id: 'd177', titre: "Dans le vestiaire des championnes",
-    desc: "Une équipe féminine t’ouvre ses portes : entraînements, vestiaire, soirs de victoire et lendemains de défaite. De quoi vivre la saison de l’intérieur… à condition de trouver le budget pour y envoyer tes caméras.",
+    desc: "Une équipe féminine ouvre ses portes : entraînements, vestiaire, soirs de victoire et lendemains de défaite. De quoi vivre la saison de l’intérieur… à condition de trouver le budget pour y envoyer des caméras. La couverture classique des matchs reste plus économique.",
     types: ['sport'],
     c: [
       { l: "Produire un inside complet", finance: {"recurring":0,"purchase":4,"commercial":0,"category":"P"}, pda: { j1524: +7, a2549: +8, s50: +5, csp: +6 }, r: "Les scores explosent sur toutes les cibles : budget maîtrisé. Les réseaux sociaux s'enflamment positivement.", pop: 4 },
-      { l: "Couverture classique des matchs", finance: {"recurring":0,"purchase":1,"commercial":0,"category":"P"}, pda: { j1524: +3, a2549: +4, s50: +4, csp: +5 }, r: "Budget maîtrisé, le public suit en nombre. Peu d'écho dans le débat public.", pop: 0 }
+      { l: "Couvrir les matchs de façon classique", finance: {"recurring":0,"purchase":1,"commercial":0,"category":"P"}, pda: { j1524: +3, a2549: +4, s50: +4, csp: +5 }, r: "Budget maîtrisé, le public suit en nombre. Peu d'écho dans le débat public.", pop: 0 }
     ]
   },
   {
     id: 'd178', titre: "Une légende s'en va",
-    desc: "Fin de carrière annoncée. Le pays veut un moment, ta grille veut une case.",
+    desc: "Fin de carrière annoncée. Le pays veut un moment, la grille veut une case. La rédaction peut programmer un prime hommage ou se contenter d’une interview courte en fin de journal. Un adieu à la hauteur de la carrière, ou un adieu à la hauteur de l’horaire disponible.",
     types: ['sport'],
     c: [
       { l: "Programmer un prime hommage", finance: {"recurring":0,"purchase":4,"commercial":0,"category":"P"}, pda: { j1524: +4, a2549: +6, s50: +8, csp: +6 }, r: "Le public répond présent en masse : effort financier contenu. La confiance du public progresse.", pop: 2 },
-      { l: "Une interview courte en fin de journal", finance: {"recurring":0,"purchase":1,"commercial":0,"category":"P"}, pda: { j1524: +2, a2549: +3, s50: +5, csp: +5 }, r: "L'audience progresse nettement : budget maîtrisé. Bon retour côté opinion publique.", pop: 1 }
+      { l: "Proposer une interview courte en fin de journal", finance: {"recurring":0,"purchase":1,"commercial":0,"category":"P"}, pda: { j1524: +2, a2549: +3, s50: +5, csp: +5 }, r: "L'audience progresse nettement : budget maîtrisé. Bon retour côté opinion publique.", pop: 1 }
     ]
   },
   {
     id: 'd179', titre: "Les 100 moments qui ont marqué le sport",
-    desc: "Ta rédaction a déniché cent moments de légende dans les archives. De quoi faire vibrer les nostalgiques et découvrir le sport aux plus jeunes.",
+    desc: "La rédaction a déniché cent moments de légende dans les archives. De quoi faire vibrer les nostalgiques et faire découvrir le sport aux plus jeunes. Reste à décider du format : un grand prime événementiel, ou une série digitale plus souple, plus proche des habitudes du jeune public.",
     types: ['sport'],
     c: [
       { l: "Produire un grand prime événementiel", finance: {"recurring":0,"purchase":5,"commercial":0,"category":"P"}, pda: { j1524: +9, a2549: +7, s50: +6, csp: +5 }, r: "Effort financier contenu, les scores explosent sur toutes les cibles. L'image de la chaîne y gagne beaucoup.", pop: 3 },
-      { l: "En faire une série digitale", finance: {"recurring":0,"purchase":1,"commercial":0,"category":"P"}, pda: { j1524: +4, a2549: +5, s50: +4, csp: +5 }, r: "L'audience progresse nettement : budget maîtrisé. La confiance du public progresse.", pop: 2 }
+      { l: "Réaliser une série digitale", finance: {"recurring":0,"purchase":1,"commercial":0,"category":"P"}, pda: { j1524: +4, a2549: +5, s50: +4, csp: +5 }, r: "L'audience progresse nettement : budget maîtrisé. La confiance du public progresse.", pop: 2 }
     ]
   },
   {
@@ -5825,11 +5825,11 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd184', titre: "Payant ou gratuit, il faut choisir",
-    desc: "Ton modèle économique arrive à un carrefour. L'abonnement rassure, la gratuité fait du volume.",
+    desc: "Le modèle économique arrive à un carrefour. L’abonnement rassure, la gratuité fait du volume. La direction doit choisir entre une offre premium payante et un service entièrement gratuit financé par la publicité, sans pouvoir tout garder.",
     types: ['sport'],
     c: [
       { l: "Lancer une offre premium payante", finance: {"recurring":0,"purchase":10,"commercial":0,"category":"P"}, pda: { j1524: +10, a2549: +6, s50: 0, csp: +5 }, r: "L'audience progresse nettement : enveloppe généreuse débloquée. Peu d'écho dans le débat public.", pop: 0 },
-      { l: "Tout garder gratuit et vivre de la pub", finance: {"recurring":0,"purchase":0,"commercial":8,"category":"C"}, pda: { j1524: +5, a2549: +5, s50: +4, csp: +4 }, r: "Les courbes d'audience grimpent : opération qui préserve les comptes. L'image de la chaîne y gagne beaucoup.", pop: 5 }
+      { l: "Garder tout gratuit et vivre de la pub", finance: {"recurring":0,"purchase":0,"commercial":8,"category":"C"}, pda: { j1524: +5, a2549: +5, s50: +4, csp: +4 }, r: "Les courbes d'audience grimpent : opération qui préserve les comptes. L'image de la chaîne y gagne beaucoup.", pop: 5 }
     ]
   },
   {
@@ -5860,8 +5860,8 @@ const DILEMMA_BANK = [
     ]
   },
   {
-    id: 'd188', titre: "Les alertes live",
-    desc: "La rédaction propose une alerte à chaque but pour attirer les supporters sur ta plateforme, au risque de lasser les utilisateurs.",
+    id: 'd188', titre: "Alertes live : un but, une notification",
+    desc: "La rédaction propose une alerte à chaque but pour attirer les supporters sur la plateforme, au risque de lasser les utilisateurs. Développer des alertes en temps réel fait revenir le public à chaque action. En limiter fortement le nombre préserve le confort des notifications, à défaut de l’effet d’urgence.",
     types: ['sport'],
     c: [
       { l: "Développer des alertes temps réel", finance: {"recurring":0,"purchase":2,"commercial":0,"category":"P"}, pda: { j1524: +9, a2549: +7, s50: +2, csp: +4 }, r: "Budget maîtrisé, les courbes d'audience grimpent. La confiance du public progresse.", pop: 2 },
@@ -5888,7 +5888,7 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd191', titre: "YouTube : chaîne premium ou vitrine",
-    desc: "Tu peux y construire une vraie offre ou t'en servir comme bande-annonce de l'antenne.",
+    desc: "YouTube peut accueillir une vraie offre de la chaîne ou servir de bande-annonce à l’antenne. La rédaction hésite entre lancer une chaîne premium, avec le travail éditorial que cela suppose, et publier seulement des extraits pour attirer vers la télévision. Un extrait donne envie, mais ne remplace pas le match.",
     types: ['sport'],
     c: [
       { l: "Lancer une chaîne YouTube premium", finance: {"recurring":0,"purchase":5,"commercial":0,"category":"P"}, pda: { j1524: +9, a2549: +6, s50: +1, csp: +4 }, r: "Budget maîtrisé, les courbes d'audience grimpent. Les réseaux sociaux s'enflamment positivement.", pop: 3 },
@@ -5897,7 +5897,7 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd192', titre: "Twitch : entrer dans la maison des jeunes",
-    desc: "Les coulisses en direct y marchent fort, mais ton public historique n'y mettra jamais les pieds.",
+    desc: "Les coulisses en direct y marchent fort, mais le public historique n’y mettra jamais les pieds. La rédaction peut diffuser les coulisses sur Twitch, pour parler aux jeunes, ou rester sur les plateformes classiques, plus familières à l’audience habituelle. Un pari sur l’avenir, avec un chat qui ne s’arrête jamais.",
     types: ['sport'],
     c: [
       { l: "Diffuser les coulisses sur Twitch", finance: {"recurring":0,"purchase":3,"commercial":0,"category":"P"}, pda: { j1524: +11, a2549: +5, s50: -2, csp: +3 }, r: "L'audience progresse nettement : budget maîtrisé. Bon retour côté opinion publique.", pop: 2 },
@@ -5915,7 +5915,7 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd194', titre: "Le second écran",
-    desc: "La moitié de ton public regarde le match avec son téléphone dans la main. Autant leur donner quelque chose.",
+    desc: "La moitié du public regarde le match avec son téléphone dans la main. La rédaction propose de lui donner quelque chose à faire : une expérience data interactive. L’alternative reste la télévision classique, sans distraction, où le match garde toute l’attention. Les écrans se multiplient, l’attention beaucoup moins.",
     types: ['sport'],
     c: [
       { l: "Créer une expérience data interactive", finance: {"recurring":0,"purchase":5,"commercial":0,"category":"P"}, pda: { j1524: +9, a2549: +7, s50: +2, csp: +5 }, r: "Le public suit en nombre : dépense raisonnable. L'accueil est positif.", pop: 2 },
@@ -5923,17 +5923,17 @@ const DILEMMA_BANK = [
     ]
   },
   {
-    id: 'd195', titre: "Fantasy league : ton jeu ou celui des autres",
-    desc: "Créer le tien coûte cher mais garde les utilisateurs chez toi. Le partenariat rapporte tout de suite.",
+    id: 'd195', titre: "Fantasy league : jeu maison ou partenariat",
+    desc: "Créer son propre jeu fantasy coûte cher, mais garde les utilisateurs chez la chaîne. Le partenariat externe rapporte tout de suite, au prix de la relation avec le public. La direction doit choisir entre construire une audience qui lui appartient et encaisser vite.",
     types: ['sport'],
     c: [
-      { l: "Créer ton propre jeu fantasy", finance: {"recurring":0,"purchase":4,"commercial":0,"category":"P"}, pda: { j1524: +10, a2549: +7, s50: +2, csp: +5 }, r: "Le public répond présent en masse : effort financier contenu. L'accueil est positif.", pop: 2 },
+      { l: "Créer un jeu fantasy maison", finance: {"recurring":0,"purchase":4,"commercial":0,"category":"P"}, pda: { j1524: +10, a2549: +7, s50: +2, csp: +5 }, r: "Le public répond présent en masse : effort financier contenu. L'accueil est positif.", pop: 2 },
       { l: "Signer un partenariat externe", finance: {"recurring":0,"purchase":0,"commercial":4,"category":"C"}, pda: { j1524: +4, a2549: +5, s50: +3, csp: +4 }, r: "Solution économe qui rassure le CFO, les courbes d'audience grimpent. L'accueil est positif.", pop: 1 }
     ]
   },
   {
-    id: 'd196', titre: "Les pronostics : jeu gratuit ou partenariat",
-    desc: "Ton public adore parier son avis. Un partenaire est prêt à payer cher pour être là.",
+    id: 'd196', titre: "Pronostics : jeu gratuit ou partenaire",
+    desc: "Le public adore parier son avis. Un partenaire est prêt à payer cher pour être là. La chaîne peut lancer un jeu de pronostics gratuit ou monétiser l’audience via un partenaire spécialisé : l’avis du public reste ouvert, mais pas la même addition.",
     types: ['sport'],
     c: [
       { l: "Lancer un jeu de pronostics gratuit", finance: {"recurring":0,"purchase":2,"commercial":0,"category":"P"}, pda: { j1524: +9, a2549: +7, s50: +2, csp: +4 }, r: "Le public suit en nombre : budget maîtrisé. Les réseaux sociaux s'enflamment positivement.", pop: 3 },
@@ -5941,8 +5941,8 @@ const DILEMMA_BANK = [
     ]
   },
   {
-    id: 'd197', titre: "Une IA veut commenter tes matchs",
-    desc: "La démo est bluffante sur les matchs de bas de tableau. Ta rédaction, elle, est glacée.",
+    id: 'd197', titre: "Une IA veut commenter les matchs",
+    desc: "La démo est bluffante sur les matchs de bas de tableau. La rédaction, elle, est glacée. La chaîne peut tester le commentaire automatisé, au risque de découvrir ce qu’un micro sans voix humaine fait à l’ambiance, ou rester 100% humain au micro pour garder ses commentateurs.",
     types: ['sport'],
     c: [
       { l: "Tester le commentaire automatisé", finance: {"recurring":0,"purchase":2,"commercial":0,"category":"P"}, pda: { j1524: +8, a2549: +5, s50: 0, csp: +5 }, r: "L'audience progresse nettement : effort financier contenu. L'opinion publique se crispe.", pop: -1 },
@@ -5951,7 +5951,7 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd198', titre: "Statistiques automatisées",
-    desc: "Ton équipe innovation te propose une IA capable de générer en quelques secondes les statistiques qui demandent des heures de travail à tes journalistes.",
+    desc: "L’équipe innovation propose une IA capable de générer en quelques secondes les statistiques qui demandent des heures de travail aux journalistes. La rédaction peut automatiser la production ou garder une analyse humaine, plus lente, mais signée. Gagner du temps ou garder le regard : les chiffres ne tranchent pas seuls.",
     types: ['sport'],
     c: [
       { l: "Automatiser la production de statistiques", finance: {"recurring":0,"purchase":3,"commercial":0,"category":"P"}, pda: { j1524: +8, a2549: +6, s50: +1, csp: +6 }, r: "Dépense raisonnable, l'audience progresse nettement. Peu d'écho dans le débat public.", pop: 0 },
@@ -5986,8 +5986,8 @@ const DILEMMA_BANK = [
     ]
   },
   {
-    id: 'd202', titre: "Une version internationale de ta chaîne",
-    desc: "Le marché anglophone est immense et déjà saturé. L'investissement est lourd et long.",
+    id: 'd202', titre: "Une version internationale de la chaîne",
+    desc: "Le marché anglophone est immense et déjà saturé. L’investissement est lourd et long. La direction doit choisir entre lancer une version anglaise de la chaîne, en espérant exister face à des géants installés, et rester concentrée sur la France, où la marque est déjà connue.",
     types: ['sport'],
     c: [
       { l: "Lancer une version anglaise", finance: {"recurring":12,"purchase":0,"commercial":0,"category":"R"}, pda: { j1524: +6, a2549: +5, s50: +2, csp: +5 }, r: "L'audience progresse nettement : effort budgétaire conséquent. La confiance du public progresse.", pop: 2 },
@@ -5996,16 +5996,16 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd204', titre: "Une plateforme de streaming frappe à la porte",
-    desc: "Une plateforme te propose un gros chèque pour intégrer tes contenus à son catalogue en exclusivité.",
+    desc: "Une plateforme propose un gros chèque pour intégrer des contenus à son catalogue en exclusivité. La direction doit choisir entre signer l’accord, qui renforce la trésorerie, et garder les contenus sur la plateforme de la chaîne, qui fait venir ses abonnés. Un chèque rassure, un catalogue fait revenir.",
     types: ['sport'],
     c: [
-      { l: "Signer l’accord d’exclusivité", finance: {"recurring":0,"purchase":0,"commercial":12,"category":"C"}, pda: { j1524: -2, a2549: -1, s50: 0, csp: -1 }, r: "L’accord est signé : ta trésorerie se renforce, mais tes contenus quittent ta plateforme pour rejoindre celle du partenaire.", pop: 0 },
-      { l: "Garder tes contenus sur ta plateforme", finance: {"recurring":0,"purchase":0,"commercial":0,"category":"N"}, pda: { j1524: +1, a2549: +1, s50: 0, csp: +1 }, r: "Tes contenus restent chez toi : pas de chèque, mais ta plateforme garde ce qui fait venir tes abonnés.", pop: 1 }
+      { l: "Signer l’accord d’exclusivité", finance: {"recurring":0,"purchase":0,"commercial":12,"category":"C"}, pda: { j1524: -2, a2549: -1, s50: 0, csp: -1 }, r: "L’accord est signé : la trésorerie se renforce, mais les contenus quittent la plateforme de la chaîne pour rejoindre celle du partenaire.", pop: 0 },
+      { l: "Garder les contenus sur la plateforme de la chaîne", finance: {"recurring":0,"purchase":0,"commercial":0,"category":"N"}, pda: { j1524: +1, a2549: +1, s50: 0, csp: +1 }, r: "Les contenus restent à la maison : pas de chèque, mais la plateforme garde ce qui fait venir les abonnés.", pop: 1 }
     ]
   },
   {
     id: 'd205', titre: "Lancer une chaîne FAST",
-    desc: "Ton équipe propose de lancer une chaîne gratuite en streaming, financée par la publicité et alimentée par les droits de ton catalogue.",
+    desc: "L’équipe propose de lancer une chaîne gratuite en streaming, financée par la publicité et alimentée par les droits du catalogue. Reste à savoir si ces moyens doivent aller à ce nouveau canal ou rester concentrés sur le linéaire, où l’antenne fait déjà son travail.",
     types: ['sport'],
     c: [
       { l: "Lancer la chaîne FAST", finance: {"recurring":0,"purchase":8,"commercial":0,"category":"P"}, pda: { j1524: +7, a2549: +6, s50: +4, csp: +4 }, r: "Les courbes d'audience grimpent : enveloppe généreuse débloquée. L'image de la chaîne y gagne beaucoup.", pop: 4 },
@@ -6040,11 +6040,11 @@ const DILEMMA_BANK = [
     ]
   },
   {
-    id: 'd209', titre: "Les alertes mercato, gratuites ou premium",
-    desc: "L'info transfert avant tout le monde, c'est ce que ton public veut le plus. Et ce qu'il est prêt à payer.",
+    id: 'd209', titre: "Alertes mercato : gratuites ou premium",
+    desc: "L’info transfert avant tout le monde, c’est ce que le public veut le plus. Et ce qu’il est prêt à payer. La rédaction peut en faire un service premium payant ou garder le service gratuit pour tous, au prix de l’exclusivité. Un transfert annoncé trop tôt reste une alerte de trop.",
     types: ['sport'],
     c: [
-      { l: "En faire un service premium payant", finance: {"recurring":0,"purchase":1,"commercial":0,"category":"P"}, pda: { j1524: +10, a2549: +8, s50: +2, csp: +4 }, r: "L'audience s'envole : budget maîtrisé. Bon retour côté opinion publique.", pop: 1 },
+      { l: "Transformer les alertes en service premium payant", finance: {"recurring":0,"purchase":1,"commercial":0,"category":"P"}, pda: { j1524: +10, a2549: +8, s50: +2, csp: +4 }, r: "L'audience s'envole : budget maîtrisé. Bon retour côté opinion publique.", pop: 1 },
       { l: "Garder le service gratuit pour tous", finance: {"recurring":0,"purchase":0,"commercial":4,"category":"C"}, pda: { j1524: +5, a2549: +6, s50: +3, csp: +4 }, r: "Solution économe qui rassure le CFO, l'audience progresse nettement. L'image de la chaîne y gagne beaucoup.", pop: 4 }
     ]
   },
@@ -6058,8 +6058,8 @@ const DILEMMA_BANK = [
     ]
   },
   {
-    id: 'd211', titre: "Vendre des billets",
-    desc: "Un partenaire billetterie propose une commission confortable. Tu deviendrais un peu plus qu'un média.",
+    id: 'd211', titre: "Billetterie : un média qui vend des places",
+    desc: "Un partenaire billetterie propose une commission confortable. La chaîne deviendrait un peu plus qu’un média, avec des packages de billets premium à vendre. L’alternative est de rester uniquement un média, sans risque de se retrouver au guichet. Entre l’audience et le chiffre d’affaires, le spectateur a deux façons de payer.",
     types: ['sport'],
     c: [
       { l: "Vendre des packages billets premium", finance: {"recurring":0,"purchase":2,"commercial":0,"category":"P"}, pda: { j1524: +7, a2549: +6, s50: +4, csp: +3 }, r: "Dépense raisonnable, les courbes d'audience grimpent. La confiance du public progresse.", pop: 1 },
@@ -6086,29 +6086,29 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd214', titre: "Une convention de supporters",
-    desc: "Trois jours, un palais des congrès, tes consultants en dédicace. Le lien direct avec ton public.",
+    desc: "Trois jours, un palais des congrès, des consultants en dédicace. Le lien direct avec le public est séduisant, mais l’organisation demande un autre métier que l’antenne. La chaîne doit choisir entre organiser l’événement elle-même et rester uniquement à l’antenne, où personne n’attend de badge à l’entrée.",
     types: ['sport'],
     c: [
-      { l: "Organiser l'événement toi-même", finance: {"recurring":0,"purchase":4,"commercial":0,"category":"P"}, pda: { j1524: +9, a2549: +7, s50: +4, csp: +3 }, r: "Budget maîtrisé, l'audience progresse nettement. Le public est conquis.", pop: 4 },
+      { l: "Organiser l'événement en propre", finance: {"recurring":0,"purchase":4,"commercial":0,"category":"P"}, pda: { j1524: +9, a2549: +7, s50: +4, csp: +3 }, r: "Budget maîtrisé, l'audience progresse nettement. Le public est conquis.", pop: 4 },
       { l: "Rester uniquement à l'antenne", finance: {"recurring":0,"purchase":0,"commercial":0,"category":"N"}, pda: { j1524: +2, a2549: +3, s50: +3, csp: +4 }, r: "L'audience progresse nettement : effort financier contenu. Ni éclat ni polémique à signaler.", pop: 0 }
     ]
   },
   {
     id: 'd215', titre: "Le sport fait salon",
-    desc: "La rédaction veut réunir tout le sport sous un même toit pour devenir un acteur référent du monde du sport.",
+    desc: "La rédaction veut réunir tout le sport sous un même toit pour devenir un acteur référent du monde du sport. Régler la facture revient à organiser le salon soi-même. Laisser l’espace à un concurrent revient à le couvrir avec un badge d’accrédité.",
     types: ['sport'],
     c: [
-      { l: "Régler la facture", finance: {"recurring":0,"purchase":7,"commercial":0,"category":"P"}, pda: { j1524: +7, a2549: +6, s50: +5, csp: +6 }, r: "Le salon ouvre sous ta marque : la facture est lourde, mais la chaîne devient une référence du sport.", pop: 2 },
-      { l: "Laisser l’espace à un concurrent et se faire accréditer pour couvrir l’événement", finance: {"recurring":0,"purchase":2,"commercial":0,"category":"P"}, pda: { j1524: +3, a2549: +4, s50: +4, csp: +5 }, r: "Un concurrent occupe le salon ; tu le couvres en média accrédité, sans la facture.", pop: 1 }
+      { l: "Régler la facture", finance: {"recurring":0,"purchase":7,"commercial":0,"category":"P"}, pda: { j1524: +7, a2549: +6, s50: +5, csp: +6 }, r: "Le salon ouvre sous la marque de la chaîne : la facture est lourde, mais elle devient une référence du sport.", pop: 2 },
+      { l: "Laisser l’espace à un concurrent et se faire accréditer pour couvrir l’événement", finance: {"recurring":0,"purchase":2,"commercial":0,"category":"P"}, pda: { j1524: +3, a2549: +4, s50: +4, csp: +5 }, r: "Un concurrent occupe le salon ; la chaîne le couvre en média accrédité, sans la facture.", pop: 1 }
     ]
   },
   {
-    id: 'd216', titre: "Un festival à ton nom",
-    desc: "Ton équipe propose de lancer un festival au nom de ta chaîne pour rencontrer ton public et faire rayonner ta marque hors de l’écran.",
+    id: 'd216', titre: "Un festival au nom de la chaîne",
+    desc: "L’équipe propose de lancer un festival au nom de la chaîne pour rencontrer le public et faire rayonner la marque hors de l’écran. Investir dans le festival engage la chaîne sur le terrain ; concentrer les moyens sur l’antenne reste plus simple, mais moins visible. Un badge de festival reste, lui, très photographié.",
     types: ['sport'],
     c: [
       { l: "Investir dans le festival", finance: {"recurring":10,"purchase":0,"commercial":0,"category":"R"}, pda: { j1524: +10, a2549: +7, s50: +5, csp: +4 }, r: "Mise conséquente sur la table, les scores explosent sur toutes les cibles. Le public est conquis.", pop: 5 },
-      { l: "Concentrer tes moyens sur l’antenne", finance: {"recurring":0,"purchase":3,"commercial":0,"category":"P"}, pda: { j1524: +3, a2549: +4, s50: +4, csp: +5 }, r: "L'audience progresse nettement : dépense raisonnable. Peu d'écho dans le débat public.", pop: 0 }
+      { l: "Concentrer les moyens sur l’antenne", finance: {"recurring":0,"purchase":3,"commercial":0,"category":"P"}, pda: { j1524: +3, a2549: +4, s50: +4, csp: +5 }, r: "L'audience progresse nettement : dépense raisonnable. Peu d'écho dans le débat public.", pop: 0 }
     ]
   },
   {
@@ -6130,40 +6130,40 @@ const DILEMMA_BANK = [
     ]
   },
   {
-    id: 'd219', titre: "Créer ta propre compétition",
-    desc: "Posséder l'événement, c'est ne plus jamais payer de droits. C'est aussi tout risquer sur son succès.",
+    id: 'd219', titre: "Créer sa propre compétition",
+    desc: "Posséder l’événement, c’est ne plus jamais payer de droits. C’est aussi tout risquer sur son succès. La direction doit choisir entre créer un tournoi de A à Z, avec l’inconnue du public, et racheter un tournoi existant, déjà installé, mais pas gratuit.",
     types: ['sport'],
     c: [
-      { l: "Créer ton propre tournoi de A à Z", finance: {"recurring":0,"purchase":15,"commercial":0,"category":"P"}, pda: { j1524: +9, a2549: +8, s50: +4, csp: +5 }, r: "Le public répond présent en masse : effort budgétaire conséquent. Les réseaux sociaux s'enflamment positivement.", pop: 4 },
+      { l: "Créer un tournoi maison de A à Z", finance: {"recurring":0,"purchase":15,"commercial":0,"category":"P"}, pda: { j1524: +9, a2549: +8, s50: +4, csp: +5 }, r: "Le public répond présent en masse : effort budgétaire conséquent. Les réseaux sociaux s'enflamment positivement.", pop: 4 },
       { l: "Racheter un tournoi existant", finance: {"recurring":0,"purchase":8,"commercial":0,"category":"P"}, pda: { j1524: +5, a2549: +6, s50: +4, csp: +5 }, r: "Mise conséquente sur la table, le public suit en nombre. Bon retour côté opinion publique.", pop: 2 }
     ]
   },
   {
     id: 'd220', titre: "Un match exhibition maison",
-    desc: "Un événement fabriqué pour ton antenne, avec des stars payées pour venir jouer.",
+    desc: "Un événement fabriqué pour l’antenne, avec des stars payées pour venir jouer. La rédaction peut organiser son propre événement ou diffuser un match déjà existant, qui n’a pas besoin d’être inventé. Entre un spectacle sur mesure et un match qui existe sans la chaîne, la facture ne se ressemble pas.",
     types: ['sport'],
     c: [
-      { l: "Organiser ton propre événement", finance: {"recurring":0,"purchase":10,"commercial":0,"category":"P"}, pda: { j1524: +8, a2549: +7, s50: +4, csp: +4 }, r: "L'audience progresse nettement : effort budgétaire conséquent. Le public est conquis.", pop: 3 },
+      { l: "Organiser un événement maison", finance: {"recurring":0,"purchase":10,"commercial":0,"category":"P"}, pda: { j1524: +8, a2549: +7, s50: +4, csp: +4 }, r: "L'audience progresse nettement : effort budgétaire conséquent. Le public est conquis.", pop: 3 },
       { l: "Diffuser un match déjà existant", finance: {"recurring":0,"purchase":2,"commercial":0,"category":"P"}, pda: { j1524: +3, a2549: +4, s50: +3, csp: +3 }, r: "Dépense raisonnable, les courbes d'audience grimpent. La confiance du public progresse.", pop: 1 }
     ]
   },
   {
     id: 'd221', titre: "Un All-Star Game à la française",
-    desc: "Le concept marche outre-Atlantique. En France, personne n'a réussi. Personne n'a vraiment essayé non plus.",
+    desc: "Le concept marche outre-Atlantique. En France, personne n’a réussi. Personne n’a vraiment essayé non plus. La rédaction peut créer son propre All-Star Game, avec ses vedettes et sa mise en scène, ou ne pas investir sur ce format, au risque de ne jamais savoir.",
     types: ['sport'],
     c: [
-      { l: "Créer ton propre All-Star Game", finance: {"recurring":0,"purchase":12,"commercial":0,"category":"P"}, pda: { j1524: +10, a2549: +7, s50: +3, csp: +5 }, r: "Le public répond présent en masse : enveloppe généreuse débloquée. Le public est conquis.", pop: 4 },
+      { l: "Créer un All-Star Game maison", finance: {"recurring":0,"purchase":12,"commercial":0,"category":"P"}, pda: { j1524: +10, a2549: +7, s50: +3, csp: +5 }, r: "Le public répond présent en masse : enveloppe généreuse débloquée. Le public est conquis.", pop: 4 },
       { l: "Ne pas investir sur ce format", finance: {"recurring":0,"purchase":0,"commercial":0,"category":"N"}, pda: { j1524: +3, a2549: +4, s50: +3, csp: +4 }, r: "L'audience progresse nettement : dépense raisonnable. L'accueil est positif.", pop: 1 }
     ]
   },
   {
     id: 'd222', titre: "Les trophées de la chaîne",
-    desc: "Ta rédaction propose une grande cérémonie annuelle pour récompenser les figures du sport français. Un rendez-vous prestigieux, mais coûteux.",
+    desc: "La rédaction propose une grande cérémonie annuelle pour récompenser les figures du sport français. Un rendez-vous prestigieux, mais coûteux. Une simple remise de prix à l’antenne serait plus légère, et renoncer à la cérémonie laisserait la priorité au direct.",
     types: ['sport'],
     c: [
       { l: "Créer une grande cérémonie annuelle", finance: {"recurring":6,"purchase":0,"commercial":0,"category":"R"}, pda: { j1524: +6, a2549: +6, s50: +6, csp: +6 }, r: "Budget maîtrisé, le public répond présent en masse. Le public est conquis.", pop: 3 },
-      { l: "Une simple remise de prix à l'antenne", finance: {"recurring":0,"purchase":2,"commercial":0,"category":"P"}, pda: { j1524: +3, a2549: +4, s50: +5, csp: +5 }, r: "Le public suit en nombre : effort financier contenu. Bon retour côté opinion publique.", pop: 1 },
-      { l: "Aucune cérémonie, priorité au live", finance: {"recurring":0,"purchase":0,"commercial":0,"category":"N"}, pda: { j1524: 0, a2549: 0, s50: 0, csp: 0 }, r: "Pas de trophées cette année : les moyens restent sur les directs.", pop: 0 }
+      { l: "Organiser une simple remise de prix à l'antenne", finance: {"recurring":0,"purchase":2,"commercial":0,"category":"P"}, pda: { j1524: +3, a2549: +4, s50: +5, csp: +5 }, r: "Le public suit en nombre : effort financier contenu. Bon retour côté opinion publique.", pop: 1 },
+      { l: "Renoncer à la cérémonie et prioriser le live", finance: {"recurring":0,"purchase":0,"commercial":0,"category":"N"}, pda: { j1524: 0, a2549: 0, s50: 0, csp: 0 }, r: "Pas de trophées cette année : les moyens restent sur les directs.", pop: 0 }
     ]
   },
   {
@@ -6222,7 +6222,7 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd229', titre: "L’indépendance éditoriale se négocie-t-elle ?",
-    desc: "Un sponsor veut faire taire un sujet qui le dérange et te pousse à infléchir la ligne de ta rédaction.",
+    desc: "Un sponsor veut faire taire un sujet qui le dérange et pousse la rédaction à infléchir sa ligne. La chaîne doit choisir entre refuser toute pression commerciale et accepter la demande du sponsor, au risque d’entamer sa crédibilité. L’argent n’a pas toujours le dernier mot.",
     types: ['sport'],
     c: [
       { l: "Refuser toute pression commerciale", finance: {"recurring":0,"purchase":4,"commercial":0,"category":"P"}, pda: { j1524: +4, a2549: +6, s50: +6, csp: +8 }, r: "Budget maîtrisé, le public répond présent en masse. Les réseaux sociaux s'enflamment positivement.", pop: 5 },
@@ -6231,7 +6231,7 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd230', titre: "Le chèque des paris sportifs",
-    desc: "Un opérateur de paris propose le plus gros contrat de sponsoring de ton histoire. Ta rédaction est partagée, ton CFO ne l'est pas.",
+    desc: "Un opérateur de paris propose le plus gros contrat de sponsoring de l’histoire de la chaîne. La rédaction est partagée, la direction financière ne l’est pas. Refuser protège l’image, accepter remplit la caisse, et un partenaire de paris reste un partenaire de paris.",
     types: ['sport'],
     c: [
       { l: "Refuser le contrat", finance: {"recurring":0,"purchase":3,"commercial":0,"category":"P"}, pda: { j1524: +2, a2549: +3, s50: +4, csp: +5 }, r: "Dépense raisonnable, l'audience progresse nettement. Le public est conquis.", pop: 4 },
@@ -6240,7 +6240,7 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd231', titre: "Un équipementier veut l'exclusivité",
-    desc: "Une marque unique paie plus. Plusieurs marques rapportent moins mais te laissent libre.",
+    desc: "Une marque unique paie plus. Plusieurs marques rapportent moins mais laissent la chaîne libre. La régie doit trancher entre signer une exclusivité équipementier, avec une marque omniprésente, et ouvrir à plusieurs marques, plus équilibré, mais moins lucratif.",
     types: ['sport'],
     c: [
       { l: "Signer une exclusivité équipementier", finance: {"recurring":0,"purchase":0,"commercial":7,"category":"C"}, pda: { j1524: +5, a2549: +6, s50: +4, csp: +5 }, r: "L'audience progresse nettement : choix rentable pour la trésorerie. L'accueil est positif.", pop: 1 },
@@ -6249,7 +6249,7 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd232', titre: "Un constructeur veut son nom sur une émission",
-    desc: "Le naming rapporte gros et colle une marque sur ton programme phare.",
+    desc: "Le naming rapporte gros et colle une marque sur le programme phare. La régie y voit une ressource, la rédaction un risque pour l’image de l’émission. La chaîne choisit entre le logo du constructeur en tête d’affiche et un titre qui reste le sien.",
     types: ['sport'],
     c: [
       { l: "Accepter le naming de l'émission", finance: {"recurring":0,"purchase":0,"commercial":9,"category":"C"}, pda: { j1524: +5, a2549: +6, s50: +4, csp: +7 }, r: "L'audience progresse nettement : solution économe qui rassure le CFO. La confiance du public progresse.", pop: 1 },
@@ -6258,7 +6258,7 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd233', titre: "Une banque veut être partout",
-    desc: "Une banque sort le chéquier pour s’afficher partout dans ton magazine : titre, décors, écrans… Ta régie jubile, ta rédaction grimace.",
+    desc: "Une banque sort le chéquier pour s’afficher partout dans le magazine : titre, décors, écrans… La régie jubile, la rédaction grimace. Accepter le naming donne de la visibilité à l’annonceur ; se limiter à une présence classique protège l’identité du magazine.",
     types: ['sport'],
     c: [
       { l: "Accepter le naming", finance: {"recurring":0,"purchase":0,"commercial":8,"category":"C"}, pda: { j1524: +3, a2549: +5, s50: +5, csp: +7 }, r: "Solution économe qui rassure le CFO, les courbes d'audience grimpent. Bon retour côté opinion publique.", pop: 1 },
@@ -6285,16 +6285,16 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd236', titre: "La demande publicitaire s'emballe",
-    desc: "Tout le monde veut ton antenne cette saison. Tu peux faire flamber les tarifs ou installer la hausse dans la durée.",
+    desc: "Tout le monde veut l’antenne cette saison. La régie peut faire flamber les tarifs immédiatement ou installer la hausse dans la durée. Une hausse brutale profite au présent, une hausse progressive protège les relations avec les annonceurs.",
     types: ['sport'],
     c: [
       { l: "Augmenter fortement les tarifs, maintenant", finance: {"recurring":0,"purchase":0,"commercial":10,"category":"C"}, pda: { j1524: 0, a2549: -1, s50: -1, csp: 0 }, r: "Quelques téléspectateurs décrochent : solution économe qui rassure le CFO. Les critiques fusent sur les réseaux.", pop: -1 },
-      { l: "Une hausse progressive et durable", finance: {"recurring":0,"purchase":0,"commercial":4,"category":"C"}, pda: { j1524: +3, a2549: +4, s50: +3, csp: +4 }, r: "Solution économe qui rassure le CFO, les courbes d'audience grimpent. L'accueil est positif.", pop: 2 }
+      { l: "Installer une hausse progressive et durable", finance: {"recurring":0,"purchase":0,"commercial":4,"category":"C"}, pda: { j1524: +3, a2549: +4, s50: +3, csp: +4 }, r: "Solution économe qui rassure le CFO, les courbes d'audience grimpent. L'accueil est positif.", pop: 2 }
     ]
   },
   {
     id: 'd237', titre: "Les écrans ne se remplissent plus",
-    desc: "Le marché se contracte, tes espaces restent vides. Baisser les prix remplit vite et abîme la valeur.",
+    desc: "Le marché se contracte, les espaces restent vides. Baisser les prix remplit vite et abîme la valeur. La régie doit choisir entre baisser les prix pour remplir et tenir les tarifs en attendant le retour des annonceurs, quitte à regarder des écrans vides pendant un temps.",
     types: ['sport'],
     c: [
       { l: "Baisser les prix pour remplir", finance: {"recurring":0,"purchase":0,"commercial":6,"category":"C"}, pda: { j1524: +1, a2549: +2, s50: +1, csp: +1 }, r: "Quelques points d'audience s'ajoutent : solution économe qui rassure le CFO. Bon retour côté opinion publique.", pop: 1 },
@@ -6303,7 +6303,7 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd238', titre: "Un annonceur veut être seul",
-    desc: "Exclusivité sectorielle sur toute la saison, contre un chèque majoré. Tes autres clients ne vont pas aimer.",
+    desc: "Exclusivité sectorielle sur toute la saison, contre un chèque majoré. Les autres clients ne vont pas aimer. La régie doit choisir entre vendre l’exclusivité à un seul annonceur et diversifier le portefeuille, plus prudent, mais moins généreux dans l’immédiat.",
     types: ['sport'],
     c: [
       { l: "Vendre l'exclusivité sectorielle", finance: {"recurring":0,"purchase":0,"commercial":8,"category":"C"}, pda: { j1524: +3, a2549: +4, s50: +2, csp: +5 }, r: "Solution économe qui rassure le CFO, le public suit en nombre. Ni éclat ni polémique à signaler.", pop: 0 },
@@ -6321,7 +6321,7 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd240', titre: "Un sponsor devient encombrant",
-    desc: "Une enquête sort sur ton partenaire. Le contrat court encore deux ans.",
+    desc: "Une enquête sort sur le partenaire. Le contrat court encore deux ans. La direction doit choisir entre rompre immédiatement, au risque de perdre le chèque, et maintenir le partenariat jusqu’au terme, en assumant les questions de la presse.",
     types: ['sport'],
     c: [
       { l: "Rompre le contrat immédiatement", finance: {"recurring":0,"purchase":8,"commercial":0,"category":"P"}, pda: { j1524: +5, a2549: +6, s50: +6, csp: +8 }, r: "Effort budgétaire conséquent, les scores explosent sur toutes les cibles. Le public est conquis.", pop: 5 },
@@ -6339,7 +6339,7 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd242', titre: "Objectif audience relevé",
-    desc: "On te demande plus de PDA avec les mêmes équipes. Deux chemins possibles, un seul budget.",
+    desc: "La direction générale demande plus de PDA avec les mêmes équipes. Deux chemins possibles, un seul budget. Investir massivement dans de nouveaux droits ou optimiser la grille et les programmes existants : la chaîne doit choisir entre acheter de l’audience et mieux gérer ce qu’elle a.",
     types: ['sport'],
     c: [
       { l: "Investir massivement dans de nouveaux droits", finance: {"recurring":0,"purchase":20,"commercial":0,"category":"P"}, pda: { j1524: +9, a2549: +9, s50: +6, csp: +6 }, r: "Le public répond présent en masse : facture salée mais assumée. L'image de la chaîne y gagne beaucoup.", pop: 3 },
@@ -6348,7 +6348,7 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd245', titre: "Le concurrent surenchérit",
-    desc: "Il met un prix qui n'a plus de rapport avec la réalité économique. Tu peux suivre ou le laisser s'y brûler.",
+    desc: "Le concurrent met un prix qui n’a plus de rapport avec la réalité économique. La chaîne peut suivre ou le laisser s’y brûler. Abandonner laisse la place libre, suivre coûte cher. Tout dépend de ce que la direction financière acceptera de mettre sur la table.",
     types: ['sport'],
     c: [
       { l: "Abandonner et le laisser payer", finance: {"recurring":0,"purchase":1,"commercial":0,"category":"P"}, pda: { j1524: -4, a2549: -4, s50: -2, csp: -2 }, r: "Budget maîtrisé, quelques téléspectateurs décrochent. Une grogne se fait sentir côté public.", pop: -3 },
@@ -6384,7 +6384,7 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd249', titre: "Un match en clair",
-    desc: "Ouvrir l'affiche à tout le monde fait grimper la notoriété et frustre tes abonnés.",
+    desc: "Ouvrir l’affiche à tout le monde fait grimper la notoriété et frustre les abonnés. La chaîne peut diffuser gratuitement le match en clair ou le réserver aux abonnés, qui l’ont payé. Un public élargi d’un côté, un public fidèle de l’autre : le match est le même, pas la déception.",
     types: ['sport'],
     c: [
       { l: "Diffuser gratuitement en clair", finance: {"recurring":0,"purchase":2,"commercial":0,"category":"P"}, pda: { j1524: +8, a2549: +8, s50: +6, csp: +5 }, r: "Budget maîtrisé, l'audience s'envole. L'image de la chaîne y gagne beaucoup.", pop: 5 },
@@ -6456,7 +6456,7 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd257', titre: "Un opérateur télécom propose un bundle",
-    desc: "Il distribue ton offre à des millions de foyers et garde la relation client. Et une part du revenu.",
+    desc: "L’opérateur distribue l’offre à des millions de foyers et garde la relation client. Et une part du revenu. La direction doit choisir entre signer le gros accord de distribution et vendre en direct pour garder le client, avec la portée en moins.",
     types: ['sport'],
     c: [
       { l: "Signer le gros accord de distribution", finance: {"recurring":0,"purchase":0,"commercial":4,"category":"C"}, pda: { j1524: +6, a2549: +6, s50: +3, csp: +5 }, r: "Effort financier contenu, l'audience progresse nettement. La confiance du public progresse.", pop: 2 },
@@ -6465,7 +6465,7 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd258', titre: "L'application Smart TV",
-    desc: "Le salon reste le premier écran du sport. Ton app y est mauvaise.",
+    desc: "Le salon reste le premier écran du sport, et l’application de la chaîne y est mauvaise. La direction peut développer une application native complète, plus coûteuse, ou se contenter d’une version limitée, qui évite de tout reprendre à zéro.",
     types: ['sport'],
     c: [
       { l: "Développer une application native complète", finance: {"recurring":0,"purchase":3,"commercial":0,"category":"P"}, pda: { j1524: +8, a2549: +7, s50: +2, csp: +5 }, r: "Budget maîtrisé, l'audience progresse nettement. La confiance du public progresse.", pop: 2 },
@@ -6536,8 +6536,8 @@ const DILEMMA_BANK = [
     ]
   },
   {
-    id: 'd266', titre: "Le bilan carbone de tes propres dispositifs",
-    desc: "Tes cars-régies et tes vols sont aussi dans l'équation. Un dispositif vert coûte plus cher à l'installation.",
+    id: 'd266', titre: "Le bilan carbone des dispositifs de production",
+    desc: "Les cars-régies et les vols entrent aussi dans l’équation. Un dispositif vert coûte plus cher à l’installation. La direction peut investir dans un dispositif de production vert ou ne rien changer aux méthodes actuelles, en attendant que le sujet s’impose.",
     types: ['sport'],
     c: [
       { l: "Investir dans un dispositif de production vert", finance: {"recurring":0,"purchase":5,"commercial":0,"category":"P"}, pda: { j1524: +4, a2549: +6, s50: +7, csp: +8 }, r: "Budget maîtrisé, les scores explosent sur toutes les cibles. Les réseaux sociaux s'enflamment positivement.", pop: 4 },
@@ -6545,8 +6545,8 @@ const DILEMMA_BANK = [
     ]
   },
   {
-    id: 'd267', titre: "Train ou avion pour tes équipes",
-    desc: "Le train prend du temps et fatigue les équipes. L'avion fait gagner des heures et coûte à l'image.",
+    id: 'd267', titre: "Train ou avion pour les équipes",
+    desc: "Le train prend du temps et fatigue les équipes. L’avion fait gagner des heures et coûte à l’image. La direction doit choisir entre privilégier le train systématiquement et garder l’avion pour la souplesse, sans oublier que les reportages n’attendent personne.",
     types: ['sport'],
     c: [
       { l: "Privilégier le train systématiquement", finance: {"recurring":2,"purchase":0,"commercial":0,"category":"R"}, pda: { j1524: +3, a2549: +5, s50: +6, csp: +7 }, r: "Les courbes d'audience grimpent : effort financier contenu. L'image de la chaîne y gagne beaucoup.", pop: 4 },
@@ -6555,7 +6555,7 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd268', titre: "Un stade éco-responsable",
-    desc: "Un club a construit un stade exemplaire. Tu peux en faire un sujet ou passer ton chemin.",
+    desc: "Un club a construit un stade exemplaire. La rédaction peut en faire un sujet, en mettant le dispositif en avant à l’antenne, ou passer son chemin sans communiquer dessus. Un reportage vert plaît à un public, mais ne remplace pas un match.",
     types: ['sport'],
     c: [
       { l: "Mettre le dispositif en avant à l'antenne", finance: {"recurring":0,"purchase":1,"commercial":0,"category":"P"}, pda: { j1524: +4, a2549: +6, s50: +7, csp: +7 }, r: "Budget maîtrisé, le public répond présent en masse. L'image de la chaîne y gagne beaucoup.", pop: 3 },
@@ -6572,8 +6572,8 @@ const DILEMMA_BANK = [
     ]
   },
   {
-    id: 'd270', titre: "Le casting de tes consultants",
-    desc: "Ton plateau ressemble à celui d'il y a quinze ans. Le public, lui, a changé.",
+    id: 'd270', titre: "Le casting des consultants",
+    desc: "Le plateau ressemble à celui d’il y a quinze ans. Le public, lui, a changé. La rédaction doit choisir entre renouveler et diversifier le casting, au risque de brusquer les habitués, et garder l’équipe historique, familière, mais de moins en moins représentative.",
     types: ['sport'],
     c: [
       { l: "Renouveler et diversifier le casting", finance: {"recurring":3,"purchase":0,"commercial":0,"category":"R"}, pda: { j1524: +6, a2549: +7, s50: +6, csp: +7 }, r: "Budget maîtrisé, le public répond présent en masse. L'image de la chaîne y gagne beaucoup.", pop: 4 },
@@ -6582,7 +6582,7 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd271', titre: "Des pépites ou des vedettes ?",
-    desc: "Ton directeur des sports propose de lancer un concours de commentateurs. 12 épisodes pour former les voix de demain… ou un gros chèque pour s’offrir celles que tout le monde connaît déjà.",
+    desc: "Le directeur des sports propose de lancer un concours de commentateurs. 12 épisodes pour former les voix de demain… ou un gros chèque pour s’offrir celles que tout le monde connaît déjà. Une académie coûte du temps ; les noms établis, un chèque.",
     types: ['sport'],
     c: [
       { l: "Créer une académie interne", finance: {"recurring":3,"purchase":0,"commercial":0,"category":"R"}, pda: { j1524: +8, a2549: +6, s50: +3, csp: +6 }, r: "Dépense raisonnable, le public suit en nombre. Les réseaux sociaux s'enflamment positivement.", pop: 4 },
@@ -6591,7 +6591,7 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd272', titre: "Une cellule investigation",
-    desc: "Le sport regorge de sujets que personne ne traite. Une cellule dédiée fâchera tous tes partenaires.",
+    desc: "Le sport regorge de sujets que personne ne traite. Une cellule dédiée fâchera tous les partenaires, mais installera un regard indépendant. La rédaction doit choisir entre créer une cellule investigation permanente et rester sur le journalisme quotidien, plus tranquille. L’enquête est un métier, pas un hobby du dimanche.",
     types: ['sport'],
     c: [
       { l: "Créer une cellule investigation permanente", finance: {"recurring":6,"purchase":0,"commercial":0,"category":"R"}, pda: { j1524: +3, a2549: +6, s50: +7, csp: +9 }, r: "L'audience s'envole : budget maîtrisé. Le public est conquis.", pop: 5 },
@@ -6609,7 +6609,7 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd274', titre: "Une enquête sur une fédération",
-    desc: "La fédération détient les droits que tu diffuses. Le sujet est d'intérêt public.",
+    desc: "La fédération détient les droits que la chaîne diffuse. Le sujet est d’intérêt public. La rédaction doit choisir entre diffuser l’enquête, avec le risque de tensions autour des droits, et reporter la diffusion, au risque de voir la presse concurrente passer avant.",
     types: ['sport'],
     c: [
       { l: "Diffuser l'enquête", finance: {"recurring":0,"purchase":4,"commercial":0,"category":"P"}, pda: { j1524: +5, a2549: +6, s50: +6, csp: +8 }, r: "Effort financier contenu, les scores explosent sur toutes les cibles. Le public est conquis.", pop: 5 },
@@ -6618,7 +6618,7 @@ const DILEMMA_BANK = [
   },
   {
     id: 'd275', titre: "Une enquête sur les agents",
-    desc: "Commissions, mineurs, réseaux. Le sujet est vaste, et personne ne veut te parler devant une caméra.",
+    desc: "Commissions, mineurs, réseaux. Le sujet est vaste, et personne ne veut parler devant une caméra. La rédaction doit choisir entre produire un documentaire complet, qui demande du temps, et se contenter d’un sujet court, plus rapide, mais moins fouillé.",
     types: ['sport'],
     c: [
       { l: "Produire un documentaire complet", finance: {"recurring":0,"purchase":5,"commercial":0,"category":"P"}, pda: { j1524: +5, a2549: +6, s50: +5, csp: +9 }, r: "L'audience s'envole : budget maîtrisé. Les réseaux sociaux s'enflamment positivement.", pop: 5 },
@@ -26785,7 +26785,7 @@ const DYNAMIC_DILEMMAS = {
       // « du Top 14 », « de Roland-Garros », « de la NBA »…
       const of = e.the.startsWith('le ') ? `du ${e.the.slice(3)}` : `de ${e.the}`;
       return { ...base, dynamicOf: 'd79', titre: `Finale ${of} : grand spectacle ou simple diffusion ?`,
-        desc: 'Pour la finale, ton réalisateur voit grand : cérémonie d’ouverture, invités de prestige et caméras au plus près du terrain.' };
+        desc: 'Pour la finale, le réalisateur voit grand : cérémonie d’ouverture, invités de prestige et caméras au plus près du terrain. La direction financière, elle, a déjà repéré le devis avec beaucoup de zéros. Reste à savoir si la soirée mérite un tel déploiement ou si le coup d’envoi suffit.' };
     }
   },
   // Package indivisible : un lot de compétitions sous scellés, une par case libre.
