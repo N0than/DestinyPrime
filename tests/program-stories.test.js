@@ -500,6 +500,13 @@ const base=id=>DILEMMA_BANK.find(d=>d.id===id);
   ok(activeContract(p,slot)?.name===SPORT_FEMININ_PROGRAM&&p.contracts[slot].end===gameState.season,'sport féminin : programme installé sur la case');
   ok(!DYNAMIC_DILEMMAS.d88.freeSlot()||DYNAMIC_DILEMMAS.d88.freeSlot()!==slot,'sport féminin : la case n’est plus proposée');
   ok(!DYNAMIC_DILEMMAS.d88.eligible(),'sport féminin : pas de second rendez-vous fixe'); }
+// Forfait : seulement avec un programme de combat ; dilemmes retirés ; France 98.
+{ partie(54,'sport'); const p=p0();
+  ['d224','d94'].forEach(id=>ok(!DILEMMA_BANK.some(d=>d.id===id),'dilemme supprimé '+id));
+  ok(DILEMMA_BANK.some(d=>d.id==='d_france98'&&d.c.length===2),'France 98 : deux choix');
+  ok(!getEligibleDilemmas().some(d=>d.id==='d153'),'forfait : aucun combat à l’antenne, pas de dilemme');
+  const combat=PROGRAM_CATALOG.find(x=>x.channelType===p.type&&/combat/i.test(x.name)&&quoteProgram(x.slot,x.id,'interne')?.allowed);
+  if(combat){ signe(combat.slot,combat.id); ok(getEligibleDilemmas().some(d=>d.id==='d153'),'forfait : combat programmé, dilemme possible'); } }
 // Le Grodeal : uniquement s'il est diffusé chez un concurrent.
 { partie(25); const p=p0(); const grodeal=PROGRAM_CATALOG.find(x=>x.id==='p478');
   ok(grodeal&&grodeal.name==='Le Grodeal','fiche stable p478');
