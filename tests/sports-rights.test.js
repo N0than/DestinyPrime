@@ -514,6 +514,7 @@ chooseDilemmaOption(0);assert(sr().owned.filter(o=>o.ownerId==='player').length=
   activateSportsBroadcasts();
   assert(Math.abs((c1-gameState.player.tresorerie)-(a.result.price+rec.productionCost))<1e-9&&Math.abs(gameState.player.achatsSaison-a1-(a.result.price+rec.productionCost))<1e-9,'rights settled once in the broadcast season');
   assert(rec.priceSettled,'price settled flag');
+  assert(Math.abs(seasonSpending(gameState.player).events-(a.result.price+rec.productionCost))<1e-9&&seasonSpending(gameState.player).total>=seasonSpending(gameState.player).events,'event cost shown in the season grid cost');
   const c2=gameState.player.tresorerie;activateSportsBroadcasts();assert(gameState.player.tresorerie===c2,'no second settlement');
   gameState.season=rec.broadcastSeason-1; }
 // Défaite : l'offre la plus haute gagne et paie juste au-dessus de la nôtre.

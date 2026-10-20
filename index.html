@@ -1023,12 +1023,14 @@ button.radar-row:focus-visible { outline: 2px solid var(--bleu); outline-offset:
 .eco-fill:only-child { border-radius: 999px; }
 .eco-fill.prog { background-color: var(--rouge); }
 .eco-fill.tal { background-color: var(--bleu); }
+.eco-fill.ev { background-color: var(--violet); }
 .eco-fill.rev { background-color: var(--vert); }
 .eco-legend { display: flex; flex-wrap: wrap; gap: 2px 12px; font-size: 10px; color: var(--gris); }
 .eco-legend span { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
 .eco-legend i { width: 8px; height: 8px; border-radius: 50%; }
 .eco-legend i.prog { background: var(--rouge); }
 .eco-legend i.tal { background: var(--bleu); }
+.eco-legend i.ev { background: var(--violet); }
 .eco-legend i.rev { background: var(--vert); }
 .eco-tiles { flex-shrink: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
 .eco-tile {
@@ -2627,8 +2629,10 @@ const evolutionSubtitle = points => `En M€, sur ${points.length > 1 ? `les ${p
 // Saisons clôturées, plus la saison en cours (prévisionnel) si elle n'est pas encore à l'historique.
 function evolutionChartPoints(p, pdaCible) {
   const lastHistorySeason = gameState.history.length ? gameState.history[gameState.history.length - 1].season : null;
-  if (lastHistorySeason === gameState.season) return gameState.history;
-  return [...gameState.history, {
+  // La courbe de coût suit le HUD : grille + événements diffusés.
+  const history = gameState.history.map(h => ({ ...h, coutGrille: (h.coutGrille || 0) + (h.evenements || 0) }));
+  if (lastHistorySeason === gameState.season) return history;
+  return [...history, {
     season: gameState.season, tresorerie: p.tresorerie, pdaCible,
     coutGrille: seasonSpending(p).total, revenusPub: p.revenusPubPrevisionnels,
     popularite: p.popularite
@@ -2656,12 +2660,14 @@ function sanctionBudgetTile(st, points) {
           </div>`;
 }
 // Coût de grille de la saison, source unique du HUD, du bilan économique et de la courbe
-// d'évolution : programmes + talents. Les achats ponctuels (droits d'événement, indemnités,
-// relances…) n'en font pas partie : ils ne pèsent que sur la trésorerie.
+// d'évolution : programmes + talents + événements diffusés cette saison (droits non annuels,
+// production, événements temporaires). Les autres achats ponctuels (indemnités, relances…)
+// n'en font pas partie : ils ne pèsent que sur la trésorerie.
 function seasonSpending(p) {
-  const total = Math.max(0, p.coutGrilleEngageSaison || 0);
-  const talents = Math.min(total, Math.max(0, p.coutTalentsSaison || 0));
-  return { total, talents, programmes: Math.max(0, total - talents) };
+  const grid = Math.max(0, p.coutGrilleEngageSaison || 0);
+  const events = Math.max(0, p.eventCostSaison || 0);
+  const talents = Math.min(grid, Math.max(0, p.coutTalentsSaison || 0));
+  return { total: grid + events, talents, events, programmes: Math.max(0, grid - talents) };
 }
 // Faillite : dépenses de la dernière saison, réparties entre programmes, talents, droits
 // annuels reconduits (intégrés au coût de grille) et achats ponctuels.
@@ -3537,7 +3543,7 @@ function renderArcomSlide(compliance, convention) {
 }
 
 function renderEcoBilanSlide(player) {
-  const { total: depenses, talents: coutTalents, programmes: coutProgrammes } = seasonSpending(player);
+  const { total: depenses, talents: coutTalents, programmes: coutProgrammes, events: coutEvenements } = seasonSpending(player);
   const recettes = player.revenusPubPrevisionnels;
   const solde = recettes - depenses;
   const maxFlow = Math.max(depenses, recettes, 1);
@@ -3575,10 +3581,11 @@ function renderEcoBilanSlide(player) {
             <span class="eco-flow-name"><span class="eco-ic out">📋</span>Dépenses</span>
             <span class="eco-flow-value out">−${nf1(depenses)} M€</span>
           </div>
-          <div class="eco-bar"><span class="eco-fill prog" style="width:${pct(coutProgrammes)}%"></span><span class="eco-fill tal" style="width:${pct(coutTalents)}%"></span></div>
+          <div class="eco-bar"><span class="eco-fill prog" style="width:${pct(coutProgrammes)}%"></span><span class="eco-fill tal" style="width:${pct(coutTalents)}%"></span>${coutEvenements > 0 ? `<span class="eco-fill ev" style="width:${pct(coutEvenements)}%"></span>` : ''}</div>
           <div class="eco-legend">
             <span><i class="prog"></i>Programmes ${nf1(coutProgrammes)} M€</span>
-            <span><i class="tal"></i>Talents ${nf1(coutTalents)} M€</span>
+            <span><i class="tal"></i>Talents ${nf1(coutTalents)} M€</span>${coutEvenements > 0 ? `
+            <span><i class="ev"></i>Événements ${nf1(coutEvenements)} M€</span>` : ''}
           </div>
         </div>
         <div class="eco-flow">
@@ -20752,7 +20759,7 @@ function chooseMaterialized(choiceIndex, dilemma) {
   if (choice.pilotOrder) schedulePilotOrder(choice.pilotOrder);
   // Occupation temporaire (téléfilms de Noël, événement de streamer) : le programme
   // habituel est mis en pause pour la saison, l'événement prend la case.
-  if (choice.slotEvent) installSlotEvent(choice.slotEvent);
+  if (choice.slotEvent && installSlotEvent(choice.slotEvent)) player.eventCostSaison = (player.eventCostSaison || 0) + (decisionQuote.finance.purchase || 0);
   if (choice.blindLot) applyBlindLotChoice(dilemma, choice.blindLot);
   if (choice.becomePlatform) player.isPlatform = true;
   // Retour à la programmation initiale de la case (aucun contrat, aucun coût).
@@ -20950,6 +20957,7 @@ function chooseMaterialized(choiceIndex, dilemma) {
       pdaCible: pdaCibleApres,
       pdaDebut: player.pdaSeasonBaseline,
       coutGrille: player.coutGrilleEngageSaison,
+      evenements: player.eventCostSaison || 0,
       revenusPub: player.revenusPubFinals,
       popularite: player.popularite,
       tresorerieDebut: player.tresorerieDebutSaison,
@@ -21063,6 +21071,7 @@ function startNewSeason() {
   player.fluxArcomSaison = 0;
   player.commercialSaison = 0;
   player.achatsSaison = 0;
+  player.eventCostSaison = 0;
   player.coutTalentsSaison = Object.values(player.contracts).reduce((sum,c)=>sum+c.talentAnnual,0)
     + (player.talents || []).filter(t => t.until >= gameState.season).reduce((sum, t) => sum + t.annual, 0);
   activateSportsBroadcasts();
@@ -21310,7 +21319,7 @@ function renderTicker() {
             <div class="lab"><span class="ic">🎯</span>PDA Cible</div>
             <div class="val">${nf1(pdaCible)}%</div>
           </div>
-          <div class="hud-cell" title="Coût de grille : programmes + talents (Bilan économique). Les achats ponctuels ne pèsent que sur la trésorerie.">
+          <div class="hud-cell" title="Coût de grille : programmes, talents et événements diffusés (Bilan économique). Les autres achats ponctuels ne pèsent que sur la trésorerie.">
             <div class="lab"><span class="ic">📋</span>Coût grille</div>
             <div class="val">${nf1(seasonSpending(p).total)} M€</div>
           </div>
@@ -23679,6 +23688,8 @@ function activateSportsBroadcasts() {
       const priceDue = rec.payOnAir && !rec.priceSettled ? rec.acquisitionPrice : 0;
       applyFinance({ recurring: 0, purchase: rec.productionCost + priceDue, commercial: 0, category: 'P' });
       if (priceDue) rec.priceSettled = true;
+      // Coût de l'événement à l'antenne cette saison (le prix d'un droit annuel est déjà dans la grille).
+      p.eventCostSaison = (p.eventCostSaison || 0) + rec.productionCost + priceDue;
       rec.popGain = rightsEventPopOnAir(event);
       p.popularite = Math.min(100, p.popularite + rec.popGain);
     } else {
