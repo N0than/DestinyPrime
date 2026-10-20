@@ -3127,7 +3127,7 @@ function quoteTalentDismissal(t) {
   let adDelta = 0;
   try {
     p.talents = all.filter(x => x !== t);
-    const pda = getCalculatedPDAs().find(r => r.channel === p).pda[p.target];
+    const pda = getCalculatedPDAs().find(r => r.channel === p).adPda[p.target];
     adDelta = computeRevenusPub(pda, p.target, p.popularite, p.puissanceCommerciale) + regieRevenueTotal(p) - p.revenusPubPrevisionnels;
   } finally {
     p.talents = all;
@@ -3618,7 +3618,7 @@ function regieRevenueTotal(p) {
 
 function creditInitialAdRevenue() {
   const p = gameState.player;
-  const pdaGlobaleCourante = getCalculatedPDAs().find(item => item.channel === p).pda[p.target];
+  const pdaGlobaleCourante = getCalculatedPDAs().find(item => item.channel === p).adPda[p.target];
   // Les investissements régie activés lors des saisons précédentes (Directeur de régie,
   // Studio Brand Content, Yield Management, etc.) reconduisent leur bénéfice chaque saison.
   // Les opérations ponctuelles, elles, ne valent que pour la saison où elles sont signées.
@@ -3634,7 +3634,7 @@ function creditInitialAdRevenue() {
 // dilemme, utilisée ici après un changement de programme via la proposition de saison.
 function reevaluateAdRevenue() {
   const p = gameState.player;
-  const pdaGlobaleCourante = getCalculatedPDAs().find(item => item.channel === p).pda[p.target];
+  const pdaGlobaleCourante = getCalculatedPDAs().find(item => item.channel === p).adPda[p.target];
   const revenusPubAvant = p.revenusPubPrevisionnels;
   p.revenusPubPrevisionnels = computeRevenusPub(pdaGlobaleCourante, p.target, p.popularite, p.puissanceCommerciale)
     + regieRevenueTotal(p);
@@ -3730,6 +3730,13 @@ const SLOT_AFFINITY = {
 
 // Poids d'audience du jeu (volume de téléspectateurs), distincts du temps d'antenne ARCOM.
 const SLOT_AUDIENCE_WEIGHTS = { matin: 0.15, apresmidi: 0.20, access: 0.20, prime: 0.35, nuit: 0.10 };
+// Coefficients commerciaux par créneau (hypothèses de gameplay). La valorisation publicitaire
+// somme la PDA de chaque créneau pondérée par son poids d'audience et son coefficient, divisée
+// par la somme poids × coefficient : une PDA identique sur tous les créneaux garde le revenu
+// de référence, et seule la répartition des performances change le revenu.
+const AD_SLOT_COEFFICIENTS = { matin: 0.65, apresmidi: 0.80, access: 1.15, prime: 1.50, nuit: 0.45 };
+const AD_SLOT_COEFFICIENT_NORM = Object.keys(SLOT_AUDIENCE_WEIGHTS)
+  .reduce((sum, key) => sum + SLOT_AUDIENCE_WEIGHTS[key] * AD_SLOT_COEFFICIENTS[key], 0);
 const SLOT_HOURS = { matin: 6, apresmidi: 6, access: 3, prime: 2, nuit: 7 };
 // Les anciennes valeurs de dilemme etaient des modificateurs de puissance de chaine.
 // En les convertissant en points de case, ce facteur conserve des effets visibles sans
@@ -20320,7 +20327,7 @@ function channelTalentBoost(channel, genre) {
 function getCalculatedPDAs() {
   const channels = getAllChannels();
   const demos = ['j1524', 'a2549', 's50', 'csp'];
-  const results = channels.map(channel => ({channel, name:channel.name, pda:{}, slots:{}, expectedSlots:{}, intrinsicSlots:{}, leadIns:{}, pressure:{}, globalPda:0}));
+  const results = channels.map(channel => ({channel, name:channel.name, pda:{}, adPda:{}, slots:{}, expectedSlots:{}, intrinsicSlots:{}, leadIns:{}, pressure:{}, globalPda:0}));
   for (const {key:slot} of TIME_SLOTS) {
     results.forEach(r => { r.slots[slot] = {}; r.expectedSlots[slot] = {}; r.intrinsicSlots[slot] = {}; r.leadIns[slot] = {}; r.pressure[slot] = {}; });
     const profiles = channels.map(c => channelSlotProfile(c, slot));
@@ -20371,6 +20378,10 @@ function getCalculatedPDAs() {
       r.pda[target] = TIME_SLOTS.reduce((sum,{key}) => sum+r.slots[key][target]*SLOT_AUDIENCE_WEIGHTS[key],0);
     });
     r.globalPda = demos.reduce((sum,d) => sum+r.pda[d],0)/demos.length;
+    // Valorisation publicitaire par créneau (voir AD_SLOT_COEFFICIENTS).
+    demos.forEach(target => {
+      r.adPda[target] = TIME_SLOTS.reduce((sum,{key}) => sum+r.slots[key][target]*SLOT_AUDIENCE_WEIGHTS[key]*AD_SLOT_COEFFICIENTS[key],0)/AD_SLOT_COEFFICIENT_NORM;
+    });
   });
   return results;
 }
@@ -20825,7 +20836,9 @@ function chooseMaterialized(choiceIndex, dilemma) {
   const puissanceAvant = player.puissanceCommerciale;
   if (choice.regie) applyRegieDecision(choice.regie);
 
-  const pdaCibleApres = getCalculatedPDAs().find(item => item.channel === player).pda[player.target];
+  const pdaRowApres = getCalculatedPDAs().find(item => item.channel === player);
+  const pdaCibleApres = pdaRowApres.pda[player.target];
+  const adCibleApres = pdaRowApres.adPda[player.target];
   player.pdaHistorySeason.push(pdaCibleApres);
   player.pdaMoyenneSaison = player.pdaHistorySeason.reduce((s, v) => s + v, 0) / player.pdaHistorySeason.length;
   player.pdaFinSaison = pdaCibleApres;
@@ -20835,14 +20848,14 @@ function chooseMaterialized(choiceIndex, dilemma) {
   // publicitaire. Seul l'écart avec l'estimation précédente est crédité/débité — la totalité
   // a déjà été créditée au lancement de la saison (creditInitialAdRevenue).
   const revenusPubAvant = player.revenusPubPrevisionnels;
-  const revenusOrganiques = computeRevenusPub(pdaCibleApres, player.target, player.popularite, player.puissanceCommerciale);
+  const revenusOrganiques = computeRevenusPub(adCibleApres, player.target, player.popularite, player.puissanceCommerciale);
   player.revenusPubPrevisionnels = revenusOrganiques + regieRevenueTotal(player);
   const revenusPubDelta = player.revenusPubPrevisionnels - revenusPubAvant;
   // Part due à la régie (nouvel accélérateur, opération ponctuelle, revalorisation des
   // tarifs) : affichée à part pour que l'évolution du CA publicitaire reflète uniquement
   // l'audience et la popularité, sans décalage lié aux accélérateurs.
   const effetTarifsRegie = revenusOrganiques
-    - computeRevenusPub(pdaCibleApres, player.target, player.popularite, puissanceAvant);
+    - computeRevenusPub(adCibleApres, player.target, player.popularite, puissanceAvant);
   const regieGain = regieCommercial + effetTarifsRegie;
   const revenusPubHorsRegie = revenusPubDelta - regieGain;
   // Le flux net de trésorerie est bien la recette publicitaire moins la variation
@@ -23676,11 +23689,13 @@ function evaluateSportsBroadcasts() {
   // L'événement reste à l'antenne jusqu'au lancement de la saison suivante : les audiences
   // du bilan de fin de saison l'incluent (clôture dans closeSportsBroadcasts).
   sr.owned.filter(o => o.ownerId === 'player' && o.broadcastSeason === gameState.season && o.status === 'broadcast' && !o.perf).forEach(rec => {
-    const pdaWith = getCalculatedPDAs().find(r => r.channel === p).pda[p.target];
-    const revWith = computeRevenusPub(pdaWith, p.target, p.popularite, p.puissanceCommerciale);
+    const rowWith = getCalculatedPDAs().find(r => r.channel === p);
+    const pdaWith = rowWith.pda[p.target];
+    const revWith = computeRevenusPub(rowWith.adPda[p.target], p.target, p.popularite, p.puissanceCommerciale);
     rec.suppressed = true;
-    const pdaWithout = getCalculatedPDAs().find(r => r.channel === p).pda[p.target];
-    const revWithout = computeRevenusPub(pdaWithout, p.target, p.popularite - (rec.popGain || 0), p.puissanceCommerciale);
+    const rowWithout = getCalculatedPDAs().find(r => r.channel === p);
+    const pdaWithout = rowWithout.pda[p.target];
+    const revWithout = computeRevenusPub(rowWithout.adPda[p.target], p.target, p.popularite - (rec.popGain || 0), p.puissanceCommerciale);
     delete rec.suppressed;
     const cost = rec.acquisitionPrice + rec.productionCost;
     const revenueGain = Math.max(0, revWith - revWithout);
@@ -25067,8 +25082,8 @@ function nextSeasonCommitment() {
   const annual=Math.max(0,p.coutGrilleEngageSaison-expired-sportsNow)+pausedAnnualThisSeason()+sports;
   // Recettes pub attendues à l'ouverture (audience actuelle, régie reconduite) : le seuil de
   // faillite se juge après leur crédit, comme au lancement de la saison.
-  const pda=getCalculatedPDAs().find(r=>r.channel===p).pda[p.target];
-  const adRevenue=computeRevenusPub(pda,p.target,p.popularite,p.puissanceCommerciale)+(p.regieInvestissementsAnnuel||0);
+  const pdaRow=getCalculatedPDAs().find(r=>r.channel===p);
+  const adRevenue=computeRevenusPub(pdaRow.adPda[p.target],p.target,p.popularite,p.puissanceCommerciale)+(p.regieInvestissementsAnnuel||0);
   const cash=p.tresorerie-annual;
   return {annual,expired:expired+sportsNow,sports,cash,adRevenue,cashAfterRevenue:cash+adRevenue};
 }
@@ -26146,7 +26161,7 @@ function createRegieOpportunityDilemma() {
   const cfg = GAME_BALANCE.regie;
   const targetLabel = AUDIENCE_TARGETS.find(t => t.key === p.target)?.full || p.target;
   // Base hors accélérateurs régie : la sécurisation porte sur le CA lié à l'audience.
-  const pdaCible = getCalculatedPDAs().find(item => item.channel === p).pda[p.target];
+  const pdaCible = getCalculatedPDAs().find(item => item.channel === p).adPda[p.target];
   const reference = computeRevenusPub(pdaCible, p.target, p.popularite, p.puissanceCommerciale);
   const secured = Math.round(Math.max(0.5, reference * cfg.secureShare) * 10) / 10;
   const zeroPda = { j1524: 0, a2549: 0, s50: 0, csp: 0 };

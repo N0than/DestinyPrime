@@ -23,7 +23,7 @@ for (const [type,[cap,grid]] of Object.entries(expected)) {
   ok(p.budgetGrilleAnnuel===grid&&p.coutGrilleEngageSaison===grid,'grid '+type);
   ok(computeNextBudgetGrille(p)>=grid*0.5,'next budget socle');
   launchFirstSeason();
-  const pda=getCalculatedPDAs().find(r=>r.channel===p).pda[p.target];
+  const pda=getCalculatedPDAs().find(r=>r.channel===p).adPda[p.target];
   const rev=computeRevenusPub(pda,p.target,p.popularite,p.puissanceCommerciale);
   ok(p.tresorerieDebutSaison===cap,'tresorerieDebutSaison '+type);
   ok(near(p.tresorerie,cap-grid+rev),'S1 open '+type+' '+p.tresorerie);
@@ -36,10 +36,16 @@ for (const [type,[cap,grid]] of Object.entries(expected)) {
   reevaluateAdRevenue(); ok(near(p.tresorerie,tAvant+p.revenusPubPrevisionnels-revAvant),'no double credit '+type);
   out.push({type,cap,grid,pdaCible:+pda.toFixed(3),recettes:+rev.toFixed(2),tresoS1:+(cap-grid+rev).toFixed(2)});
 }
+// Valorisation par créneau : une PDA identique garde la référence, un même gain pèse plus en prime qu'en nuit.
+const adOf=slots=>Object.keys(SLOT_AUDIENCE_WEIGHTS).reduce((s,k)=>s+slots[k]*SLOT_AUDIENCE_WEIGHTS[k]*AD_SLOT_COEFFICIENTS[k],0)/AD_SLOT_COEFFICIENT_NORM;
+const uniform={matin:40,apresmidi:40,access:40,prime:40,nuit:40};
+ok(near(adOf(uniform),40),'uniform PDA keeps the reference revenue');
+ok(adOf({...uniform,prime:50})-adOf(uniform)>adOf({...uniform,nuit:50})-adOf(uniform),'same gain is worth more in prime than at night');
+ok(near(Object.values(AD_SLOT_COEFFICIENTS).length,5)&&AD_SLOT_COEFFICIENT_NORM>0,'slot coefficients configured for five slots');
 // Généraliste à exactement 1 % sur les 25-49 : 50 - 13 + 3,6 = 40,6.
 resetGame(); let p=gameState.player; p.name='G'; p.type='generaliste'; p.target='a2549'; finalizeChannelSetup();
 const realCalc=getCalculatedPDAs;
-getCalculatedPDAs=()=>realCalc().map(r=>r.channel===gameState.player?{...r,pda:{...r.pda,a2549:1}}:r);
+getCalculatedPDAs=()=>realCalc().map(r=>r.channel===gameState.player?{...r,pda:{...r.pda,a2549:1},adPda:{...r.adPda,a2549:1}}:r);
 launchFirstSeason(); ok(near(p.tresorerie,40.6),'Généraliste 1% -> 40.6 : '+p.tresorerie);
 const t406=p.tresorerie;
 getCalculatedPDAs=realCalc;
