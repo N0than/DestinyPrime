@@ -80,7 +80,7 @@ const firsts=new Set();for(let k=1;k<=40;k++){setup('generaliste',1000+k);firsts
 assert([...firsts].every(v=>v>=1&&v<=3)&&firsts.size>1,'first F1 auction in seasons 1-3: '+[...firsts]);
 // Généraliste et Sport la reçoivent ; une seule enchère par saison, le marché ordinaire attend.
 ['generaliste','sport'].forEach(type=>{
-  setup(type);gameState.season=sr().recurring.f1.nextAuctionSeason;sr().nextAuctionSeason=gameState.season;
+  setup(type);gameState.season=sr().recurring.f1.nextAuctionSeason;Object.keys(sr().recurring).forEach(k=>{if(k!=='f1'&&sr().recurring[k].nextAuctionSeason<=gameState.season)sr().recurring[k].nextAuctionSeason=99;});sr().nextAuctionSeason=gameState.season;
   const q=pickDilemmaQueue();const auc=q.filter(d=>d.type==='sports_rights_auction');
   assert(auc.length===1&&auc[0].rightsEventId==='f1'&&sr().nextAuctionSeason===gameState.season+1,'F1 auction first, ordinary market postponed for '+type);
 });
@@ -121,10 +121,10 @@ const q4=pickDilemmaQueue();const ren4=q4.at(-1);assert(ren4.isSportsRenewal,'re
 assert(ren4.desc.includes('après 2 saisons'),'seasons held shown');
 assert(nextSeasonCommitment().expired>=f1rec.initialPrice&&nextSeasonCommitment().sports===0,'unrenewed right leaves next season grid');
 applySportsRenewalChoice('f1','release');
-assert([5,6].includes(sr().recurring.f1.nextAuctionSeason)&&!sr().owned.some(o=>o.eventId==='f1'&&o.broadcastSeason===5),'released right back on the market');
+assert([6,7].includes(sr().recurring.f1.nextAuctionSeason)&&!sr().owned.some(o=>o.eventId==='f1'&&o.broadcastSeason===5),'released right back on the market');
 const g5=gameState.player.coutGrilleEngageSaison;gameState.season=5;rollSportsRightsIntoGrid();
 assert(gameState.player.coutGrilleEngageSaison===g5-f1rec.initialPrice,'released right leaves the grid cost');gameState.season=4;
-gameState.season=sr().recurring.f1.nextAuctionSeason;gameState.seenDilemmaIds=[];
+gameState.season=sr().recurring.f1.nextAuctionSeason;Object.keys(sr().recurring).forEach(k=>{if(k!=='f1')sr().recurring[k].nextAuctionSeason=99;});gameState.seenDilemmaIds=[];
 assert(pickDilemmaQueue().some(d=>d.rightsEventId==='f1'),'F1 auctioned again later');
 // Programme à reconduire en même temps : le droit rejoint les cartes de la grille.
 {
@@ -152,6 +152,17 @@ assert(sr().owned.some(o=>o.ownerName===ai.name&&o.broadcastSeason===4&&o.acquis
 gameState.season=4;ai.budget=5;resolveSportsRenewalsAtSeasonEnd();
 assert(!sr().owned.some(o=>o.broadcastSeason===5)&&[5,6].includes(sr().recurring.f1.nextAuctionSeason),'AI without budget releases the right');
 sportsRandom=sRand;
+// ---------- Rotation : le droit mis en vente le moins récemment passe d'abord ----------
+{
+  setup('generaliste');gameState.season=6;
+  Object.values(sr().recurring).forEach(r=>r.nextAuctionSeason=6);
+  sr().history.push({type:'sports_rights_auction',eventId:'f1',season:5},{type:'sports_rights_auction',eventId:'champions_league',season:4});
+  const first=dueRecurringSportsEvent();
+  assert(first&&first.id!=='f1'&&first.id!=='champions_league','rotation skips the most recently auctioned rights: '+(first&&first.id));
+  sr().history.push({type:'sports_rights_auction',eventId:first.id,season:6});
+  const second=dueRecurringSportsEvent();
+  assert(second&&second.id!==first.id,'rotation moves on to another right');
+}
 // ---------- Tour de France : droit annuel de l'après-midi, comme la F1 ----------
 {
   const t=SPORT_RIGHTS_EVENTS.tour_de_france;

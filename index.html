@@ -5316,12 +5316,12 @@ const DILEMMA_BANK = [
     ]
   },
   {
-    id: 'd126', titre: "Avant-match : trente minutes à remplir",
-    desc: "Le coup d’envoi est à 21h. Ce qui se passe avant décidera de qui sera encore là après. La rédaction peut imaginer un grand show d’avant-match ou un format court pour entrer vite dans le match. Trente minutes, c’est long quand le public a déjà la télécommande en main.",
+    id: 'd126', titre: "Prise d’antenne anticipée",
+    desc: "Le coup d’envoi de la finale est à 21h. La rédaction hésite entre une prise d’antenne anticipée avec un grand show en public et une prise d’antenne depuis la cabine des commentateurs.",
     types: ['sport'],
     c: [
-      { l: "Créer un grand show d'avant-match", finance: {"recurring":5,"purchase":0,"commercial":0,"category":"R"}, pda: { j1524: +7, a2549: +7, s50: +4, csp: +5 }, r: "Les courbes d'audience grimpent : effort financier contenu. L'accueil est positif.", pop: 2 },
-      { l: "Réduire le format pour entrer vite dans le match", finance: {"recurring":1,"purchase":0,"commercial":0,"category":"R"}, pda: { j1524: +3, a2549: +4, s50: +3, csp: +4 }, r: "Budget maîtrisé, les courbes d'audience grimpent. L'accueil est positif.", pop: 1 }
+      { l: "Lancer un grand show en public", finance: {"recurring":5,"purchase":0,"commercial":0,"category":"R"}, pda: { j1524: +7, a2549: +7, s50: +4, csp: +5 }, r: "Les courbes d'audience grimpent : effort financier contenu. L'accueil est positif.", pop: 2 },
+      { l: "Prendre l’antenne en cabine commentateurs", finance: {"recurring":1,"purchase":0,"commercial":0,"category":"R"}, pda: { j1524: +3, a2549: +4, s50: +3, csp: +4 }, r: "Budget maîtrisé, les courbes d'audience grimpent. L'accueil est positif.", pop: 1 }
     ]
   },
   {
@@ -23170,8 +23170,13 @@ function hasOwnAuctionCalendar(event) {
 function dueRecurringSportsEvent() {
   const sr = ensureSportsRightsState();
   if (sr.lastAuctionSeason === gameState.season) return null;
-  return Object.values(SPORT_RIGHTS_EVENTS).find(e => hasOwnAuctionCalendar(e) && sr.recurring[e.id]?.nextAuctionSeason != null
-    && gameState.season >= sr.recurring[e.id].nextAuctionSeason && !sportsRightBusy(e.id)) || null;
+  // Rotation : parmi les droits dus, celui qui n'a pas été mis en vente depuis le plus longtemps
+  // passe en premier (puis celui dû depuis le plus longtemps), pour ne pas favoriser F1 ou la Ligue des champions.
+  const lastSeen = id => { const h = [...sr.history].reverse().find(x => x.type === 'sports_rights_auction' && x.eventId === id); return h ? h.season : -Infinity; };
+  const due = Object.values(SPORT_RIGHTS_EVENTS).filter(e => hasOwnAuctionCalendar(e) && sr.recurring[e.id]?.nextAuctionSeason != null
+    && gameState.season >= sr.recurring[e.id].nextAuctionSeason && !sportsRightBusy(e.id));
+  due.sort((x, y) => lastSeen(x.id) - lastSeen(y.id) || sr.recurring[x.id].nextAuctionSeason - sr.recurring[y.id].nextAuctionSeason);
+  return due[0] || null;
 }
 function scheduleSportsAuction(queue) {
   if (queue.length < 2) return false;
@@ -23395,7 +23400,7 @@ function recordSportsAuctionOutcome(dilemma, event = sportsEventOfDilemma(dilemm
   if (event.recurring) {
     // Droit annuel : plus de vente tant qu'un diffuseur le détient ; sans preneur, il
     // revient sur le marché une à deux saisons plus tard.
-    sr.recurring[event.id].nextAuctionSeason = winner ? null : gameState.season + sportsChoice([1, 2]);
+    sr.recurring[event.id].nextAuctionSeason = winner ? null : gameState.season + sportsChoice([2, 3]);
   } else if (event.cycle) {
     // Événement cyclique (Miss France) : de retour sur le marché 4 à 5 saisons plus tard.
     sr.recurring[event.id].nextAuctionSeason = gameState.season + sportsChoice(event.cycle);
@@ -23433,7 +23438,7 @@ function renewSportsRight(rec) {
 function releaseSportsRight(rec) {
   rec.renewalDecided = 'release';
   const sr = gameState.sportsRights;
-  sr.recurring[rec.eventId].nextAuctionSeason = gameState.season + sportsChoice([1, 2]);
+  sr.recurring[rec.eventId].nextAuctionSeason = gameState.season + sportsChoice([2, 3]);
   sr.history.push({ type: 'sports_rights_release', eventId: rec.eventId, season: gameState.season, owner: rec.ownerName });
 }
 // Droits reconduits du joueur inscrits au coût de grille d'une saison donnée.
