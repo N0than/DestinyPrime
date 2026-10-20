@@ -22202,7 +22202,7 @@ function render() {
       ${careerDecisionHtml}
       ${renderSportsRightsBilanHtml()}
       ${bilanFoldHtml('engagements', `📅 ENGAGEMENTS${nextSeasonCommitment().cashAfterRevenue < TRESORERIE_CRITIQUE ? ' ⚠️' : ''}<span class="bilan-fold-long">&nbsp;DE LA SAISON SUIVANTE</span>`, 'les engagements de la saison suivante', `
-        <p>Grille à payer : <b>${nf1(nextSeasonCommitment().annual)} M€</b>${nextSeasonCommitment().sports>0?` (dont droits sportifs reconduits : ${nf1(nextSeasonCommitment().sports)} M€)`:''} · contrats arrivant à échéance : ${nf1(nextSeasonCommitment().expired)} M€ / an${nextSeasonCommitment().raises>0?` · revalorisations convenues : +${nf1(nextSeasonCommitment().raises)} M€`:''}.</p>
+        <p>Grille à payer : <b>${nf1(nextSeasonCommitment().annual)} M€</b>${nextSeasonCommitment().sports>0?` (dont droits sportifs reconduits : ${nf1(nextSeasonCommitment().sports)} M€)`:''}${nextSeasonCommitment().sportsOneOff>0?` · droits d’événement réglés à la diffusion : ${nf1(nextSeasonCommitment().sportsOneOff)} M€`:''} · contrats arrivant à échéance : ${nf1(nextSeasonCommitment().expired)} M€ / an${nextSeasonCommitment().raises>0?` · revalorisations convenues : +${nf1(nextSeasonCommitment().raises)} M€`:''}.</p>
         <p>Trésorerie après paiement : <b>${nf1(nextSeasonCommitment().cash)} M€</b>, puis <b>${nf1(nextSeasonCommitment().cashAfterRevenue)} M€</b> une fois les recettes publicitaires attendues créditées (${nf1(nextSeasonCommitment().adRevenue)} M€ à audience constante), avant décisions.${nextSeasonCommitment().cashAfterRevenue<TRESORERIE_CRITIQUE?' La saison s’ouvrirait sous le seuil de faillite.':''}</p>`)}
       <button class="welcome-cta" id="btn-next-season" style="margin-top: 2px;" ${careerContract?'disabled title="Décidez d’abord de l’avenir du programme"':''}>
         <span class="welcome-cta-shine"></span>
@@ -23390,9 +23390,11 @@ function buildSportsAuctionChoice(dilemma) {
   return {
     l: won ? `Droits remportés : ${event.name}` : a?.result?.outcome === 'declined' ? 'Passer son tour' : 'Se retirer de l’enchère',
     r: inGrid ? `${event.name} rejoint vos droits. Diffusion la saison prochaine : ${nf1(price)} M€ intégrés au coût de grille de la saison ${gameState.season + 1}.`
-      : won ? `${event.name} rejoint vos droits. Diffusion la saison prochaine : il faudra rentabiliser l’investissement.`
+      : won ? `${event.name} rejoint vos droits. Diffusion la saison prochaine : les ${nf1(price)} M€ seront réglés à la diffusion, et il faudra rentabiliser l’investissement.`
       : a?.result?.winnerName ? `${a.result.winnerName} remporte ${event.the}.` : `${event.name} ne trouve pas preneur.`,
-    finance: { recurring: 0, purchase: inGrid ? 0 : price, commercial: 0, category: won && !inGrid ? 'P' : 'N' },
+    // Aucun débit à la signature : le prix est réglé lors de la saison de diffusion
+    // (droit annuel : par le coût de grille ; autre droit : à l'activation de la diffusion).
+    finance: { recurring: 0, purchase: 0, commercial: 0, category: 'N' },
     pda: {}, pop: 0, audienceImpacts: [], sportsAuction: true
   };
 }
@@ -23563,6 +23565,8 @@ function acquireSportsRight(eventId, { owner, price, renewal = false, initialPri
   if (!isPlayer) owner.budget = Math.max(0, (owner.budget || 0) - price);
   gameState.sportsRights.owned.push({
     ...(event.recurring ? { recurring: true, initialPrice: initialPrice ?? price, renewal } : {}),
+    // Droit non annuel du joueur : réglé à l'activation de la diffusion (payOnAir), une seule fois.
+    ...(isPlayer && !event.recurring ? { payOnAir: true, priceSettled: false } : {}),
     eventId, ownerId: isPlayer ? 'player' : 'competitor', ownerName: isPlayer ? gameState.player.name : owner.name,
     acquiredSeason: gameState.season, broadcastSeason: gameState.season + event.duration,
     acquisitionPrice: price, productionCost: event.productionCost, exclusive: event.exclusive,
@@ -23671,7 +23675,11 @@ function activateSportsBroadcasts() {
         p.tresorerie += c.annual;
         rec.pausedSlots.push({ slot, name: c.name, annual: c.annual, end: c.end });
       });
-      applyFinance({ recurring: 0, purchase: rec.productionCost, commercial: 0, category: 'P' });
+      // Règlement de la saison de diffusion : production, et prix des droits non annuels
+      // (les droits annuels, eux, sont dans le coût de grille).
+      const priceDue = rec.payOnAir && !rec.priceSettled ? rec.acquisitionPrice : 0;
+      applyFinance({ recurring: 0, purchase: rec.productionCost + priceDue, commercial: 0, category: 'P' });
+      if (priceDue) rec.priceSettled = true;
       rec.popGain = rightsEventPopOnAir(event);
       p.popularite = Math.min(100, p.popularite + rec.popGain);
     } else {
@@ -23924,7 +23932,7 @@ function renderSportsVerdictInline(cq) {
       ${sportsIllustrationHtml(event, { overlay: stamp('won', 'Droits remportés'), info: `${SPORTS_PRICE_RULE}<br><br>✅ ${v.tieBreak ? 'À offre égale, vous l’emportez grâce à votre part d’audience plus forte sur les 4 ans et plus' : 'Prix payé : juste au-dessus de la deuxième offre'}${v.playerLastBid > v.price ? ` (vous aviez proposé ${nf1(v.playerLastBid)} M€)` : ''}. Diffusion en saison ${v.season + 1} · ${esc(sportsSlotsLabel(event))}.${event.recurring ? ` Droit annuel : renouvelable chaque fin de saison à ${nf1(v.price)} M€.` : ''}` })}
       ${rows}
       ${tail(`<div class="sa-ledger">
-        <div><span>Droits (débités)</span><b>${nf1(v.price)} M€</b></div>
+        <div><span>Droits (${event.recurring ? 'dans le coût de grille' : 'réglés à la diffusion'}, saison ${v.season + 1})</span><b>${nf1(v.price)} M€</b></div>
         <div><span>Production prévisionnelle</span><b>${nf1(event.productionCost)} M€</b></div>
         <div class="total"><span>Engagement total</span><b>${nf1(v.price + event.productionCost)} M€</b></div>
       </div>`)}
@@ -25106,8 +25114,11 @@ function nextSeasonCommitment() {
   // faillite se juge après leur crédit, comme au lancement de la saison.
   const pdaRow=getCalculatedPDAs().find(r=>r.channel===p);
   const adRevenue=computeRevenusPub(pdaRow.adPda[p.target],p.target,p.popularite,p.puissanceCommerciale)+(p.regieInvestissementsAnnuel||0);
-  const cash=p.tresorerie-annual;
-  return {annual,expired:expired+sportsNow+talentsLeaving,sports,raises,cash,adRevenue,cashAfterRevenue:cash+adRevenue};
+  // Droits non annuels remportés : leur prix est réglé à l'ouverture de leur saison de diffusion.
+  const sportsOneOff=(gameState.sportsRights?.owned||[]).filter(o=>o.ownerId==='player'&&o.payOnAir&&!o.priceSettled&&o.broadcastSeason===nextSeason)
+    .reduce((sum,o)=>sum+o.acquisitionPrice,0);
+  const cash=p.tresorerie-annual-sportsOneOff;
+  return {annual,expired:expired+sportsNow+talentsLeaving,sports,sportsOneOff,raises,cash,adRevenue,cashAfterRevenue:cash+adRevenue};
 }
 function applyFinance(f, excludedSlot=null) {
   ensureCampaign(); const p=gameState.player;

@@ -495,14 +495,27 @@ assert(a.result.price>17&&a.result.price<=20&&a.result.playerLastBid===20,'pays 
 assert(a.result.reveal.length===3&&a.result.reveal[0].isPlayer&&a.result.reveal[1].amount===17&&a.result.reveal[2].amount===15,'sealed offers revealed in order');
 cash0=gameState.player.tresorerie;const achats0=gameState.player.achatsSaison;const revC=gameState.player.revenusPubPrevisionnels;
 chooseDilemmaOption(0);
-assert(Math.abs(gameState.player.tresorerie-(cash0-a.result.price+gameState.player.revenusPubPrevisionnels-revC))<1e-9,'rights debited once');
-assert(Math.abs(gameState.player.achatsSaison-achats0-a.result.price)<1e-9,'counted as purchase');
+assert(Math.abs(gameState.player.tresorerie-(cash0+gameState.player.revenusPubPrevisionnels-revC))<1e-9,'nothing debited at signing');
+assert(Math.abs(gameState.player.achatsSaison-achats0)<1e-9,'no purchase at signing');
+{ const rec=sr().owned.at(-1);
+  assert(rec.payOnAir&&!rec.priceSettled&&rec.acquisitionPrice===a.result.price,'price marked to settle on air');
+  assert(Math.abs(nextSeasonCommitment().sportsOneOff-a.result.price)<1e-9,'forecast shows the right due next season');
+}
 assert(Math.abs(getCalculatedPDAs().find(r=>r.channel===gameState.player).pda.a2549-pdaBefore)<1e-9,'no PDA at acquisition');
 assert(Math.abs(gameState.player.revenusPubPrevisionnels-(computeRevenusPub(getCalculatedPDAs().find(r=>r.channel===gameState.player).adPda.a2549,'a2549',gameState.player.popularite,gameState.player.puissanceCommerciale)+regieRevenueTotal(gameState.player)))<1e-9,'ad revenue stays the slot-weighted estimate at acquisition');
 assert(gameState.lastConsequence.sportsAuction.outcome==='won'&&gameState.lastConsequence.sportsAuction.reveal.length===3&&gameState.currentDilemmaIndex===1,'continues the season');
 assert(renderSportsVerdictInline(gameState.lastConsequence).includes('Ouverture des plis'),'verdict reveals the sealed offers');
 assert(sr().owned.at(-1).ownerId==='player'&&sr().owned.at(-1).acquisitionPrice===a.result.price,'player owns the right');
 chooseDilemmaOption(0);assert(sr().owned.filter(o=>o.ownerId==='player').length===1,'no double record');
+{ const rec=sr().owned.at(-1);
+  // Saison de diffusion : prix + production débités une seule fois, comptés en achats.
+  const snap=JSON.stringify(gameState.player.contracts||{});
+  gameState.season=rec.broadcastSeason;const c1=gameState.player.tresorerie,a1=gameState.player.achatsSaison;
+  activateSportsBroadcasts();
+  assert(Math.abs((c1-gameState.player.tresorerie)-(a.result.price+rec.productionCost))<1e-9&&Math.abs(gameState.player.achatsSaison-a1-(a.result.price+rec.productionCost))<1e-9,'rights settled once in the broadcast season');
+  assert(rec.priceSettled,'price settled flag');
+  const c2=gameState.player.tresorerie;activateSportsBroadcasts();assert(gameState.player.tresorerie===c2,'no second settlement');
+  gameState.season=rec.broadcastSeason-1; }
 // Défaite : l'offre la plus haute gagne et paie juste au-dessus de la nôtre.
 a=auctionSetup([80,80,0,0,0]);setMax(a,[24,0,0,0,0]);
 sportsAuctionParticipate();sportsAuctionSealedBid(20);assert(a.result.outcome==='lost'&&a.result.price>20&&a.result.price<=24&&a.result.playerLastBid===20,'lower offer loses');
@@ -558,8 +571,8 @@ activateSportsBroadcasts();
 assert(rec.status==='broadcast'&&sportsBroadcastOn(gameState.player,'prime'),'broadcast next season on its slot');
 assert(['access','prime','nuit'].every(k=>activeContract(gameState.player,k)?.isSportsEvent)&&!sportsBroadcastOn(gameState.player,'apresmidi'),'world cup preempts access, prime and night');
 assert(gameState.player.contracts.prime.end===3&&gameState.player.contracts.prime.sportsPause===2,'program paused and extended');
-assert(Math.abs(gameState.player.tresorerie-(50+5-ev.productionCost))<1e-9&&gameState.player.coutGrilleEngageSaison===0,'paused program free, production debited');
-assert(gameState.player.achatsSaison===ev.productionCost,'production is a distinct cost');
+assert(Math.abs(gameState.player.tresorerie-(50+5-ev.productionCost-rec.acquisitionPrice))<1e-9&&gameState.player.coutGrilleEngageSaison===0,'paused program free, production and rights debited on air');
+assert(Math.abs(gameState.player.achatsSaison-(ev.productionCost+rec.acquisitionPrice))<1e-9,'rights and production are distinct on-air purchases');
 assert(sportsAdFactor()>factorBefore&&gameState.player.popularite>popBefore,'attractiveness and popularity only on air');
 const s2=getCalculatedPDAs().find(r=>r.channel===gameState.player);
 assert(s2.slots.prime.a2549>s1.slots.prime.a2549&&Math.abs(s2.slots.matin.a2549-s1.slots.matin.a2549)<0.6,'audience gained on the event slot');
