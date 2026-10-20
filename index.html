@@ -2627,10 +2627,12 @@ const evolutionSubtitle = points => `En M€, sur ${points.length > 1 ? `les ${p
 // Saisons clôturées, plus la saison en cours (prévisionnel) si elle n'est pas encore à l'historique.
 function evolutionChartPoints(p, pdaCible) {
   const lastHistorySeason = gameState.history.length ? gameState.history[gameState.history.length - 1].season : null;
-  if (lastHistorySeason === gameState.season) return gameState.history;
-  return [...gameState.history, {
+  // La courbe de coût suit les dépenses du bilan économique : grille + achats de la saison.
+  const history = gameState.history.map(h => ({ ...h, coutGrille: (h.coutGrille || 0) + (h.achats || 0) }));
+  if (lastHistorySeason === gameState.season) return history;
+  return [...history, {
     season: gameState.season, tresorerie: p.tresorerie, pdaCible,
-    coutGrille: p.coutGrilleEngageSaison, revenusPub: p.revenusPubPrevisionnels,
+    coutGrille: seasonSpending(p).total, revenusPub: p.revenusPubPrevisionnels,
     popularite: p.popularite
   }];
 }
@@ -2654,6 +2656,14 @@ function sanctionBudgetTile(st, points) {
               <div class="treso-evo">${renderEvolutionChart(points, 'Évolution budgétaire', { showNow: false, head: false })}</div>
             </div>
           </div>`;
+}
+// Dépenses de la saison, source unique du HUD, du bilan économique et de la courbe
+// d'évolution : coût de grille (programmes + talents) plus achats ponctuels. La part talents
+// (salaires et indemnités) en est une sous-partie ; le reste revient aux programmes.
+function seasonSpending(p) {
+  const total = Math.max(0, p.coutGrilleEngageSaison || 0) + Math.max(0, p.achatsSaison || 0);
+  const talents = Math.min(total, Math.max(0, p.coutTalentsSaison || 0));
+  return { total, talents, programmes: Math.max(0, total - talents) };
 }
 // Faillite : dépenses de la dernière saison, réparties entre programmes, talents, droits
 // annuels reconduits (intégrés au coût de grille) et achats ponctuels.
@@ -3529,9 +3539,7 @@ function renderArcomSlide(compliance, convention) {
 }
 
 function renderEcoBilanSlide(player) {
-  const depenses = player.coutGrilleEngageSaison + player.achatsSaison;
-  const coutTalents = Math.min(depenses, player.coutTalentsSaison);
-  const coutProgrammes = Math.max(0, depenses - coutTalents);
+  const { total: depenses, talents: coutTalents, programmes: coutProgrammes } = seasonSpending(player);
   const recettes = player.revenusPubPrevisionnels;
   const solde = recettes - depenses;
   const maxFlow = Math.max(depenses, recettes, 1);
@@ -3541,7 +3549,7 @@ function renderEcoBilanSlide(player) {
   const verdict = { good: 'Rentable', warn: 'Déficitaire', bad: 'Très déficitaire' }[rentaCls];
   const tiles = [
     { key: 'treso', ic: '💰', label: 'Trésorerie', value: `${nf1(player.tresorerie)} M€`, cls: player.tresorerie < 0 ? 'bad' : '' },
-    { key: 'talents', ic: '🎤', label: 'Talents', value: `${nf1(player.coutTalentsSaison)} M€`, cls: '' },
+    { key: 'talents', ic: '🎤', label: 'Talents', value: `${nf1(coutTalents)} M€`, cls: '' },
     { key: 'pda', ic: '📊', label: 'Coût / pt PDA', value: `${nf1(player.coutParPointPDA)} M€`, cls: '' }
   ];
 
@@ -21303,9 +21311,9 @@ function renderTicker() {
             <div class="lab"><span class="ic">🎯</span>PDA Cible</div>
             <div class="val">${nf1(pdaCible)}%</div>
           </div>
-          <div class="hud-cell">
+          <div class="hud-cell" title="Dépenses de la saison : programmes + talents (Bilan économique)">
             <div class="lab"><span class="ic">📋</span>Coût grille</div>
-            <div class="val">${nf1(p.coutGrilleEngageSaison)} M€</div>
+            <div class="val">${nf1(seasonSpending(p).total)} M€</div>
           </div>
           <div class="hud-cell">
             <div class="lab"><span class="ic">📺</span>Revenus pub</div>
@@ -22194,7 +22202,7 @@ function render() {
       ${careerDecisionHtml}
       ${renderSportsRightsBilanHtml()}
       ${bilanFoldHtml('engagements', `📅 ENGAGEMENTS${nextSeasonCommitment().cashAfterRevenue < TRESORERIE_CRITIQUE ? ' ⚠️' : ''}<span class="bilan-fold-long">&nbsp;DE LA SAISON SUIVANTE</span>`, 'les engagements de la saison suivante', `
-        <p>Grille à payer : <b>${nf1(nextSeasonCommitment().annual)} M€</b>${nextSeasonCommitment().sports>0?` (dont droits sportifs reconduits : ${nf1(nextSeasonCommitment().sports)} M€)`:''} · contrats arrivant à échéance : ${nf1(nextSeasonCommitment().expired)} M€ / an.</p>
+        <p>Grille à payer : <b>${nf1(nextSeasonCommitment().annual)} M€</b>${nextSeasonCommitment().sports>0?` (dont droits sportifs reconduits : ${nf1(nextSeasonCommitment().sports)} M€)`:''} · contrats arrivant à échéance : ${nf1(nextSeasonCommitment().expired)} M€ / an${nextSeasonCommitment().raises>0?` · revalorisations convenues : +${nf1(nextSeasonCommitment().raises)} M€`:''}.</p>
         <p>Trésorerie après paiement : <b>${nf1(nextSeasonCommitment().cash)} M€</b>, puis <b>${nf1(nextSeasonCommitment().cashAfterRevenue)} M€</b> une fois les recettes publicitaires attendues créditées (${nf1(nextSeasonCommitment().adRevenue)} M€ à audience constante), avant décisions.${nextSeasonCommitment().cashAfterRevenue<TRESORERIE_CRITIQUE?' La saison s’ouvrirait sous le seuil de faillite.':''}</p>`)}
       <button class="welcome-cta" id="btn-next-season" style="margin-top: 2px;" ${careerContract?'disabled title="Décidez d’abord de l’avenir du programme"':''}>
         <span class="welcome-cta-shine"></span>
@@ -24281,6 +24289,8 @@ function applyCareerDilemmaChoice(dilemma, choice) {
     // et les recettes publicitaires associées restent acquises). Son coût annuel est déjà
     // retiré du coût de grille, ce qui allège la grille de la saison suivante ; il quitte
     // la grille à l'ouverture de celle-ci (expireContracts), sans être facturé à nouveau.
+    // La part talents du programme sort aussi des dépenses de talents de la saison.
+    p.coutTalentsSaison = Math.max(0, (p.coutTalentsSaison || 0) - (contract.talentAnnual || 0));
     contract.annual = 0;
     contract.talentAnnual = 0;
     contract.end = Math.min(contract.end, gameState.season);
@@ -25079,13 +25089,25 @@ function nextSeasonCommitment() {
   // Droits sportifs reconduits : ceux de la saison sortent de la grille, ceux de la
   // saison prochaine y entrent.
   const sportsNow=sportsRightsGridAnnual(), sports=sportsRightsGridAnnual(gameState.season+1);
-  const annual=Math.max(0,p.coutGrilleEngageSaison-expired-sportsNow)+pausedAnnualThisSeason()+sports;
+  // Même règle que l'ouverture de saison (expireTalents, applyContractRevaluations) : les talents
+  // dont le contrat s'achève ou qui partent sortent de la grille, les prolongations et
+  // revalorisations convenues y entrent à leur nouveau montant. Aucun flux immédiat.
+  const nextSeason=gameState.season+1;
+  let talentsLeaving=0, raises=0;
+  (p.talents||[]).forEach(t=>{
+    if(t.until<nextSeason) talentsLeaving+=t.annual;
+    else if(t.nextAnnual!=null && nextSeason>=(t.nextAnnualFrom??nextSeason)) raises+=t.nextAnnual-t.annual;
+  });
+  Object.values(p.contracts||{}).forEach(c=>{
+    if(c.end>gameState.season && c.nextAnnual!=null && nextSeason>=(c.nextAnnualFrom??nextSeason)) raises+=c.nextAnnual-c.annual;
+  });
+  const annual=Math.max(0,p.coutGrilleEngageSaison-expired-sportsNow-talentsLeaving+raises)+pausedAnnualThisSeason()+sports;
   // Recettes pub attendues à l'ouverture (audience actuelle, régie reconduite) : le seuil de
   // faillite se juge après leur crédit, comme au lancement de la saison.
   const pdaRow=getCalculatedPDAs().find(r=>r.channel===p);
   const adRevenue=computeRevenusPub(pdaRow.adPda[p.target],p.target,p.popularite,p.puissanceCommerciale)+(p.regieInvestissementsAnnuel||0);
   const cash=p.tresorerie-annual;
-  return {annual,expired:expired+sportsNow,sports,cash,adRevenue,cashAfterRevenue:cash+adRevenue};
+  return {annual,expired:expired+sportsNow+talentsLeaving,sports,raises,cash,adRevenue,cashAfterRevenue:cash+adRevenue};
 }
 function applyFinance(f, excludedSlot=null) {
   ensureCampaign(); const p=gameState.player;

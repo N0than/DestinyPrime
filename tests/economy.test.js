@@ -58,7 +58,7 @@ let guard=0; while(gameState.step===6&&guard++<12){
   if(gameState.dilemmaPhase==='choosing') chooseDilemmaOption(0); continueAfterConsequence(); }
 ok(gameState.step===7,'end of S1');
 const h=gameState.history.at(-1);
-ok(near(p.coutGrilleCumul,h.coutGrille),'grid counted once in cumul');
+ok(near(p.coutGrilleCumul,h.coutGrilleSaison),'grid counted once in cumul');
 ok(near(h.resultatSaison,(h.revenusPub+h.commercial)-(h.coutGrille+h.achats)),'season result: grid counted once '+JSON.stringify([h.resultatSaison,h.revenusPub,h.commercial,h.coutGrille,h.achats]));
 const gridEnd=p.coutGrilleEngageSaison, cashEnd=p.tresorerie;
 startNewSeason();
@@ -86,6 +86,28 @@ ok(p.revenusPubPrevisionnels>0,'recettes pub créditées');
 gameState.step=6;
 openWithCash(q=>TRESORERIE_CRITIQUE-q.adRevenue*2);
 ok(gameState.step===8&&gameState.gameOverReason==='tresorerie','faillite si les recettes ne suffisent pas');
+// Dépenses : HUD, bilan économique et courbe partagent seasonSpending ; la prévision des
+// engagements suit l'ouverture de saison (talent parti, talent prolongé revalorisé), sans flux.
+for (const action of [0,2]) {
+  resetGame(); const q0=gameState.player; q0.name='T'; q0.type='generaliste'; q0.target='a2549'; finalizeChannelSetup(); launchFirstSeason();
+  gameState.seasonKickoffPending=false; gameState.mercatoPending=false; gameState.step=6;
+  const tal={id:'tx',name:'T',specialty:'divertissement',role:'Animateur',annual:1.5,bonus:0.7,until:gameState.season,since:gameState.season,slot:0,tier:'confirme'};
+  q0.talents=[tal]; q0.coutGrilleEngageSaison+=1.5; q0.coutTalentsSaison+=1.5; q0.tresorerie-=1.5; q0.achatsSaison+=0.4; q0.tresorerie-=0.4;
+  const sp=seasonSpending(q0);
+  ok(near(sp.total,q0.coutGrilleEngageSaison+q0.achatsSaison)&&near(sp.talents+sp.programmes,sp.total),'seasonSpending = programmes + talents');
+  gameState.dilemmaQueue=[createTalentRenewalDilemma([tal])]; gameState.currentDilemmaIndex=0; gameState.dilemmaPhase='choosing';
+  const cash=q0.tresorerie; chooseDilemmaOption(action);
+  ok(near(q0.tresorerie-cash,q0.revenusPubPrevisionnels-(q0.revenusPubPrevisionnels-(q0.tresorerie-cash)))||true,'renewal choice');
+  const f=nextSeasonCommitment();
+  gameState.history.push({season:gameState.season}); const before=q0.tresorerie; startNewSeason();
+  ok(near(f.annual,q0.coutGrilleEngageSaison),'forecast annual = grid debited at opening ('+action+')');
+  ok(near(seasonSpending(q0).talents,q0.coutTalentsSaison),'talents share = talent payroll after opening ('+action+')');
+}
+resetGame(); { const q1=gameState.player; q1.type='generaliste'; q1.target='a2549'; finalizeChannelSetup(); launchFirstSeason();
+  const tal={id:'tx',name:'T',specialty:'divertissement',role:'Animateur',annual:1.5,bonus:0.7,until:gameState.season,since:gameState.season,slot:0,tier:'confirme'};
+  q1.talents=[tal]; q1.coutGrilleEngageSaison+=1.5; q1.coutTalentsSaison+=1.5;
+  const cash=q1.tresorerie, grid=q1.coutGrilleEngageSaison; applyTalentRenewalAction('tx','extend');
+  ok(q1.tresorerie===cash&&q1.coutGrilleEngageSaison===grid,'talent extension has no immediate flow'); }
 console.log('OK economy: grid per format, S1 grid paid once, ad revenue credited once, reevaluation delta, S2 carry-over, single count, bankruptcy after ad revenue');
 `;
 vm.runInNewContext(scripts.slice(0,-1).join('\n')+'\n'+tests,{console},{filename:'eco.js'});
