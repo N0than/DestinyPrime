@@ -152,6 +152,15 @@ assert(sr().owned.some(o=>o.ownerName===ai.name&&o.broadcastSeason===4&&o.acquis
 gameState.season=4;ai.budget=5;resolveSportsRenewalsAtSeasonEnd();
 assert(!sr().owned.some(o=>o.broadcastSeason===5)&&[5,6].includes(sr().recurring.f1.nextAuctionSeason),'AI without budget releases the right');
 sportsRandom=sRand;
+// ---------- Tour de France : droit annuel de l'après-midi, comme la F1 ----------
+{
+  const t=SPORT_RIGHTS_EVENTS.tour_de_france;
+  assert(t&&t.recurring&&t.preferredSlots.join()==='apresmidi'&&t.sport==='cyclisme','Tour de France: annual right on the afternoon slot');
+  const dt=DILEMMA_BANK.find(d=>d.id==='d_droits_tour_de_france');
+  assert(dt&&dt.type==='sports_rights_auction'&&dt.rightsEventId==='tour_de_france'&&dt.types.join()==='generaliste,sport','Tour de France auction dilemma');
+  const firsts=new Set();for(let k=1;k<=40;k++){setup('sport',3000+k);firsts.add(sr().recurring.tour_de_france.nextAuctionSeason);}
+  assert([...firsts].every(v=>v>=2&&v<=5)&&firsts.size>1,'first Tour de France auction in seasons 2-5');
+}
 // ---------- Courses hippiques : droit annuel du matin, même mécanique que la F1 ----------
 {
   const ch=SPORT_RIGHTS_EVENTS.courses_hippiques;
@@ -161,7 +170,7 @@ sportsRandom=sRand;
   const firstsH=new Set();for(let k=1;k<=40;k++){setup('generaliste',2000+k);firstsH.add(sr().recurring.courses_hippiques.nextAuctionSeason);}
   assert([...firstsH].every(v=>v>=1&&v<=3)&&firstsH.size>1,'first horse racing auction in seasons 1-3');
   for(const type of ['generaliste','sport']){
-    setup(type);sr().recurring.f1.nextAuctionSeason=99;gameState.season=sr().recurring.courses_hippiques.nextAuctionSeason;
+    setup(type);Object.keys(sr().recurring).forEach(k=>{if(k!=='courses_hippiques')sr().recurring[k].nextAuctionSeason=99;});gameState.season=sr().recurring.courses_hippiques.nextAuctionSeason;
     const auc=pickDilemmaQueue().filter(d=>d.type==='sports_rights_auction');
     assert(auc.length===1&&auc[0].rightsEventId==='courses_hippiques','horse racing auction for '+type);
   }
@@ -425,7 +434,7 @@ assert(!pickDilemmaQueue().some(d=>d.rightsEventId==='f1')&&sr().history.some(h=
 ['generaliste','sport','jeunesse','info','culture','cinema'].forEach(type=>assert(computeCompetitorSportsMaxBid({...mk('X','offensive',type),budget:200},SPORT_RIGHTS_EVENTS.world_cup)>0,'AI bids from '+type));
 // Chaîne Sport : ses dilemmes dédiés (d89, d145) sont préférés.
 setup('sport');gameState.season=sr().nextAuctionSeason;Object.values(sr().recurring).forEach(r=>r.nextAuctionSeason=99);const sq=pickDilemmaQueue().find(d=>d.type==='sports_rights_auction');
-assert(sq&&(['d89','d145','d2','d_droits_jo_hiver'].includes(sq.id)),'sport channel auction dilemma');
+assert(sq&&(['d89','d145','d2','d_droits_jo_hiver','d_droits_tour_de_france','d42'].includes(sq.id)),'sport channel auction dilemma');
 // Un dilemme sport éditorial ou de production n'est pas converti.
 ['d79','d165','d148'].forEach(id=>assert(!DILEMMA_BANK.find(d=>d.id===id).type,'not converted '+id));
 assert(['d77','d133','d76','d86','d20','d280','d8','d244','d72','d78'].every(id=>!DILEMMA_BANK.some(d=>d.id===id)),'dilemmas superseded by the rights auctions removed');

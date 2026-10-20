@@ -4649,6 +4649,16 @@ const DILEMMA_BANK = [
     ]
   },
   {
+    id: 'd_droits_tour_de_france', titre: "Le Tour de France cherche un diffuseur",
+    desc: "Les droits du Tour de France sont mis aux enchères : trois semaines d'étapes l'après-midi, renouvelables chaque saison au prix remporté.",
+    types: ['generaliste', 'sport'],
+    type: 'sports_rights_auction', rightsEventId: 'tour_de_france',
+    c: [
+      { l: "Participer à l'enchère", finance: {"recurring":0,"purchase":0,"commercial":0,"category":"N"}, pda: { j1524: 0, a2549: 0, s50: 0, csp: 0 }, r: "L'enchère se joue sous pli.", pop: 0 },
+      { l: "Laisser passer", finance: {"recurring":0,"purchase":0,"commercial":0,"category":"N"}, pda: { j1524: 0, a2549: 0, s50: 0, csp: 0 }, r: "Le Tour de France part chez un concurrent.", pop: 0 }
+    ]
+  },
+  {
     id: 'd_droits_ligue1', titre: "La Ligue 1 cherche un diffuseur",
     desc: "Les droits du championnat de France de Ligue 1 sont mis aux enchères : les grandes affiches en prime chaque week-end, renouvelables chaque saison au prix remporté.",
     types: ['generaliste', 'sport'],
@@ -22695,6 +22705,20 @@ const SPORT_RIGHTS_EVENTS = {
     slotFit: { nuit: 1 },
     firstAuction: [1, 2, 3, 4],
     dilemmaIds: ['d_droits_nba']
+  },
+  // Droit annuel (comme la F1) : les étapes du Tour de France l'après-midi, renouvelables au prix de l'enchère initiale.
+  tour_de_france: {
+    illustration: { subgenre: 'velo', palette: 'jour' },
+    id: 'tour_de_france', name: 'Tour de France', the: 'le Tour de France', sport: 'cyclisme', icon: '🚴', tier: 'premium',
+    headline: 'Le Tour de France cherche un diffuseur',
+    pitch: 'Trois semaines de course sur les routes de France, des étapes de plaine aux cols mythiques, presque toutes l’après-midi. Les droits de la Grande Boucle sont à prendre pour la saison prochaine, puis renouvelables chaque année au prix remporté.',
+    reservePrice: 4.5, estimatedValueMin: 6.5, estimatedValueMax: 10, productionCost: 1.5, exclusive: true, duration: 1, recurring: true,
+    audiencePower: { j1524: 0.85, a2549: 1.1, s50: 1.35, csp: 1.15 },
+    commercialAttractiveness: 1.15,
+    preferredSlots: ['apresmidi'],
+    slotFit: { apresmidi: 1 },
+    firstAuction: [1, 2, 3, 4],
+    dilemmaIds: ['d_droits_tour_de_france']
   },
   olympic_games: {
     illustration: { subgenre: 'athletisme', palette: 'jour' },
