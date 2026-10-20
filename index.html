@@ -2627,10 +2627,8 @@ const evolutionSubtitle = points => `En M€, sur ${points.length > 1 ? `les ${p
 // Saisons clôturées, plus la saison en cours (prévisionnel) si elle n'est pas encore à l'historique.
 function evolutionChartPoints(p, pdaCible) {
   const lastHistorySeason = gameState.history.length ? gameState.history[gameState.history.length - 1].season : null;
-  // La courbe de coût suit les dépenses du bilan économique : grille + achats de la saison.
-  const history = gameState.history.map(h => ({ ...h, coutGrille: (h.coutGrille || 0) + (h.achats || 0) }));
-  if (lastHistorySeason === gameState.season) return history;
-  return [...history, {
+  if (lastHistorySeason === gameState.season) return gameState.history;
+  return [...gameState.history, {
     season: gameState.season, tresorerie: p.tresorerie, pdaCible,
     coutGrille: seasonSpending(p).total, revenusPub: p.revenusPubPrevisionnels,
     popularite: p.popularite
@@ -2657,11 +2655,11 @@ function sanctionBudgetTile(st, points) {
             </div>
           </div>`;
 }
-// Dépenses de la saison, source unique du HUD, du bilan économique et de la courbe
-// d'évolution : coût de grille (programmes + talents) plus achats ponctuels. La part talents
-// (salaires et indemnités) en est une sous-partie ; le reste revient aux programmes.
+// Coût de grille de la saison, source unique du HUD, du bilan économique et de la courbe
+// d'évolution : programmes + talents. Les achats ponctuels (droits d'événement, indemnités,
+// relances…) n'en font pas partie : ils ne pèsent que sur la trésorerie.
 function seasonSpending(p) {
-  const total = Math.max(0, p.coutGrilleEngageSaison || 0) + Math.max(0, p.achatsSaison || 0);
+  const total = Math.max(0, p.coutGrilleEngageSaison || 0);
   const talents = Math.min(total, Math.max(0, p.coutTalentsSaison || 0));
   return { total, talents, programmes: Math.max(0, total - talents) };
 }
@@ -3184,8 +3182,8 @@ function dismissTalent(talentId) {
   const { finance, indemnity, allowed } = quoteTalentDismissal(t);
   if (!allowed) return false;
   applyFinance(finance);
-  // L’indemnité reste un coût de talent : le bilan la range avec les salaires.
-  p.coutTalentsSaison = Math.max(0, p.coutTalentsSaison - t.annual + indemnity);
+  // L’indemnité est un achat ponctuel (trésorerie seulement) : seul le salaire sort de la part talents de la grille.
+  p.coutTalentsSaison = Math.max(0, p.coutTalentsSaison - t.annual);
   p.talents = (p.talents || []).filter(x => x !== t);
   // Le bonus disparaît avec le talent : audience et recettes pub sont réestimées.
   reevaluateAdRevenue();
@@ -3544,7 +3542,8 @@ function renderEcoBilanSlide(player) {
   const solde = recettes - depenses;
   const maxFlow = Math.max(depenses, recettes, 1);
   const pct = v => Math.max(0, Math.min(100, v / maxFlow * 100)).toFixed(1);
-  const renta = player.rentabiliteGrille;
+  // Rentabilité de la grille : recettes pub rapportées au coût de grille (achats ponctuels exclus).
+  const renta = depenses > 0 ? (recettes / depenses - 1) * 100 : 0;
   const rentaCls = renta >= 0 ? 'good' : (renta >= -30 ? 'warn' : 'bad');
   const verdict = { good: 'Rentable', warn: 'Déficitaire', bad: 'Très déficitaire' }[rentaCls];
   const tiles = [
@@ -21311,7 +21310,7 @@ function renderTicker() {
             <div class="lab"><span class="ic">🎯</span>PDA Cible</div>
             <div class="val">${nf1(pdaCible)}%</div>
           </div>
-          <div class="hud-cell" title="Dépenses de la saison : programmes + talents (Bilan économique)">
+          <div class="hud-cell" title="Coût de grille : programmes + talents (Bilan économique). Les achats ponctuels ne pèsent que sur la trésorerie.">
             <div class="lab"><span class="ic">📋</span>Coût grille</div>
             <div class="val">${nf1(seasonSpending(p).total)} M€</div>
           </div>

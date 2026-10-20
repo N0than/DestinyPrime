@@ -94,7 +94,7 @@ for (const action of [0,2]) {
   const tal={id:'tx',name:'T',specialty:'divertissement',role:'Animateur',annual:1.5,bonus:0.7,until:gameState.season,since:gameState.season,slot:0,tier:'confirme'};
   q0.talents=[tal]; q0.coutGrilleEngageSaison+=1.5; q0.coutTalentsSaison+=1.5; q0.tresorerie-=1.5; q0.achatsSaison+=0.4; q0.tresorerie-=0.4;
   const sp=seasonSpending(q0);
-  ok(near(sp.total,q0.coutGrilleEngageSaison+q0.achatsSaison)&&near(sp.talents+sp.programmes,sp.total),'seasonSpending = programmes + talents');
+  ok(near(sp.total,q0.coutGrilleEngageSaison)&&near(sp.talents+sp.programmes,sp.total),'seasonSpending = grid = programmes + talents, purchases excluded');
   gameState.dilemmaQueue=[createTalentRenewalDilemma([tal])]; gameState.currentDilemmaIndex=0; gameState.dilemmaPhase='choosing';
   const cash=q0.tresorerie; chooseDilemmaOption(action);
   ok(near(q0.tresorerie-cash,q0.revenusPubPrevisionnels-(q0.revenusPubPrevisionnels-(q0.tresorerie-cash)))||true,'renewal choice');
