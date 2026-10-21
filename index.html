@@ -3610,9 +3610,9 @@ function ecoSpendingDetail(p) {
   const total = seasonSpending(p).total;
   const talents = (p.talents || []).filter(t => t.until >= season).reduce((sum, t) => sum + t.annual, 0);
   const attributed = slots.reduce((sum, r) => sum + r.cost, 0) + talents;
-  const bySource = regieRevenueBySource(p);
-  return { slots, talents, other: Math.max(0, total - attributed), regie, sources: REGIE_SOURCES.filter(src => bySource[src.key] > 0.05).map(src => ({ ...src, value: bySource[src.key] })),
-    total, revenue: p.revenusPubPrevisionnels || 0 };
+  const view = adRevenueSources(p);
+  return { slots, talents, other: Math.max(0, total - attributed), regie, sources: view.sources, regieGenerale: Math.max(0, view.classique - organic),
+    total, revenue: view.total };
 }
 function ecoDetailHtml(player) {
   const d = ecoSpendingDetail(player);
@@ -3642,6 +3642,7 @@ function ecoDetailHtml(player) {
         ${rows}
         ${d.talents > 0 ? extra('', 'Talents de la chaîne', d.talents, 0) : ''}
         ${d.other > 0.05 ? extra('', 'Coût de structure', d.other, 0) : ''}
+        ${d.regieGenerale > 0.05 ? extra('', 'Régie générale', 0, d.regieGenerale) : ''}
         ${d.sources.map(src => extra('', src.label, 0, src.value)).join('')}
       </div>
       <div class="eco-d-foot">
@@ -3678,11 +3679,8 @@ function renderEcoBilanSlide(player) {
   // Coût de structure (part de la grille non rattachée à un programme), isolé en gris dans la barre.
   const coutStructure = Math.min(coutGrilleProgrammes, ecoSpendingDetail(player).other);
   const coutProgrammes = coutGrilleProgrammes - coutStructure;
-  const recettes = player.revenusPubPrevisionnels;
-  const regieBySource = regieRevenueBySource(player);
-  // Publicité classique : recettes des programmes ; les autres leviers n'apparaissent que s'ils rapportent.
-  const sources = REGIE_SOURCES.map(src => ({ ...src, value: regieBySource[src.key] })).filter(src => src.value > 0.05);
-  const pubClassique = Math.max(0, recettes - sources.reduce((sum, src) => sum + src.value, 0));
+  // Publicité classique (programmes, régie générale) ; les autres leviers n'apparaissent que s'ils rapportent.
+  const { classique: pubClassique, sources, total: recettes } = adRevenueSources(player);
   const solde = recettes - depenses;
   const maxFlow = Math.max(depenses, recettes, 1);
   const pct = v => Math.max(0, Math.min(100, v / maxFlow * 100)).toFixed(1);
@@ -3775,6 +3773,7 @@ function creditInitialAdRevenue() {
   // Les opérations ponctuelles, elles, ne valent que pour la saison où elles sont signées.
   p.regieRecettesSaison = 0;
   p.regieSourcesSaison = {};
+  p.sponsorFlowsSaison = 0;
   const revenusPubEstimes = computeRevenusPub(pdaGlobaleCourante, p.target, p.popularite, p.puissanceCommerciale)
     + regieRevenueTotal(p);
   p.tresorerie += revenusPubEstimes;
@@ -7378,28 +7377,38 @@ const DILEMMA_TALENT_COST = {
 // création de département ou de studio, technologie, partenariat pluriannuel) :
 // leur recette est reconduite chaque saison au lieu d'être ponctuelle.
 const REGIE_INVESTMENT_IDS = ['d_pub1', 'd_pub2', 'd_pub6', 'd_pub7', 'd_pub9', 'd_pub10', 'd_pub13', 'd_pub19', 'd_pub20', 'd_pub22', 'd_pub23', 'd_pub28'];
-// Sources de recettes publicitaires hors publicité classique (recettes de programmes) : celles
-// de la régie, rangées par levier. Tout levier non classé relève de la régie générale (« autres »).
+// Sources de recettes publicitaires hors publicité classique (recettes de programmes et de la
+// régie courante). Tout ce qui n'est pas classé ici relève de la publicité classique.
 const REGIE_SOURCES = [
-  { key: 'parrainage', label: 'Parrainage', short: 'Parrain.', tiny: 'Parr.', color: '#f59e0b' },
-  { key: 'brand', label: 'Brand content', short: 'Brand', color: '#8b5cf6' },
+  { key: 'parrainage', label: 'Parrainage', short: 'Sponso', tiny: 'Sponso', color: '#f59e0b' },
+  { key: 'brand', label: 'Brand content', short: 'Brand', tiny: 'Brand', color: '#8b5cf6' },
   { key: 'digital', label: 'Digital', short: 'Digital', tiny: 'Digi.', color: '#2563eb' },
   { key: 'social', label: 'Social', short: 'Social', tiny: 'Soc.', color: '#ec4899' },
-  { key: 'autres', label: 'Régie', short: 'Régie', tiny: 'Rég.', color: '#14b8a6' }
+  { key: 'ops', label: 'Opérations spéciales', short: 'OPS', tiny: 'OPS', color: '#14b8a6' }
 ];
 const REGIE_SOURCE_BY_DILEMMA = {
-  d_pub8: 'parrainage', d_pub11: 'parrainage', d_pub15: 'parrainage', d_pub18: 'parrainage', d_pub20: 'parrainage', d_pub26: 'parrainage',
+  d_pub8: 'parrainage', d_pub11: 'parrainage', d_pub15: 'parrainage', d_pub18: 'parrainage', d_pub20: 'parrainage', d_pub22: 'parrainage', d_pub26: 'parrainage',
   d_pub3: 'brand', d_pub9: 'brand', d_pub12: 'brand', d_pub19: 'brand', d_pub24: 'brand',
   d_pub7: 'digital', d_pub10: 'digital', d_pub13: 'digital', d_pub23: 'digital',
-  d_pub28: 'social'
+  d_pub28: 'social',
+  d_pub4: 'ops'
 };
-// Recettes de la régie par levier : permanentes (reconduites) + ponctuelles de la saison. Les
-// anciennes parties, sans détail, retombent sur « Régie » pour que le total reste exact.
+// Flux de sponsoring hors dilemmes de régie (dilemmes éditoriaux, histoires de programmes) : ils
+// relèvent du parrainage. Ils restent encaissés en trésorerie comme avant ; seule leur lecture change.
+const SPONSOR_FLOW_RE = /sponsor|parrain|naming/i;
+function sponsorFlows(p) { return Math.max(0, p.sponsorFlowsSaison || 0); }
+// Recettes publicitaires affichées : recettes estimées + flux de sponsoring de la saison.
+function adRevenueTotal(p) { return (p.revenusPubPrevisionnels || 0) + sponsorFlows(p); }
+// Recettes de la régie par levier (reconduites + ponctuelles de la saison), hors publicité classique.
 function regieRevenueBySource(p) {
-  const out = Object.fromEntries(REGIE_SOURCES.map(src => [src.key, (p.regieSourcesAnnuel?.[src.key] || 0) + (p.regieSourcesSaison?.[src.key] || 0)]));
-  const known = Object.values(out).reduce((a, b) => a + b, 0);
-  out.autres += Math.max(0, regieRevenueTotal(p) - known);
-  return out;
+  return Object.fromEntries(REGIE_SOURCES.map(src => [src.key, (p.regieSourcesAnnuel?.[src.key] || 0) + (p.regieSourcesSaison?.[src.key] || 0)]));
+}
+// Lecture des recettes : publicité classique (programmes et régie générale) puis leviers non nuls.
+function adRevenueSources(p) {
+  const bySource = regieRevenueBySource(p);
+  const classique = Math.max(0, (p.revenusPubPrevisionnels || 0) - Object.values(bySource).reduce((a, b) => a + b, 0));
+  const view = { ...bySource, parrainage: bySource.parrainage + sponsorFlows(p) };
+  return { classique, sources: REGIE_SOURCES.map(src => ({ ...src, value: view[src.key] })).filter(src => src.value > 0.05), total: adRevenueTotal(p) };
 }
 
 let gameState = {
@@ -20406,6 +20415,7 @@ function finalizeChannelSetup() {
   player.revenusPubFinals = 0;
   player.regieRecettesSaison = 0;
   player.regieSourcesSaison = {};
+  player.sponsorFlowsSaison = 0;
   player.resultatSaison = 0;
   player.rentabiliteGrille = 0;
   player.coutParPointPDA = 0;
@@ -20977,15 +20987,20 @@ function chooseMaterialized(choiceIndex, dilemma) {
   // bénéfice indéfiniment (chaque saison, chaque dilemme suivant) via un total permanent,
   // au lieu d'un crédit ponctuel valable uniquement pour ce dilemme.
   const isRegieInvestment = REGIE_INVESTMENT_IDS.includes(dilemma.id) && regieCommercial > 0;
-  const regieSource = REGIE_SOURCE_BY_DILEMMA[dilemma.id] || 'autres';
+  const regieSource = REGIE_SOURCE_BY_DILEMMA[dilemma.id] || null;
   if (isRegieInvestment) {
     player.regieInvestissementsAnnuel = (player.regieInvestissementsAnnuel || 0) + regieCommercial;
-    (player.regieSourcesAnnuel ??= {})[regieSource] = (player.regieSourcesAnnuel[regieSource] || 0) + regieCommercial;
+    if (regieSource) (player.regieSourcesAnnuel ??= {})[regieSource] = (player.regieSourcesAnnuel[regieSource] || 0) + regieCommercial;
   } else if (regieCommercial > 0) {
-    (player.regieSourcesSaison ??= {})[regieSource] = (player.regieSourcesSaison[regieSource] || 0) + regieCommercial;
+    if (regieSource) (player.regieSourcesSaison ??= {})[regieSource] = (player.regieSourcesSaison[regieSource] || 0) + regieCommercial;
     // Une opération ponctuelle reste acquise jusqu'à la fin de la saison : elle rejoint le
     // total régie de la saison au lieu d'être annulée par la réestimation suivante.
     player.regieRecettesSaison = (player.regieRecettesSaison || 0) + regieCommercial;
+  }
+  // Flux de sponsoring hors régie : comptés dans le parrainage de la saison.
+  if (!dilemma.id.startsWith('d_pub') && (decisionQuote.finance.commercial || 0) > 0
+    && SPONSOR_FLOW_RE.test(`${dilemma.titre || ''} ${dilemma.desc || ''} ${choice.l || ''}`)) {
+    player.sponsorFlowsSaison = (player.sponsorFlowsSaison || 0) + decisionQuote.finance.commercial;
   }
   if (choice.careerAction) {
     applyCareerDilemmaChoice(dilemma, choice);
@@ -21243,6 +21258,7 @@ function startNewSeason() {
   player.revenusPubFinals = 0;
   player.regieRecettesSaison = 0;
   player.regieSourcesSaison = {};
+  player.sponsorFlowsSaison = 0;
   player.resultatSaison = 0;
   player.coutTalentsSaison = 0;
   player.fluxArcomSaison = 0;
@@ -21502,7 +21518,7 @@ function renderTicker() {
           </div>
           <div class="hud-cell">
             <div class="lab"><span class="ic">📺</span>Revenus pub</div>
-            <div class="val">${nf1(p.revenusPubPrevisionnels)} M€</div>
+            <div class="val">${nf1(adRevenueTotal(p))} M€</div>
           </div>
           <div class="hud-cell">
             <div class="lab"><span class="ic">⭐</span>Popularité</div>

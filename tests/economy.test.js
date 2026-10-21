@@ -113,17 +113,18 @@ resetGame(); { const q2=gameState.player; q2.type='generaliste'; q2.target='a254
   q2.talents=[{id:'tx',name:'T',specialty:'divertissement',role:'Animateur',annual:1.5,bonus:0.7,until:gameState.season+1,since:1,slot:0}]; q2.coutGrilleEngageSaison+=1.5; q2.eventCostSaison=2;
   const det=ecoSpendingDetail(q2);
   ok(near(det.slots.reduce((a,r)=>a+r.cost,0)+det.talents+det.other,seasonSpending(q2).total,1e-6)||det.other===0,'detail costs reconcile with the grid cost');
-  ok(near(det.slots.reduce((a,r)=>a+r.revenue,0)+det.regie,q2.revenusPubPrevisionnels,1e-6),'detail revenues reconcile with ad revenue');
+  ok(near(det.slots.reduce((a,r)=>a+r.revenue,0)+det.regieGenerale+det.sources.reduce((a,x)=>a+x.value,0),det.revenue,1e-6),'detail revenues reconcile with ad revenue');
   ok(det.slots.length===5&&det.slots.every(r=>r.revenue>=0),'five slots, non-negative revenue');
   const prime=det.slots.find(r=>r.key==='prime'),nuit=det.slots.find(r=>r.key==='nuit'); ok(prime.revenue>nuit.revenue,'prime weighs more than night in ad revenue'); }
-// Sources de recettes régie : détail par levier, total conservé, ancien état sans détail → « Régie ».
-{ const q3=gameState.player; q3.regieInvestissementsAnnuel=1.5; q3.regieRecettesSaison=2; q3.regieSourcesAnnuel={digital:1}; q3.regieSourcesSaison={social:1.2,parrainage:0.8};
-  const bs=regieRevenueBySource(q3);
-  ok(near(Object.values(bs).reduce((a,b)=>a+b,0),regieRevenueTotal(q3),1e-9),'sources sum to the régie total');
-  ok(near(bs.social,1.2)&&near(bs.parrainage,0.8)&&near(bs.digital,1)&&near(bs.autres,0.5),'revenue ranked by lever, remainder in régie');
-  q3.regieSourcesAnnuel=undefined; q3.regieSourcesSaison=undefined;
-  ok(near(regieRevenueBySource(q3).autres,regieRevenueTotal(q3),1e-9),'legacy state falls back to régie');
-  q3.regieInvestissementsAnnuel=0; q3.regieRecettesSaison=0; }
+// Sources de recettes : leviers classés, reste en publicité classique, flux de sponsoring en parrainage.
+{ const q3=gameState.player; q3.regieInvestissementsAnnuel=1.5; q3.regieRecettesSaison=2; q3.regieSourcesAnnuel={digital:1}; q3.regieSourcesSaison={social:1.2,ops:0.8}; q3.sponsorFlowsSaison=0.5;
+  const bs=regieRevenueBySource(q3), v=adRevenueSources(q3);
+  ok(near(bs.social,1.2)&&near(bs.ops,0.8)&&near(bs.digital,1),'revenue ranked by lever');
+  ok(near(v.sources.find(x=>x.key==='parrainage').value,0.5),'sponsor flows count as parrainage');
+  ok(near(v.classique+Object.values(bs).reduce((a,b)=>a+b,0),q3.revenusPubPrevisionnels,1e-9),'classique = recettes - leviers');
+  ok(near(v.total,q3.revenusPubPrevisionnels+0.5,1e-9)&&near(adRevenueTotal(q3),v.total),'displayed total includes sponsor flows');
+  ok(REGIE_SOURCE_BY_DILEMMA.d_pub22==='parrainage'&&REGIE_SOURCE_BY_DILEMMA.d_pub4==='ops'&&!REGIE_SOURCE_BY_DILEMMA.d_pub1&&!REGIE_SOURCE_BY_DILEMMA.d_pub2&&!REGIE_SOURCE_BY_DILEMMA.d_pub6,'mapping rules');
+  q3.regieInvestissementsAnnuel=0; q3.regieRecettesSaison=0; q3.regieSourcesAnnuel={}; q3.regieSourcesSaison={}; q3.sponsorFlowsSaison=0; }
 console.log('OK economy: grid per format, S1 grid paid once, ad revenue credited once, reevaluation delta, S2 carry-over, single count, bankruptcy after ad revenue');
 `;
 vm.runInNewContext(scripts.slice(0,-1).join('\n')+'\n'+tests,{console},{filename:'eco.js'});
