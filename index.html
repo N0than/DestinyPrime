@@ -1045,6 +1045,7 @@ button.radar-row:focus-visible { outline: 2px solid var(--bleu); outline-offset:
 .eco-d-name { display: flex; align-items: baseline; gap: 6px; min-width: 0; }
 .eco-d-name b { font-size: 12px; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 .eco-d-name small { flex-shrink: 0; font-size: 9.5px; color: var(--gris); }
+.eco-d-share { font-family: 'Space Grotesk', sans-serif; font-size: 11px; font-weight: 700; color: var(--gris); text-align: right; font-variant-numeric: tabular-nums; }
 .eco-d-cost, .eco-d-rev { font-family: 'Anton', sans-serif; font-size: 13px; text-align: right; font-variant-numeric: tabular-nums; }
 .eco-d-cost { color: var(--rouge); }
 .eco-d-rev { color: var(--vert); }
@@ -3614,7 +3615,47 @@ function ecoSpendingDetail(p) {
   return { slots, talents, other: Math.max(0, total - attributed), regie, sources: view.sources, regieGenerale: Math.max(0, view.classique - organic),
     total, revenue: view.total };
 }
-function ecoDetailHtml(player) {
+// Détail des recettes publicitaires : par créneau (publicité classique des programmes), puis par
+// levier. La part est rapportée au total des recettes affichées.
+function ecoRevenueDetailHtml(player) {
+  const d = ecoSpendingDetail(player);
+  const total = Math.max(d.revenue, 0.0001);
+  const share = v => `${Math.round(v / total * 100)} %`;
+  const nil = '<i class="eco-d-nil">—</i>';
+  const rows = d.slots.map(r => `
+        <div class="eco-d-row${r.key === 'prime' ? ' eco-d-key' : ''}">
+          <span class="pg-time-pill" title="${r.label}">${r.range}</span>
+          <span class="eco-d-name"><b>${esc(r.name)}</b>${r.tag ? `<small>${r.tag}</small>` : ''}</span>
+          <span class="eco-d-share">${r.revenue > 0 ? share(r.revenue) : nil}</span>
+          <span class="eco-d-rev">${r.revenue > 0 ? `+${nf1(r.revenue)}` : nil}</span>
+        </div>`).join('');
+  const extra = (label, value) => `
+        <div class="eco-d-row eco-d-extra">
+          <span class="eco-d-name"><b>${label}</b></span>
+          <span class="eco-d-share">${share(value)}</span>
+          <span class="eco-d-rev">+${nf1(value)}</span>
+        </div>`;
+  const classique = d.slots.reduce((sum, r) => sum + r.revenue, 0) + d.regieGenerale;
+  return `
+    <div class="eco-slide eco-detail">
+      <div class="eco-d-head">
+        <span class="eco-flow-name"><span class="eco-ic in">📺</span>Recettes publicitaires</span>
+        <button type="button" class="radar-toggle eco-d-back" data-eco-back aria-label="Revenir au bilan économique">← Retour</button>
+      </div>
+      <div class="eco-d-cols" aria-hidden="true"><span>Programme</span><span>Part</span><span>Pub</span></div>
+      <div class="eco-d-list">
+        ${rows}
+        ${d.regieGenerale > 0.05 ? extra('Régie générale', d.regieGenerale) : ''}
+        ${d.sources.map(src => extra(src.label, src.value)).join('')}
+      </div>
+      <div class="eco-d-foot">
+        <span>Total <b class="in">+${nf1(d.revenue)}</b> M€</span>
+        <span>Publicité classique <b>${share(classique)}</b></span>
+      </div>
+    </div>`;
+}
+function ecoDetailHtml(player, kind = 'depenses') {
+  if (kind === 'recettes') return ecoRevenueDetailHtml(player);
   const d = ecoSpendingDetail(player);
   const money = (v, sign) => `${sign}${nf1(v)}`;
   const rows = d.slots.map(r => `
@@ -3674,7 +3715,7 @@ function fitEcoLegends() {
   });
 }
 function renderEcoBilanSlide(player) {
-  if (gameState.ecoDetail) return ecoDetailHtml(player);
+  if (gameState.ecoDetail) return ecoDetailHtml(player, gameState.ecoDetail === 'recettes' ? 'recettes' : 'depenses');
   const { total: depenses, talents: coutTalents, programmes: coutGrilleProgrammes, events: coutEvenements } = seasonSpending(player);
   // Coût de structure (part de la grille non rattachée à un programme), isolé en gris dans la barre.
   const coutStructure = Math.min(coutGrilleProgrammes, ecoSpendingDetail(player).other);
@@ -3682,7 +3723,9 @@ function renderEcoBilanSlide(player) {
   // Publicité classique (programmes, régie générale) ; les autres leviers n'apparaissent que s'ils rapportent.
   const { classique: pubClassique, sources, total: recettes } = adRevenueSources(player);
   const solde = recettes - depenses;
-  const maxFlow = Math.max(depenses, recettes, 1);
+  // Échelle commune aux deux barres, avec de la marge : une barre ne remplit jamais tout l'histogramme,
+  // de la place reste pour les leviers qui s'ajouteront.
+  const maxFlow = Math.max(depenses, recettes, 1) * 1.2;
   const pct = v => Math.max(0, Math.min(100, v / maxFlow * 100)).toFixed(1);
   // Rentabilité de la grille : recettes pub rapportées au coût de grille (achats ponctuels exclus).
   const renta = depenses > 0 ? (recettes / depenses - 1) * 100 : 0;
@@ -3712,7 +3755,7 @@ function renderEcoBilanSlide(player) {
         </div>
       </div>
       <div class="eco-flows">
-        <div class="eco-flow eco-flow-expand" data-eco-expand role="button" tabindex="0" aria-label="Voir le détail des dépenses programme par programme">
+        <div class="eco-flow eco-flow-expand" data-eco-expand="depenses" role="button" tabindex="0" aria-label="Voir le détail des dépenses programme par programme">
           <div class="eco-flow-head">
             <span class="eco-flow-name"><span class="eco-ic out">📋</span>Dépenses<svg class="eco-d-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
             <span class="eco-flow-value out">−${nf1(depenses)} M€</span>
@@ -3723,9 +3766,9 @@ function renderEcoBilanSlide(player) {
             <span><i class="tal"></i>${ecoLegendLabel('Talents', 'Talents')} ${nf1(coutTalents)}<u> M€</u></span>${coutEvenements > 0 ? `<span><i class="ev"></i>${ecoLegendLabel('Événements', 'Events')} ${nf1(coutEvenements)}<u> M€</u></span>` : ''}
           </div>
         </div>
-        <div class="eco-flow">
+        <div class="eco-flow eco-flow-expand" data-eco-expand="recettes" role="button" tabindex="0" aria-label="Voir le détail des recettes publicitaires programme par programme">
           <div class="eco-flow-head">
-            <span class="eco-flow-name"><span class="eco-ic in">📺</span>Recettes publicitaires</span>
+            <span class="eco-flow-name"><span class="eco-ic in">📺</span>Recettes publicitaires<svg class="eco-d-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
             <span class="eco-flow-value in">+${nf1(recettes)} M€</span>
           </div>
           <div class="eco-bar" title="Prévision de fin de saison"><span class="eco-fill rev" style="width:${pct(pubClassique)}%"></span>${sources.map(src => `<span class="eco-fill" style="width:${pct(src.value)}%;background-color:${src.color}"></span>`).join('')}</div>
@@ -21669,7 +21712,8 @@ function bindTickerInteractions(app) {
       setTalentCardFlipped(talentCard, toBack);
       return;
     }
-    if (e.target.closest('[data-eco-expand]')) { toggleEcoDetail(true); return; }
+    const ecoExpand = e.target.closest('[data-eco-expand]');
+    if (ecoExpand) { toggleEcoDetail(ecoExpand.dataset.ecoExpand || 'depenses'); return; }
     if (e.target.closest('[data-eco-back]')) { toggleEcoDetail(false); return; }
     const arcomBtn = e.target.closest('.arcom-view-btn');
     if (arcomBtn) {
@@ -21684,7 +21728,7 @@ function bindTickerInteractions(app) {
     if (panel) panel.outerHTML = renderGlobalAudienceShare(true);
   });
   ehSlider.addEventListener('keydown', e => {
-    if ((e.key === 'Enter' || e.key === ' ') && e.target.matches?.('[data-eco-expand]')) { e.preventDefault(); toggleEcoDetail(true); return; }
+    if ((e.key === 'Enter' || e.key === ' ') && e.target.matches?.('[data-eco-expand]')) { e.preventDefault(); toggleEcoDetail(e.target.dataset.ecoExpand || 'depenses'); return; }
     if (e.key === 'Escape' && gameState.ecoDetail && e.target.closest('.eco-slide')) { toggleEcoDetail(false); return; }
     if (e.key === 'Escape' && e.target.closest('.tl-panel.scouting')) {
       if (closeTalentScouting()) refreshTalentsPanel();
@@ -29106,16 +29150,29 @@ function toggleEcoDetail(open) {
   const wrap = document.querySelector('.eco-slide-wrap');
   if (!wrap || wrap.dataset.busy) return;
   const slide = wrap.querySelector('.eco-slide');
+  // open : 'depenses' ou 'recettes' pour ouvrir le détail, false pour revenir au bilan.
+  const previous = gameState.ecoDetail === 'recettes' ? 'recettes' : 'depenses';
+  // Les éléments situés avant le flux choisi partent vers le haut, ceux d'après vers le bas.
+  const sides = (root, expand) => {
+    const flows = root.querySelector('.eco-flows');
+    const before = [], after = [];
+    [...root.children].forEach(c => {
+      if (c === flows) return;
+      (c.compareDocumentPosition(flows) & Node.DOCUMENT_POSITION_FOLLOWING ? before : after).push(c);
+    });
+    let seen = false;
+    [...flows.children].forEach(c => { if (c === expand) { seen = true; return; } (seen ? after : before).push(c); });
+    return { before, after };
+  };
   const swap = () => {
-    gameState.ecoDetail = open;
+    gameState.ecoDetail = open || false;
     wrap.innerHTML = renderEcoBilanSlide(gameState.player);
     fitEcoLegends();
     if (!open) {
       // Le bilan réapparaît à l'inverse de sa disparition : le haut descend, le bas remonte.
-      const next = wrap.querySelector('.eco-slide'), flows = next.querySelector('.eco-flows'), expand = next.querySelector('[data-eco-expand]');
-      const above = [...next.children].filter(c => c !== flows && c.compareDocumentPosition(flows) & Node.DOCUMENT_POSITION_FOLLOWING);
-      const below = [...next.children].filter(c => c !== flows && !above.includes(c));
-      [[above, -10], [below, 14], [[...flows.children].filter(c => c !== expand), 14]].forEach(([list, dy]) => list.forEach(el => el.animate(
+      const next = wrap.querySelector('.eco-slide'), expand = next.querySelector(`[data-eco-expand="${previous}"]`);
+      const { before, after } = sides(next, expand);
+      [[before, -10], [after, 14]].forEach(([list, dy]) => list.forEach(el => el.animate(
         [{ opacity: 0, transform: `translateY(${dy}px) scale(.97)` }, { opacity: 1, transform: 'none' }],
         { duration: PG_FOCUS_MS * 0.8, delay: 60, easing: PG_FOCUS_EASE, fill: 'backwards' })));
       expand?.animate([{ opacity: 0 }, { opacity: 1 }], { duration: PG_FOCUS_MS * 0.6, easing: 'ease-out', fill: 'backwards' });
@@ -29125,11 +29182,9 @@ function toggleEcoDetail(open) {
   if (!slide || pgReducedMotion()) { swap(); return; }
   wrap.dataset.busy = '1';
   if (open) {
-    const flows = slide.querySelector('.eco-flows'), expand = slide.querySelector('[data-eco-expand]');
-    const above = [...slide.children].filter(c => c !== flows && c.compareDocumentPosition(flows) & Node.DOCUMENT_POSITION_FOLLOWING);
-    const below = [...slide.children].filter(c => c !== flows && !above.includes(c));
-    const others = [...flows.children].filter(c => c !== expand);
-    [[above, -10], [below, 14], [others, 14]].forEach(([list, dy]) => list.forEach(el => el.animate(
+    const expand = slide.querySelector(`[data-eco-expand="${open}"]`);
+    const { before, after } = sides(slide, expand);
+    [[before, -10], [after, 14]].forEach(([list, dy]) => list.forEach(el => el.animate(
       [{ opacity: 1, transform: 'none' }, { opacity: 0, transform: `translateY(${dy}px) scale(.97)` }],
       { duration: PG_FOCUS_MS * 0.45, easing: 'ease-out', fill: 'forwards' })));
     expand?.animate([{ opacity: 1 }, { opacity: 0 }], { duration: PG_FOCUS_MS * 0.45, easing: 'ease-in', fill: 'forwards' });
