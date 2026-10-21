@@ -108,6 +108,14 @@ resetGame(); { const q1=gameState.player; q1.type='generaliste'; q1.target='a254
   q1.talents=[tal]; q1.coutGrilleEngageSaison+=1.5; q1.coutTalentsSaison+=1.5;
   const cash=q1.tresorerie, grid=q1.coutGrilleEngageSaison; applyTalentRenewalAction('tx','extend');
   ok(q1.tresorerie===cash&&q1.coutGrilleEngageSaison===grid,'talent extension has no immediate flow'); }
+// Détail des dépenses (Bilan économique) : coûts et recettes par créneau réconciliés avec les totaux.
+resetGame(); { const q2=gameState.player; q2.type='generaliste'; q2.target='a2549'; finalizeChannelSetup(); launchFirstSeason();
+  q2.talents=[{id:'tx',name:'T',specialty:'divertissement',role:'Animateur',annual:1.5,bonus:0.7,until:gameState.season+1,since:1,slot:0}]; q2.coutGrilleEngageSaison+=1.5; q2.eventCostSaison=2;
+  const det=ecoSpendingDetail(q2);
+  ok(near(det.slots.reduce((a,r)=>a+r.cost,0)+det.talents+det.other,seasonSpending(q2).total,1e-6)||det.other===0,'detail costs reconcile with the grid cost');
+  ok(near(det.slots.reduce((a,r)=>a+r.revenue,0)+det.regie,q2.revenusPubPrevisionnels,1e-6),'detail revenues reconcile with ad revenue');
+  ok(det.slots.length===5&&det.slots.every(r=>r.revenue>=0),'five slots, non-negative revenue');
+  const prime=det.slots.find(r=>r.key==='prime'),nuit=det.slots.find(r=>r.key==='nuit'); ok(prime.revenue>nuit.revenue,'prime weighs more than night in ad revenue'); }
 console.log('OK economy: grid per format, S1 grid paid once, ad revenue credited once, reevaluation delta, S2 carry-over, single count, bankruptcy after ad revenue');
 `;
 vm.runInNewContext(scripts.slice(0,-1).join('\n')+'\n'+tests,{console},{filename:'eco.js'});

@@ -1024,6 +1024,31 @@ button.radar-row:focus-visible { outline: 2px solid var(--bleu); outline-offset:
 .eco-fill.prog { background-color: var(--rouge); }
 .eco-fill.tal { background-color: var(--bleu); }
 .eco-fill.ev { background-color: var(--violet); }
+.eco-flow-expand { cursor: pointer; border-radius: 10px; margin: -4px; padding: 4px; -webkit-tap-highlight-color: transparent; }
+.eco-flow-expand:hover, .eco-flow-expand:focus-visible { background: rgba(22,19,14,0.04); outline: none; }
+.eco-d-chevron { width: 12px; height: 12px; flex-shrink: 0; color: var(--gris); }
+.eco-flow-expand .eco-d-chevron { margin-left: 2px; }
+.eco-detail .eco-d-chevron { transform: rotate(180deg); color: var(--ink); }
+.eco-d-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; flex-shrink: 0; padding: 4px 2px 8px; margin: 0; background: none; border: 0; border-bottom: 1px solid var(--border); cursor: pointer; font: inherit; color: inherit; text-align: left; }
+.eco-d-head .eco-flow-value { margin-left: auto; }
+.eco-d-cols, .eco-d-row { display: grid; grid-template-columns: 20px minmax(0, 1fr) 40px 44px; align-items: center; column-gap: 6px; }
+.eco-d-cols { flex-shrink: 0; padding: 7px 2px 3px; font-family: 'Space Grotesk', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: .4px; text-transform: uppercase; color: var(--gris); }
+.eco-d-cols span:first-child { grid-column: 1 / 3; }
+.eco-d-cols span:not(:first-child) { text-align: right; }
+.eco-d-list { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; display: flex; flex-direction: column; animation: pg-pushdown .3s .12s cubic-bezier(.16,1,.3,1) both; }
+.eco-d-row { padding: 4px 2px; min-height: 30px; border-bottom: 1px solid var(--border); }
+.eco-d-ic { font-size: 14px; text-align: center; }
+.eco-d-name { display: flex; align-items: baseline; gap: 6px; min-width: 0; }
+.eco-d-name b { font-size: 12px; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.eco-d-name small { flex-shrink: 0; font-size: 9.5px; color: var(--gris); }
+.eco-d-cost, .eco-d-rev { font-family: 'Anton', sans-serif; font-size: 13px; text-align: right; font-variant-numeric: tabular-nums; }
+.eco-d-cost { color: var(--rouge); }
+.eco-d-rev { color: var(--vert); }
+.eco-d-extra .eco-d-name b { font-weight: 600; }
+.eco-d-foot { flex-shrink: 0; display: flex; justify-content: space-between; gap: 8px; padding: 8px 2px 2px; font-size: 11px; color: var(--gris); }
+.eco-d-foot b.out { color: var(--rouge); } .eco-d-foot b.in { color: var(--vert); }
+.eco-d-foot .pos b { color: var(--vert); } .eco-d-foot .neg b { color: var(--rouge); }
+.eco-enter > * { animation: pg-pushdown .3s cubic-bezier(.16,1,.3,1) both; }
 .eco-fill.rev { background-color: var(--vert); }
 .eco-legend { display: flex; flex-wrap: wrap; gap: 2px 12px; font-size: 10px; color: var(--gris); }
 .eco-legend span { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
@@ -3542,7 +3567,84 @@ function renderArcomSlide(compliance, convention) {
   `;
 }
 
+// Détail du coût de grille et des recettes pub, créneau par créneau. Les coûts sont ceux du
+// coût de grille de la saison (seasonSpending) : programmes sous contrat, événements à
+// l'antenne, talents de la chaîne, puis le reliquat non attribuable. Les recettes organiques
+// sont réparties au prorata de la contribution publicitaire de chaque créneau (poids
+// d'audience × coefficient commercial × PDA sur la cible) ; la régie est à part.
+function ecoSpendingDetail(p) {
+  const target = p.target, season = gameState.season;
+  const row = getCalculatedPDAs().find(r => r.channel === p);
+  const contribution = Object.fromEntries(TIME_SLOTS.map(({ key }) =>
+    [key, row.slots[key][target] * SLOT_AUDIENCE_WEIGHTS[key] * AD_SLOT_COEFFICIENTS[key]]));
+  const contributionTotal = Object.values(contribution).reduce((a, b) => a + b, 0) || 1;
+  const regie = regieRevenueTotal(p);
+  const organic = Math.max(0, (p.revenusPubPrevisionnels || 0) - regie);
+  const rights = (gameState.sportsRights?.owned || []).filter(o => o.ownerId === 'player' && o.broadcastSeason === season
+    && o.status === 'broadcast' && !o.suppressed);
+  const slots = TIME_SLOTS.map(slot => {
+    const right = rights.find(o => o.slots.includes(slot.key));
+    const slotEvent = slotEventOn(p, slot.key);
+    const contract = p.contracts?.[slot.key];
+    let name, cost = 0, tag = '';
+    if (right) {
+      const event = SPORT_RIGHTS_EVENTS[right.eventId];
+      name = `${event.icon} ${event.name}`; tag = 'Événement';
+      cost = (right.productionCost + (right.payOnAir ? right.acquisitionPrice : 0) + (right.inGrid ? (right.gridAnnual || 0) : 0)) / right.slots.length;
+    } else if (slotEvent) {
+      name = slotEvent.name; tag = 'Événement'; cost = slotEvent.cost || 0;
+    } else if (contract && contract.sportsPause !== season) {
+      name = contract.name; cost = contract.annual || 0;
+    } else {
+      name = PROGRAM_GRID[p.type]?.[slot.key] || contract?.name || '—';
+    }
+    return { key: slot.key, icon: slot.icon, label: slot.label, name, tag, cost, revenue: organic * contribution[slot.key] / contributionTotal };
+  });
+  const total = seasonSpending(p).total;
+  const talents = (p.talents || []).filter(t => t.until >= season).reduce((sum, t) => sum + t.annual, 0);
+  const attributed = slots.reduce((sum, r) => sum + r.cost, 0) + talents;
+  return { slots, talents, other: Math.max(0, total - attributed), regie, total, revenue: p.revenusPubPrevisionnels || 0 };
+}
+function ecoDetailHtml(player) {
+  const d = ecoSpendingDetail(player);
+  const money = (v, sign) => `${sign}${nf1(v)}`;
+  const rows = d.slots.map(r => `
+        <div class="eco-d-row">
+          <span class="eco-d-ic" aria-hidden="true">${r.icon}</span>
+          <span class="eco-d-name"><b>${esc(r.name)}</b><small>${r.label}${r.tag ? ` · ${r.tag}` : ''}</small></span>
+          <span class="eco-d-cost">${r.cost > 0 ? money(r.cost, '−') : '—'}</span>
+          <span class="eco-d-rev">${r.revenue > 0 ? money(r.revenue, '+') : '—'}</span>
+        </div>`).join('');
+  const extra = (icon, label, cost, rev) => `
+        <div class="eco-d-row eco-d-extra">
+          <span class="eco-d-ic" aria-hidden="true">${icon}</span>
+          <span class="eco-d-name"><b>${label}</b></span>
+          <span class="eco-d-cost">${cost > 0 ? money(cost, '−') : '—'}</span>
+          <span class="eco-d-rev">${rev > 0 ? money(rev, '+') : '—'}</span>
+        </div>`;
+  const solde = d.revenue - d.total;
+  return `
+    <div class="eco-slide eco-detail">
+      <button type="button" class="eco-d-head" data-eco-back aria-label="Revenir au bilan économique">
+        <span class="eco-flow-name"><span class="eco-ic out">📋</span>Dépenses</span>
+        <span class="eco-flow-value out">−${nf1(d.total)} M€</span>
+        <svg class="eco-d-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
+      </button>
+      <div class="eco-d-cols" aria-hidden="true"><span>Programme</span><span>Coût</span><span>Pub</span></div>
+      <div class="eco-d-list">
+        ${rows}
+        ${d.talents > 0 ? extra('🎤', 'Talents de la chaîne', d.talents, 0) : ''}
+        ${d.other > 0.05 ? extra('🏗️', 'Grille de base de la chaîne', d.other, 0) : ''}
+        ${d.regie > 0 ? extra('🤝', 'Régie publicitaire', 0, d.regie) : ''}
+      </div>
+      <div class="eco-d-foot">
+        <span>Total <b class="out">−${nf1(d.total)}</b> <b class="in">+${nf1(d.revenue)}</b> M€</span>
+        <span class="${solde >= 0 ? 'pos' : 'neg'}">Solde <b>${solde >= 0 ? '+' : '−'}${nf1(Math.abs(solde))} M€</b></span>
+      </div>
+    </div>`;
+}
 function renderEcoBilanSlide(player) {
+  if (gameState.ecoDetail) return ecoDetailHtml(player);
   const { total: depenses, talents: coutTalents, programmes: coutProgrammes, events: coutEvenements } = seasonSpending(player);
   const recettes = player.revenusPubPrevisionnels;
   const solde = recettes - depenses;
@@ -3576,9 +3678,9 @@ function renderEcoBilanSlide(player) {
         </div>
       </div>
       <div class="eco-flows">
-        <div class="eco-flow">
+        <div class="eco-flow eco-flow-expand" data-eco-expand role="button" tabindex="0" aria-label="Voir le détail des dépenses programme par programme">
           <div class="eco-flow-head">
-            <span class="eco-flow-name"><span class="eco-ic out">📋</span>Dépenses</span>
+            <span class="eco-flow-name"><span class="eco-ic out">📋</span>Dépenses<svg class="eco-d-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
             <span class="eco-flow-value out">−${nf1(depenses)} M€</span>
           </div>
           <div class="eco-bar"><span class="eco-fill prog" style="width:${pct(coutProgrammes)}%"></span><span class="eco-fill tal" style="width:${pct(coutTalents)}%"></span>${coutEvenements > 0 ? `<span class="eco-fill ev" style="width:${pct(coutEvenements)}%"></span>` : ''}</div>
@@ -20759,8 +20861,19 @@ function chooseMaterialized(choiceIndex, dilemma) {
   if (choice.pilotOrder) schedulePilotOrder(choice.pilotOrder);
   // Occupation temporaire (téléfilms de Noël, événement de streamer) : le programme
   // habituel est mis en pause pour la saison, l'événement prend la case.
-  if (choice.slotEvent && installSlotEvent(choice.slotEvent)) player.eventCostSaison = (player.eventCostSaison || 0) + (decisionQuote.finance.purchase || 0);
-  if (choice.blindLot) applyBlindLotChoice(dilemma, choice.blindLot);
+  // Le coût de l'événement rejoint le coût de grille de la saison (voir seasonSpending), réparti
+  // entre les cases occupées.
+  const addSlotEventCost = events => {
+    const list = events.filter(Boolean), purchase = decisionQuote.finance.purchase || 0;
+    if (!list.length) return;
+    list.forEach(ev => { ev.cost = purchase / list.length; });
+    player.eventCostSaison = (player.eventCostSaison || 0) + purchase;
+  };
+  if (choice.slotEvent) addSlotEventCost([installSlotEvent(choice.slotEvent)]);
+  if (choice.blindLot) {
+    applyBlindLotChoice(dilemma, choice.blindLot);
+    addSlotEventCost((dilemma.blindLot?.outcome?.installed || []).map(slot => slotEventOn(player, slot)));
+  }
   if (choice.becomePlatform) player.isPlatform = true;
   // Retour à la programmation initiale de la case (aucun contrat, aucun coût).
   if (choice.restoreDefault && !player.contracts?.[choice.restoreDefault.slot]) delete player.grilleOverrides?.[choice.restoreDefault.slot];
@@ -21392,7 +21505,7 @@ function bindTickerInteractions(app) {
     document.getElementById('hud-toggle').setAttribute('aria-expanded', isOpen);
     gameState.hudExpanded = isOpen;
     // Refermé, le slider revient à la grille de la chaîne à sa réouverture.
-    if (!isOpen) { gameState.hudSlide = 0; goToHudSlide(0); }
+    if (!isOpen) { gameState.hudSlide = 0; gameState.ecoDetail = false; goToHudSlide(0); }
   };
   // Un clic sur le dilemme referme le slider ouvert.
   document.querySelector('#app .dilemma-container')?.addEventListener('pointerdown', () => {
@@ -21418,7 +21531,7 @@ function bindTickerInteractions(app) {
   let pressTarget = null;
   ehSlider.addEventListener('pointerdown', e => {
     pressTarget = e.target;
-    if (e.target.closest('button, select, input, label, summary, .program-manager, [data-of-action]')) return;
+    if (e.target.closest('button, select, input, label, summary, .program-manager, [data-of-action], [data-eco-expand]')) return;
     if (isHudSliderLocked()) return;
     isDragging = true;
     dragStartX = e.clientX;
@@ -21475,6 +21588,8 @@ function bindTickerInteractions(app) {
       setTalentCardFlipped(talentCard, toBack);
       return;
     }
+    if (e.target.closest('[data-eco-expand]')) { toggleEcoDetail(true); return; }
+    if (e.target.closest('[data-eco-back]')) { toggleEcoDetail(false); return; }
     const arcomBtn = e.target.closest('.arcom-view-btn');
     if (arcomBtn) {
       gameState.step = 9;
@@ -21488,6 +21603,8 @@ function bindTickerInteractions(app) {
     if (panel) panel.outerHTML = renderGlobalAudienceShare(true);
   });
   ehSlider.addEventListener('keydown', e => {
+    if ((e.key === 'Enter' || e.key === ' ') && e.target.matches?.('[data-eco-expand]')) { e.preventDefault(); toggleEcoDetail(true); return; }
+    if (e.key === 'Escape' && gameState.ecoDetail && e.target.closest('.eco-slide')) { toggleEcoDetail(false); return; }
     if (e.key === 'Escape' && e.target.closest('.tl-panel.scouting')) {
       if (closeTalentScouting()) refreshTalentsPanel();
       return;
@@ -28900,6 +29017,35 @@ function unfocusGridSlot(details, animate = true) {
     finish();
     setTimeout(() => { delete rows.dataset.busy; }, PG_FOCUS_MS);
   }, 120);
+}
+// Bilan économique : un clic sur « Dépenses » efface le reste de l'écran (au-dessus vers le haut,
+// en dessous vers le bas, comme les créneaux de la grille) et ouvre le détail programme par
+// programme ; le retour referme le détail et réaffiche le bilan.
+function toggleEcoDetail(open) {
+  const wrap = document.querySelector('.eco-slide-wrap');
+  if (!wrap || wrap.dataset.busy) return;
+  const slide = wrap.querySelector('.eco-slide');
+  const swap = () => {
+    gameState.ecoDetail = open;
+    wrap.innerHTML = renderEcoBilanSlide(gameState.player);
+    if (!open) wrap.querySelector('.eco-slide')?.classList.add('eco-enter');
+    delete wrap.dataset.busy;
+  };
+  if (!slide || pgReducedMotion()) { swap(); return; }
+  wrap.dataset.busy = '1';
+  if (open) {
+    const flows = slide.querySelector('.eco-flows'), expand = slide.querySelector('[data-eco-expand]');
+    const above = [...slide.children].filter(c => c !== flows && c.compareDocumentPosition(flows) & Node.DOCUMENT_POSITION_FOLLOWING);
+    const below = [...slide.children].filter(c => c !== flows && !above.includes(c));
+    const others = [...flows.children].filter(c => c !== expand);
+    [[above, -10], [below, 14], [others, 14]].forEach(([list, dy]) => list.forEach(el => el.animate(
+      [{ opacity: 1, transform: 'none' }, { opacity: 0, transform: `translateY(${dy}px) scale(.97)` }],
+      { duration: PG_FOCUS_MS * 0.45, easing: 'ease-out', fill: 'forwards' })));
+    expand?.animate([{ opacity: 1 }, { opacity: 0 }], { duration: PG_FOCUS_MS * 0.45, easing: 'ease-in', fill: 'forwards' });
+  } else {
+    slide.querySelector('.eco-d-list')?.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 120, easing: 'ease-in', fill: 'forwards' });
+  }
+  setTimeout(swap, open ? PG_FOCUS_MS * 0.45 : 120);
 }
 function bindGridSlotFocus(root) {
   root.querySelectorAll('.pg-rows > .pg-slot-editor').forEach(details => {
