@@ -1031,13 +1031,17 @@ button.radar-row:focus-visible { outline: 2px solid var(--bleu); outline-offset:
 .eco-detail .eco-d-chevron { transform: rotate(180deg); color: var(--ink); }
 .eco-d-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; flex-shrink: 0; padding: 4px 2px 8px; margin: 0; background: none; border: 0; border-bottom: 1px solid var(--border); cursor: pointer; font: inherit; color: inherit; text-align: left; }
 .eco-d-head .eco-flow-value { margin-left: auto; }
-.eco-d-cols, .eco-d-row { display: grid; grid-template-columns: 20px minmax(0, 1fr) 40px 44px; align-items: center; column-gap: 6px; }
+.eco-d-cols, .eco-d-row { display: grid; grid-template-columns: 74px minmax(0, 1fr) 40px 44px; align-items: center; column-gap: 6px; }
 .eco-d-cols { flex-shrink: 0; padding: 7px 2px 3px; font-family: 'Space Grotesk', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: .4px; text-transform: uppercase; color: var(--gris); }
 .eco-d-cols span:first-child { grid-column: 1 / 3; }
+.eco-d-extra .eco-d-name { grid-column: 1 / 3; }
+.eco-d-key .pg-time-pill { background: var(--rouge); border-color: var(--rouge); color: #fff; }
+.eco-d-row .pg-time-pill { text-align: center; }
 .eco-d-cols span:not(:first-child) { text-align: right; }
 .eco-d-list { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; display: flex; flex-direction: column; animation: pg-pushdown .3s .12s cubic-bezier(.16,1,.3,1) both; }
-.eco-d-row { padding: 4px 2px; min-height: 30px; border-bottom: 1px solid var(--border); }
-.eco-d-ic { font-size: 14px; text-align: center; }
+.eco-d-row { flex: 1 1 0; padding: 4px 2px; min-height: 30px; border-bottom: 1px solid var(--border); }
+.eco-d-row:last-child { border-bottom: 0; }
+.eco-d-nil { font-style: normal; color: var(--gris); opacity: .6; }
 .eco-d-name { display: flex; align-items: baseline; gap: 6px; min-width: 0; }
 .eco-d-name b { font-size: 12px; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 .eco-d-name small { flex-shrink: 0; font-size: 9.5px; color: var(--gris); }
@@ -3598,7 +3602,7 @@ function ecoSpendingDetail(p) {
     } else {
       name = PROGRAM_GRID[p.type]?.[slot.key] || contract?.name || '—';
     }
-    return { key: slot.key, icon: slot.icon, label: slot.label, name, tag, cost, revenue: organic * contribution[slot.key] / contributionTotal };
+    return { key: slot.key, range: slot.range, label: slot.label, name, tag, cost, revenue: organic * contribution[slot.key] / contributionTotal };
   });
   const total = seasonSpending(p).total;
   const talents = (p.talents || []).filter(t => t.until >= season).reduce((sum, t) => sum + t.annual, 0);
@@ -3609,18 +3613,17 @@ function ecoDetailHtml(player) {
   const d = ecoSpendingDetail(player);
   const money = (v, sign) => `${sign}${nf1(v)}`;
   const rows = d.slots.map(r => `
-        <div class="eco-d-row">
-          <span class="eco-d-ic" aria-hidden="true">${r.icon}</span>
-          <span class="eco-d-name"><b>${esc(r.name)}</b><small>${r.label}${r.tag ? ` · ${r.tag}` : ''}</small></span>
-          <span class="eco-d-cost">${r.cost > 0 ? money(r.cost, '−') : '—'}</span>
-          <span class="eco-d-rev">${r.revenue > 0 ? money(r.revenue, '+') : '—'}</span>
+        <div class="eco-d-row${r.key === 'prime' ? ' eco-d-key' : ''}">
+          <span class="pg-time-pill" title="${r.label}">${r.range}</span>
+          <span class="eco-d-name"><b>${esc(r.name)}</b>${r.tag ? `<small>${r.tag}</small>` : ''}</span>
+          <span class="eco-d-cost">${r.cost > 0 ? money(r.cost, '−') : '<i class="eco-d-nil">—</i>'}</span>
+          <span class="eco-d-rev">${r.revenue > 0 ? money(r.revenue, '+') : '<i class="eco-d-nil">—</i>'}</span>
         </div>`).join('');
   const extra = (icon, label, cost, rev) => `
         <div class="eco-d-row eco-d-extra">
-          <span class="eco-d-ic" aria-hidden="true">${icon}</span>
           <span class="eco-d-name"><b>${label}</b></span>
-          <span class="eco-d-cost">${cost > 0 ? money(cost, '−') : '—'}</span>
-          <span class="eco-d-rev">${rev > 0 ? money(rev, '+') : '—'}</span>
+          <span class="eco-d-cost">${cost > 0 ? money(cost, '−') : '<i class="eco-d-nil">—</i>'}</span>
+          <span class="eco-d-rev">${rev > 0 ? money(rev, '+') : '<i class="eco-d-nil">—</i>'}</span>
         </div>`;
   const solde = d.revenue - d.total;
   return `
@@ -3633,9 +3636,9 @@ function ecoDetailHtml(player) {
       <div class="eco-d-cols" aria-hidden="true"><span>Programme</span><span>Coût</span><span>Pub</span></div>
       <div class="eco-d-list">
         ${rows}
-        ${d.talents > 0 ? extra('🎤', 'Talents de la chaîne', d.talents, 0) : ''}
-        ${d.other > 0.05 ? extra('🏗️', 'Grille de base de la chaîne', d.other, 0) : ''}
-        ${d.regie > 0 ? extra('🤝', 'Régie publicitaire', 0, d.regie) : ''}
+        ${d.talents > 0 ? extra('', 'Talents de la chaîne', d.talents, 0) : ''}
+        ${d.other > 0.05 ? extra('', 'Grille de base de la chaîne', d.other, 0) : ''}
+        ${d.regie > 0 ? extra('', 'Régie publicitaire', 0, d.regie) : ''}
       </div>
       <div class="eco-d-foot">
         <span>Total <b class="out">−${nf1(d.total)}</b> <b class="in">+${nf1(d.revenue)}</b> M€</span>
