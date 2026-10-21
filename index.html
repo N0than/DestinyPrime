@@ -3723,10 +3723,10 @@ function renderEcoBilanSlide(player) {
   // Publicité classique (programmes, régie générale) ; les autres leviers n'apparaissent que s'ils rapportent.
   const { classique: pubClassique, sources, total: recettes } = adRevenueSources(player);
   const solde = recettes - depenses;
-  // Échelle commune aux deux barres, avec de la marge : une barre ne remplit jamais tout l'histogramme,
-  // de la place reste pour les leviers qui s'ajouteront.
-  const maxFlow = Math.max(depenses, recettes, 1) * 1.2;
-  const pct = v => Math.max(0, Math.min(100, v / maxFlow * 100)).toFixed(1);
+  // Chaque barre représente la composition de son total : ses segments font 100 % de la barre
+  // (dépenses = grille + événements ; recettes = publicité classique + leviers).
+  const pctOf = total => v => (total > 0 ? Math.max(0, Math.min(100, v / total * 100)) : 0).toFixed(1);
+  const pctDep = pctOf(depenses), pctRec = pctOf(recettes);
   // Rentabilité de la grille : recettes pub rapportées au coût de grille (achats ponctuels exclus).
   const renta = depenses > 0 ? (recettes / depenses - 1) * 100 : 0;
   const rentaCls = renta >= 0 ? 'good' : (renta >= -30 ? 'warn' : 'bad');
@@ -3760,7 +3760,7 @@ function renderEcoBilanSlide(player) {
             <span class="eco-flow-name"><span class="eco-ic out">📋</span>Dépenses<svg class="eco-d-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
             <span class="eco-flow-value out">−${nf1(depenses)} M€</span>
           </div>
-          <div class="eco-bar"><span class="eco-fill prog" style="width:${pct(coutProgrammes)}%"></span>${coutStructure > 0.05 ? `<span class="eco-fill st" style="width:${pct(coutStructure)}%"></span>` : ''}<span class="eco-fill tal" style="width:${pct(coutTalents)}%"></span>${coutEvenements > 0 ? `<span class="eco-fill ev" style="width:${pct(coutEvenements)}%"></span>` : ''}</div>
+          <div class="eco-bar"><span class="eco-fill prog" style="width:${pctDep(coutProgrammes)}%"></span>${coutStructure > 0.05 ? `<span class="eco-fill st" style="width:${pctDep(coutStructure)}%"></span>` : ''}<span class="eco-fill tal" style="width:${pctDep(coutTalents)}%"></span>${coutEvenements > 0 ? `<span class="eco-fill ev" style="width:${pctDep(coutEvenements)}%"></span>` : ''}</div>
           <div class="eco-legend">
             ${coutProgrammes > 0.05 || coutStructure <= 0.05 ? `<span><i class="prog"></i>${ecoLegendLabel('Programmes', 'Prog.')} ${nf1(coutProgrammes)}<u> M€</u></span>` : ''}${coutStructure > 0.05 ? `<span><i class="st"></i>${ecoLegendLabel('Coût de structure', 'Structure')} ${nf1(coutStructure)}<u> M€</u></span>` : ''}
             <span><i class="tal"></i>${ecoLegendLabel('Talents', 'Talents')} ${nf1(coutTalents)}<u> M€</u></span>${coutEvenements > 0 ? `<span><i class="ev"></i>${ecoLegendLabel('Événements', 'Events')} ${nf1(coutEvenements)}<u> M€</u></span>` : ''}
@@ -3771,7 +3771,7 @@ function renderEcoBilanSlide(player) {
             <span class="eco-flow-name"><span class="eco-ic in">📺</span>Recettes publicitaires<svg class="eco-d-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
             <span class="eco-flow-value in">+${nf1(recettes)} M€</span>
           </div>
-          <div class="eco-bar" title="Prévision de fin de saison"><span class="eco-fill rev" style="width:${pct(pubClassique)}%"></span>${sources.map(src => `<span class="eco-fill" style="width:${pct(src.value)}%;background-color:${src.color}"></span>`).join('')}</div>
+          <div class="eco-bar" title="Prévision de fin de saison"><span class="eco-fill rev" style="width:${pctRec(pubClassique)}%"></span>${sources.map(src => `<span class="eco-fill" style="width:${pctRec(src.value)}%;background-color:${src.color}"></span>`).join('')}</div>
           <div class="eco-legend"><span><i class="rev"></i>${ecoLegendLabel('Publicité classique', 'Pub. classique', 'Pub')} ${nf1(pubClassique)}<u> M€</u></span>${sources.map(src => `<span><i style="background:${src.color}"></i>${ecoLegendLabel(src.label, src.short, src.tiny)} ${nf1(src.value)}<u> M€</u></span>`).join('')}</div>
         </div>
       </div>
