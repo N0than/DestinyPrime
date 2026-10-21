@@ -3645,7 +3645,7 @@ function ecoRevenueDetailHtml(player) {
       <div class="eco-d-cols" aria-hidden="true"><span>Programme</span><span>Part</span><span>Pub</span></div>
       <div class="eco-d-list">
         ${rows}
-        ${d.regieGenerale > 0.05 ? extra('Régie générale', d.regieGenerale) : ''}
+        ${d.regieGenerale > 0.05 ? extra('Performances Régie', d.regieGenerale) : ''}
         ${d.sources.map(src => extra(src.label, src.value)).join('')}
       </div>
       <div class="eco-d-foot">
@@ -3683,7 +3683,7 @@ function ecoDetailHtml(player, kind = 'depenses') {
         ${rows}
         ${d.talents > 0 ? extra('', 'Talents de la chaîne', d.talents, 0) : ''}
         ${d.other > 0.05 ? extra('', 'Coût de structure', d.other, 0) : ''}
-        ${d.regieGenerale > 0.05 ? extra('', 'Régie générale', 0, d.regieGenerale) : ''}
+        ${d.regieGenerale > 0.05 ? extra('', 'Performances Régie', 0, d.regieGenerale) : ''}
         ${d.sources.map(src => extra('', src.label, 0, src.value)).join('')}
       </div>
       <div class="eco-d-foot">
@@ -6235,15 +6235,6 @@ const DILEMMA_BANK = [
     ]
   },
   {
-    id: 'd208', titre: "La newsletter",
-    desc: "Quotidienne, elle installe un réflexe. Hebdomadaire, elle demande une personne à temps partiel.",
-    types: ['sport'],
-    c: [
-      { l: "Lancer une newsletter quotidienne", finance: {"recurring":1,"purchase":0,"commercial":0,"category":"R"}, pda: { j1524: +6, a2549: +6, s50: +4, csp: +6 }, r: "Le public suit en nombre : dépense raisonnable. Bon retour côté opinion publique.", pop: 2 },
-      { l: "Une newsletter hebdomadaire suffit", finance: {"recurring":1,"purchase":0,"commercial":0,"category":"R"}, pda: { j1524: +3, a2549: +4, s50: +3, csp: +5 }, r: "Le public suit en nombre : solution économe qui rassure le CFO. L'accueil est positif.", pop: 1 }
-    ]
-  },
-  {
     id: 'd209', titre: "Alertes mercato : gratuites ou premium",
     desc: "L’info transfert avant tout le monde, c’est ce que le public veut le plus. Et ce qu’il est prêt à payer. La rédaction peut en faire un service premium payant ou garder le service gratuit pour tous, au prix de l’exclusivité. Un transfert annoncé trop tôt reste une alerte de trop.",
     types: ['sport'],
@@ -6277,15 +6268,6 @@ const DILEMMA_BANK = [
     c: [
       { l: "Ouvrir une boutique officielle", finance: {"recurring":0,"purchase":3,"commercial":0,"category":"P"}, pda: { j1524: +8, a2549: +6, s50: +3, csp: +4 }, r: "Effort financier contenu, l'audience progresse nettement. Les réseaux sociaux s'enflamment positivement.", pop: 3 },
       { l: "Ne pas vendre de produits dérivés", finance: {"recurring":0,"purchase":0,"commercial":0,"category":"N"}, pda: { j1524: +2, a2549: +3, s50: +3, csp: +4 }, r: "Opération qui préserve les comptes, les courbes d'audience grimpent. L'accueil est positif.", pop: 1 }
-    ]
-  },
-  {
-    id: 'd213', titre: "Un programme pour les fidèles",
-    desc: "Un club de membres avec avantages, avant-premières et accès. Il faut le construire et l'animer.",
-    types: ['sport'],
-    c: [
-      { l: "Créer un programme membres", finance: {"recurring":0,"purchase":4,"commercial":0,"category":"P"}, pda: { j1524: +9, a2549: +7, s50: +3, csp: +5 }, r: "Dépense raisonnable, les scores explosent sur toutes les cibles. L'image de la chaîne y gagne beaucoup.", pop: 4 },
-      { l: "Pas de programme de fidélité", finance: {"recurring":0,"purchase":0,"commercial":0,"category":"N"}, pda: { j1524: +3, a2549: +4, s50: +3, csp: +5 }, r: "Choix rentable pour la trésorerie, le public suit en nombre. L'opinion publique reste neutre.", pop: 0 }
     ]
   },
   {
@@ -7311,12 +7293,10 @@ const DILEMMA_FLAVOR = {
   d205: [{ sport: +3, direct: +1 }, { sport: +2, direct: +1 }],
   d206: [{ sport: +3, direct: +1 }, { sport: +2, direct: +1 }],
   d207: [{ sport: +3, direct: +3 }, { sport: +2, direct: +3 }],
-  d208: [{ sport: +3, direct: +1 }, { sport: +2, direct: +1 }],
   d209: [{ sport: +4, direct: +1 }, { sport: +3, direct: +1 }],
   d210: [{ sport: +3, direct: +1 }, { sport: +2, direct: +1 }],
   d211: [{ sport: +3, direct: +1 }, { sport: +2, direct: +1 }],
   d212: [{ sport: +3, direct: +1 }, { sport: +2, direct: +1 }],
-  d213: [{ sport: +4, direct: +1 }, { sport: +2, direct: +1 }],
   d214: [{ sport: +3, direct: +3 }, { sport: +2, direct: +3 }],
   d215: [{ sport: +4, direct: +1 }, { sport: +2, direct: +1 }],
   d216: [{ sport: +4, direct: +1 }, { sport: +2, direct: +1 }],
