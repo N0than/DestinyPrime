@@ -1005,7 +1005,7 @@ button.radar-row:focus-visible { outline: 2px solid var(--bleu); outline-offset:
 .eco-solde { font-family: 'Anton', sans-serif; font-size: 17px; line-height: 1.1; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .eco-solde.pos { color: var(--vert); }
 .eco-solde.neg { color: var(--rouge); }
-.eco-flows { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: space-evenly; gap: 6px; padding: 6px 2px 8px; }
+.eco-flows { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: space-evenly; gap: 4px; padding: 2px 2px 6px; }
 .eco-flow { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
 .eco-flow-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .eco-flow-name { display: inline-flex; align-items: center; gap: 6px; min-width: 0; font-size: 12px; font-weight: 700; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -1024,6 +1024,7 @@ button.radar-row:focus-visible { outline: 2px solid var(--bleu); outline-offset:
 .eco-fill.prog { background-color: var(--rouge); }
 .eco-fill.tal { background-color: var(--bleu); }
 .eco-fill.ev { background-color: var(--violet); }
+.eco-fill.st { background-color: #9ca3af; }
 .eco-flow-expand { cursor: pointer; border-radius: 10px; margin: -4px; padding: 4px; -webkit-tap-highlight-color: transparent; }
 .eco-flow-expand:hover, .eco-flow-expand:focus-visible { background: rgba(22,19,14,0.04); outline: none; }
 .eco-d-chevron { width: 12px; height: 12px; flex-shrink: 0; color: var(--gris); }
@@ -1053,12 +1054,13 @@ button.radar-row:focus-visible { outline: 2px solid var(--bleu); outline-offset:
 .eco-d-foot .pos b { color: var(--vert); } .eco-d-foot .neg b { color: var(--rouge); }
 .eco-enter > * { animation: pg-pushdown .3s cubic-bezier(.16,1,.3,1) both; }
 .eco-fill.rev { background-color: var(--vert); }
-.eco-legend { display: flex; flex-wrap: wrap; gap: 2px 12px; font-size: 10px; color: var(--gris); }
-.eco-legend span { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+.eco-legend { display: flex; flex-wrap: wrap; gap: 1px 9px; font-size: 9.5px; color: var(--gris); }
+.eco-legend span { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
 .eco-legend i { width: 8px; height: 8px; border-radius: 50%; }
 .eco-legend i.prog { background: var(--rouge); }
 .eco-legend i.tal { background: var(--bleu); }
 .eco-legend i.ev { background: var(--violet); }
+.eco-legend i.st { background: #9ca3af; }
 .eco-legend i.rev { background: var(--vert); }
 .eco-tiles { flex-shrink: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
 .eco-tile {
@@ -3646,7 +3648,10 @@ function ecoDetailHtml(player) {
 }
 function renderEcoBilanSlide(player) {
   if (gameState.ecoDetail) return ecoDetailHtml(player);
-  const { total: depenses, talents: coutTalents, programmes: coutProgrammes, events: coutEvenements } = seasonSpending(player);
+  const { total: depenses, talents: coutTalents, programmes: coutGrilleProgrammes, events: coutEvenements } = seasonSpending(player);
+  // Coût de structure (part de la grille non rattachée à un programme), isolé en gris dans la barre.
+  const coutStructure = Math.min(coutGrilleProgrammes, ecoSpendingDetail(player).other);
+  const coutProgrammes = coutGrilleProgrammes - coutStructure;
   const recettes = player.revenusPubPrevisionnels;
   const solde = recettes - depenses;
   const maxFlow = Math.max(depenses, recettes, 1);
@@ -3684,9 +3689,10 @@ function renderEcoBilanSlide(player) {
             <span class="eco-flow-name"><span class="eco-ic out">📋</span>Dépenses<svg class="eco-d-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
             <span class="eco-flow-value out">−${nf1(depenses)} M€</span>
           </div>
-          <div class="eco-bar"><span class="eco-fill prog" style="width:${pct(coutProgrammes)}%"></span><span class="eco-fill tal" style="width:${pct(coutTalents)}%"></span>${coutEvenements > 0 ? `<span class="eco-fill ev" style="width:${pct(coutEvenements)}%"></span>` : ''}</div>
+          <div class="eco-bar"><span class="eco-fill prog" style="width:${pct(coutProgrammes)}%"></span>${coutStructure > 0.05 ? `<span class="eco-fill st" style="width:${pct(coutStructure)}%"></span>` : ''}<span class="eco-fill tal" style="width:${pct(coutTalents)}%"></span>${coutEvenements > 0 ? `<span class="eco-fill ev" style="width:${pct(coutEvenements)}%"></span>` : ''}</div>
           <div class="eco-legend">
-            <span><i class="prog"></i>Programmes ${nf1(coutProgrammes)} M€</span>
+            ${coutProgrammes > 0.05 || coutStructure <= 0.05 ? `<span><i class="prog"></i>Programmes ${nf1(coutProgrammes)} M€</span>` : ''}${coutStructure > 0.05 ? `
+            <span><i class="st"></i>Coût de structure ${nf1(coutStructure)} M€</span>` : ''}
             <span><i class="tal"></i>Talents ${nf1(coutTalents)} M€</span>${coutEvenements > 0 ? `
             <span><i class="ev"></i>Événements ${nf1(coutEvenements)} M€</span>` : ''}
           </div>
