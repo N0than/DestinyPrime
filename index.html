@@ -1056,6 +1056,8 @@ button.radar-row:focus-visible { outline: 2px solid var(--bleu); outline-offset:
 .eco-fill.rev { background-color: var(--vert); }
 .eco-legend { display: flex; flex-wrap: wrap; gap: 1px 9px; font-size: 9.5px; color: var(--gris); }
 .eco-legend span { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+.eco-legend em { font-style: normal; }
+.eco-legend u { text-decoration: none; margin-left: -3px; }
 .eco-legend i { width: 8px; height: 8px; border-radius: 50%; }
 .eco-legend i.prog { background: var(--rouge); }
 .eco-legend i.tal { background: var(--bleu); }
@@ -3646,6 +3648,26 @@ function ecoDetailHtml(player) {
       </div>
     </div>`;
 }
+// Étiquette de légende à deux graphies : la courte remplace la longue si la légende ne tient
+// pas sur une ligne (fitEcoLegends), puis l'unité M€ disparaît en dernier recours.
+function ecoLegendLabel(full, short) {
+  return `<em data-full="${full}" data-short="${short}">${full}</em>`;
+}
+function fitEcoLegends() {
+  document.querySelectorAll('.eco-legend').forEach(legend => {
+    const spans = [...legend.children];
+    if (spans.length < 2) return;
+    const oneLine = () => spans.every(sp => sp.offsetTop === spans[0].offsetTop);
+    const labels = [...legend.querySelectorAll('em[data-full]')];
+    const units = [...legend.querySelectorAll('u')];
+    labels.forEach(l => { l.textContent = l.dataset.full; });
+    units.forEach(u => { u.hidden = false; });
+    if (oneLine()) return;
+    labels.forEach(l => { l.textContent = l.dataset.short; });
+    if (oneLine()) return;
+    units.forEach(u => { u.hidden = true; });
+  });
+}
 function renderEcoBilanSlide(player) {
   if (gameState.ecoDetail) return ecoDetailHtml(player);
   const { total: depenses, talents: coutTalents, programmes: coutGrilleProgrammes, events: coutEvenements } = seasonSpending(player);
@@ -3691,10 +3713,8 @@ function renderEcoBilanSlide(player) {
           </div>
           <div class="eco-bar"><span class="eco-fill prog" style="width:${pct(coutProgrammes)}%"></span>${coutStructure > 0.05 ? `<span class="eco-fill st" style="width:${pct(coutStructure)}%"></span>` : ''}<span class="eco-fill tal" style="width:${pct(coutTalents)}%"></span>${coutEvenements > 0 ? `<span class="eco-fill ev" style="width:${pct(coutEvenements)}%"></span>` : ''}</div>
           <div class="eco-legend">
-            ${coutProgrammes > 0.05 || coutStructure <= 0.05 ? `<span><i class="prog"></i>Programmes ${nf1(coutProgrammes)} M€</span>` : ''}${coutStructure > 0.05 ? `
-            <span><i class="st"></i>Coût de structure ${nf1(coutStructure)} M€</span>` : ''}
-            <span><i class="tal"></i>Talents ${nf1(coutTalents)} M€</span>${coutEvenements > 0 ? `
-            <span><i class="ev"></i>Événements ${nf1(coutEvenements)} M€</span>` : ''}
+            ${coutProgrammes > 0.05 || coutStructure <= 0.05 ? `<span><i class="prog"></i>${ecoLegendLabel('Programmes', 'Prog.')} ${nf1(coutProgrammes)}<u> M€</u></span>` : ''}${coutStructure > 0.05 ? `<span><i class="st"></i>${ecoLegendLabel('Coût de structure', 'Structure')} ${nf1(coutStructure)}<u> M€</u></span>` : ''}
+            <span><i class="tal"></i>${ecoLegendLabel('Talents', 'Talents')} ${nf1(coutTalents)}<u> M€</u></span>${coutEvenements > 0 ? `<span><i class="ev"></i>${ecoLegendLabel('Événements', 'Events')} ${nf1(coutEvenements)}<u> M€</u></span>` : ''}
           </div>
         </div>
         <div class="eco-flow">
@@ -21500,6 +21520,7 @@ function syncHudSliderLock() {
 function bindTickerInteractions(app) {
   fitRadarToGridHeight();
   fitTalentCards();
+  fitEcoLegends();
   syncHudSliderLock();
   bindCampaignPanel(app);
   // Le badge reprend le rôle du header masqué : même action au clic.
@@ -28353,7 +28374,7 @@ function fitRadarToGridHeight() {
   const list = radarSlide.querySelector('.radar-scroll');
   if (list && list.scrollHeight > list.clientHeight + 1) radarSlide.classList.add('radar-tight');
 }
-if (typeof window !== 'undefined') window.addEventListener('resize', () => { fitRadarToGridHeight(); fitTalentCards(); fitHudBrand(); });
+if (typeof window !== 'undefined') window.addEventListener('resize', () => { fitRadarToGridHeight(); fitTalentCards(); fitHudBrand(); fitEcoLegends(); });
 if (typeof document !== 'undefined' && document.fonts?.ready) document.fonts.ready.then(() => fitHudBrand());
 
 function handleRadarAction(btn) {
@@ -29035,6 +29056,7 @@ function toggleEcoDetail(open) {
   const swap = () => {
     gameState.ecoDetail = open;
     wrap.innerHTML = renderEcoBilanSlide(gameState.player);
+    fitEcoLegends();
     if (!open) {
       // Le bilan réapparaît à l'inverse de sa disparition : le haut descend, le bas remonte.
       const next = wrap.querySelector('.eco-slide'), flows = next.querySelector('.eco-flows'), expand = next.querySelector('[data-eco-expand]');
