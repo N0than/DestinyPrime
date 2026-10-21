@@ -116,6 +116,14 @@ resetGame(); { const q2=gameState.player; q2.type='generaliste'; q2.target='a254
   ok(near(det.slots.reduce((a,r)=>a+r.revenue,0)+det.regie,q2.revenusPubPrevisionnels,1e-6),'detail revenues reconcile with ad revenue');
   ok(det.slots.length===5&&det.slots.every(r=>r.revenue>=0),'five slots, non-negative revenue');
   const prime=det.slots.find(r=>r.key==='prime'),nuit=det.slots.find(r=>r.key==='nuit'); ok(prime.revenue>nuit.revenue,'prime weighs more than night in ad revenue'); }
+// Sources de recettes régie : détail par levier, total conservé, ancien état sans détail → « Régie ».
+{ const q3=gameState.player; q3.regieInvestissementsAnnuel=1.5; q3.regieRecettesSaison=2; q3.regieSourcesAnnuel={digital:1}; q3.regieSourcesSaison={social:1.2,parrainage:0.8};
+  const bs=regieRevenueBySource(q3);
+  ok(near(Object.values(bs).reduce((a,b)=>a+b,0),regieRevenueTotal(q3),1e-9),'sources sum to the régie total');
+  ok(near(bs.social,1.2)&&near(bs.parrainage,0.8)&&near(bs.digital,1)&&near(bs.autres,0.5),'revenue ranked by lever, remainder in régie');
+  q3.regieSourcesAnnuel=undefined; q3.regieSourcesSaison=undefined;
+  ok(near(regieRevenueBySource(q3).autres,regieRevenueTotal(q3),1e-9),'legacy state falls back to régie');
+  q3.regieInvestissementsAnnuel=0; q3.regieRecettesSaison=0; }
 console.log('OK economy: grid per format, S1 grid paid once, ad revenue credited once, reevaluation delta, S2 carry-over, single count, bankruptcy after ad revenue');
 `;
 vm.runInNewContext(scripts.slice(0,-1).join('\n')+'\n'+tests,{console},{filename:'eco.js'});

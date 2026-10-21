@@ -3610,7 +3610,9 @@ function ecoSpendingDetail(p) {
   const total = seasonSpending(p).total;
   const talents = (p.talents || []).filter(t => t.until >= season).reduce((sum, t) => sum + t.annual, 0);
   const attributed = slots.reduce((sum, r) => sum + r.cost, 0) + talents;
-  return { slots, talents, other: Math.max(0, total - attributed), regie, total, revenue: p.revenusPubPrevisionnels || 0 };
+  const bySource = regieRevenueBySource(p);
+  return { slots, talents, other: Math.max(0, total - attributed), regie, sources: REGIE_SOURCES.filter(src => bySource[src.key] > 0.05).map(src => ({ ...src, value: bySource[src.key] })),
+    total, revenue: p.revenusPubPrevisionnels || 0 };
 }
 function ecoDetailHtml(player) {
   const d = ecoSpendingDetail(player);
@@ -3640,7 +3642,7 @@ function ecoDetailHtml(player) {
         ${rows}
         ${d.talents > 0 ? extra('', 'Talents de la chaîne', d.talents, 0) : ''}
         ${d.other > 0.05 ? extra('', 'Coût de structure', d.other, 0) : ''}
-        ${d.regie > 0 ? extra('', 'Régie publicitaire', 0, d.regie) : ''}
+        ${d.sources.map(src => extra('', src.label, 0, src.value)).join('')}
       </div>
       <div class="eco-d-foot">
         <span>Total <b class="out">−${nf1(d.total)}</b> <b class="in">+${nf1(d.revenue)}</b> M€</span>
@@ -3650,8 +3652,8 @@ function ecoDetailHtml(player) {
 }
 // Étiquette de légende à deux graphies : la courte remplace la longue si la légende ne tient
 // pas sur une ligne (fitEcoLegends), puis l'unité M€ disparaît en dernier recours.
-function ecoLegendLabel(full, short) {
-  return `<em data-full="${full}" data-short="${short}">${full}</em>`;
+function ecoLegendLabel(full, short, tiny = short) {
+  return `<em data-full="${full}" data-short="${short}" data-tiny="${tiny}">${full}</em>`;
 }
 function fitEcoLegends() {
   document.querySelectorAll('.eco-legend').forEach(legend => {
@@ -3666,6 +3668,8 @@ function fitEcoLegends() {
     labels.forEach(l => { l.textContent = l.dataset.short; });
     if (oneLine()) return;
     units.forEach(u => { u.hidden = true; });
+    if (oneLine()) return;
+    labels.forEach(l => { l.textContent = l.dataset.tiny; });
   });
 }
 function renderEcoBilanSlide(player) {
@@ -3675,6 +3679,10 @@ function renderEcoBilanSlide(player) {
   const coutStructure = Math.min(coutGrilleProgrammes, ecoSpendingDetail(player).other);
   const coutProgrammes = coutGrilleProgrammes - coutStructure;
   const recettes = player.revenusPubPrevisionnels;
+  const regieBySource = regieRevenueBySource(player);
+  // Publicité classique : recettes des programmes ; les autres leviers n'apparaissent que s'ils rapportent.
+  const sources = REGIE_SOURCES.map(src => ({ ...src, value: regieBySource[src.key] })).filter(src => src.value > 0.05);
+  const pubClassique = Math.max(0, recettes - sources.reduce((sum, src) => sum + src.value, 0));
   const solde = recettes - depenses;
   const maxFlow = Math.max(depenses, recettes, 1);
   const pct = v => Math.max(0, Math.min(100, v / maxFlow * 100)).toFixed(1);
@@ -3722,8 +3730,8 @@ function renderEcoBilanSlide(player) {
             <span class="eco-flow-name"><span class="eco-ic in">📺</span>Recettes publicitaires</span>
             <span class="eco-flow-value in">+${nf1(recettes)} M€</span>
           </div>
-          <div class="eco-bar"><span class="eco-fill rev" style="width:${pct(recettes)}%"></span></div>
-          <div class="eco-legend"><span><i class="rev"></i>Prévision de fin de saison</span></div>
+          <div class="eco-bar" title="Prévision de fin de saison"><span class="eco-fill rev" style="width:${pct(pubClassique)}%"></span>${sources.map(src => `<span class="eco-fill" style="width:${pct(src.value)}%;background-color:${src.color}"></span>`).join('')}</div>
+          <div class="eco-legend"><span><i class="rev"></i>${ecoLegendLabel('Publicité classique', 'Pub. classique', 'Pub')} ${nf1(pubClassique)}<u> M€</u></span>${sources.map(src => `<span><i style="background:${src.color}"></i>${ecoLegendLabel(src.label, src.short, src.tiny)} ${nf1(src.value)}<u> M€</u></span>`).join('')}</div>
         </div>
       </div>
       <div class="eco-tiles">
@@ -3766,6 +3774,7 @@ function creditInitialAdRevenue() {
   // Studio Brand Content, Yield Management, etc.) reconduisent leur bénéfice chaque saison.
   // Les opérations ponctuelles, elles, ne valent que pour la saison où elles sont signées.
   p.regieRecettesSaison = 0;
+  p.regieSourcesSaison = {};
   const revenusPubEstimes = computeRevenusPub(pdaGlobaleCourante, p.target, p.popularite, p.puissanceCommerciale)
     + regieRevenueTotal(p);
   p.tresorerie += revenusPubEstimes;
@@ -7369,6 +7378,29 @@ const DILEMMA_TALENT_COST = {
 // création de département ou de studio, technologie, partenariat pluriannuel) :
 // leur recette est reconduite chaque saison au lieu d'être ponctuelle.
 const REGIE_INVESTMENT_IDS = ['d_pub1', 'd_pub2', 'd_pub6', 'd_pub7', 'd_pub9', 'd_pub10', 'd_pub13', 'd_pub19', 'd_pub20', 'd_pub22', 'd_pub23', 'd_pub28'];
+// Sources de recettes publicitaires hors publicité classique (recettes de programmes) : celles
+// de la régie, rangées par levier. Tout levier non classé relève de la régie générale (« autres »).
+const REGIE_SOURCES = [
+  { key: 'parrainage', label: 'Parrainage', short: 'Parrain.', tiny: 'Parr.', color: '#f59e0b' },
+  { key: 'brand', label: 'Brand content', short: 'Brand', color: '#8b5cf6' },
+  { key: 'digital', label: 'Digital', short: 'Digital', tiny: 'Digi.', color: '#2563eb' },
+  { key: 'social', label: 'Social', short: 'Social', tiny: 'Soc.', color: '#ec4899' },
+  { key: 'autres', label: 'Régie', short: 'Régie', tiny: 'Rég.', color: '#14b8a6' }
+];
+const REGIE_SOURCE_BY_DILEMMA = {
+  d_pub8: 'parrainage', d_pub11: 'parrainage', d_pub15: 'parrainage', d_pub18: 'parrainage', d_pub20: 'parrainage', d_pub26: 'parrainage',
+  d_pub3: 'brand', d_pub9: 'brand', d_pub12: 'brand', d_pub19: 'brand', d_pub24: 'brand',
+  d_pub7: 'digital', d_pub10: 'digital', d_pub13: 'digital', d_pub23: 'digital',
+  d_pub28: 'social'
+};
+// Recettes de la régie par levier : permanentes (reconduites) + ponctuelles de la saison. Les
+// anciennes parties, sans détail, retombent sur « Régie » pour que le total reste exact.
+function regieRevenueBySource(p) {
+  const out = Object.fromEntries(REGIE_SOURCES.map(src => [src.key, (p.regieSourcesAnnuel?.[src.key] || 0) + (p.regieSourcesSaison?.[src.key] || 0)]));
+  const known = Object.values(out).reduce((a, b) => a + b, 0);
+  out.autres += Math.max(0, regieRevenueTotal(p) - known);
+  return out;
+}
 
 let gameState = {
   step: 1,
@@ -20373,6 +20405,7 @@ function finalizeChannelSetup() {
   player.revenusPubPrevisionnels = 0;
   player.revenusPubFinals = 0;
   player.regieRecettesSaison = 0;
+  player.regieSourcesSaison = {};
   player.resultatSaison = 0;
   player.rentabiliteGrille = 0;
   player.coutParPointPDA = 0;
@@ -20944,9 +20977,12 @@ function chooseMaterialized(choiceIndex, dilemma) {
   // bénéfice indéfiniment (chaque saison, chaque dilemme suivant) via un total permanent,
   // au lieu d'un crédit ponctuel valable uniquement pour ce dilemme.
   const isRegieInvestment = REGIE_INVESTMENT_IDS.includes(dilemma.id) && regieCommercial > 0;
+  const regieSource = REGIE_SOURCE_BY_DILEMMA[dilemma.id] || 'autres';
   if (isRegieInvestment) {
     player.regieInvestissementsAnnuel = (player.regieInvestissementsAnnuel || 0) + regieCommercial;
+    (player.regieSourcesAnnuel ??= {})[regieSource] = (player.regieSourcesAnnuel[regieSource] || 0) + regieCommercial;
   } else if (regieCommercial > 0) {
+    (player.regieSourcesSaison ??= {})[regieSource] = (player.regieSourcesSaison[regieSource] || 0) + regieCommercial;
     // Une opération ponctuelle reste acquise jusqu'à la fin de la saison : elle rejoint le
     // total régie de la saison au lieu d'être annulée par la réestimation suivante.
     player.regieRecettesSaison = (player.regieRecettesSaison || 0) + regieCommercial;
@@ -21206,6 +21242,7 @@ function startNewSeason() {
   player.revenusPubPrevisionnels = 0;
   player.revenusPubFinals = 0;
   player.regieRecettesSaison = 0;
+  player.regieSourcesSaison = {};
   player.resultatSaison = 0;
   player.coutTalentsSaison = 0;
   player.fluxArcomSaison = 0;
