@@ -3630,13 +3630,12 @@ function ecoDetailHtml(player) {
       <div class="eco-d-head">
         <span class="eco-flow-name"><span class="eco-ic out">📋</span>Dépenses</span>
         <button type="button" class="radar-toggle eco-d-back" data-eco-back aria-label="Revenir au bilan économique">← Retour</button>
-        <span class="eco-flow-value out">−${nf1(d.total)} M€</span>
       </div>
       <div class="eco-d-cols" aria-hidden="true"><span>Programme</span><span>Coût</span><span>Pub</span></div>
       <div class="eco-d-list">
         ${rows}
         ${d.talents > 0 ? extra('', 'Talents de la chaîne', d.talents, 0) : ''}
-        ${d.other > 0.05 ? extra('', 'Grille de base de la chaîne', d.other, 0) : ''}
+        ${d.other > 0.05 ? extra('', 'Coût de structure', d.other, 0) : ''}
         ${d.regie > 0 ? extra('', 'Régie publicitaire', 0, d.regie) : ''}
       </div>
       <div class="eco-d-foot">
