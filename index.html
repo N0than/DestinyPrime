@@ -1028,9 +1028,10 @@ button.radar-row:focus-visible { outline: 2px solid var(--bleu); outline-offset:
 .eco-flow-expand:hover, .eco-flow-expand:focus-visible { background: rgba(22,19,14,0.04); outline: none; }
 .eco-d-chevron { width: 12px; height: 12px; flex-shrink: 0; color: var(--gris); }
 .eco-flow-expand .eco-d-chevron { margin-left: 2px; }
-.eco-detail .eco-d-chevron { transform: rotate(180deg); color: var(--ink); }
-.eco-d-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; flex-shrink: 0; padding: 4px 2px 8px; margin: 0; background: none; border: 0; border-bottom: 1px solid var(--border); cursor: pointer; font: inherit; color: inherit; text-align: left; }
-.eco-d-head .eco-flow-value { margin-left: auto; }
+.eco-d-head { display: flex; align-items: center; gap: 8px; width: 100%; flex-shrink: 0; padding: 4px 2px 8px; margin: 0; border-bottom: 1px solid var(--border); }
+.eco-d-head .eco-d-back { margin-left: auto; }
+.eco-d-back { flex-shrink: 0; font-family: 'Space Grotesk', sans-serif; font-size: 11px; font-weight: 700; color: var(--ink); background: var(--paper-dark); border: 1px solid var(--border); border-radius: 999px; padding: 4px 10px; cursor: pointer; white-space: nowrap; }
+.eco-d-back:hover { background: var(--ink); color: #fff; border-color: var(--ink); }
 .eco-d-cols, .eco-d-row { display: grid; grid-template-columns: 74px minmax(0, 1fr) 40px 44px; align-items: center; column-gap: 6px; }
 .eco-d-cols { flex-shrink: 0; padding: 7px 2px 3px; font-family: 'Space Grotesk', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: .4px; text-transform: uppercase; color: var(--gris); }
 .eco-d-cols span:first-child { grid-column: 1 / 3; }
@@ -3628,11 +3629,11 @@ function ecoDetailHtml(player) {
   const solde = d.revenue - d.total;
   return `
     <div class="eco-slide eco-detail">
-      <button type="button" class="eco-d-head" data-eco-back aria-label="Revenir au bilan économique">
+      <div class="eco-d-head">
         <span class="eco-flow-name"><span class="eco-ic out">📋</span>Dépenses</span>
+        <button type="button" class="eco-d-back" data-eco-back aria-label="Revenir au bilan économique">← Retour</button>
         <span class="eco-flow-value out">−${nf1(d.total)} M€</span>
-        <svg class="eco-d-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
-      </button>
+      </div>
       <div class="eco-d-cols" aria-hidden="true"><span>Programme</span><span>Coût</span><span>Pub</span></div>
       <div class="eco-d-list">
         ${rows}
@@ -29031,7 +29032,16 @@ function toggleEcoDetail(open) {
   const swap = () => {
     gameState.ecoDetail = open;
     wrap.innerHTML = renderEcoBilanSlide(gameState.player);
-    if (!open) wrap.querySelector('.eco-slide')?.classList.add('eco-enter');
+    if (!open) {
+      // Le bilan réapparaît à l'inverse de sa disparition : le haut descend, le bas remonte.
+      const next = wrap.querySelector('.eco-slide'), flows = next.querySelector('.eco-flows'), expand = next.querySelector('[data-eco-expand]');
+      const above = [...next.children].filter(c => c !== flows && c.compareDocumentPosition(flows) & Node.DOCUMENT_POSITION_FOLLOWING);
+      const below = [...next.children].filter(c => c !== flows && !above.includes(c));
+      [[above, -10], [below, 14], [[...flows.children].filter(c => c !== expand), 14]].forEach(([list, dy]) => list.forEach(el => el.animate(
+        [{ opacity: 0, transform: `translateY(${dy}px) scale(.97)` }, { opacity: 1, transform: 'none' }],
+        { duration: PG_FOCUS_MS * 0.8, delay: 60, easing: PG_FOCUS_EASE, fill: 'backwards' })));
+      expand?.animate([{ opacity: 0 }, { opacity: 1 }], { duration: PG_FOCUS_MS * 0.6, easing: 'ease-out', fill: 'backwards' });
+    }
     delete wrap.dataset.busy;
   };
   if (!slide || pgReducedMotion()) { swap(); return; }
@@ -29046,9 +29056,10 @@ function toggleEcoDetail(open) {
       { duration: PG_FOCUS_MS * 0.45, easing: 'ease-out', fill: 'forwards' })));
     expand?.animate([{ opacity: 1 }, { opacity: 0 }], { duration: PG_FOCUS_MS * 0.45, easing: 'ease-in', fill: 'forwards' });
   } else {
-    slide.querySelector('.eco-d-list')?.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 120, easing: 'ease-in', fill: 'forwards' });
+    slide.querySelectorAll('.eco-d-cols, .eco-d-list, .eco-d-foot').forEach(el => el.animate(
+      [{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateY(10px) scale(.98)' }], { duration: 140, easing: 'ease-in', fill: 'forwards' }));
   }
-  setTimeout(swap, open ? PG_FOCUS_MS * 0.45 : 120);
+  setTimeout(swap, open ? PG_FOCUS_MS * 0.45 : 140);
 }
 function bindGridSlotFocus(root) {
   root.querySelectorAll('.pg-rows > .pg-slot-editor').forEach(details => {
