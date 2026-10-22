@@ -258,6 +258,24 @@ resetGame(); { const qa=gameState.player; qa.type='generaliste'; qa.target='a254
   ok(qa.arcomPending===null&&qa.arcomSettled?.cash===-3&&near(qa.popularite,pop0-2,1e-9),'sanction settled once at the opening');
   ok(near(qa.coutGrilleEngageSaison,grid+(tal.annual-1.5),1e-9)&&tal.annual>1.5,'new salary enters the grid of the next season only');
   ok(near(qa.tresorerie,qa.tresorerieDebutSaison-qa.coutGrilleEngageSaison+qa.revenusPubPrevisionnels-qa.achatsSaison+qa.commercialSaison,1e-9),'opening cash identity holds, sanction included before the season start'); }
+// Appel d'un refus de renouvellement : accepté au-dessus de 50/100 de score ARCOM moyen.
+resetGame(); { const qb=gameState.player; qb.type='generaliste'; qb.target='a2549'; finalizeChannelSetup(); launchFirstSeason();
+  qb.arcomViolations=[]; qb.arcomSanctionsCount=0;
+  qb.arcomHistory=[{season:1,score:55},{season:2,score:52},{season:3,score:53}];
+  const a1=fileRenewalAppeal(); ok(a1.accepted&&a1.average>50,'appeal accepted above 50');
+  ok(effectiveRenewalOutcome(10).key==='appeal','accepted appeal overrides the refusal');
+  qb.arcomHistory=[{season:1,score:50},{season:2,score:48},{season:3,score:52}];
+  const a2=fileRenewalAppeal(); ok(!a2.accepted,'appeal rejected at 50 or below');
+  ok(effectiveRenewalOutcome(10).key==='refused'&&effectiveRenewalOutcome(10).title.includes('CONFIRMÉ'),'refusal confirmed');
+  ok(effectiveRenewalOutcome(90).key==='renewed','no effect when the convention is renewed');
+  gameState.renewalAppeal=null; ok(getRenewalOutcome(10).key==='refused'&&effectiveRenewalOutcome(10).title==='RENOUVELLEMENT REFUSÉ','no appeal filed: plain refusal'); }
+// Formats du Studio : création française et européenne pour l'ARCOM.
+{ const prof=programEditorialProfile({name:'Les Héritiers',channelType:'generaliste',slot:'prime',format:'fiction',genre:'fiction',original:true});
+  ok(prof.origin==='FR'&&prof.mix.prodFR===100&&prof.mix.prodEU===100&&prof.mix.creation===100,'studio format counts as French and European creation');
+  const plain=programEditorialProfile({name:'Les Héritiers',channelType:'generaliste',slot:'prime',format:'fiction',genre:'fiction'});
+  ok(plain.mix.prodFR===0,'same name without the studio flag keeps its usual origin');
+  const legacy={original:true,editorial:plain}; const e=arcomEditorial(legacy);
+  ok(e.mix.prodFR===100&&e.mix.prodEU===100&&e.creationShare===1,'formats designed before the rule are counted too'); }
 console.log('OK economy: grid per format, S1 grid paid once, ad revenue credited once, reevaluation delta, S2 carry-over, single count, bankruptcy after ad revenue');
 `;
 vm.runInNewContext(scripts.slice(0,-1).join('\n')+'\n'+tests,{console},{filename:'eco.js'});

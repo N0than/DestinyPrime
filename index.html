@@ -1408,6 +1408,8 @@ button.radar-row:focus-visible { outline: 2px solid var(--bleu); outline-offset:
 .welcome-cta:disabled:hover .welcome-cta-shine { transform: skewX(-12deg) translateX(-150%); }
 .welcome-cta:active { transform: scale(0.98); }
 .welcome-cta svg { width: 16px; height: 16px; transition: transform 0.2s ease; }
+.welcome-cta.welcome-cta-outline { background: rgba(255,255,255,0.85); color: #0f172a; border: 1.5px solid #0f172a; box-shadow: 0 8px 18px -10px rgba(15,23,42,0.25); }
+.welcome-cta.welcome-cta-tight { margin-top: 10px; }
 @media (hover: hover) { .welcome-cta:hover svg { transform: translateX(3px); } }
 .welcome-cta-shine {
   position: absolute; inset: 0; width: 50%; pointer-events: none;
@@ -21047,6 +21049,27 @@ function getRenewalOutcome(score) {
   if (score >= 50) return { key: 'watch', emoji: '🟠', title: 'RENOUVELLEMENT SOUS SURVEILLANCE', message: "La chaîne conserve son autorisation mais fait l'objet d'un contrôle renforcé." };
   return { key: 'refused', emoji: '⛔', title: 'RENOUVELLEMENT REFUSÉ', message: "L'ARCOM refuse de renouveler votre autorisation d'émettre." };
 }
+// Appel d'un refus de renouvellement : accepté si le score ARCOM moyen de la convention dépasse
+// 50/100, sinon le refus est confirmé. Une seule fois par renouvellement, sans nouveau tirage.
+const RENEWAL_APPEAL_THRESHOLD = 50;
+function fileRenewalAppeal() {
+  const average = computeRenewalScore().complianceAverage;
+  gameState.renewalAppeal = { season: gameState.season, average, accepted: average > RENEWAL_APPEAL_THRESHOLD };
+  return gameState.renewalAppeal;
+}
+function currentRenewalAppeal() {
+  return gameState.renewalAppeal?.season === gameState.season ? gameState.renewalAppeal : null;
+}
+// Résultat du renouvellement, appel compris.
+function effectiveRenewalOutcome(score = computeRenewalScore().renewalScore) {
+  const outcome = getRenewalOutcome(score);
+  const appeal = currentRenewalAppeal();
+  if (outcome.key !== 'refused' || !appeal) return outcome;
+  const avg = Math.round(appeal.average);
+  return appeal.accepted
+    ? { key: 'appeal', emoji: '⚖️', title: 'APPEL ACCEPTÉ', message: `Votre score ARCOM moyen (${avg}/100) dépasse le seuil de ${RENEWAL_APPEAL_THRESHOLD}/100 : l'autorisation d'émettre est maintenue, sous contrôle renforcé.` }
+    : { key: 'refused', emoji: '⛔', title: 'REFUS CONFIRMÉ EN APPEL', message: `Votre score ARCOM moyen (${avg}/100) ne dépasse pas ${RENEWAL_APPEAL_THRESHOLD}/100 : l'ARCOM confirme le refus de renouveler votre autorisation.` };
+}
 
 function chooseDilemmaOption(choiceIndex) {
   if (gameState.step !== 6 || gameState.dilemmaPhase !== 'choosing') return;
@@ -22714,7 +22737,7 @@ function render() {
     // Échéance de la convention en cours : la saison multiple de la durée, saison courante comprise.
     const nextEcheance = Math.ceil(gameState.season / CONVENTION_DURATION) * CONVENTION_DURATION;
     const renewal = computeRenewalScore();
-    const renewalOutcome = getRenewalOutcome(renewal.renewalScore);
+    const renewalOutcome = effectiveRenewalOutcome(renewal.renewalScore);
 
     // Présentation dans les codes du jeu (cartes bilan, jauge et tuiles de la convention).
     const statusKey = compliance.status.key;
@@ -22796,7 +22819,8 @@ function render() {
   if (gameState.step === 10) {
     const player = gameState.player;
     const renewal = computeRenewalScore();
-    const outcome = getRenewalOutcome(renewal.renewalScore);
+    const outcome = effectiveRenewalOutcome(renewal.renewalScore);
+    const appeal = currentRenewalAppeal();
     const calculated = getCalculatedPDAs();
     const playerCalc = calculated.find(c => c.channel === player);
     const pdaMoyenne = playerCalc.globalPda;
@@ -22844,7 +22868,10 @@ function render() {
           </div>`).join('')}
         </div>
       </div>
-      <button class="welcome-cta" id="btn-renewal-continue">
+      ${outcome.key === 'refused' && !appeal ? `<button class="welcome-cta welcome-cta-outline" id="btn-renewal-appeal">
+        <span>⚖️ Faire appel</span>
+      </button>` : ''}
+      <button class="welcome-cta${outcome.key === 'refused' && !appeal ? ' welcome-cta-tight' : ''}" id="btn-renewal-continue">
         <span class="welcome-cta-shine"></span>
         <span>${outcome.key === 'refused' ? 'Voir le bilan final' : 'Continuer'}</span>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -22855,6 +22882,8 @@ function render() {
     const renewalBrand = document.getElementById('hud-brand');
     if (renewalBrand) renewalBrand.onclick = goHome;
     app.querySelector('.masthead').onclick = goHome;
+    const appealBtn = document.getElementById('btn-renewal-appeal');
+    if (appealBtn) appealBtn.onclick = () => { fileRenewalAppeal(); render(); };
     document.getElementById('btn-renewal-continue').onclick = () => {
       if (outcome.key === 'refused') {
         gameState.gameOverReason = 'arcom';
@@ -24798,8 +24827,11 @@ function programEditorialProfile(program) {
   const foreign = /japon|manga|anime|\bus\b|international|blockbuster|super-heros|les experts/.test(name);
   const french = !foreign && (/francais/.test(name) ||
     ((genre==='info'||genre==='diverti') && !archive));
-  const origin = foreign?'international':french?'FR':/europe/.test(name)?'EU':'non_precisee';
-  const original = !archive && (genre==='fiction'||genre==='jeunesse'||genre==='culture') && origin==='FR';
+  const originGuess = foreign?'international':french?'FR':/europe/.test(name)?'EU':'non_precisee';
+  // Format conçu par le Studio de création : création française (donc européenne) au sens ARCOM.
+  const studio = !!program.original;
+  const origin = studio ? 'FR' : originGuess;
+  const original = studio || (!archive && (genre==='fiction'||genre==='jeunesse'||genre==='culture') && origin==='FR');
   const live = !archive && (/direct|live|matinale|journal|breaking|fil d.actualite/.test(name) ||
     (type==='sport' && program.slot==='prime'));
   const disciplines = [];
@@ -24822,12 +24854,19 @@ function programEditorialProfile(program) {
   return {genre,origin,original,creationShare:original?1:0,disciplines,mix};
 }
 
+// Profil éditorial retenu pour l'ARCOM : un format du Studio compte toujours comme création
+// française et européenne (y compris s'il a été conçu avant cette règle).
+function arcomEditorial(contract) {
+  const e = contract?.editorial;
+  if (!e || !contract.original) return e;
+  return { ...e, origin: 'FR', original: true, creationShare: 1, mix: { ...e.mix, prodFR: 100, prodEU: 100, creation: 100 } };
+}
 function gridEditorialMix(player) {
   const base=EDITO_BASE[player.type];
   const mix={...base};
   for(const origin of ['prodFR','prodEU']) mix['fiction_'+origin]=base.fiction*base[origin]/100;
   for(const {key:slot} of TIME_SLOTS) {
-    const profile=activeContract(player,slot)?.editorial;
+    const profile=arcomEditorial(activeContract(player,slot));
     if(!profile) continue;
     const weight=SLOT_HOURS[slot]/24;
     for(const key of EDITO_CATEGORIES) mix[key]+=weight*(profile.mix[key]-base[key]);
@@ -24852,7 +24891,7 @@ function gridCreationInvestment(player) {
     annualTotal+=c.annual;
     const spend=Math.max(0,c.annual-(c.talentAnnual||0))+(c.rights||0)/Math.max(1,c.years||1);
     programTotal+=spend;
-    creation+=spend*(c.editorial?.creationShare||0);
+    creation+=spend*(arcomEditorial(c)?.creationShare||0);
   }
   const baseBudget=Math.max(0,(player.coutGrilleEngageSaison||0)-annualTotal);
   const total=baseBudget+programTotal+(player.seasonTotalSpend||0);
@@ -27992,7 +28031,7 @@ function designOriginalFormat({ concept, positioning, slot, budget, requestId = 
     power: round(ref.power * b.power * fit * luck),   // potentiel réel (caché)
     reference: round(ref.power * b.power * fit),      // ce que l'étude de marché peut voir
     stage: 'concept', designedSeason: gameState.season, readySeason: gameState.season, pitch: `${c.label} ${pos.label.toLowerCase()}` };
-  fiche.editorial = programEditorialProfile({ name, channelType: p.type, slot, format: c.format, genre: c.editorialGenre });
+  fiche.editorial = programEditorialProfile({ name, channelType: p.type, slot, format: c.format, genre: c.editorialGenre, original: true });
   fiche.rights = Math.round(fiche.annual * cfg.creation.direct * 10) / 10;
   fiche.estimate = originalEstimate(fiche, 'direct');
   applyFinance({ recurring: 0, purchase: cfg.designCost, commercial: 0, category: 'P' });
@@ -28798,7 +28837,7 @@ function closeCampaignSeason() {
   }
   gameState.competitors.forEach(c=>{c.budget+=Math.max(1,c.pda[c.target]*COMPETITOR_INCOME_RATE);});
   if(gameState.campaign.status==='active' && gameState.season>=gameState.campaign.deadline) {
-    const authorized=getRenewalOutcome(computeRenewalScore().renewalScore).key!=='refused';
+    const authorized=effectiveRenewalOutcome().key!=='refused';
     gameState.campaign.status=campaignProgress().filter(x=>x.done).length>=2 && authorized && p.tresorerie>=TRESORERIE_CRITIQUE?'won':'lost';
   }
 }
