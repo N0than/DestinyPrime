@@ -579,13 +579,12 @@ button.radar-row:focus-visible { outline: 2px solid var(--bleu); outline-offset:
 /* Badges des cibles : une ligne pleine largeur, sous le titre et le score. */
 .ga-panel > .ga-switch-full { display: flex; width: 100%; max-width: none; gap: 4px; margin: 8px 0 10px; flex-shrink: 0; overflow: visible; }
 .ga-panel > .ga-switch-full .ga-target-btn { flex: 1 1 0; min-width: 0; text-align: center; padding: 4px 2px; }
-.ga-score { flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 1px; padding: 5px 11px 6px; border-radius: 14px; text-align: right;
+.ga-score { flex-shrink: 0; display: flex; flex-direction: row; align-items: baseline; gap: 8px; padding: 5px 12px; border-radius: 14px; white-space: nowrap;
   background: linear-gradient(160deg, rgba(225,29,72,0.10) 0%, rgba(255,255,255,0.9) 65%);
   border: 1px solid rgba(255,255,255,0.9); box-shadow: 0 0 0 1px rgba(226,223,215,0.7), 0 8px 18px -12px rgba(15,23,42,0.22); }
-.ga-score-label { font-family: 'Space Grotesk', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: .4px; text-transform: uppercase; color: var(--gris); white-space: nowrap; }
-.ga-score-line { display: inline-flex; align-items: baseline; gap: 7px; }
-.ga-score-rank { font-family: 'Anton', sans-serif; font-size: 11px; color: var(--rouge); padding: 1px 6px; border-radius: 999px; background: rgba(225,29,72,0.10); }
 .ga-score-value { font-family: 'Anton', sans-serif; font-size: 26px; line-height: 1.05; color: var(--rouge); font-variant-numeric: tabular-nums; }
+.ga-score-trend { font-family: 'Anton', sans-serif; font-size: 12px; font-variant-numeric: tabular-nums; }
+.ga-score-trend.up { color: var(--vert); } .ga-score-trend.down { color: var(--rouge); }
 .ga-score-value small { font-size: 15px; margin-left: 1px; }
 .ga-headline-value { font-family: 'Anton', sans-serif; font-size: 26px; color: var(--ink); line-height: 1; }
 
@@ -2888,6 +2887,26 @@ const AUDIENCE_TARGET_4P = { key: '4p', short: '4+', full: 'Individus 4 ans et p
 function audienceShareOf(row, key) {
   return key === AUDIENCE_TARGET_4P.key ? row.globalPda : row.pda[key];
 }
+// Dernière évolution de la PDA du joueur, par cible (4+ comprise) : relevé après chaque décision et à
+// l'ouverture de saison ; seul un mouvement réel (plus de 0,005 pt) remplace la dernière évolution.
+function trackPlayerPda(row = getCalculatedPDAs().find(r => r.channel === gameState.player)) {
+  const p = gameState.player;
+  const now = Object.fromEntries([...AUDIENCE_TARGETS, AUDIENCE_TARGET_4P].map(t => [t.key, audienceShareOf(row, t.key)]));
+  const trail = p.pdaTrail || { last: null, delta: {} };
+  if (trail.last) Object.keys(now).forEach(k => {
+    const d = now[k] - (trail.last[k] ?? now[k]);
+    if (Math.abs(d) > 0.005) trail.delta[k] = d;
+  });
+  trail.last = now;
+  p.pdaTrail = trail;
+}
+// Évolution affichée : un changement pas encore relevé l'emporte sur la dernière évolution relevée.
+function playerPdaMove(key, current) {
+  const trail = gameState.player.pdaTrail;
+  if (!trail?.last) return null;
+  const pending = current - (trail.last[key] ?? current);
+  return Math.abs(pending) > 0.005 ? pending : (trail.delta[key] ?? null);
+}
 function renderGlobalAudienceShare(animate = false) {
   // Par défaut, la cible du joueur.
   const targets = [...AUDIENCE_TARGETS, AUDIENCE_TARGET_4P];
@@ -2904,7 +2923,7 @@ function renderGlobalAudienceShare(animate = false) {
     isPlayer: item.channel === gameState.player
   })).sort((a, b) => b.pda - a.pda);
   const max = Math.max(...standings.map(s => s.pda), 1);
-  const playerRank = standings.findIndex(s => s.isPlayer) + 1;
+  const move = playerPdaMove(activeTarget.key, playerValue);
 
   const strategicKey = gameState.player.target;
   const orderedTargets = [
@@ -2935,9 +2954,9 @@ function renderGlobalAudienceShare(animate = false) {
     <div class="ga-panel${animate ? ' ga-animate' : ''}" id="ga-panel">
       <div class="ga-header">
         <div class="eh-title">Part d'audience</div>
-        <div class="ga-score" aria-label="Votre part d'audience : ${nf1(playerValue)} % — ${esc(activeTarget.full)}, rang ${playerRank} sur ${standings.length}">
-          <span class="ga-score-label">Votre PDA · ${esc(activeTarget.short)}</span>
-          <span class="ga-score-line"><span class="ga-score-rank">#${playerRank}</span><span class="ga-score-value">${nf1(playerValue)}<small>%</small></span></span>
+        <div class="ga-score" aria-label="Votre part d'audience : ${nf1(playerValue)} % — ${esc(activeTarget.full)}${move != null ? `, dernière évolution ${fmtDelta(Math.round(move * 10) / 10 || 0, 1, ' point')}` : ''}">
+          <span class="ga-score-value">${nf1(playerValue)}<small>%</small></span>
+          ${move != null ? `<span class="ga-score-trend ${move > 0 ? 'up' : 'down'}" title="Dernière évolution">${move > 0 ? '▲' : '▼'} ${Math.abs(move) < 0.095 ? Math.abs(move).toFixed(2).replace('.', ',') : nf1(Math.abs(move))}</span>` : ''}
         </div>
       </div>
       <div class="ga-target-switcher ga-switch-full" role="tablist" aria-label="Cible d'audience">${switcherHtml}</div>
@@ -21199,6 +21218,7 @@ function chooseMaterialized(choiceIndex, dilemma) {
   const pdaCibleApres = pdaRowApres.pda[player.target];
   const adCibleApres = pdaRowApres.adPda[player.target];
   player.pdaHistorySeason.push(pdaCibleApres);
+  trackPlayerPda(pdaRowApres);
   player.pdaMoyenneSaison = player.pdaHistorySeason.reduce((s, v) => s + v, 0) / player.pdaHistorySeason.length;
   player.pdaFinSaison = pdaCibleApres;
 
@@ -21373,6 +21393,7 @@ function launchFirstSeason() {
   // Le crédit intégral intervient dès l'ouverture de la saison, avant même le choix de
   // programmation : la proposition ne fera plus qu'ajuster l'écart, comme un dilemme.
   creditInitialAdRevenue();
+  trackPlayerPda();
   gameState.seasonKickoffProposal = generateSeasonKickoffProposal();
   gameState.seasonKickoffPending = !!gameState.seasonKickoffProposal;
 }
@@ -21447,6 +21468,7 @@ function startNewSeason() {
   // Le seuil de faillite n'est évalué qu'ensuite : la grille payée et les recettes
   // publicitaires de la saison créditées, jamais la seule dépense.
   creditInitialAdRevenue();
+  trackPlayerPda();
   gameState.step = player.tresorerie < TRESORERIE_CRITIQUE ? 8 : 6;
   if (gameState.step === 8) gameState.gameOverReason = 'tresorerie';
   if (gameState.step === 6) {
