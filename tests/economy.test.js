@@ -276,7 +276,7 @@ resetGame(); { const qb=gameState.player; qb.type='generaliste'; qb.target='a254
   ok(plain.mix.prodFR===0,'same name without the studio flag keeps its usual origin');
   const legacy={original:true,editorial:plain}; const e=arcomEditorial(legacy);
   ok(e.mix.prodFR===100&&e.mix.prodEU===100&&e.creationShare===1,'formats designed before the rule are counted too'); }
-{ const ch={type:'sport'}; ['ligue1','top14','tour_de_france','equipe_de_france'].forEach(id=>{ const e=sportsEventEditorial(SPORT_RIGHTS_EVENTS[id],ch,SPORT_RIGHTS_EVENTS[id].preferredSlots[0]);
+{ const ch={type:'sport'}; ['ligue1','top14','tour_de_france','equipe_de_france','roland_garros'].forEach(id=>{ const e=sportsEventEditorial(SPORT_RIGHTS_EVENTS[id],ch,SPORT_RIGHTS_EVENTS[id].preferredSlots[0]);
   ok(e.mix.prodFR===100&&e.mix.prodEU===100,'French sport counts as French production: '+id); });
   ok(sportsEventEditorial(SPORT_RIGHTS_EVENTS.nba,ch,'nuit').mix.prodFR===0,'NBA stays foreign'); }
 console.log('OK economy: grid per format, S1 grid paid once, ad revenue credited once, reevaluation delta, S2 carry-over, single count, bankruptcy after ad revenue');
