@@ -24588,7 +24588,9 @@ function selectCareerDecisions() {
     const c = migrateProgramCareer(contract, slot);
     const urgency = (contract.end <= gameState.season ? 40 : 0) + c.wear + (c.historic ? 20 : 0) + c.seasonsCount * 3;
     return { slot, contract, urgency };
-  }).filter(item => !item.contract.stopped
+  // Programme en pause cette saison (case prise par un événement) : non diffusé, contrat déjà
+  // prolongé d'une saison et coût hors grille ; son avenir se décide quand il revient à l'antenne.
+  }).filter(item => !item.contract.stopped && item.contract.sportsPause !== gameState.season
     && (item.contract.end <= gameState.season || item.contract.career.wear >= 40 || item.contract.career.historic));
   candidates.sort((a,b) => b.urgency - a.urgency);
   return candidates.map(item => ({ slot: item.slot, programId: item.contract.id }));
@@ -24624,7 +24626,7 @@ function createCareerRenewalDilemma(pending) {
       { l:`Relancer totalement (${nf1(contract.annual*GAME_BALANCE.programCareer.relaunchCostRate)} M€)`, careerAction:'relaunch', pda:{...zeroPda}, audienceImpact:{slot:pending.slot,value:0.5}, pop:1,
         finance:{recurring:0,purchase:contract.annual*GAME_BALANCE.programCareer.relaunchCostRate,commercial:0,category:'P'}, r:'Le programme repart avec une nouvelle ambition, au prix d’une partie de sa fidélité.' },
       { l:'Arrêter le programme', careerAction:'stop', pda:{...zeroPda}, audienceImpact:{slot:pending.slot,value:c.historic||c.loyalty>=75?-0.4:-0.15}, pop:c.historic||c.loyalty>=75?-3:0,
-        finance:{recurring:-contract.annual,purchase:0,commercial:0,category:'E'}, r:'La case est libérée pour préparer un nouveau programme.' },
+        finance:{recurring:-(contract.sportsPause === gameState.season ? 0 : contract.annual),purchase:0,commercial:0,category:'E'}, r:'La case est libérée pour préparer un nouveau programme.' },
       ...renewalExtraChoices(contract, c, pending.slot)
     ].map(ch => revaluedRenewal(contract, ch))
   };
@@ -24869,13 +24871,18 @@ function quoteFinance(f, excludedSlot=null) {
 function quoteDilemma(choice) {
   const previous=choice.grille ? gameState.player.contracts?.[choice.grille.slot] : null;
   const termination=previous?previous.annual*Math.max(0,previous.end-gameState.season+1):0;
-  const finance={...choice.finance, recurring:choice.finance.recurring-(previous?.annual||0),
+  const finance={...choice.finance, recurring:choice.finance.recurring-(previous && previous.sportsPause!==gameState.season ? previous.annual : 0),
     purchase:choice.finance.purchase+termination};
   return {...quoteFinance(finance,choice.grille?.slot),finance,termination,replacedTalent:previous?.talentAnnual||0};
 }
 function quoteCareerDilemma(choice) {
   const slot = gameState.dilemmaQueue[gameState.currentDilemmaIndex]?.careerSlot;
-  return {...quoteFinance(choice.finance, choice.careerAction==='stop'?slot:null), finance:{...choice.finance}, termination:0, replacedTalent:0};
+  const finance = {...choice.finance};
+  // Arrêt : l'économie porte sur le coût actuel du contrat (il a pu changer depuis la création du
+  // dilemme), rien si le programme est en pause (son coût est déjà hors grille).
+  const contract = slot && gameState.player.contracts?.[slot];
+  if (choice.careerAction === 'stop' && contract) finance.recurring = -(contract.sportsPause === gameState.season ? 0 : contract.annual || 0);
+  return {...quoteFinance(finance, choice.careerAction==='stop'?slot:null), finance, termination:0, replacedTalent:0};
 }
 function quoteProgram(slot,programId,talentId) {
   const p=gameState.player;
@@ -24888,7 +24895,9 @@ function quoteProgram(slot,programId,talentId) {
   // Programme diffusé par un concurrent : rachat des droits en plus du contrat.
   const holder=sameProgram(previous,program)?null:programHolder(program);
   const buyout=holder?exclusivityFee(program,holder):0;
-  const finance={recurring:annual-(previous?.annual||0),purchase:program.rights+termination+buyout,commercial:0};
+  // Le coût d'un programme en pause (case prise par un événement) n'est pas dans la grille.
+  const previousInGrid=previous && previous.sportsPause!==gameState.season ? previous.annual : 0;
+  const finance={recurring:annual-previousInGrid,purchase:program.rights+termination+buyout,commercial:0};
   const quote=quoteFinance(finance,slot);
   const unchanged=previous?.id===programId && previous.talent===talent.name;
   return {...quote,program,talent,annual,termination,finance,unchanged,holder,buyout,
@@ -26749,7 +26758,8 @@ function refreshProducerPitch(dilemma) {
   if (dilemma.negotiationState) return dilemma;
   dilemma.c = producerPitchChoices(pitch);
   if (program) dilemma.showcase = [producerPitchShowcase(pitch)];
-  if (!q?.allowed || (dilemma.pitchKind === 'rival' && !holder)) {
+  // Case prise entre-temps par un événement (droit sportif, événement temporaire) : l'offre tombe.
+  if (!q?.allowed || (dilemma.pitchKind === 'rival' && !holder) || !producerPitchSlots().includes(dilemma.pitchSlot)) {
     dilemma.c.filter(c => c.producerDeal).forEach(c => { c.disabled = true; });
     dilemma.c[0].l += ' (offre retirée)';
   }
@@ -27722,7 +27732,11 @@ function applyContractRevaluations() {
   const p = gameState.player;
   Object.values(p.contracts || {}).forEach(c => {
     if (c.nextAnnual == null || gameState.season < c.nextAnnualFrom) return;
-    p.coutGrilleEngageSaison += c.nextAnnual - c.annual;
+    // Programme mis en pause par un événement (saison écoulée ou en cours) : son coût n'est pas
+    // dans la grille. restorePausedPrograms l'y remettra au nouveau montant ; l'ajuster ici
+    // compterait l'écart deux fois.
+    const outOfGrid = c.sportsPause === gameState.season - 1 || c.sportsPause === gameState.season;
+    if (!outOfGrid) p.coutGrilleEngageSaison += c.nextAnnual - c.annual;
     c.annual = c.nextAnnual;
     delete c.nextAnnual; delete c.nextAnnualFrom;
   });
@@ -27756,10 +27770,11 @@ function dealTermsFor(q, strategy, counter = false) {
   const purchase = round(Math.max(0, q.finance.purchase - negotiable + negotiable * rule.price));
   return { strategy, counter, annual, purchase, rights: round((q.program.rights || 0) * rule.price), buyout: round((q.buyout || 0) * rule.price),
     years: q.program.years + (rule.extraYears || 0),
-    exclusive: !!rule.exclusive, annualDelta: round(annual - q.annual) };
+    // Écart exact avec le coût annuel de référence : le coût de grille suit le contrat signé au centime près.
+    exclusive: !!rule.exclusive, annualDelta: Math.round((annual - q.annual) * 100) / 100 };
 }
 function dealFinance(q, terms) {
-  return { ...q.finance, purchase: terms.purchase, recurring: Math.round((q.finance.recurring + terms.annualDelta) * 10) / 10, category: 'P' };
+  return { ...q.finance, purchase: terms.purchase, recurring: Math.round((q.finance.recurring + terms.annualDelta) * 100) / 100, category: 'P' };
 }
 function negotiationReaction(dilemma, strategy, partnerId) {
   const s = NEGOTIATION.strategies[strategy];

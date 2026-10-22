@@ -204,6 +204,39 @@ resetGame(); { const q6=gameState.player; q6.type='generaliste'; q6.target='a254
   const sn=adMarketSnapshot(); ok(sn.pda4===i0.pda4&&sn.index===i0.index,'snapshot stores the season 4+ PDA with its index');
   gameState.history=[{season:gameState.season-1}]; gameState.step=6;
   ok(ecoRevenueDetailHtml(q6).includes('Indice commercial')&&!ecoRevenueDetailHtml(q6).includes('PDA 4+ '),'sub-menu shows the index without the calculation line'); gameState.history=[]; }
+// Revalorisation d'un programme mis en pause par un événement : l'écart n'est pas compté deux fois.
+resetGame(); { const q7=gameState.player; q7.type='sport'; q7.target='a2549'; finalizeChannelSetup(); launchFirstSeason();
+  q7.contracts.access={id:'x',name:'Légendes',annual:3.2,talentAnnual:0,power:1,end:gameState.season+2,target:'a2549',slot:'access',sportsPause:gameState.season,nextAnnual:2.4,nextAnnualFrom:gameState.season+1};
+  const gridWithoutPaused=q7.coutGrilleEngageSaison; // coût du programme en pause hors grille
+  gameState.season++; applyContractRevaluations(); restorePausedPrograms();
+  ok(near(q7.coutGrilleEngageSaison,gridWithoutPaused+2.4,1e-9)&&q7.contracts.access.annual===2.4,'paused program revalued: back in the grid at its new cost, once');
+  q7.contracts.prime={id:'y',name:'Live',annual:2,talentAnnual:0,power:1,end:gameState.season+2,target:'a2549',slot:'prime',nextAnnual:2.5,nextAnnualFrom:gameState.season+1};
+  const g2=q7.coutGrilleEngageSaison+2; q7.coutGrilleEngageSaison=g2; gameState.season++; applyContractRevaluations();
+  ok(near(q7.coutGrilleEngageSaison,g2+0.5,1e-9),'running program revalued: grid follows the new cost'); }
+// Négociation : l'écart de coût annuel appliqué à la grille est celui du contrat signé, au centime.
+{ const q={annual:1.25,program:{rights:2,years:2,power:3},buyout:0,finance:{recurring:1.25,purchase:2,commercial:0}};
+  ['secure','balanced','aggressive'].forEach(st=>[false,true].forEach(counter=>{ const t=dealTermsFor(q,st,counter); const f=dealFinance(q,t);
+    ok(near(f.recurring-q.finance.recurring,t.annual-q.annual,1e-9),'negotiated grid delta = contract delta ('+st+(counter?' counter':'')+')'); })); }
+// Programme en pause (case prise par un événement) : coût hors grille, jamais retiré ni déduit une 2e fois.
+resetGame(); { const q8=gameState.player; q8.type='generaliste'; q8.target='a2549'; finalizeChannelSetup(); launchFirstSeason();
+  const prog=PROGRAM_CATALOG.find(x=>x.channelType==='generaliste'&&x.slot==='prime');
+  q8.contracts.prime={id:prog.id,name:prog.name,annual:3,talentAnnual:0,power:1,end:gameState.season+1,target:'a2549',slot:'prime',sportsPause:gameState.season,
+    career:createProgramCareer({power:1},'prime')}; q8.contracts.prime.career.wear=80;
+  ok(!selectCareerDecisions().some(x=>x.slot==='prime'),'paused program not proposed for renewal');
+  const stop=createCareerRenewalDilemma({slot:'prime',programId:prog.id}).c.find(c=>c.careerAction==='stop');
+  ok(stop.finance.recurring===0,'stopping a paused program removes nothing from the grid');
+  const other=PROGRAM_CATALOG.find(x=>x.channelType==='generaliste'&&x.slot==='prime'&&x.id!==prog.id);
+  const qp=quoteProgram('prime',other.id,'interne');
+  ok(near(qp.finance.recurring,qp.annual,1e-9),'replacing a paused program charges the full new annual cost'); }
+// Arrêt d'un programme dont le coût a changé en cours de saison : l'économie suit le contrat actuel.
+resetGame(); { const q9=gameState.player; q9.type='jeunesse'; q9.target='j1524'; finalizeChannelSetup(); launchFirstSeason();
+  const prog=PROGRAM_CATALOG.find(x=>x.channelType==='jeunesse'&&x.slot==='matin');
+  q9.contracts.matin={id:prog.id,name:prog.name,annual:1,talentAnnual:0,power:1,end:gameState.season,target:'j1524',slot:'matin',career:createProgramCareer({power:1},'matin')};
+  q9.coutGrilleEngageSaison+=1;
+  const d=createCareerRenewalDilemma({slot:'matin',programId:prog.id}); q9.contracts.matin.annual=0.8; q9.coutGrilleEngageSaison-=0.2;
+  gameState.dilemmaQueue=[d]; gameState.currentDilemmaIndex=0; gameState.dilemmaPhase='choosing'; gameState.step=6;
+  const g0=q9.coutGrilleEngageSaison; chooseDilemmaOption(d.c.findIndex(c=>c.careerAction==='stop'));
+  ok(near(q9.coutGrilleEngageSaison,g0-0.8,1e-9),'stop saves the current contract cost'); }
 console.log('OK economy: grid per format, S1 grid paid once, ad revenue credited once, reevaluation delta, S2 carry-over, single count, bankruptcy after ad revenue');
 `;
 vm.runInNewContext(scripts.slice(0,-1).join('\n')+'\n'+tests,{console},{filename:'eco.js'});
