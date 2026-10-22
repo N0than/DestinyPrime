@@ -135,13 +135,60 @@ resetGame(); { const q4=gameState.player; q4.type='generaliste'; q4.target='a254
   ok(near(sp.events,5,1e-9)&&near(sp.total,grid0+7+1,1e-9),'annual right price counted as event cost, production too');
   ok(near(sp.programmes+sp.talents+sp.events,sp.total,1e-9),'segments sum to the total spending');
   ok(near(sp.programmes,grid0+3-0.5,1e-9),'programmes exclude event costs and talents'); }
-// PDM publicitaire : part de la chaîne dans la valeur publicitaire de toutes les chaînes, par créneau.
+// Marché publicitaire : CA des six chaînes, PDM par créneau et globale, indice commercial.
 resetGame(); { const q5=gameState.player; q5.type='generaliste'; q5.target='a2549'; finalizeChannelSetup(); launchFirstSeason();
-  const m0=adMarketShares();
-  ok(TIME_SLOTS.every(t=>m0.slots[t.key]>=0&&m0.slots[t.key]<=1)&&m0.total>=0&&m0.total<=1,'PDM within 0-100 %');
-  q5.puissanceCommerciale*=1.5; const m1=adMarketShares();
-  ok(TIME_SLOTS.every(t=>m1.slots[t.key]>m0.slots[t.key])&&m1.total>m0.total,'stronger commercial power raises the ad market share');
-  q5.puissanceCommerciale/=1.5; }
+  const keys=TIME_SLOTS.map(t=>t.key), rivals=gameState.competitors;
+  const m0=adMarketModel();
+  ok(m0.channels.length===6&&m0.channels.filter(c=>c.isPlayer).length===1,'six channels, one player');
+  ok(keys.every(k=>m0.slots[k].pdm>=0&&m0.slots[k].pdm<=1)&&m0.pdm>=0&&m0.pdm<=1,'PDM within 0-100 %');
+  ok(keys.every(k=>near(m0.channels.reduce((a,c)=>a+c.slots[k],0),m0.slots[k].total,1e-9)&&near(m0.channels.reduce((a,c)=>a+c.slots[k]/m0.slots[k].total,0),1,1e-9)),'PDM of the six channels sum to 100 % on every slot');
+  ok(near(m0.pdm,m0.mine.revenue/m0.total,1e-12),'global PDM = player revenue / market revenue');
+  ok(near(m0.pdm,keys.reduce((a,k)=>a+m0.slots[k].mine,0)/keys.reduce((a,k)=>a+m0.slots[k].total,0),1e-9),'global PDM weighted by economic weight, not an average');
+  const row=getCalculatedPDAs().find(r=>r.channel===q5);
+  ok(near(m0.mine.revenue,computeRevenusPub(row.adPda[q5.target],q5.target,q5.popularite,q5.puissanceCommerciale),1e-9),'player revenue from the existing engine');
+  ok(near(m0.mine.revenue,q5.revenusPubPrevisionnels-regieRevenueTotal(q5),1e-6),'player revenue consistent with the estimated ad revenue');
+  ok(m0.index!=null&&near(m0.index,m0.pdm*100/row.globalPda*100,1e-9),'commercial index = PDM / PDA x 100 on the common audience');
+  // Rien de ce calcul ne touche aux budgets ni aux recettes.
+  const budgets=rivals.map(c=>c.budget), rev=q5.revenusPubPrevisionnels, cash=q5.tresorerie; adMarketModel(); adMarketSnapshot();
+  ok(rivals.every((c,i)=>c.budget===budgets[i])&&q5.revenusPubPrevisionnels===rev&&q5.tresorerie===cash,'estimation changes no budget, no revenue, no cash');
+  // Sensibilité
+  q5.puissanceCommerciale*=1.5; const m1=adMarketModel(); q5.puissanceCommerciale/=1.5;
+  ok(keys.every(k=>m1.slots[k].pdm>m0.slots[k].pdm)&&m1.pdm>m0.pdm,'more commercial power raises the PDM');
+  ok(near(m1.mine.revenue,m0.mine.revenue*1.5,1e-9),'revenue scales with commercial power (single application)');
+  const r0=rivals[0].puissanceCommerciale; rivals[0].puissanceCommerciale=r0*1.5; const m2=adMarketModel(); rivals[0].puissanceCommerciale=r0;
+  ok(m2.pdm<m0.pdm&&keys.every(k=>m2.slots[k].pdm<m0.slots[k].pdm),'a rival revenue increase lowers the player PDM');
+  ok(near(m2.mine.revenue,m0.mine.revenue,1e-9),'player revenue unchanged by rivals');
+  // Cas limites
+  const savedPower=q5.puissanceCommerciale; q5.puissanceCommerciale=0; const m3=adMarketModel(); q5.puissanceCommerciale=savedPower;
+  ok(m3.pdm===0&&keys.every(k=>m3.slots[k].pdm===0)&&m3.total>0,'no revenue → null share while the market is positive');
+  const pw=rivals.map(c=>c.puissanceCommerciale); q5.puissanceCommerciale=0; rivals.forEach(c=>{c.puissanceCommerciale=0;});
+  const m4=adMarketModel(); q5.puissanceCommerciale=savedPower; rivals.forEach((c,i)=>{c.puissanceCommerciale=pw[i];});
+  ok(m4.pdm===null&&m4.index===null&&keys.every(k=>m4.slots[k].pdm===null),'empty market: not computable, no NaN');
+  // Événement sportif d'un concurrent : majoration propre à sa chaîne, une seule fois.
+  const baseRev=adMarketModel().channels.find(c=>c.name===rivals[0].name).revenue; ensureSportsRightsState();
+  gameState.sportsRights.owned.push({eventId:'f1',recurring:true,ownerId:'competitor',ownerName:rivals[0].name,broadcastSeason:gameState.season,status:'broadcast',slots:['prime'],productionCost:1,acquisitionPrice:4,variance:1,pausedSlots:[]});
+  const m5=adMarketModel(); const f=sportsAdFactor(rivals[0]);
+  ok(f>1&&m5.channels.find(c=>c.name===rivals[0].name).revenue>baseRev,'rival sports event raises its own revenue (audience and tariff effects of the existing engine, applied once)');
+  ok(near(sportsAdFactor(q5),1,1e-12),'player factor untouched by a rival event');
+  gameState.sportsRights.owned.pop();
+  // Profils : popularité / puissance bornées, évolution progressive
+  ok(rivals.every(c=>c.popularite>=40&&c.popularite<=65&&c.puissanceCommerciale>=0.85&&c.puissanceCommerciale<=1.15),'rival commercial traits within bounds');
+  ok(new Set(rivals.map(c=>c.strategy)).size===4,'existing four profiles kept (no new profile)');
+  const c0=rivals[0]; const fakeRow=pda=>({pda:{[c0.target]:pda}});
+  c0.commercialSeason=null; c0.commercialPdaRef=1; c0.popularite=60; c0.puissanceCommerciale=1.10;
+  for(let i=0;i<3;i++){ c0.commercialSeason=-1; evolveCompetitorCommercial(c0,fakeRow(1+3*(i+1))); }
+  ok(c0.puissanceCommerciale<=1.15&&c0.puissanceCommerciale<=1.10+0.03+1e-9&&c0.puissanceCommerciale>1.10,'commercial power grows slowly and stays capped');
+  for(let i=0;i<40;i++){ c0.commercialSeason=-1; evolveCompetitorCommercial(c0,fakeRow(1)); c0.budget=0; }
+  ok(c0.puissanceCommerciale>=0.85&&c0.popularite>=40,'commercial power and popularity floor');
+  // Compatibilité : ancien état sans caractéristiques commerciales, ou sans historique pub
+  const legacy={name:'Old',type:'cinema',target:'csp',strategy:'premium',budget:20,pda:{}}; ensureCompetitorCommercial(legacy);
+  ok(legacy.popularite===56&&near(legacy.puissanceCommerciale,1.06,1e-9),'legacy rival receives profile traits (premium on its CSP+ affinity)');
+  gameState.history=[{season:gameState.season-1}]; gameState.step=6;
+  ok(typeof ecoRevenueDetailHtml(q5)==='string'&&ecoRevenueDetailHtml(q5).includes('PDM publicitaire'),'sub-menu renders without historical data');
+  const snap=adMarketSnapshot(); gameState.history=[{season:gameState.season-1,pub:{...snap,pdmSlots:Object.fromEntries(keys.map(k=>[k,snap.pdmSlots[k]-0.01]))}}];
+  ok(ecoRevenueDetailHtml(q5).includes('+1,0 pt'),'evolution expressed in PDM points vs previous season');
+  ok(snap.rivals.length===5&&keys.every(k=>snap.caSlots[k]!=null)&&near(Object.values(snap.caSlots).reduce((a,b)=>a+b,0),snap.ca,1e-9),'snapshot keeps player and rival revenue by slot');
+  gameState.history=[]; }
 console.log('OK economy: grid per format, S1 grid paid once, ad revenue credited once, reevaluation delta, S2 carry-over, single count, bankruptcy after ad revenue');
 `;
 vm.runInNewContext(scripts.slice(0,-1).join('\n')+'\n'+tests,{console},{filename:'eco.js'});
