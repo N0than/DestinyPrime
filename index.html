@@ -1051,7 +1051,7 @@ button.radar-row:focus-visible { outline: 2px solid var(--bleu); outline-offset:
 .eco-d-evo b.pos, .eco-d-stats b.pos { color: var(--vert); } .eco-d-evo b.neg, .eco-d-stats b.neg { color: var(--rouge); }
 .eco-d-stats { flex-wrap: wrap; gap: 2px 10px; justify-content: space-between; font-size: 10.5px; }
 .eco-d-stats span { white-space: nowrap; }
-.eco-d-stats .eco-d-calc { flex-basis: 100%; text-align: right; font-size: 9.5px; color: var(--gris); } .eco-d-stats b { color: var(--ink); }
+.eco-d-stats b { color: var(--ink); }
 .eco-d-stats b.in { color: var(--vert); }
 .eco-d-name { display: flex; align-items: baseline; gap: 6px; min-width: 0; }
 .eco-d-name b { font-size: 12px; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
@@ -3755,7 +3755,6 @@ function ecoRevenueDetailHtml(player) {
         <span title="Part des recettes publicitaires captées par votre chaîne parmi les six chaînes du marché.">PDM publicitaire <b>${market.pdm != null ? pct(market.pdm) : '—'}</b></span>
         <span title="Chiffre d'affaires publicitaire de la chaîne, avec les leviers de régie et le sponsoring.">CA <b class="in">+${nf1(d.revenue)} M€</b></span>
         <span>Indice commercial <b class="${indexCls}">${market.index != null ? Math.round(market.index) : '—'}</b></span>
-        <span class="eco-d-calc">${market.index != null ? `PDM ${pct(market.pdm)} ÷ PDA 4+ ${nf1(market.pda4)} % × 100` : 'PDM ou PDA 4+ indisponible : indice non calculable'}</span>
       </div>
     </div>`;
 }

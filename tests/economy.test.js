@@ -203,7 +203,7 @@ resetGame(); { const q6=gameState.player; q6.type='generaliste'; q6.target='a254
   ok(q6.revenusPubPrevisionnels===rev0&&q6.tresorerie===cash0&&adMarketModel().pdm===pdm0,'index changes no revenue, cash or PDM');
   const sn=adMarketSnapshot(); ok(sn.pda4===i0.pda4&&sn.index===i0.index,'snapshot stores the season 4+ PDA with its index');
   gameState.history=[{season:gameState.season-1}]; gameState.step=6;
-  ok(ecoRevenueDetailHtml(q6).includes('PDA 4+'),'sub-menu shows the calculation with real values'); gameState.history=[]; }
+  ok(ecoRevenueDetailHtml(q6).includes('Indice commercial')&&!ecoRevenueDetailHtml(q6).includes('PDA 4+ '),'sub-menu shows the index without the calculation line'); gameState.history=[]; }
 console.log('OK economy: grid per format, S1 grid paid once, ad revenue credited once, reevaluation delta, S2 carry-over, single count, bankruptcy after ad revenue');
 `;
 vm.runInNewContext(scripts.slice(0,-1).join('\n')+'\n'+tests,{console},{filename:'eco.js'});
