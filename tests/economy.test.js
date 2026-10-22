@@ -246,10 +246,15 @@ resetGame(); { const qa=gameState.player; qa.type='generaliste'; qa.target='a254
   gameState.dilemmaQueue=[createTalentRenewalDilemma([tal])]; gameState.currentDilemmaIndex=0; gameState.dilemmaPhase='choosing'; gameState.step=6;
   const cash=qa.tresorerie, grid=qa.coutGrilleEngageSaison; chooseDilemmaOption(0);
   const dl=gameState.lastConsequence.deltas;
-  ok(qa.coutGrilleEngageSaison===grid&&near(qa.tresorerie-cash,qa.fluxArcomSaison,1e-9),'extension: only the ARCOM closing flow moves the cash');
-  ok(near(dl.tresorerie,0,1e-9)&&near(dl.arcom,qa.fluxArcomSaison,1e-12),'consequence shows no cash for the extension, ARCOM apart');
-  gameState.history.push({season:gameState.season}); const before=qa.tresorerie; startNewSeason();
-  ok(near(qa.coutGrilleEngageSaison,grid+(tal.annual-1.5),1e-9)&&tal.annual>1.5,'new salary enters the grid of the next season only'); }
+  ok(qa.coutGrilleEngageSaison===grid&&near(qa.tresorerie,cash,1e-9)&&near(dl.tresorerie,0,1e-9),'extension, last choice of the season: no cash flow at all');
+  // Bonus / sanction ARCOM : arrêté à la clôture, annoncé dans les engagements, réglé à l'ouverture.
+  qa.arcomPending={season:gameState.season,tier:'manquements',label:'MANQUEMENTS',score:52,cash:-3,pop:-2};
+  const ns=nextSeasonCommitment(); ok(ns.arcom===-3&&near(ns.cash,qa.tresorerie-ns.annual-ns.sportsOneOff-3,1e-9),'ARCOM sanction listed in next season commitments');
+  ok(arcomFluxBadgeHtml(qa.arcomPending).includes('Sanction ARCOM −3,0 M€'),'specific ARCOM badge');
+  const pop0=qa.popularite; gameState.history.push({season:gameState.season}); startNewSeason();
+  ok(qa.arcomPending===null&&qa.arcomSettled?.cash===-3&&near(qa.popularite,pop0-2,1e-9),'sanction settled once at the opening');
+  ok(near(qa.coutGrilleEngageSaison,grid+(tal.annual-1.5),1e-9)&&tal.annual>1.5,'new salary enters the grid of the next season only');
+  ok(near(qa.tresorerie,qa.tresorerieDebutSaison-qa.coutGrilleEngageSaison+qa.revenusPubPrevisionnels-qa.achatsSaison+qa.commercialSaison,1e-9),'opening cash identity holds, sanction included before the season start'); }
 console.log('OK economy: grid per format, S1 grid paid once, ad revenue credited once, reevaluation delta, S2 carry-over, single count, bankruptcy after ad revenue');
 `;
 vm.runInNewContext(scripts.slice(0,-1).join('\n')+'\n'+tests,{console},{filename:'eco.js'});

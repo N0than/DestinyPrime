@@ -1052,6 +1052,11 @@ button.radar-row:focus-visible { outline: 2px solid var(--bleu); outline-offset:
 .eco-d-list { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; display: flex; flex-direction: column; animation: pg-pushdown .3s .12s cubic-bezier(.16,1,.3,1) both; }
 .eco-d-row { flex: 1 1 0; padding: 4px 2px; min-height: 30px; border-bottom: 1px solid var(--border); }
 .eco-d-row:last-child { border-bottom: 0; }
+.arcom-flux-badge { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px; border: 1px solid; vertical-align: middle; }
+.arcom-flux-badge.bad { color: var(--rouge); background: rgba(225,29,72,0.08); border-color: rgba(225,29,72,0.3); }
+.arcom-flux-badge.good { color: var(--vert); background: rgba(5,150,105,0.08); border-color: rgba(5,150,105,0.3); }
+.arcom-flux-line { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.arcom-flux-line span:not(.arcom-flux-badge) { font-size: 12px; }
 .eco-d-nil { font-style: normal; color: var(--gris); opacity: .6; }
 .eco-detail-rev .eco-d-cols, .eco-detail-rev .eco-d-row { grid-template-columns: 64px minmax(0, 1fr) 34px 44px 44px; column-gap: 5px; }
 .eco-detail-rev .eco-d-cols span:first-child { grid-column: 1 / 3; }
@@ -20958,9 +20963,28 @@ function computeArcomCompliance() {
   return { obligations, arcomScore, status: getArcomStatusMeta(arcomScore) };
 }
 
+const ARCOM_SEASON_EFFECTS = {
+  excellent: { cash: 1, pop: 1 },
+  manquements: { cash: -3, pop: -2, sanction: true },
+  nonconforme: { cash: -8, pop: -5, sanction: true }
+};
+// Ouverture de saison : règlement du bonus ou de la sanction ARCOM de la saison écoulée.
+function settleArcomPending(player = gameState.player) {
+  const a = player.arcomPending;
+  if (!a) return null;
+  player.tresorerie += a.cash;
+  player.popularite = Math.max(0, Math.min(100, player.popularite + a.pop));
+  player.arcomSettled = { ...a, settledSeason: gameState.season };
+  player.arcomPending = null;
+  return a;
+}
+function arcomFluxBadgeHtml(a) {
+  if (!a) return '';
+  const bad = a.cash < 0;
+  return `<span class="arcom-flux-badge ${bad ? 'bad' : 'good'}">⚖️ ${bad ? 'Sanction' : 'Bonus'} ARCOM ${a.cash > 0 ? '+' : '−'}${nf1(Math.abs(a.cash))} M€${a.pop ? ` · ${a.pop > 0 ? '+' : '−'}${Math.abs(a.pop)} pt${Math.abs(a.pop) > 1 ? 's' : ''} de popularité` : ''}</span>`;
+}
 function pushArcomSeasonResult() {
   const player = gameState.player;
-  const soldeAvant = player.tresorerie;
   const compliance = computeArcomCompliance();
   player.arcomHistory.push({
     season: gameState.season,
@@ -20977,20 +21001,16 @@ function pushArcomSeasonResult() {
       player.arcomViolations.push({ season: gameState.season, obligation: ob.id, label: ob.label, severity: 'leger', penalty: 1, weight: ob.weight });
     }
   });
+  // Bonus ou sanction ARCOM : arrêté à la clôture, réglé à l'ouverture de la saison suivante
+  // (settleArcomPending). Il figure dans les engagements de la saison suivante du bilan, jamais
+  // dans le résultat du dernier choix de la saison.
   const tier = compliance.status.key;
-  if (tier === 'excellent') {
-    player.popularite = Math.min(100, player.popularite + 1);
-    player.tresorerie += 1;
-  } else if (tier === 'manquements') {
-    player.tresorerie -= 3;
-    player.popularite = Math.max(0, player.popularite - 2);
-    player.arcomSanctionsCount++;
-  } else if (tier === 'nonconforme') {
-    player.tresorerie -= 8;
-    player.popularite = Math.max(0, player.popularite - 5);
-    player.arcomSanctionsCount++;
-  }
-  player.fluxArcomSaison = player.tresorerie - soldeAvant;
+  const effect = ARCOM_SEASON_EFFECTS[tier] || { cash: 0, pop: 0 };
+  if (effect.sanction) player.arcomSanctionsCount++;
+  player.arcomPending = effect.cash || effect.pop
+    ? { season: gameState.season, tier, label: compliance.status.label, score: compliance.arcomScore, cash: effect.cash, pop: effect.pop }
+    : null;
+  player.fluxArcomSaison = effect.cash;
   player.lastArcomResult = compliance;
   return compliance;
 }
@@ -21341,15 +21361,8 @@ function chooseMaterialized(choiceIndex, dilemma) {
     resolveSportsRenewalsAtSeasonEnd();
     evolveProgramCareers();
     pushArcomSeasonResult();
-    // Les bonus/malus ARCOM sont des flux de clôture : l'historique doit refléter
-    // le solde final après leur application.
-    gameState.history[gameState.history.length - 1].tresorerie = player.tresorerie;
-    gameState.history[gameState.history.length - 1].tresorerieFin = player.tresorerie;
+    // Bonus / sanction ARCOM : arrêté ici, réglé à l'ouverture de la saison suivante (engagement).
     gameState.history[gameState.history.length - 1].fluxArcom = player.fluxArcomSaison;
-    gameState.history[gameState.history.length - 1].popularite = player.popularite;
-    // Bonus / malus ARCOM de clôture : montré à part, pour ne pas l'attribuer au dernier choix de
-    // la saison (souvent un renouvellement, qui n'a aucun flux immédiat).
-    gameState.lastConsequence.deltas.arcom = player.fluxArcomSaison;
     gameState.lastConsequence.deltas.popularite = player.popularite - popAvant;
     closeCampaignSeason();
     gameState.renewalDue = gameState.season % CONVENTION_DURATION === 0;
@@ -21407,6 +21420,8 @@ function startNewSeason() {
   captureSeasonBaseline();
   const player = gameState.player;
   gameState.season++;
+  // Bonus ou sanction ARCOM de la saison écoulée, annoncé dans les engagements du bilan.
+  settleArcomPending(player);
   expireContracts();
   advanceProgramSeasonNumbers();
   expireTalents();
@@ -22323,7 +22338,6 @@ function render() {
         { icon: '🛒', label: 'Achat ponctuel', val: d.achats, decimals: 1, suffix: ' M€', invert: true },
         { icon: '🤝', label: 'Recette commerciale', val: d.commercial, decimals: 1, suffix: ' M€', invert: false },
         { icon: '💰', label: 'Trésorerie', val: d.tresorerie, decimals: 1, suffix: ' M€', invert: false },
-        { icon: '⚖️', label: 'Bilan ARCOM de la saison', val: d.arcom || 0, decimals: 1, suffix: ' M€', invert: false },
         { icon: '📊', label: 'PDA globale', val: d.pdaCible, decimals: 1, suffix: ' pt', invert: false },
         d.coutGrille > 0
           ? { icon: '📋', label: 'Coût additionnel', val: d.coutGrille, decimals: 1, suffix: ' M€', invert: true }
@@ -22591,6 +22605,7 @@ function render() {
       ${renderSportsRightsBilanHtml()}
       ${bilanFoldHtml('engagements', `📅 ENGAGEMENTS${nextSeasonCommitment().cashAfterRevenue < TRESORERIE_CRITIQUE ? ' ⚠️' : ''}<span class="bilan-fold-long">&nbsp;DE LA SAISON SUIVANTE</span>`, 'les engagements de la saison suivante', `
         <p>Grille à payer : <b>${nf1(nextSeasonCommitment().annual)} M€</b>${nextSeasonCommitment().sports>0?` (dont droits sportifs reconduits : ${nf1(nextSeasonCommitment().sports)} M€)`:''}${nextSeasonCommitment().sportsOneOff>0?` · droits d’événement réglés à la diffusion : ${nf1(nextSeasonCommitment().sportsOneOff)} M€`:''} · contrats arrivant à échéance : ${nf1(nextSeasonCommitment().expired)} M€ / an${nextSeasonCommitment().raises>0?` · revalorisations convenues : +${nf1(nextSeasonCommitment().raises)} M€`:''}.</p>
+        ${nextSeasonCommitment().arcomPending ? `<p class="arcom-flux-line">${arcomFluxBadgeHtml(nextSeasonCommitment().arcomPending)} <span>Score ARCOM de la saison : ${nextSeasonCommitment().arcomPending.score}/100 (${esc(nextSeasonCommitment().arcomPending.label.toLowerCase())}), ${nextSeasonCommitment().arcomPending.cash < 0 ? 'prélevé' : 'versé'} à l’ouverture de la saison ${gameState.season + 1}.</span></p>` : ''}
         <p>Trésorerie après paiement : <b>${nf1(nextSeasonCommitment().cash)} M€</b>, puis <b>${nf1(nextSeasonCommitment().cashAfterRevenue)} M€</b> une fois les recettes publicitaires attendues créditées (${nf1(nextSeasonCommitment().adRevenue)} M€ à audience constante), avant décisions.${nextSeasonCommitment().cashAfterRevenue<TRESORERIE_CRITIQUE?' La saison s’ouvrirait sous le seuil de faillite.':''}</p>`)}
       <button class="welcome-cta" id="btn-next-season" style="margin-top: 2px;" ${careerContract?'disabled title="Décidez d’abord de l’avenir du programme"':''}>
         <span class="welcome-cta-shine"></span>
@@ -25516,8 +25531,10 @@ function nextSeasonCommitment() {
   // Droits non annuels remportés : leur prix est réglé à l'ouverture de leur saison de diffusion.
   const sportsOneOff=(gameState.sportsRights?.owned||[]).filter(o=>o.ownerId==='player'&&o.payOnAir&&!o.priceSettled&&o.broadcastSeason===nextSeason)
     .reduce((sum,o)=>sum+o.acquisitionPrice,0);
-  const cash=p.tresorerie-annual-sportsOneOff;
-  return {annual,expired:expired+sportsNow+talentsLeaving,sports,sportsOneOff,raises,cash,adRevenue,cashAfterRevenue:cash+adRevenue};
+  // Bonus ou sanction ARCOM de la saison écoulée, réglé à l'ouverture.
+  const arcom=p.arcomPending?.cash||0;
+  const cash=p.tresorerie-annual-sportsOneOff+arcom;
+  return {annual,expired:expired+sportsNow+talentsLeaving,sports,sportsOneOff,raises,arcom,arcomPending:p.arcomPending||null,cash,adRevenue,cashAfterRevenue:cash+adRevenue};
 }
 function applyFinance(f, excludedSlot=null) {
   ensureCampaign(); const p=gameState.player;
