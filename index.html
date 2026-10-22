@@ -579,7 +579,14 @@ button.radar-row:focus-visible { outline: 2px solid var(--bleu); outline-offset:
 /* Badges des cibles : une ligne pleine largeur, sous le titre et le score. */
 .ga-panel > .ga-switch-full { display: flex; width: 100%; max-width: none; gap: 4px; margin: 8px 0 10px; flex-shrink: 0; overflow: visible; }
 .ga-panel > .ga-switch-full .ga-target-btn { flex: 1 1 0; min-width: 0; text-align: center; padding: 4px 2px; }
-.ga-panel > .ga-header .ga-headline-value { flex-shrink: 0; }
+.ga-score { flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 1px; padding: 5px 11px 6px; border-radius: 14px; text-align: right;
+  background: linear-gradient(160deg, rgba(225,29,72,0.10) 0%, rgba(255,255,255,0.9) 65%);
+  border: 1px solid rgba(255,255,255,0.9); box-shadow: 0 0 0 1px rgba(226,223,215,0.7), 0 8px 18px -12px rgba(15,23,42,0.22); }
+.ga-score-label { font-family: 'Space Grotesk', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: .4px; text-transform: uppercase; color: var(--gris); white-space: nowrap; }
+.ga-score-line { display: inline-flex; align-items: baseline; gap: 7px; }
+.ga-score-rank { font-family: 'Anton', sans-serif; font-size: 11px; color: var(--rouge); padding: 1px 6px; border-radius: 999px; background: rgba(225,29,72,0.10); }
+.ga-score-value { font-family: 'Anton', sans-serif; font-size: 26px; line-height: 1.05; color: var(--rouge); font-variant-numeric: tabular-nums; }
+.ga-score-value small { font-size: 15px; margin-left: 1px; }
 .ga-headline-value { font-family: 'Anton', sans-serif; font-size: 26px; color: var(--ink); line-height: 1; }
 
 .ga-rows { flex: 1; display: flex; flex-direction: column; min-height: 0; }
@@ -2897,6 +2904,7 @@ function renderGlobalAudienceShare(animate = false) {
     isPlayer: item.channel === gameState.player
   })).sort((a, b) => b.pda - a.pda);
   const max = Math.max(...standings.map(s => s.pda), 1);
+  const playerRank = standings.findIndex(s => s.isPlayer) + 1;
 
   const strategicKey = gameState.player.target;
   const orderedTargets = [
@@ -2927,7 +2935,10 @@ function renderGlobalAudienceShare(animate = false) {
     <div class="ga-panel${animate ? ' ga-animate' : ''}" id="ga-panel">
       <div class="ga-header">
         <div class="eh-title">Part d'audience</div>
-        <div class="ga-headline-value" aria-label="${nf1(playerValue)} % — ${esc(activeTarget.full)}">${nf1(playerValue)}%</div>
+        <div class="ga-score" aria-label="Votre part d'audience : ${nf1(playerValue)} % — ${esc(activeTarget.full)}, rang ${playerRank} sur ${standings.length}">
+          <span class="ga-score-label">Votre PDA · ${esc(activeTarget.short)}</span>
+          <span class="ga-score-line"><span class="ga-score-rank">#${playerRank}</span><span class="ga-score-value">${nf1(playerValue)}<small>%</small></span></span>
+        </div>
       </div>
       <div class="ga-target-switcher ga-switch-full" role="tablist" aria-label="Cible d'audience">${switcherHtml}</div>
       <div class="ga-rows">${rows}</div>
