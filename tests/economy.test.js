@@ -147,7 +147,7 @@ resetGame(); { const q5=gameState.player; q5.type='generaliste'; q5.target='a254
   const row=getCalculatedPDAs().find(r=>r.channel===q5);
   ok(near(m0.mine.revenue,computeRevenusPub(row.adPda[q5.target],q5.target,q5.popularite,q5.puissanceCommerciale),1e-9),'player revenue from the existing engine');
   ok(near(m0.mine.revenue,q5.revenusPubPrevisionnels-regieRevenueTotal(q5),1e-6),'player revenue consistent with the estimated ad revenue');
-  ok(m0.index!=null&&near(m0.index,m0.pdm*100/row.globalPda*100,1e-9),'commercial index = PDM / PDA x 100 on the common audience');
+  ok(m0.pda4===row.globalPda&&m0.index!=null&&near(m0.index,commercialIndex(m0.pdm*100,row.globalPda),1e-9),'commercial index = PDM / PDA 4+ x 100 on the game global PDA');
   // Rien de ce calcul ne touche aux budgets ni aux recettes.
   const budgets=rivals.map(c=>c.budget), rev=q5.revenusPubPrevisionnels, cash=q5.tresorerie; adMarketModel(); adMarketSnapshot();
   ok(rivals.every((c,i)=>c.budget===budgets[i])&&q5.revenusPubPrevisionnels===rev&&q5.tresorerie===cash,'estimation changes no budget, no revenue, no cash');
@@ -189,6 +189,21 @@ resetGame(); { const q5=gameState.player; q5.type='generaliste'; q5.target='a254
   ok(ecoRevenueDetailHtml(q5).includes('+1,0 pt'),'evolution expressed in PDM points vs previous season');
   ok(snap.rivals.length===5&&keys.every(k=>snap.caSlots[k]!=null)&&near(Object.values(snap.caSlots).reduce((a,b)=>a+b,0),snap.ca,1e-9),'snapshot keeps player and rival revenue by slot');
   gameState.history=[]; }
+// Indice commercial : formule pure sur valeurs exactes.
+ok(near(commercialIndex(1.9,1),190,1e-9)&&Math.round(commercialIndex(1.9,1))===190,'PDA 4+ 1 % and PDM 1.9 % give 190');
+ok(Math.round(commercialIndex(0.7,2.6))===27,'PDA 4+ 2.6 % and PDM 0.7 % give 27');
+ok(near(commercialIndex(3.3,3.3),100,1e-9)&&near(commercialIndex(0.07,0.07),100,1e-9),'PDM = PDA gives 100');
+ok(Math.round(commercialIndex(0.74,2.6))===28&&Math.round(commercialIndex(0.7,2.6))===27,'unrounded inputs are used, rounding only on the result');
+ok([[1,0],[1,-1],[1,null],[1,undefined],[null,1],[undefined,1],[NaN,1],[1,NaN],[Infinity,1],[1,Infinity]].every(([a,b])=>commercialIndex(a,b)===null),'zero, missing or non-finite values → not computable, no error');
+ok(commercialIndex(0,2)===0,'null PDM with positive PDA gives 0');
+resetGame(); { const q6=gameState.player; q6.type='generaliste'; q6.target='a2549'; finalizeChannelSetup(); launchFirstSeason();
+  const i0=adMarketModel(); const rev0=q6.revenusPubPrevisionnels, pdm0=i0.pdm, cash0=q6.tresorerie;
+  const old=q6.pda.a2549; q6.pda.a2549=old*3; const i1=adMarketModel(); q6.pda.a2549=old;
+  ok(i1.pda4>i0.pda4&&i1.index!==i0.index,'index follows the 4+ PDA and the PDM when they move');
+  ok(q6.revenusPubPrevisionnels===rev0&&q6.tresorerie===cash0&&adMarketModel().pdm===pdm0,'index changes no revenue, cash or PDM');
+  const sn=adMarketSnapshot(); ok(sn.pda4===i0.pda4&&sn.index===i0.index,'snapshot stores the season 4+ PDA with its index');
+  gameState.history=[{season:gameState.season-1}]; gameState.step=6;
+  ok(ecoRevenueDetailHtml(q6).includes('PDA 4+'),'sub-menu shows the calculation with real values'); gameState.history=[]; }
 console.log('OK economy: grid per format, S1 grid paid once, ad revenue credited once, reevaluation delta, S2 carry-over, single count, bankruptcy after ad revenue');
 `;
 vm.runInNewContext(scripts.slice(0,-1).join('\n')+'\n'+tests,{console},{filename:'eco.js'});

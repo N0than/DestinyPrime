@@ -1050,7 +1050,8 @@ button.radar-row:focus-visible { outline: 2px solid var(--bleu); outline-offset:
 .eco-d-evo b { font-family: 'Space Grotesk', sans-serif; font-weight: 700; color: var(--gris); }
 .eco-d-evo b.pos, .eco-d-stats b.pos { color: var(--vert); } .eco-d-evo b.neg, .eco-d-stats b.neg { color: var(--rouge); }
 .eco-d-stats { flex-wrap: wrap; gap: 2px 10px; justify-content: space-between; font-size: 10.5px; }
-.eco-d-stats span { white-space: nowrap; } .eco-d-stats b { color: var(--ink); }
+.eco-d-stats span { white-space: nowrap; }
+.eco-d-stats .eco-d-calc { flex-basis: 100%; text-align: right; font-size: 9.5px; color: var(--gris); } .eco-d-stats b { color: var(--ink); }
 .eco-d-stats b.in { color: var(--vert); }
 .eco-d-name { display: flex; align-items: baseline; gap: 6px; min-width: 0; }
 .eco-d-name b { font-size: 12px; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
@@ -3660,6 +3661,16 @@ function evolveCompetitorCommercial(c, row) {
   else if (gain >= 0.3 && c.popularite >= 55) c.puissanceCommerciale += step;
   c.puissanceCommerciale = Math.round(Math.max(0.85, Math.min(1.15, c.puissanceCommerciale)) * 1000) / 1000;
 }
+// Indice commercial = PDM publicitaire / PDA globale 4+ × 100 (informatif : il ne multiplie jamais les
+// recettes). Les deux entrées sont en %, non arrondies ; le résultat n'est arrondi qu'à l'affichage.
+// PDA 4+ = row.globalPda de getCalculatedPDAs, la PDA de l'ensemble du public déjà utilisée par le
+// tie-break des enchères et la convention. Non calculable (null) si l'une des valeurs manque ou si
+// la PDA est nulle ; PDM nulle avec PDA positive → 0.
+function commercialIndex(pdmPct, pdaPct) {
+  if (pdmPct == null || pdaPct == null || !Number.isFinite(pdmPct) || !Number.isFinite(pdaPct) || pdaPct <= 0) return null;
+  const value = pdmPct / pdaPct * 100;
+  return Number.isFinite(value) ? Math.max(0, value) : null;
+}
 // CA publicitaire estimé de chaque chaîne (recettes de programmes, hors régie et sponsoring non
 // simulés pour les IA), puis réparti par créneau au prorata de la contribution du créneau (PDA sur
 // la cible × poids d'audience × coefficient commercial). Même fonction de valorisation pour toutes
@@ -3685,15 +3696,16 @@ function adMarketModel() {
   }));
   const total = channels.reduce((sum, ch) => sum + ch.revenue, 0);
   const pdm = total > 0 ? mine.revenue / total : null;
-  // Indice commercial : PDM / PDA × 100, sur une audience commune (PDA moyenne des quatre cibles,
-  // somme de 100 % sur le marché), même si les cibles commerciales des chaînes diffèrent.
-  const index = pdm != null && mine.globalPda > 0 ? pdm * 100 / mine.globalPda * 100 : null;
-  return { channels, mine, slots, total, pdm, index };
+  // Indice commercial sur la PDA globale 4+ de la même saison et du même état de partie (même appel
+  // à getCalculatedPDAs que les revenus) ; les cibles publicitaires propres à chaque chaîne n'y changent rien.
+  const pda4 = mine.globalPda;
+  const index = commercialIndex(pdm == null ? null : pdm * 100, pda4);
+  return { channels, mine, slots, total, pdm, pda4, index };
 }
 // Instantané historisé à la clôture d'une saison (valeurs de la saison, jamais recalculées ensuite).
 function adMarketSnapshot() {
   const m = adMarketModel();
-  return { ca: m.mine.revenue, caSlots: { ...m.mine.slots }, pdm: m.pdm, index: m.index,
+  return { ca: m.mine.revenue, caSlots: { ...m.mine.slots }, pdm: m.pdm, pda4: m.pda4, index: m.index,
     pdmSlots: Object.fromEntries(Object.entries(m.slots).map(([k, v]) => [k, v.pdm])),
     rivals: m.channels.filter(ch => !ch.isPlayer).map(ch => ({ name: ch.name, ca: ch.revenue, caSlots: { ...ch.slots } })) };
 }
@@ -3726,6 +3738,7 @@ function ecoRevenueDetailHtml(player) {
           <span class="eco-d-share">${nil}</span>
           <span class="eco-d-evo">${nil}</span>
         </div>`;
+  const indexTip = `Mesure la capacité de votre chaîne à valoriser son audience. L'indice compare votre part de marché publicitaire à votre part d'audience globale sur les 4 ans et plus. Un indice de 100 indique un équilibre ; au-dessus de 100, votre chaîne surperforme commercialement.${market.index != null ? ` Calcul : PDM ${pct(market.pdm)} ÷ PDA 4+ ${nf1(market.pda4)} % × 100.` : ''}`;
   const indexCls = market.index == null ? '' : Math.round(market.index) > 100 ? 'pos' : Math.round(market.index) < 100 ? 'neg' : '';
   return `
     <div class="eco-slide eco-detail eco-detail-rev">
@@ -3742,7 +3755,8 @@ function ecoRevenueDetailHtml(player) {
       <div class="eco-d-foot eco-d-stats">
         <span title="Part des recettes publicitaires captées par votre chaîne parmi les six chaînes du marché.">PDM publicitaire <b>${market.pdm != null ? pct(market.pdm) : '—'}</b></span>
         <span title="Chiffre d'affaires publicitaire de la chaîne, avec les leviers de régie et le sponsoring.">CA <b class="in">+${nf1(d.revenue)} M€</b></span>
-        <span title="Mesure votre efficacité publicitaire par rapport à votre poids d'audience. Un indice supérieur à 100 indique une surperformance.">Indice commercial <b class="${indexCls}">${market.index != null ? Math.round(market.index) : '—'}</b></span>
+        <span title="${esc(indexTip)}">Indice commercial <b class="${indexCls}">${market.index != null ? Math.round(market.index) : '—'}</b></span>
+        <span class="eco-d-calc" title="${esc(indexTip)}">${market.index != null ? `PDM ${pct(market.pdm)} ÷ PDA 4+ ${nf1(market.pda4)} % × 100` : 'PDM ou PDA 4+ indisponible : indice non calculable'}</span>
       </div>
     </div>`;
 }
