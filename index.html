@@ -21347,7 +21347,9 @@ function chooseMaterialized(choiceIndex, dilemma) {
     gameState.history[gameState.history.length - 1].tresorerieFin = player.tresorerie;
     gameState.history[gameState.history.length - 1].fluxArcom = player.fluxArcomSaison;
     gameState.history[gameState.history.length - 1].popularite = player.popularite;
-    gameState.lastConsequence.deltas.tresorerie += player.fluxArcomSaison;
+    // Bonus / malus ARCOM de clôture : montré à part, pour ne pas l'attribuer au dernier choix de
+    // la saison (souvent un renouvellement, qui n'a aucun flux immédiat).
+    gameState.lastConsequence.deltas.arcom = player.fluxArcomSaison;
     gameState.lastConsequence.deltas.popularite = player.popularite - popAvant;
     closeCampaignSeason();
     gameState.renewalDue = gameState.season % CONVENTION_DURATION === 0;
@@ -22321,6 +22323,7 @@ function render() {
         { icon: '🛒', label: 'Achat ponctuel', val: d.achats, decimals: 1, suffix: ' M€', invert: true },
         { icon: '🤝', label: 'Recette commerciale', val: d.commercial, decimals: 1, suffix: ' M€', invert: false },
         { icon: '💰', label: 'Trésorerie', val: d.tresorerie, decimals: 1, suffix: ' M€', invert: false },
+        { icon: '⚖️', label: 'Bilan ARCOM de la saison', val: d.arcom || 0, decimals: 1, suffix: ' M€', invert: false },
         { icon: '📊', label: 'PDA globale', val: d.pdaCible, decimals: 1, suffix: ' pt', invert: false },
         d.coutGrille > 0
           ? { icon: '📋', label: 'Coût additionnel', val: d.coutGrille, decimals: 1, suffix: ' M€', invert: true }

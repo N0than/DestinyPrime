@@ -237,6 +237,19 @@ resetGame(); { const q9=gameState.player; q9.type='jeunesse'; q9.target='j1524';
   gameState.dilemmaQueue=[d]; gameState.currentDilemmaIndex=0; gameState.dilemmaPhase='choosing'; gameState.step=6;
   const g0=q9.coutGrilleEngageSaison; chooseDilemmaOption(d.c.findIndex(c=>c.careerAction==='stop'));
   ok(near(q9.coutGrilleEngageSaison,g0-0.8,1e-9),'stop saves the current contract cost'); }
+// Prolongation d'un talent, dernier choix de la saison : aucun flux immédiat ; le bilan ARCOM de
+// clôture est montré à part et n'est pas attribué à la prolongation.
+resetGame(); { const qa=gameState.player; qa.type='generaliste'; qa.target='a2549'; finalizeChannelSetup(); launchFirstSeason();
+  gameState.seasonKickoffPending=false; gameState.mercatoPending=false;
+  const tal={id:'tx',name:'T',specialty:'divertissement',role:'Animateur',annual:1.5,bonus:0.7,until:gameState.season,since:gameState.season,slot:0,tier:'confirme'};
+  qa.talents=[tal]; qa.coutGrilleEngageSaison+=1.5; qa.coutTalentsSaison+=1.5; qa.tresorerie-=1.5;
+  gameState.dilemmaQueue=[createTalentRenewalDilemma([tal])]; gameState.currentDilemmaIndex=0; gameState.dilemmaPhase='choosing'; gameState.step=6;
+  const cash=qa.tresorerie, grid=qa.coutGrilleEngageSaison; chooseDilemmaOption(0);
+  const dl=gameState.lastConsequence.deltas;
+  ok(qa.coutGrilleEngageSaison===grid&&near(qa.tresorerie-cash,qa.fluxArcomSaison,1e-9),'extension: only the ARCOM closing flow moves the cash');
+  ok(near(dl.tresorerie,0,1e-9)&&near(dl.arcom,qa.fluxArcomSaison,1e-12),'consequence shows no cash for the extension, ARCOM apart');
+  gameState.history.push({season:gameState.season}); const before=qa.tresorerie; startNewSeason();
+  ok(near(qa.coutGrilleEngageSaison,grid+(tal.annual-1.5),1e-9)&&tal.annual>1.5,'new salary enters the grid of the next season only'); }
 console.log('OK economy: grid per format, S1 grid paid once, ad revenue credited once, reevaluation delta, S2 carry-over, single count, bankruptcy after ad revenue');
 `;
 vm.runInNewContext(scripts.slice(0,-1).join('\n')+'\n'+tests,{console},{filename:'eco.js'});
