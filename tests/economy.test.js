@@ -125,6 +125,16 @@ resetGame(); { const q2=gameState.player; q2.type='generaliste'; q2.target='a254
   ok(near(v.total,q3.revenusPubPrevisionnels+0.5,1e-9)&&near(adRevenueTotal(q3),v.total),'displayed total includes sponsor flows');
   ok(REGIE_SOURCE_BY_DILEMMA.d_pub22==='parrainage'&&REGIE_SOURCE_BY_DILEMMA.d_pub4==='ops'&&!REGIE_SOURCE_BY_DILEMMA.d_pub1&&!REGIE_SOURCE_BY_DILEMMA.d_pub2&&!REGIE_SOURCE_BY_DILEMMA.d_pub6,'mapping rules');
   q3.regieInvestissementsAnnuel=0; q3.regieRecettesSaison=0; q3.regieSourcesAnnuel={}; q3.regieSourcesSaison={}; q3.sponsorFlowsSaison=0; }
+// Histogramme des dépenses : un droit annuel à l'antenne (prix dans la grille) est un coût d'événement,
+// et programmes + talents + événements redonnent exactement le total.
+resetGame(); { const q4=gameState.player; q4.type='generaliste'; q4.target='a2549'; finalizeChannelSetup(); launchFirstSeason();
+  const grid0=q4.coutGrilleEngageSaison; ensureSportsRightsState();
+  gameState.sportsRights.owned.push({eventId:'f1',recurring:true,ownerId:'player',ownerName:q4.name,broadcastSeason:gameState.season,status:'broadcast',slots:['prime'],productionCost:1,acquisitionPrice:4,gridAnnual:4,inGrid:true,gridCharged:true,initialPrice:4,variance:1,pausedSlots:[]});
+  q4.coutGrilleEngageSaison+=4; q4.eventCostSaison=1; q4.coutGrilleEngageSaison+=3; q4.coutTalentsSaison+=0.5;
+  const sp=seasonSpending(q4);
+  ok(near(sp.events,5,1e-9)&&near(sp.total,grid0+7+1,1e-9),'annual right price counted as event cost, production too');
+  ok(near(sp.programmes+sp.talents+sp.events,sp.total,1e-9),'segments sum to the total spending');
+  ok(near(sp.programmes,grid0+3-0.5,1e-9),'programmes exclude event costs and talents'); }
 console.log('OK economy: grid per format, S1 grid paid once, ad revenue credited once, reevaluation delta, S2 carry-over, single count, bankruptcy after ad revenue');
 `;
 vm.runInNewContext(scripts.slice(0,-1).join('\n')+'\n'+tests,{console},{filename:'eco.js'});

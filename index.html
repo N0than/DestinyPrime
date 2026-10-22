@@ -2698,9 +2698,11 @@ function sanctionBudgetTile(st, points) {
 // n'en font pas partie : ils ne pèsent que sur la trésorerie.
 function seasonSpending(p) {
   const grid = Math.max(0, p.coutGrilleEngageSaison || 0);
-  const events = Math.max(0, p.eventCostSaison || 0);
-  const talents = Math.min(grid, Math.max(0, p.coutTalentsSaison || 0));
-  return { total: grid + events, talents, events, programmes: Math.max(0, grid - talents) };
+  // Droits annuels à l'antenne : leur prix est dans le coût de grille mais reste un coût d'événement.
+  const gridRights = Math.min(grid, sportsRightsGridAnnual(gameState.season, true));
+  const events = Math.max(0, p.eventCostSaison || 0) + gridRights;
+  const talents = Math.min(grid - gridRights, Math.max(0, p.coutTalentsSaison || 0));
+  return { total: grid + Math.max(0, p.eventCostSaison || 0), talents, events, programmes: Math.max(0, grid - gridRights - talents) };
 }
 // Faillite : dépenses de la dernière saison, réparties entre programmes, talents, droits
 // annuels reconduits (intégrés au coût de grille) et achats ponctuels.
@@ -23687,8 +23689,8 @@ function releaseSportsRight(rec) {
   sr.history.push({ type: 'sports_rights_release', eventId: rec.eventId, season: gameState.season, owner: rec.ownerName });
 }
 // Droits reconduits du joueur inscrits au coût de grille d'une saison donnée.
-function sportsRightsGridAnnual(season = gameState.season) {
-  return (gameState.sportsRights?.owned || []).filter(o => o.ownerId === 'player' && o.gridAnnual && o.broadcastSeason === season)
+function sportsRightsGridAnnual(season = gameState.season, onlyInGrid = false) {
+  return (gameState.sportsRights?.owned || []).filter(o => o.ownerId === 'player' && o.gridAnnual && o.broadcastSeason === season && (!onlyInGrid || o.inGrid))
     .reduce((sum, o) => sum + o.gridAnnual, 0);
 }
 // Ouverture de saison, avant le paiement de la grille : le droit reconduit entre dans le
