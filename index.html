@@ -1031,7 +1031,7 @@ button.radar-row:focus-visible { outline: 2px solid var(--bleu); outline-offset:
 .eco-flow-expand .eco-d-chevron { margin-left: 2px; }
 .eco-d-head { display: flex; align-items: center; gap: 8px; width: 100%; flex-shrink: 0; padding: 4px 2px 8px; margin: 0; border-bottom: 1px solid var(--border); }
 .eco-d-head .eco-d-back { margin-left: auto; }
-.eco-d-cols, .eco-d-row { display: grid; grid-template-columns: 74px minmax(0, 1fr) 40px 44px; align-items: center; column-gap: 6px; }
+.eco-d-cols, .eco-d-row { display: grid; grid-template-columns: 74px minmax(0, 1fr) 48px 44px; align-items: center; column-gap: 6px; }
 .eco-d-cols { flex-shrink: 0; padding: 7px 2px 3px; font-family: 'Space Grotesk', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: .4px; text-transform: uppercase; color: var(--gris); }
 .eco-d-cols span:first-child { grid-column: 1 / 3; }
 .eco-d-extra .eco-d-name { grid-column: 1 / 3; }
@@ -3619,32 +3619,52 @@ function ecoSpendingDetail(p) {
 }
 // Détail des recettes publicitaires : par créneau (publicité classique des programmes), puis par
 // levier. La part est rapportée au total des recettes affichées.
+// Part de marché publicitaire (PDM) par créneau : valeur publicitaire de la chaîne rapportée à celle
+// de toutes les chaînes sur le même créneau. La valeur d'une chaîne = sa part d'audience sur sa
+// cible × le prix de cette cible (GRP) × son attractivité × sa puissance commerciale × l'effet de
+// ses événements sportifs ; les chaînes concurrentes n'ont ni popularité ni puissance commerciale
+// propres : elles sont prises à leur niveau neutre. Le poids du créneau, commun à toutes les chaînes,
+// s'annule dans le rapport ; il sert seulement à agréger la PDM de l'ensemble de la grille.
+function adMarketShares() {
+  const me = gameState.player, rows = getCalculatedPDAs();
+  const value = (row, key) => row.slots[key][row.channel.target] * GRP_COST[row.channel.target]
+    * computeAttractivite(row.channel.popularite ?? 50) * (row.channel.puissanceCommerciale ?? 1) * sportsAdFactor(row.channel);
+  const slots = {};
+  let mineAll = 0, marketAll = 0;
+  TIME_SLOTS.forEach(({ key }) => {
+    let mine = 0, market = 0;
+    rows.forEach(row => { const v = value(row, key); market += v; if (row.channel === me) mine = v; });
+    const weight = SLOT_AUDIENCE_WEIGHTS[key] * AD_SLOT_COEFFICIENTS[key];
+    slots[key] = market > 0 ? mine / market : 0;
+    mineAll += mine * weight; marketAll += market * weight;
+  });
+  return { slots, total: marketAll > 0 ? mineAll / marketAll : 0 };
+}
 function ecoRevenueDetailHtml(player) {
   const d = ecoSpendingDetail(player);
-  const total = Math.max(d.revenue, 0.0001);
-  const share = v => `${Math.round(v / total * 100)} %`;
+  const pdm = adMarketShares();
+  const pct = v => `${(v * 100).toFixed(1).replace('.', ',')} %`;
   const nil = '<i class="eco-d-nil">—</i>';
   const rows = d.slots.map(r => `
         <div class="eco-d-row${r.key === 'prime' ? ' eco-d-key' : ''}">
           <span class="pg-time-pill" title="${r.label}">${r.range}</span>
           <span class="eco-d-name"><b>${esc(r.name)}</b>${r.tag ? `<small>${r.tag}</small>` : ''}</span>
-          <span class="eco-d-share">${r.revenue > 0 ? share(r.revenue) : nil}</span>
+          <span class="eco-d-share">${pct(pdm.slots[r.key])}</span>
           <span class="eco-d-rev">${r.revenue > 0 ? `+${nf1(r.revenue)}` : nil}</span>
         </div>`).join('');
   const extra = (label, value) => `
         <div class="eco-d-row eco-d-extra">
           <span class="eco-d-name"><b>${label}</b></span>
-          <span class="eco-d-share">${share(value)}</span>
+          <span class="eco-d-share">${nil}</span>
           <span class="eco-d-rev">+${nf1(value)}</span>
         </div>`;
-  const classique = d.slots.reduce((sum, r) => sum + r.revenue, 0) + d.regieGenerale;
   return `
     <div class="eco-slide eco-detail">
       <div class="eco-d-head">
         <span class="eco-flow-name"><span class="eco-ic in">📺</span>Recettes publicitaires</span>
         <button type="button" class="radar-toggle eco-d-back" data-eco-back aria-label="Revenir au bilan économique">← Retour</button>
       </div>
-      <div class="eco-d-cols" aria-hidden="true"><span>Programme</span><span>Part</span><span>Pub</span></div>
+      <div class="eco-d-cols" aria-hidden="true"><span>Programme</span><span title="Part de marché publicitaire de la chaîne sur le créneau">PDM</span><span>Pub</span></div>
       <div class="eco-d-list">
         ${rows}
         ${d.regieGenerale > 0.05 ? extra('Performances Régie', d.regieGenerale) : ''}
@@ -3652,7 +3672,7 @@ function ecoRevenueDetailHtml(player) {
       </div>
       <div class="eco-d-foot">
         <span>Total <b class="in">+${nf1(d.revenue)}</b> M€</span>
-        <span>Publicité classique <b>${share(classique)}</b></span>
+        <span title="Part de marché publicitaire de la chaîne, tous créneaux pondérés">PDM publicitaire <b>${pct(pdm.total)}</b></span>
       </div>
     </div>`;
 }

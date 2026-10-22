@@ -135,6 +135,13 @@ resetGame(); { const q4=gameState.player; q4.type='generaliste'; q4.target='a254
   ok(near(sp.events,5,1e-9)&&near(sp.total,grid0+7+1,1e-9),'annual right price counted as event cost, production too');
   ok(near(sp.programmes+sp.talents+sp.events,sp.total,1e-9),'segments sum to the total spending');
   ok(near(sp.programmes,grid0+3-0.5,1e-9),'programmes exclude event costs and talents'); }
+// PDM publicitaire : part de la chaîne dans la valeur publicitaire de toutes les chaînes, par créneau.
+resetGame(); { const q5=gameState.player; q5.type='generaliste'; q5.target='a2549'; finalizeChannelSetup(); launchFirstSeason();
+  const m0=adMarketShares();
+  ok(TIME_SLOTS.every(t=>m0.slots[t.key]>=0&&m0.slots[t.key]<=1)&&m0.total>=0&&m0.total<=1,'PDM within 0-100 %');
+  q5.puissanceCommerciale*=1.5; const m1=adMarketShares();
+  ok(TIME_SLOTS.every(t=>m1.slots[t.key]>m0.slots[t.key])&&m1.total>m0.total,'stronger commercial power raises the ad market share');
+  q5.puissanceCommerciale/=1.5; }
 console.log('OK economy: grid per format, S1 grid paid once, ad revenue credited once, reevaluation delta, S2 carry-over, single count, bankruptcy after ad revenue');
 `;
 vm.runInNewContext(scripts.slice(0,-1).join('\n')+'\n'+tests,{console},{filename:'eco.js'});
