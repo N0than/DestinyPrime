@@ -1534,7 +1534,6 @@ button.radar-row:focus-visible { outline: 2px solid var(--bleu); outline-offset:
   border: 1px solid var(--border);
 }
 .career-tag.lock { color: var(--gris); background: var(--paper-dark); }
-.career-tag.soon { color: #b45309; background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.28); }
 .career-empty { margin-top: 22px; text-align: center; font-size: 13px; font-style: italic; color: var(--gris); }
 
 /* ---- MODE CARRIÈRE — FICHE SCÉNARIO ---- */
@@ -1575,10 +1574,6 @@ button.radar-row:focus-visible { outline: 2px solid var(--bleu); outline-offset:
 .career-row:active { transform: none; }
 .career-row .choice-row { align-items: flex-start; }
 .career-row-text { display: block; font-size: 13.5px; line-height: 1.45; color: #334155; }
-.career-soon-note {
-  padding: 9px 11px; border-radius: 12px; font-size: 12px; line-height: 1.45;
-  color: #92400e; background: rgba(245,158,11,0.1); border-left: 3px solid var(--amber);
-}
 .career-sheet-panel .welcome-cta { margin-top: 2px; }
 .career-sheet-panel .welcome-cta.welcome-cta-tight { margin-top: -4px; }
 
@@ -1592,6 +1587,20 @@ button.radar-row:focus-visible { outline: 2px solid var(--bleu); outline-offset:
 .career-banner-lines { display: flex; flex-direction: column; gap: 3px; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--paper-dark); font-size: 12px; line-height: 1.4; color: #334155; }
 .career-banner-lines b { color: var(--ink); }
 .career-banner-note { color: var(--gris); font-style: italic; }
+.career-gauges { display: flex; flex-wrap: wrap; gap: 5px; margin: 2px 0; }
+.career-gauge {
+  display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px;
+  font-size: 11px; color: #334155; background: var(--paper-dark); border: 1px solid var(--border);
+}
+.career-gauge.low { color: var(--rouge); background: rgba(225,29,72,0.08); border-color: rgba(225,29,72,0.2); }
+/* « Une seule jauge » : les autres valeurs du tableau de bord sont remplacées par « ••• », le détail masqué. */
+.hud-wrap[data-career-gauge] .hud-details, .hud-wrap[data-career-gauge] .hud-toggle { display: none; }
+.hud-wrap[data-career-gauge="tresorerie"] .hud-cell:not(:nth-child(1)) .val,
+.hud-wrap[data-career-gauge="pda"] .hud-cell:not(:nth-child(2)) .val,
+.hud-wrap[data-career-gauge="popularite"] .hud-cell:not(:nth-child(5)) .val { font-size: 0; user-select: none; }
+.hud-wrap[data-career-gauge="tresorerie"] .hud-cell:not(:nth-child(1)) .val::after,
+.hud-wrap[data-career-gauge="pda"] .hud-cell:not(:nth-child(2)) .val::after,
+.hud-wrap[data-career-gauge="popularite"] .hud-cell:not(:nth-child(5)) .val::after { content: '•••'; font-size: 12px; color: var(--gris); letter-spacing: 1px; }
 
 /* ---- MODE CARRIÈRE — ÉCRAN DE VICTOIRE ---- */
 .career-win-card::before { background: linear-gradient(90deg, var(--vert), rgba(5,150,105,0.35)); }
@@ -4115,7 +4124,8 @@ function computeAttractivite(popularite) {
 // la même fonction sert au joueur et à l'estimation des concurrents (voir adMarketModel).
 function computeRevenusPub(pdaGlobaleCourante, cible, popularite, puissanceCommerciale, channel) {
   return pdaGlobaleCourante * GRP_COST[cible] * VOLUME_PUB * computeAttractivite(popularite) * puissanceCommerciale
-    * (typeof sportsAdFactor === 'function' ? sportsAdFactor(channel) : 1);
+    * (typeof sportsAdFactor === 'function' ? sportsAdFactor(channel) : 1)
+    * (typeof careerAdFactor === 'function' ? careerAdFactor(channel) : 1);
 }
 
 // Crédite en une fois l'intégralité des recettes publicitaires estimées, sur la base de la
@@ -20916,7 +20926,7 @@ function getCalculatedPDAs() {
     r.globalPda = demos.reduce((sum,d) => sum+r.pda[d],0)/demos.length;
     // Valorisation publicitaire par créneau (voir AD_SLOT_COEFFICIENTS).
     demos.forEach(target => {
-      r.adPda[target] = TIME_SLOTS.reduce((sum,{key}) => sum+r.slots[key][target]*SLOT_AUDIENCE_WEIGHTS[key]*AD_SLOT_COEFFICIENTS[key],0)/AD_SLOT_COEFFICIENT_NORM;
+      r.adPda[target] = TIME_SLOTS.reduce((sum,{key}) => sum+r.slots[key][target]*SLOT_AUDIENCE_WEIGHTS[key]*AD_SLOT_COEFFICIENTS[key]*careerAdSlotFactor(r.channel,key),0)/AD_SLOT_COEFFICIENT_NORM;
     });
   });
   return results;
@@ -21287,6 +21297,7 @@ function chooseMaterialized(choiceIndex, dilemma) {
   if (gameState.currentDilemmaIndex === 0) confirmCompetitorPlans();
   const player = gameState.player;
   const popAvant = player.popularite;
+  const careerBefore = careerSnapshot();
 
   const isSportsDeal = isSportsAuction || !!dilemma.isSportsRenewal;
   if (!isSportsDeal) applyDilemmaEditoImpact(dilemma, choiceIndex, choice);
@@ -21567,7 +21578,7 @@ function chooseMaterialized(choiceIndex, dilemma) {
   } else {
     gameState.pendingNextStep = 6;
   }
-  careerAfterChoice();
+  careerAfterChoice(dilemma, choice, careerBefore);
   gameState.dilemmaPhase = 'result';
 
   render();
@@ -21591,7 +21602,7 @@ function launchFirstSeason() {
   const seed = getCalculatedPDAs().find(item => item.channel === player).pda[player.target];
   player.pdaHistorySeason = [seed]; player.pdaMoyenneSaison = seed; player.pdaFinSaison = seed;
   gameState.dilemmaQueue = pickDilemmaQueue();
-  extendCareerQueue();
+  careerShapeQueue();
   gameState.currentDilemmaIndex = 0;
   // Comme à chaque saison, la grille est payée à l'ouverture, une seule fois : trésorerie
   // de début de saison mémorisée, puis débit du coût de grille (dépense annuelle de grille,
@@ -21628,6 +21639,7 @@ function startNewSeason() {
   gameState.pendingCrisis = updateCrisisWatch();
   gameState.currentDilemmaIndex = 0;
   gameState.dilemmaQueue = pickDilemmaQueue();
+  careerShapeQueue();
   gameState.dilemmaPhase = 'choosing';
   gameState.renewalDue = false;
   gameState.competitorEvents = [];
@@ -21896,7 +21908,7 @@ function renderTicker() {
   const slide = Math.min(gameState.hudSlide || 0, hudSlideCount() - 1);
 
   return `
-    <div class="hud-wrap">
+    <div class="hud-wrap"${careerHudAttr()}>
       <div class="hud-panel">
         ${renderHudHead(p, { toggle: true, open })}
         <div class="hud">
@@ -22632,6 +22644,7 @@ function render() {
                     <span class="choice-eyebrow ${accent}">Option ${i + 1}</span>
                   </div>
                   <span class="cl">${choice.l}</span>
+                  ${careerChoiceHint(dilemma, choice)}
                 </div>
                 <span class="choice-pill ${badgeCls}">${badgeText}</span>
               </div>
@@ -25187,8 +25200,10 @@ function quoteProgram(slot,programId,talentId) {
   const finance={recurring:annual-previousInGrid,purchase:program.rights+termination+buyout,commercial:0};
   const quote=quoteFinance(finance,slot);
   const unchanged=previous?.id===programId && previous.talent===talent.name;
-  return {...quote,program,talent,annual,termination,finance,unchanged,holder,buyout,
-    allowed:!unchanged && quote.cash>=TRESORERIE_CRITIQUE};
+  // Mode Carrière : programme refusé par la contrainte du scénario (veto, interdiction…).
+  const careerBlocked=careerProgramBlock(program,slot);
+  return {...quote,program,talent,annual,termination,finance,unchanged,holder,buyout,careerBlocked,
+    allowed:!unchanged && !careerBlocked && quote.cash>=TRESORERIE_CRITIQUE};
 }
 function generateSeasonKickoffProposal() {
   const p = gameState.player;
@@ -25624,7 +25639,7 @@ function renderSeasonKickoff(app) {
       const quote = quoteProgram(proposal.slot, program.id, 'interne');
       if (!quote || !quote.allowed) {
         const feedback = document.getElementById('kickoff-feedback');
-        if (feedback) feedback.textContent = 'Validation impossible : budget insuffisant pour ce programme.';
+        if (feedback) feedback.textContent = quote?.careerBlocked ? `Validation impossible : ${quote.careerBlocked}.` : 'Validation impossible : budget insuffisant pour ce programme.';
         return;
       }
       advance(() => {
@@ -25818,6 +25833,7 @@ function applyFinance(f, excludedSlot=null) {
 // prévisualisation (exécutée sur une copie isolée de l'état du jeu).
 function executeProgramSigning(slot, quote, { skipFinance = false } = {}) {
   const p=gameState.player;
+  const careerBefore=careerSnapshot();
   const {program,talent,annual,holder,buyout}=quote;
   // 1. Instantané chez le vendeur : dernière PDA calculée, avant toute modification des grilles.
   const transfer=holder && holder.slot===slot ? snapshotProgramTransfer(holder) : null;
@@ -25852,6 +25868,7 @@ function executeProgramSigning(slot, quote, { skipFinance = false } = {}) {
   applyProgramTransfer(slot);
   p.coutTalentsSaison+=talent.annual-(previous?.talentAnnual||0);
   p.grilleOverrides[slot]=program.name+' — '+talent.name;
+  careerProgramSigned(slot, careerBefore);
   return p.contracts[slot];
 }
 // Copie profonde de l'état (les fonctions des événements sont partagées, pas copiées).
@@ -29433,9 +29450,9 @@ function renderCampaignPanel() {
 
 // ---- MODE CARRIÈRE ----
 // 32 scénarios en 8 familles, recopiés du document « Audience Masters — Mode Carrière :
-// 32 scénarios ». Un scénario n'est jouable que si son objectif et sa contrainte reposent sur
-// des variables du jeu (trésorerie, PDA, popularité, format, concurrence, saisons) ; les
-// autres restent consultables et portent la mention « Bientôt » (champ bientot : la raison).
+// 32 scénarios », tous jouables. Les jauges et mécaniques que le jeu libre n'a pas (moral,
+// crédibilité, décisions imposées, chocs de marché…) n'existent que dans le scénario qui les
+// demande (CAREER_RULES).
 // Le scénario en cours vit dans gameState.career : gameState.campaign porte déjà les graines
 // aléatoires et les objectifs de la partie, que le remplacer casserait.
 const CAREER_FAMILIES = [
@@ -29448,8 +29465,6 @@ const CAREER_FAMILIES = [
   { id: 'courts', nom: 'Défis à la carte / courts', accroche: 'Des formats rapides ou des variantes de règles, pour rejouer autrement.', couleur: 'var(--amber)', icone: '⏱️', fond: 'rgba(245,158,11,0.15)' },
   { id: 'narratifs', nom: 'Scénarios narratifs', accroche: 'Une histoire scriptée se superpose à la gestion.', couleur: 'var(--pink)', icone: '🎭', fond: 'rgba(219,39,119,0.12)' }
 ];
-const CAREER_MORAL = 'Repose sur la jauge Moral, absente du jeu';
-const CAREER_CREDIBILITE = 'Repose sur la jauge Crédibilité, absente du jeu';
 const CAREER_SCENARIOS = [
   { id: 1, famille: 'redressement', titre: 'Le canal 7 en soins intensifs', difficulte: 3,
     situation: 'Chaîne historique, 9 % de PDA, trésorerie à −40 M€, grille vieillissante',
@@ -29458,38 +29473,31 @@ const CAREER_SCENARIOS = [
   { id: 2, famille: 'redressement', titre: 'Le repreneur de la dernière chance', difficulte: 4,
     situation: 'Sortie de redressement judiciaire : 2 % de PDA, moral à 15/100, trésorerie 5 M€',
     objectif: 'Survivre 5 saisons sans repasser sous 0',
-    contrainte: "Chaque saison, un administrateur judiciaire impose une décision douloureuse (vente d'un programme, plan social, cession de fréquence)", jouable: false,
-    bientot: `${CAREER_MORAL}, et sur les décisions imposées par un administrateur judiciaire (plan social, cession de fréquence), qui n'existent pas encore.` },
+    contrainte: "Chaque saison, un administrateur judiciaire impose une décision douloureuse (vente d'un programme, plan social, cession de fréquence)", jouable: true },
   { id: 3, famille: 'redressement', titre: 'La chaîne grévée', difficulte: 3,
     situation: 'Audience correcte, finances saines, moral à 10, grève reconductible de la rédaction',
     objectif: 'Moral au-dessus de 70 en 2 saisons, PDA maintenue',
-    contrainte: 'Tant que le conflit dure, chaque dilemme « économique » coûte double en moral', jouable: false,
-    bientot: `${CAREER_MORAL}, comme la grève de la rédaction.` },
+    contrainte: 'Tant que le conflit dure, chaque dilemme « économique » coûte double en moral', jouable: true },
   { id: 4, famille: 'redressement', titre: 'Après le scandale', difficulte: 4,
     situation: 'Condamnation pour un canular diffamatoire, crédibilité à 5, Arcom en embuscade',
     objectif: 'Crédibilité au-dessus de 60 en 3 saisons',
-    contrainte: 'Toute option racoleuse déclenche un contrôle Arcom pouvant retirer la fréquence', jouable: false,
-    bientot: `${CAREER_CREDIBILITE}, et sur un contrôle Arcom déclenché par les options racoleuses, qui n'existe pas encore.` },
+    contrainte: 'Toute option racoleuse déclenche un contrôle Arcom pouvant retirer la fréquence', jouable: true },
   { id: 5, famille: 'domination', titre: 'Le roi fatigué', difficulte: 3,
     situation: 'Chaîne leader à 24 % de PDA ; les trois piliers du prime partent à la retraite dans la saison',
     objectif: 'Rester n°1 pendant 6 saisons',
-    contrainte: "Les rivales reçoivent un bonus d'agressivité tant que vous êtes leader", jouable: false,
-    bientot: "Demande des piliers du prime en place au départ, dont le départ est programmé, et un bonus d'agressivité des rivales : ces mécaniques n'existent pas encore." },
+    contrainte: "Les rivales reçoivent un bonus d'agressivité tant que vous êtes leader", jouable: true },
   { id: 6, famille: 'domination', titre: "L'écart impossible", difficulte: 4,
     situation: 'Leader à 19 %, dauphin à 18,5 %',
     objectif: 'Creuser un écart de 5 points et le tenir 2 saisons consécutives',
-    contrainte: 'Le dauphin copie systématiquement vos succès une saison plus tard', jouable: false,
-    bientot: "Demande qu'une chaîne rivale copie vos succès une saison plus tard : cette mécanique n'existe pas encore." },
+    contrainte: 'Le dauphin copie systématiquement vos succès une saison plus tard', jouable: true },
   { id: 7, famille: 'domination', titre: 'Leader sur tous les fronts', difficulte: 5,
     situation: 'Chaîne forte mais inégale selon les cibles',
     objectif: 'Être n°1 à la fois chez les 15-24, les 25-49 et les 50+ en fin de saison, puis tenir 2 saisons',
-    contrainte: 'Les trois cibles ont des attentes contradictoires : chaque programme qui plaît à l\'une agace une autre', jouable: false,
-    bientot: "Demande qu'un programme qui plaît à une cible fasse systématiquement perdre une autre cible : cette mécanique n'existe pas encore." },
+    contrainte: 'Les trois cibles ont des attentes contradictoires : chaque programme qui plaît à l\'une agace une autre', jouable: true },
   { id: 8, famille: 'domination', titre: 'La décennie', difficulte: 5,
     situation: 'Chaîne leader',
     objectif: 'Rester sur le podium 10 saisons sans interruption',
-    contrainte: 'Tous les 3 ans, un choc de marché (plateforme, chute de la pub, nouvelle chaîne TNT) rebat les cartes', jouable: false,
-    bientot: "Demande des chocs de marché tous les 3 ans (plateforme, chute de la pub, nouvelle chaîne TNT) : cette mécanique n'existe pas encore." },
+    contrainte: 'Tous les 3 ans, un choc de marché (plateforme, chute de la pub, nouvelle chaîne TNT) rebat les cartes', jouable: true },
   { id: 9, famille: 'ascension', titre: 'Le milliardaire pressé', difficulte: 3,
     situation: 'Un actionnaire ultra-riche injecte 300 M€',
     objectif: 'Devenir leader en 10 saisons',
@@ -29497,68 +29505,55 @@ const CAREER_SCENARIOS = [
   { id: 10, famille: 'ascension', titre: 'La TNT fauchée', difficulte: 4,
     situation: 'Nouvelle chaîne, 15 M€, 0,8 % de PDA',
     objectif: 'Passer la barre des 5 % en 4 saisons',
-    contrainte: 'Aucune acquisition étrangère possible : tout se construit en formats maison', jouable: false,
-    bientot: "Demande d'interdire tout programme étranger dans le catalogue, les dilemmes et les droits : cette restriction n'existe pas encore." },
+    contrainte: 'Aucune acquisition étrangère possible : tout se construit en formats maison', jouable: true },
   { id: 11, famille: 'ascension', titre: 'De la niche au grand public', difficulte: 3,
     situation: 'Chaîne documentaire, 1,5 % de PDA, crédibilité 90',
     objectif: 'Atteindre 8 % de PDA sans passer sous 60 de crédibilité',
-    contrainte: 'Chaque format populaire coûte de la crédibilité, chaque format exigeant plafonne l\'audience', jouable: false,
-    bientot: `${CAREER_CREDIBILITE}.` },
+    contrainte: 'Chaque format populaire coûte de la crédibilité, chaque format exigeant plafonne l\'audience', jouable: true },
   { id: 12, famille: 'ascension', titre: 'La régionale qui monte à Paris', difficulte: 3,
     situation: 'Chaîne locale au public fidèle mais âgé',
     objectif: 'Couverture nationale et 6 % de PDA en 5 saisons',
-    contrainte: 'Chaque extension géographique dilue la popularité locale', jouable: false,
-    bientot: "Demande une couverture géographique et des extensions régionales : cette mécanique n'existe pas encore." },
+    contrainte: 'Chaque extension géographique dilue la popularité locale', jouable: true },
   { id: 13, famille: 'actionnaire', titre: "L'industriel qui veut une vitrine", difficulte: 2,
     situation: 'Un groupe du BTP rachète la chaîne pour son influence',
     objectif: '5 saisons sans perte, crédibilité > 50',
-    contrainte: 'Chaque saison, une faveur éditoriale exigée (reportage complaisant, invité imposé) : refuser coûte du budget, accepter coûte de la crédibilité', jouable: false,
-    bientot: `${CAREER_CREDIBILITE}, comme les faveurs éditoriales exigées chaque saison.` },
+    contrainte: 'Chaque saison, une faveur éditoriale exigée (reportage complaisant, invité imposé) : refuser coûte du budget, accepter coûte de la crédibilité', jouable: true },
   { id: 14, famille: 'actionnaire', titre: 'Le fonds qui veut revendre', difficulte: 4,
     situation: "Fonds d'investissement, horizon 4 saisons",
     objectif: 'Faire grimper la valorisation de 60 % (PDA × rentabilité × popularité)',
-    contrainte: "Il coupe les investissements de long terme (fiction, info) qui ne rapportent qu'à la saison 5", jouable: false,
-    bientot: "Demande que l'actionnaire bloque les investissements de long terme (fiction, info) : cette mécanique n'existe pas encore." },
+    contrainte: "Il coupe les investissements de long terme (fiction, info) qui ne rapportent qu'à la saison 5", jouable: true },
   { id: 15, famille: 'actionnaire', titre: 'Le fondateur qui ne lâche pas', difficulte: 3,
     situation: 'Le fondateur, 78 ans, siège au conseil et met son veto à chaque changement de grille historique',
     objectif: 'Gagner 10 points chez les 25-49 sans être renvoyé',
-    contrainte: 'Une jauge cachée « patience du fondateur » baisse à chaque rupture avec l\'héritage', jouable: false,
-    bientot: "Repose sur une jauge « patience du fondateur » et un droit de veto sur la grille, absents du jeu." },
+    contrainte: 'Une jauge cachée « patience du fondateur » baisse à chaque rupture avec l\'héritage', jouable: true },
   { id: 16, famille: 'actionnaire', titre: 'Deux actionnaires en guerre', difficulte: 4,
     situation: "Deux blocs à 50/50 : l'un veut de l'info, l'autre du divertissement",
     objectif: "Tenir 6 saisons sans qu'aucun ne cède ses parts à un prédateur",
-    contrainte: "Chaque dilemme rapproche l'un et éloigne l'autre ; sous 20 de satisfaction, un bloc vend", jouable: false,
-    bientot: 'Repose sur une jauge de satisfaction pour chacun des deux actionnaires, absente du jeu.' },
+    contrainte: "Chaque dilemme rapproche l'un et éloigne l'autre ; sous 20 de satisfaction, un bloc vend", jouable: true },
   { id: 17, famille: 'actionnaire', titre: 'Mode service public', difficulte: 3,
     situation: 'Financement public, pas de pub en prime',
     objectif: '12 % de PDA et crédibilité > 75 sur 5 saisons',
-    contrainte: 'Budget fixé par le Parlement, raboté à chaque polémique', jouable: false,
-    bientot: `${CAREER_CREDIBILITE}, comme le budget voté par le Parlement et la suppression de la pub en prime.` },
+    contrainte: 'Budget fixé par le Parlement, raboté à chaque polémique', jouable: true },
   { id: 18, famille: 'marche', titre: "L'hiver publicitaire", difficulte: 4,
     situation: 'Le marché pub chute de 40 % en saison 1, ne remonte qu\'en saison 4',
     objectif: 'Traverser sans licencier plus de 10 % des effectifs',
-    contrainte: 'Les rivales, elles, licencient et reconstituent leur trésorerie', jouable: false,
-    bientot: 'Repose sur les effectifs de la chaîne et les licenciements, absents du jeu.' },
+    contrainte: 'Les rivales, elles, licencient et reconstituent leur trésorerie', jouable: true },
   { id: 19, famille: 'marche', titre: 'Face à la plateforme', difficulte: 4,
     situation: 'Un géant du streaming arrive avec un budget illimité et aspire les 15-34',
     objectif: 'Garder au moins 15 % chez les 15-34 pendant 5 saisons',
-    contrainte: "Chaque talent qui part chez le concurrent emporte 1 point d'audience", jouable: false,
-    bientot: "Demande une cible 15-34 (le jeu suit les 15-24), une plateforme concurrente et des talents qui emportent de l'audience en partant : absents du jeu." },
+    contrainte: "Chaque talent qui part chez le concurrent emporte 1 point d'audience", jouable: true },
   { id: 20, famille: 'marche', titre: 'La guerre des droits sportifs', difficulte: 3,
     situation: 'Les droits de la compétition phare remis aux enchères tous les 2 ans',
     objectif: 'Être leader 6 saisons, avec ou sans le sport',
-    contrainte: 'Les enchères montent de 25 % par cycle : gagner peut ruiner, perdre fait fuir les 25-49 masculins', jouable: false,
-    bientot: 'Demande une remise aux enchères fixe tous les 2 ans, une hausse de 25 % par cycle et une cible 25-49 masculine : absentes du jeu.' },
+    contrainte: 'Les enchères montent de 25 % par cycle : gagner peut ruiner, perdre fait fuir les 25-49 masculins', jouable: true },
   { id: 21, famille: 'marche', titre: "L'année électorale", difficulte: 2,
     situation: 'Saison unique sous haute tension politique',
     objectif: 'Finir avec crédibilité > 70 et PDA stable',
-    contrainte: 'Chaque camp accuse la chaîne de partialité ; toute option partisane divise le public en deux', jouable: false,
-    bientot: `${CAREER_CREDIBILITE}, comme le public divisé par camp politique.` },
+    contrainte: 'Chaque camp accuse la chaîne de partialité ; toute option partisane divise le public en deux', jouable: true },
   { id: 22, famille: 'thematiques', titre: 'La chaîne 100 % info', difficulte: 3,
     situation: "Une généraliste à transformer en chaîne d'info continue",
     objectif: 'Rester rentable 4 saisons',
-    contrainte: "La grille coûte en permanence ; chaque erreur d'info fait chuter la crédibilité deux fois plus vite", jouable: false,
-    bientot: `${CAREER_CREDIBILITE}, comme les erreurs d'information.` },
+    contrainte: "La grille coûte en permanence ; chaque erreur d'info fait chuter la crédibilité deux fois plus vite", jouable: true },
   { id: 23, famille: 'thematiques', titre: 'Zéro télé-réalité', difficulte: 3,
     situation: 'Chaîne généraliste moyenne',
     objectif: "15 % de PDA en 5 saisons sans télé-réalité ni jeu d'argent",
@@ -29566,13 +29561,11 @@ const CAREER_SCENARIOS = [
   { id: 24, famille: 'thematiques', titre: 'La chaîne jeunesse qui doit grandir', difficulte: 3,
     situation: 'Public 4-14 ans ultra-fidèle, aucun annonceur ne paie',
     objectif: 'Conquérir les 15-24 et les parents sans perdre les enfants',
-    contrainte: 'La réglementation pub jeunesse plafonne les revenus', jouable: false,
-    bientot: 'Demande une cible 4-14 ans et un plafond réglementaire des recettes pub jeunesse, absents du jeu.' },
+    contrainte: 'La réglementation pub jeunesse plafonne les revenus', jouable: true },
   { id: 25, famille: 'thematiques', titre: 'Le pari de la fiction française', difficulte: 4,
     situation: 'Trésorerie qui ne couvre que deux échecs',
     objectif: '50 % du prime en fiction maison rentable en 5 saisons',
-    contrainte: 'Une série met 3 saisons avant de rapporter', jouable: false,
-    bientot: "Demande qu'une série attende 3 saisons avant de rapporter : cette mécanique n'existe pas encore." },
+    contrainte: 'Une série met 3 saisons avant de rapporter', jouable: true },
   { id: 26, famille: 'courts', titre: 'Les 100 jours', difficulte: 2,
     format: '1 saison, 12 dilemmes',
     objectif: '+2 points de PDA et trésorerie positive',
@@ -29580,8 +29573,7 @@ const CAREER_SCENARIOS = [
   { id: 27, famille: 'courts', titre: 'Une seule jauge', difficulte: 3,
     format: '3 saisons',
     objectif: 'Survivre',
-    regleSpeciale: 'Une seule jauge visible (au choix), les autres sont masquées', jouable: false,
-    bientot: "Demande de masquer toutes les jauges sauf une dans le tableau de bord : cette option n'existe pas encore." },
+    regleSpeciale: 'Une seule jauge visible (au choix), les autres sont masquées', jouable: true },
   { id: 28, famille: 'courts', titre: 'Le sans-faute', difficulte: 5,
     format: '3 saisons',
     objectif: 'Aucune jauge sous sa valeur de départ',
@@ -29589,31 +29581,78 @@ const CAREER_SCENARIOS = [
   { id: 29, famille: 'courts', titre: 'Le dernier prime', difficulte: 1,
     format: 'Une soirée',
     objectif: "Score d'audience et trace laissée",
-    regleSpeciale: 'Épilogue jouable plutôt que vrai défi', jouable: false,
-    bientot: "Demande un format d'une seule soirée : le jeu se joue aujourd'hui en saisons complètes." },
+    regleSpeciale: 'Épilogue jouable plutôt que vrai défi', jouable: true },
   { id: 30, famille: 'narratifs', titre: "L'héritière", difficulte: 3,
     situation: 'Vous héritez de la chaîne familiale à 28 ans ; votre oncle, directeur des programmes, pensait qu\'elle lui revenait',
     objectif: 'Rester aux commandes 5 saisons',
-    contrainte: "Il sabote discrètement (fuites presse, départs de talents) tant que la popularité n'est pas > 70", jouable: false,
-    bientot: "Demande un sabotage scripté de l'oncle (fuites presse, départs de talents) : cette mécanique n'existe pas encore." },
+    contrainte: "Il sabote discrètement (fuites presse, départs de talents) tant que la popularité n'est pas > 70", jouable: true },
   { id: 31, famille: 'narratifs', titre: 'La taupe', difficulte: 4,
     situation: 'Un cadre de la direction vend vos grilles à une rivale',
     objectif: "L'identifier avant la fin de la saison 2 tout en restant compétitif",
-    contrainte: 'Chaque choix révèle un indice ; accuser le mauvais cadre fait chuter le moral', jouable: false,
-    bientot: `Demande des indices et des cadres à accuser. ${CAREER_MORAL}.` },
+    contrainte: 'Chaque choix révèle un indice ; accuser le mauvais cadre fait chuter le moral', jouable: true },
   { id: 32, famille: 'narratifs', titre: 'Le retour', difficulte: 3,
     situation: 'Viré il y a 10 ans, vous revenez sauver la chaîne',
     objectif: 'Remettre la chaîne sur le podium en 4 saisons',
-    contrainte: 'La moitié de la rédaction vous déteste (moral de départ 30), la presse guette la moindre revanche personnelle', jouable: false,
-    bientot: `${CAREER_MORAL}.` }
+    contrainte: 'La moitié de la rédaction vous déteste (moral de départ 30), la presse guette la moindre revanche personnelle', jouable: true }
 ];
 const CAREER_STORAGE_KEY = 'audienceMasters.career';
 const CAREER_UNLOCK_COUNT = 3;
 const CAREER_EPS = 0.01;
+// Part d'audience d'une chaîne installée quand le document ne la chiffre pas : au niveau de la
+// plus petite chaîne historique du jeu.
+const CAREER_ESTABLISHED_PDA = 8;
+// Échéance des objectifs que le document ne borne pas dans le temps.
+const CAREER_DEFAULT_HORIZON = 10;
+const CAREER_TARGETS = ['j1524', 'a2549', 's50', 'csp'];
 
-// Règles des scénarios jouables. La PDA est celle de la cible du joueur, comme au bilan de
-// saison ; « leader » = 1re chaîne du classement du bilan. Vérification en fin de saison
-// (seasonEnd), après chaque décision pour « Le sans-faute » (afterChoice).
+// Jauges propres au Mode Carrière (0 à 100), absentes de la partie libre. La patience du
+// fondateur est cachée : seule son humeur s'affiche.
+const CAREER_GAUGES = {
+  moral: { label: 'Moral', icon: '🤝' },
+  credibilite: { label: 'Crédibilité', icon: '🧭' },
+  patience: { label: 'Fondateur', icon: '👴', hidden: true },
+  blocInfo: { label: 'Bloc info', icon: '🗞️' },
+  blocDivert: { label: 'Bloc divertissement', icon: '🎉' },
+  effectifs: { label: 'Effectifs', icon: '👥', unit: ' %' },
+  couverture: { label: 'Couverture', icon: '📡', unit: ' %' },
+  enfants: { label: 'Public enfant', icon: '🧸' }
+};
+// « La taupe » : les quatre cadres soupçonnés.
+const CAREER_SUSPECTS = [
+  { nom: 'Claire Vasseur', poste: "directrice de l'antenne" },
+  { nom: 'Marc Delorme', poste: 'directeur financier' },
+  { nom: 'Inès Morel', poste: 'directrice de la communication' },
+  { nom: 'Paul Garnier', poste: 'directeur des sports' }
+];
+const CAREER_CLUES = [
+  n => `le badge de ${n} a servi tard dans la nuit, la veille d'une fuite`,
+  n => `${n} a déjeuné avec un cadre de la concurrence`,
+  n => `${n} avait accès au document qui a fuité`,
+  n => `un appel passé depuis le bureau de ${n} vers une chaîne rivale`
+];
+// « L'industriel qui veut une vitrine » : une faveur éditoriale par saison.
+const CAREER_FAVORS = [
+  { titre: 'Le viaduc du groupe au 20 heures', desc: "L'actionnaire veut un reportage élogieux sur son nouveau viaduc, en ouverture du journal.",
+    oui: 'Diffuser le reportage', ouiR: "Le sujet passe en ouverture : la profession s'étrangle, l'actionnaire est ravi.",
+    non: 'Refuser et perdre la rallonge budgétaire', nonR: "La rédaction garde la main. L'actionnaire coupe une enveloppe promise." },
+  { titre: 'Un invité imposé', desc: 'Le PDG du groupe veut être l’invité d’honneur de votre talk-show du dimanche, sans questions qui fâchent.',
+    oui: 'Inviter le PDG', ouiR: "L'entretien ressemble à un publireportage : les réseaux sociaux s'en moquent.",
+    non: 'Décliner poliment', nonR: "L'émission garde sa liberté de ton. Le groupe se venge sur le budget." },
+  { titre: "L'enquête sur le chantier", desc: "La rédaction enquête sur un accident sur un chantier du groupe. L'actionnaire demande d'enterrer le sujet.",
+    oui: "Enterrer l'enquête", ouiR: 'Le sujet disparaît. Une fuite le fait ressortir ailleurs, avec votre silence en prime.',
+    non: "Diffuser l'enquête", nonR: "L'enquête est saluée. L'actionnaire gèle des investissements en représailles." },
+  { titre: 'Le gala du groupe en prime', desc: 'Le groupe veut que la chaîne retransmette son gala annuel en première partie de soirée.',
+    oui: 'Retransmettre le gala', ouiR: "Trois heures de discours en prime : le public zappe, la presse ironise.",
+    non: 'Proposer une simple brève', nonR: "Le gala tient en trente secondes. Le groupe retient une partie du budget." },
+  { titre: 'Un publireportage déguisé', desc: 'Le groupe veut un « magazine » sur ses programmes immobiliers, sans mention publicitaire.',
+    oui: 'Diffuser le magazine', ouiR: "Le magazine passe sans mention : l'Arcom demande des explications.",
+    non: 'Exiger la mention publicitaire', nonR: 'La mention est apposée. Le groupe réduit son soutien financier.' }
+];
+
+// Règles des scénarios. La PDA est celle de la cible du joueur, comme au bilan de saison ;
+// « leader » = 1re chaîne du classement du bilan. Crochets : start (conditions de départ),
+// seasonStart (ouverture, avant la file de dilemmes), queue (décisions scénarisées),
+// opened (saison ouverte), afterChoice / drift (après chaque décision), seasonEnd (verdict).
 const CAREER_RULES = {
   1: {
     start: { tresorerie: -40, pda: 9 }, maxSeasons: 3,
@@ -29624,10 +29663,146 @@ const CAREER_RULES = {
     },
     seasonEnd(c, h) {
       const p = gameState.player;
-      if (h.resultatSaison < 0) return careerVerdict('lost', `La saison ${h.season} se solde par une perte de ${nf1(-h.resultatSaison)} M€ : la banque coupe les crédits.`);
-      if (p.coutGrilleEngageSaison > c.gridCap + CAREER_EPS) return careerVerdict('lost', `La grille a coûté ${nf1(p.coutGrilleEngageSaison)} M€, au-delà du plafond de ${nf1(c.gridCap)} M€ fixé par la banque : elle coupe les crédits.`);
-      if (p.tresorerie >= 0) return careerVerdict('won', `La trésorerie remonte à ${nf1(p.tresorerie)} M€ en fin de saison ${h.season} : la chaîne est revenue à l'équilibre.`);
-      if (h.season >= 3) return careerVerdict('lost', `Fin de la saison 3 : la trésorerie reste à ${nf1(p.tresorerie)} M€, sous l'équilibre.`);
+      if (h.resultatSaison < 0) return careerLose(`La saison ${h.season} se solde par une perte de ${nf1(-h.resultatSaison)} M€ : la banque coupe les crédits.`);
+      if (p.coutGrilleEngageSaison > c.gridCap + CAREER_EPS) return careerLose(`La grille a coûté ${nf1(p.coutGrilleEngageSaison)} M€, au-delà du plafond de ${nf1(c.gridCap)} M€ fixé par la banque : elle coupe les crédits.`);
+      if (p.tresorerie >= 0) return careerWin(`La trésorerie remonte à ${nf1(p.tresorerie)} M€ en fin de saison ${h.season} : la chaîne est revenue à l'équilibre.`);
+      if (h.season >= 3) return careerLose(`Fin de la saison 3 : la trésorerie reste à ${nf1(p.tresorerie)} M€, sous l'équilibre.`);
+    }
+  },
+  2: {
+    start: { tresorerie: 5, pda: 2 }, gauges: { moral: 15 }, maxSeasons: 5,
+    queue(c, q) {
+      q.unshift(careerDilemma(c, 'administrateur', "L'administrateur judiciaire impose son plan",
+        "Le plan de continuation exige une mesure douloureuse cette saison. L'administrateur vous laisse choisir laquelle, pas de vous y soustraire.", [
+          { l: 'Vendre le meilleur programme de la grille', r: "Le programme part chez un concurrent : la trésorerie respire, la grille s'appauvrit.", finance: { commercial: 6 }, pda: careerAll(-1.2), fx: { moral: -4 } },
+          { l: 'Lancer un plan social', r: 'La masse salariale fond. La rédaction encaisse le choc.', finance: { commercial: 6 }, pop: -3, fx: { moral: -18 } },
+          { l: 'Céder une fréquence régionale', r: "L'argent rentre, mais une partie du public ne reçoit plus la chaîne.", finance: { commercial: 8 }, pda: careerAll(-1.8), fx: { moral: -6 } }
+        ]));
+    },
+    status() { return `Trésorerie : <b>${nf1(gameState.player.tresorerie)} M€</b> (à garder au-dessus de 0 en fin de saison)`; },
+    seasonEnd(c, h) {
+      const p = gameState.player;
+      if (p.tresorerie < 0) return careerLose(`Fin de saison ${h.season} : la trésorerie repasse à ${nf1(p.tresorerie)} M€. Le tribunal prononce la liquidation.`);
+      if (h.season >= 5) return careerWin(`Cinq saisons sans repasser sous zéro : la chaîne sort du plan de continuation avec ${nf1(p.tresorerie)} M€.`);
+    }
+  },
+  3: {
+    start: { tresorerie: 100, pda: CAREER_ESTABLISHED_PDA }, gauges: { moral: 10 }, maxSeasons: 2, strikeBelow: 50,
+    drift(c, d, t) { if (c.g.moral < 50 && t.economique && d.moral < 0) d.moral *= 2; },
+    queue(c, q) {
+      if (c.g.moral >= 50) return;
+      q.unshift(careerDilemma(c, 'greve', 'Grève reconductible à la rédaction',
+        `Les journalistes ont reconduit le mouvement (moral : ${Math.round(c.g.moral)}/100). Les tranches d'information tournent au ralenti.`, [
+          { l: 'Accorder les revendications salariales', r: 'Accord signé dans la nuit : la rédaction reprend le travail, la masse salariale grimpe.', finance: { purchase: 6 }, fx: { moral: 28 } },
+          { l: 'Proposer un accord de méthode', r: 'Les négociations s’ouvrent : le climat s’apaise sans tout céder.', finance: { purchase: 2 }, fx: { moral: 14 } },
+          { l: 'Tenir bon face aux grévistes', r: 'La direction ne cède rien : le conflit se durcit et le public le remarque.', pop: -2, fx: { moral: -10 } }
+        ]));
+    },
+    status(c) { return `Conflit ${c.g.moral < 50 ? '<b>en cours</b> (décisions économiques : moral ×2)' : 'apaisé'} · ${careerPdaLabel()} : <b>${nf1(careerPda())} %</b> (départ ${nf1(c.pdaInitial ?? careerPda())} %)`; },
+    seasonEnd(c, h) {
+      const kept = c.pdaEnd >= c.pdaInitial - 0.5;
+      if (c.g.moral > 70 && kept) return careerWin(`Moral à ${Math.round(c.g.moral)}/100 et audience préservée : la grève est derrière vous.`);
+      if (h.season >= 2) return careerLose(c.g.moral <= 70 ? `Fin de la saison 2 : le moral plafonne à ${Math.round(c.g.moral)}/100.` : `Le moral est revenu, mais la PDA a chuté à ${nf1(c.pdaEnd)} % (départ ${nf1(c.pdaInitial)} %).`);
+    }
+  },
+  4: {
+    start: { pda: CAREER_ESTABLISHED_PDA }, gauges: { credibilite: 5 }, maxSeasons: 3,
+    queue(c, q) {
+      q.unshift(careerDilemma(c, 'confiance', 'Reconquérir la confiance',
+        "Depuis la condamnation, chaque émission est scrutée. La direction doit montrer qu'elle a compris.", [
+          { l: "Créer un comité d'éthique indépendant", r: 'Le comité publie ses premiers avis : la presse salue un vrai changement.', finance: { purchase: 4 }, fx: { credibilite: 16 } },
+          { l: 'Nommer un médiateur à l’antenne', r: 'Le médiateur répond chaque semaine aux téléspectateurs : la défiance recule.', finance: { purchase: 2 }, pop: 1, fx: { credibilite: 10 } },
+          { l: 'Miser sur l’oubli', r: 'La chaîne fait profil bas : rien ne change vraiment.', fx: { credibilite: 1 } }
+        ]));
+    },
+    afterChoice(c, { t, dilemma }) {
+      if (dilemma.isCareerScripted || !t.racoleur) return;
+      c.racoleurSeason = gameState.season;
+      c.controls = (c.controls || 0) + 1;
+      careerGauge(c, 'credibilite', -4);
+      c.note = `Option racoleuse : contrôle de l'Arcom n°${c.controls} sur 3.`;
+      if (c.controls >= 3) return careerLose("Troisième contrôle de l'Arcom : la fréquence est retirée à la chaîne.");
+    },
+    status(c) { return `Contrôles Arcom : <b>${c.controls || 0}/3</b> (au 3e, la fréquence est retirée)`; },
+    seasonEnd(c, h) {
+      if (c.racoleurSeason !== h.season) careerGauge(c, 'credibilite', 3);
+      if (c.g.credibilite > 60) return careerWin(`Crédibilité à ${Math.round(c.g.credibilite)}/100 : la chaîne a tourné la page du scandale.`);
+      if (h.season >= 3) return careerLose(`Fin de la saison 3 : la crédibilité plafonne à ${Math.round(c.g.credibilite)}/100.`);
+    }
+  },
+  5: {
+    start: { pda: 24, rivalCap: 18 }, maxSeasons: 6,
+    afterChoice(c) {
+      if (gameState.season !== 1 || (c.pillars || 0) >= 3) return;
+      c.pillars = (c.pillars || 0) + 1;
+      careerShift(gameState.player, -1.5, [gameState.player.target]);
+      c.note = `Un pilier du prime part à la retraite (${c.pillars}/3) : −1,5 pt de PDA.`;
+    },
+    seasonStart(c) {
+      if (gameState.season < 2 || careerRank() !== 1) return;
+      const rivals = careerRivals().slice(0, 2);
+      rivals.forEach(r => careerShift(r, 1, [gameState.player.target]));
+      c.note = `Saison ${gameState.season} : ${rivals.map(r => r.name).join(' et ')} redoublent d'agressivité face au leader (+1 pt chacune).`;
+    },
+    status() { return `Rang : <b>n°${careerRank()}</b> · ${careerPdaLabel()} : <b>${nf1(careerPda())} %</b>`; },
+    seasonEnd(c, h) {
+      const rank = careerRank();
+      if (rank !== 1) return careerLose(`Fin de saison ${h.season} : la chaîne tombe à la ${rank}e place.`);
+      if (h.season >= 6) return careerWin('Six saisons en tête : le roi garde son trône.');
+    }
+  },
+  6: {
+    start: { pda: 19, rivalCap: 16, dauphin: 18.5 }, maxSeasons: CAREER_DEFAULT_HORIZON,
+    opened(c) { if (gameState.season === 1) c.dauphin = careerRivals()[0]?.name; },
+    seasonStart(c) {
+      const d = gameState.competitors.find(r => r.name === c.dauphin);
+      if (gameState.season < 2 || !d || !(c.lastGain > 0)) return;
+      const copy = c.lastGain * 0.75;
+      careerShift(d, copy, [gameState.player.target]);
+      c.note = `${d.name} copie vos succès de la saison passée : +${nf1(copy)} pt.`;
+    },
+    status(c) { return `Écart sur le n°2 : <b>${careerSigned(careerGap())} pts</b> (objectif 5, deux fins de saison de suite)${c.gapStreak ? ` · ${c.gapStreak}/2` : ''}`; },
+    seasonEnd(c, h) {
+      c.lastGain = c.pdaEnd - c.pdaStart;
+      const gap = careerGap();
+      c.gapStreak = gap >= 5 - CAREER_EPS ? (c.gapStreak || 0) + 1 : 0;
+      if (c.gapStreak >= 2) return careerWin(`${nf1(gap)} points d'avance deux fins de saison de suite : l'écart impossible est creusé.`);
+      if (h.season >= CAREER_DEFAULT_HORIZON) return careerLose(`Fin de la saison ${h.season} : l'écart reste à ${nf1(gap)} points.`);
+    }
+  },
+  7: {
+    start: { pda: { a2549: 18, j1524: 11, s50: 11 } }, maxSeasons: CAREER_DEFAULT_HORIZON,
+    afterChoice(c, { before, after }) {
+      // La cible qui gagne le plus agace sa cible opposée, qui perd la moitié de ce gain.
+      if (!before || !after) return;
+      const opposite = { j1524: 's50', s50: 'j1524', a2549: 's50' };
+      const [k, g] = ['j1524', 'a2549', 's50'].map(x => [x, after[x] - before[x]]).sort((a, b) => b[1] - a[1])[0];
+      if (g <= 0.05) return;
+      careerShift(gameState.player, -g / 2, [opposite[k]]);
+      c.note = `Ce qui plaît aux ${careerTargetLabel(k)} agace les ${careerTargetLabel(opposite[k])} : −${nf1(g / 2)} pt.`;
+    },
+    status(c) { return ['j1524', 'a2549', 's50'].map(k => `${careerTargetLabel(k)} : <b>n°${careerRank(k)}</b>`).join(' · ') + (c.frontStreak ? ` · ${c.frontStreak}/3` : ''); },
+    seasonEnd(c, h) {
+      const all = ['j1524', 'a2549', 's50'].every(k => careerRank(k) === 1);
+      c.frontStreak = all ? (c.frontStreak || 0) + 1 : 0;
+      if (c.frontStreak >= 3) return careerWin('N°1 chez les 15-24, les 25-49 et les 50+ trois fins de saison de suite.');
+      if (h.season >= CAREER_DEFAULT_HORIZON) return careerLose(`Fin de la saison ${h.season} : la chaîne n'est pas n°1 sur les trois cibles à la fois.`);
+    }
+  },
+  8: {
+    start: { pda: 22, rivalCap: 21 }, maxSeasons: 10,
+    seasonStart(c) {
+      const s = gameState.season, p = gameState.player;
+      if (s === 3) { careerShift(p, -3, ['j1524', 'a2549']); c.note = 'Choc de marché : une plateforme de streaming aspire les moins de 50 ans (−3 pts chez les 15-24 et les 25-49).'; }
+      if (s === 6) c.note = 'Choc de marché : le marché publicitaire chute de 40 % cette saison.';
+      if (s === 9) { careerShift(p, -2.5); c.note = 'Choc de marché : une nouvelle chaîne de la TNT grignote le public (−2,5 pts sur toutes les cibles).'; }
+    },
+    adFactor() { return gameState.season === 6 ? 0.6 : 1; },
+    status() { return `Rang : <b>n°${careerRank()}</b> (podium exigé) · prochain choc en saison ${[3, 6, 9].find(s => s >= gameState.season) || '—'}`; },
+    seasonEnd(c, h) {
+      const rank = careerRank();
+      if (rank > 3) return careerLose(`Fin de saison ${h.season} : la chaîne sort du podium (${rank}e).`);
+      if (h.season >= 10) return careerWin('Dix saisons sur le podium, chocs de marché compris : la décennie est à vous.');
     }
   },
   9: {
@@ -29646,9 +29821,282 @@ const CAREER_RULES = {
         c.stagnant = 0;
         c.note = `Saison ${h.season} : ${careerSigned(gain)} pts de PDA, l'actionnaire est satisfait.`;
       }
-      if (c.stagnant >= 2) return careerVerdict('lost', "Deux saisons stagnantes d'affilée : l'actionnaire vous licencie.");
-      if (careerRank() === 1) return careerVerdict('won', `Saison ${h.season} : la chaîne passe n°1 avec ${nf1(c.pdaEnd)} % de PDA.`);
-      if (h.season >= 10) return careerVerdict('lost', `Fin de la saison 10 : la chaîne termine n°${careerRank()}, le milliardaire jette l'éponge.`);
+      if (c.stagnant >= 2) return careerLose("Deux saisons stagnantes d'affilée : l'actionnaire vous licencie.");
+      if (careerRank() === 1) return careerWin(`Saison ${h.season} : la chaîne passe n°1 avec ${nf1(c.pdaEnd)} % de PDA.`);
+      if (h.season >= 10) return careerLose(`Fin de la saison 10 : la chaîne termine n°${careerRank()}, le milliardaire jette l'éponge.`);
+    }
+  },
+  10: {
+    start: { tresorerie: 15, pda: 0.8 }, maxSeasons: 4,
+    blockProgram(c, program) {
+      const o = program.editorial?.origin;
+      return !program.original && (o === 'international' || o === 'EU') ? 'acquisition étrangère interdite' : null;
+    },
+    blockChoice(c, d, ch, t) { return t.spend > 0 && t.foreign ? 'acquisition étrangère interdite' : null; },
+    status() { return `${careerPdaLabel()} : <b>${nf1(careerPda())} %</b> (objectif 5 %) · programmes étrangers interdits`; },
+    seasonEnd(c, h) {
+      if (c.pdaEnd >= 5 - CAREER_EPS) return careerWin(`${nf1(c.pdaEnd)} % de PDA avec des formats maison : la petite chaîne de la TNT a passé la barre.`);
+      if (h.season >= 4) return careerLose(`Fin de la saison 4 : la chaîne plafonne à ${nf1(c.pdaEnd)} %.`);
+    }
+  },
+  11: {
+    type: 'culture', start: { pda: 1.5 }, gauges: { credibilite: 90 }, maxSeasons: CAREER_DEFAULT_HORIZON,
+    drift(c, d, t, ch) { if (careerPopular(t, ch)) d.credibilite -= 6; },
+    afterChoice(c, { t, before, after }) {
+      const k = gameState.player.target, g = before && after ? after[k] - before[k] : 0;
+      if (t.exigeant && g > 0.05) {
+        careerShift(gameState.player, -g / 2, [k]);
+        c.note = `Format exigeant : l'audience ne suit qu'à moitié (+${nf1(g / 2)} pt au lieu de +${nf1(g)}).`;
+      }
+      if (c.g.credibilite < 60) return careerLose(`La crédibilité tombe à ${Math.round(c.g.credibilite)} : la chaîne a perdu son identité.`);
+    },
+    programSigned(c, { contract, before, after }) {
+      const genre = contract.editorial?.genre, k = gameState.player.target;
+      if (genre === 'diverti') {
+        careerGauge(c, 'credibilite', -8);
+        c.note = `« ${contract.name} » : format populaire, −8 de crédibilité.`;
+      } else if (['culture', 'info'].includes(genre) && before && after && after[k] - before[k] > 0.05) {
+        const g = after[k] - before[k];
+        careerShift(gameState.player, -g / 2, [k]);
+        c.note = `« ${contract.name} » : format exigeant, l'audience plafonne (+${nf1(g / 2)} pt).`;
+      }
+      if (c.g.credibilite < 60) c.verdict = careerLose(`La crédibilité tombe à ${Math.round(c.g.credibilite)} : la chaîne a perdu son identité.`);
+    },
+    status() { return `${careerPdaLabel()} : <b>${nf1(careerPda())} %</b> (objectif 8 %) · crédibilité à garder au-dessus de 60`; },
+    seasonEnd(c, h) {
+      if (c.g.credibilite < 60) return careerLose(`La crédibilité tombe à ${Math.round(c.g.credibilite)} : la chaîne a perdu son identité.`);
+      if (c.pdaEnd >= 8 - CAREER_EPS) return careerWin(`${nf1(c.pdaEnd)} % de PDA sans renier la chaîne documentaire : le grand public est conquis.`);
+      if (h.season >= CAREER_DEFAULT_HORIZON) return careerLose(`Fin de la saison ${h.season} : la chaîne plafonne à ${nf1(c.pdaEnd)} %.`);
+    }
+  },
+  12: {
+    start: { pda: { s50: 12, a2549: 1.5, j1524: 1, csp: 1.5 } }, gauges: { couverture: 20 }, maxSeasons: 5,
+    queue(c, q) {
+      if (c.g.couverture >= 100) return;
+      q.unshift(careerDilemma(c, 'extension', 'Étendre la diffusion',
+        `La chaîne couvre ${Math.round(c.g.couverture)} % du territoire. Chaque nouvelle région coûte cher et détourne l'antenne de son public historique.`, [
+          { l: 'Lancer une grande extension nationale', r: 'Les nouvelles régions découvrent la chaîne ; le public local se sent délaissé.', finance: { purchase: 12 }, pop: -8, pda: { j1524: 1, a2549: 1, csp: 1 }, fx: { couverture: 40 } },
+          { l: 'Ouvrir une région voisine', r: 'Une extension mesurée : le public historique grince un peu.', finance: { purchase: 6 }, pop: -4, pda: { j1524: 0.5, a2549: 0.5, csp: 0.5 }, fx: { couverture: 20 } },
+          { l: "Consolider l'ancrage local", r: 'La chaîne soigne son public fidèle : la conquête attendra.', pop: 3, pda: { s50: 0.5 } }
+        ]));
+    },
+    status(c) { return `Couverture : <b>${Math.round(c.g.couverture)} %</b> (objectif 100 %) · ${careerPdaLabel()} : <b>${nf1(careerPda())} %</b> (objectif 6 %)`; },
+    seasonEnd(c, h) {
+      if (c.g.couverture >= 100 && c.pdaEnd >= 6 - CAREER_EPS) return careerWin(`Couverture nationale et ${nf1(c.pdaEnd)} % de PDA : la régionale est montée à Paris.`);
+      if (h.season >= 5) return careerLose(`Fin de la saison 5 : couverture ${Math.round(c.g.couverture)} %, PDA ${nf1(c.pdaEnd)} %.`);
+    }
+  },
+  13: {
+    start: { pda: CAREER_ESTABLISHED_PDA }, gauges: { credibilite: 60 }, maxSeasons: 5,
+    queue(c, q) {
+      const f = CAREER_FAVORS[(gameState.season - 1) % CAREER_FAVORS.length];
+      q.unshift(careerDilemma(c, 'faveur', f.titre, f.desc, [
+        { l: f.oui, r: f.ouiR, pop: -1, fx: { credibilite: -12 } },
+        { l: f.non, r: f.nonR, finance: { purchase: 6 } }
+      ]));
+    },
+    status() { return 'Aucune saison en perte · crédibilité au-dessus de 50 en fin de saison 5'; },
+    seasonEnd(c, h) {
+      if (h.resultatSaison < 0) return careerLose(`La saison ${h.season} se solde par une perte de ${nf1(-h.resultatSaison)} M€ : le groupe reprend la main.`);
+      if (h.season >= 5) return c.g.credibilite > 50
+        ? careerWin(`Cinq saisons sans perte, crédibilité à ${Math.round(c.g.credibilite)} : la vitrine n'a pas tout dévoré.`)
+        : careerLose(`Cinq saisons sans perte, mais la crédibilité tombe à ${Math.round(c.g.credibilite)}.`);
+    }
+  },
+  14: {
+    start: { pda: CAREER_ESTABLISHED_PDA }, maxSeasons: 4,
+    opened(c) { if (gameState.season === 1) c.val0 = careerValuation(); },
+    blockProgram(c, program) { return ['fiction', 'info'].includes(program.editorial?.genre || program.genre) ? 'investissement de long terme refusé par le fonds' : null; },
+    blockChoice(c, d, ch, t) { return t.spend > 0 && t.longTerm ? 'investissement de long terme refusé par le fonds' : null; },
+    status(c) { return `Valorisation : <b>${nf1(careerValuation())}</b> (objectif ${nf1((c.val0 || careerValuation()) * 1.6)}, soit +60 %) · fiction et info bloquées`; },
+    seasonEnd(c, h) {
+      const v = careerValuation();
+      if (v >= c.val0 * 1.6 - CAREER_EPS) return careerWin(`Valorisation portée à ${nf1(v)} (+${Math.round((v / c.val0 - 1) * 100)} %) : le fonds revend avec une belle plus-value.`);
+      if (h.season >= 4) return careerLose(`Fin de la saison 4 : la valorisation n'a progressé que de ${Math.round((v / c.val0 - 1) * 100)} %.`);
+    }
+  },
+  15: {
+    start: { pda: CAREER_ESTABLISHED_PDA }, gauges: { patience: 100 }, maxSeasons: CAREER_DEFAULT_HORIZON,
+    opened(c) { if (gameState.season === 1) c.a2549Start = careerPda(gameState.player, 'a2549'); },
+    blockProgram(c, program, slot) { return ['prime', 'access'].includes(slot) ? 'veto du fondateur sur la grille historique' : null; },
+    programSigned(c, { contract }) {
+      careerGauge(c, 'patience', -20);
+      c.note = `Le fondateur désapprouve l'arrivée de « ${contract.name} ».`;
+      if (c.g.patience <= 0) c.verdict = careerLose('Le fondateur convoque le conseil : vous êtes renvoyé.');
+    },
+    drift(c, d, t) { d.patience = t.modern ? -8 : t.exigeant ? 2 : 0; },
+    afterChoice(c) { if (c.g.patience <= 0) return careerLose('Le fondateur convoque le conseil : vous êtes renvoyé.'); },
+    status(c) { return `PDA 25-49 ans : <b>${nf1(careerPda(gameState.player, 'a2549'))} %</b> (objectif ${nf1((c.a2549Start ?? 0) + 10)} %) · veto sur le prime et l'access`; },
+    seasonEnd(c, h) {
+      const v = careerPda(gameState.player, 'a2549');
+      if (v >= c.a2549Start + 10 - CAREER_EPS) return careerWin(`+${nf1(v - c.a2549Start)} points chez les 25-49 ans, et le fondateur vous garde.`);
+      if (h.season >= CAREER_DEFAULT_HORIZON) return careerLose(`Fin de la saison ${h.season} : +${nf1(v - c.a2549Start)} points seulement chez les 25-49 ans.`);
+    }
+  },
+  16: {
+    start: { pda: CAREER_ESTABLISHED_PDA }, gauges: { blocInfo: 50, blocDivert: 50 }, maxSeasons: 6,
+    drift(c, d, t, ch) {
+      const p = ch.pda || {};
+      const side = t.info && !t.divert ? 1 : t.divert && !t.info ? -1 : ((p.csp || 0) + (p.s50 || 0) >= 2 * (p.j1524 || 0) ? 1 : -1);
+      d.blocInfo = 6 * side; d.blocDivert = -6 * side;
+    },
+    queue(c, q) {
+      q.unshift(careerDilemma(c, 'conseil', "Le conseil d'administration s'écharpe",
+        `Bloc info : ${Math.round(c.g.blocInfo)}/100, bloc divertissement : ${Math.round(c.g.blocDivert)}/100. Chacun exige un signe cette saison.`, [
+          { l: 'Renforcer la rédaction', r: 'Le bloc info applaudit ; le bloc divertissement menace de vendre.', finance: { purchase: 3 }, fx: { blocInfo: 14, blocDivert: -12 } },
+          { l: 'Commander un grand divertissement', r: 'Le bloc divertissement jubile ; le bloc info parle de dérive.', finance: { purchase: 3 }, fx: { blocDivert: 14, blocInfo: -12 } },
+          { l: "Proposer un pacte d'actionnaires", r: 'Un pacte coûteux calme les deux camps, pour un temps.', finance: { purchase: 6 }, fx: { blocInfo: 5, blocDivert: 5 } }
+        ]));
+    },
+    afterChoice(c) {
+      const low = ['blocInfo', 'blocDivert'].find(k => c.g[k] < 20);
+      if (low) return careerLose(`Le ${CAREER_GAUGES[low].label.toLowerCase()} tombe à ${Math.round(c.g[low])} : il cède ses parts à un groupe prédateur.`);
+    },
+    status() { return 'Aucun bloc sous 20 de satisfaction pendant 6 saisons'; },
+    seasonEnd(c, h) { if (h.season >= 6) return careerWin('Six saisons sans qu’aucun bloc ne vende : le fragile équilibre a tenu.'); }
+  },
+  17: {
+    start: { pda: CAREER_ESTABLISHED_PDA }, gauges: { credibilite: 80 }, maxSeasons: 5,
+    adSlotFactor(c, slot) { return slot === 'prime' ? 0 : 1; },
+    seasonStart(c) {
+      const cut = (c.polemics || 0) * 6, grant = Math.max(0, 40 - cut);
+      gameState.player.tresorerie += grant;
+      c.note = `Dotation votée par le Parlement : ${grant} M€${cut ? ` (rabotée de ${cut} M€ après ${c.polemics} polémique${c.polemics > 1 ? 's' : ''})` : ''}.`;
+      c.polemics = 0;
+    },
+    afterChoice(c, { t, choice, dilemma }) { if (!dilemma.isCareerScripted && (t.racoleur || (choice.pop || 0) <= -3)) c.polemics = (c.polemics || 0) + 1; },
+    status(c) { return `${careerPdaLabel()} : <b>${nf1(careerPda())} %</b> (objectif 12 %) · pas de pub en prime · polémiques : ${c.polemics || 0}`; },
+    seasonEnd(c, h) {
+      careerGauge(c, 'credibilite', 2);
+      if (c.g.credibilite <= 75) return careerLose(`Crédibilité à ${Math.round(c.g.credibilite)} : le Parlement remet en cause la mission de la chaîne.`);
+      if (h.season >= 5) return c.pdaEnd >= 12 - CAREER_EPS
+        ? careerWin(`${nf1(c.pdaEnd)} % de PDA et une crédibilité intacte : le service public a tenu sa mission.`)
+        : careerLose(`Fin de la saison 5 : ${nf1(c.pdaEnd)} % de PDA, sous les 12 % attendus.`);
+    }
+  },
+  18: {
+    start: { pda: CAREER_ESTABLISHED_PDA }, gauges: { effectifs: 100 }, maxSeasons: 4,
+    adFactor() { return gameState.season <= 3 ? 0.6 : 1; },
+    seasonStart(c) {
+      if (gameState.season > 3) { c.note = 'Le marché publicitaire repart enfin.'; return; }
+      gameState.competitors.forEach(r => { r.budget = Math.round((r.budget || 0) * 1.15); });
+      c.note = `Saison ${gameState.season} : le marché pub reste 40 % sous la normale. Les rivales licencient et reconstituent leur trésorerie.`;
+    },
+    queue(c, q) {
+      if (gameState.season > 3) return;
+      q.unshift(careerDilemma(c, 'economies', "Plan d'économies", "Les recettes publicitaires s'effondrent. Le directeur financier présente trois options à la direction.", [
+        { l: 'Licencier 8 % des effectifs', r: 'Le plan social soulage les comptes ; les équipes sont sonnées.', finance: { commercial: 6 }, pop: -3, fx: { effectifs: -8 } },
+        { l: 'Geler les embauches et les primes', r: 'Une économie modeste, sans casse sociale.', finance: { commercial: 2.5 }, fx: { effectifs: -2 } },
+        { l: 'Préserver les équipes', r: 'La chaîne garde tout son monde et serre les dents.' }
+      ]));
+    },
+    drift(c, d, t) { if (t.layoff) d.effectifs = -3; },
+    afterChoice(c) { if (c.g.effectifs < 90) return careerLose(`Les effectifs tombent à ${Math.round(c.g.effectifs)} % : plus de 10 % des postes ont été supprimés.`); },
+    status(c) { return `Effectifs : <b>${Math.round(c.g.effectifs)} %</b> (plancher 90 %) · pub ${gameState.season <= 3 ? '<b>−40 %</b>' : 'revenue à la normale'}`; },
+    seasonEnd(c, h) { if (h.season >= 4) return careerWin(`L'hiver publicitaire est passé : la chaîne a gardé ${Math.round(c.g.effectifs)} % de ses effectifs.`); }
+  },
+  19: {
+    target: 'j1524', start: { pda: 18 }, maxSeasons: 5,
+    opened(c) { if (gameState.season === 1) c.talents = careerTalentNames(); },
+    seasonStart(c) {
+      if (gameState.season < 2) return;
+      const now = careerTalentNames(), gone = (c.talents || []).filter(n => !now.includes(n));
+      careerShift(gameState.player, -(1 + gone.length), ['j1524']);
+      c.note = `La plateforme aspire les jeunes : −1 pt${gone.length ? `, et −${gone.length} pt avec le départ de ${gone.join(', ')}` : ''}.`;
+      c.talents = now;
+    },
+    queue(c, q) {
+      const t = [...(gameState.player.talents || [])].filter(x => x.until > gameState.season).sort((a, b) => (b.annual || 0) - (a.annual || 0))[0];
+      if (!t) return;
+      q.unshift(careerDilemma(c, 'debauchage', `La plateforme veut ${t.name}`, `Le géant du streaming offre un pont d'or à ${t.name}. Sans réaction, il part à la fin de la saison et emporte une partie du public jeune.`, [
+        { l: 'Surenchérir pour le garder', r: `${t.name} reste : la facture grimpe, le public jeune aussi.`, finance: { purchase: 4 } },
+        { l: 'Le laisser partir', r: `${t.name} partira à la fin de la saison.`, fx: { releaseTalent: t.name } }
+      ]));
+    },
+    afterChoice(c, { fx }) {
+      if (!fx.releaseTalent) return;
+      const t = (gameState.player.talents || []).find(x => x.name === fx.releaseTalent);
+      if (t) t.until = gameState.season;
+    },
+    status() { return `PDA 15-24 ans : <b>${nf1(careerPda(gameState.player, 'j1524'))} %</b> (plancher 15 % en fin de saison)`; },
+    seasonEnd(c, h) {
+      const v = careerPda(gameState.player, 'j1524');
+      if (v < 15 - CAREER_EPS) return careerLose(`Fin de saison ${h.season} : ${nf1(v)} % chez les 15-24 ans, la plateforme a gagné.`);
+      if (h.season >= 5) return careerWin('Cinq saisons au-dessus de 15 % chez les 15-24 ans, face à la plateforme.');
+    }
+  },
+  20: {
+    start: { pda: 20, rivalCap: 18.5 }, maxSeasons: 6,
+    seasonStart(c) {
+      if (gameState.season % 2 !== 1) return;
+      c.cycle = (c.cycle || 0) + 1;
+      if (c.rights) {
+        careerShift(gameState.player, -2, ['a2549']); careerShift(gameState.player, -1, ['j1524']);
+        c.rights = false;
+      }
+    },
+    queue(c, q) {
+      if (gameState.season % 2 !== 1) return;
+      const price = careerRightsPrice(c);
+      q.splice(Math.min(1, q.length), 0, careerDilemma(c, 'droits', 'La compétition phare remise aux enchères',
+        `Comme tous les deux ans, les droits du championnat sont remis en jeu, pour deux saisons. Les enchères ont pris ${Math.round((Math.pow(1.25, c.cycle - 1) - 1) * 100)} % depuis le premier cycle.`, [
+          { l: `Surenchérir (${nf1(price)} M€)`, r: 'Les droits sont à vous pour deux saisons : les 25-49 ans suivent.', finance: { purchase: price }, fx: { rights: true } },
+          { l: `Faire une offre raisonnable (${nf1(roundHalf(price * 0.8))} M€)`, randomOutcomes: [
+            { chance: 0.5, r: 'Votre offre l’emporte de justesse : les droits sont à vous pour deux saisons.', finance: { recurring: 0, purchase: roundHalf(price * 0.8), commercial: 0, category: 'P' }, fx: { rights: true } },
+            { chance: 0.5, r: 'Une rivale surenchérit au dernier moment : la compétition vous échappe.', finance: { recurring: 0, purchase: 0, commercial: 0, category: 'N' }, fx: { rights: false } }
+          ] },
+          { l: 'Renoncer à la compétition', r: 'La chaîne laisse filer les droits.', fx: { rights: false } }
+        ]));
+    },
+    afterChoice(c, { fx }) {
+      if (fx.rights === true) {
+        c.rights = true;
+        careerShift(gameState.player, 2, ['a2549']); careerShift(gameState.player, 1, ['j1524']);
+        c.note = 'Droits remportés : +2 pts chez les 25-49 ans, +1 pt chez les 15-24 ans pendant deux saisons.';
+      } else if (fx.rights === false) {
+        careerShift(gameState.player, -1.5, ['a2549']);
+        const r = careerRivals()[0]; if (r) careerShift(r, 1, [gameState.player.target]);
+        c.note = `Sans la compétition, les 25-49 ans masculins décrochent (−1,5 pt) et ${r?.name || 'une rivale'} en profite.`;
+      }
+    },
+    status(c) { return `Rang : <b>n°${careerRank()}</b> · droits ${c.rights ? '<b>détenus</b>' : 'non détenus'} · prochaine enchère ${gameState.season % 2 === 1 ? 'cette saison' : `en saison ${gameState.season + 1}`} (${nf1(careerRightsPrice(c, gameState.season % 2 === 1 ? 0 : 1))} M€)`; },
+    seasonEnd(c, h) {
+      const rank = careerRank();
+      if (rank !== 1) return careerLose(`Fin de saison ${h.season} : la chaîne n'est plus leader (${rank}e).`);
+      if (h.season >= 6) return careerWin('Six saisons en tête, enchères comprises : la guerre des droits est gagnée.');
+    }
+  },
+  21: {
+    start: { pda: CAREER_ESTABLISHED_PDA }, gauges: { credibilite: 75 }, maxSeasons: 1,
+    queue(c, q) {
+      q.unshift(careerDilemma(c, 'debat', 'Le grand débat : quelle formule ?', 'Toute la classe politique attend votre arbitrage pour le débat de la campagne.', [
+        { l: 'Inviter tous les candidats à égalité de temps', r: "Soirée longue mais irréprochable : l'équité est saluée.", finance: { purchase: 3 }, pop: -1, fx: { credibilite: 6 } },
+        { l: 'Organiser un duel entre les deux favoris', r: 'Le duel cartonne chez les plus jeunes ; une moitié du public crie au parti pris.', finance: { purchase: 2 }, pda: { j1524: 1.5, a2549: 1, s50: -1.5, csp: -1 }, fx: { credibilite: -8 } },
+        { l: 'Confier la soirée à vos éditorialistes', r: 'Les éditorialistes tranchent : les uns applaudissent, les autres zappent.', finance: { purchase: 1 }, pda: { a2549: 1, csp: 1.5, j1524: -1.5, s50: -1 }, fx: { credibilite: -12 } }
+      ]));
+      q.splice(Math.min(2, q.length), 0, careerDilemma(c, 'partialite', 'Accusée de partialité', 'Les deux camps dénoncent la couverture de la chaîne et réclament des temps de parole.', [
+        { l: 'Publier les temps de parole chaque semaine', r: 'Les chiffres parlent : les accusations retombent.', finance: { purchase: 1 }, fx: { credibilite: 8 } },
+        { l: "Répliquer à l'antenne contre un camp", r: 'La réplique divise le public en deux.', pda: { j1524: 1, s50: -1.5 }, fx: { credibilite: -10 } },
+        { l: "Laisser passer l'orage", r: 'Le silence passe pour un aveu chez certains.', fx: { credibilite: -3 } }
+      ]));
+    },
+    status(c) { return `${careerPdaLabel()} : <b>${nf1(careerPda())} %</b> (départ ${nf1(c.pdaInitial ?? careerPda())} %) · crédibilité à finir au-dessus de 70`; },
+    seasonEnd(c) {
+      const stable = c.pdaEnd >= c.pdaInitial - 0.5;
+      if (c.g.credibilite > 70 && stable) return careerWin(`Crédibilité à ${Math.round(c.g.credibilite)} et audience stable : la chaîne sort grandie de l'élection.`);
+      return careerLose(c.g.credibilite <= 70 ? `La crédibilité finit à ${Math.round(c.g.credibilite)} : la chaîne paraît partisane.` : `L'audience recule à ${nf1(c.pdaEnd)} % (départ ${nf1(c.pdaInitial)} %).`);
+    }
+  },
+  22: {
+    // « La grille coûte en permanence » : production en continu, grille de départ à 22 M€.
+    type: 'info', start: { pda: CAREER_ESTABLISHED_PDA, grille: 22 }, gauges: { credibilite: 70 }, maxSeasons: 4,
+    blockChoice(c, d, ch) { return (ch.finance?.recurring || 0) < 0 ? "une chaîne d'info ne peut pas alléger sa grille" : null; },
+    drift(c, d, t) { if (t.risky) d.credibilite -= 16; },
+    adFactor(c) { return c.g.credibilite < 40 ? 0.8 : 1; },
+    status(c) { return `Aucune saison en perte · crédibilité ${c.g.credibilite < 40 ? '<b>faible</b> : les annonceurs paient 20 % de moins' : 'solide'}`; },
+    seasonEnd(c, h) {
+      if (h.resultatSaison < 0) return careerLose(`La saison ${h.season} se solde par une perte de ${nf1(-h.resultatSaison)} M€ : l'info continue n'est pas rentable.`);
+      if (h.season >= 4) return careerWin("Quatre saisons rentables : la chaîne d'info continue a trouvé son modèle.");
     }
   },
   23: {
@@ -29658,7 +30106,7 @@ const CAREER_RULES = {
     seasonStart(c) {
       if (gameState.season < 2) return;
       const before = careerPda();
-      setPlayerPda(before - 1);
+      careerShift(gameState.player, -1, [gameState.player.target]);
       c.note = `Saison ${gameState.season} : les rivales prennent ${nf1(Math.max(0, before - careerPda()))} point de PDA.`;
     },
     status() {
@@ -29667,9 +30115,50 @@ const CAREER_RULES = {
     },
     seasonEnd(c, h) {
       const banned = careerBannedPrograms();
-      if (banned.length) return careerVerdict('lost', `« ${banned[0]} » est à l'antenne : la chaîne a renoncé à sa promesse sans télé-réalité ni jeu d'argent.`);
-      if (c.pdaEnd >= 15 - CAREER_EPS) return careerVerdict('won', `Saison ${h.season} : ${nf1(c.pdaEnd)} % de PDA, sans télé-réalité ni jeu d'argent.`);
-      if (h.season >= 5) return careerVerdict('lost', `Fin de la saison 5 : la chaîne plafonne à ${nf1(c.pdaEnd)} % de PDA.`);
+      if (banned.length) return careerLose(`« ${banned[0]} » est à l'antenne : la chaîne a renoncé à sa promesse sans télé-réalité ni jeu d'argent.`);
+      if (c.pdaEnd >= 15 - CAREER_EPS) return careerWin(`Saison ${h.season} : ${nf1(c.pdaEnd)} % de PDA, sans télé-réalité ni jeu d'argent.`);
+      if (h.season >= 5) return careerLose(`Fin de la saison 5 : la chaîne plafonne à ${nf1(c.pdaEnd)} % de PDA.`);
+    }
+  },
+  24: {
+    type: 'jeunesse', start: { pda: { j1524: 2, a2549: 1.5 } }, gauges: { enfants: 80 }, maxSeasons: CAREER_DEFAULT_HORIZON,
+    adFactor() { return 0.5; },
+    drift(c, d, t, ch) { if ((ch.pda?.j1524 || 0) > 0 && (t.racoleur || t.adult)) d.enfants = -8; else if (t.family) d.enfants = 3; },
+    queue(c, q) {
+      q.unshift(careerDilemma(c, 'grandir', 'Grandir avec son public', 'Les enfants qui regardaient la chaîne sont devenus ados, et leurs parents zappent ailleurs.', [
+        { l: 'Lancer une case ado en access', r: 'Les 15-24 ans arrivent ; les plus petits trouvent la chaîne moins à eux.', finance: { purchase: 5 }, pda: { j1524: 2 }, fx: { enfants: -6 } },
+        { l: 'Programmer des soirées en famille', r: 'Les parents restent devant l’écran avec leurs enfants.', finance: { purchase: 4 }, pda: { a2549: 1.5, s50: 0.5 }, fx: { enfants: -2 } },
+        { l: 'Rester 100 % enfants', r: 'Le jeune public est ravi ; les grands attendront.', fx: { enfants: 5 } }
+      ]));
+    },
+    programSigned(c, { slot, contract }) {
+      if (!['matin', 'apresmidi'].includes(slot) || contract.editorial?.genre === 'jeunesse') return;
+      careerGauge(c, 'enfants', -10);
+      c.note = `« ${contract.name} » remplace un programme pour enfants : le jeune public le vit mal (−10).`;
+      if (c.g.enfants < 60) c.verdict = careerLose('Le public enfant décroche : la chaîne a perdu ce qui faisait sa force.');
+    },
+    afterChoice(c) { if (c.g.enfants < 60) return careerLose('Le public enfant décroche : la chaîne a perdu ce qui faisait sa force.'); },
+    status() { return `15-24 ans : <b>${nf1(careerPda(gameState.player, 'j1524'))} %</b> (objectif 8 %) · 25-49 ans : <b>${nf1(careerPda(gameState.player, 'a2549'))} %</b> (objectif 6 %) · pub jeunesse plafonnée`; },
+    seasonEnd(c, h) {
+      if (c.g.enfants < 60) return careerLose('Le public enfant décroche : la chaîne a perdu ce qui faisait sa force.');
+      if (careerPda(gameState.player, 'j1524') >= 8 - CAREER_EPS && careerPda(gameState.player, 'a2549') >= 6 - CAREER_EPS) return careerWin('Les ados et les parents sont conquis, et les enfants sont restés.');
+      if (h.season >= CAREER_DEFAULT_HORIZON) return careerLose(`Fin de la saison ${h.season} : la chaîne n'a pas conquis les 15-24 ans et les parents.`);
+    }
+  },
+  25: {
+    start: { tresorerie: 30, pda: CAREER_ESTABLISHED_PDA }, maxSeasons: 5,
+    adSlotFactor(c, slot) {
+      const ct = activeContract(gameState.player, slot);
+      return ct && careerIsFiction(ct) && (ct.career?.seasonNumber || 1) < 3 ? 0.3 : 1;
+    },
+    status() {
+      const ok = careerFictionEvening();
+      return `Fiction maison rentable en soirée : <b>${ok.length ? esc(ok.join(', ')) : 'aucune'}</b> (objectif : l'access ou le prime) · une série ne rapporte qu'à sa 3e saison`;
+    },
+    seasonEnd(c, h) {
+      const ok = careerFictionEvening();
+      if (ok.length) return careerWin(`« ${ok[0]} », fiction maison, est rentable en soirée : le pari de la fiction française est gagné.`);
+      if (h.season >= 5) return careerLose('Fin de la saison 5 : aucune fiction maison rentable en soirée.');
     }
   },
   26: {
@@ -29679,9 +30168,23 @@ const CAREER_RULES = {
     },
     seasonEnd(c) {
       const gain = c.pdaEnd - c.pdaStart, cash = gameState.player.tresorerie;
-      if (gain >= 2 - CAREER_EPS && cash > 0) return careerVerdict('won', `${careerSigned(gain)} points de PDA et ${nf1(cash)} M€ en caisse au bout des 100 jours.`);
-      return careerVerdict('lost', `Au bout des 100 jours : ${careerSigned(gain)} pt de PDA et ${nf1(cash)} M€ de trésorerie (objectif : +2 points et une trésorerie positive).`);
+      if (gain >= 2 - CAREER_EPS && cash > 0) return careerWin(`${careerSigned(gain)} points de PDA et ${nf1(cash)} M€ en caisse au bout des 100 jours.`);
+      return careerLose(`Au bout des 100 jours : ${careerSigned(gain)} pt de PDA et ${nf1(cash)} M€ de trésorerie (objectif : +2 points et une trésorerie positive).`);
     }
+  },
+  27: {
+    maxSeasons: 3,
+    queue(c, q) {
+      if (c.gauge) return;
+      q.unshift(careerDilemma(c, 'jauge', 'Une seule jauge', 'Pendant trois saisons, le tableau de bord n’affichera qu’une seule jauge. Laquelle garder sous les yeux ?', [
+        { l: 'La trésorerie', r: 'Vous piloterez à la caisse : le reste se devinera.', fx: { gauge: 'tresorerie' } },
+        { l: 'La part d’audience', r: "Vous piloterez à l'audience : l'argent se devinera.", fx: { gauge: 'pda' } },
+        { l: 'La popularité', r: "Vous piloterez à l'image : les chiffres se devineront.", fx: { gauge: 'popularite' } }
+      ]));
+    },
+    afterChoice(c, { fx }) { if (fx.gauge) c.gauge = fx.gauge; },
+    status(c) { return c.gauge ? `Jauge visible : <b>${{ tresorerie: 'trésorerie', pda: "part d'audience", popularite: 'popularité' }[c.gauge]}</b> — les autres sont masquées` : 'Choisissez la jauge à garder.'; },
+    seasonEnd(c, h) { if (h.season >= 3) return careerWin('Trois saisons à l’aveugle sans sombrer : la chaîne a survécu.'); }
   },
   28: {
     maxSeasons: 3,
@@ -29695,33 +30198,249 @@ const CAREER_RULES = {
     },
     afterChoice(c) { return careerFloorBreach(c); },
     seasonEnd(c, h) {
-      return careerFloorBreach(c) || (h.season >= 3 ? careerVerdict('won', 'Trois saisons sans qu\'aucune jauge ne repasse sous sa valeur de départ.') : null);
+      return careerFloorBreach(c) || (h.season >= 3 ? careerWin("Trois saisons sans qu'aucune jauge ne repasse sous sa valeur de départ.") : null);
+    }
+  },
+  29: {
+    start: { pda: CAREER_ESTABLISHED_PDA }, maxSeasons: 1,
+    queue(c, q) {
+      q.splice(0, q.length,
+        careerDilemma(c, 'programme', 'Le dernier prime : quel programme ?', "La chaîne s'éteint ce soir. Il reste une soirée pour laisser une trace.", [
+          { l: 'Une grande soirée hommage', r: 'Archives, invités, émotion : le public est au rendez-vous.', finance: { purchase: 6 }, pop: 4, pda: careerAll(2) },
+          { l: 'Le dernier épisode de la série phare', r: 'Les fidèles sont tous là pour le final.', finance: { purchase: 4 }, pda: { a2549: 2.5, j1524: 1, s50: 1 } },
+          { l: 'Un direct sans filet', r: 'Tout peut arriver : les jeunes adorent, les plus âgés décrochent.', finance: { purchase: 2 }, pop: -2, pda: { j1524: 3, a2549: 1, s50: -1 } }
+        ]),
+        careerDilemma(c, 'presentation', 'Qui pour présenter ?', 'La dernière soirée a besoin d’un visage.', [
+          { l: 'La figure historique de la chaîne', r: 'Son retour émeut toute une génération.', finance: { purchase: 3 }, pop: 3, pda: { s50: 2, a2549: 0.5 } },
+          { l: 'Une nouvelle voix', r: 'Un passage de relais symbolique.', finance: { purchase: 1 }, pop: 1, pda: { j1524: 2 } }
+        ]),
+        careerDilemma(c, 'fin', 'Le mot de la fin', 'Minuit approche. Comment éteindre l’antenne ?', [
+          { l: 'Remercier le public', r: 'Un merci simple, et des milliers de messages en retour.', pop: 5 },
+          { l: 'Annoncer la suite en ligne', r: "L'aventure continue ailleurs : les plus jeunes suivent.", pop: 2, pda: { j1524: 1, a2549: 1 } },
+          { l: 'Écran noir et générique', r: 'Un dernier générique, sans un mot : la presse parle de classe.', pop: 3, pda: { csp: 1 } }
+        ]));
+    },
+    status() { return `${careerPdaLabel()} en prime : <b>${nf1(careerRow()?.slots.prime[gameState.player.target] || 0)} %</b> · popularité : <b>${Math.round(gameState.player.popularite)}</b>`; },
+    seasonEnd() {
+      const prime = careerRow()?.slots.prime[gameState.player.target] || 0;
+      return careerWin(`Score d'audience du dernier prime : ${nf1(prime)} % de PDA. Trace laissée : popularité ${Math.round(gameState.player.popularite)}/100.`);
+    }
+  },
+  30: {
+    start: { pda: CAREER_ESTABLISHED_PDA }, maxSeasons: 5,
+    queue(c, q) {
+      q.unshift(careerDilemma(c, 'oncle', 'Votre oncle, directeur des programmes', "Il pensait que la chaîne lui revenait. Tant que votre popularité n'aura pas dépassé 70, il sabotera en coulisses.", [
+        { l: 'Le recadrer devant le comité de direction', r: 'Il se tient tranquille cette saison ; la famille vous trouve dure.', pop: -3, fx: { truce: true } },
+        { l: 'Lui confier un projet prestige', r: 'Occupé par son projet, il range ses couteaux… pour cette saison.', finance: { purchase: 4 }, fx: { truce: true } },
+        { l: 'Fermer les yeux', r: 'Vous gardez votre énergie pour l’antenne. Lui garde la sienne pour vous nuire.' }
+      ]));
+    },
+    afterChoice(c, { fx, dilemma }) {
+      const p = gameState.player;
+      if (fx.truce) c.truce = gameState.season;
+      if (dilemma.isCareerScripted || c.truce === gameState.season || p.popularite > 70) return;
+      c.sabotage = (c.sabotage || 0) + 1;
+      if (c.sabotage % 2 === 1) {
+        p.popularite = Math.max(0, p.popularite - 4);
+        c.note = 'Fuite dans la presse orchestrée par votre oncle : −4 de popularité.';
+      } else {
+        const t = (p.talents || []).find(x => x.until > gameState.season);
+        if (t) { t.until = gameState.season; c.note = `Votre oncle pousse ${t.name} vers la sortie : son contrat s'arrête en fin de saison.`; }
+        else { careerShift(p, -0.8); c.note = 'Votre oncle débauche des équipes en coulisses : −0,8 pt de PDA.'; }
+      }
+      if (p.popularite < 30) return careerLose('Le conseil de famille vous écarte : votre popularité tombe sous 30.');
+    },
+    status() { return `Popularité : <b>${Math.round(gameState.player.popularite)}</b> (sabotage tant qu'elle ne dépasse pas 70 · écartée sous 30)`; },
+    seasonEnd(c, h) {
+      if (gameState.player.popularite < 30) return careerLose('Le conseil de famille vous écarte : votre popularité tombe sous 30.');
+      if (h.season >= 5) return careerWin('Cinq saisons aux commandes : l’héritière a tenu tête à son oncle.');
+    }
+  },
+  31: {
+    start: { pda: CAREER_ESTABLISHED_PDA }, gauges: { moral: 60 }, maxSeasons: 2,
+    opened(c) {
+      if (gameState.season !== 1 || c.mole != null) return;
+      c.mole = Math.floor(seededRandom() * CAREER_SUSPECTS.length);
+      c.clues = CAREER_SUSPECTS.map(() => 0);
+      c.cleared = [];
+    },
+    seasonStart(c) {
+      if (gameState.season < 2 || c.found) return;
+      const r = careerRivals()[0];
+      if (!r) return;
+      careerShift(r, 0.8, [gameState.player.target]);
+      c.note = `Vos grilles ont fuité : ${r.name} les a eues avant vous (+0,8 pt pour elle).`;
+    },
+    queue(c, q) {
+      if (c.found) return;
+      const open = CAREER_SUSPECTS.map((s, i) => i).filter(i => !(c.cleared || []).includes(i));
+      q.push(careerDilemma(c, 'taupe', 'Démasquer la taupe', `Indices recueillis : ${open.map(i => `${CAREER_SUSPECTS[i].nom} ${c.clues?.[i] || 0}`).join(' · ')}.${gameState.season >= 2 ? ' C’est la dernière occasion.' : ''}`, [
+        ...open.map(i => ({ l: `Accuser ${CAREER_SUSPECTS[i].nom}, ${CAREER_SUSPECTS[i].poste}`, r: 'La direction juridique convoque le cadre.', fx: { accuse: i } })),
+        ...(gameState.season < 2 ? [{ l: "Attendre d'autres indices", r: 'Vous laissez filer : la taupe aussi.', fx: { wait: true } }] : [])
+      ]));
+    },
+    afterChoice(c, { fx, dilemma }) {
+      if (fx.accuse != null) {
+        const s = CAREER_SUSPECTS[fx.accuse];
+        if (fx.accuse === c.mole) {
+          c.found = true;
+          return careerPda() >= (c.pdaInitial ?? 0) - 1
+            ? careerWin(`${s.nom}, ${s.poste}, vendait vos grilles. La taupe est démasquée et la chaîne reste dans la course.`)
+            : careerLose(`${s.nom} était bien la taupe, mais la chaîne a trop reculé pendant l'enquête.`);
+        }
+        careerGauge(c, 'moral', -25);
+        c.cleared = [...(c.cleared || []), fx.accuse];
+        c.note = `${s.nom} était innocent·e : la rédaction ne vous le pardonne pas (−25 de moral).`;
+        return;
+      }
+      if (fx.wait || dilemma.isCareerScripted || c.found || !c.clues) return;
+      const others = CAREER_SUSPECTS.map((s, i) => i).filter(i => i !== c.mole && !(c.cleared || []).includes(i));
+      const i = seededRandom() < 0.6 || !others.length ? c.mole : others[Math.floor(seededRandom() * others.length)];
+      c.clues[i] += 1;
+      c.note = `Indice : ${CAREER_CLUES[(c.clues[i] - 1) % CAREER_CLUES.length](CAREER_SUSPECTS[i].nom)}.`;
+    },
+    status(c) { return c.clues ? `Indices : ${CAREER_SUSPECTS.map((s, i) => (c.cleared || []).includes(i) ? `<s>${s.nom}</s>` : `${s.nom} <b>${c.clues[i]}</b>`).join(' · ')}` : ''; },
+    seasonEnd(c, h) { if (h.season >= 2 && !c.found) return careerLose('Fin de la saison 2 : la taupe court toujours.'); }
+  },
+  32: {
+    start: { pda: CAREER_ESTABLISHED_PDA }, gauges: { moral: 30 }, maxSeasons: 4,
+    queue(c, q) {
+      if (gameState.season !== 1) return;
+      q.unshift(careerDilemma(c, 'anciens', 'Ceux qui vous ont poussé dehors', 'Les cadres qui ont obtenu votre départ il y a dix ans sont toujours là. Toute la presse attend votre premier geste.', [
+        { l: 'Les écarter de leurs postes', r: 'La presse titre sur la revanche du revenant ; la rédaction se crispe.', pop: -6, fx: { moral: -12 } },
+        { l: 'Leur tendre la main', r: 'Le geste surprend et apaise une partie de la rédaction.', pop: 1, fx: { moral: 14 } },
+        { l: 'Les ignorer et travailler', r: "Vous laissez l'antenne parler pour vous.", fx: { moral: 3 } }
+      ]));
+    },
+    drift(c, d, t) { if (t.revanche) d.moral -= 2; },
+    afterChoice(c, { t, dilemma }) {
+      if (dilemma.isCareerScripted || !t.revanche) return;
+      gameState.player.popularite = Math.max(0, gameState.player.popularite - 5);
+      c.note = 'La presse y voit une revanche personnelle : −5 de popularité.';
+    },
+    status() { return `Rang : <b>n°${careerRank()}</b> (podium visé) · ${careerPdaLabel()} : <b>${nf1(careerPda())} %</b>`; },
+    seasonEnd(c, h) {
+      const rank = careerRank();
+      if (rank <= 3) return careerWin(`Saison ${h.season} : la chaîne remonte sur le podium (${rank}e).`);
+      if (h.season >= 4) return careerLose(`Fin de la saison 4 : la chaîne termine ${rank}e, hors du podium.`);
     }
   }
 };
 
 function careerVerdict(status, reason) { return { status, reason }; }
+function careerWin(reason) { return careerVerdict('won', reason); }
+function careerLose(reason) { return careerVerdict('lost', reason); }
 function careerSigned(v) { return `${v >= 0 ? '+' : '−'}${nf1(Math.abs(v))}`; }
+function careerAll(v) { return { j1524: v, a2549: v, s50: v, csp: v }; }
 function careerScenarioById(id) { return CAREER_SCENARIOS.find(s => s.id === Number(id)) || null; }
 function careerFamilyById(id) { return CAREER_FAMILIES.find(f => f.id === id) || CAREER_FAMILIES[0]; }
 function careerActive() { return gameState.career?.status === 'active' ? gameState.career : null; }
 function careerRule() { const c = careerActive(); return c ? CAREER_RULES[c.scenarioId] || null : null; }
-function careerPda(channel = gameState.player) { return getCalculatedPDAs().find(r => r.channel === channel)?.pda[gameState.player.target] || 0; }
-function careerPdaLabel() { return `PDA ${(TARGET_STRATEGIES[gameState.player.target]?.nom || '').replace(/\s*\([^)]*\)/, '')}`.trim(); }
-function careerRank() {
-  const t = gameState.player.target, rows = getCalculatedPDAs().sort((a, b) => b.pda[t] - a.pda[t]);
+function careerRow(channel = gameState.player) { return getCalculatedPDAs().find(r => r.channel === channel); }
+function careerPda(channel = gameState.player, key = gameState.player.target) { return careerRow(channel)?.pda[key] || 0; }
+function careerTargetLabel(key) { return (TARGET_STRATEGIES[key]?.nom || key).replace(/\s*\([^)]*\)/, ''); }
+function careerPdaLabel(key = gameState.player.target) { return `PDA ${careerTargetLabel(key)}`.trim(); }
+function careerRank(key = gameState.player.target) {
+  const rows = getCalculatedPDAs().sort((a, b) => b.pda[key] - a.pda[key]);
   return rows.findIndex(r => r.channel === gameState.player) + 1;
 }
-// Ajuste l'assise d'audience de la chaîne (player.pda, toutes cibles dans la même proportion)
-// jusqu'à la PDA visée sur la cible : la part dépend aussi des grilles rivales, d'où les passes successives.
-function setPlayerPda(target) {
-  const p = gameState.player;
+function careerRivals(key = gameState.player.target) {
+  return getCalculatedPDAs().filter(r => r.channel !== gameState.player).sort((a, b) => b.pda[key] - a.pda[key]).map(r => r.channel);
+}
+function careerGap(key = gameState.player.target) {
+  const top = careerRivals(key)[0];
+  return careerPda(gameState.player, key) - (top ? careerPda(top, key) : 0);
+}
+// Assise d'audience d'une chaîne (pda, sur les cibles données) ajustée jusqu'à la part visée sur
+// une cible : la part dépend aussi des autres chaînes, d'où les passes successives.
+function setChannelShare(channel, value, key = gameState.player.target, keys = CAREER_TARGETS) {
   for (let i = 0; i < 24; i++) {
-    const now = careerPda();
-    if (now <= 0 || Math.abs(now - target) < 0.05) break;
-    const f = Math.max(0.2, Math.min(5, target / now));
-    Object.keys(p.pda).forEach(k => { p.pda[k] = Math.max(0.01, p.pda[k] * f); });
+    const now = careerPda(channel, key);
+    if (now <= 0 || Math.abs(now - value) < 0.05) break;
+    const f = Math.max(0.2, Math.min(5, value / now));
+    keys.forEach(k => { channel.pda[k] = Math.max(0.01, channel.pda[k] * f); });
   }
+}
+function setPlayerPda(value, key) { setChannelShare(gameState.player, value, key); }
+// Décalage durable d'audience (points de part sur toutes les cases), comme l'impact d'un dilemme.
+function careerShift(channel, points, keys = CAREER_TARGETS) {
+  if (!channel || !points) return;
+  channel.slotAudienceDeltas ??= {};
+  TIME_SLOTS.forEach(({ key: slot }) => {
+    channel.slotAudienceDeltas[slot] ??= {};
+    keys.forEach(k => { channel.slotAudienceDeltas[slot][k] = (channel.slotAudienceDeltas[slot][k] || 0) + points; });
+  });
+}
+function careerGauge(c, key, delta) {
+  if (!c.g || !(key in c.g) || !Number.isFinite(delta)) return;
+  c.g[key] = Math.max(0, Math.min(100, c.g[key] + delta));
+}
+function careerSnapshot() {
+  if (!careerActive()) return null;
+  const row = careerRow();
+  return row ? Object.fromEntries(CAREER_TARGETS.map(k => [k, row.pda[k]])) : null;
+}
+function careerTalentNames() { return (gameState.player.talents || []).map(t => t.name); }
+function careerValuation() {
+  const p = gameState.player, ratio = p.coutGrilleEngageSaison > 0 ? p.revenusPubPrevisionnels / p.coutGrilleEngageSaison : 1;
+  return careerPda() * Math.max(0.1, ratio) * Math.max(1, p.popularite) / 50;
+}
+function careerRightsPrice(c, ahead = 0) { return roundHalf(18 * Math.pow(1.25, Math.max(0, (c.cycle || 1) - 1 + ahead))); }
+function careerIsFiction(ct) { return ct.editorial?.genre === 'fiction' || /fiction|serie|feuilleton|saga|polar/.test(normalizeAudienceText(`${ct.format || ''} ${ct.name || ''}`)); }
+// Fictions maison (Studio) des cases de soirée dont les recettes pub couvrent le coût annuel.
+function careerFictionEvening() {
+  const p = gameState.player, slots = adMarketModel().mine.slots || {};
+  return ['access', 'prime'].filter(slot => {
+    const ct = p.contracts?.[slot];
+    return ct && ct.original && careerIsFiction(ct) && (slots[slot] || 0) >= ct.annual;
+  }).map(slot => p.contracts[slot].name);
+}
+function careerPopular(t, ch) { return t.racoleur || (t.divert && (ch.pda?.j1524 || 0) > (ch.pda?.csp || 0)); }
+// Lecture d'une option de dilemme ordinaire : ce qu'elle coûte, ce qu'elle dit (racoleuse,
+// exigeante, économie, info, divertissement…), pour faire bouger les jauges du scénario.
+function careerTraits(d, ch) {
+  const own = normalizeAudienceText(`${ch.l || ''} ${ch.r || ''}`);
+  const all = normalizeAudienceText(`${d.titre || ''} ${d.desc || ''} ${ch.l || ''}`);
+  const f = ch.finance || {};
+  return {
+    spend: (f.purchase || 0) + Math.max(0, f.recurring || 0),
+    saving: (f.recurring || 0) < 0 || /econom|reduire|reduction|couper|supprim|licenci|plan social|rabot|geler|externalis/.test(own),
+    layoff: /licenci|plan social|suppression de postes?|departs? volontaires/.test(own),
+    economique: (f.commercial || 0) > 0 || (f.recurring || 0) < 0 || /budget|econom|cout|financ|rentab|actionna|regie|annonceur|sponsor|salaire|contrat|tarif/.test(all),
+    racoleur: /buzz|clash|scandal|polemi|racol|trash|choc|sensation|rumeur|provoc|voyeur|people|potin|tele.?realite|surench|spectaculaire|exploiter|viral|intime|larmes|humili|piege|camera cachee/.test(own),
+    exigeant: /enquete|investig|documentaire|cultur|verifi|source|rigueur|deontolog|independan|qualite|exigean|pedagog|serieux|analyse|expert|approfondi|nuance|contradictoire|transparen|retenue|sobre/.test(own),
+    risky: /rumeur|scoop|immediat|sans verif|precipit|non verifi|dement|pschitt|rectifi|erreur|fausse|intox|retract/.test(own),
+    info: /\binfo|journal|redaction|reportage|enquete|debat|actualite|\bjt\b|politi|journalist/.test(all),
+    divert: /divert|show|\bjeux?\b|tele.?realite|humour|variete|people|spectacle|talent|musique|danse|cuisine|concours/.test(all),
+    fiction: /fiction|serie|telefilm|feuilleton|saga|polar/.test(all),
+    longTerm: /fiction|serie|telefilm|feuilleton|saga|redaction|journal|enquete|reportage|investig|correspondant|documentaire/.test(own),
+    foreign: /americ|etranger|internation|import|hollywood|netflix|britanni|bresil|coree|japon|turc|scandinav|licence|format venu/.test(own),
+    modern: /moderni|rajeun|nouvelle formule|jeune|tiktok|digital|numerique|reseaux|refonte|casser|innov|plateforme|streaming/.test(own),
+    revanche: /renvo|limog|ecarter|sanction|regle(ment)? de comptes?|vengean|punir|virer/.test(own),
+    adult: /nuit|violen|trash|adulte|horreur|frisson|crime|sexe|alcool/.test(all),
+    family: /famille|enfant|dessin|anim|jeunesse|educ|ecole|parents/.test(all)
+  };
+}
+// Décision scénarisée : dilemme ordinaire du jeu, effets d'audience explicites sur toute la
+// grille et effets propres au scénario (fx : jauges, droits, accusation…).
+function careerDilemma(c, key, titre, desc, choices) {
+  const build = ch => {
+    const pda = { ...(ch.pda || {}) };
+    const purchase = ch.finance?.purchase || 0, commercial = ch.finance?.commercial || 0;
+    const out = { l: ch.l, r: ch.r || '', pop: ch.pop || 0, fx: ch.fx || {}, pda,
+      finance: { recurring: 0, purchase: 0, commercial: 0, category: commercial > 0 ? 'C' : purchase > 0 ? 'P' : 'N', ...(ch.finance || {}) },
+      audienceImpact: { slot: 'global', targets: pda } };
+    if (ch.randomOutcomes) out.randomOutcomes = ch.randomOutcomes.map(o => ({ pop: 0, pda: {}, fx: {}, ...o }));
+    return out;
+  };
+  return { id: `career_${c.scenarioId}_${key}_s${gameState.season}`, titre, desc, isCareerScripted: true, c: choices.map(build) };
+}
+// Options d'un dilemme ordinaire refusées par la contrainte (au moins une reste jouable).
+function careerBlockChoices(c, rule, d) {
+  if (!d?.c || d.type || d.isCareerScripted || (typeof dynamicDilemmaKey === 'function' && dynamicDilemmaKey(d))) return d;
+  const reasons = d.c.map(ch => rule.blockChoice(c, d, ch, careerTraits(d, ch)));
+  if (!reasons.some(Boolean) || reasons.every(Boolean)) return d;
+  return { ...d, c: d.c.map((ch, i) => reasons[i] ? { ...ch, disabled: true, l: `${ch.l} — ${reasons[i]}` } : ch) };
 }
 // Télé-réalité (famille de programmes du jeu) et jeux d'argent à l'antenne.
 function careerBannedPrograms() {
@@ -29732,11 +30451,37 @@ function careerBannedPrograms() {
 function careerFloorBreach(c) {
   const f = c.floor, p = gameState.player;
   if (!f) return null;
-  if (p.tresorerie < f.tresorerie - CAREER_EPS) return careerVerdict('lost', `La trésorerie passe à ${nf1(p.tresorerie)} M€, sous sa valeur de départ (${nf1(f.tresorerie)} M€).`);
-  if (p.popularite < f.popularite - CAREER_EPS) return careerVerdict('lost', `La popularité passe à ${Math.round(p.popularite)}, sous sa valeur de départ (${Math.round(f.popularite)}).`);
+  if (p.tresorerie < f.tresorerie - CAREER_EPS) return careerLose(`La trésorerie passe à ${nf1(p.tresorerie)} M€, sous sa valeur de départ (${nf1(f.tresorerie)} M€).`);
+  if (p.popularite < f.popularite - CAREER_EPS) return careerLose(`La popularité passe à ${Math.round(p.popularite)}, sous sa valeur de départ (${Math.round(f.popularite)}).`);
   const pda = careerPda();
-  if (pda < f.pda - CAREER_EPS) return careerVerdict('lost', `La ${careerPdaLabel()} passe à ${nf1(pda)} %, sous sa valeur de départ (${nf1(f.pda)} %).`);
+  if (pda < f.pda - CAREER_EPS) return careerLose(`La ${careerPdaLabel()} passe à ${nf1(pda)} %, sous sa valeur de départ (${nf1(f.pda)} %).`);
   return null;
+}
+
+// Branchements sur l'économie et la grille (sans effet hors Mode Carrière).
+function careerAdFactor(channel) {
+  if (channel && channel !== gameState.player) return 1;
+  const c = careerActive(), f = c && CAREER_RULES[c.scenarioId]?.adFactor;
+  return f ? f(c) : 1;
+}
+function careerAdSlotFactor(channel, slot) {
+  if (channel !== gameState.player || gameState.career?.status !== 'active') return 1;
+  const f = CAREER_RULES[gameState.career.scenarioId]?.adSlotFactor;
+  return f ? f(gameState.career, slot) : 1;
+}
+function careerProgramBlock(program, slot) {
+  const c = careerActive(), f = c && CAREER_RULES[c.scenarioId]?.blockProgram;
+  return f ? f(c, program, slot) : null;
+}
+function careerProgramSigned(slot, before) {
+  const c = careerActive(), f = c && CAREER_RULES[c.scenarioId]?.programSigned;
+  const contract = gameState.player.contracts?.[slot];
+  if (f && contract) f(c, { slot, contract, before, after: careerSnapshot() });
+}
+// « Une seule jauge » : le tableau de bord masque les autres valeurs.
+function careerHudAttr() {
+  const c = careerActive();
+  return c?.scenarioId === 27 && c.gauge ? ` data-career-gauge="${c.gauge}"` : '';
 }
 
 // Progression : { completed: [ids], best: { id: étoiles } } dans localStorage. Sans stockage
@@ -29768,54 +30513,112 @@ function careerLocked(s, progress = loadCareerProgress()) {
   return s.difficulte >= 4 && progress.completed.length < CAREER_UNLOCK_COUNT;
 }
 
+// Parts d'audience de départ : la chaîne (valeur, ou valeur par cible) et, pour un leader, les
+// rivales ramenées sous un plafond (le dauphin à part dans « L'écart impossible »).
+function applyCareerStartShares(rule) {
+  const s = rule.start || {}, p = gameState.player;
+  if (s.pda == null && s.rivalCap == null) return;
+  const dauphin = s.dauphin != null ? careerRivals()[0] : null;
+  for (let pass = 0; pass < 3; pass++) {
+    if (s.rivalCap != null) gameState.competitors.forEach(r => { if (r !== dauphin && careerPda(r) > s.rivalCap) setChannelShare(r, s.rivalCap); });
+    if (dauphin) setChannelShare(dauphin, s.dauphin);
+    if (typeof s.pda === 'number') setChannelShare(p, s.pda);
+    else if (s.pda) Object.entries(s.pda).forEach(([k, v]) => setChannelShare(p, v, k, [k]));
+  }
+}
 // Conditions de départ, appliquées à la fin de la configuration (finalizeChannelSetup).
 function applyCareerSetup() {
-  const rule = careerRule();
+  const c = careerActive(), rule = careerRule();
   if (!rule) return;
   const p = gameState.player;
+  c.g ??= rule.gauges ? { ...rule.gauges } : null;
   if (rule.start?.tresorerie != null) { p.tresorerie = rule.start.tresorerie; p.tresorerieDebutSaison = p.tresorerie; }
   if (rule.start?.popularite != null) p.popularite = rule.start.popularite;
-  if (rule.start?.pda != null) setPlayerPda(rule.start.pda);
+  if (rule.start?.grille != null) p.budgetGrilleAnnuel = p.coutGrilleEngageSaison = rule.start.grille;
+  applyCareerStartShares(rule);
 }
-// Ouverture de saison, une fois les grilles rivales arrêtées : PDA de départ recalée en
-// saison 1 (les rivales viennent de bâtir leur grille), puis effet de la contrainte.
+// Ouverture de saison, une fois les grilles rivales arrêtées : parts de départ recalées en
+// saison 1 (les rivales viennent de bâtir leur grille), puis effets de la contrainte.
 function careerSeasonStart() {
   const c = careerActive(), rule = careerRule();
   if (!c || !rule) return;
-  if (gameState.season === 1 && rule.start?.pda != null) setPlayerPda(rule.start.pda);
+  if (gameState.season === 1) applyCareerStartShares(rule);
   rule.seasonStart?.(c);
+}
+// File de dilemmes de la saison : longueur imposée (« Les 100 jours »), options refusées par la
+// contrainte, décisions scénarisées.
+function careerShapeQueue() {
+  const c = careerActive(), rule = careerRule();
+  if (!c || !rule) return;
+  const n = rule.dilemmes;
+  if (n) {
+    const queue = gameState.dilemmaQueue, used = new Set(queue.map(d => d.id));
+    const pool = shuffle(getEligibleDilemmas().filter(d => d.type !== 'sports_rights_auction' && !used.has(d.id)
+      && (!isMercatoSeason() || !MERCATO_OVERLAP_DILEMMAS.includes(d.id))));
+    while (queue.length < n && pool.length) queue.push(pool.shift());
+    gameState.seenDilemmaIds.push(...queue.map(d => d.id).filter(id => !gameState.seenDilemmaIds.includes(id)));
+  }
+  if (rule.blockChoice) gameState.dilemmaQueue = gameState.dilemmaQueue.map(d => careerBlockChoices(c, rule, d));
+  rule.queue?.(c, gameState.dilemmaQueue);
 }
 // Saison ouverte (grille payée, recettes créditées) : PDA de départ de la saison.
 function careerSeasonOpened() {
   const c = careerActive(), rule = careerRule();
   if (!c || !rule || gameState.step !== 6) return;
   c.pdaStart = careerPda();
+  if (c.pdaInitial == null) c.pdaInitial = c.pdaStart;
   rule.opened?.(c);
 }
-// « Les 100 jours » : la saison compte 12 dilemmes au lieu de la file habituelle.
-function extendCareerQueue() {
-  const n = careerRule()?.dilemmes;
-  if (!n) return;
-  const queue = gameState.dilemmaQueue, used = new Set(queue.map(d => d.id));
-  const pool = shuffle(getEligibleDilemmas().filter(d => d.type !== 'sports_rights_auction' && !used.has(d.id)
-    && (!isMercatoSeason() || !MERCATO_OVERLAP_DILEMMAS.includes(d.id))));
-  while (queue.length < n && pool.length) queue.push(pool.shift());
-  gameState.seenDilemmaIds.push(...queue.map(d => d.id).filter(id => !gameState.seenDilemmaIds.includes(id)));
-}
-// Fin de saison : verdict du scénario (pénalités éventuelles comprises, avant le contrôle de faillite).
+// Fin de saison : grève si le moral s'effondre, puis verdict du scénario (pénalités éventuelles
+// comprises, avant le contrôle de faillite).
 function careerSeasonEnd() {
   const c = careerActive(), rule = careerRule();
-  if (!c || !rule?.seasonEnd) return;
+  if (!c || !rule) return;
+  if (c.g && 'moral' in c.g && c.g.moral < (rule.strikeBelow ?? 20)) {
+    careerShift(gameState.player, -1, [gameState.player.target]);
+    c.note = `Moral à ${Math.round(c.g.moral)} : la rédaction se met en grève (−1 pt de PDA).`;
+  }
   c.pdaEnd = careerPda();
-  const v = rule.seasonEnd(c, gameState.history[gameState.history.length - 1]);
-  if (v) c.verdict = v;
+  const v = rule.seasonEnd?.(c, gameState.history[gameState.history.length - 1]);
+  if (v && !c.verdict) c.verdict = v;
 }
-// Après chaque décision : défaite immédiate (« Le sans-faute ») ou issue de fin de saison.
-// La faillite garde la priorité ; une défaite de scénario passe par l'écran de fin de partie.
-function careerAfterChoice() {
+// Jauges des dilemmes ordinaires : économies et revanches pèsent sur le moral, options
+// exigeantes et racoleuses sur la crédibilité ; chaque scénario ajuste ensuite (drift).
+function careerDriftDelta(c, rule, t, choice) {
+  const delta = {};
+  if ('moral' in c.g) delta.moral = (t.saving ? -6 : 0) + (t.revanche ? -6 : 0) + (t.spend >= 2 && !t.saving ? 2 : 0) + Math.sign(choice.pop || 0);
+  if ('credibilite' in c.g) delta.credibilite = (t.exigeant ? 5 : 0) - (t.racoleur ? 8 : 0);
+  rule.drift?.(c, delta, t, choice);
+  return delta;
+}
+function careerDrift(c, rule, { t, choice }) {
+  Object.entries(careerDriftDelta(c, rule, t, choice)).forEach(([k, v]) => careerGauge(c, k, v));
+}
+// Effet d'une option sur les jauges du scénario, affiché sous l'option (jauge cachée exclue).
+function careerChoiceHint(dilemma, choice) {
+  const c = careerActive(), rule = careerRule();
+  if (!c?.g || !rule || !choice || choice.disabled) return '';
+  const delta = dilemma.isCareerScripted
+    ? Object.fromEntries(Object.entries(choice.fx || {}).filter(([k, v]) => typeof v === 'number' && k in c.g))
+    : careerDriftDelta(c, rule, careerTraits(dilemma, choice), choice);
+  const parts = Object.entries(delta).filter(([k, v]) => Math.round(v) && !CAREER_GAUGES[k].hidden)
+    .map(([k, v]) => `${CAREER_GAUGES[k].icon} ${CAREER_GAUGES[k].label} ${v > 0 ? '+' : '−'}${Math.abs(Math.round(v))}`);
+  return parts.length ? `<span class="choice-caption career-hint">${parts.join(' · ')}</span>` : '';
+}
+// Après chaque décision : effets scénarisés, jauges, contraintes, puis issue (défaite immédiate
+// ou verdict de fin de saison). La faillite garde la priorité ; une défaite de scénario passe
+// par l'écran de fin de partie, une victoire par l'écran de victoire.
+function careerAfterChoice(dilemma, choice, before) {
   const c = careerActive(), rule = careerRule();
   if (!c) return;
-  if (!c.verdict && rule?.afterChoice) { const v = rule.afterChoice(c); if (v) c.verdict = v; }
+  if (dilemma && choice && rule) {
+    const fx = choice.fx || {};
+    if (c.g) Object.entries(fx).forEach(([k, v]) => { if (typeof v === 'number') careerGauge(c, k, v); });
+    const t = careerTraits(dilemma, choice);
+    if (c.g && !dilemma.isCareerScripted) careerDrift(c, rule, { t, choice });
+    const v = rule.afterChoice?.(c, { dilemma, choice, t, fx, before, after: careerSnapshot() });
+    if (v && !c.verdict) c.verdict = v;
+  }
   if (gameState.pendingNextStep === 8) { c.status = 'lost'; return; }
   if (!c.verdict) return;
   c.status = c.verdict.status;
@@ -29831,7 +30634,7 @@ function careerAfterChoice() {
 }
 
 // Bandeau rappelant le scénario en jeu (dilemmes et bilan), au format d'une option de dilemme :
-// objectif, contrainte, suivi de la contrainte et dernier événement de la contrainte.
+// objectif, contrainte, jauges du scénario, suivi et dernier événement de la contrainte.
 function careerBannerHtml() {
   const c = careerActive();
   if (!c) return '';
@@ -29840,6 +30643,11 @@ function careerBannerHtml() {
   const fam = careerFamilyById(s.famille);
   const [ruleLabel, ruleText] = s.contrainte ? ['Contrainte', s.contrainte] : ['Règle spéciale', s.regleSpeciale];
   const status = rule.status ? rule.status(c) : '';
+  const gauges = c.g ? Object.entries(c.g).map(([k, v]) => {
+    const g = CAREER_GAUGES[k];
+    const value = g.hidden ? (v > 66 ? 'serein' : v > 33 ? 'agacé' : 'à bout') : `${Math.round(v)}${g.unit || ''}`;
+    return `<span class="career-gauge${!g.hidden && v < 30 ? ' low' : ''}"><span aria-hidden="true">${g.icon}</span>${g.label} <b>${value}</b></span>`;
+  }).join('') : '';
   return `<div class="choice career-banner" style="${careerFamilyStyle(fam)}">
     <div class="choice-row">
       <span class="choice-icon" aria-hidden="true">${fam.icone}</span>
@@ -29851,6 +30659,7 @@ function careerBannerHtml() {
     <div class="career-banner-lines">
       <span><b>Objectif :</b> ${esc(s.objectif)}</span>
       <span><b>${ruleLabel} :</b> ${esc(ruleText)}</span>
+      ${gauges ? `<span class="career-gauges">${gauges}</span>` : ''}
       ${status ? `<span>${status}</span>` : ''}
       ${c.note ? `<span class="career-banner-note">${esc(c.note)}</span>` : ''}
     </div>
@@ -29917,7 +30726,7 @@ function renderCareerList(app) {
       <p class="career-family-hook">${esc(fam.accroche)}</p>
       <div class="optgrid-format career-grid">${items.map(s => {
         const done = progress.completed.includes(s.id), locked = careerLocked(s, progress);
-        const tags = `${locked ? '<span class="career-tag lock">🔒 Verrouillé</span>' : ''}${s.jouable ? '' : '<span class="career-tag soon">Bientôt</span>'}`;
+        const tags = locked ? '<span class="career-tag lock">🔒 Verrouillé</span>' : '';
         return `<button type="button" class="opt-format career-card${done ? ' done' : ''}${locked ? ' locked' : ''}" data-career-scenario="${s.id}" aria-haspopup="dialog">
           <span class="opt-format-check" aria-hidden="true">✓</span>
           <span class="career-card-head"><span class="opt-format-icon" aria-hidden="true">${fam.icone}</span><span class="career-num">#${String(s.id).padStart(2, '0')}</span>${careerStarsHtml(s.difficulte)}</span>
@@ -29946,11 +30755,9 @@ function openCareerSheet(id, trigger) {
   const rows = s.format
     ? [['🗓️', 'Format', s.format, 'neutral'], ['🎯', 'Objectif', s.objectif, 'accent'], ['📜', 'Règle spéciale', s.regleSpeciale, 'neutral']]
     : [['📍', 'Situation de départ', s.situation, 'neutral'], ['🎯', 'Objectif', s.objectif, 'accent'], ['⚠️', 'Contrainte', s.contrainte, 'neutral']];
-  const cta = !s.jouable
-    ? '<button type="button" class="welcome-cta" disabled><span>Bientôt disponible</span></button>'
-    : locked
-      ? `<button type="button" class="welcome-cta" disabled><span>Réussissez ${CAREER_UNLOCK_COUNT} scénarios pour débloquer (${Math.min(progress.completed.length, CAREER_UNLOCK_COUNT)}/${CAREER_UNLOCK_COUNT})</span></button>`
-      : `<button type="button" class="welcome-cta" id="btn-career-launch"><span class="welcome-cta-shine"></span><span>Lancer ce scénario</span>${CAREER_ARROW_SVG}</button>`;
+  const cta = locked
+    ? `<button type="button" class="welcome-cta" disabled><span>Réussissez ${CAREER_UNLOCK_COUNT} scénarios pour débloquer (${Math.min(progress.completed.length, CAREER_UNLOCK_COUNT)}/${CAREER_UNLOCK_COUNT})</span></button>`
+    : `<button type="button" class="welcome-cta" id="btn-career-launch"><span class="welcome-cta-shine"></span><span>Lancer ce scénario</span>${CAREER_ARROW_SVG}</button>`;
   const root = document.createElement('div');
   root.className = 'career-sheet';
   root.innerHTML = `
@@ -29974,7 +30781,6 @@ function openCareerSheet(id, trigger) {
             </div>
           </div></div>`).join('')}
         </div>
-        ${s.jouable ? '' : `<p class="career-soon-note"><b>Bientôt :</b> ${esc(s.bientot)}</p>`}
         ${cta}
         <button type="button" class="welcome-cta welcome-cta-outline welcome-cta-tight" data-career-close>Retour</button>
       </div>
@@ -30040,6 +30846,7 @@ function startCareerGame(id) {
   gameState.career = { scenarioId: s.id, startSeason: 1, status: 'active', objectif: s.objectif };
   const p = gameState.player;
   if (rule.type) p.type = rule.type;
+  if (rule.target) p.target = rule.target;
   p.name = pick(GENERATED_NAMES[p.type]);
   finalizeChannelSetup();
   gameState.homeView = null;
@@ -30049,7 +30856,7 @@ function startCareerGame(id) {
 // « Lancer ce scénario » : l'écran suivant est le début de la partie.
 function launchCareerScenario(id) {
   const s = careerScenarioById(id);
-  if (!s?.jouable || !CAREER_RULES[id] || careerLocked(s)) return;
+  if (!s || !CAREER_RULES[id] || careerLocked(s)) return;
   closeCareerSheet(true);
   goToStepAnimated(() => startCareerGame(id));
 }
@@ -30475,7 +31282,7 @@ function bindCampaignPanel(app) {
         if(q.finance.purchase>0) lines.push(`<span>Achat <b>${nf1(q.finance.purchase)} M€</b></span>`);
         if(q.termination>0) lines.push(`<span class="warn">dont pénalité ${nf1(q.termination)} M€</span>`);
         if(q.buyout>0) lines.push(`<span class="warn">dont rachat à ${esc(q.holder.competitor.name)} ${nf1(q.buyout)} M€</span>`);
-        if(!q.allowed) lines.push('<span class="bad">Budget insuffisant</span>');
+        if(!q.allowed) lines.push(`<span class="bad">${q.careerBlocked ? esc(q.careerBlocked.charAt(0).toUpperCase()+q.careerBlocked.slice(1)) : 'Budget insuffisant'}</span>`);
       }
       card.querySelector('[data-pm-quote]').innerHTML=lines.join('');
       card.querySelector('[data-pm-confirm]').disabled=!q?.allowed;
