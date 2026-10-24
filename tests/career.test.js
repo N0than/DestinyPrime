@@ -46,7 +46,9 @@ ok(CAREER_SCENARIOS.every(s=>s.jouable),'les 32 scénarios sont jouables');
 ok(CAREER_SCENARIOS[0].contrainte==='La banque plafonne les dépenses de grille et coupe les crédits à la première saison en perte','texte du scénario 1 recopié');
 ok(CAREER_SCENARIOS[25].format==='1 saison, 12 dilemmes'&&CAREER_SCENARIOS[25].regleSpeciale==='Idéal comme tutoriel avancé','texte du scénario 26 recopié');
 ok(CAREER_SCENARIOS[13].objectif==='Faire grimper la valorisation de 60 % (PDA × rentabilité × popularité)','texte du scénario 14 recopié');
-ok(CAREER_FAMILIES[3].accroche==="Le patron, ce n'est pas vous : chaque scénario oppose vos choix éditoriaux aux exigences de celui qui paie.",'accroche de famille recopiée');
+ok(CAREER_FAMILIES.map(f=>f.nom).join('|')==='Mission sauvetage|Le trône|La conquête|Sous pression|Avis de tempête|Ligne éditoriale|Défis express|Destins de chaînes','noms des familles');
+ok(CAREER_FAMILIES.every((f,i)=>f.numero===String(i+1).padStart(2,'0')&&f.illustration?.genre&&f.accroche),'numéro, illustration et description de chaque famille');
+ok(CAREER_FAMILIES[3].accroche==="Vous dirigez l'antenne, mais pas les cordons de la bourse. Entre ambitions éditoriales et exigences des actionnaires, chaque décision se négocie.",'description de famille recopiée');
 
 // ——— 2. Progression : stockage vide, illisible, indisponible ———
 ok(loadCareerProgress().completed.length===0,'stockage vide');

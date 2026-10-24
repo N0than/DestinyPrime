@@ -1491,10 +1491,23 @@ button.radar-row:focus-visible { outline: 2px solid var(--bleu); outline-offset:
 .career-tv-progress { position: absolute; top: 6.4%; right: 3.9%; background: rgba(255,255,255,0.85); }
 
 /* ---- MODE CARRIÈRE — EXPLORATEUR DE SCÉNARIOS ---- */
-/* Mêmes briques que la configuration : badges d'étape, cartes .opt-format sur deux colonnes. */
+/* Filtres repliés derrière un bouton ; une carte par famille, au format des cartes de
+   l'accueil, qui se retourne sur la liste de ses défis. */
+.career-kicker-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.career-filter-toggle {
+  position: relative; display: inline-flex; align-items: center; gap: 5px; min-height: 30px; padding: 0 11px; cursor: pointer;
+  font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 11px; line-height: 1; color: #334155;
+  background: rgba(255,255,255,0.6); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,0.8); box-shadow: 0 4px 12px rgba(15,23,42,0.06); border-radius: 999px;
+}
+.career-filter-toggle::before { content: ''; position: absolute; inset: -7px -2px; }
+.career-filter-toggle svg { width: 13px; height: 13px; }
+.career-filter-toggle[aria-expanded="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
+.career-filter-count { min-width: 16px; height: 16px; padding: 0 4px; border-radius: 999px; background: var(--rouge); color: #fff; font-size: 10px; display: inline-flex; align-items: center; justify-content: center; }
+.career-filter-panel[hidden] { display: none; }
 .career-filters {
   display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none;
-  margin: 12px -14px 0; padding: 4px 14px; scroll-padding: 0 14px;
+  margin: 10px -14px 0; padding: 4px 14px; scroll-padding: 0 14px;
 }
 .career-filters::-webkit-scrollbar { display: none; }
 .career-filters + .career-filters { margin-top: 2px; }
@@ -1506,34 +1519,53 @@ button.radar-row:focus-visible { outline: 2px solid var(--bleu); outline-offset:
 .career-chip[aria-pressed="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
 .career-chip-stars { color: var(--gold); letter-spacing: 1px; }
 .career-chip-stars[aria-pressed="true"] { color: #fbbf24; }
-.career-family { margin-top: 20px; }
-.career-family-head { margin-bottom: 0; }
-.career-family-head .kicker-badge { gap: 6px; color: var(--fam); }
-.career-family-count { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gris); white-space: nowrap; }
-.career-family-hook { margin-top: 8px; font-size: 11.5px; line-height: 1.4; font-style: italic; color: var(--gris); }
-.career-grid { margin: 10px 0 0; }
-.career-card { display: flex; flex-direction: column; gap: 5px; min-width: 0; width: 100%; color: var(--ink); cursor: pointer; }
-.career-card .opt-format-icon { background: var(--fam-bg); }
-.career-card.done .opt-format-check { display: flex; }
-.career-card.locked { background: rgba(255,255,255,0.45); }
-.career-card-head { display: flex; align-items: center; gap: 6px; }
-.career-num { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 10px; letter-spacing: 0.8px; color: var(--fam); }
-.career-card-head .career-stars { margin-left: auto; }
-.career-card-title {
-  font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 11.5px; line-height: 1.25;
-  text-transform: uppercase; letter-spacing: 0.3px; color: var(--fam);
+.career-fam-list { display: flex; flex-direction: column; gap: 16px; margin-top: 14px; }
+/* Carte retournable : les deux faces occupent la même case, la plus haute donne la hauteur. */
+.career-fam { perspective: 1400px; }
+.career-fam-inner { display: grid; transition: transform 0.55s cubic-bezier(0.2, 0.8, 0.2, 1); transform-style: preserve-3d; }
+.career-fam.flipped .career-fam-inner { transform: rotateY(180deg); }
+.career-fam-face { grid-area: 1 / 1; margin-bottom: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; display: flex; flex-direction: column; min-width: 0; }
+.career-fam-back { transform: rotateY(180deg); text-align: left; }
+@media (prefers-reduced-motion: reduce) { .career-fam-inner { transition: none; } }
+.career-fam-front { cursor: pointer; font: inherit; color: inherit; width: 100%; }
+@media (hover: hover) { .career-fam-front:hover { box-shadow: 0 28px 54px -12px rgba(15,23,42,0.18), 0 0 0 1px rgba(255,255,255,0.8) inset; } }
+.career-fam-front:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
+.career-fam-art { position: relative; display: block; width: 100%; aspect-ratio: 16 / 10; border-radius: 14px; overflow: hidden; background: var(--fam-bg); box-shadow: 0 10px 30px -10px rgba(15,23,42,0.25); }
+.career-fam-art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+.career-fam-num {
+  position: absolute; left: 10px; top: 10px; padding: 4px 10px; border-radius: 999px;
+  font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 2px; color: var(--fam);
+  background: rgba(255,255,255,0.92); box-shadow: 0 4px 10px -6px rgba(15,23,42,0.5);
 }
-.career-card .opt-format-obj { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-.career-card-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: auto; padding-top: 3px; }
+.career-fam-done { position: absolute; right: 10px; top: 10px; background: rgba(255,255,255,0.92); }
+.career-fam-front h2 { margin: 18px 0 0; }
+.career-fam-front .welcome-sub { margin: 8px 0 0; font-size: 13px; line-height: 1.5; color: #475569; }
+.career-fam-foot { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; margin-top: auto; padding-top: 16px; }
+.career-fam-hint { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--fam); }
+.career-fam-back-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.career-fam-back-head h3 { flex: 1; min-width: 0; font-size: 18px; color: var(--ink); }
+.career-fam-back-head .career-fam-num { position: static; box-shadow: none; background: var(--fam-bg); }
+.career-fam-rows { display: flex; flex-direction: column; gap: 8px; }
+.career-row-btn {
+  display: flex; align-items: center; gap: 10px; width: 100%; min-height: 44px; padding: 10px 12px; text-align: left; cursor: pointer;
+  background: rgba(255,255,255,0.75); border: 1px solid rgba(15,23,42,0.06); border-radius: 12px; color: var(--ink);
+  font-family: 'Plus Jakarta Sans', sans-serif; transition: transform 0.12s ease, background 0.12s ease;
+}
+@media (hover: hover) { .career-row-btn:hover { background: #fff; transform: translateY(-1px); } }
+.career-row-btn:active { transform: scale(0.98); }
+.career-row-btn.locked { opacity: 0.65; }
+.career-row-num { flex-shrink: 0; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 0.8px; color: var(--fam); }
+.career-row-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.career-row-title { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 12px; line-height: 1.25; text-transform: uppercase; letter-spacing: 0.3px; }
+.career-row-obj { font-size: 11px; line-height: 1.35; color: var(--gris); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.career-row-side { flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+.career-row-state { font-size: 10px; font-weight: 700; }
+.career-row-state.ok { color: var(--vert); }
+.career-row-state.lock { color: var(--gris); }
+.career-fam-back .welcome-cta { margin-top: 12px; }
 .career-stars { display: inline-flex; gap: 1px; font-size: 10.5px; line-height: 1; }
 .career-stars i { font-style: normal; color: var(--border); }
 .career-stars i.on { color: var(--gold); }
-.career-tag {
-  display: inline-flex; align-items: center; padding: 2px 7px; border-radius: 999px; white-space: nowrap;
-  font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 9.5px; line-height: 1.4;
-  border: 1px solid var(--border);
-}
-.career-tag.lock { color: var(--gris); background: var(--paper-dark); }
 .career-empty { margin-top: 22px; text-align: center; font-size: 13px; font-style: italic; color: var(--gris); }
 
 /* ---- MODE CARRIÈRE — FICHE SCÉNARIO ---- */
@@ -29456,14 +29488,14 @@ function renderCampaignPanel() {
 // Le scénario en cours vit dans gameState.career : gameState.campaign porte déjà les graines
 // aléatoires et les objectifs de la partie, que le remplacer casserait.
 const CAREER_FAMILIES = [
-  { id: 'redressement', nom: 'Redressement', accroche: "La chaîne qu'on vous confie est malade : il faut la soigner avant de penser à gagner.", couleur: 'var(--rouge)', icone: '🚑', fond: 'rgba(225,29,72,0.12)' },
-  { id: 'domination', nom: 'Domination', accroche: "Vous êtes déjà en haut : le défi est d'y rester.", couleur: 'var(--gold)', icone: '👑', fond: 'rgba(217,119,6,0.14)' },
-  { id: 'ascension', nom: 'Ascension', accroche: 'Partir de rien, ou presque, et grimper.', couleur: 'var(--vert)', icone: '📈', fond: 'rgba(5,150,105,0.12)' },
-  { id: 'actionnaire', nom: "L'actionnaire", accroche: "Le patron, ce n'est pas vous : chaque scénario oppose vos choix éditoriaux aux exigences de celui qui paie.", couleur: 'var(--violet)', icone: '💼', fond: 'rgba(124,58,237,0.13)' },
-  { id: 'marche', nom: 'Contraintes de marché', accroche: "Le danger vient de l'extérieur : marché, concurrence, contexte politique.", couleur: 'var(--bleu)', icone: '🌪️', fond: 'rgba(37,99,235,0.12)' },
-  { id: 'thematiques', nom: 'Défis thématiques et éditoriaux', accroche: 'Une ligne éditoriale imposée, à rendre rentable.', couleur: 'var(--cyan)', icone: '📰', fond: 'rgba(8,145,178,0.13)' },
-  { id: 'courts', nom: 'Défis à la carte / courts', accroche: 'Des formats rapides ou des variantes de règles, pour rejouer autrement.', couleur: 'var(--amber)', icone: '⏱️', fond: 'rgba(245,158,11,0.15)' },
-  { id: 'narratifs', nom: 'Scénarios narratifs', accroche: 'Une histoire scriptée se superpose à la gestion.', couleur: 'var(--pink)', icone: '🎭', fond: 'rgba(219,39,119,0.12)' }
+  { id: 'redressement', nom: "Mission sauvetage", numero: '01', illustration: { genre: 'drame', palette: 'nuit' }, accroche: "Une chaîne au bord du gouffre. Des audiences en chute libre, des finances dans le rouge. À vous d'inverser la tendance avant qu'il ne soit trop tard.", couleur: 'var(--rouge)', icone: '🚑', fond: 'rgba(225,29,72,0.12)' },
+  { id: 'domination', nom: "Le trône", numero: '02', illustration: { genre: 'talent', palette: 'studio' }, accroche: "Vous êtes numéro un. Mais à la télévision, personne ne reste au sommet éternellement. Vos concurrents n'attendent qu'un faux pas.", couleur: 'var(--gold)', icone: '👑', fond: 'rgba(217,119,6,0.14)' },
+  { id: 'ascension', nom: "La conquête", numero: '03', illustration: { genre: 'aventure', subgenre: 'montagne', palette: 'jour' }, accroche: "Une petite chaîne, de grandes ambitions. Construisez votre grille, gagnez des téléspectateurs et bousculez les géants du paysage audiovisuel.", couleur: 'var(--vert)', icone: '📈', fond: 'rgba(5,150,105,0.12)' },
+  { id: 'actionnaire', nom: "Sous pression", numero: '04', illustration: { genre: 'evenement', subgenre: 'commission', palette: 'cobalt' }, accroche: "Vous dirigez l'antenne, mais pas les cordons de la bourse. Entre ambitions éditoriales et exigences des actionnaires, chaque décision se négocie.", couleur: 'var(--violet)', icone: '💼', fond: 'rgba(124,58,237,0.13)' },
+  { id: 'marche', nom: "Avis de tempête", numero: '05', illustration: { genre: 'aventure', subgenre: 'survie', palette: 'nuit' }, accroche: "Crise publicitaire, bouleversement réglementaire, concurrence agressive : le marché change les règles du jeu. À vous de vous adapter.", couleur: 'var(--bleu)', icone: '🌪️', fond: 'rgba(37,99,235,0.12)' },
+  { id: 'thematiques', nom: "Ligne éditoriale", numero: '06', illustration: { genre: 'info', palette: 'jour' }, accroche: "Une identité à défendre, un public à conquérir et des contraintes de programmation à respecter. Prouvez qu'une ligne éditoriale peut aussi être rentable.", couleur: 'var(--cyan)', icone: '📰', fond: 'rgba(8,145,178,0.13)' },
+  { id: 'courts', nom: "Défis express", numero: '07', illustration: { genre: 'jeu', palette: 'neon' }, accroche: "Des objectifs précis, des règles inédites et quelques saisons pour faire la différence. Chaque partie est un nouveau défi.", couleur: 'var(--amber)', icone: '⏱️', fond: 'rgba(245,158,11,0.15)' },
+  { id: 'narratifs', nom: "Destins de chaînes", numero: '08', illustration: { genre: 'policier', palette: 'nuit' }, accroche: "Scandales, rivalités, rebondissements et décisions décisives. Vivez des histoires où vos choix écrivent l'avenir de votre chaîne.", couleur: 'var(--pink)', icone: '🎭', fond: 'rgba(219,39,119,0.12)' }
 ];
 const CAREER_SCENARIOS = [
   { id: 1, famille: 'redressement', titre: 'Le canal 7 en soins intensifs', difficulte: 3,
@@ -30672,30 +30704,43 @@ function careerStarsHtml(n) {
 }
 const CAREER_ARROW_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
-// Écran d'exploration : sous-écran de l'accueil (step 1, homeView 'career'), avec les briques
-// de la configuration (badges d'étape, cartes .opt-format sur deux colonnes).
+// Écran d'exploration : sous-écran de l'accueil (step 1, homeView 'career'). Filtres repliés
+// derrière un bouton ; une carte par famille, au format des cartes de l'accueil (illustration,
+// titre, description), qui se retourne sur la liste de ses défis.
+function careerFilterCount(f) { return (f.family !== 'all' ? 1 : 0) + (f.stars ? 1 : 0); }
 function renderCareerExplorer(app) {
   const progress = loadCareerProgress();
-  const filter = gameState.careerFilter ||= { family: 'all', stars: 0 };
+  const filter = gameState.careerFilter ||= { family: 'all', stars: 0, open: false };
+  const count = careerFilterCount(filter);
   app.innerHTML = `
     ${renderMasthead('Mode Carrière — 32 scénarios', 'Audience Masters')}
     <div class="kicker-row">
       <div class="kicker-lead"><button class="btn-config-back" id="btn-career-back" aria-label="Retour à l'accueil"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke-linecap="round" stroke-linejoin="round"/></svg></button><div class="kicker-badge">MODE CARRIÈRE</div></div>
-      <span class="resume-season-badge">${progress.completed.length}/${CAREER_SCENARIOS.length} réussis</span>
+      <div class="career-kicker-right">
+        <button type="button" class="career-filter-toggle" id="btn-career-filters" aria-expanded="${!!filter.open}" aria-controls="career-filter-panel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4" stroke-linecap="round"/></svg>Filtres${count ? `<span class="career-filter-count">${count}</span>` : ''}</button>
+        <span class="resume-season-badge">${progress.completed.length}/${CAREER_SCENARIOS.length} réussis</span>
+      </div>
     </div>
-    <div class="career-filters" role="group" aria-label="Filtrer par famille">
-      <button type="button" class="kicker-badge career-chip" data-career-family="all" aria-pressed="${filter.family === 'all'}">Tous</button>
-      ${CAREER_FAMILIES.map(f => `<button type="button" class="kicker-badge career-chip" data-career-family="${f.id}" aria-pressed="${filter.family === f.id}"><span aria-hidden="true">${f.icone}</span>${esc(f.nom)}</button>`).join('')}
+    <div class="career-filter-panel" id="career-filter-panel"${filter.open ? '' : ' hidden'}>
+      <div class="career-filters" role="group" aria-label="Filtrer par famille">
+        <button type="button" class="kicker-badge career-chip" data-career-family="all" aria-pressed="${filter.family === 'all'}">Toutes</button>
+        ${CAREER_FAMILIES.map(f => `<button type="button" class="kicker-badge career-chip" data-career-family="${f.id}" aria-pressed="${filter.family === f.id}"><span aria-hidden="true">${f.icone}</span>${esc(f.nom)}</button>`).join('')}
+      </div>
+      <div class="career-filters" role="group" aria-label="Filtrer par difficulté">
+        <button type="button" class="kicker-badge career-chip" data-career-stars="0" aria-pressed="${!filter.stars}">Toutes difficultés</button>
+        ${[1, 2, 3, 4, 5].map(n => `<button type="button" class="kicker-badge career-chip career-chip-stars" data-career-stars="${n}" aria-pressed="${filter.stars === n}" aria-label="Difficulté ${n} sur 5">${'★'.repeat(n)}</button>`).join('')}
+      </div>
     </div>
-    <div class="career-filters" role="group" aria-label="Filtrer par difficulté">
-      <button type="button" class="kicker-badge career-chip" data-career-stars="0" aria-pressed="${!filter.stars}">Toutes difficultés</button>
-      ${[1, 2, 3, 4, 5].map(n => `<button type="button" class="kicker-badge career-chip career-chip-stars" data-career-stars="${n}" aria-pressed="${filter.stars === n}" aria-label="Difficulté ${n} sur 5">${'★'.repeat(n)}</button>`).join('')}
-    </div>
-    <div id="career-list" aria-live="polite"></div>
+    <div id="career-list" class="career-fam-list" aria-live="polite"></div>
   `;
   const back = () => goToStepAnimated(() => { gameState.homeView = null; gameState.homeSlide = 1; }, -1);
   app.querySelector('#btn-career-back').onclick = back;
   app.querySelector('.masthead').onclick = back;
+  app.querySelector('#btn-career-filters').onclick = () => {
+    filter.open = !filter.open;
+    app.querySelector('#career-filter-panel').hidden = !filter.open;
+    app.querySelector('#btn-career-filters').setAttribute('aria-expanded', String(filter.open));
+  };
   app.querySelectorAll('[data-career-family]').forEach(b => {
     b.onclick = () => { filter.family = b.dataset.careerFamily; syncCareerFilters(app); renderCareerList(app); };
   });
@@ -30705,42 +30750,71 @@ function renderCareerExplorer(app) {
   renderCareerList(app);
 }
 function syncCareerFilters(app) {
-  const f = gameState.careerFilter;
+  const f = gameState.careerFilter, count = careerFilterCount(f);
   app.querySelectorAll('[data-career-family]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.careerFamily === f.family)));
   app.querySelectorAll('[data-career-stars]').forEach(b => b.setAttribute('aria-pressed', String(Number(b.dataset.careerStars) === f.stars)));
+  const toggle = app.querySelector('#btn-career-filters');
+  toggle.querySelector('.career-filter-count')?.remove();
+  if (count) toggle.insertAdjacentHTML('beforeend', `<span class="career-filter-count">${count}</span>`);
 }
 function careerFamilyStyle(fam) { return `--fam:${fam.couleur};--fam-bg:${fam.fond}`; }
+function careerFamilyArt(fam) {
+  return typeof TvPrograms !== 'undefined' ? TvPrograms.dataUri({ seed: `career:${fam.id}`, ...fam.illustration }) : '';
+}
 function renderCareerList(app) {
   const list = app.querySelector('#career-list');
   if (!list) return;
   const progress = loadCareerProgress(), f = gameState.careerFilter;
+  gameState.careerFlipped ??= null;
   const html = CAREER_FAMILIES.filter(fam => f.family === 'all' || fam.id === f.family).map(fam => {
     const all = CAREER_SCENARIOS.filter(s => s.famille === fam.id);
     const items = all.filter(s => !f.stars || s.difficulte === f.stars);
     if (!items.length) return '';
-    return `<section class="career-family" style="${careerFamilyStyle(fam)}">
-      <div class="kicker-row career-family-head">
-        <div class="kicker-badge"><span aria-hidden="true">${fam.icone}</span>${esc(fam.nom.toUpperCase())}</div>
-        <span class="career-family-count">${all.filter(s => progress.completed.includes(s.id)).length}/${all.length} réussis</span>
+    const done = all.filter(s => progress.completed.includes(s.id)).length;
+    const flipped = gameState.careerFlipped === fam.id, art = careerFamilyArt(fam);
+    return `<section class="career-fam${flipped ? ' flipped' : ''}" data-career-fam="${fam.id}" style="${careerFamilyStyle(fam)}" aria-label="${esc(fam.nom)}">
+      <div class="career-fam-inner">
+        <button type="button" class="welcome-glass career-fam-face career-fam-front" data-career-flip aria-expanded="${flipped}"${flipped ? ' inert' : ''}>
+          <span class="career-fam-art">${art ? `<img src="${art}" alt="" width="320" height="180" decoding="async">` : ''}<span class="career-fam-num">${fam.numero}</span>${done ? `<span class="resume-season-badge career-fam-done">${done}/${all.length} réussis</span>` : ''}</span>
+          <h2>${esc(fam.nom)}</h2>
+          <span class="welcome-sub">${esc(fam.accroche)}</span>
+          <span class="career-fam-foot"><span class="career-fam-hint">${items.length} défi${items.length > 1 ? 's' : ''} · Voir les défis ↻</span></span>
+        </button>
+        <div class="welcome-glass career-fam-face career-fam-back"${flipped ? '' : ' inert'}>
+          <div class="career-fam-back-head"><span class="career-fam-num">${fam.numero}</span><h3>${esc(fam.nom)}</h3></div>
+          <div class="career-fam-rows">${items.map(s => {
+            const ok = progress.completed.includes(s.id), locked = careerLocked(s, progress);
+            return `<button type="button" class="career-row-btn${locked ? ' locked' : ''}" data-career-scenario="${s.id}" aria-haspopup="dialog">
+              <span class="career-row-num">#${String(s.id).padStart(2, '0')}</span>
+              <span class="career-row-main"><span class="career-row-title">${esc(s.titre)}</span><span class="career-row-obj">${esc(s.objectif)}</span></span>
+              <span class="career-row-side">${careerStarsHtml(s.difficulte)}${ok ? '<span class="career-row-state ok">Réussi ✓</span>' : locked ? '<span class="career-row-state lock">🔒 Verrouillé</span>' : ''}</span>
+            </button>`;
+          }).join('')}</div>
+          <button type="button" class="welcome-cta welcome-cta-outline welcome-cta-tight" data-career-flip>↺ Retourner la carte</button>
+        </div>
       </div>
-      <p class="career-family-hook">${esc(fam.accroche)}</p>
-      <div class="optgrid-format career-grid">${items.map(s => {
-        const done = progress.completed.includes(s.id), locked = careerLocked(s, progress);
-        const tags = locked ? '<span class="career-tag lock">🔒 Verrouillé</span>' : '';
-        return `<button type="button" class="opt-format career-card${done ? ' done' : ''}${locked ? ' locked' : ''}" data-career-scenario="${s.id}" aria-haspopup="dialog">
-          <span class="opt-format-check" aria-hidden="true">✓</span>
-          <span class="career-card-head"><span class="opt-format-icon" aria-hidden="true">${fam.icone}</span><span class="career-num">#${String(s.id).padStart(2, '0')}</span>${careerStarsHtml(s.difficulte)}</span>
-          <span class="career-card-title">${esc(s.titre)}${done ? '<span class="career-sr"> (réussi)</span>' : ''}</span>
-          <span class="opt-format-obj"><b>Objectif :</b> ${esc(s.objectif)}</span>
-          ${tags ? `<span class="career-card-tags">${tags}</span>` : ''}
-        </button>`;
-      }).join('')}</div>
     </section>`;
   }).join('');
   list.innerHTML = html || '<p class="career-empty">Aucun scénario ne correspond à ces filtres.</p>';
+  list.querySelectorAll('[data-career-flip]').forEach(b => {
+    b.onclick = () => {
+      const card = b.closest('.career-fam'), id = card.dataset.careerFam;
+      const open = gameState.careerFlipped !== id;
+      list.querySelectorAll('.career-fam.flipped').forEach(other => { if (other !== card) careerSetFlipped(other, false); });
+      gameState.careerFlipped = open ? id : null;
+      careerSetFlipped(card, open);
+    };
+  });
   list.querySelectorAll('[data-career-scenario]').forEach(b => {
     b.onclick = () => openCareerSheet(Number(b.dataset.careerScenario), b);
   });
+}
+function careerSetFlipped(card, open) {
+  card.classList.toggle('flipped', open);
+  const front = card.querySelector('.career-fam-front'), back = card.querySelector('.career-fam-back');
+  front.inert = open; back.inert = !open;
+  front.setAttribute('aria-expanded', String(open));
+  (open ? back.querySelector('.career-row-btn') : front)?.focus({ preventScroll: true });
 }
 
 // Fiche détail, au format d'une carte de dilemme : en-tête à pastilles, situation, objectif et
