@@ -7,6 +7,8 @@ générative. Utilisé par les cartes de la « Conférence de rentrée » d'Audi
 
 Démo : [`demo.html`](demo.html) (≈ 30 programmes fictifs, explorateur de variations, tailles).
 
+Générer hors du jeu (CLI `generate.mjs`, algorithme, inventaire, palettes, charte) : [`GUIDE-GENERATION.md`](GUIDE-GENERATION.md).
+
 ## Architecture
 
 Le style est une `StyleDefinition` [DiceBear 10](https://www.dicebear.com) composée de calques :
