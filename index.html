@@ -1529,9 +1529,6 @@ button.radar-row:focus-visible { outline: 2px solid var(--bleu); outline-offset:
 .career-fam-face { grid-area: 1 / 1; margin-bottom: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; display: flex; flex-direction: column; min-width: 0; }
 .career-fam-back { transform: rotateY(180deg); text-align: left; }
 @media (prefers-reduced-motion: reduce) { .career-fam-inner { transition: none; } }
-.career-fam-front { cursor: pointer; font: inherit; color: inherit; width: 100%; }
-@media (hover: hover) { .career-fam-front:hover { box-shadow: 0 28px 54px -12px rgba(15,23,42,0.18), 0 0 0 1px rgba(255,255,255,0.8) inset; } }
-.career-fam-front:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .career-fam-art { position: relative; display: block; width: 100%; aspect-ratio: 16 / 10; border-radius: 14px; overflow: hidden; background: var(--fam-bg); box-shadow: 0 10px 30px -10px rgba(15,23,42,0.25); }
 .career-fam-art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
 .career-fam-num {
@@ -1542,8 +1539,10 @@ button.radar-row:focus-visible { outline: 2px solid var(--bleu); outline-offset:
 .career-fam-done { position: absolute; right: 10px; top: 10px; background: rgba(255,255,255,0.92); }
 .career-fam-front h2 { margin: 18px 0 0; }
 .career-fam-front .welcome-sub { margin: 8px 0 0; font-size: 13px; line-height: 1.5; color: #475569; }
-.career-fam-foot { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; margin-top: auto; padding-top: 16px; }
-.career-fam-hint { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--fam); }
+/* Boutons « Voir les défis » et « Retour » alignés en bas des deux faces. */
+.career-fam-face .welcome-cta.career-fam-cta { margin-top: auto; }
+.career-fam-front .welcome-sub { margin-bottom: 20px; }
+.career-fam-rows { margin-bottom: 16px; }
 .career-fam-back-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
 .career-fam-back-head h3 { flex: 1; min-width: 0; font-size: 18px; color: var(--ink); }
 .career-fam-back-head .career-fam-num { position: static; box-shadow: none; background: var(--fam-bg); }
@@ -1564,7 +1563,6 @@ button.radar-row:focus-visible { outline: 2px solid var(--bleu); outline-offset:
 .career-row-state { font-size: 10px; font-weight: 700; }
 .career-row-state.ok { color: var(--vert); }
 .career-row-state.lock { color: var(--gris); }
-.career-fam-back .welcome-cta { margin-top: 12px; }
 .career-stars { display: inline-flex; gap: 1px; font-size: 10.5px; line-height: 1; }
 .career-stars i { font-style: normal; color: var(--border); }
 .career-stars i.on { color: var(--gold); }
@@ -30776,12 +30774,16 @@ function renderCareerList(app) {
     const flipped = gameState.careerFlipped === fam.id, art = careerFamilyArt(fam);
     return `<div class="home-slide" role="group" aria-roledescription="carte"><section class="career-fam${flipped ? ' flipped' : ''}" data-career-fam="${fam.id}" style="${careerFamilyStyle(fam)}" aria-label="${esc(fam.nom)}">
       <div class="career-fam-inner">
-        <button type="button" class="welcome-glass career-fam-face career-fam-front" data-career-flip aria-expanded="${flipped}"${flipped ? ' inert' : ''}>
-          <span class="career-fam-art">${art ? `<img src="${art}" alt="" width="320" height="180" decoding="async">` : ''}<span class="career-fam-num">${fam.numero}</span>${done ? `<span class="resume-season-badge career-fam-done">${done}/${all.length} réussis</span>` : ''}</span>
+        <div class="welcome-glass career-fam-face career-fam-front"${flipped ? ' inert' : ''}>
+          <span class="career-fam-art">${art ? `<img src="${art}" alt="" width="320" height="180" decoding="async">` : ''}<span class="career-fam-num">${fam.numero}</span><span class="resume-season-badge career-fam-done">${done}/${all.length} réussi${done > 1 ? 's' : ''}</span></span>
           <h2>${esc(fam.nom)}</h2>
-          <span class="welcome-sub">${esc(fam.accroche)}</span>
-          <span class="career-fam-foot"><span class="career-fam-hint">${items.length} défi${items.length > 1 ? 's' : ''} · Voir les défis ↻</span></span>
-        </button>
+          <p class="welcome-sub">${esc(fam.accroche)}</p>
+          <button type="button" class="welcome-cta career-fam-cta" data-career-flip aria-expanded="${flipped}">
+            <span class="welcome-cta-shine"></span>
+            <span>Voir les défis</span>
+            ${CAREER_ARROW_SVG}
+          </button>
+        </div>
         <div class="welcome-glass career-fam-face career-fam-back"${flipped ? '' : ' inert'}>
           <div class="career-fam-back-head"><span class="career-fam-num">${fam.numero}</span><h3>${esc(fam.nom)}</h3></div>
           <div class="career-fam-rows">${items.map(s => {
@@ -30792,7 +30794,7 @@ function renderCareerList(app) {
               <span class="career-row-side">${careerStarsHtml(s.difficulte)}${ok ? '<span class="career-row-state ok">Réussi ✓</span>' : locked ? '<span class="career-row-state lock">🔒 Verrouillé</span>' : ''}</span>
             </button>`;
           }).join('')}</div>
-          <button type="button" class="welcome-cta welcome-cta-outline welcome-cta-tight" data-career-flip>↺ Retourner la carte</button>
+          <button type="button" class="welcome-cta welcome-cta-outline career-fam-cta" data-career-flip>Retour</button>
         </div>
       </div>
     </section></div>`;
@@ -30826,8 +30828,8 @@ function careerSetFlipped(card, open) {
   card.classList.toggle('flipped', open);
   const front = card.querySelector('.career-fam-front'), back = card.querySelector('.career-fam-back');
   front.inert = open; back.inert = !open;
-  front.setAttribute('aria-expanded', String(open));
-  (open ? back.querySelector('.career-row-btn') : front)?.focus({ preventScroll: true });
+  front.querySelector('.career-fam-cta').setAttribute('aria-expanded', String(open));
+  (open ? back.querySelector('.career-row-btn') : front.querySelector('.career-fam-cta'))?.focus({ preventScroll: true });
 }
 
 // Fiche détail, au format d'une carte de dilemme : en-tête à pastilles, situation, objectif et
