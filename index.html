@@ -1519,7 +1519,9 @@ button.radar-row:focus-visible { outline: 2px solid var(--bleu); outline-offset:
 .career-chip[aria-pressed="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
 .career-chip-stars { color: var(--gold); letter-spacing: 1px; }
 .career-chip-stars[aria-pressed="true"] { color: #fbbf24; }
-.career-fam-list { display: flex; flex-direction: column; gap: 16px; margin-top: 14px; }
+.career-fam-slider { margin-top: 14px; }
+.home-slide > .career-fam { flex: 1; display: flex; min-width: 0; }
+.career-fam > .career-fam-inner { flex: 1; }
 /* Carte retournable : les deux faces occupent la même case, la plus haute donne la hauteur. */
 .career-fam { perspective: 1400px; }
 .career-fam-inner { display: grid; transition: transform 0.55s cubic-bezier(0.2, 0.8, 0.2, 1); transform-style: preserve-3d; }
@@ -22325,7 +22327,7 @@ function render() {
         <button type="button" class="home-slider-arrow next" tabindex="-1" aria-label="Carte suivante"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       </div>
       <div class="step-dots home-dots">
-        ${[0, 1].map(i => `<button type="button" class="step-dot${(gameState.homeSlide || 0) === i ? ' active' : ''}" data-home-dot="${i}" aria-label="Afficher la carte ${i + 1} sur 2"></button>`).join('')}
+        ${[0, 1].map(i => `<button type="button" class="step-dot${(gameState.homeSlide || 0) === i ? ' active' : ''}" data-slider-dot="home-slider" aria-label="Afficher la carte ${i + 1} sur 2"></button>`).join('')}
       </div>
     `;
     document.getElementById('btn-start').onclick = () => { goToStepAnimated(() => { resetGame(); gameState.step = 2; }); };
@@ -30731,7 +30733,7 @@ function renderCareerExplorer(app) {
         ${[1, 2, 3, 4, 5].map(n => `<button type="button" class="kicker-badge career-chip career-chip-stars" data-career-stars="${n}" aria-pressed="${filter.stars === n}" aria-label="Difficulté ${n} sur 5">${'★'.repeat(n)}</button>`).join('')}
       </div>
     </div>
-    <div id="career-list" class="career-fam-list" aria-live="polite"></div>
+    <div id="career-list" aria-live="polite"></div>
   `;
   const back = () => goToStepAnimated(() => { gameState.homeView = null; gameState.homeSlide = 1; }, -1);
   app.querySelector('#btn-career-back').onclick = back;
@@ -30742,10 +30744,10 @@ function renderCareerExplorer(app) {
     app.querySelector('#btn-career-filters').setAttribute('aria-expanded', String(filter.open));
   };
   app.querySelectorAll('[data-career-family]').forEach(b => {
-    b.onclick = () => { filter.family = b.dataset.careerFamily; syncCareerFilters(app); renderCareerList(app); };
+    b.onclick = () => { filter.family = b.dataset.careerFamily; gameState.careerSlide = 0; syncCareerFilters(app); renderCareerList(app); };
   });
   app.querySelectorAll('[data-career-stars]').forEach(b => {
-    b.onclick = () => { filter.stars = Number(b.dataset.careerStars); syncCareerFilters(app); renderCareerList(app); };
+    b.onclick = () => { filter.stars = Number(b.dataset.careerStars); gameState.careerSlide = 0; syncCareerFilters(app); renderCareerList(app); };
   });
   renderCareerList(app);
 }
@@ -30772,7 +30774,7 @@ function renderCareerList(app) {
     if (!items.length) return '';
     const done = all.filter(s => progress.completed.includes(s.id)).length;
     const flipped = gameState.careerFlipped === fam.id, art = careerFamilyArt(fam);
-    return `<section class="career-fam${flipped ? ' flipped' : ''}" data-career-fam="${fam.id}" style="${careerFamilyStyle(fam)}" aria-label="${esc(fam.nom)}">
+    return `<div class="home-slide" role="group" aria-roledescription="carte"><section class="career-fam${flipped ? ' flipped' : ''}" data-career-fam="${fam.id}" style="${careerFamilyStyle(fam)}" aria-label="${esc(fam.nom)}">
       <div class="career-fam-inner">
         <button type="button" class="welcome-glass career-fam-face career-fam-front" data-career-flip aria-expanded="${flipped}"${flipped ? ' inert' : ''}>
           <span class="career-fam-art">${art ? `<img src="${art}" alt="" width="320" height="180" decoding="async">` : ''}<span class="career-fam-num">${fam.numero}</span>${done ? `<span class="resume-season-badge career-fam-done">${done}/${all.length} réussis</span>` : ''}</span>
@@ -30793,9 +30795,20 @@ function renderCareerList(app) {
           <button type="button" class="welcome-cta welcome-cta-outline welcome-cta-tight" data-career-flip>↺ Retourner la carte</button>
         </div>
       </div>
-    </section>`;
-  }).join('');
-  list.innerHTML = html || '<p class="career-empty">Aucun scénario ne correspond à ces filtres.</p>';
+    </section></div>`;
+  }).filter(Boolean);
+  const arrow = (dir, d) => `<button type="button" class="home-slider-arrow ${dir}" tabindex="-1" aria-label="${dir === 'prev' ? 'Famille précédente' : 'Famille suivante'}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="${d}" stroke-linecap="round" stroke-linejoin="round"/></svg></button>`;
+  if (gameState.careerSlide >= html.length) gameState.careerSlide = 0;
+  list.innerHTML = html.length ? `
+    <div class="home-slider-wrap career-fam-slider">
+      ${arrow('prev', 'M15 5l-7 7 7 7')}
+      <div class="home-slider" id="career-slider" tabindex="0" role="region" aria-roledescription="carrousel" aria-label="Familles de défis">${html.join('')}</div>
+      ${arrow('next', 'M9 5l7 7-7 7')}
+    </div>
+    <div class="step-dots home-dots">${html.map((_, i) => `<button type="button" class="step-dot${(gameState.careerSlide || 0) === i ? ' active' : ''}" data-slider-dot="career-slider" aria-label="Afficher la famille ${i + 1} sur ${html.length}"></button>`).join('')}</div>`
+    : '<p class="career-empty">Aucun scénario ne correspond à ces filtres.</p>';
+  list.querySelectorAll('.home-slide').forEach((s, i, all) => s.setAttribute('aria-label', `${i + 1} sur ${all.length}`));
+  bindCardSlider(list.querySelector('#career-slider'), 'careerSlide');
   list.querySelectorAll('[data-career-flip]').forEach(b => {
     b.onclick = () => {
       const card = b.closest('.career-fam'), id = card.dataset.careerFam;
@@ -30935,13 +30948,15 @@ function launchCareerScenario(id) {
   goToStepAnimated(() => startCareerGame(id));
 }
 
-// Slider de l'accueil : défilement natif aimanté, points et flèches synchronisés.
-function bindHomeSlider(app) {
-  const slider = app.querySelector('#home-slider');
+// Slider de cartes (accueil, familles du Mode Carrière) : défilement natif aimanté, points et
+// flèches synchronisés, position mémorisée dans gameState[stateKey].
+function bindHomeSlider(app) { bindCardSlider(app.querySelector('#home-slider'), 'homeSlide'); }
+function bindCardSlider(slider, stateKey) {
   if (!slider) return;
+  const wrap = slider.closest('.home-slider-wrap'), root = wrap.parentElement;
   const slides = [...slider.querySelectorAll('.home-slide')];
-  const dots = [...app.querySelectorAll('[data-home-dot]')];
-  const prev = app.querySelector('.home-slider-arrow.prev'), next = app.querySelector('.home-slider-arrow.next');
+  const dots = [...root.querySelectorAll(`[data-slider-dot="${slider.id}"]`)];
+  const prev = wrap.querySelector('.home-slider-arrow.prev'), next = wrap.querySelector('.home-slider-arrow.next');
   const offsetFor = i => slides[i].offsetLeft - (slider.clientWidth - slides[i].offsetWidth) / 2;
   const current = () => {
     const mid = slider.scrollLeft + slider.clientWidth / 2;
@@ -30953,7 +30968,7 @@ function bindHomeSlider(app) {
   };
   const sync = () => {
     const i = current();
-    gameState.homeSlide = i;
+    gameState[stateKey] = i;
     dots.forEach((d, k) => { d.classList.toggle('active', k === i); d.setAttribute('aria-current', k === i ? 'true' : 'false'); });
     const max = slider.scrollWidth - slider.clientWidth;
     if (prev) prev.disabled = slider.scrollLeft <= 2;
@@ -30966,7 +30981,8 @@ function bindHomeSlider(app) {
   };
   // Position mémorisée : posée sans animation.
   slider.style.scrollBehavior = 'auto';
-  slider.scrollLeft = offsetFor(Math.max(0, Math.min(slides.length - 1, gameState.homeSlide || 0)));
+  if (!slides.length) return;
+  slider.scrollLeft = offsetFor(Math.max(0, Math.min(slides.length - 1, gameState[stateKey] || 0)));
   slider.style.scrollBehavior = '';
   sync();
   let raf = 0;
@@ -30975,6 +30991,7 @@ function bindHomeSlider(app) {
   if (prev) prev.onclick = () => go(current() - 1);
   if (next) next.onclick = () => go(current() + 1);
   slider.addEventListener('keydown', e => {
+    if (e.target !== slider) return;
     if (e.key === 'ArrowRight') { e.preventDefault(); go(current() + 1); }
     else if (e.key === 'ArrowLeft') { e.preventDefault(); go(current() - 1); }
   });
