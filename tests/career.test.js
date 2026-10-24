@@ -71,7 +71,13 @@ globalThis.localStorage=store; delete store.d[CAREER_STORAGE_KEY]; careerProgres
 { resetGame(); ok(!gameState.career,'pas de scénario hors Mode Carrière');
   carriere(1); ok(gameState.career.scenarioId===1&&Number.isFinite(gameState.campaign.seed)&&gameState.campaign.seed>0&&gameState.campaign.deadline===5,'scénario distinct de la campagne (graines et objectifs intacts)');
   resetGame(); ok(!gameState.career,'« Lancer ma chaîne » repart sans scénario');
-  gameState.step=6; gameState.homeView='career'; goHome(); ok(gameState.step===1&&gameState.homeView===null&&gameState.resumeStep===6,'goHome rouvre le slider, partie reprenable'); }
+  gameState.step=6; gameState.homeView='career'; goHome(); ok(gameState.step===1&&gameState.homeView===null&&gameState.resumeStep===6,'goHome rouvre le slider, partie reprenable');
+  // « Lancer ce scénario » : la partie commence directement (chaîne configurée d'office).
+  gameState.homeView='career'; startCareerGame(9); const p=gameState.player;
+  ok(gameState.step===6&&gameState.homeView===null&&gameState.resumeStep===null,'début de partie directement après le lancement');
+  ok(careerActive()?.scenarioId===9&&p.name&&GENERATED_NAMES[p.type].includes(p.name)&&p.type==='generaliste'&&p.target==='a2549','chaîne configurée : généraliste, 25-49 ans, nom tiré au sort');
+  ok(p.tresorerieDebutSaison===300&&gameState.dilemmaQueue.length>0&&gameState.career.pdaStart>0,'conditions de départ appliquées, saison 1 ouverte');
+  ok(/Le milliardaire pressé/.test(careerBannerHtml())&&/Contrainte :/.test(careerBannerHtml()),'bandeau du scénario en jeu'); }
 
 // ——— 5. Scénario 1 : trésorerie −40 M€, 9 % de PDA, plafond de grille, saison en perte ———
 { const p=carriere(1);
@@ -95,7 +101,7 @@ globalThis.localStorage=store; delete store.d[CAREER_STORAGE_KEY]; careerProgres
   ok(r.seasonEnd(c,{season:4}).status==='lost'&&p.tresorerie===110,'deux saisons stagnantes d’affilée : licenciement'); }
 
 // ——— 7. Scénario 23 : généraliste à 10 %, −1 pt par saison, télé-réalité interdite ———
-{ const p=carriere(23); ok(p.type==='generaliste'&&careerLockedType()==='generaliste','format imposé');
+{ startCareerGame(23); ok(gameState.player.type==='generaliste','format imposé'); const p=carriere(23); ok(p.type==='generaliste','format imposé');
   ok(near(careerPda(),10,0.3),'PDA cible de départ ≈ 10 % : '+careerPda());
   ok(!careerBannedPrograms().length,'grille de départ conforme');
   p.grilleOverrides={...(p.grilleOverrides||{}),access:'Le Loto du soir'}; ok(careerBannedPrograms().length===1,'jeu d’argent détecté');
