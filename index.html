@@ -1536,12 +1536,12 @@ button.radar-row:focus-visible { outline: 2px solid var(--bleu); outline-offset:
   font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 2px; color: var(--fam);
   background: rgba(255,255,255,0.92); box-shadow: 0 4px 10px -6px rgba(15,23,42,0.5);
 }
-.career-fam-done { position: absolute; right: 10px; top: 10px; background: rgba(255,255,255,0.92); }
 .career-fam-front h2 { margin: 18px 0 0; }
 .career-fam-front .welcome-sub { margin: 8px 0 0; font-size: 13px; line-height: 1.5; color: #475569; }
 /* Boutons « Voir les défis » et « Retour » alignés en bas des deux faces. */
 .career-fam-face .welcome-cta.career-fam-cta { margin-top: auto; }
-.career-fam-front .welcome-sub { margin-bottom: 20px; }
+/* Défis réussis : centrés dans l'espace entre la description et le bouton. */
+.career-fam-progress { flex: 1; display: flex; align-items: center; justify-content: center; padding: 16px 0 20px; }
 .career-fam-rows { margin-bottom: 16px; }
 .career-fam-back-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
 .career-fam-back-head h3 { flex: 1; min-width: 0; font-size: 18px; color: var(--ink); }
@@ -30775,9 +30775,10 @@ function renderCareerList(app) {
     return `<div class="home-slide" role="group" aria-roledescription="carte"><section class="career-fam${flipped ? ' flipped' : ''}" data-career-fam="${fam.id}" style="${careerFamilyStyle(fam)}" aria-label="${esc(fam.nom)}">
       <div class="career-fam-inner">
         <div class="welcome-glass career-fam-face career-fam-front"${flipped ? ' inert' : ''}>
-          <span class="career-fam-art">${art ? `<img src="${art}" alt="" width="320" height="180" decoding="async">` : ''}<span class="career-fam-num">${fam.numero}</span><span class="resume-season-badge career-fam-done">${done}/${all.length} réussi${done > 1 ? 's' : ''}</span></span>
+          <span class="career-fam-art">${art ? `<img src="${art}" alt="" width="320" height="180" decoding="async">` : ''}<span class="career-fam-num">${fam.numero}</span></span>
           <h2>${esc(fam.nom)}</h2>
           <p class="welcome-sub">${esc(fam.accroche)}</p>
+          <span class="career-fam-progress"><span class="resume-season-badge">Défis réussis : ${done}/${all.length}</span></span>
           <button type="button" class="welcome-cta career-fam-cta" data-career-flip aria-expanded="${flipped}">
             <span class="welcome-cta-shine"></span>
             <span>Voir les défis</span>
