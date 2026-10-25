@@ -2574,6 +2574,9 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
   letter-spacing:.5px; text-transform:uppercase; padding:4px 9px; border-radius:999px; background:rgba(255,255,255,0.92); color:var(--bleu);
   box-shadow:0 4px 10px -6px rgba(15,23,42,0.5); }
 .sa-illu-tier { left:10px; }
+.sa-illu-badges { position:absolute; top:10px; left:10px; display:flex; flex-wrap:wrap; gap:6px; max-width:calc(100% - 60px); }
+.sa-illu-badges .sa-illu-tier { position:static; }
+.sa-illu-term { color:var(--ink); }
 .sa-illu-tier.mega { color:#b45309; }
 .sa-illu-corner { right:10px; color:var(--ink); }
 /* Bouton d'information de l'enchère, en haut à droite de l'illustration. */
@@ -24574,8 +24577,11 @@ function sportsIllustrationHtml(event, { overlay = '', corner = '', info = '' } 
   const art = typeof TvPrograms !== 'undefined'
     ? TvPrograms.dataUri({ seed: `sports-rights:${event.id}`, genre: 'sport', ...event.illustration }) : '';
   const tierLabel = isCinemaRight(event) || isThemedRight(event) ? event.kindLabel : event.tier === 'mega' ? 'Méga-événement' : 'Événement premium';
+  // Engagement pluriannuel de l'enchère en cours : badge à droite de celui du niveau.
+  const a = gameState.sportsRights?.activeAuction;
+  const term = a?.eventId === event.id ? a.term || 1 : 1;
   const front = `${art ? `<img src="${art}" alt="" aria-hidden="true">` : ''}
-    <span class="sa-illu-tier ${event.tier}">${tierLabel}</span>
+    <span class="sa-illu-badges"><span class="sa-illu-tier ${event.tier}">${tierLabel}</span>${term > 1 ? `<span class="sa-illu-tier sa-illu-term" title="Engagement de ${sportsTermLabel(term)}">${sportsTermLabel(term)}</span>` : ''}</span>
     ${corner ? `<span class="sa-illu-corner${info ? ' with-info' : ''}">${corner}</span>` : ''}
     <figcaption class="sa-illu-cap">
       <span class="sa-illu-name"><span aria-hidden="true">${event.icon}</span> ${esc(event.name)}</span>
@@ -24630,7 +24636,7 @@ function renderSportsAuctionZone(dilemma) {
       ${sportsIllustrationHtml(event, { overlay: slotCap,
         info: `Un seul tour d’enchères, avec une offre sous pli : les programmes actuellement diffusés sur les créneaux concernés seront mis en pause et prolongés d’une saison${term > 1 ? ` à chaque diffusion. Engagement de ${term} saisons : votre offre est le prix d’une saison, dû à chacune d’elles` : ''}.` })}
       <div ${pop(0.05, 'sa-stats')}>
-        <div class="sa-stat"><span>Prix de départ</span><b>${nf1(event.reservePrice)} M€${term > 1 ? `<small class="sa-term" title="Engagement de ${sportsTermLabel(term)} : ce prix est dû à chaque saison"> / saison × ${term}</small>` : ''}</b></div>
+        <div class="sa-stat"><span>Prix de départ</span><b>${nf1(event.reservePrice)} M€${term > 1 ? `<small class="sa-term" title="Engagement de ${sportsTermLabel(term)} : ce prix est dû chaque année"> / AN</small>` : ''}</b></div>
         <div class="sa-stat"><span>Valeur estimée</span><b>${sportsAmount(ev.minValue)}–${sportsAmount(ev.maxValue)} M€</b></div>
         <div class="sa-stat"><span>Production</span><b>${nf1(event.productionCost)} M€</b></div>
         <div class="sa-stat"><span>Audience</span>${sportsStars(audience)}</div>
