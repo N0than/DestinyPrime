@@ -24626,7 +24626,7 @@ function renderSportsAuctionZone(dilemma) {
   const ev = evaluateSportsRight(event, p);
   const pop = (d, extra = '') => `class="sa-pop${extra ? ` ${extra}` : ''}" style="--d:${d}s" data-sa-leave`;
   const term = a.term || 1;
-  const slotCap = `<span class="sa-illu-slot">Diffusion ${term > 1 ? `S${gameState.season + 1}–S${gameState.season + term}` : `S${gameState.season + 1}`} · ${esc(sportsSlotsLabel(event))}</span>`;
+  const slotCap = `<span class="sa-illu-slot">${esc(sportsSlotsLabel(event))}</span>`;
   const interested = a.rivals.filter(r => r.interest);
   if (a.phase === 'market') {
     const riskLabel = { low: 'Faible', medium: 'Modéré', high: 'Élevé' }[ev.risk];
