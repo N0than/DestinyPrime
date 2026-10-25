@@ -1661,6 +1661,32 @@ button.radar-row:focus-visible { outline: 2px solid var(--bleu); outline-offset:
 .career-banner-note { color: var(--gris); font-style: italic; }
 @media (prefers-reduced-motion: reduce) { .hud-career-details, .hud-career-plus, .hud-career-inner { transition: none !important; } }
 .career-gauges { display: flex; flex-wrap: wrap; gap: 5px; margin: 2px 0; }
+/* Volet du défi « Le tournant du streaming » : utilisateurs, jauges et tarif de la plateforme. */
+.career-stream { display: flex; flex-direction: column; gap: 8px; margin-bottom: 4px; }
+.career-stream .cs-users, .career-stream .cs-tile {
+  background: rgba(255,255,255,0.7); border: 1px solid rgba(255,255,255,0.9); border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(15,23,42,0.05);
+}
+.career-stream .cs-users { display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; }
+.career-stream .cs-label { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 9.5px; letter-spacing: 1px; text-transform: uppercase; color: var(--gris); }
+.career-stream .cs-users-value { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 18px; color: var(--ink); font-variant-numeric: tabular-nums; }
+.career-stream .cs-users-value span { font-size: 12px; font-weight: 700; color: var(--gris); }
+.career-stream .cs-bar { display: block; height: 6px; border-radius: 999px; background: rgba(148,163,184,0.25); overflow: hidden; }
+.career-stream .cs-bar i { display: block; height: 100%; border-radius: inherit; background: var(--fam); transition: width 0.5s ease; }
+.career-stream .cs-tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.career-stream .cs-tile { position: relative; display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; min-width: 0; }
+.career-stream .cs-value { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 17px; color: var(--ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.career-stream .cs-unit { font-size: 10.5px; color: var(--gris); }
+.career-stream .cs-tarif { padding-right: 36px; }
+.career-stream .cs-steps { position: absolute; top: 6px; right: 6px; bottom: 6px; display: flex; flex-direction: column; justify-content: space-between; }
+.career-stream .cs-steps button {
+  width: 24px; height: 24px; border-radius: 50%; border: 0; padding: 0; cursor: pointer; line-height: 1;
+  font-weight: 800; font-size: 15px; color: #fff; background: var(--fam); box-shadow: 0 3px 8px -4px var(--fam);
+  -webkit-appearance: none; appearance: none; touch-action: manipulation;
+}
+.career-stream .cs-steps button:disabled { opacity: 0.3; cursor: default; }
+.career-stream .cs-steps button:focus-visible { outline: 2px solid var(--fam); outline-offset: 2px; }
+.career-stream .cs-foot { font-size: 11.5px; color: #475569; }
 .career-gauge {
   display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px;
   font-size: 11px; color: #334155; background: var(--paper-dark); border: 1px solid var(--border);
@@ -30702,7 +30728,27 @@ const CAREER_RULES = {
   34: {
     start: { tresorerie: 25, pda: 11 }, gauges: { popDigitale: 20, credibilite: 60 }, maxSeasons: 5,
     usersGoal: 500000, pdaGoal: 10, usersPerPoint: 1700, erosion: 1.5, retention: 50,
-    opened(c) { if (gameState.season === 1) { c.users = 0; c.valo = 1; c.exclus = 0; } },
+    // Tarif mensuel de la plateforme : gratuit (AVOD, financé par la pub) jusqu'à 9,99 €.
+    // Moins cher, il attire plus d'utilisateurs ; plus cher, il rapporte plus d'abonnements.
+    tarifs: [0, 2.99, 4.99, 5.99, 7.99, 9.99], tarifUsers: [1.4, 1.2, 1.05, 1, 0.85, 0.7], tarifMargin: 0.25, tarifDefault: 3,
+    opened(c) { if (gameState.season === 1) { c.users = 0; c.valo = 1; c.exclus = 0; c.tarif ??= CAREER_RULES[34].tarifDefault; } },
+    panelHtml(c) {
+      const r = CAREER_RULES[34], users = Math.round(c.users || 0), pct = Math.min(100, users / r.usersGoal * 100);
+      const i = c.tarif ?? r.tarifDefault, price = r.tarifs[i];
+      const tile = (label, value, unit, extra = '') => `<div class="cs-tile"><span class="cs-label">${label}</span><b class="cs-value">${value}</b><span class="cs-unit">${unit}</span>${extra}</div>`;
+      return `<div class="career-stream">
+        <div class="cs-users"><span class="cs-label">Utilisateurs actifs</span>
+          <b class="cs-users-value">${users.toLocaleString('fr-FR')} <span>/ ${r.usersGoal.toLocaleString('fr-FR')}</span></b>
+          <span class="cs-bar" role="progressbar" aria-valuemin="0" aria-valuemax="${r.usersGoal}" aria-valuenow="${users}"><i style="width:${pct}%"></i></span></div>
+        <div class="cs-tiles">
+          ${tile('Crédibilité', Math.round(c.g.credibilite), 'sur 100')}
+          ${tile('Popularité dig.', Math.round(c.g.popDigitale), 'sur 100')}
+          <div class="cs-tile cs-tarif"><span class="cs-label">Tarif</span><b class="cs-value" data-cs-price>${price ? `${careerPrice(price)} €` : 'Gratuit'}</b><span class="cs-unit" data-cs-unit>${price ? '/mois' : 'pub (AVOD)'}</span>
+            <span class="cs-steps"><button type="button" data-career-tarif="1" aria-label="Augmenter le tarif" ${i >= r.tarifs.length - 1 ? 'disabled' : ''}>+</button><button type="button" data-career-tarif="-1" aria-label="Baisser le tarif" ${i <= 0 ? 'disabled' : ''}>−</button></span></div>
+        </div>
+        <span class="cs-foot">${careerPdaLabel()} : <b>${nf1(careerPda())} %</b> (10 % minimum) · érosion du linéaire ${c.g.popDigitale >= r.retention ? '<b>stoppée</b>' : '−1,5 pt par saison'} · valorisation ×${nf1(c.valo || 1)}</span>
+      </div>`;
+    },
     seasonStart(c) {
       const r = CAREER_RULES[34];
       if (gameState.season < 2) return;
@@ -30725,16 +30771,20 @@ const CAREER_RULES = {
       if (gameState.player.tresorerie < 0) return careerLose(`La trésorerie passe à ${nf1(gameState.player.tresorerie)} M€ : le conseil revend la plateforme au rabais.`);
     },
     // AVOD : les rediffusions de nuit et du matin sont monétisées sur la plateforme.
-    adSlotFactor(c, slot) { return ['nuit', 'matin'].includes(slot) ? 1 + (c.users || 0) / 1000000 : 1; },
+    adSlotFactor(c, slot) { return ['nuit', 'matin'].includes(slot) ? 1 + (c.users || 0) / 1000000 * (c.tarif === 0 ? 2 : 1) : 1; },
     status(c) {
       const r = CAREER_RULES[34];
       return `Plateforme : <b>${nf1((c.users || 0) / 1000)} k</b> / 500 k utilisateurs · valorisation ×${nf1(c.valo || 1)} · érosion du linéaire ${c.g.popDigitale >= r.retention ? '<b>stoppée</b>' : 'de −1,5 pt par saison (stoppée à 50 de popularité digitale)'} · ${careerPdaLabel()} : <b>${nf1(careerPda())} %</b> (${r.pdaGoal} % minimum) · trésorerie : <b>${nf1(gameState.player.tresorerie)} M€</b>`;
     },
     seasonEnd(c, h) {
       const p = gameState.player, r = CAREER_RULES[34];
-      const gain = Math.round(c.g.popDigitale * r.usersPerPoint * (c.valo || 1));
+      const i = c.tarif ?? r.tarifDefault;
+      const gain = Math.round(c.g.popDigitale * r.usersPerPoint * (c.valo || 1) * r.tarifUsers[i]);
       c.users = (c.users || 0) + gain;
-      c.note = `Saison ${h.season} : +${nf1(gain / 1000)} k utilisateurs sur la plateforme.`;
+      // Abonnements de la saison (marge nette) ; la version gratuite se finance par la pub (adSlotFactor).
+      const revenue = Math.round(c.users * r.tarifs[i] * 12 * r.tarifMargin / 100000) / 10;
+      if (revenue > 0) { p.tresorerie += revenue; h.tresorerie = h.tresorerieFin = p.tresorerie; }
+      c.note = `Saison ${h.season} : +${nf1(gain / 1000)} k utilisateurs sur la plateforme${revenue > 0 ? `, ${nf1(revenue)} M€ d'abonnements` : ''}.`;
       if (p.tresorerie < 0) return careerLose(`Fin de saison ${h.season} : trésorerie à ${nf1(p.tresorerie)} M€, la plateforme est revendue au rabais.`);
       if (h.season < 5) return;
       if (c.users >= r.usersGoal && c.pdaEnd >= r.pdaGoal - CAREER_EPS) return careerWin(`${nf1(c.users / 1000)} k utilisateurs et ${nf1(c.pdaEnd)} % de PDA : la chaîne a réussi son virage numérique.`);
@@ -31276,10 +31326,11 @@ function careerBannerHtml() {
     </div>
     <div class="hud-career-details" id="hud-career-details">
       <div class="hud-career-inner">
+        ${rule.panelHtml ? rule.panelHtml(c) : ''}
         <span><b>Objectif :</b> ${esc(s.objectif)}</span>
         <span><b>${ruleLabel} :</b> ${esc(ruleText)}</span>
-        ${gauges ? `<span class="career-gauges">${gauges}</span>` : ''}
-        ${status ? `<span>${status}</span>` : ''}
+        ${gauges && !rule.panelHtml ? `<span class="career-gauges">${gauges}</span>` : ''}
+        ${status && !rule.panelHtml ? `<span>${status}</span>` : ''}
         ${c.note ? `<span class="career-banner-note">${esc(c.note)}</span>` : ''}
       </div>
     </div>
@@ -31309,7 +31360,26 @@ function toggleCareerHud(btn) {
 if (typeof document !== 'undefined') document.addEventListener('click', e => {
   const btn = e.target.closest?.('[data-career-hud-toggle]');
   if (btn) toggleCareerHud(btn);
+  const step = e.target.closest?.('[data-career-tarif]');
+  if (step) careerTarifStep(Number(step.dataset.careerTarif), step.closest('.cs-tarif'));
 });
+// Prix au centime près, à la française (5,99).
+function careerPrice(v) { return Number(v).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+// « Le tournant du streaming » : tarif de la plateforme réglé depuis le volet du défi.
+function careerTarifStep(delta, tile) {
+  const c = careerActive(), r = CAREER_RULES[34];
+  if (!c || c.scenarioId !== 34) return;
+  const i = Math.max(0, Math.min(r.tarifs.length - 1, (c.tarif ?? r.tarifDefault) + delta));
+  c.tarif = i;
+  c.note = i === 0 ? 'Plateforme gratuite : plus d’utilisateurs, financés par la publicité.' : `Tarif de la plateforme : ${careerPrice(r.tarifs[i])} € par mois.`;
+  if (!tile) return;
+  tile.querySelector('[data-cs-price]').textContent = r.tarifs[i] ? `${careerPrice(r.tarifs[i])} €` : 'Gratuit';
+  tile.querySelector('[data-cs-unit]').textContent = r.tarifs[i] ? '/mois' : 'pub (AVOD)';
+  tile.querySelector('[data-career-tarif="1"]').disabled = i >= r.tarifs.length - 1;
+  tile.querySelector('[data-career-tarif="-1"]').disabled = i <= 0;
+  const note = tile.closest('.hud-career-inner')?.querySelector('.career-banner-note');
+  if (note) note.textContent = c.note;
+}
 
 function careerStarsHtml(n) {
   return `<span class="career-stars" role="img" aria-label="Difficulté ${n} sur 5">${Array.from({ length: 5 }, (_, i) =>

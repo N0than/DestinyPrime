@@ -223,7 +223,15 @@ for(let id=1;id<=38;id++){ startCareerGame(id); const rule=CAREER_RULES[id];
   const u=c.users; r.seasonEnd(c,{season:2}); ok(c.users===u+Math.round(50*r.usersPerPoint*c.valo),'n°34 : utilisateurs gagnés en fin de saison');
   p.tresorerie=-1; ok(r.afterChoice(c,{fx:{}}).status==='lost','n°34 : trésorerie sous 0, plateforme revendue');
   p.tresorerie=10; c.users=500000; c.pdaEnd=10.2; ok(r.seasonEnd(c,{season:5}).status==='won','n°34 : victoire à 500 k utilisateurs et 10 % de PDA');
-  c.users=0; c.pdaEnd=10.2; ok(r.seasonEnd(c,{season:5}).status==='lost','n°34 : défaite sous 500 k utilisateurs'); }
+  c.users=0; c.pdaEnd=10.2; ok(r.seasonEnd(c,{season:5}).status==='lost','n°34 : défaite sous 500 k utilisateurs');
+  // Tarif : moins cher, plus d'utilisateurs ; payant, des abonnements en fin de saison ; volet dédié.
+  c.verdict=null; c.users=100000; c.valo=1; c.g.popDigitale=40; c.tarif=r.tarifDefault; const t0=p.tresorerie; const h={season:2};
+  r.seasonEnd(c,h); const gainStd=c.users-100000; ok(p.tresorerie>t0&&h.tresorerie===p.tresorerie,'n°34 : abonnements encaissés en fin de saison');
+  c.users=100000; c.tarif=0; const t1=p.tresorerie; r.seasonEnd(c,{season:2}); ok(c.users-100000>gainStd&&p.tresorerie===t1,'n°34 : gratuit, plus d’utilisateurs, pas d’abonnements');
+  ok(r.adSlotFactor(c,'nuit')>1+c.users/1e6,'n°34 : la version gratuite rapporte davantage en publicité');
+  c.tarif=2; careerTarifStep(1); ok(c.tarif===3,'n°34 : tarif réglable'); careerTarifStep(9); careerTarifStep(1); ok(c.tarif===r.tarifs.length-1,'n°34 : tarif plafonné à 9,99 €');
+  const html=r.panelHtml(c); ok(/Utilisateurs actifs/.test(html)&&/Crédibilité/.test(html)&&/Popularité dig/.test(html)&&/9,99 €/.test(html)&&/data-career-tarif="1"[^>]*disabled/.test(html),'n°34 : volet utilisateurs, jauges et tarif');
+  ok(careerBannerHtml().includes('career-stream')&&!careerBannerHtml().includes('career-gauges'),'n°34 : le volet dédié remplace la ligne de jauges'); }
 // n°35 « Le raider de la finance » : vote, action, contrôle du conseil, rédaction et marque.
 { carriere(35); const c=gameState.career, r=CAREER_RULES[35];
   ok(c.g.actionnaires===45&&c.g.moral===60&&c.g.credibilite===60&&c.action===100,'n°35 : jauges de départ et action à 100');
