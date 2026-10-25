@@ -21714,7 +21714,9 @@ function launchFirstSeason() {
   // programmation : la proposition ne fera plus qu'ajuster l'écart, comme un dilemme.
   creditInitialAdRevenue();
   trackPlayerPda();
-  gameState.seasonKickoffProposal = generateSeasonKickoffProposal();
+  // Mode Carrière : la saison 1 s'ouvre sur la décision d'ouverture du défi, pas sur une
+  // conférence de rentrée.
+  gameState.seasonKickoffProposal = careerActive() ? null : generateSeasonKickoffProposal();
   gameState.seasonKickoffPending = !!gameState.seasonKickoffProposal;
   careerSeasonOpened();
 }
@@ -22767,7 +22769,7 @@ function render() {
       <div class="dilemma-container${phase === 'choosing' ? entrance : ''}${negRevealing ? ' neg-revealing' : ''}" style="--neg-think:${NEG_REVEAL.think}ms;--neg-offer:${NEG_REVEAL.offer}ms;--neg-choices:${NEG_REVEAL.choices}ms">
         <div class="dilemma-card dilemma-hero${phase === 'result' ? ' is-result' : ''}${sportEvent ? ` sa-hero sa-phase-${phase === 'result' ? 'verdict' : gameState.sportsRights?.activeAuction?.phase || 'market'}` : ''}">
           <div class="dc-head">
-            <span class="dc-head-left"><span class="dc-live-pill"><span class="dc-live-dot"></span>${sportEvent ? rightsMarketLabel(sportEvent) : dilemma.isProgramStory ? esc(dilemma.storyLabel) : 'Événement'}</span>${channelPillHtml()}</span>
+            <span class="dc-head-left"><span class="dc-live-pill"><span class="dc-live-dot"></span>${sportEvent ? rightsMarketLabel(sportEvent) : dilemma.isProgramStory ? esc(dilemma.storyLabel) : dilemma.careerLabel ? esc(dilemma.careerLabel) : dilemma.isCareerScripted ? 'Mode carrière' : 'Événement'}</span>${channelPillHtml()}</span>
             <span class="dc-season-pill">${seasonPillLabel()}</span>
           </div>
           <div class="dc-body">
@@ -29832,6 +29834,143 @@ const CAREER_FAVORS = [
     non: 'Exiger la mention publicitaire', nonR: 'La mention est apposée. Le groupe réduit son soutien financier.' }
 ];
 
+// Décisions d'ouverture (saison 1) des défis qui n'en scénarisent pas déjà une : choix de
+// l'actionnaire, orientation à prendre ou objectif à fixer, avec des effets sur le défi.
+const CAREER_OPENINGS = {
+  1: { label: 'Choix de la banque', titre: 'La banque pose ses conditions',
+    desc: "Le prêteur accepte de suivre la chaîne une saison de plus, à condition de voir un plan dès cette semaine. Il plafonne la grille et coupera tout à la première saison en perte.", choices: [
+      { l: 'Plan de rigueur immédiat', r: 'La grille maigrit dès cette saison : la banque respire, le public remarque les rediffusions.', finance: { recurring: -4 }, pop: -2, pda: careerAll(-0.5) },
+      { l: "Vendre le catalogue d'archives", r: '6 M€ encaissés, mais les meilleures rediffusions partent chez un concurrent.', finance: { commercial: 6 }, pda: careerAll(-0.4) },
+      { l: 'Parier sur un nouveau rendez-vous en access', r: 'Un pari serré sous l’œil de la banque : le public suit, la caisse un peu moins.', finance: { purchase: 3 }, pda: careerAll(0.8) }
+    ] },
+  5: { label: 'Orientation', titre: 'Qui pour succéder aux piliers du prime ?',
+    desc: 'Les trois visages historiques de la soirée partent à la retraite cette saison. Les rivales n’attendent que ce moment pour attaquer le leader.', choices: [
+      { l: 'Promouvoir les seconds rôles maison', r: 'Les fidèles reconnaissent les nouveaux venus ; la transition se fait sans éclat.', pop: 1, pda: careerAll(-0.3) },
+      { l: 'Débaucher une star de la concurrence', r: 'Le coup fait la une : la soirée garde son aura, au prix fort.', finance: { purchase: 6 }, pda: careerAll(0.8) },
+      { l: 'Lancer un format événementiel inédit', r: 'Le pari séduit les moins de 50 ans ; les plus âgés regrettent les anciens rendez-vous.', finance: { purchase: 4 }, pop: -1, pda: { j1524: 0.8, a2549: 1, s50: -0.3, csp: 0.4 } }
+    ] },
+  6: { label: 'Orientation', titre: "Comment creuser l'écart ?",
+    desc: 'Votre dauphin vous colle à un demi-point et copie chacun de vos succès une saison plus tard. Il faut trouver ce qu’il ne pourra pas imiter.', choices: [
+      { l: 'Verrouiller les talents par des contrats longs', r: 'Vos visages ne partiront pas chez le dauphin : l’avance se consolide.', finance: { purchase: 5 }, pda: careerAll(0.5) },
+      { l: 'Innover là où le dauphin ne vous suivra pas', r: 'Un ton neuf qui parle aux jeunes : difficile à copier, encore fragile.', finance: { purchase: 3 }, pda: { j1524: 1.2, a2549: 0.4, s50: 0, csp: 0.2 } },
+      { l: 'Laisser venir et constituer une réserve', r: 'Vous gardez vos cartouches : la caisse se remplit, l’écart ne bouge pas.', finance: { commercial: 3 } }
+    ] },
+  7: { label: 'Objectif', titre: 'Quelle cible conquérir en premier ?',
+    desc: 'Être n°1 chez les 15-24, les 25-49 et les 50 ans et plus à la fois : impossible de plaire à tous le premier jour. Par où commencer ?', choices: [
+      { l: 'Les 15-24 ans d’abord', r: 'Ton plus vif, formats courts : les jeunes arrivent, les seniors tiquent.', finance: { purchase: 2 }, pda: { j1524: 1.5, a2549: 0.2, s50: -0.5, csp: 0 } },
+      { l: 'Les 25-49 ans d’abord', r: 'Le cœur de cible des annonceurs répond présent.', finance: { purchase: 2 }, pda: { j1524: -0.3, a2549: 1.2, s50: 0, csp: 0.3 } },
+      { l: 'Les 50 ans et plus d’abord', r: 'Les fidèles se sentent choyés ; les plus jeunes zappent.', finance: { purchase: 2 }, pda: { j1524: -0.5, a2549: 0, s50: 1.5, csp: 0.2 } }
+    ] },
+  8: { label: 'Orientation', titre: 'Préparer les chocs de la décennie',
+    desc: 'Plateformes, crise publicitaire, nouvelle chaîne de la TNT : tous les trois ans, le marché sera rebattu. Quelle stratégie de long terme ?', choices: [
+      { l: 'Constituer un trésor de guerre', r: 'La grille est resserrée : la chaîne encaissera mieux les crises, l’audience baisse un peu.', finance: { recurring: -3 }, pda: careerAll(-0.3) },
+      { l: 'Rajeunir la chaîne avant la vague du streaming', r: 'Les moins de 50 ans s’attachent à la chaîne avant l’arrivée des plateformes.', finance: { purchase: 4 }, pda: { j1524: 1, a2549: 0.6, s50: -0.4, csp: 0.2 } },
+      { l: 'Miser sur la fidélité du public historique', r: 'Les rendez-vous de toujours rassurent : les fidèles restent fidèles.', finance: { purchase: 2 }, pop: 2, pda: { j1524: -0.3, a2549: 0, s50: 0.8, csp: 0.2 } }
+    ] },
+  9: { label: 'Choix de l’actionnaire', titre: 'Le milliardaire veut un coup d’éclat',
+    desc: 'Il a injecté 300 M€ et veut voir l’audience bouger dès cette saison. Sans un point de PDA gagné, il reprend 30 M€.', choices: [
+      { l: 'Racheter un grand format concurrent', r: 'Le format arrive avec son public : l’audience bondit, la facture aussi.', finance: { purchase: 25 }, pda: careerAll(1.5) },
+      { l: 'Lancer une campagne de notoriété nationale', r: 'Affiches, spots, partenariats : la chaîne devient visible partout.', finance: { purchase: 10 }, pop: 5, pda: careerAll(0.6) },
+      { l: "Lui faire accepter un plan d'investissement progressif", r: 'Il accepte de patienter, à contrecœur : rien ne bouge encore à l’antenne.', pop: 1 }
+    ] },
+  10: { label: 'Orientation', titre: 'Quelle identité pour la petite chaîne ?',
+    desc: '15 M€ en caisse, 0,8 % de PDA, aucune acquisition étrangère possible : il faut une identité claire pour exister sur la TNT.', choices: [
+      { l: 'Une chaîne jeune et connectée', r: 'Formats courts et animateurs venus des réseaux : les 15-24 ans testent la chaîne.', finance: { purchase: 1 }, pda: { j1524: 0.6, a2549: 0.2, s50: 0, csp: 0 } },
+      { l: 'Une chaîne de proximité', r: 'Magazines régionaux et jeux locaux : les plus âgés adoptent la chaîne.', finance: { purchase: 1 }, pda: { j1524: 0, a2549: 0.2, s50: 0.5, csp: 0.1 } },
+      { l: 'Des rediffusions bon marché pour tenir', r: 'La caisse respire ; la chaîne reste sans visage.', finance: { commercial: 2 }, pda: careerAll(0.1) }
+    ] },
+  11: { label: 'Orientation', titre: "Jusqu'où ouvrir la ligne éditoriale ?",
+    desc: 'La chaîne documentaire doit passer de 1,5 % à 8 % sans perdre son âme : sous 60 de crédibilité, elle perd son identité.', choices: [
+      { l: 'Ouvrir franchement au grand public', r: 'Les audiences progressent ; les fidèles crient à la trahison.', pda: careerAll(0.8), fx: { credibilite: -12 } },
+      { l: 'Vulgariser sans trahir', r: 'Des documentaires incarnés et accessibles : le public s’élargit doucement.', finance: { purchase: 2 }, pda: careerAll(0.4), fx: { credibilite: -4 } },
+      { l: 'Soigner la marque avant tout', r: 'La critique applaudit, l’audience attendra.', pda: careerAll(0.1), fx: { credibilite: 5 } }
+    ] },
+  14: { label: 'Choix de l’actionnaire', titre: 'Le fonds fixe le cap',
+    desc: 'Le fonds veut revendre la chaîne dans quatre saisons avec 60 % de valorisation en plus : audience, rentabilité et popularité comptent toutes.', choices: [
+      { l: 'Couper les coûts pour gonfler la marge', r: 'La marge s’améliore tout de suite ; l’antenne s’appauvrit.', finance: { recurring: -5 }, pop: -2, pda: careerAll(-0.5) },
+      { l: 'Accélérer sur le divertissement rentable', r: 'Des formats éprouvés qui remplissent les écrans publicitaires.', finance: { purchase: 3 }, pda: careerAll(0.7) },
+      { l: "Travailler l'image de marque", r: 'La chaîne gagne en sympathie : un atout pour la revente.', finance: { purchase: 2 }, pop: 4 }
+    ] },
+  15: { label: 'Choix de l’actionnaire', titre: 'Le fondateur vous convoque',
+    desc: 'À 78 ans, le fondateur veut entendre votre projet avant la rentrée. Il met son veto à tout ce qui touche à la grille historique.', choices: [
+      { l: 'Lui présenter un plan de modernisation', r: 'Il écoute en silence, puis lâche : « On verra. » Les 25-49 ans, eux, apprécient.', pda: { j1524: 0.3, a2549: 1, s50: -0.2, csp: 0.2 }, fx: { patience: -15 } },
+      { l: "Rendre hommage à l'héritage en prime", r: 'Une soirée anniversaire : le fondateur est ému, les jeunes zappent.', pda: { j1524: -0.2, a2549: 0, s50: 0.5, csp: 0 }, fx: { patience: 10 } },
+      { l: 'Proposer un compromis : moderniser la journée, garder la soirée', r: 'Il accepte du bout des lèvres : la journée rajeunit.', pda: { j1524: 0.2, a2549: 0.5, s50: 0, csp: 0.1 }, fx: { patience: -5 } }
+    ] },
+  17: { label: 'Objectif', titre: "Le contrat d'objectifs avec l'État",
+    desc: 'Pas de publicité en prime, un budget voté par le Parlement : votre contrat d’objectifs fixe la priorité de la chaîne publique.', choices: [
+      { l: "S'engager sur l'audience", r: 'Une offre plus populaire : l’audience monte, la presse s’interroge sur la mission.', pda: careerAll(0.8), fx: { credibilite: -5 } },
+      { l: "S'engager sur l'exigence culturelle", r: 'Documentaires et grands débats : la mission est saluée, l’audience peu.', pda: careerAll(0.2), fx: { credibilite: 6 } },
+      { l: 'Proximité et information', r: 'Journaux régionaux renforcés : un public fidèle et une image solide.', finance: { purchase: 2 }, pda: { j1524: 0, a2549: 0.3, s50: 0.6, csp: 0.2 }, fx: { credibilite: 2 } }
+    ] },
+  19: { label: 'Orientation', titre: 'Répondre au géant du streaming',
+    desc: 'La plateforme arrive avec un budget illimité et vise les jeunes. Il faut garder au moins 15 % chez les 15-24 ans.', choices: [
+      { l: 'Signer un partenariat de diffusion', r: 'La plateforme paie pour vos programmes… et les jeunes y vont les regarder.', finance: { commercial: 4 }, pda: { j1524: -0.5, a2549: 0, s50: 0, csp: 0 } },
+      { l: 'Contre-attaquer sur les réseaux sociaux', r: 'Extraits, coulisses et lives : les jeunes reviennent vers l’antenne.', finance: { purchase: 4 }, pda: { j1524: 1.2, a2549: 0.2, s50: 0, csp: 0 } },
+      { l: 'Prolonger les jeunes talents de la chaîne', r: 'Ils restent fidèles : la plateforme devra chercher ailleurs.', finance: { purchase: 5 }, pop: 1, pda: { j1524: 0.8, a2549: 0.2, s50: 0, csp: 0 } }
+    ] },
+  20: { label: 'Orientation', titre: 'Avec ou sans le sport ?',
+    desc: 'La compétition phare est remise aux enchères tous les deux ans, de plus en plus cher. Quelle place lui donner dans votre stratégie de leader ?', choices: [
+      { l: "Faire du sport l'ADN de la chaîne", r: 'Les annonceurs sport suivent : il faudra gagner les enchères.', finance: { purchase: 2 }, pda: { j1524: 0.3, a2549: 0.8, s50: 0, csp: 0.2 } },
+      { l: 'Bâtir une alternative au sport', r: 'Fiction et grands divertissements : la chaîne apprend à se passer de la compétition.', finance: { purchase: 3 }, pda: { j1524: 0.4, a2549: 0, s50: 0.6, csp: 0.2 } },
+      { l: 'Constituer une réserve pour les enchères', r: 'Vous cédez des droits secondaires : la cagnotte est prête, l’antenne s’allège.', finance: { commercial: 4 }, pda: careerAll(-0.3) }
+    ] },
+  22: { label: 'Orientation', titre: "Quelle chaîne d'info ?",
+    desc: 'La généraliste devient une chaîne d’information continue. La grille coûte en permanence, et chaque erreur d’info fait chuter la crédibilité deux fois plus vite.', choices: [
+      { l: 'Le direct avant tout', r: 'Toujours la première sur l’événement : l’audience suit, les approximations aussi.', pda: careerAll(0.6), fx: { credibilite: -4 } },
+      { l: "L'information vérifiée avant tout", r: 'Une cellule de vérification et des enquêtes : la chaîne gagne en sérieux.', finance: { purchase: 3 }, fx: { credibilite: 8 } },
+      { l: 'Des plateaux et des débats', r: 'Peu coûteux et animés : la polémique fait l’audience, pas la réputation.', finance: { commercial: 2 }, pda: careerAll(0.3), fx: { credibilite: -6 } }
+    ] },
+  23: { label: 'Objectif', titre: 'Quelle alternative à la télé-réalité ?',
+    desc: 'Pas de télé-réalité ni de jeux d’argent, et pourtant 15 % de PDA à atteindre : sur quoi bâtir la soirée ?', choices: [
+      { l: 'La fiction populaire en prime', r: 'Des séries françaises fédératrices : le public adulte répond présent.', finance: { purchase: 4 }, pda: { j1524: 0.2, a2549: 0.8, s50: 0.4, csp: 0.2 } },
+      { l: 'De grands jeux familiaux', r: 'Toute la famille devant l’écran : une audience large et stable.', finance: { purchase: 3 }, pda: careerAll(0.5) },
+      { l: 'Des magazines et documentaires incarnés', r: 'Des visages forts et des sujets de société : la chaîne gagne en image.', finance: { purchase: 2 }, pop: 1, pda: { j1524: 0, a2549: 0.3, s50: 0.4, csp: 0.8 } }
+    ] },
+  25: { label: 'Orientation', titre: 'Quel pari de fiction ?',
+    desc: 'La trésorerie ne couvre que deux échecs, et une série met trois saisons à rapporter. Par quoi commencer ?', choices: [
+      { l: 'Une saga familiale ambitieuse', r: 'Gros budget et casting prestigieux : un pari qui peut tout changer.', finance: { purchase: 6 }, pda: { j1524: 0, a2549: 0.4, s50: 0.6, csp: 0.2 } },
+      { l: 'Un polar régional à petit budget', r: 'Des moyens modestes et une recette éprouvée : peu de risques.', finance: { purchase: 3 }, pda: { j1524: 0, a2549: 0.2, s50: 0.4, csp: 0 } },
+      { l: 'Coproduire pour partager le risque', r: 'Un partenaire prend la moitié du risque… et de la marge.', finance: { purchase: 1 }, pda: careerAll(0.1) }
+    ] },
+  26: { label: 'Objectif', titre: 'Votre plan des 100 jours',
+    desc: '100 jours pour gagner 2 points de PDA et finir avec une trésorerie positive. Quelle première décision ?', choices: [
+      { l: "Un choc d'audience", r: 'Un grand format en prime dès la première semaine : le compteur démarre.', finance: { purchase: 5 }, pda: careerAll(1) },
+      { l: "Assainir les comptes d'abord", r: 'La grille est rabotée : la caisse se remplit, l’audience patientera.', finance: { recurring: -3 }, pda: careerAll(-0.2) },
+      { l: 'Un coup médiatique', r: 'Une annonce qui fait parler : la chaîne est dans toutes les conversations.', finance: { purchase: 2 }, pop: 4, pda: careerAll(0.3) }
+    ] },
+  28: { label: 'Objectif', titre: 'Fixer votre ligne de conduite',
+    desc: 'Trois saisons sans qu’aucune jauge ne repasse sous sa valeur de départ. Sur quoi construire votre marge de sécurité ?', choices: [
+      { l: 'Sécuriser la trésorerie', r: 'Une rediffusion revendue : un petit matelas pour les mauvais jours.', finance: { commercial: 3 } },
+      { l: "Soigner l'image", r: 'Une opération solidaire saluée : la popularité prend de l’avance.', pop: 3 },
+      { l: "Consolider l'audience", r: 'Un réglage de grille sans frais : l’audience gagne un peu de marge.', pda: careerAll(0.4) }
+    ] },
+  31: { label: 'Orientation', titre: 'Comment débusquer la taupe ?',
+    desc: 'Un cadre de la direction vend vos grilles à une rivale. Avant d’accuser qui que ce soit, il faut choisir votre méthode.', choices: [
+      { l: 'Faire auditer les accès par un cabinet', r: 'L’audit rassure la direction ; certains cadres le vivent comme une suspicion.', finance: { purchase: 3 }, fx: { moral: -3 } },
+      { l: 'Diffuser de fausses grilles pour piéger la fuite', r: 'Le piège est tendu : la rivale pourrait mordre à l’hameçon.', pda: careerAll(-0.2), fx: { moral: 2 } },
+      { l: "Réunir les cadres et jouer la transparence", r: 'Le message est clair : la confiance se reconstruit, la taupe est prévenue.', fx: { moral: 6 } }
+    ] },
+  36: { label: 'Orientation', titre: 'Rebâtir la soirée',
+    desc: 'Vos trois vedettes du 19-23 h sont parties chez votre rival avec leurs équipes. Où trouver les nouveaux visages ?', choices: [
+      { l: 'Recruter sur Internet et à la radio', r: 'Des voix et des visages connus des jeunes : la soirée change de génération.', finance: { purchase: 2 }, pda: { j1524: 0.5, a2549: 0.1, s50: 0, csp: 0 }, fx: { notoriete: 10 } },
+      { l: 'Promouvoir les chroniqueurs maison', r: 'Les fidèles connaissent déjà ces visages : la transition est douce.', pop: 1, fx: { notoriete: 6 } },
+      { l: 'Riposter dans la presse contre le rival', r: 'La polémique fait parler de la chaîne ; les nouveaux talents restent dans l’ombre.', pop: 2, pda: careerAll(-0.2), fx: { notoriete: -3 } }
+    ] },
+  37: { label: 'Objectif', titre: 'Le plan de sobriété',
+    desc: 'La direction s’est engagée à réduire de 60 % l’empreinte carbone des tournages. Par quoi commencer pour être crédible ?', choices: [
+      { l: 'Des studios à énergie verte', r: 'Panneaux solaires et régies basse consommation : l’effort se voit tout de suite.', finance: { purchase: 4 }, fx: { eco: 6 } },
+      { l: 'Des équipes en train et des régies mutualisées', r: 'Moins de déplacements, des moyens partagés : un progrès discret et peu coûteux.', finance: { purchase: 1 }, fx: { eco: 3 } },
+      { l: 'Communiquer d’abord, agir ensuite', r: 'La campagne plaît, mais les ONG dénoncent un engagement de façade.', pop: 2, fx: { eco: -3, credibilite: -6 } }
+    ] },
+  38: { label: 'Orientation', titre: 'Comment habiller la compétition ?',
+    desc: 'Un mois de compétition mondiale à l’antenne : chaque soirée doit tenir la garantie d’audience promise aux annonceurs.', choices: [
+      { l: 'Un grand plateau en direct de 18 h à minuit', r: 'Avant-match, match, après-match : la soirée entière vit au rythme de la compétition.', finance: { purchase: 4 }, pda: { j1524: 0.3, a2549: 0.6, s50: 0.2, csp: 0.2 }, fx: { attention: 6 } },
+      { l: 'Une quotidienne coulisses et people', r: 'Les joueurs, leurs familles, leurs secrets : les médias s’emparent du feuilleton.', finance: { purchase: 2 }, fx: { attention: 8 } },
+      { l: 'Le match, rien que le match', r: 'Une retransmission sobre : moins de frais, moins de bruit autour de l’événement.', finance: { commercial: 2 }, fx: { attention: -6 } }
+    ] }
+};
+
 // « Le raider de la finance » : une rédaction ou une marque détruite coûte le poste.
 function careerRaiderBreak(c) {
   const floor = CAREER_RULES[35].breakFloor;
@@ -30874,10 +31013,16 @@ function careerTraits(d, ch) {
 function careerDilemma(c, key, titre, desc, choices) {
   const build = ch => {
     const pda = { ...(ch.pda || {}) };
-    const purchase = ch.finance?.purchase || 0, commercial = ch.finance?.commercial || 0;
+    const purchase = ch.finance?.purchase || 0, commercial = ch.finance?.commercial || 0, recurring = ch.finance?.recurring || 0;
+    const category = commercial > 0 ? 'C' : recurring < 0 ? 'E' : recurring > 0 ? 'R' : purchase > 0 ? 'P' : 'N';
     const out = { l: ch.l, r: ch.r || '', pop: ch.pop || 0, fx: ch.fx || {}, pda,
-      finance: { recurring: 0, purchase: 0, commercial: 0, category: commercial > 0 ? 'C' : purchase > 0 ? 'P' : 'N', ...(ch.finance || {}) },
+      finance: { recurring: 0, purchase: 0, commercial: 0, category, ...(ch.finance || {}) },
       audienceImpact: { slot: 'global', targets: pda } };
+    // Flux combinés (frais et économie annuelle…) : chacun est détaillé plutôt qu'additionné.
+    const flows = [recurring < 0 && `−${nf1(-recurring)} M€/an`, recurring > 0 && `+${nf1(recurring)} M€/an`,
+      purchase > 0 && `${nf1(purchase)} M€ d’achat`, commercial > 0 && `${nf1(commercial)} M€ de recette`].filter(Boolean);
+    if (ch.pillLabel) out.pillLabel = ch.pillLabel;
+    else if (flows.length > 1) out.pillLabel = flows.join(' · ');
     if (ch.randomOutcomes) out.randomOutcomes = ch.randomOutcomes.map(o => ({ pop: 0, pda: {}, fx: {}, ...o }));
     return out;
   };
@@ -31014,6 +31159,17 @@ function careerShapeQueue() {
   }
   if (rule.blockChoice) gameState.dilemmaQueue = gameState.dilemmaQueue.map(d => careerBlockChoices(c, rule, d));
   rule.queue?.(c, gameState.dilemmaQueue);
+  // Saison 1 : le défi s'ouvre sur sa propre décision (scénarisée par le défi, sinon décision d'ouverture).
+  const opening = CAREER_OPENINGS[c.scenarioId];
+  if (gameState.season === 1 && opening && !gameState.dilemmaQueue[0]?.isCareerScripted) {
+    const queue = gameState.dilemmaQueue;
+    queue.unshift({ ...careerDilemma(c, 'ouverture', opening.titre, opening.desc, opening.choices), careerLabel: opening.label });
+    // Longueur imposée (« Les 100 jours ») : l'ouverture compte parmi les dilemmes de la saison.
+    if (n && queue.length > n) {
+      const i = queue.findLastIndex(d => !d.isCareerScripted && !isRenewalDilemma(d) && d.type !== 'sports_rights_auction');
+      if (i > 0) queue.splice(i, 1);
+    }
+  }
 }
 // Saison ouverte (grille payée, recettes créditées) : PDA de départ de la saison.
 function careerSeasonOpened() {

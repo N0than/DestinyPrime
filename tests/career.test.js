@@ -200,8 +200,16 @@ for(let id=1;id<=38;id++){ startCareerGame(id); const rule=CAREER_RULES[id];
   p.coutGrilleEngageSaison=46; ok(r.seasonEnd(c,{season:4}).status==='lost','n°33 : défaite si la grille dépasse 45 M€');
   p.coutGrilleEngageSaison=44; setChannelShare(p,11); ok(r.seasonEnd(c,{season:4}).status==='lost','n°33 : défaite sous 12 % de PDA');
   setChannelShare(p,13); p.tresorerie=-1; ok(r.seasonEnd(c,{season:4}).status==='lost','n°33 : défaite si la trésorerie reste négative'); }
+// Saison 1 : chaque défi s'ouvre sur sa propre décision, sans conférence de rentrée.
+{ for(const s of CAREER_SCENARIOS){ startCareerGame(s.id); const q=gameState.dilemmaQueue[0];
+    ok(!gameState.seasonKickoffPending&&!gameState.seasonKickoffProposal,'n°'+s.id+' : pas de conférence de rentrée en saison 1');
+    ok(q.isCareerScripted,'n°'+s.id+' : décision du défi en ouverture');
+    if(CAREER_OPENINGS[s.id]) ok(q.careerLabel===CAREER_OPENINGS[s.id].label&&q.c.length===3,'n°'+s.id+' : décision d’ouverture'); }
+  ok(Object.keys(CAREER_OPENINGS).length===22,'22 décisions d’ouverture (les autres défis scénarisent déjà la leur)');
+  startCareerGame(26); ok(gameState.dilemmaQueue.length===12,'n°26 : l’ouverture compte parmi les 12 dilemmes');
+  resetGame(); gameState.player.name='Libre'; finalizeChannelSetup(); launchFirstSeason(); ok(!gameState.dilemmaQueue[0]?.isCareerScripted,'jeu libre : pas de décision d’ouverture'); }
 // Signature avant le premier dilemme (conférence de rentrée, grille) : la décision scénarisée reste.
-{ for(const id of [2,34]){ startCareerGame(id); const pr=gameState.seasonKickoffProposal; const opt=pr&&pr.options.find(o=>quoteProgram(pr.slot,o.id,'interne')?.allowed);
+{ for(const id of [2,34]){ startCareerGame(id); startNewSeason(); const pr=gameState.seasonKickoffProposal; const opt=pr&&pr.options.find(o=>quoteProgram(pr.slot,o.id,'interne')?.allowed);
     if(!opt) continue; signProgram(pr.slot,opt.id,'interne');
     ok(gameState.dilemmaQueue[0].isCareerScripted,'n°'+id+' : décision scénarisée conservée après une signature'); } }
 // n°34 « Le tournant du streaming » : érosion, exclusivités, utilisateurs, trésorerie.
