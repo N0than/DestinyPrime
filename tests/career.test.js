@@ -150,7 +150,7 @@ for(let id=1;id<=32;id++){ startCareerGame(id); const rule=CAREER_RULES[id];
   ok(gameState.step===6&&careerActive()?.scenarioId===id&&gameState.dilemmaQueue.length>0,'lancement direct : '+id);
   if(rule.gauges) ok(Object.keys(rule.gauges).every(k=>gameState.career.g[k]===rule.gauges[k]),'jauges de départ : '+id);
   if(rule.type) ok(gameState.player.type===rule.type,'format imposé : '+id);
-  ok(careerBannerHtml().includes('Mode carrière · #'+String(id).padStart(2,'0')),'bandeau en jeu : '+id); }
+  ok(careerBannerHtml().includes('défi #'+id+'"'),'bandeau en jeu : '+id); }
 { startCareerGame(2); ok(premier().id.startsWith('career_2_administrateur'),'n°2 : décision imposée en tête de saison'); const m=gameState.career.g.moral; joue(1); ok(gameState.career.g.moral===Math.max(0,m-18),'n°2 : le plan social coûte du moral'); }
 { startCareerGame(3); ok(/Grève/.test(premier().titre),'n°3 : dilemme de grève'); const d={moral:-6}; CAREER_RULES[3].drift(gameState.career,d,{economique:true}); ok(d.moral===-12,'n°3 : décision économique, moral ×2'); }
 { startCareerGame(4); const c=gameState.career; let v; for(let k=0;k<3;k++) v=CAREER_RULES[4].afterChoice(c,{t:{racoleur:true},dilemma:{}}); ok(c.controls===3&&v?.status==='lost','n°4 : 3e contrôle Arcom, fréquence retirée'); }

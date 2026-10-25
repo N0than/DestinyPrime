@@ -1609,16 +1609,53 @@ button.radar-row:focus-visible { outline: 2px solid var(--bleu); outline-offset:
 .career-sheet-panel .welcome-cta { margin-top: 2px; }
 .career-sheet-panel .welcome-cta.welcome-cta-tight { margin-top: -4px; }
 
-/* ---- MODE CARRIÈRE — BANDEAU DU SCÉNARIO ---- */
-/* Rappel du scénario en jeu, au format d'une option de dilemme. */
-.choice.career-banner { margin-bottom: 12px; padding: 11px 13px; }
-.choice.career-banner:hover { background: rgba(255,255,255,0.65); border-color: rgba(255,255,255,0.85); }
-.choice.career-banner:active { transform: none; }
-.career-banner .choice-icon { background: var(--fam-bg); border: none; }
-.career-banner .choice-eyebrow { color: var(--fam); }
-.career-banner-lines { display: flex; flex-direction: column; gap: 3px; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--paper-dark); font-size: 12px; line-height: 1.4; color: #334155; }
-.career-banner-lines b { color: var(--ink); }
+/* ---- MODE CARRIÈRE — LIGNE DU DÉFI DANS LE HUD ---- */
+/* Une ligne collée sous les indicateurs, même filet que l'en-tête ; le « + » déplie le détail (push down). */
+.hud-career {
+  margin: 8px -10px -10px; padding: 0 10px;
+  background-image: linear-gradient(90deg, transparent, rgba(148,163,184,0.4) 15%, rgba(148,163,184,0.4) 85%, transparent);
+  background-position: top; background-size: 100% 1px; background-repeat: no-repeat;
+}
+.hud-head-only .hud-career { margin-top: 7px; }
+.hud-career-row {
+  display: flex; align-items: center; gap: 7px; width: 100%; min-height: 36px; padding: 6px 0;
+  border: 0; background: none; cursor: pointer; text-align: left; color: var(--ink);
+  -webkit-appearance: none; appearance: none; font: inherit;
+}
+.hud-career-icon {
+  flex-shrink: 0; display: grid; place-items: center; width: 22px; height: 22px; border-radius: 7px;
+  font-size: 12px; background: var(--fam-bg);
+}
+.hud-career-id { flex-shrink: 0; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 1px; color: var(--fam); }
+.hud-career-title {
+  flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 12px; text-transform: uppercase; letter-spacing: 0.3px;
+}
+.hud-career-season {
+  flex-shrink: 0; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 10px; white-space: nowrap;
+  padding: 3px 8px; border-radius: 999px; color: #334155; background: rgba(255,255,255,0.6); border: 1px solid rgba(255,255,255,0.8);
+}
+.hud-career-plus {
+  position: relative; flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%;
+  background: var(--fam); box-shadow: 0 4px 10px -4px var(--fam); transition: transform 0.3s ease;
+}
+.hud-career-plus::before, .hud-career-plus::after {
+  content: ''; position: absolute; left: 50%; top: 50%; width: 10px; height: 2px; margin: -1px 0 0 -5px; border-radius: 1px; background: #fff;
+}
+.hud-career-plus::after { transform: rotate(90deg); }
+.hud-career.open .hud-career-plus { transform: rotate(45deg); }
+/* Jauge du scénario dans le rouge : pastille d'alerte sur le « + » tant que le détail est replié. */
+.hud-career.alert:not(.open) .hud-career-plus { box-shadow: 0 0 0 3px rgba(225,29,72,0.25), 0 4px 10px -4px var(--fam); }
+.hud-career-details { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.35s ease; }
+.hud-career.open .hud-career-details { grid-template-rows: 1fr; }
+.hud-career-inner {
+  min-height: 0; overflow: hidden; display: flex; flex-direction: column; gap: 4px;
+  font-size: 12px; line-height: 1.45; color: #334155; opacity: 0; transition: opacity 0.25s ease;
+}
+.hud-career.open .hud-career-inner { opacity: 1; padding-bottom: 10px; }
+.hud-career-inner b { color: var(--ink); }
 .career-banner-note { color: var(--gris); font-style: italic; }
+@media (prefers-reduced-motion: reduce) { .hud-career-details, .hud-career-plus, .hud-career-inner { transition: none; } }
 .career-gauges { display: flex; flex-wrap: wrap; gap: 5px; margin: 2px 0; }
 .career-gauge {
   display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px;
@@ -21907,7 +21944,7 @@ const HUD_STATUS_BADGES = {
 function renderHudHeadOnly({ status = null } = {}) {
   return `
     <div class="hud-wrap hud-head-only">
-      <div class="hud-panel">${renderHudHead(gameState.player, { toggle: false, status: HUD_STATUS_BADGES[status] || null })}</div>
+      <div class="hud-panel">${renderHudHead(gameState.player, { toggle: false, status: HUD_STATUS_BADGES[status] || null })}${status ? '' : careerBannerHtml()}</div>
     </div>`;
 }
 
@@ -21965,6 +22002,7 @@ function renderTicker() {
             <div class="val">${Math.round(p.popularite)}%</div>
           </div>
         </div>
+        ${careerBannerHtml()}
       </div>
       <div class="hud-details${open ? ' open' : ''}" id="hud-details">
         <div class="hud-details-inner">
@@ -29477,7 +29515,7 @@ function programCardHtml(slot, x, current) {
 }
 // Bandeau du scénario de carrière en cours (dilemmes et bilan) ; vide hors Mode Carrière.
 function renderCampaignPanel() {
-  return careerBannerHtml();
+  return '';
 }
 
 // ---- MODE CARRIÈRE ----
@@ -30665,8 +30703,8 @@ function careerAfterChoice(dilemma, choice, before) {
   }
 }
 
-// Bandeau rappelant le scénario en jeu (dilemmes et bilan), au format d'une option de dilemme :
-// objectif, contrainte, jauges du scénario, suivi et dernier événement de la contrainte.
+// Ligne du défi en cours, collée sous les indicateurs du HUD : famille, numéro, titre et saison ;
+// le « + » déplie (push down) objectif, contrainte, jauges, suivi et dernier événement.
 function careerBannerHtml() {
   const c = careerActive();
   if (!c) return '';
@@ -30675,28 +30713,44 @@ function careerBannerHtml() {
   const fam = careerFamilyById(s.famille);
   const [ruleLabel, ruleText] = s.contrainte ? ['Contrainte', s.contrainte] : ['Règle spéciale', s.regleSpeciale];
   const status = rule.status ? rule.status(c) : '';
+  let alert = false;
   const gauges = c.g ? Object.entries(c.g).map(([k, v]) => {
     const g = CAREER_GAUGES[k];
+    const low = g.hidden ? v <= 33 : v < 30;
+    if (low) alert = true;
     const value = g.hidden ? (v > 66 ? 'serein' : v > 33 ? 'agacé' : 'à bout') : `${Math.round(v)}${g.unit || ''}`;
     return `<span class="career-gauge${!g.hidden && v < 30 ? ' low' : ''}"><span aria-hidden="true">${g.icon}</span>${g.label} <b>${value}</b></span>`;
   }).join('') : '';
-  return `<div class="choice career-banner" style="${careerFamilyStyle(fam)}">
-    <div class="choice-row">
-      <span class="choice-icon" aria-hidden="true">${fam.icone}</span>
-      <div class="choice-content">
-        <div class="choice-eyebrow-row"><span class="choice-eyebrow">Mode carrière · #${String(s.id).padStart(2, '0')}</span>${rule.maxSeasons ? `<span class="choice-pill neutral">Saison ${gameState.season}/${rule.maxSeasons}</span>` : ''}</div>
-        <span class="cl">${esc(s.titre)}</span>
+  const open = !!gameState.careerHudOpen;
+  const season = rule.maxSeasons ? `Saison ${gameState.season}/${rule.maxSeasons}` : `Saison ${gameState.season}`;
+  return `<div class="hud-career${open ? ' open' : ''}${alert ? ' alert' : ''}" style="${careerFamilyStyle(fam)}">
+    <button type="button" class="hud-career-row" data-career-hud-toggle aria-expanded="${open}" aria-controls="hud-career-details" title="Mode carrière · défi #${s.id}">
+      <span class="hud-career-icon" aria-hidden="true">${fam.icone}</span>
+      <span class="hud-career-id">#${s.id}</span>
+      <span class="hud-career-title">${esc(s.titre)}</span>
+      <span class="hud-career-season">${season}</span>
+      <span class="hud-career-plus" aria-hidden="true"></span>
+    </button>
+    <div class="hud-career-details" id="hud-career-details">
+      <div class="hud-career-inner">
+        <span><b>Objectif :</b> ${esc(s.objectif)}</span>
+        <span><b>${ruleLabel} :</b> ${esc(ruleText)}</span>
+        ${gauges ? `<span class="career-gauges">${gauges}</span>` : ''}
+        ${status ? `<span>${status}</span>` : ''}
+        ${c.note ? `<span class="career-banner-note">${esc(c.note)}</span>` : ''}
       </div>
-    </div>
-    <div class="career-banner-lines">
-      <span><b>Objectif :</b> ${esc(s.objectif)}</span>
-      <span><b>${ruleLabel} :</b> ${esc(ruleText)}</span>
-      ${gauges ? `<span class="career-gauges">${gauges}</span>` : ''}
-      ${status ? `<span>${status}</span>` : ''}
-      ${c.note ? `<span class="career-banner-note">${esc(c.note)}</span>` : ''}
     </div>
   </div>`;
 }
+// Dépliage sans re-rendu : l'état est mémorisé pour les écrans suivants.
+if (typeof document !== 'undefined') document.addEventListener('click', e => {
+  const btn = e.target.closest?.('[data-career-hud-toggle]');
+  if (!btn) return;
+  gameState.careerHudOpen = !gameState.careerHudOpen;
+  const box = btn.closest('.hud-career');
+  box.classList.toggle('open', gameState.careerHudOpen);
+  btn.setAttribute('aria-expanded', String(gameState.careerHudOpen));
+});
 
 function careerStarsHtml(n) {
   return `<span class="career-stars" role="img" aria-label="Difficulté ${n} sur 5">${Array.from({ length: 5 }, (_, i) =>
