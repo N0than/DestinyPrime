@@ -3411,7 +3411,7 @@ function makeTalentOffer(idx) {
   const market = gameState.talentMarket;
   if (!sc || sc.pending || gameState.step !== 6 || !market) return false;
   const offer = market.offers[idx];
-  if (!offer || market.refused.includes(offer.id) || talentSlotLayout()[sc.slot] || !talentOfferAffordable(offer)) return false;
+  if (!offer || market.refused.includes(offer.id) || talentSlotLayout()[sc.slot] || !talentOfferAffordable(offer) || careerTalentBlock(offer)) return false;
   const accepted = marketRandom() < offer.chance;
   if (accepted) signTalent(offer, sc.slot);
   else market.refused.push(offer.id);
@@ -3637,6 +3637,7 @@ function renderTalentsSlide() {
     const chosen = pend && pend.idx === i;
     const refused = market.refused.includes(offer.id) && !(chosen && pend.phase === 'waiting');
     const affordable = talentOfferAffordable(offer);
+    const blocked = careerTalentBlock(offer);
     let state = '';
     let footer;
     if (chosen && pend.phase === 'waiting') {
@@ -3649,9 +3650,9 @@ function renderTalentsSlide() {
       state = chosen ? ' declined shake' : ' declined';
       footer = '<span class="tl-cand-status ko" role="status">✕ Offre déclinée</span>';
     } else {
-      footer = `<button type="button" class="tl-action tl-action-offer" data-scout-offer="${i}" ${pend || !affordable ? 'disabled' : ''} title="${Math.round(offer.chance * 100)} % de chances de signature">
+      footer = `<button type="button" class="tl-action tl-action-offer" data-scout-offer="${i}" ${pend || !affordable || blocked ? 'disabled' : ''} title="${Math.round(offer.chance * 100)} % de chances de signature">
           <span class="tl-action-label">Recruter</span>
-          ${affordable ? '' : '<span class="tl-action-sub">Trésorerie insuffisante</span>'}
+          ${blocked ? `<span class="tl-action-sub">${esc(blocked)}</span>` : affordable ? '' : '<span class="tl-action-sub">Trésorerie insuffisante</span>'}
         </button>`;
     }
     const fading = pend && !chosen ? (pend.accepted && pend.phase === 'reveal' ? ' leaving' : ' dimmed') : '';
@@ -20609,7 +20610,26 @@ function refreshRenewalDilemmas() {
   const base = gameState.dilemmaBaseQueue
     || (gameState.dilemmaQueue || []).filter(d => !d.isCareerDilemma && !d.isGridRenewal && !d.isTalentRenewal && !d.isSportsRenewal);
   if (!base.length) return;
-  gameState.dilemmaQueue = withRenewalDilemmas([...base]);
+  const previous = gameState.dilemmaQueue || [];
+  gameState.dilemmaQueue = careerReshapeQueue(withRenewalDilemmas([...base]), previous, base);
+}
+// Mode Carrière : la file reconstruite (signature avant le premier dilemme) garde la mise en
+// forme du scénario — décisions scénarisées en tête ou en fin de file, dilemmes ajoutés par
+// le scénario, options refusées par la contrainte — sans rejouer ses effets de bord.
+function careerReshapeQueue(queue, previous, base) {
+  const c = careerActive(), rule = careerRule();
+  if (!c || !rule) return queue;
+  if (rule.blockChoice) queue = queue.map(d => careerBlockChoices(c, rule, d));
+  const firstFree = previous.findIndex(d => !d.isCareerScripted);
+  const scripted = previous.map((d, i) => ({ d, i })).filter(x => x.d.isCareerScripted);
+  const head = scripted.filter(x => firstFree < 0 || x.i < firstFree).map(x => x.d);
+  const tail = scripted.filter(x => firstFree >= 0 && x.i > firstFree).map(x => x.d);
+  const inQueue = new Set(queue.map(d => d.id));
+  const extras = previous.filter(d => !d.isCareerScripted && !isRenewalDilemma(d) && !base.some(b => b.id === d.id) && !inQueue.has(d.id));
+  const free = queue.filter(d => !d.isCareerScripted);
+  const cut = free.findIndex(isRenewalDilemma);
+  const body = cut < 0 ? [...free, ...extras] : [...free.slice(0, cut), ...extras, ...free.slice(cut)];
+  return [...head, ...body, ...tail];
 }
 
 function createGridRenewalDilemma(pendingRenewals, sportsRenewals = []) {
@@ -29596,7 +29616,8 @@ const CAREER_FAMILIES = [
   { id: 'marche', nom: "Avis de tempête", numero: '05', illustration: { genre: 'aventure', subgenre: 'survie', palette: 'nuit' }, accroche: "Crise publicitaire, bouleversement réglementaire, concurrence agressive : le marché change les règles du jeu. À vous de vous adapter.", couleur: 'var(--bleu)', icone: '🌪️', fond: 'rgba(37,99,235,0.12)' },
   { id: 'thematiques', nom: "Ligne éditoriale", numero: '06', illustration: { genre: 'info', palette: 'jour' }, accroche: "Une identité à défendre, un public à conquérir et des contraintes de programmation à respecter. Prouvez qu'une ligne éditoriale peut aussi être rentable.", couleur: 'var(--cyan)', icone: '📰', fond: 'rgba(8,145,178,0.13)' },
   { id: 'courts', nom: "Défis express", numero: '07', illustration: { genre: 'jeu', palette: 'neon' }, accroche: "Des objectifs précis, des règles inédites et quelques saisons pour faire la différence. Chaque partie est un nouveau défi.", couleur: 'var(--amber)', icone: '⏱️', fond: 'rgba(245,158,11,0.15)' },
-  { id: 'narratifs', nom: "Destins de chaînes", numero: '08', illustration: { genre: 'policier', palette: 'nuit' }, accroche: "Scandales, rivalités, rebondissements et décisions décisives. Vivez des histoires où vos choix écrivent l'avenir de votre chaîne.", couleur: 'var(--pink)', icone: '🎭', fond: 'rgba(219,39,119,0.12)' }
+  { id: 'narratifs', nom: "Destins de chaînes", numero: '08', illustration: { genre: 'policier', palette: 'nuit' }, accroche: "Scandales, rivalités, rebondissements et décisions décisives. Vivez des histoires où vos choix écrivent l'avenir de votre chaîne.", couleur: 'var(--pink)', icone: '🎭', fond: 'rgba(219,39,119,0.12)' },
+  { id: 'digital', nom: "La Révolution Digitale", numero: '09', illustration: { genre: 'evenement', subgenre: 'esport', palette: 'neon' }, accroche: "Le public a quitté le salon pour le smartphone. Plateformes, FAST, replay : inventez la télévision de demain sans perdre celle d'aujourd'hui.", couleur: 'var(--violet)', icone: '📱', fond: 'rgba(124,58,237,0.13)' }
 ];
 const CAREER_SCENARIOS = [
   { id: 1, famille: 'redressement', titre: 'Le canal 7 en soins intensifs', difficulte: 3,
@@ -29730,7 +29751,27 @@ const CAREER_SCENARIOS = [
   { id: 33, famille: 'redressement', titre: "Le géant aux pieds d'argile", difficulte: 4,
     situation: 'Une chaîne historique domine encore les audiences, mais ses programmes coûtent une fortune et les recettes ne suivent plus. Le conseil d’administration vous donne quatre saisons pour sauver le groupe sans sacrifier son statut',
     objectif: 'Retrouver une trésorerie positive tout en conservant au moins 12 % de PDA',
-    contrainte: 'Tant que la grille dépasse 45 M€ par an, les contrats historiques coûtent 8 M€ de plus à chaque début de saison ; chaque économie coûte 3 points de popularité supplémentaires', jouable: true }
+    contrainte: 'Tant que la grille dépasse 45 M€ par an, les contrats historiques coûtent 8 M€ de plus à chaque début de saison ; chaque économie coûte 3 points de popularité supplémentaires', jouable: true },
+  { id: 34, famille: 'digital', titre: 'Le tournant du streaming', difficulte: 4,
+    situation: 'Chaîne linéaire classique qui perd 1,5 point de PDA par saison, 25 M€ en caisse : il faut basculer une partie de la grille vers une plateforme FAST/AVOD maison',
+    objectif: 'Atteindre 500 000 utilisateurs actifs sur la plateforme et garder au moins 10 % de PDA en linéaire au bout de 5 saisons',
+    contrainte: 'Chaque format exclusif au streaming coûte 0,5 point de PDA au linéaire mais augmente de 15 % la valorisation digitale ; si la trésorerie passe sous 0 M€, la plateforme est revendue au rabais', jouable: true },
+  { id: 35, famille: 'actionnaire', titre: 'Le raider de la finance', difficulte: 5, deblocage: 5,
+    situation: "Un fonds activiste a racheté 40 % du capital et veut liquider le catalogue de fictions historiques pour se verser un dividende exceptionnel",
+    objectif: "Garder le contrôle du conseil d'administration pendant 4 saisons et faire monter l'action de 30 %",
+    contrainte: "À chaque début de saison, l'activiste soumet au vote une coupe de 15 M€ dans l'information ou la création : l'accepter fait monter l'action mais coûte 15 de moral et 20 de crédibilité, la refuser coûte 10 M€ de frais d'avocats", jouable: true },
+  { id: 36, famille: 'narratifs', titre: 'Fuite de cerveaux', difficulte: 3,
+    situation: 'Après une dispute médiatique, vos trois animateurs vedettes du 19-23 h partent chez votre concurrent direct avec leurs équipes de production',
+    objectif: 'Renouveler entièrement la soirée (access et prime) et dépasser la PDA de votre rival en 3 saisons',
+    contrainte: "Interdiction de recruter des talents confirmés ou vedettes : seulement des espoirs. Les deux premières saisons, l'access perd 20 % de son audience", jouable: true },
+  { id: 37, famille: 'thematiques', titre: 'La chaîne Bas-Carbone', difficulte: 3,
+    situation: "La direction s'engage à réduire de 60 % l'empreinte carbone des tournages et des retransmissions",
+    objectif: 'Atteindre 12 % de PDA avec un score éco-responsable au-dessus de 80, en 5 saisons au plus',
+    contrainte: "Tournages à l'étranger et formats d'aventure internationaux interdits ; la production locale coûte 15 % de plus la première saison", jouable: true },
+  { id: 38, famille: 'courts', titre: 'Événement mondial', difficulte: 2,
+    format: "Les droits exclusifs d'un événement sportif mondial pendant un mois : une seule saison intensive, de 7 % de PDA au sommet",
+    objectif: 'Générer au moins 50 M€ de recettes publicitaires nettes et atteindre un pic de 25 % de PDA pour la finale',
+    regleSpeciale: "Garantie d'audience : à chaque décision, une case de grande écoute (access ou prime) sous 12 % de PDA coûte 3 M€ de remboursement aux annonceurs", jouable: true }
 ];
 const CAREER_STORAGE_KEY = 'audienceMasters.career';
 const CAREER_UNLOCK_COUNT = 3;
@@ -29752,7 +29793,12 @@ const CAREER_GAUGES = {
   blocDivert: { label: 'Bloc divertissement', icon: '🎉' },
   effectifs: { label: 'Effectifs', icon: '👥', unit: ' %' },
   couverture: { label: 'Couverture', icon: '📡', unit: ' %' },
-  enfants: { label: 'Public enfant', icon: '🧸' }
+  enfants: { label: 'Public enfant', icon: '🧸' },
+  popDigitale: { label: 'Popularité digitale', icon: '📱' },
+  actionnaires: { label: 'Actionnaires', icon: '📊' },
+  notoriete: { label: 'Nouveaux talents', icon: '🌱' },
+  eco: { label: 'Éco-responsable', icon: '🌿' },
+  attention: { label: 'Attention médias', icon: '📣' }
 };
 // « La taupe » : les quatre cadres soupçonnés.
 const CAREER_SUSPECTS = [
@@ -29785,6 +29831,14 @@ const CAREER_FAVORS = [
     oui: 'Diffuser le magazine', ouiR: "Le magazine passe sans mention : l'Arcom demande des explications.",
     non: 'Exiger la mention publicitaire', nonR: 'La mention est apposée. Le groupe réduit son soutien financier.' }
 ];
+
+// « Le raider de la finance » : une rédaction ou une marque détruite coûte le poste.
+function careerRaiderBreak(c) {
+  const floor = CAREER_RULES[35].breakFloor;
+  if (c.g.moral <= floor) return careerLose(`Moral à ${Math.round(c.g.moral)} : la rédaction démissionne en bloc, le conseil vous retire sa confiance.`);
+  if (c.g.credibilite <= floor) return careerLose(`Crédibilité à ${Math.round(c.g.credibilite)} : annonceurs et régulateur lâchent la chaîne, le conseil vous congédie.`);
+  return null;
+}
 
 // Règles des scénarios. La PDA est celle de la cible du joueur, comme au bilan de saison ;
 // « leader » = 1re chaîne du classement du bilan. Crochets : start (conditions de départ),
@@ -30503,6 +30557,221 @@ const CAREER_RULES = {
       if (!misses.length) return careerWin(`Fin de la saison 4 : trésorerie à ${nf1(p.tresorerie)} M€, PDA à ${nf1(pda)} % et grille à ${nf1(grid)} M€. Le géant tient debout.`);
       return careerLose(`Fin de la saison 4 : le conseil d’administration constate l’échec (${misses.join(', ')}).`);
     }
+  },
+  // « Le tournant du streaming » : linéaire en érosion, plateforme à faire grandir (utilisateurs
+  // gagnés en fin de saison selon la popularité digitale et la valorisation des exclusivités).
+  34: {
+    start: { tresorerie: 25, pda: 11 }, gauges: { popDigitale: 20, credibilite: 60 }, maxSeasons: 5,
+    usersGoal: 500000, pdaGoal: 10, usersPerPoint: 1700, erosion: 1.5, retention: 50,
+    opened(c) { if (gameState.season === 1) { c.users = 0; c.valo = 1; c.exclus = 0; } },
+    seasonStart(c) {
+      const r = CAREER_RULES[34];
+      if (gameState.season < 2) return;
+      // La plateforme retient le public : l'érosion s'arrête quand la popularité digitale atteint 50.
+      if (c.g.popDigitale >= r.retention) { c.note = `Saison ${gameState.season} : la plateforme retient le public, le linéaire ne s'érode plus.`; return; }
+      careerShift(gameState.player, -r.erosion, [gameState.player.target]);
+      c.note = `Saison ${gameState.season} : le linéaire continue de s'éroder (−1,5 pt de PDA).`;
+    },
+    queue(c, q) {
+      q.unshift(careerDilemma(c, 'plateforme', 'Le virage du streaming',
+        `Plateforme : ${nf1((c.users || 0) / 1000)} k utilisateurs actifs, valorisation digitale ×${nf1(c.valo || 1)}. Le comité de direction attend vos arbitrages de la saison.`, [
+          { l: 'Lancer un format exclusif sur la plateforme', r: 'Le format attire un nouveau public en ligne ; le linéaire perd un peu de son exclusivité.', finance: { purchase: 4 }, pda: careerAll(-0.5), fx: { popDigitale: 12, exclusif: 1 } },
+          { l: 'Basculer 40 % du budget de grille vers la plateforme', r: 'Les moyens suivent le public : la plateforme décolle, la grille linéaire s’appauvrit.', pda: careerAll(-0.5), fx: { popDigitale: 18 } },
+          { l: 'Défendre le linéaire cette saison', r: 'Les soirées en direct reprennent des couleurs ; la plateforme stagne.', finance: { purchase: 4 }, pda: careerAll(1.5), fx: { popDigitale: -4 } }
+        ]));
+    },
+    drift(c, d, t) { d.popDigitale = t.modern ? 4 : 0; },
+    afterChoice(c, { fx }) {
+      if (fx.exclusif) { c.exclus = (c.exclus || 0) + 1; c.valo = (c.valo || 1) * 1.15; c.note = `Format exclusif n°${c.exclus} : valorisation digitale ×${nf1(c.valo)}.`; }
+      if (gameState.player.tresorerie < 0) return careerLose(`La trésorerie passe à ${nf1(gameState.player.tresorerie)} M€ : le conseil revend la plateforme au rabais.`);
+    },
+    // AVOD : les rediffusions de nuit et du matin sont monétisées sur la plateforme.
+    adSlotFactor(c, slot) { return ['nuit', 'matin'].includes(slot) ? 1 + (c.users || 0) / 1000000 : 1; },
+    status(c) {
+      const r = CAREER_RULES[34];
+      return `Plateforme : <b>${nf1((c.users || 0) / 1000)} k</b> / 500 k utilisateurs · valorisation ×${nf1(c.valo || 1)} · érosion du linéaire ${c.g.popDigitale >= r.retention ? '<b>stoppée</b>' : 'de −1,5 pt par saison (stoppée à 50 de popularité digitale)'} · ${careerPdaLabel()} : <b>${nf1(careerPda())} %</b> (${r.pdaGoal} % minimum) · trésorerie : <b>${nf1(gameState.player.tresorerie)} M€</b>`;
+    },
+    seasonEnd(c, h) {
+      const p = gameState.player, r = CAREER_RULES[34];
+      const gain = Math.round(c.g.popDigitale * r.usersPerPoint * (c.valo || 1));
+      c.users = (c.users || 0) + gain;
+      c.note = `Saison ${h.season} : +${nf1(gain / 1000)} k utilisateurs sur la plateforme.`;
+      if (p.tresorerie < 0) return careerLose(`Fin de saison ${h.season} : trésorerie à ${nf1(p.tresorerie)} M€, la plateforme est revendue au rabais.`);
+      if (h.season < 5) return;
+      if (c.users >= r.usersGoal && c.pdaEnd >= r.pdaGoal - CAREER_EPS) return careerWin(`${nf1(c.users / 1000)} k utilisateurs et ${nf1(c.pdaEnd)} % de PDA : la chaîne a réussi son virage numérique.`);
+      return careerLose(`Fin de la saison 5 : ${nf1(c.users / 1000)} k utilisateurs (objectif 500 k) et ${nf1(c.pdaEnd)} % de PDA (objectif 10 %).`);
+    }
+  },
+  // « Le raider de la finance » : vote de l'activiste à chaque saison, valeur de l'action (base 100).
+  35: {
+    start: { tresorerie: 40, pda: 14 }, gauges: { actionnaires: 45, moral: 60, credibilite: 60 }, maxSeasons: 4,
+    actionGoal: 130, controlFloor: 25, breakFloor: 10,
+    opened(c) { if (gameState.season === 1) c.action = 100; },
+    queue(c, q) {
+      q.unshift(careerDilemma(c, 'vote', `Le vote du fonds activiste`,
+        `Le fonds soumet au conseil une coupe de 15 M€ dans l'information ou la création. L'action cote ${nf1(c.action || 100)} (base 100).`, [
+          { l: 'Voter la coupe de 15 M€', r: "L'action bondit, la rédaction et la presse dénoncent un saccage.", finance: { recurring: -15 }, pda: careerAll(-0.8), fx: { moral: -15, credibilite: -20, actionnaires: 15, action: 8 } },
+          { l: 'Refuser la coupe et saisir les avocats', r: "La direction tient tête au fonds : 10 M€ de frais d'avocats, et un conseil plus tendu.", finance: { purchase: 10 }, fx: { moral: 5, actionnaires: -12, action: -3 } }
+        ]));
+    },
+    drift(c, d, t) { d.actionnaires = (t.saving ? 3 : 0) - (t.spend >= 5 ? 2 : 0); },
+    afterChoice(c, { fx }) {
+      const r = CAREER_RULES[35];
+      if (fx.action) { c.action = (c.action || 100) * (1 + fx.action / 100); c.note = `L'action cote ${nf1(c.action)}.`; }
+      return careerRaiderBreak(c) || (c.g.actionnaires < r.controlFloor ? careerLose(`Satisfaction des actionnaires à ${Math.round(c.g.actionnaires)} : le fonds activiste prend le contrôle du conseil.`) : null);
+    },
+    adFactor(c) { return c.g.credibilite < 40 ? 0.85 : 1; },
+    status(c) { return `Action : <b>${nf1(c.action || 100)}</b> (objectif 130) · contrôle du conseil tant que la satisfaction des actionnaires reste à 25 ou plus · moral et crédibilité à garder au-dessus de 10${c.g.credibilite < 40 ? ' · crédibilité en berne : −15 % de recettes pub' : ''}`; },
+    seasonEnd(c, h) {
+      const r = CAREER_RULES[35];
+      // Valeur fondamentale : audience et résultat ; une marque discréditée ou une rédaction en grève la déprécient.
+      const brand = (c.g.credibilite < 30 ? -0.1 : 0) + (c.g.moral < 25 ? -0.05 : 0);
+      c.action = Math.max(40, (c.action || 100) * (1 + 0.04 * ((c.pdaEnd ?? 0) - (c.pdaStart ?? c.pdaEnd ?? 0)) + 0.003 * (h.resultatSaison || 0) + brand));
+      const broken = careerRaiderBreak(c);
+      if (broken) return broken;
+      if (c.g.actionnaires < r.controlFloor) return careerLose(`Satisfaction des actionnaires à ${Math.round(c.g.actionnaires)} : le fonds activiste prend le contrôle du conseil.`);
+      if (h.season < 4) return;
+      if (c.action >= r.actionGoal - CAREER_EPS) return careerWin(`Quatre saisons sans perdre le conseil, et l'action cote ${nf1(c.action)} : le raider rend les armes.`);
+      return careerLose(`Fin de la saison 4 : l'action cote ${nf1(c.action)}, loin des 130 promis. Le fonds obtient votre départ.`);
+    }
+  },
+  // « Fuite de cerveaux » : rival désigné, access pénalisé deux saisons, soirée à renouveler.
+  36: {
+    type: 'generaliste', start: { tresorerie: 30, pda: 9 }, gauges: { notoriete: 15 }, maxSeasons: 3,
+    evening: ['access', 'prime'],
+    seasonStart(c) {
+      const p = gameState.player;
+      if (gameState.season === 1) {
+        const rival = careerRivals()[0];
+        c.rival = rival?.name; c.renewed = [];
+        if (rival) setChannelShare(rival, 14);
+        setChannelShare(p, 9);
+        // −20 % sur l'access : écart mémorisé pour être rendu à la saison 3.
+        const row = careerRow(p);
+        c.accessMalus = Object.fromEntries(CAREER_TARGETS.map(t => [t, -0.2 * (row?.slots?.access?.[t] || 0)]));
+        p.slotAudienceDeltas ??= {}; p.slotAudienceDeltas.access ??= {};
+        Object.entries(c.accessMalus).forEach(([t, v]) => { p.slotAudienceDeltas.access[t] = (p.slotAudienceDeltas.access[t] || 0) + v; });
+        c.note = `Les vedettes partent chez ${c.rival} : l'access perd 20 % de son audience pour deux saisons.`;
+      }
+      // Transplantées chez le rival, les vedettes s'essoufflent : −2 pts par saison à partir de la 2e.
+      const rival = gameState.season >= 2 && gameState.competitors.find(r => r.name === c.rival);
+      if (rival) careerShift(rival, -2, [p.target]);
+      if (gameState.season === 3 && c.accessMalus) {
+        Object.entries(c.accessMalus).forEach(([t, v]) => { p.slotAudienceDeltas.access[t] -= v; });
+        c.accessMalus = null;
+        c.note = "L'access retrouve son public : le départ des vedettes est digéré.";
+      }
+    },
+    blockTalent(c, offer) { return offer.tier !== 'espoir' ? 'seulement des espoirs' : null; },
+    programSigned(c, { slot, contract }) {
+      if (!CAREER_RULES[36].evening.includes(slot)) return;
+      if (!c.renewed.includes(slot)) c.renewed.push(slot);
+      careerGauge(c, 'notoriete', 12);
+      c.note = `« ${contract.name} » : un nouveau visage en soirée (+12 de notoriété).`;
+    },
+    drift(c, d, t) { d.notoriete = (t.modern ? 4 : 0) + (t.divert ? 1 : 0); },
+    afterChoice() {},
+    status(c) {
+      const rival = gameState.competitors.find(r => r.name === c.rival);
+      const left = CAREER_RULES[36].evening.filter(s => !(c.renewed || []).includes(s)).map(slotLabelOf);
+      return `Soirée à renouveler : <b>${left.length ? esc(left.join(', ')) : 'faite'}</b> · ${careerPdaLabel()} : <b>${nf1(careerPda())} %</b> contre <b>${nf1(rival ? careerPda(rival) : 0)} %</b> pour ${esc(c.rival || 'le rival')}${c.accessMalus ? ' · access à −20 %' : ''}`;
+    },
+    seasonEnd(c, h) {
+      if (c.g.notoriete >= 60) { careerShift(gameState.player, 1, [gameState.player.target]); c.note = 'Les nouveaux visages s’installent : +1 pt de PDA.'; }
+      const rival = gameState.competitors.find(r => r.name === c.rival);
+      const ahead = rival && careerPda() > careerPda(rival);
+      const renewed = CAREER_RULES[36].evening.every(s => (c.renewed || []).includes(s));
+      if (ahead && renewed) return careerWin(`Saison ${h.season} : soirée entièrement renouvelée et ${nf1(careerPda())} % de PDA, devant ${c.rival}.`);
+      if (h.season >= 3) return careerLose(`Fin de la saison 3 : ${!renewed ? 'la soirée n’est pas entièrement renouvelée' : `${c.rival} reste devant (${nf1(careerPda(rival))} % contre ${nf1(careerPda())} %)`}.`);
+    }
+  },
+  // « La chaîne Bas-Carbone » : score éco-responsable, interdits de tournage, surcoût la 1re saison.
+  37: {
+    start: { tresorerie: 20, pda: 8.5 }, gauges: { eco: 50, credibilite: 70 }, maxSeasons: 5,
+    pdaGoal: 12, ecoGoal: 80,
+    blockProgram(c, program) {
+      const name = normalizeAudienceText(program.name);
+      const origin = program.editorial?.origin;
+      if (/aventur|expedition|koh|tour du monde|pekin|destination|jungle|ile deserte/.test(name)) return 'format d’aventure à l’étranger interdit';
+      return !program.original && (origin === 'international' || origin === 'EU') ? 'tournage à l’étranger interdit' : null;
+    },
+    blockChoice(c, d, ch, t) {
+      const own = normalizeAudienceText(`${ch.l || ''} ${ch.r || ''}`);
+      return (t.spend > 0 && (t.foreign || /avion|etranger|expedition|tour du monde|tournee mondiale/.test(own))) ? 'tournage à l’étranger interdit' : null;
+    },
+    drift(c, d, t, ch) {
+      const own = normalizeAudienceText(`${ch.l || ''} ${ch.r || ''}`);
+      d.eco = (/local|proximit|region|sobri|ecolo|climat|durable|carbone|recycl|velo|train|nature|economi/.test(own) ? 6 : 0) - (t.foreign ? 6 : 0) - (t.spend >= 8 ? 3 : 0);
+    },
+    afterChoice(c, { choice }) {
+      const purchase = choice?.finance?.purchase || 0;
+      if (gameState.season === 1 && purchase > 0) {
+        const extra = Math.round(purchase * 0.15 * 10) / 10;
+        applyFinance({ recurring: 0, purchase: extra, commercial: 0, category: 'P' });
+        c.note = `Production locale bas-carbone : +${nf1(extra)} M€ (+15 % la première saison).`;
+      }
+    },
+    programSigned(c, { contract }) {
+      if (gameState.season !== 1 || !(contract.annual > 0)) return;
+      const extra = Math.round(contract.annual * 0.15 * 10) / 10;
+      applyFinance({ recurring: 0, purchase: extra, commercial: 0, category: 'P' });
+      c.note = `« ${contract.name} » : production bas-carbone, +${nf1(extra)} M€ cette saison.`;
+    },
+    adFactor(c) { return c.g.eco > CAREER_RULES[37].ecoGoal ? 1.05 : c.g.credibilite < 50 ? 0.9 : 1; },
+    status(c) { return `${careerPdaLabel()} : <b>${nf1(careerPda())} %</b> (objectif 12 %) · score éco-responsable : <b>${Math.round(c.g.eco)}</b> (au-dessus de 80) · tournages à l’étranger interdits`; },
+    seasonEnd(c, h) {
+      const r = CAREER_RULES[37];
+      careerGauge(c, 'eco', 8);
+      if (c.g.eco < 40) { careerGauge(c, 'credibilite', -10); c.note = 'Accusations d’écoblanchiment : −10 de crédibilité.'; }
+      else if (c.g.eco > r.ecoGoal) { careerShift(gameState.player, 1.5, [gameState.player.target]); c.note = 'Le public adopte la chaîne bas-carbone : +1,5 pt de PDA.'; }
+      else c.note = 'Le plan de réduction produit ses effets : +8 au score éco-responsable.';
+      const pda = careerPda();
+      if (pda >= r.pdaGoal - CAREER_EPS && c.g.eco > r.ecoGoal) return careerWin(`Saison ${h.season} : ${nf1(pda)} % de PDA et un score éco-responsable de ${Math.round(c.g.eco)}. La chaîne bas-carbone a trouvé son public.`);
+      if (h.season >= 5) return careerLose(`Fin de la saison 5 : ${nf1(pda)} % de PDA (objectif 12 %) et un score éco-responsable de ${Math.round(c.g.eco)} (objectif 80).`);
+    }
+  },
+  // « Événement mondial » : une saison, la Coupe du monde offerte, garantie d'audience en soirée.
+  38: {
+    start: { tresorerie: 15, pda: 7 }, gauges: { attention: 90 }, maxSeasons: 1,
+    eventId: 'world_cup', guarantee: 12, penalty: 3, revenueGoal: 50, peakGoal: 25, finalBoost: 125,
+    seasonStart(c) {
+      if (gameState.season !== 1) return;
+      const sr = ensureSportsRightsState();
+      if (!sr.owned.some(o => o.ownerId === 'player' && o.eventId === CAREER_RULES[38].eventId)) {
+        acquireSportsRight(CAREER_RULES[38].eventId, { owner: 'player', price: 0 });
+        sr.owned.at(-1).broadcastSeason = gameState.season;
+        activateSportsBroadcasts();
+      }
+      c.penalties = 0; c.peak = 0;
+    },
+    adSlotFactor(c, slot) { return ['access', 'prime', 'nuit'].includes(slot) ? 0.6 + 0.8 * (c.g?.attention ?? 90) / 100 : 1; },
+    drift(c, d, t) { d.attention = -4 + (t.divert || t.racoleur ? 7 : 0); },
+    afterChoice(c) {
+      const r = CAREER_RULES[38], k = gameState.player.target, slots = careerRow()?.slots || {};
+      c.peak = Math.max(c.peak || 0, ...TIME_SLOTS.map(s => slots[s.key]?.[k] || 0));
+      const missed = ['access', 'prime'].filter(s => (slots[s]?.[k] || 0) < r.guarantee);
+      if (!missed.length) return;
+      const cost = r.penalty * missed.length;
+      applyFinance({ recurring: 0, purchase: cost, commercial: 0, category: 'P' });
+      c.penalties = (c.penalties || 0) + cost;
+      c.note = `Garantie d'audience manquée (${missed.map(slotLabelOf).join(', ')}) : ${nf1(cost)} M€ remboursés aux annonceurs.`;
+    },
+    // La finale, en prime : l'audience de la case, amplifiée par l'attention des médias.
+    finalPda(c) {
+      const k = gameState.player.target, prime = careerRow()?.slots?.prime?.[k] || 0;
+      return prime * (1 + (c.g?.attention ?? 0) / CAREER_RULES[38].finalBoost);
+    },
+    status(c) {
+      const net = adRevenueTotal(gameState.player) - (c.penalties || 0);
+      return `Recettes pub nettes : <b>${nf1(net)} M€</b> / 50 M€ · finale attendue : <b>${nf1(CAREER_RULES[38].finalPda(c))} %</b> / 25 % (portée par l'attention des médias) · remboursements : ${nf1(c.penalties || 0)} M€`;
+    },
+    seasonEnd(c) {
+      const r = CAREER_RULES[38], k = gameState.player.target, slots = careerRow()?.slots || {};
+      c.peak = Math.max(c.peak || 0, r.finalPda(c), ...TIME_SLOTS.map(s => slots[s.key]?.[k] || 0));
+      const net = adRevenueTotal(gameState.player) - (c.penalties || 0);
+      if (net >= r.revenueGoal - CAREER_EPS && c.peak >= r.peakGoal - CAREER_EPS) return careerWin(`${nf1(net)} M€ de recettes nettes et un pic à ${nf1(c.peak)} % : l'événement mondial a tenu toutes ses promesses.`);
+      return careerLose(`Fin de l'événement : ${nf1(net)} M€ de recettes nettes (objectif 50 M€) et un pic à ${nf1(c.peak)} % (objectif 25 %).`);
+    }
   }
 };
 
@@ -30652,6 +30921,10 @@ function careerProgramBlock(program, slot) {
   const c = careerActive(), f = c && CAREER_RULES[c.scenarioId]?.blockProgram;
   return f ? f(c, program, slot) : null;
 }
+function careerTalentBlock(offer) {
+  const c = careerActive(), f = c && CAREER_RULES[c.scenarioId]?.blockTalent;
+  return f ? f(c, offer) : null;
+}
 function careerProgramSigned(slot, before) {
   const c = careerActive(), f = c && CAREER_RULES[c.scenarioId]?.programSigned;
   const contract = gameState.player.contracts?.[slot];
@@ -30688,8 +30961,10 @@ function recordCareerWin(id) {
   const completed = progress.completed.includes(id) ? progress.completed : [...progress.completed, id];
   saveCareerProgress({ completed, best: { ...progress.best, [id]: Math.max(Number(progress.best[id]) || 0, 1) } });
 }
+// Nombre de réussites demandé : celui du scénario (deblocage), sinon 3 pour les ★★★★ et ★★★★★.
+function careerUnlockCount(s) { return s.deblocage ?? (s.difficulte >= 4 ? CAREER_UNLOCK_COUNT : 0); }
 function careerLocked(s, progress = loadCareerProgress()) {
-  return s.difficulte >= 4 && progress.completed.length < CAREER_UNLOCK_COUNT;
+  return progress.completed.length < careerUnlockCount(s);
 }
 
 // Parts d'audience de départ : la chaîne (valeur, ou valeur par cible) et, pour un leader, les
@@ -31032,7 +31307,7 @@ function openCareerSheet(id, trigger) {
     ? [['🗓️', 'Format', s.format, 'neutral'], ['🎯', 'Objectif', s.objectif, 'accent'], ['📜', 'Règle spéciale', s.regleSpeciale, 'neutral']]
     : [['📍', 'Situation de départ', s.situation, 'neutral'], ['🎯', 'Objectif', s.objectif, 'accent'], ['⚠️', 'Contrainte', s.contrainte, 'neutral']];
   const cta = locked
-    ? `<button type="button" class="welcome-cta" disabled><span>Réussissez ${CAREER_UNLOCK_COUNT} scénarios pour débloquer (${Math.min(progress.completed.length, CAREER_UNLOCK_COUNT)}/${CAREER_UNLOCK_COUNT})</span></button>`
+    ? `<button type="button" class="welcome-cta" disabled><span>Réussissez ${careerUnlockCount(s)} scénarios pour débloquer (${Math.min(progress.completed.length, careerUnlockCount(s))}/${careerUnlockCount(s)})</span></button>`
     : `<button type="button" class="welcome-cta" id="btn-career-launch"><span class="welcome-cta-shine"></span><span>Lancer ce scénario</span>${CAREER_ARROW_SVG}</button>`;
   const root = document.createElement('div');
   root.className = 'career-sheet';
