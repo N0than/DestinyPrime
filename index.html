@@ -1646,16 +1646,19 @@ button.radar-row:focus-visible { outline: 2px solid var(--bleu); outline-offset:
 .hud-career.open .hud-career-plus { transform: rotate(45deg); }
 /* Jauge du scénario dans le rouge : pastille d'alerte sur le « + » tant que le détail est replié. */
 .hud-career.alert:not(.open) .hud-career-plus { box-shadow: 0 0 0 3px rgba(225,29,72,0.25), 0 4px 10px -4px var(--fam); }
-.hud-career-details { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.35s ease; }
-.hud-career.open .hud-career-details { grid-template-rows: 1fr; }
+/* Hauteur animée par toggleCareerHud (de 0 à la hauteur réelle) ; la marge basse est dans
+   le contenu, elle suit donc l'ouverture au lieu d'apparaître d'un coup. */
+.hud-career-details { height: 0; overflow: hidden; transition: height 0.32s cubic-bezier(0.2, 0, 0, 1); }
+.hud-career.open .hud-career-details { height: auto; }
 .hud-career-inner {
-  min-height: 0; overflow: hidden; display: flex; flex-direction: column; gap: 4px;
-  font-size: 12px; line-height: 1.45; color: #334155; opacity: 0; transition: opacity 0.25s ease;
+  display: flex; flex-direction: column; gap: 4px; padding-bottom: 10px;
+  font-size: 12px; line-height: 1.45; color: #334155;
+  opacity: 0; transform: translateY(-4px); transition: opacity 0.22s ease, transform 0.32s cubic-bezier(0.2, 0, 0, 1);
 }
-.hud-career.open .hud-career-inner { opacity: 1; padding-bottom: 10px; }
+.hud-career.open .hud-career-inner { opacity: 1; transform: none; transition-delay: 0.06s, 0s; }
 .hud-career-inner b { color: var(--ink); }
 .career-banner-note { color: var(--gris); font-style: italic; }
-@media (prefers-reduced-motion: reduce) { .hud-career-details, .hud-career-plus, .hud-career-inner { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .hud-career-details, .hud-career-plus, .hud-career-inner { transition: none !important; } }
 .career-gauges { display: flex; flex-wrap: wrap; gap: 5px; margin: 2px 0; }
 .career-gauge {
   display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px;
@@ -22225,6 +22228,9 @@ function goToStepAnimated(mutate, dir = 1) {
   const prevBodyHTML = Array.from(app.children)
     .filter(el => el !== prevMasthead && el !== prevHudWrap && !el.classList.contains('step-slide-old'))
     .map(el => el.outerHTML).join('');
+  const prevAllHTML = Array.from(app.children)
+    .filter(el => !el.classList.contains('step-slide-old'))
+    .map(el => el.outerHTML).join('');
 
   mutate();
   render();
@@ -22250,7 +22256,11 @@ function goToStepAnimated(mutate, dir = 1) {
   // glissement, « flottement » visible à la fin de la transition).
   const newMasthead = app.querySelector('.masthead');
   const newHudWrap = app.querySelector('.hud-wrap');
-  const newBodyNodes = Array.from(app.children).filter(el => el !== newMasthead && el !== newHudWrap);
+  // Entrée en jeu (configuration, accueil ou Mode Carrière → première saison) : l'ancien
+  // écran n'a pas de HUD, le header change de nature. Tout l'écran glisse, header compris,
+  // plutôt que de faire apparaître le HUD d'un coup au-dessus d'un ancien contenu décalé.
+  const enteringGame = !prevHudWrap && !!newHudWrap;
+  const newBodyNodes = Array.from(app.children).filter(el => enteringGame || (el !== newMasthead && el !== newHudWrap));
   if (!newBodyNodes.length) return;
   // Le glissement d'écran tient lieu d'entrée : pas de seconde animation par-dessus.
   newBodyNodes.forEach(el => el.classList.remove('slide-in'));
@@ -22263,7 +22273,7 @@ function goToStepAnimated(mutate, dir = 1) {
   oldWrap.style.top = `${first.offsetTop}px`;
   oldWrap.style.left = `${first.offsetLeft}px`;
   oldWrap.style.width = `${first.offsetWidth}px`;
-  oldWrap.innerHTML = prevBodyHTML;
+  oldWrap.innerHTML = enteringGame ? prevAllHTML : prevBodyHTML;
   app.appendChild(oldWrap);
   app.classList.add('step-sliding');
 
@@ -30795,13 +30805,29 @@ function careerBannerHtml() {
   </div>`;
 }
 // Dépliage sans re-rendu : l'état est mémorisé pour les écrans suivants.
+function toggleCareerHud(btn) {
+  const open = gameState.careerHudOpen = !gameState.careerHudOpen;
+  const box = btn.closest('.hud-career'), details = box.querySelector('.hud-career-details');
+  btn.setAttribute('aria-expanded', String(open));
+  // Point de départ figé en pixels (hauteur actuelle, même en pleine animation), puis cible.
+  const from = details.getBoundingClientRect().height;
+  details.style.height = `${from}px`;
+  box.classList.toggle('open', open);
+  const to = open ? details.scrollHeight : 0;
+  void details.offsetHeight;
+  details.style.height = `${to}px`;
+  const done = e => {
+    if (e && (e.target !== details || e.propertyName !== 'height')) return;
+    details.removeEventListener('transitionend', done);
+    // Ouvert : retour à « auto » pour suivre le contenu (jauges mises à jour, rotation).
+    if (gameState.careerHudOpen === open) details.style.height = '';
+  };
+  details.addEventListener('transitionend', done);
+  if (from === to) done();
+}
 if (typeof document !== 'undefined') document.addEventListener('click', e => {
   const btn = e.target.closest?.('[data-career-hud-toggle]');
-  if (!btn) return;
-  gameState.careerHudOpen = !gameState.careerHudOpen;
-  const box = btn.closest('.hud-career');
-  box.classList.toggle('open', gameState.careerHudOpen);
-  btn.setAttribute('aria-expanded', String(gameState.careerHudOpen));
+  if (btn) toggleCareerHud(btn);
 });
 
 function careerStarsHtml(n) {
