@@ -1,7 +1,7 @@
 'use strict';
-// Mode Carrière : données des 32 scénarios (8 familles), progression localStorage (stockage
+// Mode Carrière : données des 33 scénarios (8 familles), progression localStorage (stockage
 // vide, illisible ou indisponible), déverrouillage, conditions de départ, jauges, décisions
-// scénarisées, contraintes et verdicts des 32 scénarios, écrans de victoire et de défaite.
+// scénarisées, contraintes et verdicts des 33 scénarios, écrans de victoire et de défaite.
 const fs = require('node:fs');
 const vm = require('node:vm');
 const html = fs.readFileSync('index.html', 'utf8');
@@ -31,10 +31,10 @@ function finirSaison(){
   }
 }
 
-// ——— 1. Données : 32 scénarios recopiés, 8 familles ———
-ok(CAREER_FAMILIES.length===8&&CAREER_SCENARIOS.length===32,'8 familles, 32 scénarios');
-ok(CAREER_SCENARIOS.every((s,i)=>s.id===i+1),'numérotation 1 à 32');
-ok(CAREER_FAMILIES.map(f=>CAREER_SCENARIOS.filter(s=>s.famille===f.id).length).join()==='4,4,4,5,4,4,4,3','répartition du document : 5 scénarios pour l’actionnaire, 3 narratifs');
+// ——— 1. Données : 33 scénarios, 8 familles ———
+ok(CAREER_FAMILIES.length===8&&CAREER_SCENARIOS.length===33,'8 familles, 33 scénarios');
+ok(CAREER_SCENARIOS.every((s,i)=>s.id===i+1),'numérotation 1 à 33');
+ok(CAREER_FAMILIES.map(f=>CAREER_SCENARIOS.filter(s=>s.famille===f.id).length).join()==='5,4,4,5,4,4,4,3','répartition : 5 sauvetages (dont le n°33), 5 pour l’actionnaire, 3 narratifs');
 CAREER_SCENARIOS.forEach(s=>{
   ok(Number.isInteger(s.difficulte)&&s.difficulte>=1&&s.difficulte<=5,'difficulté 1 à 5 : '+s.id);
   ok(s.jouable===true,'jouable : '+s.id);
@@ -42,7 +42,7 @@ CAREER_SCENARIOS.forEach(s=>{
   else ok(s.situation&&s.contrainte&&!s.format,'situation et contrainte : '+s.id);
   ok(!!CAREER_RULES[s.id]&&!('bientot' in s),'règles du scénario : '+s.id);
 });
-ok(CAREER_SCENARIOS.every(s=>s.jouable),'les 32 scénarios sont jouables');
+ok(CAREER_SCENARIOS.every(s=>s.jouable),'les 33 scénarios sont jouables');
 ok(CAREER_SCENARIOS[0].contrainte==='La banque plafonne les dépenses de grille et coupe les crédits à la première saison en perte','texte du scénario 1 recopié');
 ok(CAREER_SCENARIOS[25].format==='1 saison, 12 dilemmes'&&CAREER_SCENARIOS[25].regleSpeciale==='Idéal comme tutoriel avancé','texte du scénario 26 recopié');
 ok(CAREER_SCENARIOS[13].objectif==='Faire grimper la valorisation de 60 % (PDA × rentabilité × popularité)','texte du scénario 14 recopié');
@@ -142,11 +142,11 @@ globalThis.localStorage=store; delete store.d[CAREER_STORAGE_KEY]; careerProgres
 { carriere(9); gameState.pendingNextStep=8; gameState.gameOverReason='tresorerie'; careerAfterChoice();
   ok(gameState.gameOverReason==='tresorerie'&&gameState.career.status==='lost','faillite prioritaire'); }
 
-// ——— 12. Les 32 scénarios : lancement direct, jauges, décisions scénarisées, contraintes ———
+// ——— 12. Les 33 scénarios : lancement direct, jauges, décisions scénarisées, contraintes ———
 { resetGame(); ok(careerAdFactor()===1&&careerAdSlotFactor(gameState.player,'prime')===1&&!careerProgramBlock({},'prime')&&careerHudAttr()==='','aucun effet hors Mode Carrière'); }
 function joue(i=0){ gameState.step=6; gameState.dilemmaPhase='choosing'; chooseDilemmaOption(i); for(let k=0;k<6&&gameState.dilemmaPhase==='choosing';k++) chooseDilemmaOption(k%2); continueAfterConsequence(); }
 const premier=()=>gameState.dilemmaQueue[gameState.currentDilemmaIndex];
-for(let id=1;id<=32;id++){ startCareerGame(id); const rule=CAREER_RULES[id];
+for(let id=1;id<=33;id++){ startCareerGame(id); const rule=CAREER_RULES[id];
   ok(gameState.step===6&&careerActive()?.scenarioId===id&&gameState.dilemmaQueue.length>0,'lancement direct : '+id);
   if(rule.gauges) ok(Object.keys(rule.gauges).every(k=>gameState.career.g[k]===rule.gauges[k]),'jauges de départ : '+id);
   if(rule.type) ok(gameState.player.type===rule.type,'format imposé : '+id);
@@ -182,7 +182,23 @@ for(let id=1;id<=32;id++){ startCareerGame(id); const rule=CAREER_RULES[id];
 { startCareerGame(30); const c=gameState.career; c.truce=0; const pop=gameState.player.popularite; CAREER_RULES[30].afterChoice(c,{fx:{},dilemma:{}}); ok(gameState.player.popularite===pop-4,'n°30 : fuite dans la presse'); }
 { startCareerGame(31); const c=gameState.career; ok(Number.isInteger(c.mole)&&gameState.dilemmaQueue.at(-1).titre==='Démasquer la taupe','n°31 : accusation en fin de saison'); ok(CAREER_RULES[31].afterChoice(c,{fx:{accuse:c.mole},dilemma:{}}).status==='won','n°31 : taupe démasquée'); }
 { startCareerGame(32); ok(gameState.career.g.moral===30&&premier().id.startsWith('career_32_anciens'),'n°32 : retour, moral 30'); }
+// n°33 « Le géant aux pieds d'argile » : départ, charge des contrats historiques, popularité, verdict en saison 4.
+{ const p=carriere(33); const c=gameState.career, r=CAREER_RULES[33];
+  ok(p.type==='generaliste'&&p.target==='a2549','n°33 : généraliste, 25-49 ans');
+  ok(near(careerPda(),16,0.3),'n°33 : 16 % de PDA : '+careerPda());
+  ok(p.popularite===65&&near(p.coutGrilleEngageSaison,70),'n°33 : popularité 65, grille 70 M€');
+  const q=gameState.dilemmaQueue[gameState.currentDilemmaIndex]; ok(q.id.startsWith('career_33_contrats')&&q.c.length===3,'n°33 : « Les contrats en or » en tête de saison 1');
+  const t0=p.tresorerie; r.seasonStart(c); ok(near(t0-p.tresorerie,8),'n°33 : charge de 8 M€ tant que la grille dépasse 45 M€');
+  p.coutGrilleEngageSaison=45; const t1=p.tresorerie; r.seasonStart(c); ok(p.tresorerie===t1,'n°33 : plus de charge à 45 M€');
+  const pop=p.popularite; r.afterChoice(c,{t:{saving:true},dilemma:{}}); ok(p.popularite===pop-3,'n°33 : une économie coûte 3 points de popularité');
+  r.afterChoice(c,{t:{saving:false},dilemma:{}}); ok(p.popularite===pop-3,'n°33 : sans économie, pas de pénalité');
+  ok(/Objectif 45 M€/.test(r.status(c)),'n°33 : suivi du coût de grille');
+  ok(r.seasonEnd(c,{season:3})===undefined,'n°33 : pas de verdict avant la saison 4');
+  p.tresorerie=5; setChannelShare(p,13); p.coutGrilleEngageSaison=44; ok(r.seasonEnd(c,{season:4}).status==='won','n°33 : victoire si les trois conditions sont réunies');
+  p.coutGrilleEngageSaison=46; ok(r.seasonEnd(c,{season:4}).status==='lost','n°33 : défaite si la grille dépasse 45 M€');
+  p.coutGrilleEngageSaison=44; setChannelShare(p,11); ok(r.seasonEnd(c,{season:4}).status==='lost','n°33 : défaite sous 12 % de PDA');
+  setChannelShare(p,13); p.tresorerie=-1; ok(r.seasonEnd(c,{season:4}).status==='lost','n°33 : défaite si la trésorerie reste négative'); }
 `;
 const context = { console };
 vm.runInNewContext(scripts.slice(0, -1).join('\n') + tests, context, { filename: 'audience-masters-career.js' });
-console.log('OK career: 32 scenarios, storage, unlocking, launch, start conditions, constraints, verdicts, victory and defeat screens');
+console.log('OK career: 33 scenarios, storage, unlocking, launch, start conditions, constraints, verdicts, victory and defeat screens');

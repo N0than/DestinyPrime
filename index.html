@@ -22365,7 +22365,7 @@ function render() {
                 ${careerDone ? `<span class="resume-season-badge career-tv-progress">${careerDone}/${CAREER_SCENARIOS.length} réussis</span>` : ''}
               </div>
               <h2>PRENEZ LES COMMANDES D'UNE CHAÎNE EN CRISE.</h2>
-              <p class="welcome-lead">32 scénarios. Une mission. Une contrainte qui change tout.</p>
+              <p class="welcome-lead">${CAREER_SCENARIOS.length} scénarios. Une mission. Une contrainte qui change tout.</p>
               <p class="welcome-sub">Redressement, domination, actionnaires, scandales : choisissez votre défi.</p>
               <button class="welcome-cta" id="btn-career">
                 <span class="welcome-cta-shine"></span>
@@ -29582,8 +29582,8 @@ function renderCampaignPanel() {
 }
 
 // ---- MODE CARRIÈRE ----
-// 32 scénarios en 8 familles, recopiés du document « Audience Masters — Mode Carrière :
-// 32 scénarios », tous jouables. Les jauges et mécaniques que le jeu libre n'a pas (moral,
+// 33 scénarios en 8 familles : les 32 du document « Audience Masters — Mode Carrière :
+// 32 scénarios », plus « Le géant aux pieds d'argile » (n°33), tous jouables. Les jauges et mécaniques que le jeu libre n'a pas (moral,
 // crédibilité, décisions imposées, chocs de marché…) n'existent que dans le scénario qui les
 // demande (CAREER_RULES).
 // Le scénario en cours vit dans gameState.career : gameState.campaign porte déjà les graines
@@ -29726,7 +29726,11 @@ const CAREER_SCENARIOS = [
   { id: 32, famille: 'narratifs', titre: 'Le retour', difficulte: 3,
     situation: 'Viré il y a 10 ans, vous revenez sauver la chaîne',
     objectif: 'Remettre la chaîne sur le podium en 4 saisons',
-    contrainte: 'La moitié de la rédaction vous déteste (moral de départ 30), la presse guette la moindre revanche personnelle', jouable: true }
+    contrainte: 'La moitié de la rédaction vous déteste (moral de départ 30), la presse guette la moindre revanche personnelle', jouable: true },
+  { id: 33, famille: 'redressement', titre: "Le géant aux pieds d'argile", difficulte: 4,
+    situation: 'Une chaîne historique domine encore les audiences, mais ses programmes coûtent une fortune et les recettes ne suivent plus. Le conseil d’administration vous donne quatre saisons pour sauver le groupe sans sacrifier son statut',
+    objectif: 'Retrouver une trésorerie positive tout en conservant au moins 12 % de PDA',
+    contrainte: 'Tant que la grille dépasse 45 M€ par an, les contrats historiques coûtent 8 M€ de plus à chaque début de saison ; chaque économie coûte 3 points de popularité supplémentaires', jouable: true }
 ];
 const CAREER_STORAGE_KEY = 'audienceMasters.career';
 const CAREER_UNLOCK_COUNT = 3;
@@ -30457,6 +30461,48 @@ const CAREER_RULES = {
       if (rank <= 3) return careerWin(`Saison ${h.season} : la chaîne remonte sur le podium (${rank}e).`);
       if (h.season >= 4) return careerLose(`Fin de la saison 4 : la chaîne termine ${rank}e, hors du podium.`);
     }
+  },
+  // « Le géant aux pieds d'argile » : leader trop cher. Grille à ramener sous 45 M€, trésorerie
+  // à remettre à flot, PDA à garder au-dessus de 12 %, verdict à la fin de la saison 4.
+  33: {
+    type: 'generaliste', target: 'a2549', maxSeasons: 4,
+    start: { tresorerie: -35, pda: 16, popularite: 65, grille: 70 },
+    gridGoal: 45, charge: 8, pdaGoal: 12,
+    seasonStart(c) {
+      const p = gameState.player, r = CAREER_RULES[33];
+      if (p.coutGrilleEngageSaison <= r.gridGoal + CAREER_EPS) { c.note = ''; return; }
+      applyFinance({ recurring: 0, purchase: r.charge, commercial: 0, category: 'P' });
+      c.note = `Saison ${gameState.season} : grille à ${nf1(p.coutGrilleEngageSaison)} M€, les contrats historiques coûtent ${r.charge} M€ de plus.`;
+    },
+    queue(c, q) {
+      if (gameState.season !== 1) return;
+      q.unshift(careerDilemma(c, 'contrats', 'Les contrats en or',
+        'Trois producteurs vedettes exigent le renouvellement de leurs contrats aux conditions d’hier. Ils font l’audience de la chaîne, et une bonne partie de son déficit.', [
+          { l: 'Tout renouveler', r: 'Les vedettes restent, le public aussi : la grille ne baisse pas d’un euro.', pop: 2, pda: careerAll(0.5) },
+          { l: 'Renégocier à la baisse', r: 'Après des semaines de bras de fer, deux vedettes acceptent une baisse. La troisième claque la porte.', finance: { purchase: 2, recurring: -18 }, pda: careerAll(-1) },
+          { l: 'Laisser partir les trois vedettes', r: 'Les vedettes partent chez la concurrence avec une partie de leur public : la grille fond.', finance: { recurring: -30 }, pop: -3, pda: careerAll(-2.5) }
+        ]));
+    },
+    afterChoice(c, { t }) {
+      if (!t.saving) return;
+      gameState.player.popularite = Math.max(0, gameState.player.popularite - 3);
+      c.note = 'Le public n’aime pas voir le géant se serrer la ceinture : −3 de popularité.';
+    },
+    status() {
+      const p = gameState.player, r = CAREER_RULES[33];
+      return `Coût annuel de grille : <b>${nf1(p.coutGrilleEngageSaison)} M€</b> / Objectif ${r.gridGoal} M€ · Trésorerie : <b>${nf1(p.tresorerie)} M€</b> · ${careerPdaLabel()} : <b>${nf1(careerPda())} %</b> (12 % minimum)`;
+    },
+    seasonEnd(c, h) {
+      if (h.season < 4) return;
+      const p = gameState.player, r = CAREER_RULES[33], pda = careerPda(), grid = p.coutGrilleEngageSaison;
+      const misses = [
+        p.tresorerie < 0 && `trésorerie à ${nf1(p.tresorerie)} M€`,
+        pda < r.pdaGoal && `PDA à ${nf1(pda)} %`,
+        grid > r.gridGoal + CAREER_EPS && `grille à ${nf1(grid)} M€`
+      ].filter(Boolean);
+      if (!misses.length) return careerWin(`Fin de la saison 4 : trésorerie à ${nf1(p.tresorerie)} M€, PDA à ${nf1(pda)} % et grille à ${nf1(grid)} M€. Le géant tient debout.`);
+      return careerLose(`Fin de la saison 4 : le conseil d’administration constate l’échec (${misses.join(', ')}).`);
+    }
   }
 };
 
@@ -30846,7 +30892,7 @@ function renderCareerExplorer(app) {
   const filter = gameState.careerFilter ||= { family: 'all', stars: 0, open: false };
   const count = careerFilterCount(filter);
   app.innerHTML = `
-    ${renderMasthead('Mode Carrière — 32 scénarios', 'Audience Masters')}
+    ${renderMasthead(`Mode Carrière — ${CAREER_SCENARIOS.length} scénarios`, 'Audience Masters')}
     <div class="kicker-row">
       <div class="kicker-lead"><button class="btn-config-back" id="btn-career-back" aria-label="Retour à l'accueil"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke-linecap="round" stroke-linejoin="round"/></svg></button><div class="kicker-badge">MODE CARRIÈRE</div></div>
       <div class="career-kicker-right">
