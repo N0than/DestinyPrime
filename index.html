@@ -1686,7 +1686,19 @@ button.radar-row:focus-visible { outline: 2px solid var(--bleu); outline-offset:
 }
 .career-stream .cs-steps button:disabled { opacity: 0.3; cursor: default; }
 .career-stream .cs-steps button:focus-visible { outline: 2px solid var(--fam); outline-offset: 2px; }
-.career-stream .cs-foot { font-size: 11.5px; color: #475569; }
+/* Bouton « i » (volet ouvert) : bascule entre le tableau de bord du défi et ses informations. */
+.hud-career-info {
+  display: none; flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%; padding: 0; cursor: pointer;
+  font-family: Georgia, 'Times New Roman', serif; font-style: italic; font-weight: 700; font-size: 13px; line-height: 1;
+  color: var(--fam); background: rgba(255,255,255,0.7); border: 1px solid var(--fam);
+  -webkit-appearance: none; appearance: none; touch-action: manipulation;
+}
+.hud-career.open .hud-career-info { display: inline-grid; place-items: center; }
+.hud-career.info .hud-career-info { color: #fff; background: var(--fam); }
+.hud-career-info:focus-visible { outline: 2px solid var(--fam); outline-offset: 2px; }
+.hc-view { display: flex; flex-direction: column; gap: 4px; }
+.hud-career .hc-info, .hud-career.info .hc-panel { display: none; }
+.hud-career.info .hc-info { display: flex; }
 .career-gauge {
   display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px;
   font-size: 11px; color: #334155; background: var(--paper-dark); border: 1px solid var(--border);
@@ -30732,6 +30744,10 @@ const CAREER_RULES = {
     // Moins cher, il attire plus d'utilisateurs ; plus cher, il rapporte plus d'abonnements.
     tarifs: [0, 2.99, 4.99, 5.99, 7.99, 9.99], tarifUsers: [1.4, 1.2, 1.05, 1, 0.85, 0.7], tarifMargin: 0.25, tarifDefault: 3,
     opened(c) { if (gameState.season === 1) { c.users = 0; c.valo = 1; c.exclus = 0; c.tarif ??= CAREER_RULES[34].tarifDefault; } },
+    infoLine(c) {
+      const r = CAREER_RULES[34];
+      return `${careerPdaLabel()} : <b>${nf1(careerPda())} %</b> (10 % minimum) · érosion du linéaire ${c.g.popDigitale >= r.retention ? '<b>stoppée</b>' : '−1,5 pt par saison'} · valorisation ×${nf1(c.valo || 1)}`;
+    },
     panelHtml(c) {
       const r = CAREER_RULES[34], users = Math.round(c.users || 0), pct = Math.min(100, users / r.usersGoal * 100);
       const i = c.tarif ?? r.tarifDefault, price = r.tarifs[i];
@@ -30746,7 +30762,6 @@ const CAREER_RULES = {
           <div class="cs-tile cs-tarif"><span class="cs-label">Tarif</span><b class="cs-value" data-cs-price>${price ? `${careerPrice(price)} €` : 'Gratuit'}</b><span class="cs-unit" data-cs-unit>${price ? '/mois' : 'pub (AVOD)'}</span>
             <span class="cs-steps"><button type="button" data-career-tarif="1" aria-label="Augmenter le tarif" ${i >= r.tarifs.length - 1 ? 'disabled' : ''}>+</button><button type="button" data-career-tarif="-1" aria-label="Baisser le tarif" ${i <= 0 ? 'disabled' : ''}>−</button></span></div>
         </div>
-        <span class="cs-foot">${careerPdaLabel()} : <b>${nf1(careerPda())} %</b> (10 % minimum) · érosion du linéaire ${c.g.popDigitale >= r.retention ? '<b>stoppée</b>' : '−1,5 pt par saison'} · valorisation ×${nf1(c.valo || 1)}</span>
       </div>`;
     },
     seasonStart(c) {
@@ -31314,21 +31329,25 @@ function careerBannerHtml() {
     const value = g.hidden ? (v > 66 ? 'serein' : v > 33 ? 'agacé' : 'à bout') : `${Math.round(v)}${g.unit || ''}`;
     return `<span class="career-gauge${!g.hidden && v < 30 ? ' low' : ''}"><span aria-hidden="true">${g.icon}</span>${g.label} <b>${value}</b></span>`;
   }).join('') : '';
-  const open = !!gameState.careerHudOpen;
+  const open = !!gameState.careerHudOpen, info = !!gameState.careerHudInfo;
   const season = rule.maxSeasons ? `Saison ${gameState.season}/${rule.maxSeasons}` : `Saison ${gameState.season}`;
-  return `<div class="hud-career${open ? ' open' : ''}${alert ? ' alert' : ''}" style="${careerFamilyStyle(fam)}">
+  return `<div class="hud-career${open ? ' open' : ''}${info ? ' info' : ''}${alert ? ' alert' : ''}" style="${careerFamilyStyle(fam)}">
     <div class="hud-career-row" title="Mode carrière · défi #${s.id}">
       <span class="hud-career-icon" aria-hidden="true">${fam.icone}</span>
       <span class="hud-career-id">#${s.id}</span>
       <span class="hud-career-title">${esc(s.titre)}</span>
+      ${rule.panelHtml ? `<button type="button" class="hud-career-info" data-career-info aria-pressed="${info}" aria-label="${info ? 'Revenir au tableau de bord du défi' : 'Objectif, contrainte et suivi du défi'}">i</button>` : ''}
       <span class="hud-career-season">${season}</span>
       <button type="button" class="hud-career-plus" data-career-hud-toggle aria-expanded="${open}" aria-controls="hud-career-details" aria-label="Détail du défi"></button>
     </div>
     <div class="hud-career-details" id="hud-career-details">
       <div class="hud-career-inner">
-        ${rule.panelHtml ? rule.panelHtml(c) : ''}
+        ${rule.panelHtml ? `<div class="hc-view hc-panel">${rule.panelHtml(c)}</div><div class="hc-view hc-info">
+        <span>${rule.infoLine ? rule.infoLine(c) : status}</span>
         <span><b>Objectif :</b> ${esc(s.objectif)}</span>
-        <span><b>${ruleLabel} :</b> ${esc(ruleText)}</span>
+        <span><b>${ruleLabel} :</b> ${esc(ruleText)}</span></div>` : `
+        <span><b>Objectif :</b> ${esc(s.objectif)}</span>
+        <span><b>${ruleLabel} :</b> ${esc(ruleText)}</span>`}
         ${gauges && !rule.panelHtml ? `<span class="career-gauges">${gauges}</span>` : ''}
         ${status && !rule.panelHtml ? `<span>${status}</span>` : ''}
         ${c.note ? `<span class="career-banner-note">${esc(c.note)}</span>` : ''}
@@ -31360,6 +31379,13 @@ function toggleCareerHud(btn) {
 if (typeof document !== 'undefined') document.addEventListener('click', e => {
   const btn = e.target.closest?.('[data-career-hud-toggle]');
   if (btn) toggleCareerHud(btn);
+  const infoBtn = e.target.closest?.('[data-career-info]');
+  if (infoBtn) {
+    const on = gameState.careerHudInfo = !gameState.careerHudInfo;
+    infoBtn.closest('.hud-career').classList.toggle('info', on);
+    infoBtn.setAttribute('aria-pressed', String(on));
+    infoBtn.setAttribute('aria-label', on ? 'Revenir au tableau de bord du défi' : 'Objectif, contrainte et suivi du défi');
+  }
   const step = e.target.closest?.('[data-career-tarif]');
   if (step) careerTarifStep(Number(step.dataset.careerTarif), step.closest('.cs-tarif'));
 });

@@ -231,7 +231,10 @@ for(let id=1;id<=38;id++){ startCareerGame(id); const rule=CAREER_RULES[id];
   ok(r.adSlotFactor(c,'nuit')>1+c.users/1e6,'n°34 : la version gratuite rapporte davantage en publicité');
   c.tarif=2; careerTarifStep(1); ok(c.tarif===3,'n°34 : tarif réglable'); careerTarifStep(9); careerTarifStep(1); ok(c.tarif===r.tarifs.length-1,'n°34 : tarif plafonné à 9,99 €');
   const html=r.panelHtml(c); ok(/Utilisateurs actifs/.test(html)&&/Crédibilité/.test(html)&&/Popularité dig/.test(html)&&/9,99 €/.test(html)&&/data-career-tarif="1"[^>]*disabled/.test(html),'n°34 : volet utilisateurs, jauges et tarif');
-  ok(careerBannerHtml().includes('career-stream')&&!careerBannerHtml().includes('career-gauges'),'n°34 : le volet dédié remplace la ligne de jauges'); }
+  ok(careerBannerHtml().includes('career-stream')&&!careerBannerHtml().includes('career-gauges'),'n°34 : le volet dédié remplace la ligne de jauges');
+  const b=careerBannerHtml(); ok(/data-career-info/.test(b)&&/hc-panel/.test(b)&&/hc-info/.test(b)&&!/hc-panel[^]*Objectif :[^]*hc-info/.test(b.replace(/hc-info[^]*/,'')),'n°34 : bouton i, objectif et contrainte dans la vue informations');
+  ok(r.infoLine(c).includes('valorisation')&&!r.panelHtml(c).includes('valorisation'),'n°34 : ligne de suivi déplacée dans la vue informations'); }
+{ startCareerGame(1); ok(!/data-career-info/.test(careerBannerHtml()),'sans volet dédié : pas de bouton i'); }
 // n°35 « Le raider de la finance » : vote, action, contrôle du conseil, rédaction et marque.
 { carriere(35); const c=gameState.career, r=CAREER_RULES[35];
   ok(c.g.actionnaires===45&&c.g.moral===60&&c.g.credibilite===60&&c.action===100,'n°35 : jauges de départ et action à 100');
