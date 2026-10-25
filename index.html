@@ -27065,7 +27065,7 @@ function pickProducerPitch() {
   return pool.length ? pool[Math.floor(seededRandom() * pool.length)] : null;
 }
 
-function producerPitchChoices(pitch) {
+function producerPitchChoices(pitch, fem = producerDraw()) {
   const zeroPda = { j1524: 0, a2549: 0, s50: 0, csp: 0 };
   const q = quoteProgram(pitch.slot, pitch.program.id, 'interne');
   const current = gameState.player.contracts?.[pitch.slot];
@@ -27096,7 +27096,7 @@ function producerPitchChoices(pitch) {
       r: pitch.kind === 'rival'
         ? `Vous laissez « ${pitch.program.name} » chez ${pitch.competitor.name}. Votre grille ne bouge pas.`
         : isSportsProgram(pitch.program) ? 'L’agence proposera la compétition à une autre chaîne. Votre grille ne bouge pas.'
-        : `${producerWord(pitch.program)} ira frapper à la porte d’une autre chaîne. Votre grille ne bouge pas.` }
+        : `${producerWord(fem)} ira frapper à la porte d’une autre chaîne. Votre grille ne bouge pas.` }
   ];
 }
 
@@ -27129,19 +27129,13 @@ const SPORTS_COMPETITION_IDS = new Set([
 function isSportsProgram(program) {
   return !!program && SPORTS_COMPETITION_IDS.has(program.id);
 }
-// Producteur ou productrice : fixé par programme (même interlocuteur du démarchage aux suites),
-// une moitié des programmes environ étant portée par une productrice.
-function producerIsWoman(program) {
-  const id = String(program?.id ?? program ?? '');
-  let x = 0;
-  for (let i = 0; i < id.length; i++) x = (Math.imul(x, 31) + id.charCodeAt(i)) >>> 0;
-  return x % 2 === 1;
-}
+// Producteur ou productrice : tiré au hasard à chaque proposition (démarchage, mise en
+// concurrence), puis gardé pour tous les textes de cette proposition.
+const producerDraw = () => Math.random() < 0.5;
 // art : 'un' (Un producteur / Une productrice), 'le' (Le producteur / La productrice),
 // 'au' (au producteur / à la productrice) ; lower : article en minuscule.
-function producerWord(program, art = 'le', lower = false) {
-  const f = producerIsWoman(program);
-  const word = { un: f ? 'Une productrice' : 'Un producteur', le: f ? 'La productrice' : 'Le producteur', au: f ? 'À la productrice' : 'Au producteur' }[art];
+function producerWord(fem, art = 'le', lower = false) {
+  const word = { un: fem ? 'Une productrice' : 'Un producteur', le: fem ? 'La productrice' : 'Le producteur', au: fem ? 'À la productrice' : 'Au producteur' }[art];
   return lower ? word.charAt(0).toLowerCase() + word.slice(1) : word;
 }
 function createProducerPitchDilemma(pitch = pickProducerPitch()) {
@@ -27152,21 +27146,22 @@ function createProducerPitchDilemma(pitch = pickProducerPitch()) {
   const slotName = slotLabelOf(slot);
   const sport = isSportsProgram(program);
   const replaced = current ? ` ${sport ? 'Elle' : 'Il'} prendrait la place de « ${current.name} ».` : '';
+  const fem = producerDraw();
   return {
     id: `producer-${gameState.season}-${program.id}`, isProducerPitch: true, pitchKind: pitch.kind,
-    pitchSlot: slot, programId: program.id, competitorName: pitch.competitor?.name || null,
+    pitchSlot: slot, programId: program.id, competitorName: pitch.competitor?.name || null, producerFem: fem,
     titre: pitch.kind === 'rival'
-      ? `${sport ? 'Une agence de droits sportifs' : producerWord(program, 'un')} vous propose « ${program.name} »`
+      ? `${sport ? 'Une agence de droits sportifs' : producerWord(fem, 'un')} vous propose « ${program.name} »`
       : `${sport ? 'Offre exclusive' : 'Concept exclusif'} : « ${program.name} »`,
     desc: pitch.kind === 'rival'
       ? sport
         ? `L'agence de droits sportifs de « ${program.name} », compétition à l'antenne de ${pitch.competitor.name}, est prête à la céder à votre chaîne sur la case ${slotName}.${replaced} Le rachat d'exclusivité s'ajoute aux droits.`
-        : `${producerWord(program)} de « ${program.name} », à l'antenne de ${pitch.competitor.name}, est ${producerIsWoman(program) ? 'prête' : 'prêt'} à rejoindre votre chaîne sur la case ${slotName}.${replaced} Le rachat d'exclusivité s'ajoute aux droits.`
+        : `${producerWord(fem)} de « ${program.name} », à l'antenne de ${pitch.competitor.name}, est ${fem ? 'prête' : 'prêt'} à rejoindre votre chaîne sur la case ${slotName}.${replaced} Le rachat d'exclusivité s'ajoute aux droits.`
       : sport
         ? `Une agence de droits sportifs vous réserve « ${program.name} », une compétition que personne n'a encore signée, pour votre case ${slotName}.${replaced}`
-        : `${producerWord(program, 'un')} vous réserve « ${program.name} », un concept que personne n'a encore signé, pour votre case ${slotName}.${replaced}`,
+        : `${producerWord(fem, 'un')} vous réserve « ${program.name} », un concept que personne n'a encore signé, pour votre case ${slotName}.${replaced}`,
     showcase: [producerPitchShowcase(pitch)],
-    c: producerPitchChoices(pitch)
+    c: producerPitchChoices(pitch, fem)
   };
 }
 // Vitrine du démarchage : illustration du programme (même source que le catalogue et la
@@ -27189,7 +27184,7 @@ function refreshProducerPitch(dilemma) {
   const q = program && quoteProgram(dilemma.pitchSlot, program.id, 'interne');
   // Négociation en cours (contre-proposition) : les choix du partenaire restent affichés.
   if (dilemma.negotiationState) return dilemma;
-  dilemma.c = producerPitchChoices(pitch);
+  dilemma.c = producerPitchChoices(pitch, dilemma.producerFem);
   if (program) dilemma.showcase = [producerPitchShowcase(pitch)];
   // Case prise entre-temps par un événement (droit sportif, événement temporaire) : l'offre tombe.
   if (!q?.allowed || (dilemma.pitchKind === 'rival' && !holder) || !producerPitchSlots().includes(dilemma.pitchSlot)) {
@@ -27855,7 +27850,7 @@ function biddingWarChoices(w) {
       indemnity > 0
         ? { l: `Renoncer et percevoir l’indemnité de l’option (${nf1(indemnity)} M€)`, concede: { programId: w.programId, rival: w.rival, offer: w.offer, indemnity },
             finance: { recurring: 0, purchase: 0, commercial: indemnity, category: 'C' }, pda: ZERO_PDA(), audienceImpacts: [], pop: 0,
-            r: `${w.rival} signe « ${program.name} » ; ${isSportsProgram(program) ? 'l’agence' : producerWord(program, 'le', true)} vous verse l’indemnité prévue par votre option d’achat.` }
+            r: `${w.rival} signe « ${program.name} » ; ${isSportsProgram(program) ? 'l’agence' : producerWord(w.producerFem, 'le', true)} vous verse l’indemnité prévue par votre option d’achat.` }
         : { l: 'Renoncer', concede: { programId: w.programId, rival: w.rival, offer: w.offer, indemnity: 0 },
             finance: NO_FINANCE(), pda: ZERO_PDA(), audienceImpacts: [], pop: 0,
             r: `${w.rival} signe « ${program.name} ». Faute d’accord préalable, aucune indemnité n’est due.` }
@@ -27869,7 +27864,7 @@ function biddingWarChoices(w) {
     { l: `Surenchérir (${nf1(keep)} M€) pour garder « ${program.name} »`, keepProgram: { slot: w.slot, programId: w.programId },
       finance: keepFinance, disabled: !current || current.id !== w.programId || quoteFinance(keepFinance).cash < TRESORERIE_CRITIQUE,
       pda: ZERO_PDA(), audienceImpacts: [], pop: 1,
-      r: `${isSportsProgram(program) ? 'L’agence reste' : `${producerWord(program)} reste`} : « ${program.name} » est prolongé d’une saison sur votre grille.` }
+      r: `${isSportsProgram(program) ? 'L’agence reste' : `${producerWord(w.producerFem)} reste`} : « ${program.name} » est prolongé d’une saison sur votre grille.` }
   ];
   // Céder le programme : l'indemnité est encaissée et la case revient à sa programmation
   // initiale ; le remplaçant se choisit dans un dilemme qui suit immédiatement.
@@ -27888,13 +27883,13 @@ function createBiddingWarDilemma(w = pickBiddingWar()) {
   const program = w.program, slotName = slotLabelOf(w.slot);
   const p = gameState.player, current = p.contracts?.[w.slot];
   const war = { kind: w.kind, programId: program.id, slot: w.slot, rival: w.rival, offer: w.offer,
-    agreement: w.agreement ? { ...w.agreement } : null };
+    agreement: w.agreement ? { ...w.agreement } : null, producerFem: producerDraw() };
   const dilemma = {
     id: `bidding-${gameState.season}-${program.id}`, isBiddingWar: true, war,
     titre: w.kind === 'concept' ? `Mise en concurrence : « ${program.name} »` : `${w.rival} convoite « ${program.name} »`,
     desc: w.kind === 'concept'
-      ? `${isSportsProgram(program) ? `L’agence de droits sportifs de « ${program.name} » a présenté la compétition` : `${producerWord(program)} de « ${program.name} » a présenté son concept`} à plusieurs chaînes. ${w.rival} offre ${nf1(w.offer)} M€ pour la case ${slotName}.${w.agreement ? ' Votre option d’achat vous donne un droit de priorité : vous pouvez signer au même prix, sans surenchérir, ou renoncer contre une indemnité.' : ''}`
-      : `${w.rival} propose ${nf1(w.offer)} M€ ${isSportsProgram(program) ? 'à l’agence de droits sportifs' : producerWord(program, 'au', true)} de « ${program.name} », votre programme de la case ${slotName}. Ce montant rachète ses ${Math.max(1, (current?.end ?? gameState.season) - gameState.season + 1)} saison(s) de contrat restantes.`,
+      ? `${isSportsProgram(program) ? `L’agence de droits sportifs de « ${program.name} » a présenté la compétition` : `${producerWord(war.producerFem)} de « ${program.name} » a présenté son concept`} à plusieurs chaînes. ${w.rival} offre ${nf1(w.offer)} M€ pour la case ${slotName}.${w.agreement ? ' Votre option d’achat vous donne un droit de priorité : vous pouvez signer au même prix, sans surenchérir, ou renoncer contre une indemnité.' : ''}`
+      : `${w.rival} propose ${nf1(w.offer)} M€ ${isSportsProgram(program) ? 'à l’agence de droits sportifs' : producerWord(war.producerFem, 'au', true)} de « ${program.name} », votre programme de la case ${slotName}. Ce montant rachète ses ${Math.max(1, (current?.end ?? gameState.season) - gameState.season + 1)} saison(s) de contrat restantes.`,
     c: []
   };
   return refreshBiddingWar(dilemma);
@@ -28251,7 +28246,7 @@ function applyNegotiationReaction(dilemma, choice) {
   if (reaction === 'accepted') return true;
   const q = quoteProgram(choice.producerDeal.slot, choice.producerDeal.programId, 'interne');
   const zero = { j1524: 0, a2549: 0, s50: 0, csp: 0 };
-  const who = isSportsProgram(program) ? 'L’agence' : producerWord(program);
+  const who = isSportsProgram(program) ? 'L’agence' : producerWord(dilemma.producerFem);
   if (reaction === 'breakdown' || !q) {
     adjustPartner(partnerId, -2, 'rupture de négociation');
     dilemma.negotiationState = { strategy: neg.strategy, reaction: 'breakdown' };
@@ -28776,7 +28771,7 @@ function negotiationChips(offer, terms) {
 function negotiationShowcaseRows(dilemma, reveal) {
   const st = negotiationCounter(dilemma);
   if (!st) return null;
-  const who = st.partner === 'agency' ? 'L’agence' : producerWord(dilemma.programId);
+  const who = st.partner === 'agency' ? 'L’agence' : producerWord(dilemma.producerFem);
   const chips = negotiationChips(st.offer, st.terms).filter(c => c.changed);
   const head = `
       <div class="sa-row neg-row${reveal ? ' neg-reveal' : ''}">
