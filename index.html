@@ -31108,7 +31108,10 @@ function recordCareerWin(id) {
 }
 // Nombre de réussites demandé : celui du scénario (deblocage), sinon 3 pour les ★★★★ et ★★★★★.
 function careerUnlockCount(s) { return s.deblocage ?? (s.difficulte >= 4 ? CAREER_UNLOCK_COUNT : 0); }
+// Provisoire : tous les défis sont ouverts. Repasser à false pour rétablir le déblocage progressif.
+let CAREER_ALL_UNLOCKED = true;
 function careerLocked(s, progress = loadCareerProgress()) {
+  if (CAREER_ALL_UNLOCKED) return false;
   return progress.completed.length < careerUnlockCount(s);
 }
 
@@ -31687,7 +31690,7 @@ function renderCareerVictory(app) {
       </div>
       <div class="sanction-note">
         <span class="sanction-note-title">🏆 Mode Carrière</span>
-        <span>${progress.completed.length}/${CAREER_SCENARIOS.length} scénarios réussis${progress.completed.length >= CAREER_UNLOCK_COUNT ? ' · les défis ★★★★ et ★★★★★ sont débloqués' : ` · encore ${CAREER_UNLOCK_COUNT - progress.completed.length} pour débloquer les défis ★★★★ et ★★★★★`}.</span>
+        <span>${progress.completed.length}/${CAREER_SCENARIOS.length} scénarios réussis${CAREER_ALL_UNLOCKED ? ' · tous les défis sont ouverts' : ''}${CAREER_ALL_UNLOCKED ? '' : progress.completed.length >= CAREER_UNLOCK_COUNT ? ' · les défis ★★★★ et ★★★★★ sont débloqués' : ` · encore ${CAREER_UNLOCK_COUNT - progress.completed.length} pour débloquer les défis ★★★★ et ★★★★★`}.</span>
       </div>
     </div>
     <button class="welcome-cta" id="btn-career-continue">

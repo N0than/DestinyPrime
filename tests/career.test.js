@@ -63,13 +63,14 @@ recordCareerWin(1); ok(loadCareerProgress().completed.join()==='26,1','sans stoc
 globalThis.localStorage=store; delete store.d[CAREER_STORAGE_KEY]; careerProgressMemory={completed:[],best:{}};
 
 // ——— 3. Déverrouillage : ★★★★ et ★★★★★ après 3 scénarios réussis ———
-{ const hard=careerScenarioById(28), easy=careerScenarioById(26);
+{ ok(!careerLocked(careerScenarioById(35)),'déblocage provisoirement désactivé : tout est ouvert'); CAREER_ALL_UNLOCKED=false;
+  const hard=careerScenarioById(28), easy=careerScenarioById(26);
   ok(careerLocked(hard)&&!careerLocked(easy),'défi ★★★★★ verrouillé au départ');
   saveCareerProgress({completed:[1,9],best:{}}); ok(careerLocked(hard),'toujours verrouillé à 2 réussites');
   saveCareerProgress({completed:[1,9,23],best:{}}); ok(!careerLocked(hard),'débloqué à 3 réussites');
   const raider=careerScenarioById(35); ok(careerUnlockCount(raider)===5&&careerLocked(raider),'n°35 : 5 réussites demandées');
   saveCareerProgress({completed:[1,9,23,26,2],best:{}}); ok(!careerLocked(raider),'n°35 : débloqué à 5 réussites');
-  saveCareerProgress({completed:[],best:{}}); }
+  saveCareerProgress({completed:[],best:{}}); CAREER_ALL_UNLOCKED=true; }
 
 // ——— 4. Lancement : scénario conservé après resetGame, effacé par une partie libre ———
 { resetGame(); ok(!gameState.career,'pas de scénario hors Mode Carrière');
