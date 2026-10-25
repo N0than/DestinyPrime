@@ -21,6 +21,9 @@ function setup(type='generaliste',seed=123456789){
   ensureSportsRightsState();
 }
 const sr=()=>gameState.sportsRights;
+// Les scénarios historiques portent sur un droit d'une saison : l'engagement tiré reste consommé
+// (même suite aléatoire) mais vaut 1 ; l'engagement pluriannuel est testé en fin de fichier.
+const TERMS=[...SPORTS_TERM_CHOICES];SPORTS_TERM_CHOICES.fill(1);
 
 // ---------- Fréquence ----------
 setup();
@@ -636,6 +639,41 @@ assert(rv.plan.slots.prime.name===pausedName||rv.contracts.prime.end>=3,'paused 
   assert(Number.isFinite(est.pda)&&est.pda<slotNow&&!sr().owned.some(o=>o.suppressed),'paused program never aired: estimate without the event');
   const car={...pp.contracts.prime.career};evolveProgramCareers();
   assert(pp.contracts.prime.career.seasonsCount===car.seasonsCount&&pp.contracts.prime.career.awareness===car.awareness,'no career evolution while paused');
+}
+// ---------- Engagement pluriannuel (2 à 5 saisons) ----------
+{ SPORTS_TERM_CHOICES.splice(0,SPORTS_TERM_CHOICES.length,...TERMS);
+  const terms=new Set();
+  for(let k=0;k<60;k++){setup('generaliste',5000+k);terms.add(startSportsRightsAuction('roland_garros',null).term);}
+  assert([...terms].every(v=>v>=2&&v<=5)&&terms.size===4,'sports right term drawn among 2-5 seasons: '+[...terms]);
+  const themed=Object.values(SPORT_RIGHTS_EVENTS).filter(e=>e.category);
+  assert(themed.length&&themed.every(e=>{setup('cinema',77);return startSportsRightsAuction(e.id,null).term===1;}),'cinema and themed rights stay one season');
+  // Joueur : un droit ponctuel engagé 3 saisons, réglé à chaque diffusion.
+  setup();gameState.season=2;const a=startSportsRightsAuction('roland_garros',null);a.term=3;
+  a.rivals.forEach(r=>{r.max=0;r.status='out';});sportsAuctionParticipate();sportsAuctionSealedBid(12);
+  recordSportsAuctionOutcome(null,SPORT_RIGHTS_EVENTS.roland_garros);
+  const recs=sr().owned.filter(o=>o.eventId==='roland_garros');
+  assert(recs.length===3&&recs.map(o=>o.broadcastSeason).join()==='3,4,5'&&recs.every(o=>o.payOnAir&&o.acquisitionPrice===a.result.price&&o.termLength===3),'three broadcast seasons at the auction price');
+  assert(sportsTermProgress(recs[1])==='saison 2/3'&&sr().history.at(-1).term===3,'term progress and history');
+  [3,4,5].forEach(s=>{gameState.season=s;assert(sportsRightBusy('roland_garros'),'off the market during the term (S'+s+')');
+    const cash=gameState.player.tresorerie;activateSportsBroadcasts();
+    assert(Math.abs(cash-gameState.player.tresorerie-(a.result.price+SPORT_RIGHTS_EVENTS.roland_garros.productionCost))<1e-9,'price and production paid at broadcast S'+s);closeSportsBroadcasts();});
+  gameState.season=6;closeSportsBroadcasts();assert(!sportsRightBusy('roland_garros'),'back on the market after the term');
+  // Joueur : droit annuel engagé 3 saisons, au coût de grille de chacune, reconduction à la fin seulement.
+  setup();gameState.season=2;const f=startSportsRightsAuction('f1',null);f.term=3;
+  f.rivals.forEach(r=>{r.max=0;r.status='out';});sportsAuctionParticipate();sportsAuctionSealedBid(8);
+  recordSportsAuctionOutcome(null,SPORT_RIGHTS_EVENTS.f1);
+  const frs=sr().owned.filter(o=>o.eventId==='f1');
+  assert(frs.length===3&&frs.every(o=>o.gridAnnual===f.result.price),'annual right: price in the grid of every committed season');
+  gameState.season=3;assert(!recurringRightsToRenew().length&&sportsRightsGridAnnual(3)===f.result.price,'no renewal during the term');
+  gameState.season=4;assert(!recurringRightsToRenew().length,'no renewal during the term (2)');
+  gameState.season=5;assert(recurringRightsToRenew().length===1,'renewal offered at the end of the term');
+  // Chaîne IA : première saison payée à la signature, les suivantes à la diffusion ; un droit compte une fois.
+  setup();const ai=gameState.competitors[0];const b0=ai.budget;
+  acquireSportsRight('roland_garros',{owner:ai,price:10,term:4});
+  assert(ai.budget===b0-10&&sr().owned.filter(o=>o.ownerName===ai.name).length===4,'AI pays the first season at signature');
+  gameState.season=3;activateSportsBroadcasts();
+  assert(ai.budget===b0-10-10-SPORT_RIGHTS_EVENTS.roland_garros.productionCost,'AI pays the following season at broadcast');
+  const sheet=competitorSportsRightsHtml(ai,(items)=>items.join('|'));assert(sheet.split('|').length===3&&/engagé jusqu’en saison 5/.test(sheet),'AI sheet: past, current, then one line for the rest of the term');
 }
 console.log('OK sports rights: frequency, selection, auction, economy, broadcast, competitors, state');
 `;

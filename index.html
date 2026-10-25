@@ -2022,6 +2022,7 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .neg-chip s { color: var(--gris); font-weight: 500; }
 .neg-chip b { font-weight: 800; color: var(--ink); }
 .sa-stat b[data-neg-to] { font-variant-numeric: tabular-nums; }
+.sa-stat .sa-term { font-size: 0.72em; font-weight: 700; color: var(--gris); white-space: nowrap; }
 /* Phases (≈ 1,5 s) : le partenaire réfléchit, sa réponse arrive, les montants évoluent dans
    les blocs et les badges de changement s'ouvrent dessous, enfin les choix du tour apparaissent. */
 .neg-reveal .neg-replied { animation: negIn .21s ease both; animation-delay: var(--neg-think); }
@@ -23364,7 +23365,7 @@ const SPORT_RIGHTS_EVENTS = {
     illustration: { subgenre: 'auto', palette: 'jour' },
     id: 'f1', name: 'Championnat du monde de F1', the: 'le Championnat du monde de F1', sport: 'automobile', icon: '🏎️', tier: 'premium',
     headline: 'La Formule 1 cherche un diffuseur',
-    pitch: 'Vingt-quatre Grands Prix, presque tous l’après-midi. Les droits du championnat du monde sont à prendre pour la saison prochaine, puis renouvelables chaque année au prix remporté.',
+    pitch: 'Vingt-quatre Grands Prix, presque tous l’après-midi. Les droits du championnat du monde sont à prendre pour plusieurs saisons au prix remporté, puis renouvelables chaque année.',
     reservePrice: 4.5, estimatedValueMin: 6.5, estimatedValueMax: 10, productionCost: 1.5, exclusive: true, duration: 1, recurring: true,
     audiencePower: { j1524: 1.20, a2549: 1.30, s50: 1.15, csp: 1.20 },
     commercialAttractiveness: 1.15,
@@ -23377,7 +23378,7 @@ const SPORT_RIGHTS_EVENTS = {
     illustration: { subgenre: 'hippisme', palette: 'jour' },
     id: 'courses_hippiques', name: 'Courses hippiques', the: 'les courses hippiques', sport: 'hippisme', icon: '🏇', tier: 'premium',
     headline: 'Les courses hippiques cherchent un diffuseur',
-    pitch: 'Réunions, quintés et Grands Prix en direct chaque matin : les droits des courses sont à prendre pour la saison prochaine, puis renouvelables chaque année au prix remporté.',
+    pitch: 'Réunions, quintés et Grands Prix en direct chaque matin : les droits des courses sont à prendre pour plusieurs saisons au prix remporté, puis renouvelables chaque année.',
     reservePrice: 3, estimatedValueMin: 4.5, estimatedValueMax: 7, productionCost: 1, exclusive: true, duration: 1, recurring: true,
     audiencePower: { j1524: 0.85, a2549: 1.05, s50: 1.35, csp: 1.15 },
     commercialAttractiveness: 1.15,
@@ -23391,7 +23392,7 @@ const SPORT_RIGHTS_EVENTS = {
     illustration: { subgenre: 'football', palette: 'nuit' },
     id: 'ligue1', name: 'Championnat de France de Ligue 1', the: 'la Ligue 1', sport: 'football', icon: '⚽', tier: 'mega',
     headline: 'La Ligue 1 cherche un diffuseur',
-    pitch: 'Les grandes affiches du championnat de France en prime, chaque week-end de la saison : les droits sont à prendre pour la saison prochaine, puis renouvelables chaque année au prix remporté.',
+    pitch: 'Les grandes affiches du championnat de France en prime, chaque week-end de la saison : les droits sont à prendre pour plusieurs saisons au prix remporté, puis renouvelables chaque année.',
     reservePrice: 8, estimatedValueMin: 11.5, estimatedValueMax: 17, productionCost: 2.5, exclusive: true, duration: 1, recurring: true,
     audiencePower: { j1524: 1.25, a2549: 1.40, s50: 1.10, csp: 1.15 },
     commercialAttractiveness: 1.30,
@@ -23408,7 +23409,7 @@ const SPORT_RIGHTS_EVENTS = {
     illustration: { subgenre: 'football', palette: 'nuit' },
     id: 'ligue_champions', name: 'Ligue des champions', the: 'la Ligue des champions', sport: 'football', icon: '🏆', tier: 'mega',
     headline: 'La Ligue des champions cherche un diffuseur',
-    pitch: 'Les soirées européennes du mardi et du mercredi, jusqu’à la finale : les grandes affiches de la Ligue des champions en prime sont à prendre pour la saison prochaine, puis renouvelables chaque année au prix remporté.',
+    pitch: 'Les soirées européennes du mardi et du mercredi, jusqu’à la finale : les grandes affiches de la Ligue des champions en prime sont à prendre pour plusieurs saisons au prix remporté, puis renouvelables chaque année.',
     reservePrice: 7, estimatedValueMin: 10, estimatedValueMax: 15, productionCost: 2, exclusive: true, duration: 1, recurring: true,
     audiencePower: { j1524: 1.30, a2549: 1.45, s50: 1.10, csp: 1.30 },
     commercialAttractiveness: 1.35,
@@ -23421,7 +23422,7 @@ const SPORT_RIGHTS_EVENTS = {
     illustration: { subgenre: 'football', palette: 'neon' },
     id: 'equipe_de_france', name: 'Matchs de l’équipe de France', the: 'les matchs de l’équipe de France', sport: 'football', icon: '🇫🇷', tier: 'mega',
     headline: 'Les matchs de l’équipe de France cherchent un diffuseur',
-    pitch: 'Qualifications, Ligue des nations et matchs amicaux : les soirées des Bleus en prime sont à prendre pour la saison prochaine, puis renouvelables chaque année au prix remporté.',
+    pitch: 'Qualifications, Ligue des nations et matchs amicaux : les soirées des Bleus en prime sont à prendre pour plusieurs saisons au prix remporté, puis renouvelables chaque année.',
     reservePrice: 5.5, estimatedValueMin: 8, estimatedValueMax: 12, productionCost: 1.5, exclusive: true, duration: 1, recurring: true,
     audiencePower: { j1524: 1.10, a2549: 1.25, s50: 1.30, csp: 1.05 },
     commercialAttractiveness: 1.10,
@@ -23434,7 +23435,7 @@ const SPORT_RIGHTS_EVENTS = {
     illustration: { subgenre: 'rugby', palette: 'jour' },
     id: 'top14', name: 'Championnat de Top 14', the: 'le Top 14', sport: 'rugby', icon: '🏉', tier: 'premium',
     headline: 'Le Top 14 cherche un diffuseur',
-    pitch: 'Les affiches du championnat de rugby en fin de journée, de la rentrée jusqu’à la finale au Stade de France : les droits sont à prendre pour la saison prochaine, puis renouvelables chaque année au prix remporté.',
+    pitch: 'Les affiches du championnat de rugby en fin de journée, de la rentrée jusqu’à la finale au Stade de France : les droits sont à prendre pour plusieurs saisons au prix remporté, puis renouvelables chaque année.',
     reservePrice: 3.5, estimatedValueMin: 5, estimatedValueMax: 8, productionCost: 1.5, exclusive: true, duration: 1, recurring: true,
     audiencePower: { j1524: 0.95, a2549: 1.15, s50: 1.35, csp: 1.20 },
     commercialAttractiveness: 1.15,
@@ -23448,7 +23449,7 @@ const SPORT_RIGHTS_EVENTS = {
     illustration: { subgenre: 'basket', palette: 'nuit' },
     id: 'nba', name: 'Basket US', the: 'le basket US', sport: 'basket', icon: '🏀', tier: 'premium',
     headline: 'Le basket US cherche un diffuseur',
-    pitch: 'Les plus grandes affiches de la NBA en direct, au cœur de la nuit : les droits de la saison régulière sont à prendre pour la saison prochaine, puis renouvelables chaque année au prix remporté.',
+    pitch: 'Les plus grandes affiches de la NBA en direct, au cœur de la nuit : les droits de la saison régulière sont à prendre pour plusieurs saisons au prix remporté, puis renouvelables chaque année.',
     reservePrice: 2.5, estimatedValueMin: 3.5, estimatedValueMax: 6, productionCost: 1, exclusive: true, duration: 1, recurring: true,
     audiencePower: { j1524: 1.35, a2549: 1.15, s50: 0.85, csp: 1.05 },
     commercialAttractiveness: 1.05,
@@ -23462,7 +23463,7 @@ const SPORT_RIGHTS_EVENTS = {
     illustration: { subgenre: 'velo', palette: 'jour' },
     id: 'tour_de_france', name: 'Tour de France', the: 'le Tour de France', sport: 'cyclisme', icon: '🚴', tier: 'premium',
     headline: 'Le Tour de France cherche un diffuseur',
-    pitch: 'Trois semaines de course sur les routes de France, des étapes de plaine aux cols mythiques, presque toutes l’après-midi. Les droits de la Grande Boucle sont à prendre pour la saison prochaine, puis renouvelables chaque année au prix remporté.',
+    pitch: 'Trois semaines de course sur les routes de France, des étapes de plaine aux cols mythiques, presque toutes l’après-midi. Les droits de la Grande Boucle sont à prendre pour plusieurs saisons au prix remporté, puis renouvelables chaque année.',
     reservePrice: 4.5, estimatedValueMin: 6.5, estimatedValueMax: 10, productionCost: 1.5, exclusive: true, duration: 1, recurring: true,
     audiencePower: { j1524: 0.85, a2549: 1.1, s50: 1.35, csp: 1.15 },
     commercialAttractiveness: 1.15,
@@ -23797,6 +23798,11 @@ function rightsEventPopOnAir(event) {
   return event.popOnAir ?? SPORT_RIGHTS_TUNING.popularityOnAir[event.tier] ?? 0;
 }
 const isCinemaRight = event => event?.category === 'cinema';
+// Droits sportifs (sans catégorie) : engagement pluriannuel de 2 à 5 saisons, tiré à chaque mise
+// sur le marché ; le prix remporté est dû à chaque saison de l'engagement.
+const SPORTS_TERM_CHOICES = [2, 3, 4, 5];
+const isSportRight = event => !!event && !event.category;
+function sportsTermLabel(term) { return term > 1 ? `${term} saisons` : '1 saison'; }
 const isInfoRight = event => event?.category === 'info';
 const isYouthRight = event => event?.category === 'jeunesse';
 const isCultureRight = event => event?.category === 'culture';
@@ -23989,7 +23995,7 @@ function computeCompetitorSportsMaxBid(competitor, event) {
     premium: ['tennis', 'ceremonie', 'festival'].includes(event.sport) || event.tier === 'mega' ? 1.08 : 0.92
   };
   const commercial = 0.9 + 0.1 * event.commercialAttractiveness;
-  const alreadyOwned = gameState.sportsRights.owned.filter(o => o.ownerName === competitor.name && o.broadcastSeason >= gameState.season).length;
+  const alreadyOwned = new Set(gameState.sportsRights.owned.filter(o => o.ownerName === competitor.name && o.broadcastSeason >= gameState.season).map(o => o.eventId)).size;
   const noise = 0.92 + sportsRandom() * 0.16;
   const wanted = mid * typeFit * (0.85 + 0.15 * targetFit) * (styles[competitor.strategy] || 1) * commercial * (1 - 0.12 * alreadyOwned) * noise;
   const cap = Math.max(0, (competitor.budget || 0) * (0.45 + 0.45 * profile.riskTolerance) - event.productionCost);
@@ -24012,8 +24018,9 @@ function startSportsRightsAuction(eventId, dilemmaId) {
     const max = recurringSlotClash(event, c) ? 0 : computeCompetitorSportsMaxBid(c, event);
     return { idx, name: c.name, max, interest: sportsInterest(max, event), status: max >= event.reservePrice ? 'in' : 'out', lastBid: null };
   });
+  const term = isSportRight(event) ? sportsChoice(SPORTS_TERM_CHOICES) : 1;
   sr.activeAuction = { eventId, dilemmaId, season: gameState.season, phase: 'market', price: null, leader: null,
-    playerLastBid: null, rivals, draft: null, reveal: null, result: null };
+    playerLastBid: null, rivals, draft: null, reveal: null, result: null, term };
   return sr.activeAuction;
 }
 function sportsIncrement(event, price) {
@@ -24111,7 +24118,7 @@ function finishSportsAuction(a, outcome) {
   const winner = a.leader === 'player' ? 'player' : Number.isInteger(a.leader) ? gameState.competitors[a.leader] : null;
   a.phase = 'verdict';
   a.result = { outcome: winner === 'player' ? 'won' : outcome, winnerName: winner === 'player' ? gameState.player.name : winner?.name || null,
-    price: winner ? a.price : null, playerLastBid: a.playerLastBid, reveal: a.reveal || [], tieBreak: !!a.tieBreak };
+    price: winner ? a.price : null, playerLastBid: a.playerLastBid, reveal: a.reveal || [], tieBreak: !!a.tieBreak, term: a.term || 1 };
   return a.result;
 }
 
@@ -24125,9 +24132,11 @@ function buildSportsAuctionChoice(dilemma) {
   const won = a?.result?.outcome === 'won';
   const price = won ? a.result.price : 0;
   const inGrid = won && !!event.recurring;
+  const term = a?.term || 1;
   return {
     l: won ? `Droits remportés : ${event.name}` : a?.result?.outcome === 'declined' ? 'Passer son tour' : 'Se retirer de l’enchère',
-    r: inGrid ? `${event.name} rejoint vos droits. Diffusion la saison prochaine : ${nf1(price)} M€ intégrés au coût de grille de la saison ${gameState.season + 1}.`
+    r: won && term > 1 ? `${event.name} rejoint vos droits pour ${term} saisons (S${gameState.season + 1} à S${gameState.season + term}) : ${inGrid ? `${nf1(price)} M€ intégrés au coût de grille de chacune de ces saisons` : `${nf1(price)} M€ réglés à chaque diffusion`}, et il faudra rentabiliser l’investissement.`
+      : inGrid ? `${event.name} rejoint vos droits. Diffusion la saison prochaine : ${nf1(price)} M€ intégrés au coût de grille de la saison ${gameState.season + 1}.`
       : won ? `${event.name} rejoint vos droits. Diffusion la saison prochaine : les ${nf1(price)} M€ seront réglés à la diffusion, et il faudra rentabiliser l’investissement.`
       : a?.result?.winnerName ? `${a.result.winnerName} remporte ${event.the}.` : `${event.name} ne trouve pas preneur.`,
     // Aucun débit à la signature : le prix est réglé lors de la saison de diffusion
@@ -24143,12 +24152,12 @@ function recordSportsAuctionOutcome(dilemma, event = sportsEventOfDilemma(dilemm
   a.recorded = true;
   const r = a.result;
   const winner = r.outcome === 'won' ? 'player' : Number.isInteger(a.leader) ? gameState.competitors[a.leader] : null;
-  if (winner) acquireSportsRight(event.id, { owner: winner, price: r.price });
-  // Droit annuel remporté par le joueur : le prix entre dans le coût de grille de la
-  // saison de diffusion et y reste tant que les droits sont reconduits.
-  if (winner === 'player' && event.recurring) sr.owned[sr.owned.length - 1].gridAnnual = r.price;
+  const records = winner ? acquireSportsRight(event.id, { owner: winner, price: r.price, term: a.term || 1 }) : [];
+  // Droit annuel remporté par le joueur : le prix entre dans le coût de grille de chaque
+  // saison de diffusion de l'engagement, puis tant que les droits sont reconduits.
+  if (winner === 'player' && event.recurring) records.forEach(o => { o.gridAnnual = r.price; });
   sr.history.push({ type: 'sports_rights_auction', eventId: event.id, season: gameState.season, result: r.outcome,
-    playerLastBid: r.playerLastBid, finalBid: r.price, winnerId: winner === 'player' ? 'player' : winner ? winner.name : null,
+    playerLastBid: r.playerLastBid, finalBid: r.price, term: a.term || 1, winnerId: winner === 'player' ? 'player' : winner ? winner.name : null,
     competitors: a.rivals.filter(x => x.interest).map(x => x.name) });
   if (event.recurring) {
     // Droit annuel : plus de vente tant qu'un diffuseur le détient ; sans preneur, il
@@ -24297,19 +24306,31 @@ function applySportsRenewalChoice(eventId, action) {
   if (!rec) return;
   if (action === 'renew') renewSportsRight(rec); else releaseSportsRight(rec);
 }
-function acquireSportsRight(eventId, { owner, price, renewal = false, initialPrice = null }) {
+// Engagement pluriannuel (term) : un enregistrement par saison de diffusion, au même prix.
+// Une chaîne IA paie la première saison à la signature, les suivantes à leur diffusion.
+function acquireSportsRight(eventId, { owner, price, renewal = false, initialPrice = null, term = 1 }) {
   const event = SPORT_RIGHTS_EVENTS[eventId];
   const isPlayer = owner === 'player';
   if (!isPlayer) owner.budget = Math.max(0, (owner.budget || 0) - price);
-  gameState.sportsRights.owned.push({
+  const termId = `${eventId}:${gameState.season}`;
+  const records = Array.from({ length: Math.max(1, term) }, (_, i) => ({
     ...(event.recurring ? { recurring: true, initialPrice: initialPrice ?? price, renewal } : {}),
-    // Droit non annuel du joueur : réglé à l'activation de la diffusion (payOnAir), une seule fois.
+    // Droit non annuel du joueur : chaque saison de l'engagement est réglée à l'activation de sa diffusion (payOnAir).
     ...(isPlayer && !event.recurring ? { payOnAir: true, priceSettled: false } : {}),
+    // Saisons engagées avant la dernière : pas de reconduction à arbitrer.
+    ...(term > 1 ? { termId, termIndex: i, termLength: term, ...(i < term - 1 ? { renewalDecided: 'term' } : {}) } : {}),
+    ...(!isPlayer && i > 0 ? { pricePending: true } : {}),
     eventId, ownerId: isPlayer ? 'player' : 'competitor', ownerName: isPlayer ? gameState.player.name : owner.name,
-    acquiredSeason: gameState.season, broadcastSeason: gameState.season + event.duration,
+    acquiredSeason: gameState.season, broadcastSeason: gameState.season + event.duration + i,
     acquisitionPrice: price, productionCost: event.productionCost, exclusive: event.exclusive,
     status: 'owned', slots: [...event.preferredSlots], broadcasted: false, variance: null, pausedSlots: [], perf: null
-  });
+  }));
+  gameState.sportsRights.owned.push(...records);
+  return records;
+}
+// Saison d'un engagement pluriannuel (« saison 2/4 »), ou '' pour un droit d'une saison.
+function sportsTermProgress(rec) {
+  return rec?.termLength > 1 ? `saison ${rec.termIndex + 1}/${rec.termLength}` : '';
 }
 
 // ---- Diffusion ----
@@ -24431,7 +24452,9 @@ function activateSportsBroadcasts() {
       p.popularite = Math.min(100, p.popularite + rec.popGain);
     } else {
       const c = gameState.competitors.find(x => x.name === rec.ownerName);
-      if (c) c.budget = Math.max(0, (c.budget || 0) - rec.productionCost);
+      const priceDue = rec.pricePending ? rec.acquisitionPrice : 0;
+      rec.pricePending = false;
+      if (c) c.budget = Math.max(0, (c.budget || 0) - rec.productionCost - priceDue);
     }
   });
 }
@@ -24497,9 +24520,19 @@ function competitorSportsRightsHtml(competitor, list) {
   const owned = (gameState.sportsRights?.owned || []).filter(o => o.ownerId !== 'player' && o.ownerName === competitor.name
     && o.broadcastSeason >= gameState.season - 1);
   if (!owned.length) return '';
-  const items = owned.map(o => {
+  // Engagement pluriannuel : les saisons à venir d'un même engagement tiennent en une ligne.
+  const seenTerm = new Set();
+  const items = owned.filter(o => {
+    if (o.broadcastSeason <= gameState.season || !o.termId) return true;
+    if (seenTerm.has(o.termId)) return false;
+    seenTerm.add(o.termId); return true;
+  }).map(o => {
     const e = SPORT_RIGHTS_EVENTS[o.eventId];
     const where = esc(sportsSlotsLabel(e));
+    if (o.broadcastSeason > gameState.season && o.termId) {
+      const last = o.acquiredSeason + e.duration + o.termLength - 1;
+      return `${e.icon} <b>${esc(e.name)}</b> : engagé jusqu’en saison ${last} (${where}), ${nf1(o.acquisitionPrice)} M€ par saison.`;
+    }
     if (o.broadcastSeason > gameState.season) return `${e.icon} <b>${esc(e.name)}</b> : diffusion en saison ${o.broadcastSeason} (${where}), droits payés ${nf1(o.acquisitionPrice)} M€.`;
     if (o.broadcastSeason === gameState.season && !o.perf) return `${e.icon} <b>${esc(e.name)}</b> : à l'antenne cette saison (${where}).`;
     return o.perf
@@ -24586,7 +24619,8 @@ function renderSportsAuctionZone(dilemma) {
   const p = gameState.player;
   const ev = evaluateSportsRight(event, p);
   const pop = (d, extra = '') => `class="sa-pop${extra ? ` ${extra}` : ''}" style="--d:${d}s" data-sa-leave`;
-  const slotCap = `<span class="sa-illu-slot">Diffusion S${gameState.season + 1} · ${esc(sportsSlotsLabel(event))}</span>`;
+  const term = a.term || 1;
+  const slotCap = `<span class="sa-illu-slot">Diffusion ${term > 1 ? `S${gameState.season + 1}–S${gameState.season + term}` : `S${gameState.season + 1}`} · ${esc(sportsSlotsLabel(event))}</span>`;
   const interested = a.rivals.filter(r => r.interest);
   if (a.phase === 'market') {
     const riskLabel = { low: 'Faible', medium: 'Modéré', high: 'Élevé' }[ev.risk];
@@ -24594,9 +24628,9 @@ function renderSportsAuctionZone(dilemma) {
     const pub = 2 + (event.commercialAttractiveness - 1) * 10;
     return `<div class="sa-inline" data-sa-zone>
       ${sportsIllustrationHtml(event, { overlay: slotCap,
-        info: 'Un seul tour d’enchères, avec une offre sous pli : les programmes actuellement diffusés sur les créneaux concernés seront mis en pause et prolongés d’une saison.' })}
+        info: `Un seul tour d’enchères, avec une offre sous pli : les programmes actuellement diffusés sur les créneaux concernés seront mis en pause et prolongés d’une saison${term > 1 ? ` à chaque diffusion. Engagement de ${term} saisons : votre offre est le prix d’une saison, dû à chacune d’elles` : ''}.` })}
       <div ${pop(0.05, 'sa-stats')}>
-        <div class="sa-stat"><span>Prix de départ</span><b>${nf1(event.reservePrice)} M€</b></div>
+        <div class="sa-stat"><span>Prix de départ</span><b>${nf1(event.reservePrice)} M€${term > 1 ? `<small class="sa-term" title="Engagement de ${sportsTermLabel(term)} : ce prix est dû à chaque saison"> / saison × ${term}</small>` : ''}</b></div>
         <div class="sa-stat"><span>Valeur estimée</span><b>${sportsAmount(ev.minValue)}–${sportsAmount(ev.maxValue)} M€</b></div>
         <div class="sa-stat"><span>Production</span><b>${nf1(event.productionCost)} M€</b></div>
         <div class="sa-stat"><span>Audience</span>${sportsStars(audience)}</div>
@@ -24802,7 +24836,7 @@ function renderSportsRightsBilanHtml() {
     const e = SPORT_RIGHTS_EVENTS[o.eventId], f = o.perf;
     const tone = f.verdict === 'DROITS SURPAYÉS' ? 'bad' : f.verdict === 'EXCELLENTE AFFAIRE' ? 'good' : 'warn';
     return `<div class="sa-bilan-event">
-      <div class="sa-bilan-head"><b>${e.icon} ${esc(e.name)}</b><span class="sa-verdict-pill ${tone}">${f.verdict}</span></div>
+      <div class="sa-bilan-head"><b>${e.icon} ${esc(e.name)}${o.termLength > 1 ? ` · ${sportsTermProgress(o)}` : ''}</b><span class="sa-verdict-pill ${tone}">${f.verdict}</span></div>
       <div class="sa-ledger compact">
         <div><span>Droits</span><b>${nf1(o.acquisitionPrice)} M€</b></div>
         <div><span>Production</span><b>${nf1(o.productionCost)} M€</b></div>
@@ -26537,8 +26571,10 @@ function computeMarketWeather() {
   const p = gameState.player;
   const confirmed = gameState.competitors.every(c => c.plan?.confirmed);
   const views = gameState.competitors.map(competitorView);
-  const bought = (gameState.sportsRights?.owned || []).filter(o => o.ownerId !== 'player' && o.acquiredSeason === gameState.season).map(o => {
+  const bought = (gameState.sportsRights?.owned || []).filter(o => o.ownerId !== 'player' && o.acquiredSeason === gameState.season && !o.termIndex).map(o => {
     const e = SPORT_RIGHTS_EVENTS[o.eventId];
+    if (o.termLength > 1) return { icon: e.icon, title: `${o.ownerName} s’offre ${e.the}`,
+      text: `Droits achetés ${nf1(o.acquisitionPrice)} M€ par saison pour ${o.termLength} saisons : diffusion dès la saison ${o.broadcastSeason} sur ${sportsSlotsLabel(e)}.` };
     return o.renewal
       ? { icon: '🔁', title: `${o.ownerName} reconduit ${e.the}`, text: `Droits renouvelés ${nf1(o.acquisitionPrice)} M€ : diffusion en saison ${o.broadcastSeason} sur ${sportsSlotsLabel(e)}.` }
       : { icon: e.icon, title: `${o.ownerName} s’offre ${e.the}`,
