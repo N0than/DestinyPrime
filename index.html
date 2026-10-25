@@ -1532,7 +1532,7 @@ button.radar-row:focus-visible { outline: 2px solid var(--bleu); outline-offset:
 .career-fam-art { position: relative; display: block; width: 100%; aspect-ratio: 16 / 10; border-radius: 14px; overflow: hidden; background: var(--fam-bg); box-shadow: 0 10px 30px -10px rgba(15,23,42,0.25); }
 .career-fam-art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
 .career-fam-num {
-  position: absolute; left: 10px; top: 10px; padding: 4px 10px; border-radius: 999px;
+  position: absolute; right: 10px; top: 10px; padding: 4px 10px; border-radius: 999px;
   font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 2px; color: var(--fam);
   background: rgba(255,255,255,0.92); box-shadow: 0 4px 10px -6px rgba(15,23,42,0.5);
 }
@@ -30782,7 +30782,7 @@ function renderCareerList(app) {
     return `<div class="home-slide" role="group" aria-roledescription="carte"><section class="career-fam${flipped ? ' flipped' : ''}" data-career-fam="${fam.id}" style="${careerFamilyStyle(fam)}" aria-label="${esc(fam.nom)}">
       <div class="career-fam-inner">
         <div class="welcome-glass career-fam-face career-fam-front"${flipped ? ' inert' : ''}>
-          <span class="career-fam-art">${art ? `<img src="${art}" alt="" width="320" height="180" decoding="async">` : ''}<span class="career-fam-num">${fam.numero}</span></span>
+          <span class="career-fam-art">${art ? `<img src="${art}" alt="" width="320" height="180" decoding="async">` : ''}<span class="career-fam-num">#${Number(fam.numero)}</span></span>
           <h2>${esc(fam.nom)}</h2>
           <p class="welcome-sub">${esc(fam.accroche)}</p>
           <span class="career-fam-progress"><span class="resume-season-badge">Défis réussis : ${done}/${all.length}</span></span>
@@ -30793,7 +30793,7 @@ function renderCareerList(app) {
           </button>
         </div>
         <div class="welcome-glass career-fam-face career-fam-back"${flipped ? '' : ' inert'}>
-          <div class="career-fam-back-head"><span class="career-fam-num">${fam.numero}</span><h3>${esc(fam.nom)}</h3></div>
+          <div class="career-fam-back-head"><span class="career-fam-num">#${Number(fam.numero)}</span><h3>${esc(fam.nom)}</h3></div>
           <div class="career-fam-rows">${items.map(s => {
             const ok = progress.completed.includes(s.id), locked = careerLocked(s, progress);
             return `<button type="button" class="career-row-btn${locked ? ' locked' : ''}" data-career-scenario="${s.id}" aria-haspopup="dialog">
