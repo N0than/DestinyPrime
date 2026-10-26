@@ -114,7 +114,7 @@ ok(built>=200,'variantes génériques construites sur le catalogue ('+built+' po
 
 // ——— 6. Arc complet : ouverture, suite selon l'évolution, rappel, clôture ———
 { const p=partie();
-  const arcProg=PROGRAM_CATALOG.find(x=>x.channelType==='generaliste'&&programGenresOf(x,x.slot).some(g=>['talent','cuisine'].includes(g))
+  const arcProg=PROGRAM_CATALOG.find(x=>x.channelType==='generaliste'&&PROGRAM_CAPABILITY_LISTS.jury.includes(x.id)
     &&!programHolder(x)&&!(PROGRAM_STORIES_BY_PROGRAM[x.id]||[]).some(d=>d.genericKey==='jury'));
   const c=signe(arcProg.slot,arcProg.id); c.career.seasonsCount=2;
   const def=GENRE_STORY_BANK.find(d=>d.id==='gs_jury_conteste');
