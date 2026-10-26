@@ -72,10 +72,8 @@ let finale;
   finale=generic('gs_finale_exceptionnelle','p284',{form:'succes'});
   const ch=finale.c[idx(finale,/grande salle/)];
   ok(ch.story.uncertain.outcomes.length===3&&near(ch.story.uncertain.outcomes.reduce((a,o)=>a+o.p,0),1,1e-5),'issues figées sur le choix');
-  const h=storyOutcomeHint(ch);
-  ok(/Certain :/.test(h)&&/Issue incertaine/.test(h)&&/Triomphe : chances (faibles|moyennes|élevées) \(~\d+ %\)/.test(h),'carte : certain / incertain / estimation');
   ok(/public est fidèle|très connu/.test(ch.story.uncertain.note),'explication : '+ch.story.uncertain.note);
-  ok(!storyOutcomeHint(finale.c[idx(finale,/enregistrée/)]),'choix certain : aucun encart');
+  ok(!finale.c[idx(finale,/enregistrée/)].story.uncertain,'choix certain : aucune issue');
   ok(storyChanceLabel(0.65)==='chances élevées (~65 %)'&&storyChanceLabel(0.2)==='chances faibles (~20 %)','libellés'); }
 
 // ——— 4. 10 000 tirages : fréquences ———
@@ -96,7 +94,7 @@ function etat(pid){ const p=gameState.player, c=C(pid).career;
   enFile(d);
   // Rendu répété : aucun tirage (compteur du diagnostic).
   NARRATIVE_DEBUG=true; NARRATIVE_RANDOM_CALLS.count=0; console.log=(()=>{const l=console.log; return (...a)=>{ if(typeof a[0]==='string'&&a[0].startsWith('[narratif')) return; l(...a); };})();
-  for(let k=0;k<20;k++) storyOutcomeHint(d.c[i]);
+  for(let k=0;k<20;k++) buildProgramStoryDilemma({def:G('gs_finale_exceptionnelle'),slot:P('p284').slot,contract:C('p284'),ctx:ctxOf('p284',{form:'succes'})});
   ok(NARRATIVE_RANDOM_CALLS.count===0,'affichage : aucun tirage');
   const avant=JSON.stringify(gameState), c0={...C('p284').career}, achats=p.achatsSaison;
   chooseDilemmaOption(i);

@@ -2084,12 +2084,6 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 }
 .choice .cl { font-family: 'Anton', sans-serif; text-transform: uppercase; font-size: 14px; letter-spacing: 0.3px; display: block; color: var(--ink); line-height: 1.25; }
 .choice-caption { display: block; margin-top: 3px; font-size: 11px; color: var(--gris); }
-/* Issues incertaines (lot 4) : certain / incertain, sobre et lisible sur mobile. */
-.choice-uncertain { display: block; margin-top: 8px; padding: 6px 9px; border-left: 2px solid var(--border); background: rgba(15,23,42,0.03); border-radius: 4px; font-size: 11.5px; line-height: 1.4; color: #475569; text-align: left; }
-.choice-uncertain .cu-row { display: block; }
-.choice-uncertain .cu-head { margin-top: 2px; }
-.choice-uncertain .cu-why { display: block; margin-top: 3px; font-style: italic; color: var(--gris); }
-.choice.selected .choice-uncertain, .choice.selected .choice-uncertain .cu-why { color: #fff; background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); }
 .story-outcome { margin: 8px 0 0; padding: 7px 10px; border-radius: 6px; font-size: 13px; border: 1px solid var(--border); background: var(--paper); text-align: left; }
 .story-outcome.good { border-color: rgba(5,150,105,0.25); background: rgba(5,150,105,0.06); }
 .story-outcome.bad { border-color: rgba(225,29,72,0.25); background: rgba(225,29,72,0.05); }
@@ -21417,16 +21411,6 @@ function resolveStoryOutcome(dilemma, choiceIndex, choice) {
       outcome: { key: o.key, label: o.label, p: o.p, arcHint: o.arcHint },
       recall: `${s.recall} — ${o.label.charAt(0).toLowerCase()}${o.label.slice(1)}` } };
 }
-// Encart de la carte : ce qui est certain, puis les issues possibles et leur explication.
-function storyOutcomeHint(choice) {
-  const u = choice.story?.uncertain;
-  if (!u || choice.disabled) return '';
-  return `<span class="choice-uncertain"><span class="cu-row cu-certain"><b>Certain :</b> ${esc(financeLabel(choice))}</span>`
-    + `<span class="cu-row cu-head"><b>Issue incertaine :</b></span>`
-    + u.outcomes.map(o => `<span class="cu-row">${esc(o.label)} : ${storyChanceLabel(o.p)}</span>`).join('')
-    + `<span class="cu-why">${u.note}</span></span>`;
-}
-
 // Arc d'un choix : ouverture ({ open, branch }) ou, pour une étape, suite ('advance') ou
 // clôture ('resolve'), et rappel de la décision. Histoire propre au titre : association
 // explicite (SPECIFIC_ARC_LINKS), ouverture seulement si elle est possible ; l'arc n'ajoute
@@ -24442,7 +24426,6 @@ function render() {
                 </div>
                 <span class="choice-pill ${badgeCls}">${badgeText}</span>
               </div>
-              ${dilemma.isProgramStory ? storyOutcomeHint(choice) : ''}
             </button>
           `; }).join('')}${negRound ? '</div>' : ''}
         </div>

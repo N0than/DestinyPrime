@@ -34,7 +34,6 @@
 | `storyUncertainty` | Issues figées sur le choix à la construction du dilemme : textes remplis, probabilités |
 | `storyChanceLabel` | « chances moyennes (~45 %) » |
 | `resolveStoryOutcome` | **Seul tirage** (`seededRandom`) : `dilemma.resolvedOutcome` est écrit avant tout effet, puis le choix effectif est composé (effets certains + effets de l'issue) |
-| `storyOutcomeHint` | Encart de la carte, sous la ligne du choix |
 | `buildProgramStoryDilemma` | Ajoute `story.uncertain` aux choix concernés |
 | `chooseMaterialized` | Garde d'idempotence (`resolvedOutcome` présent → ni tirage ni effet), puis tirage |
 | `applyProgramStoryChoice` | Le log du programme est écrit **avant** les effets, avec l'issue |
@@ -44,13 +43,14 @@
 | `gameState.lastConsequence.outcome` et rendu du résultat | « Issue : Déception · chances faibles (~15 %) » |
 | `seededRandom` | Compteur `NARRATIVE_RANDOM_CALLS`, actif seulement en diagnostic |
 | `GENRE_STORY_BANK` | 6 choix reçoivent `uncertain` ; leurs effets sont répartis entre la part certaine et les issues, à espérance voisine de l'ancien effet unique |
-| CSS | `.choice-uncertain`, `.story-outcome` |
+| CSS | `.story-outcome` |
 
 Le diagnostic (`NARRATIVE_DEBUG`, `?narrativeDebug=1` ou localStorage) logue « issue tirée » (probabilité, tirage) et « issue déjà tirée ».
 
 ### Ce que garantit le tirage
 
-- **Moment.** Il a lieu à la validation, jamais au rendu. Les probabilités sont calculées à la construction du dilemme, sans tirage, et stockées sur le choix : la carte affiche exactement ce qui sera tiré, même après rechargement.
+- **Moment.** Il a lieu à la validation, jamais au rendu. Les probabilités sont calculées à la construction du dilemme, sans tirage, et stockées sur le choix : le tirage utilise exactement ces probabilités, même après rechargement.
+- **Présentation.** À la demande, les choix de réponse n'affichent que leur intitulé (et leur pastille de coût habituelle) : ni encart certain / incertain, ni probabilités avant le choix. L'issue tirée est affichée après le choix, avec son estimation.
 - **Idempotence.** Un dilemme avec `resolvedOutcome` n'est ni re-tiré ni réappliqué : double clic, retour arrière, rechargement.
 - **Rechargement avant validation.** La graine est dans l'état, donc la même issue sort.
 - **Effets.**
@@ -122,7 +122,7 @@ Les issues orientent les arcs : Accueil favorable / adoption → « succès », 
 
 `tests/uncertain-outcomes.browser.js` vérifie, sur mobile (390 px) et desktop (1 280 px) :
 
-- 10 rendus de la carte sans aucun appel à `seededRandom` (compteur du diagnostic) ;
+- 10 rendus de la carte sans aucun appel à `seededRandom` (compteur du diagnostic), les choix n'affichant que leur intitulé ;
 - un clic de validation qui tire une seule fois ;
 - l'issue affichée ;
 - 10 rendus de l'écran de résultat sans tirage ;
