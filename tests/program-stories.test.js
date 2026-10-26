@@ -224,7 +224,8 @@ delete p.contracts.prime; ok(programOwnContribution(activeContract(p,'prime'),p.
 
 // ——— 9. Compatibilité d'état : joueur sans mémoire éditoriale ———
 p=partie(); delete p.programStories; signe('prime','p032');
-ok(Array.isArray(programStoryCandidates())&&p.programStories.p032.log.length===0,'mémoire créée à la volée');
+ok(Array.isArray(programStoryCandidates())&&programStoryCandidates().length&&!p.programStories,'collecte sans écriture : mémoire non créée');
+ok(programStoryRecord('p032').log.length===0&&p.programStories.p032,'mémoire créée à la première écriture');
 
 // ——— 10. Une saison complète jouée avec des histoires ———
 p=partie(31337); signe('prime','p032'); signe('access','p022'); signe('apresmidi','p013');

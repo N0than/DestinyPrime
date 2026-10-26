@@ -2949,7 +2949,9 @@ function renderMire(h = 8) {
   `;
 }
 
-const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+// Tirage parmi une liste (chaîne au hasard, nom de chaîne) : flux de la campagne, comme les
+// autres tirages de logique de jeu (la graine est créée au premier tirage si besoin).
+const pick = arr => arr[Math.floor(seededRandom() * arr.length)];
 const shuffle = arr => {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -20284,6 +20286,11 @@ function programStoryRecord(programId) {
   p.programStories ??= {};
   return p.programStories[programId] ??= { log: [], flags: {}, last: null };
 }
+// Lecture seule (collecte des candidats) : une mémoire absente vaut une mémoire vide, sans
+// être créée ; elle ne l'est qu'à l'application d'un choix (programStoryRecord).
+function programStoryRecordView(programId) {
+  return gameState.player.programStories?.[programId] || { log: [], flags: {}, last: null };
+}
 
 // Le programme est-il diffusé sur la grille du joueur cette saison, sur cette case ?
 function programStoryAirs(slot, programId) {
@@ -20322,7 +20329,7 @@ function programStoryContext(slot, contract, rows) {
     rival: rivalRow?.name || 'un concurrent',
     rivalProgram: rivalContract?.isSportsEvent ? 'un grand événement sportif'
       : rivalContract?.name || PROGRAM_GRID[rivalRow?.channel?.type]?.[slot] || 'sa grille',
-    record: programStoryRecord(contract.id)
+    record: programStoryRecordView(contract.id)
   };
 }
 
@@ -20424,58 +20431,48 @@ function buildProgramStoryDilemma(cand) {
 }
 
 // Seconde validation : le programme est-il toujours à l'antenne au moment d'afficher ou
-// de jouer son histoire ? (déprogrammé, remplacé, case prise par un droit…)
+// de jouer son histoire ? (déprogrammé, remplacé, case prise par un droit…) La règle est
+// généralisée à toutes les sources de la file (narrativeValid).
 function programStoryDilemmaValid(dilemma) {
-  if (!dynamicDilemmaEligible(dilemma)) return false;
-  if (dilemma?.isBiddingWar && !biddingWarValid(dilemma)) return false;
-  return !dilemma?.isProgramStory || programStoryAirs(dilemma.storySlot, dilemma.programId);
+  return narrativeValid(dilemma);
 }
 
-// Remplace dans la suite de la saison toute histoire devenue invalide : par une autre
-// histoire éligible (d'un autre programme), sinon par un dilemme générique non encore vu.
-function revalidateProgramStoryQueue() {
-  const queue = gameState.dilemmaQueue || [];
-  let changed = false;
-  for (let i = gameState.currentDilemmaIndex || 0; i < queue.length; i++) {
-    if (programStoryDilemmaValid(queue[i])) continue;
-    changed = true;
-    const inQueue = queue.filter(d => d.isProgramStory).map(d => d.programId);
-    const stories = programStoryCandidates(inQueue);
-    if (stories.length) { queue[i] = buildProgramStoryDilemma(weightedStoryPick(stories)); continue; }
-    const ids = new Set(queue.map(d => d.id));
-    const generic = shuffle(getEligibleDilemmas().filter(d => d.type !== 'sports_rights_auction' && !d.requiresRight
-      && !ids.has(d.id) && !gameState.seenDilemmaIds.includes(d.id)))[0];
-    if (generic) { queue[i] = generic; gameState.seenDilemmaIds.push(generic.id); }
-    else { queue.splice(i, 1); i--; }
-  }
-  return changed;
+// Histoires éligibles au format commun des candidats de la file narrative.
+function collectStoryCandidates(excludeProgramIds = []) {
+  return programStoryCandidates(excludeProgramIds).map(c => narrativeCandidate('story', {
+    defId: c.def.id, instanceId: `${c.def.id}@${gameState.season}`, theme: c.def.family,
+    programId: c.contract.id, slot: c.slot, phase: c.def.phase || 2, weight: c.weight,
+    repeatGap: c.def.repeat ?? 'unique', followsFrom: c.def.when?.after ?? null,
+    story: c, build: () => buildProgramStoryDilemma(c)
+  }));
 }
 
-// Tirage : une histoire (parfois deux) prend la place d'un dilemme générique de la file,
-// sur la position correspondant à sa phase (D1 lancement, D2 arbitrage, D3 fin de saison).
-function placeProgramStories(queue, lastTaken = false) {
-  const candidates = programStoryCandidates();
+// Tirage : une histoire (parfois deux) prend la place d'un dilemme générique du plan de la
+// saison, sur la position correspondant à sa phase (D1 lancement, D2 arbitrage, D3 fin de
+// saison). Rien n'est écrit ici : le dilemme remplacé n'avait pas encore été engagé.
+function placeProgramStories(plan, lastTaken = false) {
+  const candidates = collectStoryCandidates();
   if (!candidates.length) return [];
   const T = PROGRAM_STORY_TUNING;
-  const programs = new Set(candidates.map(c => c.contract.id));
-  if (seededRandom() >= Math.min(T.maxChance, T.baseChance + T.chancePerProgram * programs.size)) return [];
+  const programs = new Set(candidates.map(c => c.programId));
+  narrativeLog('candidats', () => ({ source: 'story', poids: candidates.map(c => `${c.defId}:${Math.round(c.weight * 100) / 100}`) }));
+  if (seededRandom() >= Math.min(T.maxChance, T.baseChance + T.chancePerProgram * programs.size)) {
+    narrativeLog('exclusion', { source: 'story', raison: 'pas d’histoire cette saison (tirage de fréquence)' });
+    return [];
+  }
   const picks = [weightedStoryPick(candidates)];
-  const others = candidates.filter(c => c.contract.id !== picks[0].contract.id);
+  const others = candidates.filter(c => c.programId !== picks[0].programId);
   if (others.length && T.maxPerSeason > 1 && seededRandom() < T.secondChance) picks.push(weightedStoryPick(others));
-  const replaceable = i => queue[i] && DILEMMA_BANK.includes(queue[i]) && !queue[i].requiresRight
-    && queue[i].type !== 'sports_rights_auction' && !(lastTaken && i === queue.length - 1);
+  const replaceable = i => narrativeStoryReplaceable(plan[i]) && !(lastTaken && i === plan.length - 1);
   const placed = [];
   picks.forEach(cand => {
     // Positions compatibles avec la phase : une histoire de fin de saison (finale, bilan)
     // n'ouvre jamais la saison, une histoire de lancement ne la clôt pas. Sans place
     // compatible, elle attend une saison suivante.
-    const index = PROGRAM_STORY_POSITIONS[cand.def.phase || 2].find(replaceable);
-    if (index == null) return;
-    const old = queue[index];
-    const seenAt = gameState.seenDilemmaIds.lastIndexOf(old.id);
-    if (seenAt >= 0) gameState.seenDilemmaIds.splice(seenAt, 1);
-    queue[index] = buildProgramStoryDilemma(cand);
-    placed.push(queue[index]);
+    const index = PROGRAM_STORY_POSITIONS[cand.phase].find(replaceable);
+    if (index == null) { narrativeLog('exclusion', { source: 'story', id: cand.defId, raison: 'aucune position compatible avec sa phase' }); return; }
+    narrativePlace(plan, index, cand);
+    placed.push(cand);
   });
   return placed;
 }
@@ -20518,66 +20515,298 @@ function replaceableQueueDilemma(d) {
     && !SPORT_RIGHTS_DILEMMA_IDS.includes(d.id);
 }
 
+// ---------------------------------------------------------------------------
+// FILE NARRATIVE — collecte des candidats, sélection, engagement
+// ---------------------------------------------------------------------------
+// Chaque source de dilemmes expose une fonction collect…Candidates() pure (aucune écriture
+// dans gameState, aucun tirage) qui renvoie des candidats au format commun :
+//   { defId, instanceId, source, kind ('mandatory' | 'scheduled' | 'optional'),
+//     theme (null si indisponible), programId?, talentId?, rivalId?, slot?, phase,
+//     priority, weight, repeatGap?, followsFrom?,
+//     build(), validate(dilemma), commit(dilemma), release(dilemma) }
+// Le sélecteur (pickDilemmaQueue) place les candidats retenus selon NARRATIVE_PRIORITIES,
+// les construit (build), puis n'engage (commit : « déjà vu », démarchage, mise en
+// concurrence en attente, crise programmée…) que ceux qui figurent dans la file finale,
+// renouvellements compris. Un candidat écarté ou remplacé ne consomme donc ni délai, ni
+// « déjà vu », ni démarchage, ni engagement. Un dilemme retiré plus tard de la file
+// (revalidation, mise en forme du mode Carrière, signature avant le premier dilemme) est
+// rendu à sa source (release). L'application des choix ne change pas.
+
+// Paramètres de la file narrative.
+const NARRATIVE = {
+  // Dilemmes tirés par saison, avant les renouvellements de fin de saison.
+  queueSize: 3,
+  // Crise mûre qui ne trouve pas de place dans la file : elle reste en attente, prioritaire
+  // sur une nouvelle crise, et peut encore être proposée pendant crisisMaxWait saisons ;
+  // au-delà, elle expire explicitement (journal de diagnostic) au lieu d'être perdue.
+  crisisMaxWait: 2,
+  // Diagnostic en console, désactivé par défaut : localStorage
+  // « audienceMasters.narrativeDebug » = '1', ou paramètre d'URL ?narrativeDebug=1.
+  debugStorageKey: 'audienceMasters.narrativeDebug', debugParam: 'narrativeDebug'
+};
+// Table des priorités : ordre de traitement (l'ordre historique, qui fixe aussi l'ordre de
+// consommation de seededRandom) et positions permises dans la file de base (index ; -1 :
+// dernière place). Une source traitée plus tard ne remplace qu'un dilemme générique de la
+// banque, jamais une source prioritaire.
+const NARRATIVE_PRIORITIES = {
+  bank:          { order: 1,  kind: 'optional',  positions: [0, 1, 2] }, // tirage de base : non vus d'abord, récents en dernier
+  right:         { order: 2,  kind: 'mandatory', positions: [0] },       // dilemme d'un droit diffusé cette saison : en tête
+  campaign:      { order: 3,  kind: 'mandatory', positions: [-1] },      // événement de campagne : dernière place
+  sportsAuction: { order: 4,  kind: 'scheduled', positions: [1] },       // enchère de droits (calendrier) : 2e place
+  regie:         { order: 5,  kind: 'optional',  positions: [1] },       // opportunité régie : 2e place, sauf saison d'enchère
+  producer:      { order: 6,  kind: 'optional',  positions: [0, 1] },    // démarchage d'un producteur
+  biddingWar:    { order: 7,  kind: 'optional',  positions: [1, 0] },    // mise en concurrence (jamais avec un démarchage)
+  crisis:        { order: 8,  kind: 'mandatory', positions: [1, 0] },    // crise mûre : jamais en dernière place
+  story:         { order: 9,  kind: 'optional',  positions: PROGRAM_STORY_POSITIONS }, // selon la phase de l'histoire
+  // Renouvellements : ajoutés ensuite par withRenewalDilemmas(), sur la dernière place.
+  renewal:       { order: 10, kind: 'scheduled', positions: [-1] },
+  career:        { order: 11, kind: 'scheduled', positions: [] },        // mode Carrière : careerShapeQueue()
+  other:         { order: 12, kind: 'scheduled', positions: [] }         // dilemmes insérés en cours de saison
+};
+
+let NARRATIVE_DEBUG = (() => {
+  try { if (new URLSearchParams(location.search).get(NARRATIVE.debugParam) === '1') return true; } catch (e) { /* hors navigateur */ }
+  try { return localStorage.getItem(NARRATIVE.debugStorageKey) === '1'; } catch (e) { return false; }
+})();
+// info : objet, ou fonction qui le construit (évaluée seulement si le diagnostic est actif).
+function narrativeLog(event, info) {
+  if (!NARRATIVE_DEBUG) return;
+  console.log(`[narratif S${gameState.season}] ${event}`, typeof info === 'function' ? info() : (info ?? ''));
+}
+
+// Source d'un dilemme de la file, retrouvée à partir de ses seules données (une file
+// sauvegardée ne contient plus les objets de la banque, mais leurs copies).
+function narrativeSourceOf(d) {
+  if (!d) return null;
+  if (d.isProgramStory) return 'story';
+  if (d.isProducerPitch) return 'producer';
+  if (d.isBiddingWar) return 'biddingWar';
+  if (d.isCrisis) return 'crisis';
+  if (d.isRegieOpportunity) return 'regie';
+  if (d.type === 'sports_rights_auction') return 'sportsAuction';
+  if (isRenewalDilemma(d)) return 'renewal';
+  if (d.isCareerScripted) return 'career';
+  const bank = DILEMMA_BANK.find(x => x.id === (d.dynamicOf || d.id));
+  if (bank) return bank.requiresRight ? 'right' : 'bank';
+  if (STORY_EVENTS.some(e => e.id === d.id)) return 'campaign';
+  return 'other';
+}
+
+const narrativeRemoveLast = (list, value) => {
+  const i = (list || []).lastIndexOf(value);
+  if (i >= 0) list.splice(i, 1);
+};
+// Validation, engagement et restitution, par source. Une source absente de cette table
+// (renouvellements, Carrière, dilemmes insérés) est toujours valide et n'engage rien ici.
+const NARRATIVE_SOURCES = {
+  bank: {
+    validate: d => dynamicDilemmaEligible(d),
+    commit: d => { gameState.seenDilemmaIds.push(d.id); },
+    release: d => narrativeRemoveLast(gameState.seenDilemmaIds, d.id)
+  },
+  campaign: {
+    commit: d => { (gameState.player.eventsSeen ??= []).push(d.id); },
+    release: d => narrativeRemoveLast(gameState.player.eventsSeen, d.id)
+  },
+  sportsAuction: {
+    commit: () => { ensureSportsRightsState().activeAuction = null; }
+  },
+  regie: {
+    // Le délai entre deux opportunités ne court que si l'opportunité est proposée.
+    commit: d => { d.regiePrevious = gameState.player.lastRegieOpportunity ?? null; gameState.player.lastRegieOpportunity = gameState.season; },
+    release: d => {
+      const p = gameState.player;
+      if (p.lastRegieOpportunity !== gameState.season) return;
+      if (d.regiePrevious == null) delete p.lastRegieOpportunity; else p.lastRegieOpportunity = d.regiePrevious;
+    }
+  },
+  producer: {
+    commit: d => { (gameState.player.producerPitched ??= []).push(d.programId); },
+    release: d => narrativeRemoveLast(gameState.player.producerPitched, d.programId)
+  },
+  biddingWar: {
+    validate: d => biddingWarValid(d),
+    commit: d => {
+      (gameState.player.biddingHistory ??= []).push({ programId: d.war.programId, season: gameState.season, kind: d.war.kind, rival: d.war.rival, outcome: 'pending' });
+    },
+    release: d => {
+      const h = gameState.player.biddingHistory || [];
+      const i = h.findLastIndex(x => x.programId === d.war.programId && x.outcome === 'pending');
+      if (i >= 0) h.splice(i, 1);
+    }
+  },
+  crisis: {
+    // Vulnérabilité toujours suivie, crise pas encore jouée et toujours constructible
+    // (talent parti, programme retiré…). Une crise d'une ancienne partie, sans sa source,
+    // reste valide.
+    validate: d => {
+      if (!d.crisisSource) return true;
+      const w = gameState.player.crisisWatch?.[d.crisisKey];
+      return !!w && !w.triggered && !!createCrisisDilemma(d.crisisSource);
+    },
+    commit: d => {
+      const w = gameState.player.crisisWatch?.[d.crisisKey];
+      if (w) w.queued = gameState.season;
+      if (gameState.pendingCrisis?.key === d.crisisKey) gameState.pendingCrisis = null;
+    },
+    // Crise retirée de la file : elle repasse en attente tant que la vulnérabilité persiste.
+    release: d => {
+      const w = gameState.player.crisisWatch?.[d.crisisKey];
+      if (w?.queued === gameState.season) delete w.queued;
+      if (w && !w.triggered && d.crisisSource && !gameState.pendingCrisis) {
+        gameState.pendingCrisis = { ...d.crisisSource, waitingSince: d.crisisSource.waitingSince ?? gameState.season };
+        narrativeLog('crise en attente', { key: d.crisisKey, raison: 'retirée de la file' });
+      } else narrativeLog('crise abandonnée', { key: d.crisisKey, raison: w ? 'déjà jouée ou autre crise en attente' : 'vulnérabilité corrigée' });
+    }
+  },
+  story: {
+    validate: d => programStoryAirs(d.storySlot, d.programId)
+  }
+};
+NARRATIVE_SOURCES.right = NARRATIVE_SOURCES.bank;
+
+function narrativeValid(d) {
+  const h = NARRATIVE_SOURCES[narrativeSourceOf(d)];
+  return !h?.validate || h.validate(d);
+}
+function narrativeCommit(d) {
+  const source = narrativeSourceOf(d);
+  NARRATIVE_SOURCES[source]?.commit?.(d);
+  narrativeLog('engagement', () => ({ source, id: d.id }));
+}
+function narrativeRelease(d, reason) {
+  const source = narrativeSourceOf(d);
+  NARRATIVE_SOURCES[source]?.release?.(d);
+  narrativeLog('restitution', () => ({ source, id: d.id, raison: reason }));
+}
+function narrativeCandidate(source, fields) {
+  const rank = NARRATIVE_PRIORITIES[source];
+  const cand = { defId: null, instanceId: null, source, kind: rank.kind, theme: null, programId: null, talentId: null,
+    rivalId: null, slot: null, phase: 2, priority: rank.order, weight: 1, repeatGap: null, followsFrom: null, ...fields };
+  cand.build ??= () => cand.prebuilt;
+  cand.validate = d => narrativeValid(d);
+  cand.commit = d => narrativeCommit(d);
+  cand.release = (d, reason) => narrativeRelease(d, reason);
+  return cand;
+}
+
+// Tirage de base : dilemmes éligibles de la banque (hors enchères, et hors doublons du
+// mercato les saisons de mercato), marqués « déjà vu » (partie) et « récent » (parties
+// précédentes dans ce navigateur).
+function collectBankCandidates() {
+  const mercato = isMercatoSeason();
+  const seen = new Set(gameState.seenDilemmaIds || []), recent = new Set(recentDilemmaIds());
+  return getEligibleDilemmas().filter(d => (!mercato || !MERCATO_OVERLAP_DILEMMAS.includes(d.id)) && d.type !== 'sports_rights_auction')
+    .map(d => narrativeCandidate('bank', { defId: d.id, instanceId: d.id, prebuilt: d,
+      seen: seen.has(d.id), recent: recent.has(d.id), requiresRight: !!d.requiresRight }));
+}
+// Dilemme lié à un droit diffusé cette saison (incident aux César…) : il fait partie de la
+// saison de diffusion.
+function collectRightCandidates(pool = collectBankCandidates()) {
+  return pool.filter(c => c.requiresRight).map(c => narrativeCandidate('right', { defId: c.defId, instanceId: c.instanceId, prebuilt: c.prebuilt }));
+}
+// Événements de campagne (sponsor, vedette…) : déclenchés par les choix passés, une fois.
+function collectCampaignCandidates() {
+  const p = gameState.player;
+  return STORY_EVENTS.filter(e => e.eligible(p) && !(p.eventsSeen || []).includes(e.id))
+    .map(e => narrativeCandidate('campaign', { defId: e.id, instanceId: e.id, prebuilt: e }));
+}
+// Opportunité régie (marché favorable, délai entre deux opportunités).
+function collectRegieCandidates() {
+  return regieOpportunityEligible() ? [narrativeCandidate('regie', { defId: 'regie-oppo', instanceId: `regie-oppo-${gameState.season}`,
+    repeatGap: GAME_BALANCE.regie.cooldown, build: () => createRegieOpportunityDilemma() })] : [];
+}
+// Vue d'ensemble de toutes les sources (diagnostic, vérifications) : aucune écriture.
+function collectNarrativeCandidates() {
+  const bank = collectBankCandidates();
+  return { bank, right: collectRightCandidates(bank), campaign: collectCampaignCandidates(), sportsAuction: collectSportsAuctionCandidates(),
+    regie: collectRegieCandidates(), producer: collectProducerCandidates(), biddingWar: collectBiddingWarCandidates(),
+    crisis: collectCrisisCandidates(), story: collectStoryCandidates() };
+}
+
+// Place un candidat sur une position du plan de la saison. Le dilemme remplacé n'a encore
+// rien engagé : il retourne simplement à sa source.
+function narrativePlace(plan, index, cand) {
+  const old = plan[index];
+  plan[index] = { cand, d: cand.prebuilt ?? null };
+  narrativeLog(old ? 'remplacement' : 'sélection', () => ({ position: index, source: cand.source, id: cand.instanceId,
+    ...(old ? { remplace: `${old.cand.source}:${old.cand.instanceId}` } : {}) }));
+}
+// Première position permise (table des priorités) occupée par une entrée remplaçable.
+function narrativeFirstPosition(plan, source, replaceable) {
+  return NARRATIVE_PRIORITIES[source].positions.map(i => i < 0 ? plan.length + i : i).find(i => replaceable(plan[i]));
+}
+// Dilemme générique de la banque, remplaçable par un démarchage, une surenchère ou une crise.
+function narrativeReplaceable(entry) {
+  return !!entry && entry.cand.source === 'bank' && replaceableQueueDilemma(entry.d);
+}
+// Remplaçable par une histoire de programme (règle historique : les dilemmes de droits
+// sportifs de la banque peuvent céder la place à une histoire).
+function narrativeStoryReplaceable(entry) {
+  return !!entry && entry.cand.source === 'bank' && !entry.d.requiresRight && entry.d.type !== 'sports_rights_auction';
+}
+
 function pickDilemmaQueue() {
-  const pool = getEligibleDilemmas().filter(d => (!isMercatoSeason() || !MERCATO_OVERLAP_DILEMMAS.includes(d.id))
-    && d.type !== 'sports_rights_auction');
-  const available = pool.filter(d => !gameState.seenDilemmaIds.includes(d.id));
-  const recent = new Set(recentDilemmaIds());
-  const mixed = shuffle(available);
-  let queue = [...mixed.filter(d => !recent.has(d.id)), ...mixed.filter(d => recent.has(d.id))].slice(0, 3);
-  if (queue.length < 3) {
-    gameState.seenDilemmaIds = [];
-    const usedIds = new Set(queue.map(d => d.id));
-    const remainingPool = pool.filter(d => !usedIds.has(d.id));
-    queue = queue.concat(shuffle(remainingPool).slice(0, 3 - queue.length));
+  const size = NARRATIVE.queueSize, season = gameState.season;
+  const plan = [];
+  // 1. Tirage de base. Banque épuisée : la mémoire « déjà vu » repart à zéro (à l'engagement).
+  const pool = collectBankCandidates();
+  const mixed = shuffle(pool.filter(c => !c.seen));
+  let base = [...mixed.filter(c => !c.recent), ...mixed.filter(c => c.recent)].slice(0, size);
+  const resetSeen = base.length < size;
+  if (resetSeen) {
+    const used = new Set(base.map(c => c.defId));
+    base = base.concat(shuffle(pool.filter(c => !used.has(c.defId))).slice(0, size - base.length));
   }
-  // Dilemme lié à un droit diffusé cette saison (incident aux César…) : il fait partie de
-  // la saison de diffusion et prend la place du premier dilemme.
-  const rightDilemma = pool.find(d => d.requiresRight && !queue.includes(d));
-  if (rightDilemma) queue[0] = rightDilemma;
-  gameState.seenDilemmaIds.push(...queue.map(d => d.id));
-  rememberDilemmas(queue.map(d => d.id));
+  narrativeLog('candidats', () => ({ source: 'bank', eligibles: pool.length, nonVus: mixed.length, remiseAZero: resetSeen }));
+  base.forEach((c, i) => narrativePlace(plan, i, c));
+  // 2. Droit diffusé cette saison : prend la place du premier dilemme (s'il n'est pas déjà tiré).
+  const right = collectRightCandidates(pool).find(c => !plan.some(e => e.cand.defId === c.defId));
+  if (right) narrativePlace(plan, 0, right);
   ensureCampaign();
-  const event = STORY_EVENTS.find(e=>e.eligible(gameState.player)&&!gameState.player.eventsSeen.includes(e.id));
-  if(event) { queue[queue.length-1]=event; gameState.player.eventsSeen.push(event.id); }
-  // Enchère de droits sportifs (une toutes les 2 ou 3 saisons) : remplace le 2e dilemme.
-  const sportsAuction = scheduleSportsAuction(queue);
-  // Opportunité régie : prend la place d'un dilemme standard, comme les événements.
-  if (!sportsAuction && queue.length >= 2 && regieOpportunityEligible()) {
-    queue[1] = createRegieOpportunityDilemma();
-    gameState.player.lastRegieOpportunity = gameState.season;
+  // 3. Événement de campagne : dernière place.
+  const event = collectCampaignCandidates()[0];
+  if (event) narrativePlace(plan, plan.length - 1, event);
+  // 4. Enchère de droits sportifs (une toutes les 2 ou 3 saisons) : 2e place. Le calendrier
+  // (ventes entre chaînes IA, report du marché) se joue à la résolution, sur son propre flux.
+  const auction = plan.length >= 2 ? resolveSportsAuction() : null;
+  if (auction) narrativePlace(plan, 1, narrativeCandidate('sportsAuction', { defId: auction.id, instanceId: `${auction.id}@${season}`, prebuilt: auction }));
+  // 5. Opportunité régie : 2e place, sauf saison d'enchère.
+  if (!auction && plan.length >= 2) {
+    const regie = collectRegieCandidates()[0];
+    if (regie) narrativePlace(plan, 1, regie);
   }
-  // Démarchage d'un producteur : concept exclusif ou programme d'une chaîne concurrente.
-  if (gameState.season >= PRODUCER_PITCH.minSeason && seededRandom() < PRODUCER_PITCH.chance) {
-    const at = [0, 1].find(i => replaceableQueueDilemma(queue[i]));
-    const pitch = at != null ? createProducerPitchDilemma() : null;
-    if (pitch) {
-      queue[at] = pitch;
-      (gameState.player.producerPitched ??= []).push(pitch.programId);
-    }
+  // 6. Démarchage d'un producteur : concept exclusif ou programme d'une chaîne concurrente.
+  if (season >= PRODUCER_PITCH.minSeason && seededRandom() < PRODUCER_PITCH.chance) {
+    const at = narrativeFirstPosition(plan, 'producer', narrativeReplaceable);
+    const pitch = at != null ? drawProducerCandidate(collectProducerCandidates()) : null;
+    if (pitch) narrativePlace(plan, at, pitch);
+    else narrativeLog('exclusion', { source: 'producer', raison: at == null ? 'aucune place' : 'aucun programme à proposer' });
   }
-  // Un concept sous option d'achat attire plus souvent un concurrent : le droit de priorité
-  // finit par jouer au fil de la partie.
-  const optionPending = (gameState.player.producerAgreements || []).some(a => !a.closed && a.season < gameState.season);
-  if (gameState.season >= BIDDING_WAR.minSeason && !queue.some(d => d?.isProducerPitch) && seededRandom() < (optionPending ? BIDDING_WAR.optionChance : BIDDING_WAR.chance)) {
-    const at = [1, 0].find(i => replaceableQueueDilemma(queue[i]));
-    const war = at != null ? createBiddingWarDilemma() : null;
-    if (war) {
-      queue[at] = war;
-      (gameState.player.biddingHistory ??= []).push({ programId: war.war.programId, season: gameState.season, kind: war.war.kind, rival: war.war.rival, outcome: 'pending' });
-    }
+  // 7. Mise en concurrence. Un concept sous option d'achat attire plus souvent un
+  // concurrent : le droit de priorité finit par jouer au fil de la partie.
+  const optionPending = (gameState.player.producerAgreements || []).some(a => !a.closed && a.season < season);
+  if (season >= BIDDING_WAR.minSeason && !plan.some(e => e.cand.source === 'producer')
+    && seededRandom() < (optionPending ? BIDDING_WAR.optionChance : BIDDING_WAR.chance)) {
+    const at = narrativeFirstPosition(plan, 'biddingWar', narrativeReplaceable);
+    const war = at != null ? drawBiddingWarCandidate(collectBiddingWarCandidates()) : null;
+    if (war) narrativePlace(plan, at, war);
+    else narrativeLog('exclusion', { source: 'biddingWar', raison: at == null ? 'aucune place' : 'aucun programme ni concurrent' });
   }
-  // Crise contextuelle mûre : une seule, à la place d'un dilemme ordinaire.
-  const crisis = gameState.pendingCrisis ? createCrisisDilemma(gameState.pendingCrisis) : null;
+  // 8. Crise contextuelle mûre : une seule, à la place d'un dilemme ordinaire, jamais en
+  // dernière position. Sans place, elle reste en attente (narrativeFinalize).
+  const crisis = collectCrisisCandidates()[0];
   if (crisis) {
-    // Jamais en dernière position : celle-ci revient aux renouvellements de fin de saison.
-    const at = [1, 0].find(i => replaceableQueueDilemma(queue[i]));
-    if (at != null) { queue[at] = crisis; ensureConsequenceState().crisisWatch[gameState.pendingCrisis.key].queued = gameState.season; }
+    const at = narrativeFirstPosition(plan, 'crisis', narrativeReplaceable);
+    if (at != null) narrativePlace(plan, at, crisis);
+    else narrativeLog('exclusion', { source: 'crisis', id: crisis.instanceId, raison: 'aucune place cette saison' });
   }
-  gameState.pendingCrisis = null;
-  // Histoires de programmes : elles prennent la place de dilemmes génériques restants. La
+  // 9. Histoires de programmes : elles prennent la place de dilemmes génériques restants. La
   // dernière position est laissée aux renouvellements quand la grille en attend.
-  placeProgramStories(queue, selectCareerDecisions().length > 0 || recurringRightsToRenew(o => o.ownerId === 'player').length > 0);
+  placeProgramStories(plan, selectCareerDecisions().length > 0 || recurringRightsToRenew(o => o.ownerId === 'player').length > 0);
+  // 10. Construction, dans l'ordre de la file, après tous les tirages de sélection.
+  plan.forEach(e => { e.d ??= e.cand.build(); });
+  const queue = plan.map(e => e.d);
   // Le renouvellement est une décision éditoriale à part entière : lorsqu'un programme
   // arrive à un moment clé, il remplace le dernier choix de la saison plutôt que
   // d'interrompre le bilan une fois les comptes déjà arrêtés. Si plusieurs programmes
@@ -20589,7 +20818,74 @@ function pickDilemmaQueue() {
   // La file sans renouvellement est conservée : une signature en début de saison
   // (conférence de rentrée, grille) recalcule ensuite les renouvellements à partir d'elle.
   gameState.dilemmaBaseQueue = [...queue];
-  return withRenewalDilemmas(queue);
+  const final = withRenewalDilemmas(queue);
+  narrativeFinalize(plan, final, resetSeen);
+  return final;
+}
+
+// Engagement : seuls les dilemmes présents dans la file finale (après les renouvellements)
+// consomment leur source, dans l'ordre de la file.
+function narrativeFinalize(plan, final, resetSeen) {
+  if (resetSeen) gameState.seenDilemmaIds = [];
+  const kept = new Set(final.map(d => d.id));
+  const retained = plan.filter(e => kept.has(e.d.id));
+  retained.forEach(e => e.cand.commit(e.d));
+  // Mémoire d'une partie à l'autre : les dilemmes de la banque réellement proposés.
+  rememberDilemmas(retained.filter(e => e.cand.source === 'bank' || e.cand.source === 'right').map(e => e.d.id));
+  plan.filter(e => !kept.has(e.d.id)).forEach(e => narrativeLog('exclusion', { source: e.cand.source, id: e.d.id, raison: 'dernière place prise par un renouvellement' }));
+  const waiting = gameState.pendingCrisis;
+  if (waiting && !retained.some(e => e.cand.source === 'crisis')) {
+    waiting.waitingSince ??= gameState.season;
+    narrativeLog('crise en attente', { key: waiting.key, depuis: waiting.waitingSince });
+  }
+}
+
+// Revalidation de la suite de la saison, avant affichage et avant application : toute
+// entrée à venir devenue invalide est rendue à sa source (release), puis remplacée par le
+// sélecteur — une autre histoire compatible (même phase pour une histoire, position
+// permise sinon), sinon un dilemme général valide et non vu — puis engagée (commit). À
+// défaut de remplaçant, l'entrée est retirée.
+function revalidateNarrativeQueue() {
+  const queue = gameState.dilemmaQueue || [];
+  let changed = false;
+  for (let i = gameState.currentDilemmaIndex || 0; i < queue.length; i++) {
+    const old = queue[i];
+    if (narrativeValid(old)) continue;
+    changed = true;
+    narrativeRelease(old, 'devenu invalide');
+    const next = narrativeReplacement(queue, i, old);
+    if (next) {
+      queue[i] = next;
+      narrativeCommit(next);
+      narrativeLog('remplacement', () => ({ position: i, id: next.id, remplace: old.id }));
+    } else {
+      queue.splice(i, 1);
+      narrativeLog('suppression', { position: i, id: old.id, raison: 'aucun remplaçant valide' });
+      i--;
+    }
+  }
+  return changed;
+}
+const revalidateProgramStoryQueue = revalidateNarrativeQueue;
+function narrativeReplacement(queue, i, old) {
+  const inQueue = queue.filter(d => d.isProgramStory).map(d => d.programId);
+  // Position dans la file de la saison, hors décisions scénarisées du mode Carrière.
+  const position = Math.min(NARRATIVE.queueSize - 1, queue.slice(0, i).filter(d => !d.isCareerScripted).length);
+  const fits = c => old?.isProgramStory ? c.phase === (old.phase || 2) : PROGRAM_STORY_POSITIONS[c.phase].includes(position);
+  const stories = collectStoryCandidates(inQueue).filter(fits);
+  if (stories.length) return weightedStoryPick(stories).build();
+  const ids = new Set(queue.map(d => d.id));
+  return shuffle(getEligibleDilemmas().filter(d => d.type !== 'sports_rights_auction' && !d.requiresRight
+    && !ids.has(d.id) && !gameState.seenDilemmaIds.includes(d.id)))[0] || null;
+}
+// File modifiée hors du sélecteur (mise en forme du mode Carrière, signature avant le
+// premier dilemme) : les dilemmes narratifs retirés sont rendus à leur source ; ceux qui
+// réapparaissent sont de nouveau engagés (commitAdded).
+function narrativeReconcile(before, after, { commitAdded = true } = {}) {
+  const tracked = d => !!d && !['renewal', 'career', 'other'].includes(narrativeSourceOf(d));
+  const was = new Set(before.map(d => d?.id)), now = new Set(after.map(d => d?.id));
+  before.filter(d => tracked(d) && !now.has(d.id)).forEach(d => narrativeRelease(d, 'retiré de la file'));
+  if (commitAdded) after.filter(d => tracked(d) && !was.has(d.id)).forEach(d => narrativeCommit(d));
 }
 
 // Dilemmes de fin de saison, calculés sur la grille du moment : renouvellement des
@@ -20650,6 +20946,7 @@ function refreshRenewalDilemmas() {
   if (!base.length) return;
   const previous = gameState.dilemmaQueue || [];
   gameState.dilemmaQueue = careerReshapeQueue(withRenewalDilemmas([...base]), previous, base);
+  narrativeReconcile(previous, gameState.dilemmaQueue);
 }
 // Mode Carrière : la file reconstruite (signature avant le premier dilemme) garde la mise en
 // forme du scénario — décisions scénarisées en tête ou en fin de file, dilemmes ajoutés par
@@ -21387,7 +21684,7 @@ function chooseDilemmaOption(choiceIndex) {
   // Un dilemme relié à la grille peut gagner un choix en se matérialisant (« Ne rien produire »).
   if (!dilemma || !Number.isInteger(choiceIndex) || (!dilemma.c[choiceIndex] && !dynamicDilemmaKey(dilemma))) return;
   // Histoire d'un programme qui n'est plus à l'antenne : elle est remplacée, jamais jouée.
-  if (!programStoryDilemmaValid(dilemma)) { revalidateProgramStoryQueue(); render(); return; }
+  if (!narrativeValid(dilemma)) { revalidateNarrativeQueue(); render(); return; }
   const isSportsAuction = dilemma.type === 'sports_rights_auction';
   if (isSportsAuction && gameState.sportsRights?.activeAuction?.phase !== 'verdict') return;
   if (dilemma.isProducerPitch) refreshProducerPitch(dilemma);
@@ -21773,7 +22070,7 @@ function startNewSeason() {
   planCompetitorSeasons();
   careerSeasonStart();
   // Vulnérabilités : signaux faibles, prévention et crise éventuelle (une au plus).
-  gameState.pendingCrisis = updateCrisisWatch();
+  gameState.pendingCrisis = carryPendingCrisis(gameState.pendingCrisis, updateCrisisWatch());
   gameState.currentDilemmaIndex = 0;
   gameState.dilemmaQueue = pickDilemmaQueue();
   careerShapeQueue();
@@ -21868,6 +22165,8 @@ function resetGame() {
   delete gameState.talentRetirement;
   delete gameState.sportsRights;
   delete gameState.expiredPrograms;
+  // Crise en attente : propre à la partie terminée.
+  gameState.pendingCrisis = null;
   gameState.step = 1;
   gameState.resumeStep = null;
   gameState.player = {
@@ -22692,7 +22991,7 @@ function render() {
     // on réaffiche donc celui qui vient d'être répondu, pas le suivant.
     // Seconde validation avant affichage : une histoire dont le programme a quitté l'antenne
     // (remplacé, case prise par un droit…) cède sa place avant d'être montrée.
-    if (phase === 'choosing' && (gameState.dilemmaQueue || []).some(d => !programStoryDilemmaValid(d))) revalidateProgramStoryQueue();
+    if (phase === 'choosing' && (gameState.dilemmaQueue || []).slice(gameState.currentDilemmaIndex || 0).some(d => !narrativeValid(d))) revalidateNarrativeQueue();
     if (phase === 'choosing') refreshProducerPitch(gameState.dilemmaQueue?.[gameState.currentDilemmaIndex]);
     if (phase === 'choosing') materializeCurrentDilemma();
     if (phase === 'choosing') { refreshBiddingWar(gameState.dilemmaQueue?.[gameState.currentDilemmaIndex]); refreshReplacementDilemma(gameState.dilemmaQueue?.[gameState.currentDilemmaIndex]); }
@@ -24009,8 +24308,23 @@ function dueRecurringSportsEvent() {
   due.sort((x, y) => lastSeen(x.id) - lastSeen(y.id) || sr.recurring[x.id].nextAuctionSeason - sr.recurring[y.id].nextAuctionSeason);
   return due[0] || null;
 }
-function scheduleSportsAuction(queue) {
-  if (queue.length < 2) return false;
+// Enchère de la saison (candidats) : droits annuels dus, dans l'ordre de rotation, puis
+// marché ordinaire s'il est dû. L'événement du marché n'est connu qu'à la résolution.
+function collectSportsAuctionCandidates() {
+  const sr = gameState.sportsRights, season = gameState.season, p = gameState.player;
+  if (!sr || sr.lastAuctionSeason === season) return [];
+  const recurring = Object.values(SPORT_RIGHTS_EVENTS).filter(e => hasOwnAuctionCalendar(e) && sr.recurring?.[e.id]?.nextAuctionSeason != null
+    && season >= sr.recurring[e.id].nextAuctionSeason && !sportsRightBusy(e.id))
+    .map(e => narrativeCandidate('sportsAuction', { defId: `auction:${e.id}`, instanceId: `auction:${e.id}@${season}`, eventId: e.id,
+      playable: rightsEventEligible(e, p) && !recurringSlotClash(e, p) }));
+  const market = season >= sr.nextAuctionSeason
+    ? [narrativeCandidate('sportsAuction', { defId: 'auction:market', instanceId: `auction:market@${season}`, eventId: null, playable: sportsRightsEligibleChannel(p) })] : [];
+  return [...recurring, ...market];
+}
+// Résolution du calendrier des droits (étape du monde, flux sportsRandom) : un droit annuel
+// hors de portée du joueur se vend entre chaînes IA, le marché ordinaire est reporté ou se
+// tient entre IA. Renvoie l'enchère proposée au joueur, s'il y en a une.
+function resolveSportsAuction() {
   // Une seule enchère par saison : un droit annuel dû passe en priorité et le marché
   // ordinaire attend la saison suivante.
   let recurringEvent = dueRecurringSportsEvent();
@@ -24023,23 +24337,17 @@ function scheduleSportsAuction(queue) {
   if (recurringEvent) {
     const sr = gameState.sportsRights;
     if (sportsAuctionDue()) sr.nextAuctionSeason = gameState.season + 1;
-    const dilemma = DILEMMA_BANK.find(d => recurringEvent.dilemmaIds.includes(d.id));
-    if (!dilemma) return false;
-    queue[1] = dilemma;
-    sr.activeAuction = null;
-    return true;
+    return DILEMMA_BANK.find(d => recurringEvent.dilemmaIds.includes(d.id)) || null;
   }
-  if (!sportsAuctionDue()) return false;
-  if (!sportsRightsEligibleChannel(gameState.player)) { runCompetitorSportsAuction(); return false; }
+  if (!sportsAuctionDue()) return null;
+  if (!sportsRightsEligibleChannel(gameState.player)) { runCompetitorSportsAuction(); return null; }
   const sr = gameState.sportsRights;
-  const pick = selectNextSportsRightsEvent();
-  if (!pick) { sr.nextAuctionSeason = gameState.season + 1; return false; }
+  const next = selectNextSportsRightsEvent();
+  if (!next) { sr.nextAuctionSeason = gameState.season + 1; return null; }
   // Une saison de marché sur deux, un droit hors de portée du joueur (cinéma pour une
   // chaîne de sport, sport pour une chaîne cinéma…) se vend aussi entre chaînes IA.
   if (sportsRandom() < 0.5) runCompetitorSportsAuction(null, { parallel: true });
-  queue[1] = pick.dilemma;
-  sr.activeAuction = null;
-  return true;
+  return next.dilemma;
 }
 
 function evaluateSportsRight(event, player) {
@@ -27115,8 +27423,10 @@ function producerPitchSlots() {
     .filter(slot => p.contracts?.[slot]?.sportsPause !== gameState.season && !sportsBroadcastOn(p, slot) && !slotEventOn(p, slot));
 }
 
-function pickProducerPitch() {
-  const p = gameState.player;
+// Démarchages possibles : programmes des chaînes concurrentes (rival) et concepts exclusifs
+// les plus puissants que personne ne diffuse (exclusive), jamais deux fois le même.
+function collectProducerCandidates() {
+  const p = gameState.player, season = gameState.season;
   const slots = producerPitchSlots();
   const pitched = new Set(p.producerPitched || []);
   const fresh = (program, slot) => !pitched.has(program.id) && !sameProgram(p.contracts?.[slot], program)
@@ -27131,12 +27441,23 @@ function pickProducerPitch() {
     .filter(x => x.channelType === p.type && slots.includes(x.slot) && !programHolder(x) && fresh(x, x.slot))
     .sort((a, b) => b.power - a.power).slice(0, PRODUCER_PITCH.topExclusive)
     .map(program => ({ kind: 'exclusive', program, slot: program.slot }));
+  return [...rivals, ...exclusives].map(pitch => narrativeCandidate('producer', {
+    defId: `producer:${pitch.program.id}`, instanceId: `producer-${season}-${pitch.program.id}`, programId: pitch.program.id,
+    slot: pitch.slot, rivalId: pitch.competitor?.name || null, group: pitch.kind, pitch,
+    build: () => createProducerPitchDilemma(pitch) }));
+}
+// Tirage : programme concurrent ou concept exclusif (rivalShare), puis le programme.
+function drawProducerCandidate(cands) {
+  const rivals = cands.filter(c => c.group === 'rival'), exclusives = cands.filter(c => c.group === 'exclusive');
   const useRival = rivals.length && (!exclusives.length || seededRandom() < PRODUCER_PITCH.rivalShare);
   const pool = useRival ? rivals : exclusives;
   return pool.length ? pool[Math.floor(seededRandom() * pool.length)] : null;
 }
+function pickProducerPitch() {
+  return drawProducerCandidate(collectProducerCandidates())?.pitch || null;
+}
 
-function producerPitchChoices(pitch, fem = producerDraw()) {
+function producerPitchChoices(pitch, fem = false) {
   const zeroPda = { j1524: 0, a2549: 0, s50: 0, csp: 0 };
   const q = quoteProgram(pitch.slot, pitch.program.id, 'interne');
   const current = gameState.player.contracts?.[pitch.slot];
@@ -27202,7 +27523,7 @@ function isSportsProgram(program) {
 }
 // Producteur ou productrice : tiré au hasard à chaque proposition (démarchage, mise en
 // concurrence), puis gardé pour tous les textes de cette proposition.
-const producerDraw = () => Math.random() < 0.5;
+const producerDraw = () => seededRandom() < 0.5;
 // art : 'un' (Un producteur / Une productrice), 'le' (Le producteur / La productrice),
 // 'au' (au producteur / à la productrice) ; lower : article en minuscule.
 function producerWord(fem, art = 'le', lower = false) {
@@ -27643,7 +27964,7 @@ function blindLotHtml(dilemma, phase) {
 
 // Dilemmes reliés à la grille active : leur texte, leurs coûts et leurs choix sont
 // reconstruits à l'affichage et à la validation. Un dilemme devenu inéligible est
-// remplacé par le mécanisme habituel (revalidateProgramStoryQueue).
+// remplacé par le mécanisme habituel (revalidateNarrativeQueue).
 const DYNAMIC_DILEMMAS = {
   // Changement d'animateur : le dilemme nomme le jeu réellement à l'antenne.
   d49: {
@@ -27808,7 +28129,7 @@ function materializeCurrentDilemma() {
   const queue = gameState.dilemmaQueue || [], i = gameState.currentDilemmaIndex || 0;
   const d = queue[i], key = dynamicDilemmaKey(d);
   if (!key) return d;
-  if (!DYNAMIC_DILEMMAS[key].eligible()) { revalidateProgramStoryQueue(); return queue[i]; }
+  if (!DYNAMIC_DILEMMAS[key].eligible()) { revalidateNarrativeQueue(); return queue[i]; }
   const base = DILEMMA_BANK.find(x => x.id === key);
   queue[i] = DYNAMIC_DILEMMAS[key].build(base, d);
   return queue[i];
@@ -27861,32 +28182,54 @@ function interestedCompetitor(budgetNeeded, program) {
   return pool.find(c => c.type === program.channelType) || pool[0] || null;
 }
 
-function pickBiddingWar() {
-  const p = gameState.player;
-  const agreements = (p.producerAgreements || []).filter(a => !a.closed && a.season < gameState.season);
-  const concept = agreements.map(a => ({ a, program: PROGRAM_CATALOG.find(x => x.id === a.programId) }))
-    .find(x => x.program && !programHolder(x.program) && !sameProgram(p.contracts?.[x.program.slot], x.program));
+// Mises en concurrence possibles : concept sous option d'achat (option), programme du
+// joueur convoité (coveted), concept inédit (concept).
+function collectBiddingWarCandidates() {
+  const p = gameState.player, season = gameState.season;
+  const cand = (group, program, slot, extra = {}) => narrativeCandidate('biddingWar', { defId: `bidding:${program.id}`,
+    instanceId: `bidding-${season}-${program.id}`, programId: program.id, slot, group, program, ...extra });
+  const options = (p.producerAgreements || []).filter(a => !a.closed && a.season < season)
+    .map(a => ({ a, program: PROGRAM_CATALOG.find(x => x.id === a.programId) }))
+    .filter(x => x.program && !programHolder(x.program) && !sameProgram(p.contracts?.[x.program.slot], x.program))
+    .map(x => cand('option', x.program, x.program.slot, { agreement: x.a }));
+  const coveted = biddingCoveted().map(({ slot, contract }) => {
+    const program = PROGRAM_CATALOG.find(x => x.id === contract.id);
+    const indemnity = exclusivityFee(program, { contract });
+    return cand('coveted', program, slot, { indemnity, rivalId: interestedCompetitor(indemnity, program)?.name || null });
+  });
+  const concepts = biddingConceptCandidates().map(program => cand('concept', program, program.slot));
+  return [...options, ...coveted, ...concepts];
+}
+// Tirage (même séquence que l'historique) : l'option d'achat d'abord, puis programme
+// convoité ou concept inédit ; l'offre concurrente est tirée ici.
+function drawBiddingWar(cands) {
   // Offre adossée aux droits, ou au coût annuel pour un programme sans droits d'entrée.
   const offerFor = program => Math.round(Math.max(program.rights, program.annual) * (BIDDING_WAR.offerRange[0]
     + seededRandom() * (BIDDING_WAR.offerRange[1] - BIDDING_WAR.offerRange[0])) * 10) / 10;
-  if (concept) {
-    const offer = offerFor(concept.program), rival = interestedCompetitor(offer, concept.program);
-    if (rival) return { kind: 'concept', program: concept.program, slot: concept.program.slot, rival: rival.name, offer, agreement: concept.a };
+  const option = cands.find(c => c.group === 'option');
+  if (option) {
+    const offer = offerFor(option.program), rival = interestedCompetitor(offer, option.program);
+    if (rival) return { kind: 'concept', program: option.program, slot: option.slot, rival: rival.name, offer, agreement: option.agreement };
   }
-  const coveted = biddingCoveted();
-  const concepts = biddingConceptCandidates();
+  const coveted = cands.filter(c => c.group === 'coveted'), concepts = cands.filter(c => c.group === 'concept');
   const useCoveted = coveted.length && (!concepts.length || seededRandom() < 0.5);
   if (useCoveted) {
-    const { slot, contract } = coveted[Math.floor(seededRandom() * coveted.length)];
-    const program = PROGRAM_CATALOG.find(x => x.id === contract.id);
-    const indemnity = exclusivityFee(program, { contract });
-    const rival = interestedCompetitor(indemnity, program);
-    return rival ? { kind: 'coveted', program, slot, rival: rival.name, offer: indemnity } : null;
+    const c = coveted[Math.floor(seededRandom() * coveted.length)];
+    return c.rivalId ? { kind: 'coveted', program: c.program, slot: c.slot, rival: c.rivalId, offer: c.indemnity } : null;
   }
   if (!concepts.length) return null;
-  const program = concepts[Math.floor(seededRandom() * concepts.length)];
-  const offer = offerFor(program), rival = interestedCompetitor(offer, program);
-  return rival ? { kind: 'concept', program, slot: program.slot, rival: rival.name, offer, agreement: null } : null;
+  const c = concepts[Math.floor(seededRandom() * concepts.length)];
+  const offer = offerFor(c.program), rival = interestedCompetitor(offer, c.program);
+  return rival ? { kind: 'concept', program: c.program, slot: c.slot, rival: rival.name, offer, agreement: null } : null;
+}
+function pickBiddingWar() {
+  return drawBiddingWar(collectBiddingWarCandidates());
+}
+function drawBiddingWarCandidate(cands) {
+  const w = drawBiddingWar(cands);
+  return w ? narrativeCandidate('biddingWar', { defId: `bidding:${w.program.id}`, instanceId: `bidding-${gameState.season}-${w.program.id}`,
+    programId: w.program.id, slot: w.slot, rivalId: w.rival, group: w.agreement ? 'option' : w.kind, war: w,
+    build: () => createBiddingWarDilemma(w) }) : null;
 }
 
 function biddingReplacements(slot, leavingAnnual) {
@@ -28661,9 +29004,35 @@ function updateCrisisWatch() {
   const ripe = found.find(v => {
     const w = p.crisisWatch[v.key];
     const lastSame = [...p.crisisHistory].reverse().find(h => h.key === v.key);
-    return v.ripe && w && w.since < season && !w.triggered && w.queued !== season && !(lastSame && season - lastSame.season < CRISIS.keyCooldown);
+    return v.ripe && w && w.since < season && !w.triggered && !w.expired && w.queued !== season && !(lastSame && season - lastSame.season < CRISIS.keyCooldown);
   });
   return ripe || null;
+}
+// Crise mûre restée sans place : prioritaire la saison suivante tant que la vulnérabilité
+// persiste ; après NARRATIVE.crisisMaxWait saisons d'attente, elle expire explicitement
+// (la vulnérabilité n'en déclenche plus tant qu'elle dure).
+function carryPendingCrisis(waiting, fresh) {
+  if (!waiting) return fresh;
+  const w = ensureConsequenceState().crisisWatch[waiting.key];
+  if (!w || w.triggered) {
+    narrativeLog('crise abandonnée', { key: waiting.key, raison: w ? 'déjà jouée' : 'vulnérabilité corrigée' });
+    return fresh;
+  }
+  const waited = gameState.season - (waiting.waitingSince ?? gameState.season);
+  if (waited > NARRATIVE.crisisMaxWait) {
+    w.expired = gameState.season;
+    narrativeLog('crise expirée', { key: waiting.key, attente: waited });
+    return fresh?.key === waiting.key ? null : fresh;
+  }
+  return { ...waiting, data: w.data };
+}
+// Crise en attente, au format commun des candidats (construite sur l'état réel).
+function collectCrisisCandidates() {
+  const v = gameState.pendingCrisis;
+  const d = v ? createCrisisDilemma(v) : null;
+  if (!d) return [];
+  return [narrativeCandidate('crisis', { defId: `crisis:${v.kind}`, instanceId: d.id, slot: v.data?.slot ?? null,
+    programId: v.data?.programId ?? null, talentId: v.data?.talentId ?? null, prebuilt: { ...d, crisisSource: { ...v } } })];
 }
 const CRISIS_PREVENT_TEXT = {
   talent: 'le talent est sécurisé', cash: 'la trésorerie est repassée au-dessus du seuil d’alerte',
@@ -31217,6 +31586,13 @@ function careerSeasonStart() {
 function careerShapeQueue() {
   const c = careerActive(), rule = careerRule();
   if (!c || !rule) return;
+  const before = [...gameState.dilemmaQueue];
+  careerShapeQueueRules(c, rule);
+  // Dilemmes retirés par la mise en forme (décision scénarisée, longueur imposée) : rendus à
+  // leur source (« déjà vu », démarchage, crise en attente…).
+  narrativeReconcile(before, gameState.dilemmaQueue, { commitAdded: false });
+}
+function careerShapeQueueRules(c, rule) {
   const n = rule.dilemmes;
   if (n) {
     const queue = gameState.dilemmaQueue, used = new Set(queue.map(d => d.id));
