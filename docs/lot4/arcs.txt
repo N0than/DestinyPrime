@@ -1,0 +1,63 @@
+Histoires génériques et arcs (5 graines × 120 saisons × 6 types, choix aléatoires) — 286 s
+Saisons jouées : 3600 {"generaliste":600,"cinema":600,"culture":600,"jeunesse":600,"sport":600,"info":600} ; parties : 261
+
+| Par arc | jury | animateur | refonte | offensive | surcout | digital | total |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Ouvertures éligibles (saison × programme) | 78 | 3228 | 3300 | 9 | 407 | 86 | 7108 |
+| Ouvertures proposées dans la file | 0 | 121 | 209 | 2 | 13 | 6 | 351 |
+| Arcs ouverts | 0 | 58 | 136 | 1 | 10 | 3 | 208 |
+| … dont par une histoire propre au titre | 0 | 2 | 0 | 0 | 0 | 0 | 2 |
+| Occasions de suite (saison × arc ouvert) | 0 | 114 | 300 | 2 | 21 | 4 | 441 |
+| Suites proposées dans la file | 0 | 40 | 148 | 2 | 6 | 2 | 198 |
+| Suites jouées (étapes) | 0 | 37 | 136 | 2 | 4 | 2 | 181 |
+| Résolus | 0 (—) | 37 (63.8 %) | 84 (61.8 %) | 1 (100.0 %) | 4 (40.0 %) | 2 (66.7 %) | 128 (61.5 %) |
+| Expirés sans suite devenue éligible | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| Expirés malgré des suites éligibles non retenues | 0 | 8 | 19 | 0 | 1 | 0 | 28 |
+| Abandonnés (programme retiré) | 0 | 3 | 11 | 0 | 0 | 1 | 15 |
+| Ouverts en fin de partie | 0 | 10 | 22 | 0 | 5 | 0 | 37 |
+| Cohorte (échéance atteinte avant la fin) | 0 | 31 | 83 | 1 | 1 | 3 | 119 |
+| … dont résolus | 0 (—) | 24 (77.4 %) | 60 (72.3 %) | 1 (100.0 %) | 1 (100.0 %) | 2 (66.7 %) | 88 (73.9 %) |
+
+Motifs d’exclusion des ouvertures génériques (saison × programme × définition) :
+- jury : capacité : jury 15665 ; priorité : histoire propre éligible 14 ; conditions : écart entre deux histoires 5 ; plafond d’arcs 1
+- animateur : capacité : host 10995 ; conditions : ancienneté 682 ; conditions : déjà jouée 478 ; conditions : écart entre deux histoires 341
+- refonte : genre 8570 ; conditions : usure 1383 ; conditions : déjà jouée 1009 ; conditions : ancienneté 897
+- offensive : conditions : pression concurrentielle 11419 ; genre 2717 ; conditions : écart entre deux histoires 1601 ; conditions : déjà jouée 3
+- surcout : genre 11952 ; capacité : shoot 3302 ; conditions : déjà jouée 53 ; conditions : écart entre deux histoires 35
+- digital : ressource : platform 12924 ; genre 2717 ; conditions : déjà jouée 15 ; conditions : écart entre deux histoires 7
+Motifs d’absence de suite pour un arc ouvert (saison × arc) :
+- jury : —
+- animateur : —
+- refonte : conditions : déjà jouée 3
+- offensive : —
+- surcout : —
+- digital : —
+
+| Contrôles | Valeur |
+|---|---|
+| Histoires de programmes jouées | 1783 (0.50 par saison) |
+| … propres au titre / génériques | 1026 / 757 (42.5 % génériques) |
+| … dont suites d'arcs | 181 |
+| Génériques : histoires propres encore jouables (autres situations) 623 (82.3 %) ; histoires propres épuisées 108 (14.3 %) ; programme sans histoire propre 26 (3.4 %) | |
+| Génériques jouées alors qu'une histoire propre de la même situation était éligible | 0 |
+| Ouvertures refusées au moment du choix (plafond) | 0 |
+| Arcs ouverts simultanés : maximum / moyenne par saison | 3 / 0.13 (plafond 3) |
+| Arcs ouverts sur un même programme (maximum) / même arc ouvert deux fois | 1 (plafond 1) / 0 |
+| Cause d'expiration enregistrée ≠ cause observée | 0 |
+| Deux histoires du même programme dans une saison | 0 |
+| Même histoire rejouée sur un programme avant son délai | 0 |
+| Options contextuelles retenues (talent / plateforme / partenaire / commande réduite / concurrent / droits) | 7 / 0 / 1 / 0 / 0 / 0 |
+| Collecte ou diagnostic impur (tirage ou écriture) | 0 sur 3705 collectes |
+| Textes incomplets | 0 |
+| Issues incertaines : anomalies (non tirée, non enregistrée, hors bornes, somme ≠ 1) | 0 |
+| Files vides / bloquées / erreurs | 0 / 0 / 0 |
+
+
+| Issues incertaines (lot 4) | choix joués | issues : observé / attendu (somme des probabilités affichées) |
+|---|---:|---|
+| relevePresentation | 7 | adoption 3 / 3.5 ; rodage 2 / 2.3 ; greffe 2 / 1.2 |
+| refonte | 75 | favorable 38 / 36.1 ; partage 26 / 25.0 ; rejet 11 / 13.9 |
+| persistance | 15 | adoption 11 / 9.7 ; decrochage 4 / 5.3 |
+| editionSpeciale | 4 | reussie 1 / 1.7 ; demi_teinte 3 / 2.3 |
+
+Situations génériques jouées : gs_formule_usee 199, gs_jeunesse_vieillissante 155, gs_animateur_depart 100, gs_refonte_succes 41, gs_refonte_cloture 35, gs_refonte_recul 33, gs_droits_film 31, gs_animateur_suite_mitige 30, gs_refonte_mitige 27, gs_production_sport 23, gs_surcout_tournage 15, gs_enquete_sensible 14, gs_invite_desiste 13, gs_debat_clivant 8, gs_animateur_suite_succes 7, gs_suite_fiction_chere 6, gs_declinaison 5, gs_surcout_suite 4, gs_valorisation_digitale 4, gs_candidat_depart 2, gs_digital_recul 2, gs_pression_concurrente 1, gs_offensive_recul 1, gs_offensive_cloture 1

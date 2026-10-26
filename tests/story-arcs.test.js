@@ -146,7 +146,7 @@ Object.entries(SPECIFIC_ARC_LINKS).forEach(([id,l])=>{
 { partie(); signe('p009'); C('p009').career.wear=55;
   const d=generic('gs_formule_usee','p009'); joue(d,idx(d,/refonte complète/));
   const arc=arcOf('p009'); ok(arc.arcId==='refonte'&&arc.branch==='complete','refonte ouverte');
-  saisonSuivante('p009'); arc.lastRatio=ctxOf('p009').ratio;
+  saisonSuivante('p009'); arc.lastRatio=ctxOf('p009').ratio; arc.lastOutcome=null;
   const m=generic('gs_refonte_mitige','p009',{form:'stable'}); ok(typeof m==='object','suite « mitigé » : '+m);
   joue(m,idx(m,/second ajustement/)); ok(arc.state==='open'&&arc.step===2,'étape 2 : l’arc avance');
   saisonSuivante('p009'); ok(followIds('p009').includes('gs_refonte_cloture'),'étape 3 proposée');

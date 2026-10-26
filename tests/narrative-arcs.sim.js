@@ -48,7 +48,8 @@ const M = { seasons: 0, perType: {}, games: 0, arcs: Object.fromEntries(ARCS.map
   maxOpen: 0, maxOpenPerProgram: 0, openSum: 0, doubleOpen: 0, stories: 0, generic: 0, specific: 0, followUps: 0,
   genericBreakdown: {}, genericBySituation: {}, priorityViolations: 0, closeCauseMismatch: 0,
   contextual: { talent: 0, platform: 0, partner: 0, reducible: 0, rival: 0, rights: 0 },
-  samePrograms: 0, repeatDef: 0, badText: [], empty: 0, blocked: 0, errors: [], impure: 0, checks: 0 };
+  samePrograms: 0, repeatDef: 0, badText: [], empty: 0, blocked: 0, errors: [], impure: 0, checks: 0,
+  uncertain: {}, outcomeErrors: 0 };
 const bump = (o, k, n = 1) => { o[k] = (o[k] || 0) + n; };
 const NEW = typeof genericStoryCheck === 'function';
 const LINKS = typeof SPECIFIC_ARC_LINKS !== 'undefined' ? SPECIFIC_ARC_LINKS : {};
@@ -176,6 +177,17 @@ applyProgramStoryChoice = function (dilemma, choice) {
     if (!def?.arc && lastCandidates.some(c => c.programId === dilemma.programId && !c.story.def.isGeneric && c.story.def.genericKey && c.story.def.genericKey === def?.genericKey)) M.priorityViolations++;
   } else M.specific++;
   if (dilemma.storyArc) M.followUps++;
+  // Issues incertaines (lot 4) : probabilités affichées (somme des p) et issues observées.
+  if (choice.story?.uncertain) {
+    const u = choice.story.uncertain, o = choice.story.outcome, T = NARRATIVE_TUNING.outcomes;
+    const row = M.uncertain[u.model] ??= { n: 0, expected: {}, observed: {} };
+    row.n++;
+    u.outcomes.forEach(x => { row.expected[x.key] = (row.expected[x.key] || 0) + x.p; });
+    if (o) row.observed[o.key] = (row.observed[o.key] || 0) + 1;
+    const sum = u.outcomes.reduce((a, x) => a + x.p, 0);
+    if (!o || !dilemma.resolvedOutcome || dilemma.resolvedOutcome.key !== o.key || Math.abs(sum - 1) > 1e-5
+      || u.outcomes.some(x => x.p < T.min - 1e-6 || x.p > T.max + 1e-6)) M.outcomeErrors++;
+  }
   const spec = def?.c[choice.story?.index];
   if (spec?.needs) bump(M.contextual, spec.needs);
   const k = M.games + ':' + gameState.season + ':' + dilemma.programId;
@@ -344,8 +356,11 @@ const lines = [
   `| Options contextuelles retenues (talent / plateforme / partenaire / commande réduite / concurrent / droits) | ${['talent', 'platform', 'partner', 'reducible', 'rival', 'rights'].map(k => M.contextual[k] || 0).join(' / ')} |`,
   `| Collecte ou diagnostic impur (tirage ou écriture) | ${M.impure} sur ${M.checks} collectes |`,
   `| Textes incomplets | ${M.badText.length} |`,
+  ...(M.uncertain && Object.keys(M.uncertain).length ? [`| Issues incertaines : anomalies (non tirée, non enregistrée, hors bornes, somme ≠ 1) | ${M.outcomeErrors} |`] : []),
   `| Files vides / bloquées / erreurs | ${M.empty} / ${M.blocked} / ${M.errors.length} |`,
   '',
+  ...(M.uncertain && Object.keys(M.uncertain).length ? ['', '| Issues incertaines (lot 4) | choix joués | issues : observé / attendu (somme des probabilités affichées) |', '|---|---:|---|',
+    ...Object.entries(M.uncertain).map(([k, r]) => `| ${k} | ${r.n} | ${Object.keys(r.expected).map(o => `${o} ${r.observed[o] || 0} / ${r.expected[o].toFixed(1)}`).join(' ; ')} |`), ''] : []),
   'Situations génériques jouées : ' + Object.entries(M.genericBySituation).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k} ${v}`).join(', '),
   ...(M.badText.length ? ['Textes : ' + M.badText.join(' | ')] : []),
   ...(M.errors.length ? ['Erreurs : ' + M.errors.slice(0, 3).join(' ; ')] : [])
@@ -353,4 +368,4 @@ const lines = [
 const text = lines.join('\n');
 console.log(text);
 if (OUT) fs.writeFileSync(OUT, text + '\n');
-process.exitCode = M.errors.length || M.empty || M.blocked || M.badText.length || M.maxOpen > 3 || M.maxOpenPerProgram > 1 || M.doubleOpen || M.impure ? 1 : 0;
+process.exitCode = M.outcomeErrors || M.errors.length || M.empty || M.blocked || M.badText.length || M.maxOpen > 3 || M.maxOpenPerProgram > 1 || M.doubleOpen || M.impure ? 1 : 0;

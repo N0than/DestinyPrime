@@ -2084,6 +2084,16 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 }
 .choice .cl { font-family: 'Anton', sans-serif; text-transform: uppercase; font-size: 14px; letter-spacing: 0.3px; display: block; color: var(--ink); line-height: 1.25; }
 .choice-caption { display: block; margin-top: 3px; font-size: 11px; color: var(--gris); }
+/* Issues incertaines (lot 4) : certain / incertain, sobre et lisible sur mobile. */
+.choice-uncertain { display: block; margin-top: 8px; padding: 6px 9px; border-left: 2px solid var(--border); background: rgba(15,23,42,0.03); border-radius: 4px; font-size: 11.5px; line-height: 1.4; color: #475569; text-align: left; }
+.choice-uncertain .cu-row { display: block; }
+.choice-uncertain .cu-head { margin-top: 2px; }
+.choice-uncertain .cu-why { display: block; margin-top: 3px; font-style: italic; color: var(--gris); }
+.choice.selected .choice-uncertain, .choice.selected .choice-uncertain .cu-why { color: #fff; background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); }
+.story-outcome { margin: 8px 0 0; padding: 7px 10px; border-radius: 6px; font-size: 13px; border: 1px solid var(--border); background: var(--paper); text-align: left; }
+.story-outcome.good { border-color: rgba(5,150,105,0.25); background: rgba(5,150,105,0.06); }
+.story-outcome.bad { border-color: rgba(225,29,72,0.25); background: rgba(225,29,72,0.05); }
+.story-outcome .so-odds { color: var(--gris); font-size: 12px; }
 
 .choice.selected {
   background: var(--bleu);
@@ -20323,9 +20333,15 @@ const GENRE_STORY_BANK = [
       { l: 'Renouveler tout le jury', icon: '🔄', cost: { purchase: 0.18 }, career: { awareness: 6, loyalty: -4 }, boost: 0.05,
         arc: { open: 'jury', branch: 'remplace', recall: 'vous aviez renouvelé tout le jury de {programme}' },
         r: 'Nouveaux visages, nouveau ton : la presse s’intéresse de nouveau à {programme}, une partie des fidèles regrette l’ancienne équipe.' },
-      { l: 'Confier un fauteuil du jury à {talent}', icon: '⭐', needs: 'talent', cost: { purchase: 0.05 }, career: { awareness: 4, loyalty: -1 },
+      { l: 'Confier un fauteuil du jury à {talent}', icon: '⭐', needs: 'talent', cost: { purchase: 0.05 },
         arc: { open: 'jury', branch: 'interne', recall: 'vous aviez confié un fauteuil du jury à {talent}' },
-        r: '{talent} rejoint le jury : un visage de la chaîne, un renouvellement en douceur.' },
+        r: '{talent} rejoint le jury : un visage de la chaîne, un renouvellement en douceur.',
+        uncertain: { model: 'fauteuilJury', outcomes: [
+          { key: 'complicite', label: 'Le jury trouve son équilibre', career: { awareness: 6, loyalty: 1 }, boost: 0.03, arcHint: 'succes',
+            r: '{talent} apporte une vraie complicité au jury.' },
+          { key: 'greffe', label: 'Greffe difficile', career: { awareness: 2, loyalty: -3 }, arcHint: 'recul',
+            r: 'La place de {talent} au jury peine à convaincre.' }
+        ] } },
       { l: 'Garder le jury et recadrer ses interventions', icon: '🎯', cost: { purchase: 0.04 }, career: { loyalty: 2 },
         arc: { open: 'jury', branch: 'ajuste', recall: 'vous aviez gardé le jury en recadrant ses interventions' },
         r: 'Le jury reste, ses commentaires gagnent en exigence. Le changement est discret.' },
@@ -20370,9 +20386,17 @@ const GENRE_STORY_BANK = [
     titre: 'La présentation de {programme} va changer de mains',
     desc: 'Après {anciennete}, la personne qui présente {programme} annonce vouloir passer à autre chose en fin de contrat. Reste à décider qui lui succède, ou s’il faut la retenir.',
     c: [
-      { l: 'Confier {programme} à {talent}', icon: '⭐', needs: 'talent', cost: { purchase: 0.03 }, career: { awareness: -2, loyalty: -4 },
+      { l: 'Confier {programme} à {talent}', icon: '⭐', needs: 'talent', cost: { purchase: 0.03 },
         arc: { open: 'animateur', branch: 'interne', recall: 'vous aviez confié la présentation de {programme} à {talent}' },
-        r: '{talent} prend les commandes : un visage connu de la chaîne, un style différent.' },
+        r: '{talent} prend les commandes : un visage connu de la chaîne, un style différent.',
+        uncertain: { model: 'relevePresentation', outcomes: [
+          { key: 'adoption', label: 'Adoption rapide', career: { awareness: 1, loyalty: -1 }, boost: 0.03, arcHint: 'succes',
+            r: '{talent} trouve vite le ton : le public suit.' },
+          { key: 'rodage', label: 'Période de rodage', career: { awareness: -2, loyalty: -4 }, arcHint: 'mitige',
+            r: 'Il faut quelques semaines de rodage à {talent}.' },
+          { key: 'greffe', label: 'Greffe difficile', career: { awareness: -3, loyalty: -8 }, boost: -0.03, arcHint: 'recul',
+            r: 'Le style de {talent} déroute les habitués du programme.' }
+        ] } },
       { l: 'Recruter un nouveau visage', icon: '🆕', cost: { recurring: 0.08 }, career: { awareness: 4, loyalty: -6 },
         arc: { open: 'animateur', branch: 'externe', recall: 'vous aviez recruté un nouveau visage pour présenter {programme}' },
         r: 'Un nouveau visage arrive : la curiosité joue, les fidèles observent.' },
@@ -20407,9 +20431,17 @@ const GENRE_STORY_BANK = [
     titre: '{programme} s’essouffle',
     desc: 'Après {anciennete}, {programme} montre des signes d’usure : séquences attendues, public qui décroche avant la fin. L’équipe propose de revoir la formule.',
     c: [
-      { l: 'Lancer une refonte complète', icon: '🛠️', cost: { purchase: 0.25 }, career: { wear: -20, loyalty: -5, awareness: 4 },
+      { l: 'Lancer une refonte complète', icon: '🛠️', cost: { purchase: 0.25 }, career: { wear: -20 },
         arc: { open: 'refonte', branch: 'complete', recall: 'vous aviez lancé une refonte complète de {programme}' },
-        r: '{programme} change de décor, de rythme et de rubriques : pari risqué, mais l’usure recule nettement.' },
+        r: '{programme} change de décor, de rythme et de rubriques : l’usure recule nettement.',
+        uncertain: { model: 'refonte', outcomes: [
+          { key: 'favorable', label: 'Accueil favorable', career: { awareness: 6, loyalty: -2 }, boost: 0.04, arcHint: 'succes',
+            r: 'Le public adopte la nouvelle formule dès les premières semaines.' },
+          { key: 'partage', label: 'Accueil partagé', career: { awareness: 4, loyalty: -5 }, arcHint: 'mitige',
+            r: 'Une partie du public suit, une autre attend de voir.' },
+          { key: 'rejet', label: 'Rejet des fidèles', career: { awareness: 2, loyalty: -9 }, boost: -0.04, arcHint: 'recul',
+            r: 'Les fidèles regrettent l’ancienne formule et le font savoir.' }
+        ] } },
       { l: 'Retoucher quelques rubriques', icon: '✂️', cost: { purchase: 0.08 }, career: { wear: -8 },
         arc: { open: 'refonte', branch: 'retouche', recall: 'vous aviez retouché la formule de {programme}' },
         r: 'Quelques rubriques changent : le programme respire un peu mieux.' },
@@ -20443,8 +20475,14 @@ const GENRE_STORY_BANK = [
     c: [
       { l: 'Réintroduire les rubriques historiques', icon: '↩️', cost: { purchase: 0.05 }, career: { loyalty: 6, wear: 3 }, arc: 'resolve',
         r: 'Retour partiel aux fondamentaux : les habitués reviennent, l’élan de nouveauté retombe.' },
-      { l: 'Persévérer dans la transformation', icon: '🚀', career: { awareness: 3, loyalty: -4 }, arc: 'advance',
-        r: 'Vous tenez le cap : la transformation se poursuit, au risque d’un public plus volatil.' }
+      { l: 'Persévérer dans la transformation', icon: '🚀', arc: 'advance',
+        r: 'Vous tenez le cap : la transformation se poursuit.',
+        uncertain: { model: 'persistance', outcomes: [
+          { key: 'adoption', label: 'Le public adopte la transformation', career: { awareness: 5, loyalty: -1 }, lasting: 0.02, arcHint: 'succes',
+            r: 'Un nouveau public s’installe : la transformation commence à payer.' },
+          { key: 'decrochage', label: 'Les fidèles décrochent', career: { awareness: 1, loyalty: -7 }, boost: -0.03, arcHint: 'recul',
+            r: 'Le public le plus fidèle décroche : la transformation coûte de l’audience.' }
+        ] } }
     ] },
   { id: 'gs_refonte_cloture', genericKey: 'refonte', family: 'editorial', theme: 'suite', genres: [...GS_SHOWS, 'info', 'documentaire'], phase: 2, repeat: 8,
     arc: { id: 'refonte', step: 3 },
@@ -20613,8 +20651,16 @@ const GENRE_STORY_BANK = [
     titre: 'Une finale exceptionnelle pour {programme} ?',
     desc: 'La saison de {programme} touche à sa fin. La production propose une finale en direct dans une grande salle, avec un dispositif inhabituel.',
     c: [
-      { l: 'Finale en direct dans une grande salle', icon: '🌟', cost: { purchase: 0.25 }, boost: 0.15, career: { awareness: 6 },
-        r: 'La finale fait l’événement : audience au sommet, budget lourd.' },
+      { l: 'Finale en direct dans une grande salle', icon: '🌟', cost: { purchase: 0.25 },
+        r: 'La finale est montée en direct dans une grande salle.',
+        uncertain: { model: 'finale', outcomes: [
+          { key: 'triomphe', label: 'Triomphe', boost: 0.2, career: { awareness: 8, loyalty: 2 },
+            r: 'La soirée fait l’événement : audience au sommet.' },
+          { key: 'reussie', label: 'Belle soirée', boost: 0.14, career: { awareness: 5 },
+            r: 'Une belle soirée, à la hauteur sans plus.' },
+          { key: 'deception', label: 'Déception', boost: 0.06, career: { awareness: 2, loyalty: -2 },
+            r: 'La salle n’est pas pleine et la soirée s’étire : le dispositif n’a pas convaincu.' }
+        ] } },
       { l: 'Finale enregistrée habituelle', icon: '🎬', career: { wear: 2 },
         r: 'Une finale solide, sans surprise.' },
       { l: 'Faire voter le public sur la plateforme', icon: '📱', needs: 'platform', cost: { commercial: 0.04 }, career: { awareness: 3 },
@@ -20625,8 +20671,14 @@ const GENRE_STORY_BANK = [
     titre: 'Une déclinaison de {programme} ?',
     desc: 'Après {anciennete} et une saison réussie, la production de {programme} propose une déclinaison du concept.',
     c: [
-      { l: 'Produire une édition spéciale en prime', icon: '🎉', cost: { purchase: 0.2 }, boost: 0.08, career: { awareness: 4, wear: 3 },
-        r: 'L’édition spéciale fait une belle soirée, au prix d’un peu d’usure.' },
+      { l: 'Produire une édition spéciale en prime', icon: '🎉', cost: { purchase: 0.2 }, career: { wear: 3 },
+        r: 'L’édition spéciale est diffusée en prime, au prix d’un peu d’usure.',
+        uncertain: { model: 'editionSpeciale', outcomes: [
+          { key: 'reussie', label: 'Soirée réussie', boost: 0.11, career: { awareness: 5 },
+            r: 'Le public répond présent : belle soirée pour le programme.' },
+          { key: 'demi_teinte', label: 'Soirée en demi-teinte', boost: 0.04, career: { awareness: 2, wear: 2 },
+            r: 'L’audience est correcte, sans plus : le concept montre ses limites.' }
+        ] } },
       { l: 'Décliner {programme} sur la plateforme', icon: '📱', needs: 'platform', cost: { purchase: 0.08 }, career: { awareness: 5 },
         r: 'La déclinaison en ligne prolonge le succès sans user l’antenne.' },
       { l: 'Préserver la rareté du programme', icon: '💎', career: { loyalty: 3 },
@@ -20949,6 +21001,9 @@ function storyArcOutcome(arc, ctx) {
   const T = NARRATIVE_TUNING.arcs, delta = ctx.ratio - (arc.lastRatio ?? ctx.ratio);
   if (delta >= T.successDelta) return 'succes';
   if (delta <= -T.declineDelta) return 'recul';
+  // Évolution mesurée peu nette : l'issue tirée lors de la dernière étape (lot 4) oriente la
+  // suite, à défaut la forme du programme.
+  if (arc.lastOutcome) return arc.lastOutcome;
   return ctx.form === 'succes' ? 'succes' : ctx.form === 'difficulte' ? 'recul' : 'mitige';
 }
 // Même situation (genericKey) jouée récemment sur ce programme, dans sa version générique
@@ -21063,14 +21118,16 @@ function storyArcApply(dilemma, s, contract) {
     p.storyArcs.push({ arcId: s.arc.open, step: 1, branch: s.arc.branch, state: 'open', openedSeason: season, lastSeason: season,
       expiresSeason: season + T.maxDuration, entity: { kind: 'programme', id: contract.id, slot: dilemma.storySlot, name: contract.name },
       rival: dilemma.storyRival || null, lastRatio: dilemma.storyRatio ?? null, flags: [], occasions: [],
-      history: [{ step: 1, season, defId: dilemma.storyDefId, choice: s.index, recall: s.recall }] });
+      lastOutcome: s.outcome?.arcHint || null,
+      history: [{ step: 1, season, defId: dilemma.storyDefId, choice: s.index, recall: s.recall, ...(s.outcome ? { outcome: s.outcome.key } : {}) }] });
     narrativeLog('arc ouvert', { arc: s.arc.open, branche: s.arc.branch, programme: contract.id });
     return;
   }
   const arc = dilemma.storyArc && openStoryArcs(contract.id).find(a => a.arcId === dilemma.storyArc.arcId);
   if (!arc) return;
-  arc.history.push({ step: dilemma.storyArc.step, season, defId: dilemma.storyDefId, choice: s.index, recall: s.recall });
+  arc.history.push({ step: dilemma.storyArc.step, season, defId: dilemma.storyDefId, choice: s.index, recall: s.recall, ...(s.outcome ? { outcome: s.outcome.key } : {}) });
   arc.lastSeason = season;
+  arc.lastOutcome = s.outcome?.arcHint || null;
   arc.lastRatio = dilemma.storyRatio ?? arc.lastRatio;
   if (s.arc === 'advance' && dilemma.storyArc.step < (NARRATIVE_ARCS[arc.arcId]?.steps || 2)) {
     arc.step = dilemma.storyArc.step;
@@ -21157,6 +21214,7 @@ function programStoryContext(slot, contract, rows) {
     slot, contract, career, target, share, ratio, form,
     stage: programStoryStage(career), seasons: career.seasonsCount || 0, wear: career.wear || 0,
     pressure: (row.pressure[slot][target]?.penalty || 0) >= T.pressurePenalty,
+    pressureLevel: row.pressure[slot][target]?.penalty || 0,
     cash: p.tresorerie < 0 ? 'serre' : p.tresorerie > (p.coutGrilleEngageSaison || 0) * 0.5 ? 'aise' : 'normal',
     rival: rivalRow?.name || 'un concurrent', rivalReal: !!rivalRow,
     genres: programGenresOf(contract, slot), talent: storyCompatibleTalent(slot),
@@ -21265,6 +21323,110 @@ function programStoryFinance(cost, contract, scale = 1) {
   return { recurring: 0, purchase: 0, commercial: 0, category: 'N' };
 }
 
+// ---------------------------------------------------------------------------
+// ISSUES INCERTAINES ENCADRÉES (lot 4)
+// ---------------------------------------------------------------------------
+// Un choix d'histoire peut porter uncertain : { model, outcomes: [{ key, label, r, career?,
+// boost?, lasting?, pop?, arcHint? }] }, de la meilleure issue à la moins bonne. Ce qui est
+// certain (coût, engagement, effets du choix) reste sur le choix ; l'issue ajoute ses effets.
+// Les probabilités sont calculées à la construction du dilemme et enregistrées sur le choix :
+// la carte affiche exactement celles du tirage. Un seul tirage (seededRandom), à la
+// validation, enregistré sur l'entrée de la file (resolvedOutcome) avant tout effet.
+const clampUnit = v => Math.max(-1, Math.min(1, v));
+// Facteurs (−1 à +1) tirés des données existantes : carrière du programme (fidélité, usure,
+// notoriété, sur 100), niveau de production (budget annuel rapporté à la référence de la
+// case), pression concurrentielle (pénalité de contre-programmation, au plus maxPenalty),
+// affinité du talent compatible avec la cible de la chaîne (s'il y en a un).
+function storyOutcomeFactors(ctx) {
+  const c = ctx.career || {}, p = gameState.player;
+  const ref = slotReference(p.type, ctx.slot).annual;
+  const aff = ctx.talent ? (ctx.talent.affinities || MERCATO_TALENTS.find(t => t.id === ctx.talent.id)?.affinities)?.[p.target] : null;
+  return {
+    loyalty: clampUnit(((c.loyalty ?? 50) - 50) / 50),
+    wear: clampUnit(((c.wear ?? 0) - 50) / 50),
+    awareness: clampUnit(((c.awareness ?? 50) - 50) / 50),
+    production: clampUnit(((ctx.contract.annual || 0) / Math.max(0.1, ref) - 1) / 0.5),
+    pressure: clampUnit((ctx.pressureLevel || 0) / COUNTER_PROGRAMMING_MAX_PENALTY()),
+    ...(aff != null ? { affinity: clampUnit((aff - 0.6) / 0.4) } : {})
+  };
+}
+const COUNTER_PROGRAMMING_MAX_PENALTY = () => GAME_BALANCE.counterProgramming?.maxPenalty || 0.12;
+// Parts bornées et normalisées : p_i = borne(λ × raw_i, min, max), λ tel que Σ p_i = 1.
+function boundedShares(raw, min, max) {
+  const w = raw.map(v => Math.max(1e-6, v));
+  const at = l => w.map(v => Math.max(min, Math.min(max, l * v)));
+  const total = l => at(l).reduce((a, v) => a + v, 0);
+  let lo = 0, hi = 1;
+  while (total(hi) < 1) hi *= 2;
+  for (let i = 0; i < 80; i++) { const mid = (lo + hi) / 2; if (total(mid) < 1) lo = mid; else hi = mid; }
+  const p = at(hi), rest = 1 - p.reduce((a, v) => a + v, 0);
+  const free = p.findIndex(v => v + rest >= min && v + rest <= max);
+  if (free >= 0) p[free] += rest;
+  return p;
+}
+// Probabilités d'un modèle pour ces facteurs, et contributions (pour l'explication).
+function storyOutcomeOdds(modelId, factors) {
+  const T = NARRATIVE_TUNING.outcomes, m = T.models[modelId];
+  const parts = Object.entries(m.factors).filter(([f]) => factors[f] != null).map(([f, w]) => ({ factor: f, value: factors[f], effect: w * factors[f] }));
+  const score = parts.reduce((a, x) => a + x.effect, 0);
+  const raw = m.base.map((b, i) => i === 0 ? b + score : i === m.base.length - 1 ? b - score : b);
+  return { p: boundedShares(raw, T.min, T.max), score, parts };
+}
+const STORY_OUTCOME_FACTOR_TEXT = {
+  loyalty: ['le public est fidèle', 'le public est volatil'],
+  wear: ['la formule est usée', 'la formule est encore fraîche'],
+  awareness: ['le programme est très connu', 'le programme manque de notoriété'],
+  production: ['le budget de production est confortable', 'le budget de production est serré'],
+  pressure: ['la concurrence est forte sur la case', 'la case est peu disputée'],
+  affinity: ['{talent} plaît à votre cible', '{talent} parle peu à votre cible']
+};
+// Explication courte : facteurs favorables, puis « mais » les défavorables (deux au plus).
+function storyOutcomeNote(parts, fill) {
+  const T = NARRATIVE_TUNING.outcomes;
+  const strong = parts.filter(x => Math.abs(x.effect) >= T.explain).sort((a, b) => Math.abs(b.effect) - Math.abs(a.effect)).slice(0, 2);
+  const say = x => fill(STORY_OUTCOME_FACTOR_TEXT[x.factor][x.value >= 0 ? 0 : 1]);
+  const pro = strong.filter(x => x.effect > 0).map(say), con = strong.filter(x => x.effect < 0).map(say);
+  const text = pro.length && con.length ? `${pro.join(' et ')}, mais ${con.join(' et ')}` : [...pro, ...con].join(' et ');
+  return text ? `${text.charAt(0).toUpperCase()}${text.slice(1)}.` : 'Aucun facteur ne se détache : l’issue reste ouverte.';
+}
+// Issues d'un choix, prêtes à afficher et à tirer (textes remplis, probabilités figées).
+function storyUncertainty(spec, ctx, fill) {
+  const u = spec.uncertain, odds = storyOutcomeOdds(u.model, storyOutcomeFactors(ctx));
+  return { model: u.model, note: storyOutcomeNote(odds.parts, fill),
+    outcomes: u.outcomes.map((o, i) => ({ key: o.key, label: o.label, p: Math.round(odds.p[i] * 1e6) / 1e6, r: fill(o.r),
+      career: o.career || null, boost: o.boost || 0, lasting: o.lasting || 0, pop: o.pop || 0, arcHint: o.arcHint || null })) };
+}
+// Estimation lisible : « chances élevées (~65 %) ».
+function storyChanceLabel(p) {
+  const L = NARRATIVE_TUNING.outcomes.labels;
+  return `chances ${p < L.low ? 'faibles' : p < L.high ? 'moyennes' : 'élevées'} (~${Math.round(p * 20) * 5} %)`;
+}
+// Tirage à la validation : un seul appel à seededRandom, issue enregistrée sur l'entrée de la
+// file avant tout effet. Renvoie le choix effectif (effets certains + effets de l'issue).
+function resolveStoryOutcome(dilemma, choiceIndex, choice) {
+  const u = choice.story.uncertain, roll = seededRandom();
+  let acc = 0, k = u.outcomes.findIndex(o => roll < (acc += o.p));
+  if (k < 0) k = u.outcomes.length - 1;
+  const o = u.outcomes[k];
+  dilemma.resolvedOutcome = { choice: choiceIndex, index: k, key: o.key, label: o.label, p: o.p, roll: Math.round(roll * 1e6) / 1e6, season: gameState.season };
+  narrativeLog('issue tirée', { dilemme: dilemma.id, choix: choiceIndex, issue: o.key, probabilité: o.p, tirage: dilemma.resolvedOutcome.roll });
+  const s = choice.story, career = { ...(s.career || {}) };
+  Object.entries(o.career || {}).forEach(([key, v]) => { career[key] = (career[key] || 0) + v; });
+  return { ...choice, r: [choice.r, o.r].filter(Boolean).join(' '), pop: (choice.pop || 0) + o.pop,
+    story: { ...s, career, boost: (s.boost || 0) + o.boost, lasting: (s.lasting || 0) + o.lasting,
+      outcome: { key: o.key, label: o.label, p: o.p, arcHint: o.arcHint },
+      recall: `${s.recall} — ${o.label.charAt(0).toLowerCase()}${o.label.slice(1)}` } };
+}
+// Encart de la carte : ce qui est certain, puis les issues possibles et leur explication.
+function storyOutcomeHint(choice) {
+  const u = choice.story?.uncertain;
+  if (!u || choice.disabled) return '';
+  return `<span class="choice-uncertain"><span class="cu-row cu-certain"><b>Certain :</b> ${esc(financeLabel(choice))}</span>`
+    + `<span class="cu-row cu-head"><b>Issue incertaine :</b></span>`
+    + u.outcomes.map(o => `<span class="cu-row">${esc(o.label)} : ${storyChanceLabel(o.p)}</span>`).join('')
+    + `<span class="cu-why">${u.note}</span></span>`;
+}
+
 // Arc d'un choix : ouverture ({ open, branch }) ou, pour une étape, suite ('advance') ou
 // clôture ('resolve'), et rappel de la décision. Histoire propre au titre : association
 // explicite (SPECIFIC_ARC_LINKS), ouverture seulement si elle est possible ; l'arc n'ajoute
@@ -21314,6 +21476,7 @@ function buildProgramStoryDilemma(cand) {
         audienceImpacts: [{ slot, value: 0, targets: {}, programId: contract.id }],
         story: { index, scale, career: spec.career || null, boost: spec.boost || 0, lasting: spec.lasting || 0,
           flag: spec.flag || null, clearFlag: spec.clearFlag || null,
+          ...(spec.uncertain ? { uncertain: storyUncertainty(spec, ctx, fill) } : {}),
           ...storyChoiceArc(def, spec, index, link, arc, ctx, fill) }
       };
     })
@@ -21358,6 +21521,11 @@ function applyProgramStoryChoice(dilemma, choice) {
   const p = gameState.player, contract = p.contracts?.[dilemma.storySlot];
   if (!contract || contract.id !== dilemma.programId || !choice.story) return false;
   const c = migrateProgramCareer(contract, dilemma.storySlot), s = choice.story, scale = s.scale ?? 1;
+  // Mémoire du programme d'abord (avec l'issue tirée, s'il y en a une), puis les effets.
+  const rec = programStoryRecord(contract.id);
+  const defId = dilemma.storyDefId ?? dilemma.id;
+  rec.log.push({ id: defId, choice: s.index, season: gameState.season, ...(s.outcome ? { outcome: s.outcome.key } : {}) });
+  rec.last = gameState.season;
   const clamp = v => Math.max(0, Math.min(100, v));
   if (s.career) {
     if (s.career.awareness) c.awareness = clamp(c.awareness + s.career.awareness * scale);
@@ -21367,10 +21535,6 @@ function applyProgramStoryChoice(dilemma, choice) {
   const base = Math.max(1, c.basePotential || contract.power || 1), cap = PROGRAM_STORY_TUNING.lastingCap * base;
   if (s.lasting) c.storyBoost = Math.max(-cap, Math.min(cap, (c.storyBoost || 0) + s.lasting * scale * base));
   if (s.boost) c.storySeasonBoost = { season: gameState.season, value: s.boost * scale * base };
-  const rec = programStoryRecord(contract.id);
-  const defId = dilemma.storyDefId ?? dilemma.id;
-  rec.log.push({ id: defId, choice: s.index, season: gameState.season });
-  rec.last = gameState.season;
   const def = programStoryDef(defId);
   if (def) cleanResolvedStoryFlags(rec, def, contract.id);
   if (s.flag) rec.flags[s.flag] = gameState.season;
@@ -21551,7 +21715,34 @@ const NARRATIVE_TUNING = {
     successDelta: 0.1, declineDelta: 0.1, keepClosed: 30 },
   // Tant que la saison n'a aucun dilemme neutre ou positif, ceux-ci gardent au moins cette
   // part de la probabilité de chaque place.
-  minNonNegativeShare: 0.5
+  minNonNegativeShare: 0.5,
+  // Issues incertaines (lot 4), sur quelques choix d'histoires (champ uncertain des choix) :
+  // probabilité de chaque issue bornée à [min, max] puis normalisée (somme 1), 2 ou 3 issues.
+  // Modèle par choix : probabilités de base, de la meilleure issue à la moins bonne, et poids
+  // des facteurs (storyOutcomeFactors, chacun de −1 à +1). Le score (somme des poids × facteurs)
+  // s'ajoute à la meilleure issue et se retire de la moins bonne. Seuils d'affichage : chances
+  // faibles sous low, élevées à partir de high ; un facteur n'est cité dans l'explication que si
+  // son effet (poids × valeur) atteint explain.
+  outcomes: {
+    min: 0.15, max: 0.85, labels: { low: 0.3, high: 0.55 }, explain: 0.05,
+    models: {
+      // Réception d'une refonte complète : une formule usée appelle le changement, des fidèles
+      // très attachés le supportent mal.
+      refonte: { base: [0.4, 0.35, 0.25], factors: { wear: 0.25, loyalty: -0.2, production: 0.2, pressure: -0.15 } },
+      // Persévérer dans une refonte qui recule (arc « refonte ») : notoriété et moyens portent
+      // la transformation, la concurrence la fragilise.
+      persistance: { base: [0.5, 0.5], factors: { awareness: 0.2, production: 0.2, loyalty: 0.15, pressure: -0.2 } },
+      // Intégration d'un talent de la chaîne à la présentation : affinité du talent avec la
+      // cible de la chaîne, attachement du public à l'ancienne présentation.
+      relevePresentation: { base: [0.4, 0.35, 0.25], factors: { affinity: 0.3, loyalty: -0.2, awareness: 0.15 } },
+      // Intégration d'un talent de la chaîne au jury.
+      fauteuilJury: { base: [0.55, 0.45], factors: { affinity: 0.3, awareness: 0.15, wear: -0.1 } },
+      // Accueil d'une finale exceptionnelle.
+      finale: { base: [0.35, 0.45, 0.2], factors: { awareness: 0.2, loyalty: 0.2, production: 0.15, pressure: -0.2 } },
+      // Accueil d'une édition spéciale (déclinaison) en prime.
+      editionSpeciale: { base: [0.55, 0.45], factors: { awareness: 0.2, wear: -0.25, pressure: -0.15 } }
+    }
+  }
 };
 
 // Table des priorités : ordre de traitement (l'ordre historique, qui fixe aussi l'ordre de
@@ -22869,6 +23060,14 @@ function chooseMaterialized(choiceIndex, dilemma) {
     const { randomOutcomes, ...rest } = choice;
     choice = { ...rest, ...outcome };
   }
+  // Issue incertaine d'une histoire (lot 4) : un dilemme déjà résolu n'est ni re-tiré ni
+  // réappliqué (double clic, rechargement, retour arrière) ; sinon un seul tirage, enregistré
+  // sur l'entrée de la file avant tout effet.
+  if (dilemma.isProgramStory && dilemma.resolvedOutcome) {
+    narrativeLog('issue déjà tirée', { dilemme: dilemma.id, issue: dilemma.resolvedOutcome.key });
+    return;
+  }
+  if (dilemma.isProgramStory && choice.story?.uncertain) choice = resolveStoryOutcome(dilemma, choiceIndex, choice);
   // La grille du joueur se fige au premier dilemme : les intentions concurrentes
   // annoncées deviennent la programmation confirmée de la saison.
   if (gameState.currentDilemmaIndex === 0) confirmCompetitorPlans();
@@ -23068,7 +23267,10 @@ function chooseMaterialized(choiceIndex, dilemma) {
       slots: slotAudienceDeltas,
       competitors: competitorReactions
     },
-    competitorEvent: competitorReactions[0] || null
+    competitorEvent: competitorReactions[0] || null,
+    outcome: choice.story?.outcome ? { label: choice.story.outcome.label, p: choice.story.outcome.p,
+      count: choice.story.uncertain.outcomes.length, best: choice.story.outcome.key === choice.story.uncertain.outcomes[0].key,
+      worst: choice.story.outcome.key === choice.story.uncertain.outcomes.at(-1).key } : null
   };
   // Pilote diffusé : son audience est montrée, puis la commande de la suite est proposée
   // juste après, dans un dilemme dédié.
@@ -24202,6 +24404,7 @@ function render() {
           <div class="dilemma-card consequence-card">
             <div class="dc-body">
               <p>${esc(cq.resultat)}</p>
+              ${cq.outcome ? `<div class="story-outcome ${cq.outcome.best ? 'good' : cq.outcome.worst ? 'bad' : 'mid'}"><b>Issue :</b> ${esc(cq.outcome.label)} <span class="so-odds">· ${storyChanceLabel(cq.outcome.p)}</span></div>` : ''}
               ${cq.pilotTest ? pilotResultHtml(cq.pilotTest) : ''}
               ${cq.competitorEvent ? `<div class="program-manager-note"><b>🚨 LA CONCURRENCE RÉAGIT</b><br>${esc(cq.competitorEvent.channel)} lance une ${esc(cq.competitorEvent.action)} sur le créneau ${esc(TIME_SLOTS.find(s=>s.key===cq.competitorEvent.slot)?.label || cq.competitorEvent.slot)}.</div>` : ''}
               ${badgesHtml ? `<div class="impact-badges">${badgesHtml}</div>` : ''}
@@ -24239,6 +24442,7 @@ function render() {
                 </div>
                 <span class="choice-pill ${badgeCls}">${badgeText}</span>
               </div>
+              ${dilemma.isProgramStory ? storyOutcomeHint(choice) : ''}
             </button>
           `; }).join('')}${negRound ? '</div>' : ''}
         </div>
@@ -24839,7 +25043,11 @@ function marketRandom() {
   gameState.campaign.marketSeed = x >>> 0;
   return (x >>> 0) / 4294967296;
 }
+// Diagnostic (NARRATIVE_DEBUG) : nombre d'appels au tirage de la partie, pour vérifier qu'un
+// re-rendu ne tire rien.
+const NARRATIVE_RANDOM_CALLS = { count: 0 };
 function seededRandom() {
+  if (NARRATIVE_DEBUG) NARRATIVE_RANDOM_CALLS.count++;
   ensureCampaign();
   let x = gameState.campaign.seed >>> 0;
   x ^= x << 13; x ^= x >>> 17; x ^= x << 5;
