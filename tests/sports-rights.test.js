@@ -292,36 +292,34 @@ sportsRandom=sRand;
   setup('generaliste');gameState.season=3;acquireSportsRight('ligue_champions',{owner:'player',price:9});sr().owned[0].broadcastSeason=4;
   assert(recurringSlotClash(edf,gameState.player),'France team shares the prime with the other annual rights');
 }
-// ---------- Miss France (grand divertissement, enchère tous les 4 à 5 saisons) ----------
+// ---------- Miss France (grand divertissement : engagement pluriannuel, reconductible) ----------
 {
   const mf=SPORT_RIGHTS_EVENTS.miss_france;
-  assert(mf.name==='Miss France'&&!mf.recurring&&mf.cycle.join()==='4,5'&&mf.preferredSlots.join()==='prime'&&mf.channelTypes.join()==='generaliste'&&isThemedRight(mf),'Miss France: cyclic entertainment event on prime');
+  assert(mf.name==='Miss France'&&mf.recurring&&!mf.cycle&&mf.termChoices.join()==='2,3'&&mf.preferredSlots.join()==='prime'&&mf.channelTypes.join()==='generaliste'&&isThemedRight(mf),'Miss France: annual entertainment event on prime, multi-season engagement');
   const d=DILEMMA_BANK.find(x=>x.id==='d_droits_miss_france');
   assert(d&&d.type==='sports_rights_auction'&&d.rightsEventId==='miss_france'&&d.types.join()==='generaliste','Miss France auction dilemma');
   const firsts=new Set();for(let k=1;k<=40;k++){setup('generaliste',(k*2246822519)>>>0);firsts.add(sr().recurring.miss_france.nextAuctionSeason);}
   assert([...firsts].every(v=>v>=2&&v<=5)&&firsts.size>2,'Miss France first sold in seasons 2-5');
-  // Calendrier : une enchère tous les 4 à 5 saisons, que le joueur la remporte ou non.
-  setup('generaliste');gameState.competitors.forEach(c=>c.budget=200);Object.entries(sr().recurring).forEach(([id,r])=>{if(id!=='miss_france') r.nextAuctionSeason=999;});
-  const mseasons=[];
-  for(let s=1;s<=40;s++){
-    gameState.season=s;gameState.seenDilemmaIds=[];gameState.player.eventsSeen=[];gameState.player.lastRegieOpportunity=s;sr().nextAuctionSeason=999;
-    const q=pickDilemmaQueue();const auc=q.find(x=>x.rightsEventId==='miss_france');
-    if(auc){mseasons.push(s);gameState.dilemmaQueue=q;gameState.currentDilemmaIndex=1;startSportsRightsAuction('miss_france',auc.id);sportsAuctionPass();recordSportsAuctionOutcome(auc);}
-  }
-  assert(mseasons.length>=7&&mseasons.slice(1).every((v,i)=>[4,5].includes(v-mseasons[i])),'Miss France every 4-5 seasons: '+mseasons);
-  // Hors Généraliste : vendue entre chaînes IA, au même rythme.
-  setup('sport');gameState.competitors.forEach(c=>c.budget=200);Object.entries(sr().recurring).forEach(([id,r])=>r.nextAuctionSeason=id==='miss_france'?2:999);gameState.season=2;
-  assert(!pickDilemmaQueue().some(x=>x.rightsEventId==='miss_france')&&sr().history.some(h=>h.eventId==='miss_france'&&h.result==='ai_only')&&[6,7].includes(sr().recurring.miss_france.nextAuctionSeason),'Miss France sold among AIs for a sport channel');
-  // Diffusion en prime, pas de reconduction ; le dilemme des Miss (d30) n'existe que pour le diffuseur.
-  const d30=DILEMMA_BANK.find(x=>x.id==='d30');
+  // Enchère : engagement de 2 ou 3 saisons ; remportée, elle ne revient pas sur le marché.
+  const terms=new Set();
+  for(let k=1;k<=12;k++){ setup('generaliste',(k*2654435761)>>>0); terms.add(startSportsRightsAuction('miss_france','d_droits_miss_france').term); sr().activeAuction=null; }
+  assert([...terms].every(t=>[2,3].includes(t))&&terms.size===2,'Miss France: 2 or 3 seasons engagement '+[...terms]);
   setup('generaliste');gameState.season=3;
+  const recs=acquireSportsRight('miss_france',{owner:'player',price:10,term:3});recs.forEach(o=>{o.gridAnnual=10;});
+  assert(recs.length===3&&recs.every(o=>o.recurring&&!o.payOnAir)&&recs.slice(0,2).every(o=>o.renewalDecided==='term')&&!recs[2].renewalDecided,'Miss France: one record per season, renewable at the end of the engagement');
+  // Diffusion en prime ; le dilemme des Miss (d30) n'existe que pour le diffuseur.
+  const d30=DILEMMA_BANK.find(x=>x.id==='d30');
   assert(d30.requiresRight==='miss_france'&&!getEligibleDilemmas().includes(d30),'no Miss dilemma without the broadcast');
-  acquireSportsRight('miss_france',{owner:'player',price:10});sr().owned[0].broadcastSeason=3;activateSportsBroadcasts();
-  assert(activeContract(gameState.player,'prime')?.isSportsEvent&&!sr().owned[0].recurring,'Miss France airs on prime, one-off');
+  gameState.season=4;activateSportsBroadcasts();
+  assert(activeContract(gameState.player,'prime')?.isSportsEvent,'Miss France airs on prime');
   assert(getEligibleDilemmas().includes(d30),'Miss dilemma for the broadcaster');
-  gameState.seenDilemmaIds=[];gameState.player.eventsSeen=[];gameState.player.lastRegieOpportunity=3;Object.values(sr().recurring).forEach(r=>r.nextAuctionSeason=999);sr().nextAuctionSeason=999;
-  assert(pickDilemmaQueue()[0].id==='d30','Miss dilemma in the broadcast season');
-  assert(!withRenewalDilemmas([DILEMMA_BANK[0],DILEMMA_BANK[1],DILEMMA_BANK[2]]).some(x=>x.isSportsRenewal),'no renewal for Miss France');
+  // Pendant l'engagement : pas de reconduction à arbitrer ; à sa dernière saison, le titulaire peut reconduire.
+  assert(!recurringRightsToRenew(o=>o.ownerId==='player'&&o.eventId==='miss_france').length,'no renewal during the engagement');
+  gameState.season=6;
+  const last=recurringRightsToRenew(o=>o.ownerId==='player'&&o.eventId==='miss_france');
+  assert(last.length===1&&last[0]===recs[2],'renewal offered at the last season of the engagement');
+  applySportsRenewalChoice('miss_france','renew');
+  assert(sr().owned.some(o=>o.eventId==='miss_france'&&o.broadcastSeason===7&&o.ownerId==='player'&&o.recurring),'holder renews Miss France');
 }
 // Joueur hors Généraliste / Sport : la F1 se vend entre chaînes IA.
 setup('culture');gameState.competitors.forEach(c=>c.budget=200);gameState.season=sr().recurring.f1.nextAuctionSeason;
@@ -645,8 +643,8 @@ assert(rv.plan.slots.prime.name===pausedName||rv.contracts.prime.end>=3,'paused 
   const terms=new Set();
   for(let k=0;k<60;k++){setup('generaliste',5000+k);terms.add(startSportsRightsAuction('roland_garros',null).term);}
   assert([...terms].every(v=>v>=2&&v<=5)&&terms.size===4,'sports right term drawn among 2-5 seasons: '+[...terms]);
-  const themed=Object.values(SPORT_RIGHTS_EVENTS).filter(e=>e.category);
-  assert(themed.length&&themed.every(e=>{setup('cinema',77);return startSportsRightsAuction(e.id,null).term===1;}),'cinema and themed rights stay one season');
+  const themed=Object.values(SPORT_RIGHTS_EVENTS).filter(e=>e.category&&!e.termChoices);
+  assert(themed.length&&themed.every(e=>{setup('cinema',77);return startSportsRightsAuction(e.id,null).term===1;}),'cinema and themed rights stay one season (except annual events with termChoices, e.g. Miss France)');
   // Joueur : un droit ponctuel engagé 3 saisons, réglé à chaque diffusion.
   setup();gameState.season=2;const a=startSportsRightsAuction('roland_garros',null);a.term=3;
   a.rivals.forEach(r=>{r.max=0;r.status='out';});sportsAuctionParticipate();sportsAuctionSealedBid(12);

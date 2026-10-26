@@ -121,7 +121,7 @@ ok(built>=200,'variantes génériques construites sur le catalogue ('+built+' po
   const ctx=programStoryContext(arcProg.slot,c,getCalculatedPDAs());
   const m=genericStoryMatches(def,ctx,new Set()); ok(m,'situation « jury » applicable');
   const d=buildProgramStoryDilemma({def,slot:arcProg.slot,contract:c,ctx,choices:m.choices});
-  ok(d.id==='gs_jury_conteste--'+c.id&&d.storyContext,'identifiant par programme et ligne de contexte');
+  ok(d.id==='gs_jury_conteste--'+c.id&&!d.storyContext,'identifiant par programme, sans ligne de contexte (ancienneté masquée)');
   const achats=p.achatsSaison, annual=c.annual, achat=d.c[0].finance.purchase;
   joue(d,0);
   ok(near(p.achatsSaison-achats,achat)&&near(c.annual,annual),'achat ponctuel débité une fois, budget du programme inchangé');
