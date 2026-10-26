@@ -203,7 +203,7 @@ for(let s=1;s<=60;s++){
 }
 ok(withStories>=25&&withStories<=55,'fréquence des histoires raisonnable ('+withStories+'/60)');
 // Sans programme concerné, le tirage est identique à celui d'avant (aucun tirage consommé).
-partie(99); const seedAvant=gameState.campaign.seed; ok(!placeProgramStories([DILEMMA_BANK[0]]).length&&gameState.campaign.seed===seedAvant,'aucun aléa consommé sans histoire éligible');
+partie(99); const seedAvant=gameState.campaign.seed; ok(!collectStoryCandidates().length&&gameState.campaign.seed===seedAvant,'aucune histoire candidate sans programme concerné, aucun aléa consommé');
 
 // ——— 8. Contexte dynamique : trésorerie, proportionnalité, plafond ———
 p=partie(); const cc=signe('prime','p032');
@@ -241,6 +241,24 @@ for(let season=1;season<=4;season++){
   if(gameState.step!==6) break;
 }
 ok(Object.values(gameState.player.programStories||{}).every(r=>r.log.every(l=>PROGRAM_STORY_BANK.some(d=>d.id===l.id))),'journal cohérent après plusieurs saisons');
+// ——— Lot 2 : thèmes, sélection pondérée, garde-fous ———
+ok(DILEMMA_BANK.every(d=>NARRATIVE_THEMES[narrativeDescribe(d).theme]&&['negative','neutral','positive'].includes(narrativeDescribe(d).tone)),'thème et tonalité pour les 331 entrées de la banque');
+ok(Object.keys(PROGRAM_STORY_FAMILIES).every(f=>NARRATIVE_THEMES[PROGRAM_STORY_FAMILY_THEMES[f]]),'familles d’histoires rattachées à un thème');
+{ let dup=0; for(let s=1;s<=40;s++){ partie(500+s); gameState.season=3; signe('prime','p032'); pickDilemmaQueue();
+    const th=gameState.dilemmaBaseQueue.slice(0,gameState.dilemmaQueue.some(isRenewalDilemma)?-1:undefined).map(d=>narrativeDescribe(d)?.theme);
+    if(new Set(th).size<th.length) dup++;
+    const progs=gameState.dilemmaBaseQueue.map(d=>narrativeDescribe(d)?.programId).filter(Boolean); ok(new Set(progs).size===progs.length,'jamais deux sollicitations du même programme'); }
+  ok(dup<=2,'deux dilemmes du même thème seulement faute d’alternative ('+dup+'/40)'); }
+// Place réservée à un dilemme neutre ou positif : sa probabilité ne descend pas sous le minimum.
+{ partie(77); const mk=(i,tone)=>narrativeCandidate('bank',{defId:'t'+i,instanceId:'t'+i,theme:Object.keys(NARRATIVE_THEMES)[i],tone,prebuilt:DILEMMA_BANK[i]});
+  let calm=0; for(let k=0;k<400;k++){ const pool=[...Array(8)].map((_,i)=>mk(i,i===7?'neutral':'negative'));
+    const ctx=narrativeSeasonContext(); if(narrativeDrawPlace(pool,0,ctx).cand.tone!=='negative') calm++; }
+  ok(calm>=0.42*400&&calm<=0.58*400,'neutre ou positif tiré au moins '+NARRATIVE_TUNING.minNonNegativeShare*100+' % du temps ('+calm+'/400)'); }
+// Les obligations passent avant la diversité : droit diffusé en tête, renouvellement en dernière place.
+{ partie(88); gameState.season=3; const right=DILEMMA_BANK.find(d=>d.requiresRight);
+  const elig=getEligibleDilemmas; getEligibleDilemmas=()=>[...elig(),right];
+  const q=pickDilemmaQueue(); getEligibleDilemmas=elig; ok(q[0].id===right.id,'droit diffusé toujours en tête'); }
+
 // ——— Tirage des dilemmes d'une partie à l'autre ———
 // Chaque nouvelle partie reçoit sa propre graine : les premiers dilemmes ne se répètent plus.
 const nouvellePartie=()=>{ resetGame(); const p=gameState.player; p.name='Joueur'; p.type='generaliste'; p.target='a2549';

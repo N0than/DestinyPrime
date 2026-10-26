@@ -182,8 +182,11 @@ const exclusive=()=>{ const p=p0(); return PROGRAM_CATALOG.find(x=>x.channelType
 { partie(16, 'generaliste', 4); const p=p0(); gameState.season=3;
   ok(!updateCrisisWatch()&&p.crisisWatch.cash&&p.seasonSignals.some(s=>/Trésorerie fragile/.test(s.text)),'saison N : signal faible, pas encore de crise');
   gameState.season=4; const v=updateCrisisWatch(); ok(v&&v.kind==='cash','saison N+1 : crise mûre');
+  // Crise facultative : sélection pondérée ; un poids très élevé la garantit pour la suite du test.
+  const wCrise=NARRATIVE_TUNING.sourceWeight.crisis; NARRATIVE_TUNING.sourceWeight.crisis=1e6;
   gameState.pendingCrisis=v; gameState.seenDilemmaIds=[]; const q=pickDilemmaQueue();
-  ok(q.filter(d=>d.isCrisis).length===1,'une seule crise dans la file');
+  NARRATIVE_TUNING.sourceWeight.crisis=wCrise;
+  ok(q.filter(d=>d.isCrisis).length===1&&!gameState.pendingCrisis,'une seule crise dans la file, plus en attente');
   const d=q.find(x=>x.isCrisis); ok(d.c.every(c=>c.outlook),'choix de crise lisibles');
   const refuse=d.c.find(c=>c.crisisAction?.type==='aftermath');
   joue(d,d.c.indexOf(refuse));

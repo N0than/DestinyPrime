@@ -20255,9 +20255,10 @@ const PROGRAM_STORY_FAMILIES = {
   strategie: { label: 'Développement', icon: '🚀' }
 };
 const PROGRAM_STORY_TUNING = {
-  // Au plus deux histoires par saison, jamais deux pour le même programme : elles prennent
-  // la place de dilemmes génériques, jamais celle d'un événement prioritaire.
-  maxPerSeason: 2, baseChance: 0.45, chancePerProgram: 0.12, maxChance: 0.85, secondChance: 0.3,
+  // Au plus deux histoires par saison, jamais deux pour le même programme (garde-fous de la
+  // file narrative). Leur fréquence ne vient plus d'une chance fixe mais du poids des
+  // histoires dans la sélection pondérée (NARRATIVE_TUNING.sourceWeight.story).
+  maxPerSeason: 2,
   // Saisons d'écart entre deux histoires d'un même programme (une suite narrative peut
   // arriver dès la saison suivante).
   programGap: 2, followUpGap: 1,
@@ -20368,12 +20369,16 @@ function programStoryCandidates(excludeProgramIds = []) {
   return slots.flatMap(slot => {
     const contract = p.contracts[slot];
     const ctx = programStoryContext(slot, contract, rows);
-    return PROGRAM_STORIES_BY_PROGRAM[contract.id].filter(def => programStoryMatches(def, ctx)).map(def => {
-      const w = def.when || {};
-      const specificity = ['form', 'pressure', 'flag', 'after', 'minWear', 'cash'].filter(k => w[k] != null).length;
-      return { def, slot, contract, ctx, weight: (def.weight || 1) * (1 + 0.4 * specificity) };
-    });
+    return PROGRAM_STORIES_BY_PROGRAM[contract.id].filter(def => programStoryMatches(def, ctx))
+      .map(def => ({ def, slot, contract, ctx, weight: (def.weight || 1) * programStoryRelevance(def) }));
   });
+}
+
+// Pertinence d'une histoire : chaque condition de contexte remplie (forme, pression, suite
+// d'un choix, usure, trésorerie) la rend plus probable qu'une histoire neutre.
+function programStoryRelevance(def) {
+  const w = def.when || {};
+  return 1 + NARRATIVE_TUNING.relevance.perCondition * ['form', 'pressure', 'flag', 'after', 'minWear', 'cash'].filter(k => w[k] != null).length;
 }
 
 function weightedStoryPick(list) {
@@ -20437,44 +20442,19 @@ function programStoryDilemmaValid(dilemma) {
   return narrativeValid(dilemma);
 }
 
-// Histoires éligibles au format commun des candidats de la file narrative.
+// Histoires éligibles au format commun des candidats de la file narrative. Tonalité : la
+// forme du programme (succès, difficulté), sinon le vocabulaire de l'histoire.
 function collectStoryCandidates(excludeProgramIds = []) {
-  return programStoryCandidates(excludeProgramIds).map(c => narrativeCandidate('story', {
-    defId: c.def.id, instanceId: `${c.def.id}@${gameState.season}`, theme: c.def.family,
-    programId: c.contract.id, slot: c.slot, phase: c.def.phase || 2, weight: c.weight,
-    repeatGap: c.def.repeat ?? 'unique', followsFrom: c.def.when?.after ?? null,
-    story: c, build: () => buildProgramStoryDilemma(c)
-  }));
-}
-
-// Tirage : une histoire (parfois deux) prend la place d'un dilemme générique du plan de la
-// saison, sur la position correspondant à sa phase (D1 lancement, D2 arbitrage, D3 fin de
-// saison). Rien n'est écrit ici : le dilemme remplacé n'avait pas encore été engagé.
-function placeProgramStories(plan, lastTaken = false) {
-  const candidates = collectStoryCandidates();
-  if (!candidates.length) return [];
-  const T = PROGRAM_STORY_TUNING;
-  const programs = new Set(candidates.map(c => c.programId));
-  narrativeLog('candidats', () => ({ source: 'story', poids: candidates.map(c => `${c.defId}:${Math.round(c.weight * 100) / 100}`) }));
-  if (seededRandom() >= Math.min(T.maxChance, T.baseChance + T.chancePerProgram * programs.size)) {
-    narrativeLog('exclusion', { source: 'story', raison: 'pas d’histoire cette saison (tirage de fréquence)' });
-    return [];
-  }
-  const picks = [weightedStoryPick(candidates)];
-  const others = candidates.filter(c => c.programId !== picks[0].programId);
-  if (others.length && T.maxPerSeason > 1 && seededRandom() < T.secondChance) picks.push(weightedStoryPick(others));
-  const replaceable = i => narrativeStoryReplaceable(plan[i]) && !(lastTaken && i === plan.length - 1);
-  const placed = [];
-  picks.forEach(cand => {
-    // Positions compatibles avec la phase : une histoire de fin de saison (finale, bilan)
-    // n'ouvre jamais la saison, une histoire de lancement ne la clôt pas. Sans place
-    // compatible, elle attend une saison suivante.
-    const index = PROGRAM_STORY_POSITIONS[cand.phase].find(replaceable);
-    if (index == null) { narrativeLog('exclusion', { source: 'story', id: cand.defId, raison: 'aucune position compatible avec sa phase' }); return; }
-    narrativePlace(plan, index, cand);
-    placed.push(cand);
+  return programStoryCandidates(excludeProgramIds).map(c => {
+    const theme = programStoryTheme(c.def);
+    return narrativeCandidate('story', {
+      defId: c.def.id, instanceId: `${c.def.id}@${gameState.season}`, theme,
+      tone: c.ctx.form === 'succes' ? 'positive' : c.ctx.form === 'difficulte' ? 'negative' : narrativeToneFor(theme, `${c.def.titre} ${c.def.desc}`),
+      programId: c.contract.id, slot: c.slot, phase: c.def.phase || 2, weight: c.def.weight || 1, relevance: programStoryRelevance(c.def),
+      repeatGap: c.def.repeat ?? 'unique', followsFrom: c.def.when?.after ?? c.def.when?.flag ?? null,
+      story: c, build: () => buildProgramStoryDilemma(c)
+    });
   });
-  return placed;
 }
 
 // Application d'un choix : le budget du programme évolue (avant le devis de grille), puis
@@ -20508,13 +20488,6 @@ function applyProgramStoryChoice(dilemma, choice) {
   return true;
 }
 
-// Dilemme générique de la banque que le démarchage ou une surenchère peut remplacer :
-// jamais une enchère de droits, un droit diffusé ou un événement de campagne.
-function replaceableQueueDilemma(d) {
-  return !!d && DILEMMA_BANK.includes(d) && !d.requiresRight && d.type !== 'sports_rights_auction'
-    && !SPORT_RIGHTS_DILEMMA_IDS.includes(d.id);
-}
-
 // ---------------------------------------------------------------------------
 // FILE NARRATIVE — collecte des candidats, sélection, engagement
 // ---------------------------------------------------------------------------
@@ -20532,6 +20505,98 @@ function replaceableQueueDilemma(d) {
 // (revalidation, mise en forme du mode Carrière, signature avant le premier dilemme) est
 // rendu à sa source (release). L'application des choix ne change pas.
 
+// ——— THÈMES NARRATIFS (début) ———
+// Vocabulaire : le « genre » classe les programmes (PROGRAM_FAMILIES) ; le « thème » décrit la
+// nature narrative d'un dilemme ; la « tonalité » dit s'il arrive comme une mauvaise nouvelle
+// (negative), une décision ordinaire (neutral) ou une bonne nouvelle (positive).
+const NARRATIVE_THEMES = {
+  grille:      { label: 'Grille et programmes', tone: 'neutral' },
+  economie:    { label: 'Arbitrage économique', tone: 'neutral' },
+  commercial:  { label: 'Arbitrage commercial', tone: 'neutral' },
+  humain:      { label: 'Arbitrage humain',     tone: 'neutral' },
+  concurrence: { label: 'Concurrence',          tone: 'neutral' },
+  opportunite: { label: 'Opportunité',          tone: 'positive' },
+  surprise:    { label: 'Surprise',             tone: 'neutral' },
+  suite:       { label: 'Suite de décision',    tone: 'neutral' },
+  droits:      { label: 'Droits et événements', tone: 'neutral' },
+  crise:       { label: 'Crise',                tone: 'negative' }
+};
+// Familles d'histoires de programmes (PROGRAM_STORY_FAMILIES) → thème. Une histoire qui fait
+// suite à un choix passé (condition after ou flag) relève du thème « suite ».
+const PROGRAM_STORY_FAMILY_THEMES = { editorial: 'grille', economie: 'economie', audience: 'concurrence', image: 'humain', strategie: 'opportunite' };
+// Sources dont tous les dilemmes partagent un thème (enchères de droits : « droits »).
+const NARRATIVE_SOURCE_THEMES = { producer: 'opportunite', biddingWar: 'concurrence', regie: 'commercial', crisis: 'crise',
+  campaign: 'suite', sportsAuction: 'droits', renewal: 'grille' };
+// Banque générale : thème attribué par règles, dans l'ordre (la première qui s'applique), sur
+// l'identifiant, le titre, la description et la catégorie financière des choix.
+const NARRATIVE_BANK_THEME_RULES = [
+  ['crise', (d, title, text) => /clash|scandale|grève|débraient|panne|coupure|accident|drame|dopage|dérap|insulte|menace|polémique|tricher|truqu|plagiat|agress|violence|censur|flag|fuite|accus|dénud|bug|churn|s'effondre|se blesse|forfait|rame|tourmente|choc révélé|soupçon|limite franchie|enquête sur/i.test(title)
+    || /grève|accident tragique|scandale|maltraitance|insulte|dérapage/i.test(text)],
+  ['commercial', (d, title, text) => /^d_pub/.test(d.id) || d.c.some(c => c.finance?.category === 'C')
+    || /annonceur|sponsor|publicit|\bpub\b|marque|naming|parrain|abonn|payant|tarif|bundle|billetterie|merchandising|paris sportifs/i.test(text)],
+  ['humain', (d, title) => /animat|présentat|chroniqueur|journaliste|star|vedette|consultant|commentat|talent|légende|champion|duo|casting|rédaction|techniciens|équipes|reporter|candidat/i.test(title)],
+  ['concurrence', (d, title, text) => /concurren|rival|surenchér|chaîne rivale|contre-programm|derby|duel/i.test(text)],
+  ['economie', (d, title, text) => d.c.every(c => ['R', 'E'].includes(c.finance?.category))
+    || /budget|économi|coût|devis|rentab|investi|fusion|rachat|archives|replay|vod|plateforme|application|appli/i.test(text)],
+  ['grille', (d, title, text) => !!d.requiresProgram || /grille|case|créneau|prime|matinale|après-midi|soirée|rendez-vous|refonte|générique|émission/i.test(text)],
+  ['opportunite', (d, title, text) => /propos|offre|opportunit|exclusiv|retour|concept|lancer|créer/i.test(text)]
+];
+const NARRATIVE_POSITIVE_WORDS = /succès|cartonn|record|triomph|exploit|culte|médaille|champion|en finale|gagne tout|fait son grand retour|la vague|monte/i;
+const NARRATIVE_NEGATIVE_WORDS = /baisse|recul|s'érode|s'essouffle|ne se remplissent plus|se contracte|peine|faiblit|vieillit|tombe|élimination|défaite|en colère/i;
+const narrativeBankThemes = new Map();
+// Thème d'une entrée de la banque générale (mis en cache par identifiant).
+function bankDilemmaTheme(d) {
+  if (!narrativeBankThemes.has(d.id)) {
+    const text = `${d.titre} ${d.desc}`;
+    narrativeBankThemes.set(d.id, d.type === 'sports_rights_auction' ? 'droits'
+      : NARRATIVE_BANK_THEME_RULES.find(([, test]) => test(d, d.titre, text))?.[0] || 'surprise');
+  }
+  return narrativeBankThemes.get(d.id);
+}
+// Tonalité d'après le thème, nuancée par le vocabulaire du titre et de la description.
+function narrativeToneFor(theme, text = '') {
+  if (theme === 'crise') return 'negative';
+  if (NARRATIVE_NEGATIVE_WORDS.test(text)) return 'negative';
+  if (NARRATIVE_POSITIVE_WORDS.test(text)) return 'positive';
+  return NARRATIVE_THEMES[theme]?.tone || 'neutral';
+}
+let narrativeStoryDefs = null;
+const programStoryDef = id => (narrativeStoryDefs ??= new Map(PROGRAM_STORY_BANK.map(def => [def.id, def]))).get(id) || null;
+const programStoryTheme = def => def.when?.after || def.when?.flag ? 'suite' : (PROGRAM_STORY_FAMILY_THEMES[def.family] || 'grille');
+// Thème, tonalité et entités d'un dilemme déjà construit ou joué (identifiant seul accepté :
+// historique des décisions). Renvoie null pour une décision hors file narrative.
+function narrativeDescribe(d) {
+  const id = typeof d === 'string' ? d : d?.id;
+  if (!id) return null;
+  const obj = typeof d === 'string' ? null : d;
+  const prefixed = /^(producer|bidding|crisis)-\d+-(.+)$/.exec(id);
+  if (prefixed) {
+    const [, kind, rest] = prefixed;
+    if (kind === 'crisis') {
+      const [ck, ref] = rest.split(':');
+      return { theme: 'crise', tone: 'negative', programId: ['dependency', 'underfunded'].includes(ck) ? ref : null, talentId: ck === 'talent' ? ref : null };
+    }
+    const tone = kind === 'producer' ? 'positive' : obj?.war?.kind === 'coveted' ? 'negative' : 'neutral';
+    return { theme: kind === 'producer' ? 'opportunite' : 'concurrence', tone, programId: rest, rivalId: obj?.war?.rival || obj?.competitorName || null };
+  }
+  if (/^regie-oppo/.test(id)) return { theme: 'commercial', tone: 'positive' };
+  const def = programStoryDef(id);
+  if (def) {
+    const theme = programStoryTheme(def);
+    return { theme, tone: narrativeToneFor(theme, `${def.titre} ${def.desc}`), programId: def.programId };
+  }
+  const event = STORY_EVENTS.find(e => e.id === id);
+  if (event) return { theme: 'suite', tone: narrativeToneFor('suite', `${event.titre} ${event.desc}`) };
+  const bank = DILEMMA_BANK.find(x => x.id === (obj?.dynamicOf || id));
+  if (bank) {
+    const theme = bankDilemmaTheme(bank);
+    return { theme, tone: narrativeToneFor(theme, `${bank.titre} ${bank.desc}`) };
+  }
+  if (obj && isRenewalDilemma(obj)) return { theme: 'grille', tone: 'neutral' };
+  return null;
+}
+// ——— THÈMES NARRATIFS (fin) ———
+
 // Paramètres de la file narrative.
 const NARRATIVE = {
   // Dilemmes tirés par saison, avant les renouvellements de fin de saison.
@@ -20544,6 +20609,41 @@ const NARRATIVE = {
   // « audienceMasters.narrativeDebug » = '1', ou paramètre d'URL ?narrativeDebug=1.
   debugStorageKey: 'audienceMasters.narrativeDebug', debugParam: 'narrativeDebug'
 };
+// Sélection pondérée des places libres (lot 2). Tous les coefficients sont ici.
+const NARRATIVE_TUNING = {
+  // Poids de base d'une source pour une place, partagé entre ses candidats. Ils remplacent
+  // les anciennes chances fixes : PRODUCER_PITCH.chance (50 % par saison), BIDDING_WAR.chance
+  // (35 %, 60 % avec une option d'achat), PROGRAM_STORY_TUNING.baseChance / chancePerProgram /
+  // maxChance / secondChance (45 % + 12 % par programme, 85 % au plus, 30 % de seconde
+  // histoire). Calibrés par simulation pour retrouver des fréquences voisines (voir
+  // docs/lot2). L'opportunité régie et la crise contextuelle, autrefois placées d'office,
+  // gardent un poids élevé : elles passent presque toujours, sans court-circuiter la diversité.
+  sourceWeight: { bank: 1, producer: 0.75, biddingWar: 0.13, biddingWarOption: 0.35, regie: 6, crisis: 2.5,
+    story: 0.45, storyPerProgram: 0.15, storyMax: 1 },
+  // Démarchage : part des programmes de chaînes concurrentes face aux concepts exclusifs.
+  rivalShare: 0.5,
+  // Pertinence : par condition de contexte remplie (histoires), dilemme de la banque lié à la
+  // grille réelle (programme requis, condition d'éligibilité, dilemme dynamique), crise en
+  // attente (par saison d'attente).
+  relevance: { perCondition: 0.4, contextualBank: 1.3, crisisWaiting: 0.5 },
+  // Suite narrative d'un choix passé : bonus modéré, jamais une priorité.
+  followUpBonus: 1.5,
+  // Nouveauté : malus par apparition du thème lors des N dernières saisons jouées.
+  novelty: { seasons: 2, malus: 0.75 },
+  // Récence : programme, talent ou concurrent sollicité lors des N dernières saisons.
+  entityRecency: { seasons: 2, malus: 0.5 },
+  // Dilemme de la banque joué lors d'une partie précédente (mémoire du navigateur) : il ne
+  // revient qu'en dernier recours, comme avant.
+  recentBankMalus: 0.02,
+  // Proximité avec la saison en cours (quand un garde-fou a dû céder).
+  proximity: { sameTheme: 0.15, sameProgram: 0.05 },
+  // Garde-fous : au plus une crise facultative par saison.
+  maxOptionalCrises: 1,
+  // Tant que la saison n'a aucun dilemme neutre ou positif, ceux-ci gardent au moins cette
+  // part de la probabilité de chaque place.
+  minNonNegativeShare: 0.5
+};
+
 // Table des priorités : ordre de traitement (l'ordre historique, qui fixe aussi l'ordre de
 // consommation de seededRandom) et positions permises dans la file de base (index ; -1 :
 // dernière place). Une source traitée plus tard ne remplace qu'un dilemme générique de la
@@ -20556,7 +20656,7 @@ const NARRATIVE_PRIORITIES = {
   regie:         { order: 5,  kind: 'optional',  positions: [1] },       // opportunité régie : 2e place, sauf saison d'enchère
   producer:      { order: 6,  kind: 'optional',  positions: [0, 1] },    // démarchage d'un producteur
   biddingWar:    { order: 7,  kind: 'optional',  positions: [1, 0] },    // mise en concurrence (jamais avec un démarchage)
-  crisis:        { order: 8,  kind: 'mandatory', positions: [1, 0] },    // crise mûre : jamais en dernière place
+  crisis:        { order: 8,  kind: 'optional',  positions: [1, 0] },    // crise mûre (facultative) : jamais en dernière place
   story:         { order: 9,  kind: 'optional',  positions: PROGRAM_STORY_POSITIONS }, // selon la phase de l'histoire
   // Renouvellements : ajoutés ensuite par withRenewalDilemmas(), sur la dernière place.
   renewal:       { order: 10, kind: 'scheduled', positions: [-1] },
@@ -20697,23 +20797,27 @@ function collectBankCandidates() {
   const mercato = isMercatoSeason();
   const seen = new Set(gameState.seenDilemmaIds || []), recent = new Set(recentDilemmaIds());
   return getEligibleDilemmas().filter(d => (!mercato || !MERCATO_OVERLAP_DILEMMAS.includes(d.id)) && d.type !== 'sports_rights_auction')
-    .map(d => narrativeCandidate('bank', { defId: d.id, instanceId: d.id, prebuilt: d,
-      seen: seen.has(d.id), recent: recent.has(d.id), requiresRight: !!d.requiresRight }));
+    .map(d => {
+      const theme = bankDilemmaTheme(d);
+      return narrativeCandidate('bank', { defId: d.id, instanceId: d.id, prebuilt: d, theme, tone: narrativeToneFor(theme, `${d.titre} ${d.desc}`),
+        relevance: d.requiresProgram || d.eligibleIf || DYNAMIC_DILEMMAS[d.id] ? NARRATIVE_TUNING.relevance.contextualBank : 1,
+        seen: seen.has(d.id), recent: recent.has(d.id), requiresRight: !!d.requiresRight });
+    });
 }
 // Dilemme lié à un droit diffusé cette saison (incident aux César…) : il fait partie de la
 // saison de diffusion.
 function collectRightCandidates(pool = collectBankCandidates()) {
-  return pool.filter(c => c.requiresRight).map(c => narrativeCandidate('right', { defId: c.defId, instanceId: c.instanceId, prebuilt: c.prebuilt }));
+  return pool.filter(c => c.requiresRight).map(c => narrativeCandidate('right', { defId: c.defId, instanceId: c.instanceId, prebuilt: c.prebuilt, theme: c.theme, tone: c.tone }));
 }
 // Événements de campagne (sponsor, vedette…) : déclenchés par les choix passés, une fois.
 function collectCampaignCandidates() {
   const p = gameState.player;
   return STORY_EVENTS.filter(e => e.eligible(p) && !(p.eventsSeen || []).includes(e.id))
-    .map(e => narrativeCandidate('campaign', { defId: e.id, instanceId: e.id, prebuilt: e }));
+    .map(e => narrativeCandidate('campaign', { defId: e.id, instanceId: e.id, prebuilt: e, theme: 'suite', tone: narrativeToneFor('suite', `${e.titre} ${e.desc}`) }));
 }
 // Opportunité régie (marché favorable, délai entre deux opportunités).
 function collectRegieCandidates() {
-  return regieOpportunityEligible() ? [narrativeCandidate('regie', { defId: 'regie-oppo', instanceId: `regie-oppo-${gameState.season}`,
+  return regieOpportunityEligible() ? [narrativeCandidate('regie', { defId: 'regie-oppo', instanceId: `regie-oppo-${gameState.season}`, theme: 'commercial', tone: 'positive',
     repeatGap: GAME_BALANCE.regie.cooldown, build: () => createRegieOpportunityDilemma() })] : [];
 }
 // Vue d'ensemble de toutes les sources (diagnostic, vérifications) : aucune écriture.
@@ -20732,81 +20836,195 @@ function narrativePlace(plan, index, cand) {
   narrativeLog(old ? 'remplacement' : 'sélection', () => ({ position: index, source: cand.source, id: cand.instanceId,
     ...(old ? { remplace: `${old.cand.source}:${old.cand.instanceId}` } : {}) }));
 }
-// Première position permise (table des priorités) occupée par une entrée remplaçable.
-function narrativeFirstPosition(plan, source, replaceable) {
-  return NARRATIVE_PRIORITIES[source].positions.map(i => i < 0 ? plan.length + i : i).find(i => replaceable(plan[i]));
+
+// Contexte de la saison en cours de composition : thèmes, programmes, crises facultatives,
+// histoires et sources déjà présents, tonalité, et historique récent (décisions jouées et
+// mises en concurrence) pour la nouveauté des thèmes et la récence des entités.
+function narrativeSeasonContext(dilemmas = []) {
+  const T = NARRATIVE_TUNING, season = gameState.season, p = gameState.player;
+  const themes = {}, entities = new Set();
+  (p.decisionHistory || []).forEach(h => {
+    const age = season - h.season;
+    const info = age >= 1 ? narrativeDescribe(h.id) : null;
+    if (!info) return;
+    if (age <= T.novelty.seasons && info.theme) themes[info.theme] = (themes[info.theme] || 0) + 1;
+    if (age <= T.entityRecency.seasons) [info.programId, info.talentId, info.rivalId].forEach(e => e && entities.add(e));
+  });
+  (p.biddingHistory || []).forEach(h => {
+    const age = season - h.season;
+    if (age >= 1 && age <= T.entityRecency.seasons) [h.programId, h.rival].forEach(e => e && entities.add(e));
+  });
+  const ctx = { history: { themes, entities }, themes: [], programs: [], crises: 0, stories: 0, sources: [], nonNegative: false,
+    storyPrograms: 0, optionPending: (p.producerAgreements || []).some(a => !a.closed && a.season < season) };
+  dilemmas.forEach(d => narrativeContextAdd(ctx, { ...narrativeDescribe(d), source: narrativeSourceOf(d), kind: 'scheduled' }));
+  return ctx;
 }
-// Dilemme générique de la banque, remplaçable par un démarchage, une surenchère ou une crise.
-function narrativeReplaceable(entry) {
-  return !!entry && entry.cand.source === 'bank' && replaceableQueueDilemma(entry.d);
+// item : candidat, ou description { theme, tone, programId, source, kind }.
+function narrativeContextAdd(ctx, item) {
+  if (!item) return;
+  if (item.theme) ctx.themes.push(item.theme);
+  if (item.programId) ctx.programs.push(item.programId);
+  if (item.kind === 'optional' && item.theme === 'crise') ctx.crises++;
+  if (item.source === 'story') ctx.stories++;
+  ctx.sources.push(item.source);
+  if (item.tone && item.tone !== 'negative') ctx.nonNegative = true;
 }
-// Remplaçable par une histoire de programme (règle historique : les dilemmes de droits
-// sportifs de la banque peuvent céder la place à une histoire).
-function narrativeStoryReplaceable(entry) {
-  return !!entry && entry.cand.source === 'bank' && !entry.d.requiresRight && entry.d.type !== 'sports_rights_auction';
+
+// Garde-fous de diversité, dans l'ordre où ils cèdent quand aucune alternative ne reste.
+const NARRATIVE_GUARDS = [
+  ['même thème déjà dans la saison', (c, ctx) => !!c.theme && ctx.themes.includes(c.theme)],
+  ['même programme déjà sollicité', (c, ctx) => !!c.programId && ctx.programs.includes(c.programId)],
+  ['crise facultative déjà présente', (c, ctx) => c.theme === 'crise' && ctx.crises >= NARRATIVE_TUNING.maxOptionalCrises],
+  ['démarchage et mise en concurrence exclusifs', (c, ctx) => (c.source === 'biddingWar' && ctx.sources.includes('producer'))
+    || (c.source === 'producer' && ctx.sources.includes('biddingWar'))],
+  ['histoires de la saison au complet', (c, ctx) => c.source === 'story' && ctx.stories >= PROGRAM_STORY_TUNING.maxPerSeason]
+];
+
+// Poids de base d'une source pour une place (voir NARRATIVE_TUNING.sourceWeight).
+function narrativeSourceWeight(source, ctx) {
+  const W = NARRATIVE_TUNING.sourceWeight;
+  if (source === 'story') return Math.min(W.storyMax, W.story + W.storyPerProgram * Math.max(0, ctx.storyPrograms - 1));
+  if (source === 'biddingWar' && ctx.optionPending) return W.biddingWarOption;
+  return W[source] ?? 1;
+}
+// Poids final = base × pertinence × suite narrative × nouveauté du thème × récence de
+// l'entité × proximité avec la saison. La base partage le poids de la source entre ses
+// candidats (poids propres), pour qu'une source nombreuse ne noie pas les autres.
+function narrativeWeigh(c, ctx, totals) {
+  const T = NARRATIVE_TUNING;
+  const parts = {
+    base: narrativeSourceWeight(c.source, ctx) * c.weight / (totals[c.source] || 1),
+    pertinence: c.relevance ?? 1,
+    suite: c.followsFrom ? T.followUpBonus : 1,
+    // Thème vu ces dernières saisons ; un dilemme de la banque joué lors des parties
+    // précédentes (mémoire du navigateur) passe aussi après les autres.
+    nouveaute: Math.pow(T.novelty.malus, ctx.history.themes[c.theme] || 0) * (c.recent ? T.recentBankMalus : 1),
+    recenceEntite: [c.programId, c.talentId, c.rivalId].some(e => e && ctx.history.entities.has(e)) ? T.entityRecency.malus : 1,
+    proximite: (c.theme && ctx.themes.includes(c.theme) ? T.proximity.sameTheme : 1)
+      * (c.programId && ctx.programs.includes(c.programId) ? T.proximity.sameProgram : 1)
+  };
+  return { parts, weight: Object.values(parts).reduce((a, b) => a * b, 1) };
+}
+const narrativePositionsOf = c => c.source === 'story' ? PROGRAM_STORY_POSITIONS[c.phase] || PROGRAM_STORY_POSITIONS[2]
+  : NARRATIVE_PRIORITIES[c.source].positions;
+
+// Tirage pondéré d'une place (index ; null : sans contrainte de position). Les candidats
+// sont filtrés par la position (phase), pesés, filtrés par les garde-fous (qui cèdent un à
+// un si plus rien ne reste), puis tirés par seededRandom. Un candidat qui ne se concrétise
+// pas (mise en concurrence sans chaîne intéressée) est écarté et la place est retirée.
+function narrativeDrawPlace(pool, index, ctx) {
+  const T = NARRATIVE_TUNING;
+  let atPlace = index == null ? [...pool] : pool.filter(c => narrativePositionsOf(c).includes(index));
+  for (;;) {
+    if (!atPlace.length) { narrativeLog('place vide', { position: index, raison: 'aucun candidat compatible' }); return null; }
+    const totals = {};
+    atPlace.forEach(c => { totals[c.source] = (totals[c.source] || 0) + c.weight; });
+    const weighed = atPlace.map(c => ({ c, ...narrativeWeigh(c, ctx, totals) }));
+    let allowed = [], relaxed = [];
+    for (let k = 0; k <= NARRATIVE_GUARDS.length; k++) {
+      const active = NARRATIVE_GUARDS.slice(k);
+      allowed = weighed.filter(w => w.weight > 0 && !active.some(([, test]) => test(w.c, ctx)));
+      relaxed = NARRATIVE_GUARDS.slice(0, k).map(([name]) => name);
+      if (allowed.length) break;
+    }
+    if (!allowed.length) { narrativeLog('place vide', { position: index, raison: 'aucun poids positif' }); return null; }
+    // Une place reste possible pour un dilemme neutre ou positif, même en pleine tempête.
+    let lift = 1;
+    if (!ctx.nonNegative) {
+      const total = allowed.reduce((s, w) => s + w.weight, 0);
+      const calm = allowed.filter(w => w.c.tone !== 'negative').reduce((s, w) => s + w.weight, 0);
+      if (calm > 0 && calm < total && calm / total < T.minNonNegativeShare) lift = T.minNonNegativeShare * (total - calm) / ((1 - T.minNonNegativeShare) * calm);
+    }
+    const final = allowed.map(w => w.weight * (w.c.tone !== 'negative' ? lift : 1));
+    const total = final.reduce((s, x) => s + x, 0);
+    const draw = seededRandom() * total;
+    let acc = 0, at = final.findIndex(x => (acc += x) > draw);
+    if (at < 0) at = final.length - 1;
+    const picked = allowed[at].c;
+    narrativeLog('place', () => ({
+      position: index, tirage: Math.round(draw / total * 1000) / 1000, selection: `${picked.source}:${picked.instanceId}`,
+      ...(relaxed.length ? { gardeFousLevés: relaxed } : {}), ...(lift !== 1 ? { relèvementNeutrePositif: Math.round(lift * 100) / 100 } : {}),
+      exclusions: weighed.filter(w => !allowed.includes(w)).slice(0, 12).map(w => `${w.c.source}:${w.c.instanceId} (${w.weight <= 0 ? 'poids nul'
+        : NARRATIVE_GUARDS.find(([, test]) => test(w.c, ctx))?.[0]})`),
+      candidats: allowed.map((w, i) => `${w.c.source}:${w.c.instanceId} [${w.c.theme}/${w.c.tone}] ${Math.round(final[i] * 1000) / 1000} = `
+        + Object.entries(w.parts).map(([k, v]) => `${k} ${Math.round(v * 1000) / 1000}`).join(' × '))
+    }));
+    const concrete = picked.resolve ? picked.resolve() : picked;
+    if (concrete) return { cand: concrete, original: picked };
+    narrativeLog('exclusion', { source: picked.source, id: picked.instanceId, raison: 'ne se concrétise pas (aucune chaîne intéressée)' });
+    atPlace = atPlace.filter(c => c !== picked);
+    if (pool.includes(picked)) pool.splice(pool.indexOf(picked), 1);
+  }
 }
 
 function pickDilemmaQueue() {
   const size = NARRATIVE.queueSize, season = gameState.season;
   const plan = [];
-  // 1. Tirage de base. Banque épuisée : la mémoire « déjà vu » repart à zéro (à l'engagement).
-  const pool = collectBankCandidates();
-  const mixed = shuffle(pool.filter(c => !c.seen));
-  let base = [...mixed.filter(c => !c.recent), ...mixed.filter(c => c.recent)].slice(0, size);
-  const resetSeen = base.length < size;
-  if (resetSeen) {
-    const used = new Set(base.map(c => c.defId));
-    base = base.concat(shuffle(pool.filter(c => !used.has(c.defId))).slice(0, size - base.length));
-  }
-  narrativeLog('candidats', () => ({ source: 'bank', eligibles: pool.length, nonVus: mixed.length, remiseAZero: resetSeen }));
-  base.forEach((c, i) => narrativePlace(plan, i, c));
-  // 2. Droit diffusé cette saison : prend la place du premier dilemme (s'il n'est pas déjà tiré).
-  const right = collectRightCandidates(pool).find(c => !plan.some(e => e.cand.defId === c.defId));
-  if (right) narrativePlace(plan, 0, right);
   ensureCampaign();
-  // 3. Événement de campagne : dernière place.
+  // La dernière place revient aux renouvellements quand la grille en attend.
+  const reserved = buildRenewalDilemmas().main.length ? size - 1 : null;
+  const fixed = (index, cand) => {
+    plan[index] = { cand, d: cand.prebuilt ?? null };
+    narrativeLog('obligation', { position: index, source: cand.source, id: cand.instanceId });
+  };
+  // 1. Obligations et calendrier, placés d'abord et jamais écartés pour la diversité.
+  const pool = collectBankCandidates();
+  const right = collectRightCandidates(pool)[0];
+  if (right) fixed(0, right);
+  const auction = resolveSportsAuction();
+  if (auction) fixed(1, narrativeCandidate('sportsAuction', { defId: auction.id, instanceId: `${auction.id}@${season}`, prebuilt: auction,
+    theme: 'droits', tone: 'neutral' }));
   const event = collectCampaignCandidates()[0];
-  if (event) narrativePlace(plan, plan.length - 1, event);
-  // 4. Enchère de droits sportifs (une toutes les 2 ou 3 saisons) : 2e place. Le calendrier
-  // (ventes entre chaînes IA, report du marché) se joue à la résolution, sur son propre flux.
-  const auction = plan.length >= 2 ? resolveSportsAuction() : null;
-  if (auction) narrativePlace(plan, 1, narrativeCandidate('sportsAuction', { defId: auction.id, instanceId: `${auction.id}@${season}`, prebuilt: auction }));
-  // 5. Opportunité régie : 2e place, sauf saison d'enchère.
-  if (!auction && plan.length >= 2) {
-    const regie = collectRegieCandidates()[0];
-    if (regie) narrativePlace(plan, 1, regie);
+  if (event) {
+    // Dernière place, sinon la place libre la plus tardive si les renouvellements la prennent.
+    const at = [size - 1, 1, 0].find(i => !plan[i] && i !== reserved);
+    if (at != null) fixed(at, event);
+    else narrativeLog('exclusion', { source: 'campaign', id: event.instanceId, raison: 'aucune place : reporté à une saison suivante' });
   }
-  // 6. Démarchage d'un producteur : concept exclusif ou programme d'une chaîne concurrente.
-  if (season >= PRODUCER_PITCH.minSeason && seededRandom() < PRODUCER_PITCH.chance) {
-    const at = narrativeFirstPosition(plan, 'producer', narrativeReplaceable);
-    const pitch = at != null ? drawProducerCandidate(collectProducerCandidates()) : null;
-    if (pitch) narrativePlace(plan, at, pitch);
-    else narrativeLog('exclusion', { source: 'producer', raison: at == null ? 'aucune place' : 'aucun programme à proposer' });
+  // 2. Places restantes : candidats contextuels et banque générale, tirage pondéré.
+  const free = [...Array(size).keys()].filter(i => !plan[i] && i !== reserved);
+  let bank = pool.filter(c => !c.requiresRight && !plan.some(e => e?.cand.defId === c.defId));
+  const unseen = bank.filter(c => !c.seen);
+  // Banque épuisée : la mémoire « déjà vu » repart à zéro (à l'engagement).
+  const resetSeen = unseen.length < free.length + (reserved != null ? 1 : 0);
+  if (!resetSeen) bank = unseen;
+  const optional = [...bank];
+  if (!auction) optional.push(...collectRegieCandidates());
+  if (season >= PRODUCER_PITCH.minSeason) optional.push(...collectProducerCandidates());
+  if (season >= BIDDING_WAR.minSeason) optional.push(...collectBiddingWarCandidates());
+  optional.push(...collectCrisisCandidates(), ...collectStoryCandidates());
+  const ctx = narrativeSeasonContext();
+  ctx.storyPrograms = new Set(optional.filter(c => c.source === 'story').map(c => c.programId)).size;
+  plan.forEach(e => e && narrativeContextAdd(ctx, e.cand));
+  narrativeLog('candidats', () => {
+    const bySource = {};
+    optional.forEach(c => { bySource[c.source] = (bySource[c.source] || 0) + 1; });
+    return { places: free, renouvellements: reserved != null, remiseAZero: resetSeen, sources: bySource, themesRecents: ctx.history.themes };
+  });
+  free.forEach(i => {
+    const pick = narrativeDrawPlace(optional, i, ctx);
+    if (!pick) return;
+    narrativePlace(plan, i, pick.cand);
+    narrativeContextAdd(ctx, pick.cand);
+    optional.splice(optional.indexOf(pick.original), 1);
+  });
+  // 3. Place des renouvellements : un dilemme général de réserve, aussitôt remplacé par
+  // withRenewalDilemmas() ; il n'est engagé que s'il réapparaît (signature avant le premier
+  // dilemme qui supprime le renouvellement).
+  if (reserved != null) {
+    const filler = narrativeDrawPlace(optional.filter(c => c.source === 'bank'), reserved, ctx);
+    if (filler) narrativePlace(plan, reserved, filler.cand);
   }
-  // 7. Mise en concurrence. Un concept sous option d'achat attire plus souvent un
-  // concurrent : le droit de priorité finit par jouer au fil de la partie.
-  const optionPending = (gameState.player.producerAgreements || []).some(a => !a.closed && a.season < season);
-  if (season >= BIDDING_WAR.minSeason && !plan.some(e => e.cand.source === 'producer')
-    && seededRandom() < (optionPending ? BIDDING_WAR.optionChance : BIDDING_WAR.chance)) {
-    const at = narrativeFirstPosition(plan, 'biddingWar', narrativeReplaceable);
-    const war = at != null ? drawBiddingWarCandidate(collectBiddingWarCandidates()) : null;
-    if (war) narrativePlace(plan, at, war);
-    else narrativeLog('exclusion', { source: 'biddingWar', raison: at == null ? 'aucune place' : 'aucun programme ni concurrent' });
+  // Repli : une place restée vide reçoit un dilemme général, même déjà vu.
+  for (let i = 0; i < size; i++) {
+    if (plan[i]) continue;
+    const spare = pool.find(c => !c.requiresRight && !plan.some(e => e?.cand.defId === c.defId));
+    if (spare) narrativePlace(plan, i, spare);
   }
-  // 8. Crise contextuelle mûre : une seule, à la place d'un dilemme ordinaire, jamais en
-  // dernière position. Sans place, elle reste en attente (narrativeFinalize).
-  const crisis = collectCrisisCandidates()[0];
-  if (crisis) {
-    const at = narrativeFirstPosition(plan, 'crisis', narrativeReplaceable);
-    if (at != null) narrativePlace(plan, at, crisis);
-    else narrativeLog('exclusion', { source: 'crisis', id: crisis.instanceId, raison: 'aucune place cette saison' });
-  }
-  // 9. Histoires de programmes : elles prennent la place de dilemmes génériques restants. La
-  // dernière position est laissée aux renouvellements quand la grille en attend.
-  placeProgramStories(plan, selectCareerDecisions().length > 0 || recurringRightsToRenew(o => o.ownerId === 'player').length > 0);
-  // 10. Construction, dans l'ordre de la file, après tous les tirages de sélection.
-  plan.forEach(e => { e.d ??= e.cand.build(); });
-  const queue = plan.map(e => e.d);
+  const entries = plan.filter(Boolean);
+  // 4. Construction, dans l'ordre de la file, après tous les tirages de sélection.
+  entries.forEach(e => { e.d ??= e.cand.build(); });
+  const queue = entries.map(e => e.d);
   // Le renouvellement est une décision éditoriale à part entière : lorsqu'un programme
   // arrive à un moment clé, il remplace le dernier choix de la saison plutôt que
   // d'interrompre le bilan une fois les comptes déjà arrêtés. Si plusieurs programmes
@@ -20819,7 +21037,7 @@ function pickDilemmaQueue() {
   // (conférence de rentrée, grille) recalcule ensuite les renouvellements à partir d'elle.
   gameState.dilemmaBaseQueue = [...queue];
   const final = withRenewalDilemmas(queue);
-  narrativeFinalize(plan, final, resetSeen);
+  narrativeFinalize(entries, final, resetSeen);
   return final;
 }
 
@@ -20873,10 +21091,12 @@ function narrativeReplacement(queue, i, old) {
   const position = Math.min(NARRATIVE.queueSize - 1, queue.slice(0, i).filter(d => !d.isCareerScripted).length);
   const fits = c => old?.isProgramStory ? c.phase === (old.phase || 2) : PROGRAM_STORY_POSITIONS[c.phase].includes(position);
   const stories = collectStoryCandidates(inQueue).filter(fits);
-  if (stories.length) return weightedStoryPick(stories).build();
   const ids = new Set(queue.map(d => d.id));
-  return shuffle(getEligibleDilemmas().filter(d => d.type !== 'sports_rights_auction' && !d.requiresRight
-    && !ids.has(d.id) && !gameState.seenDilemmaIds.includes(d.id)))[0] || null;
+  const bank = collectBankCandidates().filter(c => !c.requiresRight && !c.seen && !ids.has(c.defId));
+  const ctx = narrativeSeasonContext(queue.filter((d, k) => k !== i && !isRenewalDilemma(d)));
+  ctx.storyPrograms = new Set(stories.map(c => c.programId)).size;
+  const pick = narrativeDrawPlace([...stories, ...bank], null, ctx);
+  return pick ? pick.cand.build() : null;
 }
 // File modifiée hors du sélecteur (mise en forme du mode Carrière, signature avant le
 // premier dilemme) : les dilemmes narratifs retirés sont rendus à leur source ; ceux qui
@@ -27415,7 +27635,8 @@ function createRegieOpportunityDilemma() {
 // que personne ne diffuse), soit avec un programme à l'antenne d'une chaîne concurrente
 // qu'il propose de rapatrier. Accepter signe réellement le programme sur sa case, avec
 // les règles habituelles (droits, indemnité de l'ancien programme, rachat d'exclusivité).
-const PRODUCER_PITCH = { chance: 0.5, minSeason: 2, rivalShare: 0.5, topExclusive: 8 };
+// Fréquence et part des programmes concurrents : NARRATIVE_TUNING (sourceWeight.producer, rivalShare).
+const PRODUCER_PITCH = { minSeason: 2, topExclusive: 8 };
 
 function producerPitchSlots() {
   const p = gameState.player;
@@ -27441,15 +27662,19 @@ function collectProducerCandidates() {
     .filter(x => x.channelType === p.type && slots.includes(x.slot) && !programHolder(x) && fresh(x, x.slot))
     .sort((a, b) => b.power - a.power).slice(0, PRODUCER_PITCH.topExclusive)
     .map(program => ({ kind: 'exclusive', program, slot: program.slot }));
+  // Poids : chaque groupe (programmes concurrents, concepts exclusifs) reçoit sa part
+  // (rivalShare), répartie entre ses programmes.
+  const share = kind => !rivals.length || !exclusives.length ? 1 : kind === 'rival' ? NARRATIVE_TUNING.rivalShare : 1 - NARRATIVE_TUNING.rivalShare;
   return [...rivals, ...exclusives].map(pitch => narrativeCandidate('producer', {
     defId: `producer:${pitch.program.id}`, instanceId: `producer-${season}-${pitch.program.id}`, programId: pitch.program.id,
-    slot: pitch.slot, rivalId: pitch.competitor?.name || null, group: pitch.kind, pitch,
+    slot: pitch.slot, rivalId: pitch.competitor?.name || null, group: pitch.kind, pitch, theme: 'opportunite', tone: 'positive',
+    weight: share(pitch.kind) / (pitch.kind === 'rival' ? rivals.length : exclusives.length),
     build: () => createProducerPitchDilemma(pitch) }));
 }
 // Tirage : programme concurrent ou concept exclusif (rivalShare), puis le programme.
 function drawProducerCandidate(cands) {
   const rivals = cands.filter(c => c.group === 'rival'), exclusives = cands.filter(c => c.group === 'exclusive');
-  const useRival = rivals.length && (!exclusives.length || seededRandom() < PRODUCER_PITCH.rivalShare);
+  const useRival = rivals.length && (!exclusives.length || seededRandom() < NARRATIVE_TUNING.rivalShare);
   const pool = useRival ? rivals : exclusives;
   return pool.length ? pool[Math.floor(seededRandom() * pool.length)] : null;
 }
@@ -28145,8 +28370,9 @@ function materializeCurrentDilemma() {
 // 2. « convoité » : un programme du joueur est convoité par une chaîne concurrente. Le
 //    joueur surenchérit pour le garder, ou accepte l'indemnité de transfert (rachat de ses
 //    saisons de contrat restantes) et choisit un programme de remplacement.
-const BIDDING_WAR = { chance: 0.35, minSeason: 2, overbid: 0.1, minOverbid: 0.5, offerRange: [1.2, 1.5],
-  keepShare: 0.6, optionRate: 0.1, optionMin: 0.3, optionRefund: 2, optionChance: 0.6 };
+// Fréquence : NARRATIVE_TUNING.sourceWeight (biddingWar, biddingWarOption avec une option d'achat).
+const BIDDING_WAR = { minSeason: 2, overbid: 0.1, minOverbid: 0.5, offerRange: [1.2, 1.5],
+  keepShare: 0.6, optionRate: 0.1, optionMin: 0.3, optionRefund: 2 };
 
 // Installe un programme dans la grille d'un concurrent (contrat et programmation affichée).
 function installCompetitorProgram(competitor, program, slot, level, tag = 'nouveaute') {
@@ -28186,8 +28412,12 @@ function interestedCompetitor(budgetNeeded, program) {
 // joueur convoité (coveted), concept inédit (concept).
 function collectBiddingWarCandidates() {
   const p = gameState.player, season = gameState.season;
-  const cand = (group, program, slot, extra = {}) => narrativeCandidate('biddingWar', { defId: `bidding:${program.id}`,
-    instanceId: `bidding-${season}-${program.id}`, programId: program.id, slot, group, program, ...extra });
+  const cand = (group, program, slot, extra = {}) => {
+    const c = narrativeCandidate('biddingWar', { defId: `bidding:${program.id}`, instanceId: `bidding-${season}-${program.id}`,
+      programId: program.id, slot, group, program, theme: 'concurrence', tone: group === 'coveted' ? 'negative' : 'neutral', ...extra });
+    c.resolve = () => resolveBiddingWarCandidate(c);
+    return c;
+  };
   const options = (p.producerAgreements || []).filter(a => !a.closed && a.season < season)
     .map(a => ({ a, program: PROGRAM_CATALOG.find(x => x.id === a.programId) }))
     .filter(x => x.program && !programHolder(x.program) && !sameProgram(p.contracts?.[x.program.slot], x.program))
@@ -28198,14 +28428,36 @@ function collectBiddingWarCandidates() {
     return cand('coveted', program, slot, { indemnity, rivalId: interestedCompetitor(indemnity, program)?.name || null });
   });
   const concepts = biddingConceptCandidates().map(program => cand('concept', program, program.slot));
-  return [...options, ...coveted, ...concepts];
+  // Poids (comme l'ancien tirage) : l'option d'achat en cours passe d'abord ; sinon programme
+  // convoité et concept inédit se partagent la place à parts égales.
+  if (options.length) return [Object.assign(options[0], { weight: 1 })];
+  const split = coveted.length && concepts.length ? 0.5 : 1;
+  coveted.forEach(c => { c.weight = split / coveted.length; });
+  concepts.forEach(c => { c.weight = split / concepts.length; });
+  return [...coveted, ...concepts];
+}
+// Offre adossée aux droits, ou au coût annuel pour un programme sans droits d'entrée.
+function biddingOffer(program) {
+  return Math.round(Math.max(program.rights, program.annual) * (BIDDING_WAR.offerRange[0]
+    + seededRandom() * (BIDDING_WAR.offerRange[1] - BIDDING_WAR.offerRange[0])) * 10) / 10;
+}
+// Candidat retenu par la sélection pondérée : l'offre concurrente est tirée, et une chaîne
+// doit pouvoir la payer ; sinon la mise en concurrence n'a pas lieu.
+function resolveBiddingWarCandidate(c) {
+  let w = null;
+  if (c.group === 'coveted') w = c.rivalId ? { kind: 'coveted', program: c.program, slot: c.slot, rival: c.rivalId, offer: c.indemnity } : null;
+  else {
+    const offer = biddingOffer(c.program), rival = interestedCompetitor(offer, c.program);
+    w = rival ? { kind: 'concept', program: c.program, slot: c.slot, rival: rival.name, offer, agreement: c.agreement || null } : null;
+  }
+  return w ? narrativeCandidate('biddingWar', { defId: c.defId, instanceId: c.instanceId, programId: w.program.id, slot: w.slot,
+    rivalId: w.rival, group: c.group, war: w, theme: 'concurrence', tone: w.kind === 'coveted' ? 'negative' : 'neutral',
+    build: () => createBiddingWarDilemma(w) }) : null;
 }
 // Tirage (même séquence que l'historique) : l'option d'achat d'abord, puis programme
 // convoité ou concept inédit ; l'offre concurrente est tirée ici.
 function drawBiddingWar(cands) {
-  // Offre adossée aux droits, ou au coût annuel pour un programme sans droits d'entrée.
-  const offerFor = program => Math.round(Math.max(program.rights, program.annual) * (BIDDING_WAR.offerRange[0]
-    + seededRandom() * (BIDDING_WAR.offerRange[1] - BIDDING_WAR.offerRange[0])) * 10) / 10;
+  const offerFor = biddingOffer;
   const option = cands.find(c => c.group === 'option');
   if (option) {
     const offer = offerFor(option.program), rival = interestedCompetitor(offer, option.program);
@@ -28224,12 +28476,6 @@ function drawBiddingWar(cands) {
 }
 function pickBiddingWar() {
   return drawBiddingWar(collectBiddingWarCandidates());
-}
-function drawBiddingWarCandidate(cands) {
-  const w = drawBiddingWar(cands);
-  return w ? narrativeCandidate('biddingWar', { defId: `bidding:${w.program.id}`, instanceId: `bidding-${gameState.season}-${w.program.id}`,
-    programId: w.program.id, slot: w.slot, rivalId: w.rival, group: w.agreement ? 'option' : w.kind, war: w,
-    build: () => createBiddingWarDilemma(w) }) : null;
 }
 
 function biddingReplacements(slot, leavingAnnual) {
@@ -29031,8 +29277,10 @@ function collectCrisisCandidates() {
   const v = gameState.pendingCrisis;
   const d = v ? createCrisisDilemma(v) : null;
   if (!d) return [];
+  const waited = v.waitingSince != null ? gameState.season - v.waitingSince : 0;
   return [narrativeCandidate('crisis', { defId: `crisis:${v.kind}`, instanceId: d.id, slot: v.data?.slot ?? null,
-    programId: v.data?.programId ?? null, talentId: v.data?.talentId ?? null, prebuilt: { ...d, crisisSource: { ...v } } })];
+    programId: v.data?.programId ?? null, talentId: v.data?.talentId ?? null, theme: 'crise', tone: 'negative',
+    relevance: 1 + NARRATIVE_TUNING.relevance.crisisWaiting * waited, prebuilt: { ...d, crisisSource: { ...v } } })];
 }
 const CRISIS_PREVENT_TEXT = {
   talent: 'le talent est sécurisé', cash: 'la trésorerie est repassée au-dessus du seuil d’alerte',

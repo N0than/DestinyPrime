@@ -20,6 +20,9 @@ const BASE_REV = '6fdce0a'; // dernière révision avant le Lot 1
 const args = process.argv.slice(2);
 const SEASONS_PER_TYPE = +(args.find(a => /^\d+$/.test(a)) || 220);
 const OUT = args.includes('--out') ? args[args.indexOf('--out') + 1] : null;
+// Comparaison avec l'ancien sélecteur : pertinente pour le lot 1 seulement (le lot 2 change
+// volontairement la sélection) ; activée par --compare.
+const COMPARE = args.includes('--compare');
 
 const scriptsOf = html => [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m => m[1]).slice(0, -1).join('\n');
 const newHtml = fs.readFileSync('index.html', 'utf8');
@@ -66,9 +69,8 @@ NARRATIVE_DEBUG = true;
 
 // ——— Comparaison à chaque tirage de file ———
 const realPick = pickDilemmaQueue;
-let comparing = true; // comparaison limitée aux parties libres (pas aux scénarios forcés)
+let comparing = COMPARE; // comparaison limitée aux parties libres (pas aux scénarios forcés)
 pickDilemmaQueue = function () {
-  if (!comparing) return realPick();
   // Pureté : toutes les collectes, sans écriture.
   ensureCampaign();
   const before = JSON.stringify(gameState), lsBefore = JSON.stringify(store.d);
@@ -79,6 +81,19 @@ pickDilemmaQueue = function () {
     const keys = [...new Set([...Object.keys(a), ...Object.keys(b)])].filter(k => JSON.stringify(a[k]) !== JSON.stringify(b[k]));
     const pk = keys.includes('player') ? Object.keys(b.player).filter(k => JSON.stringify(a.player[k]) !== JSON.stringify(b.player[k])) : [];
     report.purity.fails.push({ season: gameState.season, keys, player: pk });
+  }
+  if (!comparing) {
+    const pending = gameState.pendingCrisis?.key || null;
+    const q = realPick();
+    report.calls++;
+    if (pending) {
+      report.crisis.pending++;
+      if (q.some(d => d.isCrisis && d.crisisKey === pending)) report.crisis.placed++;
+      else if (gameState.pendingCrisis?.key === pending) report.crisis.waited++;
+    }
+    const r = buildRenewalDilemmas();
+    if (q.filter(isRenewalDilemma).length !== r.main.length + (r.talent ? 1 : 0)) report.queue.renewalMissing.push({ season: gameState.season });
+    return q;
   }
   // Ancien sélecteur sur une copie de l'état (mêmes flux aléatoires, même mémoire locale).
   const ls = JSON.stringify(store.d), rngBefore = rng, real = gameState;
@@ -193,8 +208,8 @@ comparing = false;
 {
   rng = 99; resetGame(); const p = gameState.player; p.type = 'generaliste'; p.name = 'Crise';
   finalizeChannelSetup(); launchFirstSeason(); seasonOpen(); playDilemmas();
-  const realReplaceable = narrativeReplaceable;
-  narrativeReplaceable = () => false; // aucune place pour une crise
+  const crisisWeight = NARRATIVE_TUNING.sourceWeight.crisis;
+  NARRATIVE_TUNING.sourceWeight.crisis = 0; // la crise n'est jamais retenue
   const crisisLife = [];
   for (let s = 0; s < 7 && gameState.step === 7; s++) {
     p.tresorerie = -5; // vulnérabilité « trésorerie » entretenue
@@ -205,11 +220,11 @@ comparing = false;
     playDilemmas();
     if (gameState.step === 8) { gameState.step = 7; gameState.gameOverReason = null; }
   }
-  narrativeReplaceable = realReplaceable;
+  NARRATIVE_TUNING.sourceWeight.crisis = crisisWeight;
   report.forcedCrisis = crisisLife;
 }
 // ——— 5 bis : mode Carrière, décisions scénarisées conservées (et tirages comparés) ———
-comparing = true;
+comparing = COMPARE;
 {
   const lost = [];
   for (let id = 1; id <= CAREER_SCENARIOS.length; id++) for (const seed of [3, 11]) {
@@ -230,7 +245,7 @@ comparing = true;
 globalThis.__report = report;
 `;
 
-const context = { console, structuredClone, URLSearchParams, SEASONS_PER_TYPE };
+const context = { console, structuredClone, URLSearchParams, SEASONS_PER_TYPE, COMPARE };
 vm.createContext(context);
 vm.runInContext(scriptsOf(newHtml) + '\n' + harness.replace('__LEGACY_CODE__', () => legacyCode), context, { filename: 'narrative-sim.js' });
 const report = context.__report;
@@ -304,13 +319,15 @@ const c = report.crisis, lines = [];
 lines.push(`Lot 1 — simulation headless, référence ${BASE_REV}`);
 lines.push(`Parties libres : ${report.games} ; saisons jouées par type : ${JSON.stringify(report.seasons)}`);
 lines.push('');
-lines.push('1. Équivalence avec l’ancien sélecteur (même état d’entrée à chaque tirage)');
-lines.push(`   tirages comparés : ${report.calls}`);
+lines.push('1. Équivalence avec l’ancien sélecteur (même état d’entrée à chaque tirage)' + (COMPARE ? '' : ' — non demandée (--compare), tirages comptés seulement'));
+lines.push(`   tirages ${COMPARE ? 'comparés' : 'joués'} : ${report.calls}`);
+if (COMPARE) {
 lines.push(`   files identiques (ids et ordre) : ${report.sameQueue} (${pct(report.sameQueue, report.calls)})`);
 lines.push(`   graine de campagne identique : ${report.sameSeed} ; identique au tirage du genre près : ${report.seedGenderOnly} ; total ${pct(report.sameSeed + report.seedGenderOnly, report.calls)}`);
 lines.push(`   flux et calendrier des droits sportifs identiques : ${report.sameSports} (${pct(report.sameSports, report.calls)})`);
 lines.push(`   divergences : ${JSON.stringify(report.reasons)}`);
 report.diffs.forEach(d => lines.push(`     ${d.type} S${d.season} : ancien ${d.legacy?.join(',')} / nouveau ${d.nouveau.join(',')}`));
+}
 lines.push('');
 lines.push('2. Pureté des collectes (JSON de gameState et mémoire locale avant/après)');
 lines.push(`   contrôles : ${report.purity.checks} ; écarts : ${report.purity.fails.length}`);
