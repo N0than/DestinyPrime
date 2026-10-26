@@ -114,15 +114,17 @@ function run(html, withThemes) {
 }
 const t0 = Date.now();
 const now = run(current, false);
-const ref = run(reference, true);
+// Taxonomie injectée seulement si la référence ne l'a pas (lot 1) ; une référence du lot 2 ou
+// plus garde la sienne.
+const ref = run(reference, !reference.includes('const NARRATIVE_THEMES'));
 const pct = (a, b) => b ? (100 * a / b).toFixed(1) + ' %' : '—';
 const row = (label, f, target) => `| ${label} | ${f(ref)} | ${f(now)} | ${target} |`;
 const themeDist = m => Object.entries(m.themes).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k} ${pct(v, Object.values(m.themes).reduce((s, x) => s + x, 0))}`).join(', ');
 const lines = [
-  `Lot 2 — diversité des saisons (${SEEDS} graines × ${SEASONS} saisons × 6 types, choix aléatoires) ; référence lot 1 : ${REV}`,
-  `Saisons jouées : lot 1 ${ref.seasons}, lot 2 ${now.seasons} — ${Math.round((Date.now() - t0) / 1000)} s`,
+  `Diversité des saisons (${SEEDS} graines × ${SEASONS} saisons × 6 types, choix aléatoires) ; référence : ${REV}`,
+  `Saisons jouées : référence ${ref.seasons}, version courante ${now.seasons} — ${Math.round((Date.now() - t0) / 1000)} s`,
   '',
-  '| Indicateur | Lot 1 | Lot 2 | Cible proposée |',
+  `| Indicateur | Référence (${REV}) | Version courante | Cible proposée |`,
   '|---|---|---|---|',
   row('Part moyenne du thème dominant par saison', m => (100 * m.dominant / m.seasons).toFixed(1) + ' %', '≤ 45 % (33 % = trois thèmes distincts)'),
   row('Saisons avec deux dilemmes du même thème', m => pct(m.dupTheme, m.seasons), '≤ 10 %'),
@@ -143,8 +145,8 @@ const lines = [
   row('Files vides / bloquées', m => `${m.empty} / ${m.blocked}`, '0 / 0'),
   row('Erreurs', m => String(m.errors.length), '0'),
   '',
-  `Distribution des thèmes — lot 1 : ${themeDist(ref)}`,
-  `Distribution des thèmes — lot 2 : ${themeDist(now)}`,
+  `Distribution des thèmes — référence : ${themeDist(ref)}`,
+  `Distribution des thèmes — version courante : ${themeDist(now)}`,
   ...(now.errors.length ? ['Erreurs lot 2 : ' + now.errors.slice(0, 3).join(' ; ')] : []),
   ...(ref.errors.length ? ['Erreurs lot 1 : ' + ref.errors.slice(0, 3).join(' ; ')] : [])
 ];

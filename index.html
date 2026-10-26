@@ -2313,6 +2313,9 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .dilemma-card.dilemma-hero .dc-body > p { font-size: 14px; line-height: 1.5; color: #475569; max-width: none; text-align: justify; hyphens: auto; }
 .consequence-card .dc-body > p { text-align: justify; hyphens: auto; }
 .dilemma-hero.is-result .dc-body > p { display: none; }
+/* Histoires de programmes : pourquoi ce dilemme apparaît, rappel de la décision passée. */
+.dilemma-card.dilemma-hero .dc-body > p.dc-story-context { font-size: 12.5px; line-height: 1.45; color: #64748b; text-align: left; margin: -2px 0 0; }
+.dc-story-recall { display: block; font-weight: 600; color: #475569; }
 .dilemma-hero .career-stats-badges { justify-content: flex-start; }
 .dilemma-hero .grid-renewal-list { align-self: stretch; text-align: left; }
 /* Reconduction de la grille : un programme par carte illustrée, usure en étoiles. */
@@ -8000,7 +8003,12 @@ const PROGRAM_FAMILIES = {
   humour: { label: 'une émission d’humour', test: p => p.format !== 'jeu' && (p.kind === 'humour' || /humour|rire|vanne|sketch|niouzes|farce|stand.?up|gag|cabaret|patamu/.test(p.name)) },
   relooking: { label: 'une émission de relooking', test: p => /relook|rien a me mettre|dans ta peau/.test(p.name) },
   fiction: { label: 'un film ou une fiction', test: p => p.format === 'fiction' || /\b(film|cine|fiction|series?|polar|telefilm|theatre|sitcom|soap|thriller)/.test(p.name) },
-  divertissement: { label: 'un grand divertissement', test: p => p.format === 'divertissement' || /divertissement|show|soiree|variete/.test(p.name) }
+  divertissement: { label: 'un grand divertissement', test: p => p.format === 'divertissement' || /divertissement|show|soiree|variete/.test(p.name) },
+  // Familles fondées sur les données du programme (genre éditorial, format), pas sur l'intitulé.
+  info: { label: 'un programme d’information', test: p => p.contract?.editorial?.genre === 'info' && p.format !== 'documentaire' },
+  sport: { label: 'un programme sportif', test: p => p.contract?.editorial?.genre === 'sport' || p.format === 'sport' },
+  documentaire: { label: 'un documentaire', test: p => p.format === 'documentaire' },
+  jeunesse: { label: 'un programme jeunesse', test: p => p.contract?.editorial?.genre === 'jeunesse' }
 };
 // Dilemmes qui supposent un programme précis à l'antenne : famille et, si besoin, cases.
 const DILEMMA_PROGRAM_NEEDS = {
@@ -20273,9 +20281,459 @@ const PROGRAM_STORY_TUNING = {
 const PROGRAM_STORY_POSITIONS = { 1: [0, 1], 2: [1, 2, 0], 3: [2, 1] };
 const PROGRAM_STORIES_BY_PROGRAM = {};
 
+// ---------------------------------------------------------------------------
+// HISTOIRES GÉNÉRIQUES PAR GENRE ET ARCS NARRATIFS (lot 3)
+// ---------------------------------------------------------------------------
+// Définitions réutilisables, rattachées aux genres de programmes (PROGRAM_FAMILIES) et non
+// à un titre. Mêmes champs que PROGRAM_STORY_BANK (phase, when, c : coûts, carrière, flags),
+// plus :
+//   genericKey   situation couverte ; une histoire propre au titre portant la même clé
+//                passe avant la variante générique (fenêtre NARRATIVE_TUNING.stories.genericWindow) ;
+//   genres / excludeGenres / slots / channelTypes   compatibilité ;
+//   requires     acteurs ou ressources réellement suivis : 'talent' (talent de la chaîne
+//                compatible avec la case), 'rival' (programme concurrent sur la case),
+//                'platform' (plateforme et droits d'exploitation), 'rights' (programme sous
+//                licence avec droits d'achat), 'partner' (producteur partenaire) ;
+//   theme        thème narratif (NARRATIVE_THEMES) ;
+//   opensArc / arc { id, step, branch?, outcome? }   ouverture ou étape d'un arc.
+// Choix : needs (option contextuelle, mêmes ressources que requires), branch / outcome
+// (choix réservé à une branche d'arc ou à une évolution observée), arc { open, branch,
+// recall } à l'ouverture ; à une étape, 'advance' ou 'resolve' (par défaut : resolve).
+// Acteurs non suivis par le jeu (jury, candidat, invité, animateur) : jamais nommés, sans état.
+const NARRATIVE_ARCS = {
+  jury: { label: 'Renouvellement du jury', steps: 2 },
+  animateur: { label: 'Succession à la présentation', steps: 2 },
+  refonte: { label: 'Refonte d’un programme usé', steps: 3 },
+  offensive: { label: 'Riposte à une offensive concurrente', steps: 3 },
+  surcout: { label: 'Surcoût de production', steps: 2 },
+  digital: { label: 'Développement en ligne', steps: 3 }
+};
+const GS_SHOWS = ['jeu', 'divertissement', 'talk', 'cuisine', 'humour', 'talent', 'telerealite'];
+const GENRE_STORY_BANK = [
+  // ——— Arc « jury » : concours ———
+  { id: 'gs_jury_conteste', genericKey: 'jury', family: 'image', theme: 'humain', genres: ['talent', 'cuisine'], phase: 2, repeat: 8, opensArc: 'jury',
+    when: { minSeasons: 1 },
+    titre: 'Le jury de {programme} ne fait plus l’unanimité',
+    desc: 'Sur les réseaux comme dans la presse, le jury de {programme} est accusé de complaisance et de jugements prévisibles. La production propose de le renouveler avant la prochaine série d’épisodes.',
+    c: [
+      { l: 'Renouveler tout le jury', icon: '🔄', cost: { purchase: 0.18 }, career: { awareness: 6, loyalty: -4 }, boost: 0.05,
+        arc: { open: 'jury', branch: 'remplace', recall: 'vous aviez renouvelé tout le jury de {programme}' },
+        r: 'Nouveaux visages, nouveau ton : la presse s’intéresse de nouveau à {programme}, une partie des fidèles regrette l’ancienne équipe.' },
+      { l: 'Confier un fauteuil du jury à {talent}', icon: '⭐', needs: 'talent', cost: { purchase: 0.05 }, career: { awareness: 4, loyalty: -1 },
+        arc: { open: 'jury', branch: 'interne', recall: 'vous aviez confié un fauteuil du jury à {talent}' },
+        r: '{talent} rejoint le jury : un visage de la chaîne, un renouvellement en douceur.' },
+      { l: 'Garder le jury et recadrer ses interventions', icon: '🎯', cost: { purchase: 0.04 }, career: { loyalty: 2 },
+        arc: { open: 'jury', branch: 'ajuste', recall: 'vous aviez gardé le jury en recadrant ses interventions' },
+        r: 'Le jury reste, ses commentaires gagnent en exigence. Le changement est discret.' },
+      { l: 'Défendre publiquement le jury en place', icon: '🛡️', career: { loyalty: 3, wear: 4 }, pop: -1,
+        r: 'Vous soutenez le jury : les fidèles apprécient, la critique persiste.' }
+    ] },
+  { id: 'gs_jury_suite_succes', genericKey: 'jury', family: 'image', theme: 'suite', genres: ['talent', 'cuisine'], phase: 2, repeat: 8,
+    arc: { id: 'jury', step: 2, outcome: ['succes'] },
+    titre: 'Le jury de {programme} a trouvé son public',
+    desc: 'Depuis le changement, la case de {programme} se porte mieux que la moyenne de la chaîne. Difficile de dire quelle part revient au jury, mais la production veut installer l’équipe dans la durée.',
+    c: [
+      { l: 'Installer l’équipe pour plusieurs saisons', icon: '🤝', cost: { recurring: 0.05 }, lasting: 0.04, career: { loyalty: 4 },
+        arc: 'resolve', recall: 'vous aviez installé le jury dans la durée', r: 'L’équipe est confirmée : {programme} gagne en stabilité.' },
+      { l: 'Capitaliser avec une émission spéciale', icon: '🎉', cost: { purchase: 0.1 }, boost: 0.08, career: { awareness: 4 },
+        arc: 'resolve', r: 'L’émission spéciale met le jury en valeur et attire de nouveaux téléspectateurs.' }
+    ] },
+  { id: 'gs_jury_suite_mitige', genericKey: 'jury', family: 'image', theme: 'suite', genres: ['talent', 'cuisine'], phase: 2, repeat: 8,
+    arc: { id: 'jury', step: 2, outcome: ['mitige'] },
+    titre: 'Le jury de {programme} cherche encore son équilibre',
+    desc: 'Les audiences de {programme} restent proches de la moyenne de la chaîne. Le jury divise moins, mais il ne s’est pas encore imposé.',
+    c: [
+      { l: 'Ajuster la répartition des rôles', icon: '🎚️', cost: { purchase: 0.05 }, career: { loyalty: 3 }, arc: 'resolve',
+        r: 'Chaque juré trouve sa place : le plateau gagne en rythme.' },
+      { l: 'Laisser le temps faire son œuvre', icon: '⏳', career: { wear: 2 }, arc: 'resolve',
+        r: 'Vous ne touchez à rien : l’équipe se rode, sans éclat particulier.' }
+    ] },
+  { id: 'gs_jury_suite_recul', genericKey: 'jury', family: 'image', theme: 'suite', genres: ['talent', 'cuisine'], phase: 2, repeat: 8,
+    arc: { id: 'jury', step: 2, outcome: ['recul'] },
+    titre: 'Le public boude le jury de {programme}',
+    desc: 'La case de {programme} recule par rapport à la moyenne de la chaîne. Le jury n’explique sans doute pas tout, mais une partie du public réclame l’ancienne formule.',
+    c: [
+      { l: 'Rappeler une partie de l’ancien jury', icon: '↩️', branch: ['remplace', 'interne'], cost: { purchase: 0.08 }, career: { loyalty: 5, awareness: -2 },
+        arc: 'resolve', r: 'Un retour partiel rassure les fidèles ; la nouveauté perd de son attrait.' },
+      { l: 'Renouveler finalement le jury', icon: '🔄', branch: ['ajuste'], cost: { purchase: 0.18 }, career: { awareness: 5, loyalty: -3 },
+        arc: 'resolve', r: 'Le recadrage n’a pas suffi : la nouvelle équipe repart de zéro.' },
+      { l: 'Poursuivre la transformation', icon: '🚀', cost: { purchase: 0.06 }, career: { awareness: 4, loyalty: -3 }, arc: 'resolve',
+        r: 'Vous assumez le changement : {programme} vise un public plus large, au risque de perdre des habitués.' }
+    ] },
+  // ——— Arc « animateur » : émissions de plateau ———
+  { id: 'gs_animateur_depart', genericKey: 'animateur', family: 'image', theme: 'humain', genres: ['jeu', 'divertissement', 'talk', 'cuisine', 'humour'], phase: 1, repeat: 8, opensArc: 'animateur',
+    when: { minSeasons: 2 },
+    titre: 'La présentation de {programme} va changer de mains',
+    desc: 'Après {anciennete}, la personne qui présente {programme} annonce vouloir passer à autre chose en fin de contrat. Reste à décider qui lui succède, ou s’il faut la retenir.',
+    c: [
+      { l: 'Confier {programme} à {talent}', icon: '⭐', needs: 'talent', cost: { purchase: 0.03 }, career: { awareness: -2, loyalty: -4 },
+        arc: { open: 'animateur', branch: 'interne', recall: 'vous aviez confié la présentation de {programme} à {talent}' },
+        r: '{talent} prend les commandes : un visage connu de la chaîne, un style différent.' },
+      { l: 'Recruter un nouveau visage', icon: '🆕', cost: { recurring: 0.08 }, career: { awareness: 4, loyalty: -6 },
+        arc: { open: 'animateur', branch: 'externe', recall: 'vous aviez recruté un nouveau visage pour présenter {programme}' },
+        r: 'Un nouveau visage arrive : la curiosité joue, les fidèles observent.' },
+      { l: 'La retenir avec une revalorisation', icon: '💶', cost: { recurring: 0.12 }, career: { loyalty: 4, wear: 2 },
+        r: 'La présentation reste en place, plus chère : la continuité a un prix.' }
+    ] },
+  { id: 'gs_animateur_suite_succes', genericKey: 'animateur', family: 'image', theme: 'suite', genres: ['jeu', 'divertissement', 'talk', 'cuisine', 'humour'], phase: 2, repeat: 8,
+    arc: { id: 'animateur', step: 2, outcome: ['succes'] },
+    titre: 'La nouvelle présentation de {programme} séduit',
+    desc: 'La case de {programme} progresse par rapport à la moyenne de la chaîne depuis le changement de présentation. La production propose d’en tirer parti.',
+    c: [
+      { l: 'Installer durablement la nouvelle présentation', icon: '🤝', cost: { recurring: 0.04 }, lasting: 0.05, career: { loyalty: 4 }, arc: 'resolve',
+        r: 'La relève est confirmée : {programme} retrouve de la stabilité.' },
+      { l: 'Lui confier aussi une soirée spéciale', icon: '🎉', cost: { purchase: 0.08 }, boost: 0.06, career: { awareness: 4 }, arc: 'resolve',
+        r: 'La soirée spéciale installe le nouveau visage auprès du grand public.' }
+    ] },
+  { id: 'gs_animateur_suite_mitige', genericKey: 'animateur', family: 'image', theme: 'suite', genres: ['jeu', 'divertissement', 'talk', 'cuisine', 'humour'], phase: 2, repeat: 8,
+    arc: { id: 'animateur', step: 2, outcome: ['mitige', 'recul'] },
+    titre: 'La relève de {programme} peine à convaincre',
+    desc: 'Depuis le changement de présentation, {programme} n’a pas trouvé de nouvel élan. Le changement n’explique pas tout, mais la production s’interroge.',
+    c: [
+      { l: 'Retoucher la formule autour de la nouvelle présentation', icon: '🎚️', cost: { purchase: 0.06 }, career: { loyalty: 3, wear: -3 }, arc: 'resolve',
+        r: 'La formule s’adapte au nouveau style : le plateau respire mieux.' },
+      { l: 'Associer un ancien chroniqueur de l’émission', icon: '👥', outcome: ['recul'], cost: { purchase: 0.05 }, career: { loyalty: 5 }, arc: 'resolve',
+        r: 'Un visage familier rassure les habitués pendant la transition.' },
+      { l: 'Maintenir le cap', icon: '🧭', career: { awareness: 2, loyalty: -2 }, arc: 'resolve',
+        r: 'Vous laissez la nouvelle présentation s’installer à son rythme.' }
+    ] },
+  // ——— Arc « refonte » : programme usé ———
+  { id: 'gs_formule_usee', genericKey: 'refonte', family: 'editorial', theme: 'grille', genres: [...GS_SHOWS, 'info', 'documentaire'], phase: 1, repeat: 8, opensArc: 'refonte',
+    when: { minSeasons: 2, minWear: 40 },
+    titre: '{programme} s’essouffle',
+    desc: 'Après {anciennete}, {programme} montre des signes d’usure : séquences attendues, public qui décroche avant la fin. L’équipe propose de revoir la formule.',
+    c: [
+      { l: 'Lancer une refonte complète', icon: '🛠️', cost: { purchase: 0.25 }, career: { wear: -20, loyalty: -5, awareness: 4 },
+        arc: { open: 'refonte', branch: 'complete', recall: 'vous aviez lancé une refonte complète de {programme}' },
+        r: '{programme} change de décor, de rythme et de rubriques : pari risqué, mais l’usure recule nettement.' },
+      { l: 'Retoucher quelques rubriques', icon: '✂️', cost: { purchase: 0.08 }, career: { wear: -8 },
+        arc: { open: 'refonte', branch: 'retouche', recall: 'vous aviez retouché la formule de {programme}' },
+        r: 'Quelques rubriques changent : le programme respire un peu mieux.' },
+      { l: 'Garder la formule qui a fait son succès', icon: '🔒', career: { wear: 3, loyalty: 2 },
+        r: 'Rien ne bouge : les fidèles sont rassurés, l’usure continue.' }
+    ] },
+  { id: 'gs_refonte_succes', genericKey: 'refonte', family: 'editorial', theme: 'suite', genres: [...GS_SHOWS, 'info', 'documentaire'], phase: 2, repeat: 8,
+    arc: { id: 'refonte', step: 2, outcome: ['succes'] },
+    titre: 'La nouvelle formule de {programme} prend',
+    desc: 'La case de {programme} progresse depuis la refonte, par rapport à la moyenne de la chaîne. L’équipe propose de consolider ou d’aller plus loin.',
+    c: [
+      { l: 'Consolider la nouvelle formule', icon: '🧱', cost: { recurring: 0.05 }, lasting: 0.05, arc: 'resolve',
+        r: 'La nouvelle formule devient la norme : {programme} repart pour plusieurs saisons.' },
+      { l: 'Pousser plus loin la modernisation', icon: '🚀', cost: { purchase: 0.1 }, career: { awareness: 5, wear: -5 }, arc: 'advance',
+        r: 'Nouvelle étape de modernisation : {programme} assume son virage.' }
+    ] },
+  { id: 'gs_refonte_mitige', genericKey: 'refonte', family: 'editorial', theme: 'suite', genres: [...GS_SHOWS, 'info', 'documentaire'], phase: 2, repeat: 8,
+    arc: { id: 'refonte', step: 2, outcome: ['mitige'] },
+    titre: 'Refonte de {programme} : le public hésite',
+    desc: 'Depuis la refonte, {programme} tient son rang sans décoller. Une partie du public a adopté la nouvelle formule, une autre attend de voir.',
+    c: [
+      { l: 'Procéder à un second ajustement', icon: '🎚️', cost: { purchase: 0.06 }, career: { wear: -5 }, arc: 'advance',
+        r: 'Second ajustement : la formule se précise.' },
+      { l: 'Stabiliser la formule en l’état', icon: '🧭', career: { loyalty: 2 }, arc: 'resolve',
+        r: 'Vous arrêtez les changements : le public a désormais des repères.' }
+    ] },
+  { id: 'gs_refonte_recul', genericKey: 'refonte', family: 'editorial', theme: 'suite', genres: [...GS_SHOWS, 'info', 'documentaire'], phase: 2, repeat: 8,
+    arc: { id: 'refonte', step: 2, outcome: ['recul'] },
+    titre: 'Les fidèles de {programme} regrettent l’ancienne formule',
+    desc: 'La case de {programme} recule depuis la refonte. La saison a pu jouer aussi, mais le courrier des téléspectateurs réclame les rubriques d’avant.',
+    c: [
+      { l: 'Réintroduire les rubriques historiques', icon: '↩️', cost: { purchase: 0.05 }, career: { loyalty: 6, wear: 3 }, arc: 'resolve',
+        r: 'Retour partiel aux fondamentaux : les habitués reviennent, l’élan de nouveauté retombe.' },
+      { l: 'Persévérer dans la transformation', icon: '🚀', career: { awareness: 3, loyalty: -4 }, arc: 'advance',
+        r: 'Vous tenez le cap : la transformation se poursuit, au risque d’un public plus volatil.' }
+    ] },
+  { id: 'gs_refonte_cloture', genericKey: 'refonte', family: 'editorial', theme: 'suite', genres: [...GS_SHOWS, 'info', 'documentaire'], phase: 2, repeat: 8,
+    arc: { id: 'refonte', step: 3 },
+    titre: 'Refonte de {programme} : l’heure du bilan',
+    desc: 'Deux étapes de transformation plus tard, la rédaction de {programme} demande une orientation claire pour les saisons à venir.',
+    c: [
+      { l: 'Graver la nouvelle formule', icon: '🏁', lasting: 0.04, career: { loyalty: 2 }, arc: 'resolve',
+        r: 'La transformation est actée : {programme} a trouvé son nouveau visage.' },
+      { l: 'Revenir en partie à l’ancienne formule', icon: '↩️', cost: { purchase: 0.05 }, career: { loyalty: 4, wear: 5 }, arc: 'resolve',
+        r: 'Compromis entre ancien et nouveau : les fidèles s’y retrouvent.' }
+    ] },
+  // ——— Arc « offensive » : pression concurrente sur la case ———
+  { id: 'gs_pression_concurrente', genericKey: 'concurrence', family: 'audience', theme: 'concurrence', excludeGenres: ['sport'], phase: 2, repeat: 8, opensArc: 'offensive',
+    requires: ['rival'], when: { pressure: true },
+    titre: '{rival} attaque votre case {creneau}',
+    desc: '{rival} aligne {rivalProgramme} face à {programme} et grignote son public sur la case {creneau}. Vos équipes proposent une riposte.',
+    c: [
+      { l: 'Contre-programmer avec une soirée événement', icon: '🎆', cost: { purchase: 0.15 }, boost: 0.1, career: { awareness: 4 },
+        arc: { open: 'offensive', branch: 'riposte', recall: 'vous aviez riposté à {rival} par une soirée événement' },
+        r: 'La soirée événement fait parler : {programme} reprend la main, au moins pour un temps.' },
+      { l: 'Renforcer durablement {programme}', icon: '💪', cost: { recurring: 0.08 }, lasting: 0.04,
+        arc: { open: 'offensive', branch: 'renfort', recall: 'vous aviez renforcé {programme} face à {rival}' },
+        r: 'Budget relevé : {programme} gagne en moyens sur toute la saison.' },
+      { l: 'Ne pas répondre et laisser passer l’orage', icon: '🌧️', career: { wear: 2 },
+        arc: { open: 'offensive', branch: 'attente', recall: 'vous n’aviez pas répondu à l’offensive de {rival}' },
+        r: 'Vous ne bougez pas : {rival} garde l’initiative sur la case.' }
+    ] },
+  { id: 'gs_offensive_succes', genericKey: 'concurrence', family: 'audience', theme: 'suite', excludeGenres: ['sport'], phase: 2, repeat: 8,
+    arc: { id: 'offensive', step: 2, outcome: ['succes'] },
+    titre: '{programme} a tenu bon face à {rival}',
+    desc: 'La case {creneau} se porte mieux qu’au moment de l’offensive de {rival}. La concurrence n’a pas dit son dernier mot, mais l’avantage est à vous.',
+    c: [
+      { l: 'Consolider l’avance', icon: '🧱', cost: { recurring: 0.04 }, lasting: 0.03, arc: 'resolve',
+        r: '{programme} garde des moyens renforcés : la case est sécurisée.' },
+      { l: 'Relâcher l’effort et réduire le budget', icon: '✂️', cost: { saving: 0.05 }, career: { wear: 3 }, arc: 'resolve',
+        r: 'Vous récupérez du budget : {programme} devra tenir avec moins.' }
+    ] },
+  { id: 'gs_offensive_mitige', genericKey: 'concurrence', family: 'audience', theme: 'suite', excludeGenres: ['sport'], phase: 2, repeat: 8,
+    arc: { id: 'offensive', step: 2, outcome: ['mitige'] },
+    titre: 'La bataille de la case {creneau} continue',
+    desc: 'Ni victoire ni défaite : {programme} et {rival} se partagent toujours le public de la case {creneau}.',
+    c: [
+      { l: 'Lancer une seconde riposte', icon: '🎆', cost: { purchase: 0.1 }, boost: 0.06, arc: 'advance',
+        r: 'Nouvelle soirée forte : la bataille de la case reprend.' },
+      { l: 'Tenir la position', icon: '🧭', career: { loyalty: 2 }, arc: 'resolve',
+        r: 'Vous gardez le cap : chacun conserve son public.' }
+    ] },
+  { id: 'gs_offensive_recul', genericKey: 'concurrence', family: 'audience', theme: 'suite', excludeGenres: ['sport'], phase: 2, repeat: 8,
+    arc: { id: 'offensive', step: 2, outcome: ['recul'] },
+    titre: '{rival} prend l’avantage sur la case {creneau}',
+    desc: 'Depuis l’offensive de {rival}, la case {creneau} recule. La concurrence n’explique pas tout, mais {programme} perd du terrain.',
+    c: [
+      { l: 'Changer d’arme : refonte express', icon: '🛠️', cost: { purchase: 0.12 }, career: { wear: -8, awareness: 3 }, arc: 'advance',
+        r: '{programme} se transforme en urgence pour reprendre l’avantage.' },
+      { l: 'Accepter une audience plus modeste', icon: '✂️', cost: { saving: 0.08 }, career: { awareness: -3 }, arc: 'resolve',
+        r: 'Vous réduisez la voilure : {programme} coûte moins et vise un public plus restreint.' }
+    ] },
+  { id: 'gs_offensive_cloture', genericKey: 'concurrence', family: 'audience', theme: 'suite', excludeGenres: ['sport'], phase: 2, repeat: 8,
+    arc: { id: 'offensive', step: 3 },
+    titre: 'Case {creneau} : fin de la bataille ?',
+    desc: 'Après plusieurs mois d’affrontement avec {rival}, vos équipes demandent s’il faut poursuivre l’effort sur la case {creneau}.',
+    c: [
+      { l: 'Revenir à un rythme normal', icon: '🕊️', career: { loyalty: 2 }, arc: 'resolve',
+        r: 'La bataille s’apaise : {programme} retrouve son rythme de croisière.' },
+      { l: 'Un dernier coup d’éclat', icon: '🎆', cost: { purchase: 0.1 }, boost: 0.08, arc: 'resolve',
+        r: 'Une dernière soirée forte pour marquer les esprits avant de clore la bataille.' }
+    ] },
+  // ——— Arc « surcoût » : production ———
+  { id: 'gs_surcout_tournage', genericKey: 'surcout', family: 'economie', theme: 'economie', genres: ['fiction', 'aventure', 'telerealite', 'divertissement', 'talent'], phase: 2, repeat: 8, opensArc: 'surcout',
+    titre: 'Surcoût sur le tournage de {programme}',
+    desc: 'Intempéries, décors à refaire, jours de tournage supplémentaires : la production de {programme} annonce un dépassement de budget sur la saison.',
+    c: [
+      { l: 'Absorber le dépassement', icon: '💶', cost: { purchase: 0.15 },
+        arc: { open: 'surcout', branch: 'absorbe', recall: 'vous aviez absorbé le surcoût de tournage de {programme}' },
+        r: 'Vous payez : le tournage se termine dans de bonnes conditions.' },
+      { l: 'Réduire la commande de la saison suivante', icon: '✂️', needs: 'reducible', cost: { saving: 0.15 }, career: { awareness: -3, wear: 3 },
+        arc: { open: 'surcout', branch: 'reduit', recall: 'vous aviez réduit la commande de {programme}' },
+        r: 'Moins d’épisodes commandés : le budget est tenu, le programme se fait plus discret.' },
+      { l: 'Renégocier avec le producteur', icon: '🤝', needs: 'partner', cost: { purchase: 0.06 },
+        arc: { open: 'surcout', branch: 'renegocie', recall: 'vous aviez renégocié le surcoût de {programme} avec son producteur' },
+        r: 'Le producteur accepte de partager le dépassement.' },
+      { l: 'Couper dans la post-production', icon: '🎞️', cost: { purchase: 0.04 }, boost: -0.04, career: { wear: 2 },
+        r: 'Le budget est sauvé au prix d’une finition moins soignée.' }
+    ] },
+  { id: 'gs_surcout_suite', genericKey: 'surcout', family: 'economie', theme: 'suite', genres: ['fiction', 'aventure', 'telerealite', 'divertissement', 'talent'], phase: 2, repeat: 8,
+    arc: { id: 'surcout', step: 2, branch: ['absorbe', 'renegocie'] },
+    titre: 'Le producteur de {programme} veut pérenniser le budget',
+    desc: 'Après le dépassement de la saison passée, la production de {programme} demande un budget relevé pour éviter la même situation.',
+    c: [
+      { l: 'Accepter un budget relevé', icon: '📈', outcome: ['succes', 'mitige'], cost: { recurring: 0.06 }, lasting: 0.03, arc: 'resolve',
+        r: 'Le budget est relevé : la production travaille sereinement.' },
+      { l: 'Revoir le dispositif à la baisse', icon: '✂️', outcome: ['recul', 'mitige'], cost: { saving: 0.08 }, career: { wear: 3 }, arc: 'resolve',
+        r: 'Avec des résultats décevants, vous réduisez le dispositif.' },
+      { l: 'Revenir au budget initial', icon: '↩️', career: { wear: 3 }, arc: 'resolve',
+        r: 'Le budget reste inchangé : la production devra s’organiser.' }
+    ] },
+  { id: 'gs_surcout_commande', genericKey: 'surcout', family: 'economie', theme: 'suite', genres: ['fiction', 'aventure', 'telerealite', 'divertissement', 'talent'], phase: 2, repeat: 8,
+    arc: { id: 'surcout', step: 2, branch: ['reduit'] },
+    titre: 'Rétablir la commande de {programme} ?',
+    desc: 'La saison réduite de {programme} est passée. La production propose de revenir au volume d’épisodes habituel.',
+    c: [
+      { l: 'Rétablir la commande complète', icon: '📈', cost: { recurring: 0.1 }, career: { awareness: 3 }, arc: 'resolve',
+        r: 'Le volume d’épisodes revient à la normale.' },
+      { l: 'Garder le format réduit', icon: '🔒', career: { loyalty: -2 }, arc: 'resolve',
+        r: 'Le format réduit devient la norme.' }
+    ] },
+  // ——— Arc « digital » : plateforme ———
+  { id: 'gs_valorisation_digitale', genericKey: 'numerique', family: 'strategie', theme: 'opportunite', excludeGenres: ['sport'], phase: 2, repeat: 8, opensArc: 'digital',
+    requires: ['platform'], when: { minSeasons: 1 },
+    titre: 'Prolonger {programme} sur votre plateforme',
+    desc: 'Votre chaîne détient les droits d’exploitation de {programme} et dispose d’une plateforme. L’équipe numérique propose de prolonger le programme en ligne.',
+    c: [
+      { l: 'Lancer des contenus exclusifs', icon: '📱', cost: { purchase: 0.1 }, career: { awareness: 4 },
+        arc: { open: 'digital', branch: 'exclusif', recall: 'vous aviez lancé des contenus exclusifs de {programme} sur la plateforme' },
+        r: 'Des contenus inédits de {programme} arrivent sur la plateforme.' },
+      { l: 'Diffuser des extraits gratuits', icon: '🎬', cost: { commercial: 0.04 }, career: { awareness: 2 },
+        arc: { open: 'digital', branch: 'extraits', recall: 'vous aviez diffusé des extraits gratuits de {programme}' },
+        r: 'Les extraits circulent et rapportent un peu de publicité en ligne.' },
+      { l: 'Garder l’antenne comme seule vitrine', icon: '📺', career: { loyalty: 2 },
+        r: '{programme} reste un rendez-vous de l’antenne.' }
+    ] },
+  { id: 'gs_digital_succes', genericKey: 'numerique', family: 'strategie', theme: 'suite', excludeGenres: ['sport'], phase: 2, repeat: 8,
+    requires: ['platform'], arc: { id: 'digital', step: 2, outcome: ['succes'] },
+    titre: 'Les contenus de {programme} trouvent leur public en ligne',
+    desc: 'L’offre en ligne de {programme} attire du monde et la case se porte bien. L’équipe numérique propose l’étape suivante.',
+    c: [
+      { l: 'Monétiser une offre premium', icon: '💳', cost: { commercial: 0.08 }, career: { loyalty: -2 }, arc: 'resolve',
+        r: 'L’offre premium rapporte : une partie du public grince des dents.' },
+      { l: 'Élargir l’offre en ligne', icon: '🚀', cost: { purchase: 0.08 }, career: { awareness: 4 }, arc: 'advance',
+        r: 'L’offre s’élargit : {programme} s’installe aussi en ligne.' }
+    ] },
+  { id: 'gs_digital_recul', genericKey: 'numerique', family: 'strategie', theme: 'suite', excludeGenres: ['sport'], phase: 2, repeat: 8,
+    requires: ['platform'], arc: { id: 'digital', step: 2, outcome: ['mitige', 'recul'] },
+    titre: 'L’offre en ligne de {programme} peine',
+    desc: 'Les contenus en ligne de {programme} ne décollent pas. La plateforme n’est pas seule en cause, mais l’équipe numérique demande un arbitrage.',
+    c: [
+      { l: 'Recentrer sur les meilleurs moments', icon: '🎯', cost: { purchase: 0.03 }, career: { awareness: 2 }, arc: 'resolve',
+        r: 'L’offre se concentre sur l’essentiel.' },
+      { l: 'Fermer l’offre en ligne', icon: '🔒', arc: 'resolve',
+        r: '{programme} redevient un rendez-vous de l’antenne uniquement.' }
+    ] },
+  { id: 'gs_digital_cloture', genericKey: 'numerique', family: 'strategie', theme: 'suite', excludeGenres: ['sport'], phase: 2, repeat: 8,
+    requires: ['platform'], arc: { id: 'digital', step: 3 },
+    titre: 'Bilan de l’offre en ligne de {programme}',
+    desc: 'L’offre en ligne de {programme} a pris de l’ampleur. Reste à décider de son avenir.',
+    c: [
+      { l: 'Pérenniser l’offre et la sponsoriser', icon: '🏁', cost: { commercial: 0.05 }, arc: 'resolve',
+        r: 'Un partenaire finance l’offre en ligne : elle devient permanente.' },
+      { l: 'Arrêter l’offre et se recentrer sur l’antenne', icon: '📺', career: { loyalty: 2 }, arc: 'resolve',
+        r: 'L’équipe numérique passe à d’autres projets.' }
+    ] },
+  // ——— Situations sans arc ———
+  { id: 'gs_candidat_depart', genericKey: 'candidat', family: 'image', theme: 'humain', genres: ['telerealite', 'aventure', 'talent', 'cuisine'], phase: 2, repeat: 6,
+    titre: 'Un candidat emblématique quitte {programme}',
+    desc: 'Le candidat le plus suivi de {programme} annonce son départ en pleine saison. Les réseaux s’emballent, la production attend votre feu vert.',
+    c: [
+      { l: 'Lui offrir une sortie à l’antenne', icon: '👋', cost: { purchase: 0.05 }, boost: 0.05, career: { loyalty: 2 },
+        r: 'Une séquence d’adieu soignée : le départ devient un moment fort.' },
+      { l: 'Tourner la page sans bruit', icon: '🤐', career: { loyalty: -3 },
+        r: 'Le départ passe presque inaperçu ; une partie des fans ne le pardonne pas.' },
+      { l: 'Faire revenir un ancien candidat', icon: '↩️', cost: { purchase: 0.08 }, career: { awareness: 3, loyalty: 2 },
+        r: 'Un retour surprise relance l’intérêt.' }
+    ] },
+  { id: 'gs_finale_exceptionnelle', genericKey: 'finale', family: 'editorial', theme: 'grille', genres: ['talent', 'cuisine', 'telerealite', 'aventure', 'jeu', 'divertissement'], phase: 3, repeat: 6,
+    when: { minSeasons: 1, form: ['succes', 'stable'] },
+    titre: 'Une finale exceptionnelle pour {programme} ?',
+    desc: 'La saison de {programme} touche à sa fin. La production propose une finale en direct dans une grande salle, avec un dispositif inhabituel.',
+    c: [
+      { l: 'Finale en direct dans une grande salle', icon: '🌟', cost: { purchase: 0.25 }, boost: 0.15, career: { awareness: 6 },
+        r: 'La finale fait l’événement : audience au sommet, budget lourd.' },
+      { l: 'Finale enregistrée habituelle', icon: '🎬', career: { wear: 2 },
+        r: 'Une finale solide, sans surprise.' },
+      { l: 'Faire voter le public sur la plateforme', icon: '📱', needs: 'platform', cost: { commercial: 0.04 }, career: { awareness: 3 },
+        r: 'Le vote en ligne mobilise le public et rapporte un peu de publicité.' }
+    ] },
+  { id: 'gs_declinaison', genericKey: 'declinaison', family: 'strategie', theme: 'opportunite', genres: ['jeu', 'divertissement', 'cuisine', 'talent', 'animation'], phase: 3, repeat: 6,
+    when: { minSeasons: 2, form: 'succes' },
+    titre: 'Une déclinaison de {programme} ?',
+    desc: 'Après {anciennete} et une saison réussie, la production de {programme} propose une déclinaison du concept.',
+    c: [
+      { l: 'Produire une édition spéciale en prime', icon: '🎉', cost: { purchase: 0.2 }, boost: 0.08, career: { awareness: 4, wear: 3 },
+        r: 'L’édition spéciale fait une belle soirée, au prix d’un peu d’usure.' },
+      { l: 'Décliner {programme} sur la plateforme', icon: '📱', needs: 'platform', cost: { purchase: 0.08 }, career: { awareness: 5 },
+        r: 'La déclinaison en ligne prolonge le succès sans user l’antenne.' },
+      { l: 'Préserver la rareté du programme', icon: '💎', career: { loyalty: 3 },
+        r: 'Vous refusez de diluer le concept : les fidèles apprécient.' }
+    ] },
+  { id: 'gs_suite_fiction_chere', genericKey: 'suite_fiction', family: 'economie', theme: 'economie', genres: ['fiction'], phase: 3, repeat: 6,
+    when: { minSeasons: 1, form: ['succes', 'stable'] },
+    titre: 'La suite de {programme} coûtera plus cher',
+    desc: 'Pour sa prochaine saison, la production de {programme} réclame un budget relevé : décors, distribution, effets. Elle promet une saison plus ambitieuse.',
+    c: [
+      { l: 'Accepter le budget de la nouvelle saison', icon: '📈', cost: { recurring: 0.12 }, lasting: 0.04,
+        r: 'Le budget est relevé : la suite gagne en ambition.' },
+      { l: 'Exiger une saison à budget constant', icon: '⚖️', career: { wear: 4 }, boost: -0.03,
+        r: 'La production s’adapte : la suite sera plus modeste.' },
+      { l: 'Raccourcir la saison', icon: '✂️', needs: 'reducible', cost: { saving: 0.12 }, career: { awareness: -3 },
+        r: 'Moins d’épisodes pour le même niveau de production.' }
+    ] },
+  { id: 'gs_droits_film', genericKey: 'droits', family: 'economie', theme: 'economie', genres: ['fiction'], phase: 1, repeat: 6,
+    requires: ['rights'], when: { minSeasons: 1 },
+    titre: 'Les ayants droit de {programme} relèvent leurs prix',
+    desc: 'Le distributeur de {programme} annonce une hausse du coût de diffusion pour les prochaines saisons du contrat.',
+    c: [
+      { l: 'Payer le nouveau tarif', icon: '💶', cost: { recurring: 0.1 }, career: { loyalty: 2 },
+        r: '{programme} reste à l’antenne dans les mêmes conditions, plus cher.' },
+      { l: 'Négocier avec le producteur partenaire', icon: '🤝', needs: 'partner', cost: { recurring: 0.04 },
+        r: 'La négociation limite la hausse.' },
+      { l: 'Réduire le nombre de diffusions', icon: '✂️', needs: 'reducible', cost: { saving: 0.1 }, career: { awareness: -4 },
+        r: 'Moins de diffusions, moins de coût : le programme se fait plus rare.' },
+      { l: 'Refuser la hausse et diffuser moins souvent les inédits', icon: '⚖️', career: { wear: 4 }, boost: -0.03,
+        r: 'Le distributeur limite les inédits : {programme} s’use plus vite.' }
+    ] },
+  { id: 'gs_invite_desiste', genericKey: 'invite', family: 'editorial', theme: 'surprise', genres: ['talk'], phase: 2, repeat: 6,
+    titre: 'L’invité principal de {programme} se désiste',
+    desc: 'À quelques heures du direct, l’invité principal de {programme} annule sa venue. Le plateau doit être recomposé en urgence.',
+    c: [
+      { l: 'Une édition spéciale animée par {talent}', icon: '⭐', needs: 'talent', cost: { purchase: 0.03 }, career: { loyalty: 3 },
+        r: '{talent} sauve la soirée avec une édition spéciale.' },
+      { l: 'Trouver un invité de dernière minute', icon: '📞', cost: { purchase: 0.06 }, boost: 0.02,
+        r: 'Un invité de remplacement accepte, contre un cachet élevé.' },
+      { l: 'Diffuser un best-of', icon: '📼', boost: -0.05, career: { wear: 2 },
+        r: 'Le best-of dépanne, le public le remarque.' }
+    ] },
+  { id: 'gs_enquete_sensible', genericKey: 'enquete', family: 'image', theme: 'surprise', genres: ['investigation'], phase: 2, repeat: 6,
+    titre: 'Une enquête sensible pour {programme}',
+    desc: 'L’équipe de {programme} tient une enquête qui met en cause une grande entreprise. Les sources sont solides mais l’entreprise menace de poursuites.',
+    c: [
+      { l: 'Diffuser l’enquête', icon: '📢', boost: 0.06, career: { awareness: 6 }, pop: 1,
+        r: 'L’enquête fait du bruit : {programme} gagne en crédibilité.' },
+      { l: 'Prendre le temps de tout vérifier', icon: '🔍', cost: { purchase: 0.06 }, career: { loyalty: 3 },
+        r: 'Vérifications supplémentaires : l’enquête sortira plus tard, inattaquable.' },
+      { l: 'Renoncer au sujet', icon: '🚫', career: { loyalty: -3 }, pop: -1,
+        r: 'Le sujet est abandonné ; la rédaction est déçue.' }
+    ] },
+  { id: 'gs_debat_clivant', genericKey: 'debat', family: 'image', theme: 'grille', genres: ['talk'], phase: 2, repeat: 6,
+    when: { form: 'succes' },
+    titre: 'Le débat de {programme} cartonne… et divise',
+    desc: 'Les séquences de débat de {programme} font de belles audiences, mais les clashs à répétition abîment l’image de la chaîne.',
+    c: [
+      { l: 'Laisser le débat s’enflammer', icon: '🔥', boost: 0.06, pop: -2,
+        r: 'L’audience suit, l’image de la chaîne en pâtit.' },
+      { l: 'Recadrer le plateau', icon: '🎯', cost: { purchase: 0.04 }, boost: -0.02, pop: 1,
+        r: 'Le ton s’apaise : moins de clashs, un peu moins d’audience.' },
+      { l: 'Supprimer la séquence de débat', icon: '✂️', career: { loyalty: -3 }, pop: 2,
+        r: 'La séquence disparaît : l’image s’améliore, une partie du public décroche.' }
+    ] },
+  { id: 'gs_jeunesse_vieillissante', genericKey: 'jeunesse', family: 'editorial', theme: 'grille', genres: ['animation', 'jeunesse'], channelTypes: ['jeunesse', 'generaliste', 'culture'], phase: 1, repeat: 6,
+    when: { minSeasons: 2, minWear: 30 },
+    titre: '{programme} ne parle plus aux enfants d’aujourd’hui',
+    desc: 'Les enfants décrochent de {programme} : personnages datés, rythme trop lent. L’équipe jeunesse propose de rafraîchir l’offre.',
+    c: [
+      { l: 'Commander une saison modernisée', icon: '🎨', cost: { purchase: 0.2 }, career: { wear: -15, awareness: 3 },
+        r: 'Nouvelle saison, nouveau style : {programme} retrouve les plus jeunes.' },
+      { l: 'Rafraîchir l’habillage et les génériques', icon: '🖌️', cost: { purchase: 0.06 }, career: { wear: -5 },
+        r: 'Un coup de neuf discret, à petit prix.' },
+      { l: 'Garder l’offre actuelle', icon: '🔒', career: { wear: 3, loyalty: 1 },
+        r: 'Rien ne change : les parents apprécient, les enfants moins.' }
+    ] },
+  { id: 'gs_production_sport', genericKey: 'production_sport', family: 'economie', theme: 'economie', genres: ['sport'], phase: 1, repeat: 6,
+    titre: 'Quel dispositif pour {programme} cette saison ?',
+    desc: 'La direction des sports présente deux options pour couvrir {programme} : un dispositif renforcé avec plus de caméras et de consultants, ou le dispositif habituel.',
+    c: [
+      { l: 'Dispositif renforcé', icon: '🎥', cost: { purchase: 0.15 }, boost: 0.08, career: { awareness: 4 },
+        r: 'Plus de caméras, plus d’analyse : la couverture monte en gamme.' },
+      { l: 'Dispositif habituel', icon: '📺', career: { wear: 2 },
+        r: 'La couverture reste classique et maîtrisée.' },
+      { l: 'Partager des images sur la plateforme', icon: '📱', needs: 'platform', cost: { commercial: 0.04 }, career: { awareness: 2 },
+        r: 'Les temps forts circulent en ligne et rapportent un peu de publicité.' }
+    ] }
+];
+
+// Situation couverte par une histoire propre à un titre (genericKey), déduite de son
+// identifiant : elle passe avant la variante générique de la même situation.
+const STORY_GENERIC_KEY_RULES = [
+  ['jury', /jur[ey]/], ['finale', /finale/], ['candidat', /candidat|gagnant|casting/],
+  ['animateur', /presentat|animat|depart|releve|consultant/], ['refonte', /refonte|relance|vieillissement|duree/],
+  ['declinaison', /junior|version|declin|tournee|livre|salon|spectacle|crossover|remake/], ['invite', /invite/],
+  ['enquete', /enquete|lanceur|pressions|temoign|scoop/], ['debat', /debat/], ['surcout', /budget|cachets|cout/],
+  ['concurrence', /rival|duel|bataille/], ['numerique', /numerique|appli|application|jeu_video|simulcast/]
+];
+function inferStoryGenericKey(def) {
+  const slug = def.id.replace(/^ps_[^_]+_/, '');
+  return STORY_GENERIC_KEY_RULES.find(([, re]) => re.test(slug))?.[0] || null;
+}
+
 function indexProgramStories() {
   Object.keys(PROGRAM_STORIES_BY_PROGRAM).forEach(k => delete PROGRAM_STORIES_BY_PROGRAM[k]);
-  PROGRAM_STORY_BANK.forEach(def => (PROGRAM_STORIES_BY_PROGRAM[def.programId] ??= []).push(def));
+  PROGRAM_STORY_BANK.forEach(def => {
+    def.genericKey ??= inferStoryGenericKey(def);
+    (PROGRAM_STORIES_BY_PROGRAM[def.programId] ??= []).push(def);
+  });
+  GENRE_STORY_BANK.forEach(def => { def.isGeneric = true; });
 }
 indexProgramStories();
 
@@ -20292,6 +20750,194 @@ function programStoryRecord(programId) {
 function programStoryRecordView(programId) {
   return gameState.player.programStories?.[programId] || { log: [], flags: {}, last: null };
 }
+// Genres d'un programme de la grille (PROGRAM_FAMILIES), sur la même base que les dilemmes
+// liés à un programme (gridProgramsOf).
+function programGenresOf(contract, slot) {
+  const kind = typeof TvPrograms !== 'undefined'
+    ? TvPrograms.classify({ name: contract.name, format: contract.format, channelType: gameState.player.type }).genre : '';
+  const p = { slot, name: normalizeAudienceText(contract.name || ''), format: contract.format || '', kind, contract };
+  return Object.keys(PROGRAM_FAMILIES).filter(k => PROGRAM_FAMILIES[k].test(p));
+}
+// Talent de la chaîne compatible avec la case (sa spécialité est le genre de la case), sous
+// contrat cette saison et pas sur le départ.
+function storyCompatibleTalent(slot) {
+  const p = gameState.player, genre = channelSlotProfile(p, slot).genre;
+  return (p.talents || []).find(t => t.specialty === genre && (t.until ?? Infinity) >= gameState.season && !talentRetiring(t)) || null;
+}
+// Ressources réellement suivies par le jeu, exigées par une histoire (requires) ou par une
+// option (needs). Aucune relation n'est inventée : talent sous contrat, programme concurrent
+// sur la case, plateforme et droits d'exploitation, licence avec droits d'achat, producteur
+// partenaire (contrat négocié ou option d'achat), saison de contrat restante à réduire.
+const STORY_RESOURCES = {
+  talent: ctx => !!ctx.talent,
+  rival: ctx => !!ctx.rivalReal,
+  platform: ctx => !!gameState.player.isPlatform && ['owned', 'coproduction'].includes(ctx.contract.ownership),
+  rights: ctx => (ctx.contract.rights || 0) > 0 && (ctx.contract.ownership || 'licence') === 'licence',
+  partner: ctx => !!ctx.contract.partnerId || (gameState.player.producerAgreements || []).some(a => a.programId === ctx.contract.id && !a.closed),
+  reducible: ctx => contractSeasonsLeft(ctx.contract) >= 1
+};
+
+// Variables des textes, construites avec les données réelles ; null quand la donnée manque
+// (le candidat générique qui en a besoin est alors exclu).
+function storyTextVars(ctx, arc = null) {
+  const n = ctx.seasons;
+  return {
+    programme: `« ${esc(ctx.contract.name)} »`,
+    saisons: `${n} saison${n > 1 ? 's' : ''}`,
+    anciennete: n >= 2 ? `${n} saisons d’antenne` : n === 1 ? 'une saison d’antenne' : 'quelques semaines d’antenne',
+    creneau: esc(TIME_SLOTS.find(s => s.key === ctx.slot)?.label || ctx.slot),
+    rival: arc?.rival ? esc(arc.rival) : ctx.rivalReal ? esc(ctx.rival) : null,
+    rivalProgramme: ctx.rivalReal ? `« ${esc(ctx.rivalProgram)} »` : null,
+    talent: ctx.talent ? esc(ctx.talent.name) : null
+  };
+}
+const genericStoryWeight = def => def.weight ?? (def.arc ? NARRATIVE_TUNING.stories.followUpWeight : NARRATIVE_TUNING.stories.genericWeight);
+const storyMissingVars = (texts, vars) => texts.some(t => [...String(t).matchAll(/\{(\w+)\}/g)].some(m => vars[m[1]] == null));
+
+// Arcs narratifs (gameState.player.storyArcs) : { arcId, step, branch, state, openedSeason,
+// lastSeason, expiresSeason, entity: { kind: 'programme', id, slot, name }, rival, lastRatio,
+// flags, history: [{ step, season, defId, choice, recall }] }. state : open, resolu, expire,
+// abandonne. Lecture seule ici ; écritures à l'application d'un choix et en début de saison.
+const storyArcs = () => gameState.player.storyArcs || [];
+const openStoryArcs = programId => storyArcs().filter(a => a.state === 'open' && (!programId || a.entity.id === programId));
+// Évolution observée depuis l'étape précédente : écart de la case à la moyenne de la chaîne,
+// à défaut la forme actuelle du programme. Elle oriente la suite sans lui attribuer toute la
+// variation d'audience.
+function storyArcOutcome(arc, ctx) {
+  const T = NARRATIVE_TUNING.arcs, delta = ctx.ratio - (arc.lastRatio ?? ctx.ratio);
+  if (delta >= T.successDelta) return 'succes';
+  if (delta <= -T.declineDelta) return 'recul';
+  return ctx.form === 'succes' ? 'succes' : ctx.form === 'difficulte' ? 'recul' : 'mitige';
+}
+// Même situation (genericKey) jouée récemment sur ce programme, dans sa version générique
+// (generic = true) ou propre au titre (generic = false).
+function storyKeyPlayedRecently(rec, key, generic) {
+  if (!key) return false;
+  return rec.log.some(l => gameState.season - l.season < NARRATIVE_TUNING.stories.genericWindow
+    && programStoryDef(l.id)?.genericKey === key && !!programStoryDef(l.id)?.isGeneric === generic);
+}
+// Choix proposés : options contextuelles seulement si la ressource existe, choix réservés à
+// une branche ou à une évolution d'arc ; 4 au plus.
+function storyChoicesFor(def, ctx, arc) {
+  return def.c.map((spec, index) => ({ spec, index }))
+    .filter(({ spec }) => (!spec.needs || STORY_RESOURCES[spec.needs](ctx))
+      && (!spec.branch || (arc && spec.branch.includes(arc.branch)))
+      && (!spec.outcome || (arc && spec.outcome.includes(arc.outcome))))
+    .slice(0, 4);
+}
+// Histoire générique applicable à ce programme : genres, case, type de chaîne, ressources,
+// conditions et répétition (programStoryMatches), étape d'arc, priorité de la version propre
+// au titre, plafond d'arcs, variables de texte disponibles et au moins deux choix.
+function genericStoryMatches(def, ctx, specificKeys) {
+  const p = gameState.player, T = NARRATIVE_TUNING;
+  if (def.genres && !def.genres.some(g => ctx.genres.includes(g))) return null;
+  if (def.excludeGenres?.some(g => ctx.genres.includes(g))) return null;
+  if (def.slots && !def.slots.includes(ctx.slot)) return null;
+  if (def.channelTypes && !def.channelTypes.includes(p.type)) return null;
+  if ((def.requires || []).some(r => !STORY_RESOURCES[r](ctx))) return null;
+  if (!programStoryMatches(def, ctx)) return null;
+  let arc = null;
+  if (def.arc) {
+    const open = openStoryArcs(ctx.contract.id).find(a => a.arcId === def.arc.id && a.step === def.arc.step - 1);
+    if (!open || gameState.season - open.lastSeason < T.arcs.followUpDelay) return null;
+    if (def.arc.branch && !def.arc.branch.includes(open.branch)) return null;
+    const outcome = storyArcOutcome(open, ctx);
+    if (def.arc.outcome && !def.arc.outcome.includes(outcome)) return null;
+    const last = open.history.at(-1);
+    arc = { arcId: open.arcId, branch: open.branch, outcome, rival: open.rival, recall: last?.recall ? `Saison ${last.season} : ${last.recall}.` : null };
+  } else {
+    if (def.genericKey && (specificKeys.has(def.genericKey) || storyKeyPlayedRecently(ctx.record, def.genericKey, false)
+      || storyKeyPlayedRecently(ctx.record, def.genericKey, true))) return null;
+    if (def.opensArc && (openStoryArcs(ctx.contract.id).length >= T.arcs.maxOpenPerProgram || openStoryArcs().length >= T.arcs.maxOpen)) return null;
+  }
+  const choices = storyChoicesFor(def, ctx, arc);
+  if (choices.length < 2) return null;
+  const vars = storyTextVars(ctx, arc);
+  if (storyMissingVars([def.titre, def.desc, ...choices.flatMap(({ spec }) => [spec.l, spec.r, spec.arc?.recall || ''])], vars)) return null;
+  return { arc, choices };
+}
+// Ligne de contexte : pourquoi ce dilemme apparaît maintenant.
+function storyContextLine(def, ctx, arc) {
+  const w = def.when || {}, vars = storyTextVars(ctx, arc), prog = vars.programme;
+  if (arc) return `Depuis cette décision, la case ${vars.creneau} ${{ succes: 'progresse', mitige: 'se maintient', recul: 'recule' }[arc.outcome]} par rapport à la moyenne de la chaîne.`;
+  if (w.pressure) return `${vars.rival || esc(ctx.rival)} met la case ${vars.creneau} sous pression.`;
+  if (w.minWear != null) return `${prog} montre des signes d’usure (usure ${Math.round(ctx.wear)}/100).`;
+  if (w.form) return ctx.form === 'succes' ? `${prog} fait partie des meilleures audiences de la chaîne.`
+    : ctx.form === 'difficulte' ? `${prog} est sous la moyenne d’audience de la chaîne.` : `${prog} tient son rang dans la grille.`;
+  if (def.requires?.includes('platform')) return `Votre plateforme et vos droits sur ${prog} permettent de l’exploiter en ligne.`;
+  if (def.requires?.includes('rights')) return `${prog} est diffusé sous licence : son coût dépend des ayants droit.`;
+  if (w.flag || w.after) return `Cette situation découle d’une décision prise sur ${prog}.`;
+  const nb = ctx.career.seasonNumber || 1;
+  return `${prog} entame sa ${nb === 1 ? 'première' : `${nb}e`} saison sur la case ${vars.creneau}.`;
+}
+
+// Application : ouverture, étape suivante ou clôture d'un arc.
+function storyArcApply(dilemma, s, contract) {
+  const p = gameState.player, T = NARRATIVE_TUNING.arcs, season = gameState.season;
+  p.storyArcs ??= [];
+  if (s.arc?.open) {
+    if (openStoryArcs(contract.id).length >= T.maxOpenPerProgram || openStoryArcs().length >= T.maxOpen) {
+      narrativeLog('arc non ouvert', { arc: s.arc.open, programme: contract.id, raison: 'plafond d’arcs ouverts' });
+      return;
+    }
+    p.storyArcs.push({ arcId: s.arc.open, step: 1, branch: s.arc.branch, state: 'open', openedSeason: season, lastSeason: season,
+      expiresSeason: season + T.maxDuration, entity: { kind: 'programme', id: contract.id, slot: dilemma.storySlot, name: contract.name },
+      rival: dilemma.storyRival || null, lastRatio: dilemma.storyRatio ?? null, flags: [],
+      history: [{ step: 1, season, defId: dilemma.storyDefId, choice: s.index, recall: s.recall }] });
+    narrativeLog('arc ouvert', { arc: s.arc.open, branche: s.arc.branch, programme: contract.id });
+    return;
+  }
+  const arc = dilemma.storyArc && openStoryArcs(contract.id).find(a => a.arcId === dilemma.storyArc.arcId);
+  if (!arc) return;
+  arc.history.push({ step: dilemma.storyArc.step, season, defId: dilemma.storyDefId, choice: s.index, recall: s.recall });
+  arc.lastSeason = season;
+  arc.lastRatio = dilemma.storyRatio ?? arc.lastRatio;
+  if (s.arc === 'advance' && dilemma.storyArc.step < (NARRATIVE_ARCS[arc.arcId]?.steps || 2)) {
+    arc.step = dilemma.storyArc.step;
+    narrativeLog('arc avancé', { arc: arc.arcId, étape: arc.step, programme: contract.id });
+  } else closeStoryArc(arc, 'resolu', 'décision de clôture');
+}
+// Clôture d'un arc : ses flags sont retirés de la mémoire du programme, l'historique des arcs
+// fermés est borné (NARRATIVE_TUNING.arcs.keepClosed).
+function closeStoryArc(arc, state, reason) {
+  const p = gameState.player;
+  arc.state = state;
+  arc.closedSeason = gameState.season;
+  arc.closeReason = reason;
+  const rec = p.programStories?.[arc.entity.id];
+  if (rec) arc.flags.forEach(f => delete rec.flags[f]);
+  narrativeLog(`arc ${{ resolu: 'résolu', expire: 'expiré', abandonne: 'abandonné' }[state] || state}`, { arc: arc.arcId, programme: arc.entity.id, raison: reason });
+  const closed = p.storyArcs.filter(a => a.state !== 'open');
+  if (closed.length > NARRATIVE_TUNING.arcs.keepClosed) {
+    const drop = new Set(closed.slice(0, closed.length - NARRATIVE_TUNING.arcs.keepClosed));
+    p.storyArcs = p.storyArcs.filter(a => !drop.has(a));
+  }
+}
+// Début de saison (et retrait d'une suite de la file) : un arc dont le programme a quitté la
+// grille est abandonné ; un arc sans suite depuis trop longtemps expire.
+function updateStoryArcs({ abandonOnly = false } = {}) {
+  const p = gameState.player, season = gameState.season, T = NARRATIVE_TUNING.arcs;
+  (p.storyArcs || []).filter(a => a.state === 'open').forEach(arc => {
+    const slot = Object.keys(p.contracts || {}).find(k => {
+      const c = p.contracts[k];
+      return c?.id === arc.entity.id && !c.stopped && (c.end ?? Infinity) >= season;
+    });
+    if (!slot) return closeStoryArc(arc, 'abandonne', 'programme retiré de la grille');
+    arc.entity.slot = slot;
+    if (!abandonOnly && (season > arc.expiresSeason || season - arc.lastSeason > T.inactiveSeasons)) closeStoryArc(arc, 'expire', 'aucune suite');
+  });
+}
+// Flags consommés par une suite : retirés quand plus aucune histoire non jouée du programme
+// n'en dépend.
+function cleanResolvedStoryFlags(rec, def, programId) {
+  asList(def.when?.flag)?.forEach(f => {
+    if (rec.flags[f] == null) return;
+    const pending = [...(PROGRAM_STORIES_BY_PROGRAM[programId] || []), ...GENRE_STORY_BANK].some(d => d !== def
+      && !rec.log.some(l => l.id === d.id) && (asList(d.when?.flag)?.includes(f) || asList(d.when?.noFlag)?.includes(f)));
+    if (!pending) delete rec.flags[f];
+  });
+}
+
 
 // Le programme est-il diffusé sur la grille du joueur cette saison, sur cette case ?
 function programStoryAirs(slot, programId) {
@@ -20327,7 +20973,8 @@ function programStoryContext(slot, contract, rows) {
     stage: programStoryStage(career), seasons: career.seasonsCount || 0, wear: career.wear || 0,
     pressure: (row.pressure[slot][target]?.penalty || 0) >= T.pressurePenalty,
     cash: p.tresorerie < 0 ? 'serre' : p.tresorerie > (p.coutGrilleEngageSaison || 0) * 0.5 ? 'aise' : 'normal',
-    rival: rivalRow?.name || 'un concurrent',
+    rival: rivalRow?.name || 'un concurrent', rivalReal: !!rivalRow,
+    genres: programGenresOf(contract, slot), talent: storyCompatibleTalent(slot),
     rivalProgram: rivalContract?.isSportsEvent ? 'un grand événement sportif'
       : rivalContract?.name || PROGRAM_GRID[rivalRow?.channel?.type]?.[slot] || 'sa grille',
     record: programStoryRecordView(contract.id)
@@ -20341,7 +20988,7 @@ function programStoryMatches(def, ctx) {
   const w = def.when || {}, rec = ctx.record, season = gameState.season;
   const plays = rec.log.filter(l => l.id === def.id);
   if ((def.repeat ?? 'unique') === 'unique' ? plays.length : plays.length && season - plays.at(-1).season < def.repeat) return false;
-  const followUp = !!(w.after || w.flag);
+  const followUp = !!(w.after || w.flag || def.arc);
   if (rec.last != null && season - rec.last < (followUp ? PROGRAM_STORY_TUNING.followUpGap : PROGRAM_STORY_TUNING.programGap)) return false;
   if (w.stage && !asList(w.stage).includes(ctx.stage)) return false;
   if (w.form && !asList(w.form).includes(ctx.form)) return false;
@@ -20362,15 +21009,24 @@ function programStoryCandidates(excludeProgramIds = []) {
   const p = gameState.player;
   const slots = TIME_SLOTS.map(s => s.key).filter(slot => {
     const c = p.contracts?.[slot];
-    return c && PROGRAM_STORIES_BY_PROGRAM[c.id] && !excludeProgramIds.includes(c.id) && programStoryAirs(slot, c.id);
+    return c && !c.isSportsEvent && !excludeProgramIds.includes(c.id) && programStoryAirs(slot, c.id);
   });
   if (!slots.length) return [];
   const rows = getCalculatedPDAs();
   return slots.flatMap(slot => {
     const contract = p.contracts[slot];
     const ctx = programStoryContext(slot, contract, rows);
-    return PROGRAM_STORIES_BY_PROGRAM[contract.id].filter(def => programStoryMatches(def, ctx))
-      .map(def => ({ def, slot, contract, ctx, weight: (def.weight || 1) * programStoryRelevance(def) }));
+    // Histoires propres au titre (sauf si leur situation vient d'être jouée en version
+    // générique), puis variantes génériques par genre de leurs situations non couvertes.
+    const specific = (PROGRAM_STORIES_BY_PROGRAM[contract.id] || [])
+      .filter(def => programStoryMatches(def, ctx) && !storyKeyPlayedRecently(ctx.record, def.genericKey, true));
+    const keys = new Set(specific.map(def => def.genericKey).filter(Boolean));
+    const generic = GENRE_STORY_BANK.map(def => ({ def, m: genericStoryMatches(def, ctx, keys) })).filter(x => x.m);
+    return [
+      ...specific.map(def => ({ def, slot, contract, ctx, weight: (def.weight || 1) * programStoryRelevance(def) })),
+      ...generic.map(({ def, m }) => ({ def, slot, contract, ctx, arc: m.arc, choices: m.choices,
+        weight: genericStoryWeight(def) * programStoryRelevance(def) }))
+    ];
   });
 }
 
@@ -20378,7 +21034,8 @@ function programStoryCandidates(excludeProgramIds = []) {
 // d'un choix, usure, trésorerie) la rend plus probable qu'une histoire neutre.
 function programStoryRelevance(def) {
   const w = def.when || {};
-  return 1 + NARRATIVE_TUNING.relevance.perCondition * ['form', 'pressure', 'flag', 'after', 'minWear', 'cash'].filter(k => w[k] != null).length;
+  return 1 + NARRATIVE_TUNING.relevance.perCondition * (['form', 'pressure', 'flag', 'after', 'minWear', 'cash'].filter(k => w[k] != null).length
+    + (def.requires?.length || 0));
 }
 
 function weightedStoryPick(list) {
@@ -20387,13 +21044,12 @@ function weightedStoryPick(list) {
   return list.find(c => (r -= c.weight) < 0) || list.at(-1);
 }
 
-function fillStoryText(text, ctx) {
-  return String(text)
-    .replaceAll('{programme}', `« ${esc(ctx.contract.name)} »`)
-    .replaceAll('{saisons}', `${ctx.seasons} saison${ctx.seasons > 1 ? 's' : ''}`)
-    .replaceAll('{rival}', esc(ctx.rival))
-    .replaceAll('{rivalProgramme}', `« ${esc(ctx.rivalProgram)} »`)
-    .replaceAll('{creneau}', esc(TIME_SLOTS.find(s => s.key === ctx.slot)?.label || ctx.slot));
+// Variables : {programme}, {saisons}, {anciennete}, {creneau}, {rival}, {rivalProgramme},
+// {talent} (storyTextVars). Les histoires propres à un titre gardent leurs formulations de
+// repli (« un concurrent », « sa grille ») ; une histoire générique sans la donnée est exclue.
+function fillStoryText(text, ctx, vars = storyTextVars(ctx)) {
+  const fallback = { rival: esc(ctx.rival), rivalProgramme: `« ${esc(ctx.rivalProgram)} »` };
+  return String(text).replace(/\{(\w+)\}/g, (m, k) => vars[k] ?? fallback[k] ?? m);
 }
 
 // Coûts proportionnés au budget annuel du programme (cost : parts de ce budget).
@@ -20411,25 +21067,37 @@ function buildProgramStoryDilemma(cand) {
   const { def, slot, contract, ctx } = cand;
   const tight = ctx.cash === 'serre';
   const family = PROGRAM_STORY_FAMILIES[def.family];
+  const arc = cand.arc || null, vars = storyTextVars(ctx, arc);
+  const fill = text => fillStoryText(text, ctx, vars);
+  const choices = cand.choices || storyChoicesFor(def, ctx, arc);
   return {
-    id: def.id, isProgramStory: true, programId: contract.id, storySlot: slot, storyFamily: def.family,
+    // Variante générique : identifiant propre au programme (une même situation peut toucher
+    // plusieurs programmes), la mémoire du programme garde l'identifiant de la définition.
+    id: def.isGeneric ? `${def.id}--${contract.id}` : def.id, storyDefId: def.id, storyGeneric: !!def.isGeneric,
+    isProgramStory: true, programId: contract.id, storySlot: slot, storyFamily: def.family,
     storyLabel: `${family.icon} ${family.label}`, phase: def.phase,
-    titre: fillStoryText(def.titre, ctx), desc: fillStoryText(def.desc, ctx),
+    storyArc: def.arc ? { arcId: def.arc.id, step: def.arc.step } : null,
+    storyRatio: Math.round(ctx.ratio * 1000) / 1000, storyRival: ctx.rivalReal ? ctx.rival : null,
+    storyContext: storyContextLine(def, ctx, arc), storyRecall: arc?.recall || null,
+    titre: fill(def.titre), desc: fill(def.desc),
     careerStats: { awareness: Math.round(ctx.career.awareness), loyalty: Math.round(ctx.career.loyalty), wear: Math.round(ctx.career.wear) },
-    c: def.c.map((spec, index) => {
+    c: choices.map(({ spec, index }) => {
       // Trésorerie dans le rouge : l'option la plus coûteuse est proposée en version allégée,
       // moins chère mais aussi moins efficace.
       const lighter = tight && (spec.cost?.purchase || 0) >= PROGRAM_STORY_TUNING.heavyPurchaseRate;
       const scale = lighter ? PROGRAM_STORY_TUNING.tightCashScale : 1;
       return {
-        l: fillStoryText(spec.l, ctx) + (lighter ? ' (formule allégée)' : ''), r: fillStoryText(spec.r, ctx),
+        l: fill(spec.l) + (lighter ? ' (formule allégée)' : ''), r: fill(spec.r),
         icon: spec.icon, pop: spec.pop || 0,
         finance: programStoryFinance(spec.cost, contract, scale),
         pda: { j1524: 0, a2549: 0, s50: 0, csp: 0 },
         // Impact mesuré sur la case du programme (l'effet passe par sa carrière).
         audienceImpacts: [{ slot, value: 0, targets: {}, programId: contract.id }],
         story: { index, scale, career: spec.career || null, boost: spec.boost || 0, lasting: spec.lasting || 0,
-          flag: spec.flag || null, clearFlag: spec.clearFlag || null }
+          flag: spec.flag || null, clearFlag: spec.clearFlag || null,
+          // Arc : ouverture ({ open, branch }) ou, pour une étape, suite ('advance') ou clôture.
+          arc: spec.arc?.open ? { open: spec.arc.open, branch: spec.arc.branch } : spec.arc || (def.arc ? 'resolve' : null),
+          recall: spec.arc?.recall ? fill(spec.arc.recall) : `vous aviez choisi : ${fill(spec.l).charAt(0).toLowerCase()}${fill(spec.l).slice(1)}` }
       };
     })
   };
@@ -20447,11 +21115,13 @@ function programStoryDilemmaValid(dilemma) {
 function collectStoryCandidates(excludeProgramIds = []) {
   return programStoryCandidates(excludeProgramIds).map(c => {
     const theme = programStoryTheme(c.def);
+    const tone = c.arc ? { succes: 'positive', mitige: 'neutral', recul: 'negative' }[c.arc.outcome]
+      : c.ctx.form === 'succes' ? 'positive' : c.ctx.form === 'difficulte' ? 'negative' : narrativeToneFor(theme, `${c.def.titre} ${c.def.desc}`);
     return narrativeCandidate('story', {
-      defId: c.def.id, instanceId: `${c.def.id}@${gameState.season}`, theme,
-      tone: c.ctx.form === 'succes' ? 'positive' : c.ctx.form === 'difficulte' ? 'negative' : narrativeToneFor(theme, `${c.def.titre} ${c.def.desc}`),
-      programId: c.contract.id, slot: c.slot, phase: c.def.phase || 2, weight: c.def.weight || 1, relevance: programStoryRelevance(c.def),
-      repeatGap: c.def.repeat ?? 'unique', followsFrom: c.def.when?.after ?? c.def.when?.flag ?? null,
+      defId: c.def.id, instanceId: `${c.def.isGeneric ? `${c.def.id}--${c.contract.id}` : c.def.id}@${gameState.season}`, theme, tone,
+      programId: c.contract.id, slot: c.slot, phase: c.def.phase || 2, relevance: programStoryRelevance(c.def),
+      weight: c.def.isGeneric ? genericStoryWeight(c.def) : c.def.weight || 1,
+      repeatGap: c.def.repeat ?? 'unique', followsFrom: c.def.arc?.id ?? c.def.when?.after ?? c.def.when?.flag ?? null,
       story: c, build: () => buildProgramStoryDilemma(c)
     });
   });
@@ -20481,10 +21151,17 @@ function applyProgramStoryChoice(dilemma, choice) {
   if (s.lasting) c.storyBoost = Math.max(-cap, Math.min(cap, (c.storyBoost || 0) + s.lasting * scale * base));
   if (s.boost) c.storySeasonBoost = { season: gameState.season, value: s.boost * scale * base };
   const rec = programStoryRecord(contract.id);
-  rec.log.push({ id: dilemma.id, choice: s.index, season: gameState.season });
+  const defId = dilemma.storyDefId ?? dilemma.id;
+  rec.log.push({ id: defId, choice: s.index, season: gameState.season });
   rec.last = gameState.season;
-  if (s.flag) rec.flags[s.flag] = gameState.season;
+  const def = programStoryDef(defId);
+  if (def) cleanResolvedStoryFlags(rec, def, contract.id);
+  if (s.flag) {
+    rec.flags[s.flag] = gameState.season;
+    openStoryArcs(contract.id).forEach(arc => arc.flags.push(s.flag));
+  }
   if (s.clearFlag) delete rec.flags[s.clearFlag];
+  if (s.arc) storyArcApply(dilemma, s, contract);
   return true;
 }
 
@@ -20561,8 +21238,9 @@ function narrativeToneFor(theme, text = '') {
   return NARRATIVE_THEMES[theme]?.tone || 'neutral';
 }
 let narrativeStoryDefs = null;
-const programStoryDef = id => (narrativeStoryDefs ??= new Map(PROGRAM_STORY_BANK.map(def => [def.id, def]))).get(id) || null;
-const programStoryTheme = def => def.when?.after || def.when?.flag ? 'suite' : (PROGRAM_STORY_FAMILY_THEMES[def.family] || 'grille');
+const programStoryDef = id => (narrativeStoryDefs ??= new Map([...PROGRAM_STORY_BANK,
+  ...(typeof GENRE_STORY_BANK !== 'undefined' ? GENRE_STORY_BANK : [])].map(def => [def.id, def]))).get(id) || null;
+const programStoryTheme = def => def.arc || def.when?.after || def.when?.flag ? 'suite' : def.theme || PROGRAM_STORY_FAMILY_THEMES[def.family] || 'grille';
 // Thème, tonalité et entités d'un dilemme déjà construit ou joué (identifiant seul accepté :
 // historique des décisions). Renvoie null pour une décision hors file narrative.
 function narrativeDescribe(d) {
@@ -20580,10 +21258,12 @@ function narrativeDescribe(d) {
     return { theme: kind === 'producer' ? 'opportunite' : 'concurrence', tone, programId: rest, rivalId: obj?.war?.rival || obj?.competitorName || null };
   }
   if (/^regie-oppo/.test(id)) return { theme: 'commercial', tone: 'positive' };
-  const def = programStoryDef(id);
+  // Histoire générique : « définition--programme ».
+  const [defKey, storyProgramId] = id.split('--');
+  const def = programStoryDef(defKey);
   if (def) {
     const theme = programStoryTheme(def);
-    return { theme, tone: narrativeToneFor(theme, `${def.titre} ${def.desc}`), programId: def.programId };
+    return { theme, tone: narrativeToneFor(theme, `${def.titre} ${def.desc}`), programId: storyProgramId || def.programId };
   }
   const event = STORY_EVENTS.find(e => e.id === id);
   if (event) return { theme: 'suite', tone: narrativeToneFor('suite', `${event.titre} ${event.desc}`) };
@@ -20639,6 +21319,19 @@ const NARRATIVE_TUNING = {
   proximity: { sameTheme: 0.15, sameProgram: 0.05 },
   // Garde-fous : au plus une crise facultative par saison.
   maxOptionalCrises: 1,
+  // Histoires génériques par genre (lot 3) : poids propre face aux histoires écrites pour un
+  // titre (1), et fenêtre (saisons) pendant laquelle une même situation (genericKey) ne
+  // revient pas sur un programme, en version générique comme propre au titre.
+  // Une étape d'arc (suite d'une décision) a son propre poids, plus élevé : elle reste soumise
+  // au tirage pondéré et au bonus de suite (followUpBonus), jamais garantie.
+  stories: { genericWeight: 0.6, followUpWeight: 3, genericWindow: 4 },
+  // Arcs narratifs : au plus maxOpen arcs ouverts par chaîne et maxOpenPerProgram par
+  // programme ; étape suivante au plus tôt followUpDelay saison(s) après la précédente ;
+  // expiration après inactiveSeasons saisons sans suite ou maxDuration saisons au total ;
+  // évolution observée « succès » / « recul » au-delà de ces écarts de part de la case
+  // rapportée à la moyenne de la chaîne ; arcs fermés gardés en mémoire (keepClosed).
+  arcs: { maxOpen: 3, maxOpenPerProgram: 1, followUpDelay: 1, inactiveSeasons: 3, maxDuration: 6,
+    successDelta: 0.1, declineDelta: 0.1, keepClosed: 30 },
   // Tant que la saison n'a aucun dilemme neutre ou positif, ceux-ci gardent au moins cette
   // part de la probabilité de chaque place.
   minNonNegativeShare: 0.5
@@ -20760,7 +21453,9 @@ const NARRATIVE_SOURCES = {
     }
   },
   story: {
-    validate: d => programStoryAirs(d.storySlot, d.programId)
+    validate: d => programStoryAirs(d.storySlot, d.programId),
+    // Suite retirée de la file : si son programme a quitté la grille, l'arc est abandonné.
+    release: d => { if (d.storyArc) updateStoryArcs({ abandonOnly: true }); }
   }
 };
 NARRATIVE_SOURCES.right = NARRATIVE_SOURCES.bank;
@@ -22289,6 +22984,8 @@ function startNewSeason() {
   applyContractRevaluations();
   planCompetitorSeasons();
   careerSeasonStart();
+  // Arcs narratifs : abandon si le programme a quitté la grille, expiration sans suite.
+  updateStoryArcs();
   // Vulnérabilités : signaux faibles, prévention et crise éventuelle (une au plus).
   gameState.pendingCrisis = carryPendingCrisis(gameState.pendingCrisis, updateCrisisWatch());
   gameState.currentDilemmaIndex = 0;
@@ -23332,6 +24029,7 @@ function render() {
           <div class="dc-body">
             <h2>${sportEvent ? esc(sportEvent.headline) : dilemma.isCareerDilemma || dilemma.isTalentRenewal || dilemma.isSportsRenewal || dilemma.isProgramStory || dilemma.isBiddingWar || dilemma.isProducerPitch || dilemma.isReplacementChoice ? dilemma.titre.replace(/« [^»]*»(?: \?)?/, m => `<span class="dc-title-keep">${m}</span>`) : dilemma.titre}</h2>
             <p>${sportEvent ? esc(sportEvent.pitch) : dilemma.desc}</p>
+            ${dilemma.isProgramStory && (dilemma.storyRecall || dilemma.storyContext) ? `<p class="dc-story-context">${dilemma.storyRecall ? `<span class="dc-story-recall">${dilemma.storyRecall}</span>` : ''}${dilemma.storyContext || ''}</p>` : ''}
             ${sportsBlock}
             ${dilemmaShowcaseHtml(dilemma)}
             ${blindLotHtml(dilemma, phase)}
@@ -23892,7 +24590,7 @@ function rememberDilemmas(ids) {
 function ensureCampaign() {
   const p = gameState.player;
   p.commercialSaison ??= 0; p.achatsSaison ??= 0;
-  p.contracts ??= {}; p.decisionHistory ??= []; p.eventsSeen ??= []; p.slotAudienceDeltas ??= {};
+  p.contracts ??= {}; p.decisionHistory ??= []; p.eventsSeen ??= []; p.slotAudienceDeltas ??= {}; p.storyArcs ??= [];
   Object.entries(p.contracts).forEach(([slot,contract])=>migrateProgramCareer(contract,slot));
   gameState.competitors ??= [];
   gameState.competitors.forEach(migrateCompetitorStrategy);

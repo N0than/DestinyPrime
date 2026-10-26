@@ -86,7 +86,8 @@ function signe(slot,id){
   const q=quoteProgram(slot,id,TALENT_CATALOG[0].id); ok(q&&q.allowed,'signature possible '+id);
   executeProgramSigning(slot,q); return p.contracts[slot];
 }
-const storyIds=()=>programStoryCandidates().map(c=>c.def.id);
+// Histoires propres aux titres (les variantes génériques par genre sont testées à part).
+const storyIds=()=>programStoryCandidates().filter(c=>!c.def.isGeneric).map(c=>c.def.id);
 const ofProgram=(pid)=>storyIds().filter(id=>PROGRAM_STORY_BANK.find(d=>d.id===id).programId===pid);
 
 // Programme absent : aucun déclenchement.
