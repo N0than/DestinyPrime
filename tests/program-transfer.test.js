@@ -126,7 +126,7 @@ ok(JSON.stringify(p.contracts.prime.transfer)===keep,'renewal: no new transfer')
 { const used=new Set(gameState.dilemmaQueue);
   gameState.dilemmaQueue=gameState.dilemmaQueue.map(d=>{
     // Dilemmes qui signent eux-mêmes un programme en prime (saga d'été, formats proposés) : écartés aussi.
-    if(!(d.c?.some(c=>c.grille?.slot==='prime')||['d61','d58','d51','d23'].includes(d.id))) return d;
+    if(!(d.c?.some(c=>c.grille?.slot==='prime')||['d61','d58','d51','d23','d68'].includes(d.id))) return d;
     const r=DILEMMA_BANK.find(x=>/^d_pub/.test(x.id)&&!used.has(x)&&!x.c.some(c=>c.grille));
     used.add(r); return r; }); }
 while(gameState.step===6){if(gameState.dilemmaPhase==='result')continueAfterConsequence();else{const d=gameState.dilemmaQueue[gameState.currentDilemmaIndex];if(d.type==='sports_rights_auction'){startSportsRightsAuction(d.rightsEventId,d.id);sportsAuctionPass();}chooseDilemmaOption(0);}}

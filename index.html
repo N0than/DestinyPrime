@@ -1423,6 +1423,18 @@ button.radar-row:focus-visible { outline: 2px solid var(--bleu); outline-offset:
 .welcome-cta svg { width: 16px; height: 16px; transition: transform 0.2s ease; }
 .welcome-cta.welcome-cta-outline { background: rgba(255,255,255,0.85); color: #0f172a; border: 1.5px solid #0f172a; box-shadow: 0 8px 18px -10px rgba(15,23,42,0.25); }
 .welcome-cta.welcome-cta-tight { margin-top: 10px; }
+/* Prêt de sauvetage (écran de dépôt de bilan) */
+.loan-card { margin-top: 14px; display: flex; flex-direction: column; gap: 12px; }
+.loan-card .kicker-badge { align-self: flex-start; }
+.loan-lead { margin: 0; font-size: 14px; line-height: 1.5; color: #334155; }
+.loan-field { display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; align-items: center; font-size: 13px; color: #475569; }
+.loan-field b { color: #0f172a; font-size: 15px; }
+.loan-field input[type=range] { grid-column: 1 / -1; width: 100%; accent-color: #0f172a; }
+.loan-summary { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.loan-summary li { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; color: #475569; border-top: 1px solid rgba(15,23,42,0.08); padding-top: 6px; }
+.loan-summary b { color: #0f172a; white-space: nowrap; }
+.loan-warn { margin: 0; font-size: 12.5px; color: #b91c1c; min-height: 1em; }
+#btn-loan-sign:disabled { opacity: 0.45; cursor: not-allowed; }
 @media (hover: hover) { .welcome-cta:hover svg { transform: translateX(3px); } }
 .welcome-cta-shine {
   position: absolute; inset: 0; width: 50%; pointer-events: none;
@@ -23811,9 +23823,11 @@ function chooseMaterialized(choiceIndex, dilemma) {
     gameState.dilemmaQueue.splice(gameState.currentDilemmaIndex, 1);
   }
 
-  if (player.tresorerie < TRESORERIE_CRITIQUE) {
+  // Faillite en cours de saison ; au dernier dilemme, la saison est d'abord clôturée (le
+  // contrôle de clôture prend le relais).
+  if (player.tresorerie < TRESORERIE_CRITIQUE && gameState.currentDilemmaIndex < gameState.dilemmaQueue.length) {
     gameState.pendingNextStep = 8;
-    gameState.gameOverReason = 'tresorerie';
+    declareBankruptcy('dilemma');
   } else if (gameState.currentDilemmaIndex >= gameState.dilemmaQueue.length) {
     // Finalisation économique de la saison : les revenus pub et les ajustements de
     // grille ont déjà été comptabilisés en temps réel ; on fige les montants ici.
@@ -23866,7 +23880,7 @@ function chooseMaterialized(choiceIndex, dilemma) {
     gameState.renewalDue = gameState.season % CONVENTION_DURATION === 0;
     if (player.tresorerie < TRESORERIE_CRITIQUE) {
       gameState.pendingNextStep = 8;
-      gameState.gameOverReason = 'tresorerie';
+      declareBankruptcy('close');
     } else {
       gameState.pendingNextStep = 7;
     }
@@ -23920,6 +23934,22 @@ function launchFirstSeason() {
   careerSeasonOpened();
 }
 
+// Saison ouverte (ou reprise après un prêt) : mercato ou conférence de rentrée.
+function beginSeasonDecisions() {
+  // Mercato des talents : une phase de décision unique, tous les deux ans.
+  gameState.mercato = isMercatoSeason() ? generateMercato() : null;
+  gameState.mercatoPending = !!gameState.mercato;
+  // Une saison de mercato a déjà son arbitrage de rentrée (les talents) : la
+  // conférence de rentrée n'est alors pas proposée, pour ne pas enchaîner deux phases.
+  gameState.seasonKickoffProposal = gameState.mercato ? null : generateSeasonKickoffProposal();
+  gameState.seasonKickoffPending = !!gameState.seasonKickoffProposal;
+}
+// Dépôt de bilan : moment de la saison (pendant les dilemmes, à la clôture, à l'ouverture),
+// pour reprendre au bon endroit si un prêt est signé.
+function declareBankruptcy(phase) {
+  gameState.gameOverReason = 'tresorerie';
+  gameState.bankruptcy = { season: gameState.season, phase };
+}
 function startNewSeason() {
   if (!gameState.history.some(h => h.season === gameState.season)) return;
   // Proposition restée sans réponse (l'écran impose un choix) : elle vaut refus, sans sanction.
@@ -23929,6 +23959,8 @@ function startNewSeason() {
   gameState.season++;
   // Bonus ou sanction ARCOM de la saison écoulée, annoncé dans les engagements du bilan.
   settleArcomPending(player);
+  // Annuités de prêt, annoncées dans les engagements du bilan.
+  repayLoans();
   expireContracts();
   advanceProgramSeasonNumbers();
   expireTalents();
@@ -24002,16 +24034,8 @@ function startNewSeason() {
   creditInitialAdRevenue();
   trackPlayerPda();
   gameState.step = player.tresorerie < TRESORERIE_CRITIQUE ? 8 : 6;
-  if (gameState.step === 8) gameState.gameOverReason = 'tresorerie';
-  if (gameState.step === 6) {
-    // Mercato des talents : une phase de décision unique, tous les deux ans.
-    gameState.mercato = isMercatoSeason() ? generateMercato() : null;
-    gameState.mercatoPending = !!gameState.mercato;
-    // Une saison de mercato a déjà son arbitrage de rentrée (les talents) : la
-    // conférence de rentrée n'est alors pas proposée, pour ne pas enchaîner deux phases.
-    gameState.seasonKickoffProposal = gameState.mercato ? null : generateSeasonKickoffProposal();
-    gameState.seasonKickoffPending = !!gameState.seasonKickoffProposal;
-  }
+  if (gameState.step === 8) declareBankruptcy('open');
+  if (gameState.step === 6) beginSeasonDecisions();
   careerSeasonOpened();
   render();
 }
@@ -24033,6 +24057,8 @@ function resetGame() {
   delete gameState.campaign;
   delete gameState.career;
   delete gameState.director;
+  delete gameState.bankruptcy;
+  delete gameState.loanPanelOpen;
   delete gameState.talentRetirement;
   delete gameState.sportsRights;
   delete gameState.expiredPrograms;
@@ -25175,6 +25201,7 @@ function render() {
       ${bilanFoldHtml('engagements', `📅 ENGAGEMENTS${nextSeasonCommitment().cashAfterRevenue < TRESORERIE_CRITIQUE ? ' ⚠️' : ''}<span class="bilan-fold-long">&nbsp;DE LA SAISON SUIVANTE</span>`, 'les engagements de la saison suivante', `
         <p>Grille à payer : <b>${nf1(nextSeasonCommitment().annual)} M€</b>${nextSeasonCommitment().sports>0?` (dont droits sportifs reconduits : ${nf1(nextSeasonCommitment().sports)} M€)`:''}${nextSeasonCommitment().sportsOneOff>0?` · droits d’événement réglés à la diffusion : ${nf1(nextSeasonCommitment().sportsOneOff)} M€`:''} · contrats arrivant à échéance : ${nf1(nextSeasonCommitment().expired)} M€ / an${nextSeasonCommitment().raises>0?` · revalorisations convenues : +${nf1(nextSeasonCommitment().raises)} M€`:''}.</p>
         ${nextSeasonCommitment().arcomPending ? `<p class="arcom-flux-line">${arcomFluxBadgeHtml(nextSeasonCommitment().arcomPending)} <span>Score ARCOM de la saison : ${nextSeasonCommitment().arcomPending.score}/100 (${esc(nextSeasonCommitment().arcomPending.label.toLowerCase())}), ${nextSeasonCommitment().arcomPending.cash < 0 ? 'prélevé' : 'versé'} à l’ouverture de la saison ${gameState.season + 1}.</span></p>` : ''}
+        ${loanCommitmentHtml()}
         <p>Trésorerie après paiement : <b>${nf1(nextSeasonCommitment().cash)} M€</b>, puis <b>${nf1(nextSeasonCommitment().cashAfterRevenue)} M€</b> une fois les recettes publicitaires attendues créditées (${nf1(nextSeasonCommitment().adRevenue)} M€ à audience constante), avant décisions.${nextSeasonCommitment().cashAfterRevenue<TRESORERIE_CRITIQUE?' La saison s’ouvrirait sous le seuil de faillite.':''}</p>`)}
       <button class="welcome-cta" id="btn-next-season" style="margin-top: 2px;" ${careerContract?'disabled title="Décidez d’abord de l’avenir du programme"':''}>
         <span class="welcome-cta-shine"></span>
@@ -25217,6 +25244,8 @@ function render() {
     const arcomScore = p.lastArcomResult?.arcomScore ?? computeArcomCompliance().arcomScore;
     const pdaCibleFinale = getCalculatedPDAs().find(item => item.channel === p).pda[p.target];
     const targetShort = TARGET_STRATEGIES[p.target].nom.replace(/\s*\([^)]*\)/, '');
+    // Dépôt de bilan hors mode Carrière : un prêt de sauvetage peut être demandé.
+    const loan = !careerFail && !isArcom ? loanOffer() : null;
     const stats = careerFail
       ? [
           { value: `${nf1(p.tresorerie)} M€`, label: 'Trésorerie', alert: p.tresorerie < 0 },
@@ -25262,12 +25291,17 @@ function render() {
             : "La chaîne est placée sous administration provisoire : la direction est suspendue et la grille gelée."}</span>
         </div>
       </div>
-      <button class="welcome-cta" id="btn-restart">
+      ${loan && !gameState.loanPanelOpen ? `<button class="welcome-cta welcome-cta-outline" id="btn-loan-open"><span>🏦 Demander un prêt</span></button>` : ''}
+      ${loan && gameState.loanPanelOpen ? loanPanelHtml(loan) : ''}
+      <button class="welcome-cta${loan ? ' welcome-cta-tight' + (gameState.loanPanelOpen ? ' welcome-cta-outline' : '') : ''}" id="btn-restart">
         <span class="welcome-cta-shine"></span>
         <span>${careerFail ? 'Retour aux scénarios' : 'Recommencer une chaîne'}</span>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
     `;
+    const loanOpen = document.getElementById('btn-loan-open');
+    if (loanOpen) loanOpen.onclick = () => { gameState.loanPanelOpen = true; render(); };
+    if (loan && gameState.loanPanelOpen) bindLoanPanel(app);
     document.getElementById('btn-restart').onclick = () => {
       resetGame();
       if (careerFail) { gameState.homeView = 'career'; render(); }
@@ -28169,6 +28203,120 @@ function launchConfetti() {
   setTimeout(() => layer.remove(), 4600);
 }
 
+// ---------------------------------------------------------------------------
+// PRÊT DE SAUVETAGE — proposé quand la chaîne dépose le bilan (trésorerie sous le seuil)
+// ---------------------------------------------------------------------------
+// Comme l'appel d'un refus de convention : un bouton de l'écran de faillite. Le joueur choisit
+// le montant (1 à 60 M€) et la durée (1 à 10 saisons) ; le taux est tiré une fois par dépôt de
+// bilan (stableRandom : ni curseur ni rechargement ne le relancent). Remboursement par annuités
+// constantes, prélevées à l'ouverture de chaque saison et annoncées dans les engagements de la
+// saison suivante. Capacité d'endettement : l'ensemble des annuités ne dépasse pas 33 % des
+// recettes d'une saison. Le prêt est un financement : il ne compte ni dans les recettes ni dans
+// le résultat. Hors scénarios du mode Carrière, qui ont leurs propres règles de défaite.
+const LOAN = { min: 1, max: 60, years: [1, 10], rate: [0.03, 0.09], debtRatio: 0.33 };
+const roundLoan = v => Math.round(v * 100) / 100;
+function loanAnnuity(amount, rate, years) {
+  return roundLoan(rate > 0 ? amount * rate / (1 - Math.pow(1 + rate, -years)) : amount / years);
+}
+function activeLoans(p = gameState.player) { return (p.loans || []).filter(l => l.paid < l.years); }
+// Annuités à payer à l'ouverture d'une saison donnée.
+function loanDueAt(season, p = gameState.player) {
+  return activeLoans(p).filter(l => season > l.season && season <= l.season + l.years).reduce((sum, l) => sum + l.annuity, 0);
+}
+// Recettes d'une saison : dernière saison clôturée, à défaut le prévisionnel de la saison.
+function loanSeasonRevenue() {
+  const p = gameState.player, last = [...gameState.history].reverse().find(h => h.season <= gameState.season);
+  return Math.max(0, last ? (last.revenusPub || 0) : (p.revenusPubPrevisionnels || 0));
+}
+// Offre du moment : taux tiré une fois pour ce dépôt de bilan, plafond d'annuité, besoin minimal.
+function loanOffer() {
+  const p = gameState.player, B = gameState.bankruptcy;
+  if (!B || gameState.step !== 8 || gameState.gameOverReason !== 'tresorerie' || careerActive()) return null;
+  const R = LOAN.rate, rate = Math.round((R[0] + (R[1] - R[0]) * stableRandom(`loan|${B.season}|${B.phase}|${(p.loans || []).length}`)) * 1000) / 1000;
+  const revenue = loanSeasonRevenue(), capacity = roundLoan(revenue * LOAN.debtRatio);
+  const existing = roundLoan(activeLoans(p).reduce((sum, l) => sum + l.annuity, 0));
+  const needed = Math.max(LOAN.min, Math.ceil((TRESORERIE_CRITIQUE - p.tresorerie) * 10) / 10);
+  return { rate, revenue, capacity, existing, room: roundLoan(Math.max(0, capacity - existing)), needed };
+}
+function loanCheck(offer, amount, years) {
+  const annuity = loanAnnuity(amount, offer.rate, years);
+  const reasons = [];
+  if (amount < offer.needed) reasons.push(`il faut au moins ${nf1(offer.needed)} M€ pour repasser au-dessus du seuil de ${nf1(TRESORERIE_CRITIQUE)} M€`);
+  if (offer.existing + annuity > offer.capacity + 1e-9) reasons.push(`l’annuité dépasserait la capacité d’endettement (${nf1(offer.capacity)} M€ par saison, 33 % des recettes${offer.existing > 0 ? `, dont ${nf1(offer.existing)} M€ déjà engagés` : ''})`);
+  return { annuity, total: roundLoan(annuity * years), interest: roundLoan(annuity * years - amount), ok: !reasons.length, reasons };
+}
+// Signature : la trésorerie remonte, la partie reprend là où le dépôt de bilan l'avait arrêtée.
+function takeLoan(amount, years) {
+  const offer = loanOffer();
+  if (!offer) return { ok: false, reason: 'aucun prêt possible' };
+  amount = Math.max(LOAN.min, Math.min(LOAN.max, Math.round(Number(amount) * 10) / 10));
+  years = Math.max(LOAN.years[0], Math.min(LOAN.years[1], Math.round(Number(years))));
+  const check = loanCheck(offer, amount, years);
+  if (!check.ok) return { ok: false, reason: check.reasons.join(' ; ') };
+  const p = gameState.player, B = gameState.bankruptcy;
+  p.loans ??= [];
+  p.loans.push({ id: `pret-${gameState.season}-${p.loans.length + 1}`, season: gameState.season, amount, rate: offer.rate, years,
+    annuity: check.annuity, paid: 0, phase: B.phase });
+  p.tresorerie += amount;
+  pushSignal(`Prêt de ${nf1(amount)} M€ accordé à ${(offer.rate * 100).toFixed(1).replace('.', ',')} % sur ${years} saison${years > 1 ? 's' : ''} : ${nf1(check.annuity)} M€ à rembourser à chaque ouverture de saison.`,
+    { kind: 'finance', tone: 'neutral', key: `loan:${gameState.season}` });
+  delete gameState.gameOverReason;
+  gameState.bankruptcy = null; gameState.loanPanelOpen = false;
+  // Reprise : dilemmes restants de la saison, bilan de la saison close, ou saison qui s'ouvre.
+  if (B.phase === 'close') gameState.step = 7;
+  else if (B.phase === 'dilemma') { gameState.step = 6; gameState.dilemmaPhase = 'choosing'; }
+  else { gameState.step = 6; beginSeasonDecisions(); careerSeasonOpened(); }
+  return { ok: true };
+}
+// Ouverture de saison : annuités échues, prélevées une seule fois par saison.
+function repayLoans() {
+  const p = gameState.player;
+  activeLoans(p).forEach(l => {
+    const k = gameState.season - l.season;
+    if (k < 1 || k > l.years || l.paidSeason === gameState.season) return;
+    p.tresorerie -= l.annuity; l.paid = k; l.paidSeason = gameState.season;
+    pushSignal(`Remboursement du prêt : −${nf1(l.annuity)} M€ (échéance ${k}/${l.years}).`, { kind: 'finance', tone: 'neutral', key: `loanpay:${l.id}:${k}` });
+  });
+}
+function loanCommitmentHtml() {
+  const next = gameState.season + 1, due = loanDueAt(next);
+  if (!due) return '';
+  const lines = activeLoans().filter(l => next > l.season && next <= l.season + l.years)
+    .map(l => `${nf1(l.annuity)} M€ (échéance ${next - l.season}/${l.years}, prêt de ${nf1(l.amount)} M€ à ${(l.rate * 100).toFixed(1).replace('.', ',')} %)`);
+  return `<p>🏦 Remboursement de prêt à l’ouverture de la saison ${next} : <b>${nf1(due)} M€</b> — ${lines.join(' ; ')}.</p>`;
+}
+function loanPanelHtml(offer) {
+  const a0 = Math.min(LOAN.max, Math.max(LOAN.min, Math.ceil(offer.needed))), y0 = 5;
+  return `<div class="card loan-card" id="loan-panel">
+      <div class="kicker-badge">🏦 PRÊT DE SAUVETAGE</div>
+      <p class="loan-lead">La banque propose un taux de <b>${(offer.rate * 100).toFixed(1).replace('.', ',')} %</b>. Vos annuités ne peuvent dépasser <b>${nf1(offer.capacity)} M€</b> par saison (33 % des recettes d’une saison, ${nf1(offer.revenue)} M€)${offer.existing > 0 ? `, dont ${nf1(offer.existing)} M€ déjà engagés` : ''}.</p>
+      <label class="loan-field"><span>Montant du prêt</span><b id="loan-amount-out">${nf1(a0)} M€</b>
+        <input type="range" id="loan-amount" min="${LOAN.min}" max="${LOAN.max}" step="1" value="${a0}"></label>
+      <label class="loan-field"><span>Durée de remboursement</span><b id="loan-years-out">${y0} saisons</b>
+        <input type="range" id="loan-years" min="${LOAN.years[0]}" max="${LOAN.years[1]}" step="1" value="${y0}"></label>
+      <ul class="loan-summary" id="loan-summary"></ul>
+      <p class="loan-warn" id="loan-warn"></p>
+    </div>
+    <button class="welcome-cta" id="btn-loan-sign"><span class="welcome-cta-shine"></span><span>Signer le prêt et reprendre</span></button>`;
+}
+function bindLoanPanel(app) {
+  const offer = loanOffer();
+  const a = app.querySelector('#loan-amount'), y = app.querySelector('#loan-years');
+  if (!offer || !a || !y) return;
+  const update = () => {
+    const amount = Number(a.value), years = Number(y.value), c = loanCheck(offer, amount, years);
+    app.querySelector('#loan-amount-out').textContent = `${nf1(amount)} M€`;
+    app.querySelector('#loan-years-out').textContent = `${years} saison${years > 1 ? 's' : ''}`;
+    app.querySelector('#loan-summary').innerHTML = `<li><span>Annuité</span><b>${nf1(c.annuity)} M€ / saison</b></li>
+      <li><span>Coût total des intérêts</span><b>${nf1(c.interest)} M€</b></li>
+      <li><span>Trésorerie après le prêt</span><b>${nf1(gameState.player.tresorerie + amount)} M€</b></li>`;
+    app.querySelector('#loan-warn').textContent = c.ok ? '' : `Prêt refusé : ${c.reasons.join(' ; ')}.`;
+    app.querySelector('#btn-loan-sign').disabled = !c.ok;
+  };
+  a.oninput = update; y.oninput = update; update();
+  app.querySelector('#btn-loan-sign').onclick = () => { if (takeLoan(Number(a.value), Number(y.value)).ok) render(); };
+}
+
 function nextSeasonCommitment() {
   const p=gameState.player;
   const expired=Object.values(p.contracts||{}).filter(c=>c.end<=gameState.season).reduce((sum,c)=>sum+c.annual,0);
@@ -28197,8 +28345,10 @@ function nextSeasonCommitment() {
     .reduce((sum,o)=>sum+o.acquisitionPrice,0);
   // Bonus ou sanction ARCOM de la saison écoulée, réglé à l'ouverture.
   const arcom=p.arcomPending?.cash||0;
-  const cash=p.tresorerie-annual-sportsOneOff+arcom;
-  return {annual,expired:expired+sportsNow+talentsLeaving,sports,sportsOneOff,raises,arcom,arcomPending:p.arcomPending||null,cash,adRevenue,cashAfterRevenue:cash+adRevenue};
+  // Annuités de prêt échues à l'ouverture.
+  const loans=loanDueAt(nextSeason);
+  const cash=p.tresorerie-annual-sportsOneOff+arcom-loans;
+  return {annual,expired:expired+sportsNow+talentsLeaving,sports,sportsOneOff,raises,arcom,arcomPending:p.arcomPending||null,loans,cash,adRevenue,cashAfterRevenue:cash+adRevenue};
 }
 function applyFinance(f, excludedSlot=null) {
   ensureCampaign(); const p=gameState.player;
@@ -29559,6 +29709,10 @@ const DILEMMA_PROGRAM_FICHES = {
   dp_saga_ete: { name: 'Les Mystères de la lande', slot: 'prime', format: 'fiction', target: 'a2549', annual: 6, rights: 4, years: 2, power: 2.6, level: 2,
     ref: { annual: 1.3, power: 1.2 },
     pitch: 'La grande saga de l’été sur la côte bretonne : dolmens, secrets de famille et meurtres en série.' },
+  // Retour de la Carte aux Trésors (d68) : jeu d'aventure de prime, renouvelable.
+  dp_carte_tresors: { name: 'La Carte aux trésors', slot: 'prime', format: 'jeu', target: 's50', annual: 5, rights: 3, years: 2, power: 2.5, level: 2,
+    ref: { annual: 1.2, power: 1.15 },
+    pitch: 'Deux candidats survolent les plus beaux paysages de France en hélicoptère, énigmes en main, à la recherche du trésor.' },
   // Dessin animé produit en France (d69) : série d'animation détenue par la chaîne, installée
   // sur sa case d'animation (identifiant « dp_coccinelle@case ») et suivie dans le Studio.
   dp_coccinelle: { name: 'Les Aventures de Coccinelle', slot: 'matin', format: 'animation', target: 'j1524', annual: 1.5, rights: 7, years: 3, power: 2.8, level: 3,
@@ -30081,6 +30235,24 @@ const DYNAMIC_DILEMMAS = {
           signingChoice('Produire la saga à gros budget, dolmens et meurtres compris', 'prime', 'dp_saga_ete',
             { r: `« ${series.name} » remplace « ${now.name} » en prime : le rendez-vous incontournable des vacances d’été !`, pop: 3 }),
           { ...base.c[1], audienceImpacts: [{ slot: 'prime', targets: base.c[1].pda }] }
+        ] };
+    }
+  },
+  // Retour de la Carte aux Trésors : le jeu produit s'installe en prime, pour un contrat
+  // renouvelable ; grands moyens (talent vedette) ou version économique, ou passer son tour.
+  d68: {
+    eligible: () => programOfferEligible('dp_carte_tresors', 'prime'),
+    build: base => {
+      const now = onAirProgram('prime'), program = findProgram('dp_carte_tresors');
+      return { ...base, dynamicOf: 'd68',
+        desc: `Le producteur du célèbre jeu d’aventure vous propose le retour de « ${program.name} » en exclusivité, en prime où vous diffusez « ${now.name} ».`,
+        showcase: programOfferShowcase('dp_carte_tresors', 'prime', 'Retour d’un jeu culte', 'vedette'),
+        c: [
+          signingChoice('Donner au programme les grands moyens (hélicoptères…)', 'prime', 'dp_carte_tresors',
+            { talentId: 'vedette', r: `« ${program.name} » remplace « ${now.name} » : des images spectaculaires du patrimoine français renforcent fortement l’image de la chaîne.`, pop: 4 }),
+          signingChoice('Repenser le jeu pour réduire les coûts', 'prime', 'dp_carte_tresors',
+            { r: `« ${program.name} » revient en prime dans une version économique : le jeu perd une partie de son souffle.`, pop: 0 }),
+          passChoice(`Vous passez votre tour : « ${program.name} » reviendra peut-être ailleurs, « ${now.name} » garde le prime.`)
         ] };
     }
   },
@@ -35710,6 +35882,7 @@ var TV_PROGRAMS_LIBRARY = {"meta":{"creator":{"name":"Audience Masters — tv-pr
   const RULES = [
     [/science-fiction|acteurs/, 'drame'],
     [/conso/, 'magazine'],
+    [/carte aux tresors|chasse au tresor/, 'aventure', 'montagne'],
     [/koh|aventur|expedition|survie|ile deserte|jungle|destination express|pekin|fort boyard/, 'aventure', 'survie'],
     [/montagne|alpin|sommet/, 'aventure', 'montagne'],
     [/dating|amour|amours|seduction|celibataire|mariage|rencontre/, 'dating'],

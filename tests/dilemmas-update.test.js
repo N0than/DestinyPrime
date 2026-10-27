@@ -38,6 +38,17 @@ const renouvelable=slot=>{ const c=gameState.player.contracts[slot]; gameState.s
   const c=p.contracts.prime; ok(c?.id==='dp_saga_ete'&&c.end===gameState.season+findProgram('dp_saga_ete').years-1,'série à la grille');
   ok(!eligible('d58'),'plus proposée une fois produite');
   ok(renouvelable('prime'),'série renouvelable en fin de contrat'); }
+// ——— Retour de la Carte aux Trésors : le jeu s'installe en prime, renouvelable, passer son tour ———
+{ const p=partie();
+  ok(eligible('d68'),'Carte aux trésors proposée');
+  const d=enFile('d68'); ok(d.dynamicOf==='d68'&&d.showcase[0].programId==='dp_carte_tresors'&&d.c.length===3&&/Carte aux trésors/.test(d.desc),'dilemme relié au jeu, illustré');
+  ok(/Passer son tour/.test(d.c[2].l)&&d.c[2].finance.purchase===0,'choix pour passer son tour');
+  ok(/carte aux tresors/.test(normalizeAudienceText(d.showcase[0].name||findProgram('dp_carte_tresors').name))&&TvPrograms.classify({name:'La Carte aux trésors',format:'jeu'}).genre==='aventure','illustration du jeu d’aventure');
+  joue(1);
+  const c=p.contracts.prime; ok(c?.id==='dp_carte_tresors'&&c.end===gameState.season+findProgram('dp_carte_tresors').years-1,'jeu à la grille');
+  ok(!eligible('d68'),'plus proposé une fois produit');
+  ok(renouvelable('prime'),'jeu renouvelable en fin de contrat'); }
+{ const p=partie(); const avant=p.contracts.prime?.id; enFile('d68'); joue(2); ok(p.contracts.prime?.id===avant&&eligible('d68'),'passer son tour : grille inchangée'); }
 { partie('cinema'); ok(eligible('d58')&&findProgram('dp_saga_ete').power>=slotReference('cinema','prime').power,'chaîne Cinéma : saga au niveau de la case'); }
 
 // ——— Star sous le masque : « Chanteurs masqués », trois choix, illustration ———
@@ -139,4 +150,4 @@ ok(!/en fin de contrat/.test(GENRE_STORY_BANK.find(d=>d.id==='gs_animateur_depar
 `;
 const context = { console };
 vm.runInNewContext(scripts.slice(0, -1).join('\n') + tests, context, { filename: 'audience-masters-dilemmas-update.js' });
-console.log('OK dilemmas update: summer saga, masked singers, talent show come-back, quiz champion slot, Les Guignols, French cartoon (grid, studio, renewal), linked illustrations, hidden context lines, CDI, softer counter-offers');
+console.log('OK dilemmas update: summer saga, treasure map (grid, renewal, pass), masked singers, talent show come-back, quiz champion slot, Les Guignols, French cartoon (grid, studio, renewal), linked illustrations, hidden context lines, CDI, softer counter-offers');
