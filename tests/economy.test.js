@@ -8,6 +8,8 @@ const scripts=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m=>m[1]);
 scripts.forEach((src,i)=>{ new vm.Script(src,{filename:'script'+i}); });
 const tests=String.raw`
 const out=[]; const ok=(c,m)=>{ if(!c) throw Error(m); };
+// Tirages reproductibles : la programmation des concurrents à l’ouverture fait varier les recettes.
+{ let r=20240611; Math.random=()=>{ r=(Math.imul(r,1103515245)+12345)>>>0; return r/4294967296; }; }
 const near=(a,b,e=1e-9)=>Math.abs(a-b)<e;
 render=()=>{};
 // Repères de calcul (popularité 50, puissance 1, sans sport ni régie).
