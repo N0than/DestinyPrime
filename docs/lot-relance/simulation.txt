@@ -1,0 +1,88 @@
+Plan de relance v2.0 — 10000 cases × 5 stratégies × 4 saisons (+ 2500 grilles à 3 cases) — 2114 s
+
+**toutes les cases** (10000 cases)
+
+| Stratégie | Audience cumulée (pts de PDA) | Écart à « attendre » | Dépense (M€) | Bascule refonte | Antenne | Crédibilité |
+|---|---:|---:|---:|---:|---:|---:|
+| autopromo | 12,79 | +0,63 | 3,05 | 50 % | 0,01 | 0,96 |
+| digital | 12,79 | +0,63 | 3,59 | 50 % | 0,01 | 0,96 |
+| renfort | 13,13 | +0,97 | 5,69 | 39 % | 0,01 | 0,98 |
+| attendre | 12,16 | +0,00 | 0,00 | 0 % | 0,00 | 1,00 |
+| etude | 13,30 | +1,14 | 8,21 | 58 % | 0,00 | 0,99 |
+
+**crise ou urgence** (3886 cases)
+
+| Stratégie | Audience cumulée (pts de PDA) | Écart à « attendre » | Dépense (M€) | Bascule refonte | Antenne | Crédibilité |
+|---|---:|---:|---:|---:|---:|---:|
+| autopromo | 11,93 | +0,68 | 3,39 | 88 % | 0,00 | 0,94 |
+| digital | 11,94 | +0,69 | 4,68 | 88 % | 0,00 | 0,95 |
+| renfort | 12,80 | +1,55 | 10,03 | 60 % | 0,00 | 1,00 |
+| attendre | 11,25 | +0,00 | 0,00 | 0 % | 0,00 | 1,00 |
+| etude | 12,72 | +1,47 | 10,62 | 93 % | 0,00 | 0,99 |
+
+**usure ≥ 70 (crise ou urgence)** (1737 cases)
+
+| Stratégie | Audience cumulée (pts de PDA) | Écart à « attendre » | Dépense (M€) | Bascule refonte | Antenne | Crédibilité |
+|---|---:|---:|---:|---:|---:|---:|
+| autopromo | 10,21 | +0,50 | 3,32 | 92 % | 0,00 | 0,93 |
+| digital | 10,21 | +0,51 | 4,61 | 92 % | 0,00 | 0,94 |
+| renfort | 11,24 | +1,53 | 9,81 | 70 % | 0,00 | 1,00 |
+| attendre | 9,71 | +0,00 | 0,00 | 0 % | 0,00 | 1,00 |
+| etude | 11,20 | +1,49 | 12,71 | 97 % | 0,00 | 1,00 |
+
+**usure ≤ 30 (crise ou urgence)** (429 cases)
+
+| Stratégie | Audience cumulée (pts de PDA) | Écart à « attendre » | Dépense (M€) | Bascule refonte | Antenne | Crédibilité |
+|---|---:|---:|---:|---:|---:|---:|
+| autopromo | 15,97 | +0,88 | 3,54 | 69 % | 0,00 | 0,97 |
+| digital | 15,98 | +0,90 | 4,81 | 69 % | 0,00 | 0,97 |
+| renfort | 15,90 | +0,81 | 9,29 | 74 % | 0,00 | 1,00 |
+| attendre | 15,09 | +0,00 | 0,00 | 0 % | 0,00 | 1,00 |
+| etude | 16,00 | +0,91 | 4,60 | 69 % | 0,00 | 0,98 |
+
+**alerte** (6114 cases)
+
+| Stratégie | Audience cumulée (pts de PDA) | Écart à « attendre » | Dépense (M€) | Bascule refonte | Antenne | Crédibilité |
+|---|---:|---:|---:|---:|---:|---:|
+| autopromo | 13,33 | +0,59 | 2,84 | 26 % | 0,02 | 0,97 |
+| digital | 13,33 | +0,59 | 2,89 | 26 % | 0,01 | 0,97 |
+| renfort | 13,34 | +0,60 | 2,93 | 25 % | 0,01 | 0,97 |
+| attendre | 12,74 | +0,00 | 0,00 | 0 % | 0,00 | 1,00 |
+| etude | 13,66 | +0,92 | 6,67 | 36 % | 0,00 | 0,99 |
+
+**sous pression** (5084 cases)
+
+| Stratégie | Audience cumulée (pts de PDA) | Écart à « attendre » | Dépense (M€) | Bascule refonte | Antenne | Crédibilité |
+|---|---:|---:|---:|---:|---:|---:|
+| autopromo | 12,74 | +0,61 | 3,14 | 50 % | 0,01 | 0,95 |
+| digital | 12,75 | +0,62 | 3,95 | 50 % | 0,00 | 0,95 |
+| renfort | 13,23 | +1,10 | 7,28 | 31 % | 0,00 | 0,99 |
+| attendre | 12,12 | +0,00 | 0,00 | 0 % | 0,00 | 1,00 |
+| etude | 13,27 | +1,14 | 8,26 | 59 % | 0,00 | 0,99 |
+
+**décrochage fort (ratio ≤ 0,75)** (4262 cases)
+
+| Stratégie | Audience cumulée (pts de PDA) | Écart à « attendre » | Dépense (M€) | Bascule refonte | Antenne | Crédibilité |
+|---|---:|---:|---:|---:|---:|---:|
+| autopromo | 12,84 | +0,75 | 3,20 | 93 % | 0,00 | 0,95 |
+| digital | 12,85 | +0,76 | 4,08 | 93 % | 0,00 | 0,96 |
+| renfort | 13,42 | +1,33 | 7,37 | 79 % | 0,00 | 0,99 |
+| attendre | 12,09 | +0,00 | 0,00 | 0 % | 0,00 | 1,00 |
+| etude | 13,42 | +1,33 | 8,84 | 93 % | 0,00 | 0,99 |
+
+**Grille : trois cases en déclin, même stratégie partout**
+
+| Stratégie | Audience cumulée des 3 cases | Dont saisons 3 et 4 | Dépense (M€) | Antenne (max) | Crédibilité (fin) |
+|---|---:|---:|---:|---:|---:|
+| autopromo | 32,53 | 16,23 | 3,94 | 0,84 | 0,95 |
+| digital | 32,58 | 16,24 | 4,55 | 0,58 | 0,96 |
+| renfort | 33,09 | 16,59 | 6,68 | 0,58 | 0,97 |
+| attendre | 31,48 | 15,58 | 0,00 | 0,00 | 1,00 |
+| etude | 33,36 | 16,73 | 10,70 | 0,36 | 0,98 |
+
+Critères :
+- aucune stratégie fixe ne domine partout : oui (meilleure par profil : toutes les cases → renfort ; crise ou urgence → renfort ; usure ≥ 70 (crise ou urgence) → renfort ; usure ≤ 30 (crise ou urgence) → digital ; alerte → renfort ; sous pression → renfort ; décrochage fort (ratio ≤ 0,75) → renfort)
+- étude puis meilleure branche : gain d’audience sur « attendre » rapporté à celui de chaque stratégie fixe active : autopromo ×1,81, digital ×1,80, renfort ×1,17 (cible : ×1,05 à ×1,15 face à la meilleure)
+- usure ≥ 70 : renfort 11,24 vs meilleure promo 10,21 → renfort gagne
+- usure ≤ 30 : meilleure promo 15,98 vs renfort 15,90 → la promo gagne
+- grille, saisons 3 et 4 : « toujours autopromo » est la pire des stratégies actives (antenne 0,84)

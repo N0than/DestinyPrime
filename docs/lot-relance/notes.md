@@ -53,7 +53,12 @@ Les 15 fichiers `tests/*.test.js` sont OK. Deux tests anciens supposaient que to
 
 **Simulation d'équilibrage** (`tests/relance.sim.js`, `simulation.txt`). Elle suit le protocole de la section 9 : cases en déclin tirées au hasard, 5 stratégies, 4 saisons, sur le moteur du jeu (cartes, coûts, tirages, carrière, audience). Résultats sur 10 000 cases : voir `simulation.txt` et la synthèse ci-dessous.
 
-(Synthèse ajoutée à la fin du calcul de 10 000 cases ; sur 1 000 cases : aucune stratégie fixe ne domine partout, renfort meilleur sur contenu usé, promotion meilleure sur contenu frais, « toujours autopromo » pire stratégie active sur une grille, étude ×1,17 face au renfort.)
+Critères (10 000 cases, 2 500 grilles à 3 cases) :
+- Aucune stratégie fixe ne domine partout : **oui**. Le renfort est en tête en moyenne et sur un contenu usé ; la campagne en ligne l'est sur un contenu frais en Crise ou en Urgence.
+- Usure ≥ 70 : le renfort bat toute promo, **oui** (11,24 contre 10,21 points de PDA cumulés).
+- Usure ≤ 30 (Crise ou Urgence, 429 cases) : la promo bat le renfort, **oui**, mais de peu (15,98 contre 15,90), pour 2 à 2,6 fois moins de dépense.
+- Grille, saisons 3 et 4 : « toujours autopromo » est la pire stratégie active, **oui** (antenne à 0,84 au plus).
+- Étude puis meilleure branche : son gain sur l'inaction vaut ×1,17 celui du renfort et ×1,8 celui des campagnes. C'est **juste au-dessus** de la cible de ×1,05 à ×1,15. L'écart vient de l'Alerte, où le diagnostic débloque le renfort ; en Crise, l'étude reste légèrement sous le renfort.
 
 **Parties réelles** (`tests/narrative-arcs.sim.js`, `arcs.txt` : 2 graines × 60 saisons × 6 formats, choix aléatoires) :
 - 53 plans de relance ouverts, 43 % résolus ;
