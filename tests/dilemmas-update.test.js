@@ -91,6 +91,11 @@ const renouvelable=slot=>{ const c=gameState.player.contracts[slot]; gameState.s
   acquireSportsRight('miss_france',{owner:'player',price:10,term:2}); gameState.sportsRights.owned.forEach(o=>{ if(o.eventId==='miss_france') o.broadcastSeason-=1; });
   ok(linkedProgramCardHtml(B('d30')).includes('Miss France'),'dilemme d’un événement : carte de l’événement'); }
 
+// ——— Refonte du samedi soir : seulement sur une programmation de base, option « ne rien changer » ———
+{ const p=partie(); delete p.contracts.prime; ok(eligible('d276'),'prime de base : refonte proposée');
+  ok(B('d276').c.length===3&&B('d276').c[2].l==='Ne rien changer'&&B('d276').c[2].finance.category==='N','option ne rien changer');
+  signe('p036'); ok(!eligible('d276'),'programme signé en prime : pas de refonte'); }
+
 // ——— Lignes de contexte masquées, « en fin de contrat » retiré ———
 ok(!/en fin de contrat/.test(GENRE_STORY_BANK.find(d=>d.id==='gs_animateur_depart').desc),'départ d’animateur sans « en fin de contrat »');
 { partie(); const c=signe('p009'); migrateProgramCareer(c,'matin'); c.career.seasonsCount=4;

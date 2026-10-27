@@ -7286,9 +7286,12 @@ const DILEMMA_BANK = [
     id: 'd276', titre: "Refonte du grand divertissement du samedi soir",
     desc: "Le format historique du prime du samedi soir s'essouffle face à la concurrence. Il est temps de trancher sur la nouvelle programmation.",
     types: ['generaliste'],
+    // Seulement si le prime diffuse la programmation de base (aucun programme signé, aucun événement).
+    eligibleIf: () => !gameState.player.contracts?.prime && !slotTakenByEvent('prime'),
     c: [
       { l: "Lancer un télé-crochet inédit à gros budget", finance: {"recurring":14,"purchase":0,"commercial":0,"category":"R"}, pda: { j1524: +5, a2549: +4, s50: +1, csp: 0 }, r: "Un lancement événement qui relance la machine du samedi soir.", pop: 3, grille: { slot: 'prime', programme: "Nouveau télé-crochet" } },
-      { l: "Reformater un jeu familial existant, moins cher", finance: {"recurring":4,"purchase":0,"commercial":0,"category":"R"}, pda: { j1524: -1, a2549: +2, s50: +5, csp: +1 }, r: "Un format rassurant qui fidélise le socle familial.", pop: 1, grille: { slot: 'prime', programme: "Grand jeu familial" } }
+      { l: "Reformater un jeu familial existant, moins cher", finance: {"recurring":4,"purchase":0,"commercial":0,"category":"R"}, pda: { j1524: -1, a2549: +2, s50: +5, csp: +1 }, r: "Un format rassurant qui fidélise le socle familial.", pop: 1, grille: { slot: 'prime', programme: "Grand jeu familial" } },
+      { l: "Ne rien changer", finance: {"recurring":0,"purchase":0,"commercial":0,"category":"N"}, pda: { j1524: -1, a2549: -1, s50: 0, csp: 0 }, r: "Le samedi soir garde sa programmation habituelle, sans dépense, mais continue de s'essouffler.", pop: 0 }
     ]
   },
   {
