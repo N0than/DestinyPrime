@@ -96,6 +96,22 @@ const renouvelable=slot=>{ const c=gameState.player.contracts[slot]; gameState.s
   ok(B('d276').c.length===3&&B('d276').c[2].l==='Ne rien changer'&&B('d276').c[2].finance.category==='N','option ne rien changer');
   signe('p036'); ok(!eligible('d276'),'programme signé en prime : pas de refonte'); }
 
+// ——— Agrandissement du studio : cinq variantes, une finalité (6 formats) ———
+{ const p=partie(); const ids=[1,2,3,4,5].map(i=>'d_studio_'+i);
+  ok(!ids.some(eligible),'studio peu occupé : pas de proposition');
+  ['jeu','magazine'].forEach((concept,k)=>designOriginalFormat({concept,positioning:'populaire',slot:['matin','access'][k],budget:2}));
+  ok(ids.filter(eligible).join()==='d_studio_1','une seule variante proposée');
+  const d=enFile('d_studio_1'); ok(d.c[0].finance.purchase===10&&/doubler/.test(d.desc),'agrandissement à 10 M€');
+  joue(1); ok(!p.studioExpanded&&studioMaxProjects()===3,'refus : 3 formats');
+  ok(!ids.some(eligible),'refus : rien avant 10 saisons');
+  gameState.season+=10; ok(ids.filter(eligible).join()==='d_studio_2','10 saisons plus tard : une autre variante');
+  gameState.step=6; const d2=enFile('d_studio_2'); const achats=p.achatsSaison; joue(0);
+  ok(p.studioExpanded&&studioMaxProjects()===6&&near(p.achatsSaison-achats,10),'acceptée : 6 formats, 10 M€');
+  gameState.season+=20; ok(!ids.some(eligible),'acceptée : plus jamais proposée');
+  for(let k=0;k<4;k++) ok(designOriginalFormat({concept:'jeu',positioning:'populaire',slot:'apresmidi',budget:1}),'format '+(k+3));
+  ok(studioSlotFormats().length===6&&!designOriginalFormat({concept:'jeu',positioning:'populaire',slot:'apresmidi',budget:1}),'6 formats au plus');
+  ok(/data-of-sel="5"/.test(renderStudioSlide()),'six emplacements dans le Studio'); }
+
 // ——— Lignes de contexte masquées, « en fin de contrat » retiré ———
 ok(!/en fin de contrat/.test(GENRE_STORY_BANK.find(d=>d.id==='gs_animateur_depart').desc),'départ d’animateur sans « en fin de contrat »');
 { partie(); const c=signe('p009'); migrateProgramCareer(c,'matin'); c.career.seasonsCount=4;

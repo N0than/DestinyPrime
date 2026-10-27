@@ -2198,7 +2198,7 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .of-form-actions button { flex:1; }
 .of-studio .of-form-actions button { border-radius:6px; }
 .of-form-actions .ghost { flex:0 0 auto; border-color:transparent; background:none; color:var(--gris); }
-/* Première ligne : les 3 emplacements ; dessous, la carte programme de l'emplacement choisi. */
+/* Première ligne : les emplacements (3, ou 6 après l'agrandissement) ; dessous, la carte programme de l'emplacement choisi. */
 .of-tabs { flex:none; display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:6px; }
 .of-tab { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font:700 10px 'Space Grotesk', sans-serif; letter-spacing:-.1px; padding:6px 3px; text-align:center;
   border-radius:999px; border:1px solid rgba(15,23,42,0.12); background:rgba(255,255,255,0.7); color:var(--ink); cursor:pointer; }
@@ -7292,6 +7292,57 @@ const DILEMMA_BANK = [
       { l: "Lancer un télé-crochet inédit à gros budget", finance: {"recurring":14,"purchase":0,"commercial":0,"category":"R"}, pda: { j1524: +5, a2549: +4, s50: +1, csp: 0 }, r: "Un lancement événement qui relance la machine du samedi soir.", pop: 3, grille: { slot: 'prime', programme: "Nouveau télé-crochet" } },
       { l: "Reformater un jeu familial existant, moins cher", finance: {"recurring":4,"purchase":0,"commercial":0,"category":"R"}, pda: { j1524: -1, a2549: +2, s50: +5, csp: +1 }, r: "Un format rassurant qui fidélise le socle familial.", pop: 1, grille: { slot: 'prime', programme: "Grand jeu familial" } },
       { l: "Ne rien changer", finance: {"recurring":0,"purchase":0,"commercial":0,"category":"N"}, pda: { j1524: -1, a2549: -1, s50: 0, csp: 0 }, r: "Le samedi soir garde sa programmation habituelle, sans dépense, mais continue de s'essouffler.", pop: 0 }
+    ]
+  },
+  // Agrandissement du studio de création (cinq variantes, une seule finalité : 6 formats).
+  {
+    id: 'd_studio_1', titre: 'On pousse les murs ?', studioOffer: 0,
+    desc: 'Votre studio de création tourne à plein régime. Le directeur de production propose de doubler les capacités : un second plateau, du matériel supplémentaire et une équipe dédiée.',
+    types: ['generaliste', 'cinema', 'culture', 'jeunesse', 'sport', 'info'],
+    eligibleIf: () => studioOfferEligible(0),
+    c: [
+      { l: 'Agrandir le studio de production', studioExpansion: true, finance: {"recurring":0,"purchase":10,"commercial":0,"category":"P"}, pda: { j1524: 0, a2549: 0, s50: 0, csp: 0 }, audienceImpacts: [], r: 'Le second plateau est livré : votre studio de création peut désormais mener 6 formats de front.', pop: 1 },
+      { l: "Concentrer les investissements sur les programmes", studioExpansion: false, finance: {"recurring":0,"purchase":0,"commercial":0,"category":"N"}, pda: { j1524: 0, a2549: 0, s50: 0, csp: 0 }, audienceImpacts: [], r: "Le studio garde sa taille actuelle : l’argent reste affecté aux programmes.", pop: 0 }
+    ]
+  },
+  {
+    id: 'd_studio_2', titre: 'Rachat d’une société de production ?', studioOffer: 1,
+    desc: 'Une société de production réputée pour ses plateaux ultra-modernes est en vente suite à des difficultés financières de son actionnaire historique.',
+    types: ['generaliste', 'cinema', 'culture', 'jeunesse', 'sport', 'info'],
+    eligibleIf: () => studioOfferEligible(1),
+    c: [
+      { l: 'Racheter la société de production', studioExpansion: true, finance: {"recurring":0,"purchase":10,"commercial":0,"category":"P"}, pda: { j1524: 0, a2549: 0, s50: 0, csp: 0 }, audienceImpacts: [], r: 'La société et ses plateaux rejoignent la chaîne : votre studio de création peut désormais mener 6 formats de front.', pop: 1 },
+      { l: "Concentrer les investissements sur les programmes", studioExpansion: false, finance: {"recurring":0,"purchase":0,"commercial":0,"category":"N"}, pda: { j1524: 0, a2549: 0, s50: 0, csp: 0 }, audienceImpacts: [], r: "Le studio garde sa taille actuelle : l’argent reste affecté aux programmes.", pop: 0 }
+    ]
+  },
+  {
+    id: 'd_studio_3', titre: 'Alliance stratégique avec une plateforme ?', studioOffer: 2,
+    desc: "Une grande plateforme cherche à s'implanter durablement sur le marché local et propose de cofinancer un studio de production. Ce partenariat permettrait de doubler vos capacités de production.",
+    types: ['generaliste', 'cinema', 'culture', 'jeunesse', 'sport', 'info'],
+    eligibleIf: () => studioOfferEligible(2),
+    c: [
+      { l: 'S’associer à la plateforme', studioExpansion: true, finance: {"recurring":0,"purchase":10,"commercial":0,"category":"P"}, pda: { j1524: 0, a2549: 0, s50: 0, csp: 0 }, audienceImpacts: [], r: 'Le studio cofinancé ouvre ses portes : votre studio de création peut désormais mener 6 formats de front.', pop: 1 },
+      { l: "Concentrer les investissements sur les programmes", studioExpansion: false, finance: {"recurring":0,"purchase":0,"commercial":0,"category":"N"}, pda: { j1524: 0, a2549: 0, s50: 0, csp: 0 }, audienceImpacts: [], r: "Le studio garde sa taille actuelle : l’argent reste affecté aux programmes.", pop: 0 }
+    ]
+  },
+  {
+    id: 'd_studio_4', titre: 'Reconversion d’un site industriel ?', studioOffer: 3,
+    desc: 'La région lance un appel à projets pour reconvertir une ancienne usine en pôle audiovisuel. Votre dossier a été retenu : les locaux sont immenses et les aides locales réduisent les coûts. Vous pourriez doubler vos capacités de production.',
+    types: ['generaliste', 'cinema', 'culture', 'jeunesse', 'sport', 'info'],
+    eligibleIf: () => studioOfferEligible(3),
+    c: [
+      { l: 'Investir dans le site industriel', studioExpansion: true, finance: {"recurring":0,"purchase":10,"commercial":0,"category":"P"}, pda: { j1524: 0, a2549: 0, s50: 0, csp: 0 }, audienceImpacts: [], r: 'L’ancienne usine devient un pôle audiovisuel : votre studio de création peut désormais mener 6 formats de front.', pop: 1 },
+      { l: "Concentrer les investissements sur les programmes", studioExpansion: false, finance: {"recurring":0,"purchase":0,"commercial":0,"category":"N"}, pda: { j1524: 0, a2549: 0, s50: 0, csp: 0 }, audienceImpacts: [], r: "Le studio garde sa taille actuelle : l’argent reste affecté aux programmes.", pop: 0 }
+    ]
+  },
+  {
+    id: 'd_studio_5', titre: 'Le virage de la production virtuelle ?', studioOffer: 4,
+    desc: 'Une start-up propose d’équiper votre studio de murs LED et d’outils de production virtuelle pilotés par l’IA. Les décors sont générés en temps réel, les tournages sont deux fois plus rapides et les coûts par épisode baissent. Vous doubleriez vos capacités de production et pourriez passer à 6 formats.',
+    types: ['generaliste', 'cinema', 'culture', 'jeunesse', 'sport', 'info'],
+    eligibleIf: () => studioOfferEligible(4),
+    c: [
+      { l: 'Adopter cette technologie', studioExpansion: true, finance: {"recurring":0,"purchase":10,"commercial":0,"category":"P"}, pda: { j1524: 0, a2549: 0, s50: 0, csp: 0 }, audienceImpacts: [], r: 'Murs LED et décors virtuels sont en place : votre studio de création peut désormais mener 6 formats de front.', pop: 1 },
+      { l: "Concentrer les investissements sur les programmes", studioExpansion: false, finance: {"recurring":0,"purchase":0,"commercial":0,"category":"N"}, pda: { j1524: 0, a2549: 0, s50: 0, csp: 0 }, audienceImpacts: [], r: "Le studio garde sa taille actuelle : l’argent reste affecté aux programmes.", pop: 0 }
     ]
   },
   {
@@ -23151,6 +23202,7 @@ function chooseMaterialized(choiceIndex, dilemma) {
     addSlotEventCost((dilemma.blindLot?.outcome?.installed || []).map(slot => slotEventOn(player, slot)));
   }
   if (choice.becomePlatform) player.isPlatform = true;
+  if (choice.studioExpansion != null) applyStudioOffer(choice.studioExpansion);
   // Retour à la programmation initiale de la case (aucun contrat, aucun coût).
   if (choice.restoreDefault && !player.contracts?.[choice.restoreDefault.slot]) delete player.grilleOverrides?.[choice.restoreDefault.slot];
   if (dilemma.isBiddingWar) applyBiddingWarChoice(dilemma, choice);
@@ -29589,7 +29641,7 @@ const DYNAMIC_DILEMMAS = {
       const slot = DYNAMIC_DILEMMAS.d69.slot();
       return !!slot && programOfferEligible(DYNAMIC_DILEMMAS.d69.programId(slot), slot)
         && !ensureConsequenceState().originalFormats[DYNAMIC_DILEMMAS.d69.programId(slot)]
-        && studioSlotFormats().length < ORIGINAL_FORMATS.maxProjects;
+        && studioSlotFormats().length < studioMaxProjects();
     },
     build: base => {
       const slot = DYNAMIC_DILEMMAS.d69.slot(), id = DYNAMIC_DILEMMAS.d69.programId(slot);
@@ -30362,6 +30414,7 @@ const ORIGINAL_FORMATS = {
   resaleBase: 0.4,            // revente des droits : part du coût annuel + notoriété
   sale: { national: 1.5, foreignUpfront: 0.5, foreignRoyalty: 0.25 }, // cession : prix national, ou avance + royalties annuelles
   maxProjects: 3,            // emplacements du studio (projets et formats lancés encore à l'antenne)
+  expandedProjects: 6,       // emplacements après l'agrandissement du studio (dilemme « Agrandir le studio »)
   spinoffAwareness: 55
 };
 function slotReference(type, slot) {
@@ -30382,7 +30435,7 @@ function designOriginalFormat({ concept, positioning, slot, budget, requestId = 
   if (previous) return previous;
   const c = studioConcepts(p.type).find(c => c.id === concept), pos = cfg.positionings[positioning], b = cfg.budgets[budget];
   if (!c || !pos || !b || !TIME_SLOTS.some(s => s.key === slot) || slotTakenByEvent(slot)
-    || studioSlotFormats().length >= cfg.maxProjects || !Number.isFinite(p.tresorerie) || p.tresorerie < cfg.designCost) return null;
+    || studioSlotFormats().length >= studioMaxProjects() || !Number.isFinite(p.tresorerie) || p.tresorerie < cfg.designCost) return null;
   const target = p.target; // Même cible de référence que la chaîne, sans sélecteur supplémentaire.
   const n = Object.keys(p.originalFormats).length + 1;
   const id = `of-${gameState.season}-${n}`;
@@ -31300,6 +31353,26 @@ function studioStarsHtml(power) {
 }
 // Carte programme d'un format en développement : illustration, potentiel en étoiles, actions.
 // Emplacements du studio : projets en développement, puis formats lancés encore à l'antenne.
+// Capacité du studio : doublée après l'agrandissement (gameState.player.studioExpanded).
+// Proposition d'agrandissement du studio : une variante à la fois (la suivante après chaque
+// refus), seulement si le studio est déjà bien occupé. Acceptée, elle ne revient plus ;
+// refusée, une autre variante peut revenir STUDIO_OFFER.retrySeasons saisons plus tard.
+const STUDIO_OFFER = { variants: 5, retrySeasons: 10, minFormats: 2 };
+function studioOfferEligible(variant) {
+  const p = gameState.player;
+  if (p.studioExpanded || (p.studioOfferCount || 0) % STUDIO_OFFER.variants !== variant) return false;
+  if (p.studioOfferSeason != null && gameState.season < p.studioOfferSeason + STUDIO_OFFER.retrySeasons) return false;
+  return studioSlotFormats().length >= STUDIO_OFFER.minFormats;
+}
+function applyStudioOffer(accepted) {
+  const p = gameState.player;
+  p.studioOfferSeason = gameState.season;
+  p.studioOfferCount = (p.studioOfferCount || 0) + 1;
+  if (accepted) p.studioExpanded = true;
+}
+function studioMaxProjects() {
+  return gameState.player?.studioExpanded ? ORIGINAL_FORMATS.expandedProjects : ORIGINAL_FORMATS.maxProjects;
+}
 function studioSlotFormats() {
   const p = ensureConsequenceState();
   const onAir = Object.values(p.originalFormats).filter(f => f.stage === 'launched' && p.contracts?.[f.slot]?.id === f.id);
@@ -31406,10 +31479,10 @@ function renderStudioSlide() {
   const formats = studioSlotFormats();
   const off = editable ? '' : ' disabled';
   // Emplacement affiché : celui choisi dans la première ligne (par défaut le premier).
-  const sel = Math.max(0, Math.min(cfg.maxProjects - 1, gameState.studioSel ?? 0));
+  const sel = Math.max(0, Math.min(studioMaxProjects() - 1, gameState.studioSel ?? 0));
   const current = formats[sel];
   // « + » de la carte vierge : la carte laisse place aux critères de conception.
-  const showForm = editable && gameState.studioForm && !current && formats.length < cfg.maxProjects;
+  const showForm = editable && gameState.studioForm && !current && formats.length < studioMaxProjects();
   const draft = studioDraft();
   const form = `<div class="of-form">
       ${studioGaugeHtml('slot', 'Créneau', draft, off)}
@@ -31422,7 +31495,7 @@ function renderStudioSlide() {
         <button type="button" class="primary" data-of-action="design"${!editable || gameState.player.tresorerie < cfg.designCost ? ' disabled' : ''}>Concevoir le format — 250 000 €</button>
       </div>
     </div>`;
-  const tabs = Array.from({ length: cfg.maxProjects }, (_, i) => {
+  const tabs = Array.from({ length: studioMaxProjects() }, (_, i) => {
     const f = formats[i];
     return `<button type="button" class="of-tab${f ? '' : ' empty'}${i === sel ? ' active' : ''}${f?.stage === 'launched' ? ' on-air' : ''}" data-of-action="select" data-of-sel="${i}" aria-pressed="${i === sel}">${f ? esc(f.name) : '+ Nouveau format'}</button>`;
   }).join('');
@@ -31489,7 +31562,7 @@ function bindOriginalStudio(app) {
         gameState.studioForm = true; render(); return;
       }
       if (action === 'design') {
-        if (!gameState.studioForm || studioSlotFormats().length >= ORIGINAL_FORMATS.maxProjects) return;
+        if (!gameState.studioForm || studioSlotFormats().length >= studioMaxProjects()) return;
         btn.disabled = true;
         const d = studioDraft();
         const f = designOriginalFormat({ concept: d.concept, positioning: d.positioning, slot: d.slot, budget: Number(d.budget), requestId: gameState.studioDesignRequestId });
