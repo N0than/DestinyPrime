@@ -17786,7 +17786,7 @@ const PROGRAM_STORY_BANK = [
       { l: 'Filmer ses tentatives', icon: '📹', boost: 0.02, career: { awareness: 3 }, pop: -2,
         r: 'L’épisode met mal à l’aise.' }
     ] },
-  { id: 'ps_p393_retour_soiree', programId: 'p393', family: 'strategie', phase: 2, when: { minSeasons: 1, form: 'struggle' },
+  { id: 'ps_p393_retour_soiree', programId: 'p393', family: 'strategie', phase: 2, when: { minSeasons: 1, form: 'difficulte' },
     titre: 'Le retour en soirée',
     desc: 'La chaîne songe à avancer {programme} en deuxième partie de soirée. L’animateur réclame plus de moyens pour l’occasion.',
     c: [
@@ -20422,7 +20422,9 @@ const NARRATIVE_ARCS = {
   refonte: { label: 'Refonte d’un programme usé', steps: 3 },
   offensive: { label: 'Riposte à une offensive concurrente', steps: 3 },
   surcout: { label: 'Surcoût de production', steps: 2 },
-  digital: { label: 'Développement en ligne', steps: 3 }
+  digital: { label: 'Développement en ligne', steps: 3 },
+  // Composé à la volée (composeRelanceStories), hors banque statique.
+  relance: { label: 'Plan de relance', steps: 3, composed: true }
 };
 const GS_SHOWS = ['jeu', 'divertissement', 'talk', 'cuisine', 'humour', 'talent', 'telerealite'];
 const GENRE_STORY_BANK = [
@@ -20877,6 +20879,9 @@ const GENRE_STORY_BANK = [
 // équivalence n'est supposée. Les suites d'une histoire (condition flag ou after) gardent la
 // clé de leur ouverture : ce sont des continuations, pas des répétitions.
 const STORY_SITUATION_KEYS = {
+  // Plan de relance d'un programme en déclin (arc « relance ») : une histoire propre au titre
+  // passe avant le plan composé.
+  ps_p393_retour_soiree: 'relance',
   // Renouvellement ou contestation du jury
   ps_p032_jury: 'jury', ps_p032_jury_suite: 'jury', ps_p489_jure: 'jury',
   // Succession ou maintien de la présentation
@@ -21101,6 +21106,9 @@ const openStoryArcs = programId => storyArcs().filter(a => a.state === 'open' &&
 // variation d'audience.
 function storyArcOutcome(arc, ctx) {
   const T = NARRATIVE_TUNING.arcs, delta = ctx.ratio - (arc.lastRatio ?? ctx.ratio);
+  // Plan de relance : l'issue tirée de la campagne oriente le déroulé (la branche renfort, sans
+  // tirage, suit l'évolution observée).
+  if (arc.arcId === 'relance' && arc.lastOutcome) return arc.lastOutcome;
   if (delta >= T.successDelta) return 'succes';
   if (delta <= -T.declineDelta) return 'recul';
   // Évolution mesurée peu nette : l'issue tirée lors de la dernière étape (lot 4) oriente la
@@ -21122,7 +21130,7 @@ function storyChoicesFor(def, ctx, arc) {
     .filter(({ spec }) => (!spec.needs || STORY_RESOURCES[spec.needs](ctx))
       && (!spec.branch || (arc && spec.branch.includes(arc.branch)))
       && (!spec.outcome || (arc && spec.outcome.includes(arc.outcome))))
-    .slice(0, 4);
+    .slice(0, def.maxChoices || 4);
 }
 // Places disponibles pour ouvrir cet arc sur ce programme : plafond par programme, arc pas
 // déjà ouvert, plafond par chaîne (NARRATIVE_TUNING.arcs).
@@ -21196,6 +21204,8 @@ function genericStoryMatches(def, ctx, specificKeys, specificSteps) {
 // Ligne de contexte : pourquoi ce dilemme apparaît maintenant.
 function storyContextLine(def, ctx, arc) {
   const w = def.when || {}, vars = storyTextVars(ctx, arc), prog = vars.programme;
+  // Plan de relance : la description nomme déjà la jauge qui pèse (et le pronostic d'une étude).
+  if (def.isRelance) return '';
   if (arc) return `Depuis cette décision, la case ${vars.creneau} ${{ succes: 'progresse', mitige: 'se maintient', recul: 'recule' }[arc.outcome]} par rapport à la moyenne de la chaîne.`;
   if (w.pressure) return `${vars.rival || esc(ctx.rival)} met la case ${vars.creneau} sous pression.`;
   if (w.minWear != null) return `${prog} montre des signes d’usure (usure ${Math.round(ctx.wear)}/100).`;
@@ -21212,16 +21222,25 @@ function storyContextLine(def, ctx, arc) {
 function storyArcApply(dilemma, s, contract) {
   const p = gameState.player, T = NARRATIVE_TUNING.arcs, season = gameState.season;
   p.storyArcs ??= [];
+  // Bascule vers un autre arc depuis une étape (plan de relance → refonte) : l'arc en cours
+  // est clos avant l'ouverture du suivant.
+  const current = s.arc?.open && dilemma.storyArc ? openStoryArcs(contract.id).find(a => a.arcId === dilemma.storyArc.arcId) : null;
+  if (current) {
+    current.history.push({ step: dilemma.storyArc.step, season, defId: dilemma.storyDefId, choice: s.index, recall: s.recall });
+    current.lastSeason = season;
+    closeStoryArc(current, 'resolu', `bascule vers l’arc ${s.arc.open}`);
+  }
   if (s.arc?.open) {
     if (!storyArcCapacity(contract.id, s.arc.open)) {
       narrativeLog('arc non ouvert', { arc: s.arc.open, programme: contract.id, raison: 'plafond d’arcs ouverts' });
       return;
     }
-    p.storyArcs.push({ arcId: s.arc.open, step: 1, branch: s.arc.branch, state: 'open', openedSeason: season, lastSeason: season,
+    p.storyArcs.push({ arcId: s.arc.open, step: s.arc.step ?? 1, branch: s.arc.branch, state: 'open', openedSeason: season, lastSeason: season,
       expiresSeason: season + T.maxDuration, entity: { kind: 'programme', id: contract.id, slot: dilemma.storySlot, name: contract.name },
       rival: dilemma.storyRival || null, lastRatio: dilemma.storyRatio ?? null, flags: [], occasions: [],
+      ...(s.arc.regime ? { regime: s.arc.regime, gravity: s.arc.gravity, wear: s.arc.wear } : {}),
       lastOutcome: s.outcome?.arcHint || null,
-      history: [{ step: 1, season, defId: dilemma.storyDefId, choice: s.index, recall: s.recall, ...(s.outcome ? { outcome: s.outcome.key } : {}) }] });
+      history: [{ step: s.arc.step ?? 1, season, defId: dilemma.storyDefId, choice: s.index, recall: s.recall, ...(s.outcome ? { outcome: s.outcome.key } : {}) }] });
     narrativeLog('arc ouvert', { arc: s.arc.open, branche: s.arc.branch, programme: contract.id });
     return;
   }
@@ -21231,8 +21250,9 @@ function storyArcApply(dilemma, s, contract) {
   arc.lastSeason = season;
   arc.lastOutcome = s.outcome?.arcHint || null;
   arc.lastRatio = dilemma.storyRatio ?? arc.lastRatio;
-  if (s.arc === 'advance' && dilemma.storyArc.step < (NARRATIVE_ARCS[arc.arcId]?.steps || 2)) {
+  if ((s.arc === 'advance' || s.arc?.advance) && dilemma.storyArc.step < (NARRATIVE_ARCS[arc.arcId]?.steps || 2)) {
     arc.step = dilemma.storyArc.step;
+    if (s.arc?.branch) arc.branch = s.arc.branch;
     narrativeLog('arc avancé', { arc: arc.arcId, étape: arc.step, programme: contract.id });
   } else closeStoryArc(arc, 'resolu', 'décision de clôture');
 }
@@ -21312,10 +21332,16 @@ function programStoryContext(slot, contract, rows) {
     : ratio <= T.struggleRatio || gap <= T.struggleGap ? 'difficulte' : 'stable';
   const rivalRow = rows.filter(r => r.channel !== p).sort((a, b) => b.slots[slot][target] - a.slots[slot][target])[0];
   const rivalContract = rivalRow ? activeContract(rivalRow.channel, slot) : null;
+  const pressure = (row.pressure[slot][target]?.penalty || 0) >= T.pressurePenalty;
+  // Plan de relance : gravité de la case, jauges de promotion (lecture seule).
+  const decline = relanceGravity({ form, ratio, wear: career.wear || 0, pressure, history: career.history, season: gameState.season });
+  const gauges = relanceGauges(contract.id);
   return {
     slot, contract, career, target, share, ratio, form,
+    gravity: decline.gravity, declineDepth: decline.declineDepth, gravityPoints: decline.points,
+    contentHealth: relanceHealth(career.wear), slotValue: relanceClamp(ratio, 0.5, 1.1), ...gauges,
     stage: programStoryStage(career), seasons: career.seasonsCount || 0, wear: career.wear || 0,
-    pressure: (row.pressure[slot][target]?.penalty || 0) >= T.pressurePenalty,
+    pressure,
     pressureLevel: row.pressure[slot][target]?.penalty || 0,
     cash: p.tresorerie < 0 ? 'serre' : p.tresorerie > (p.coutGrilleEngageSaison || 0) * 0.5 ? 'aise' : 'normal',
     rival: rivalRow?.name || 'un concurrent', rivalReal: !!rivalRow,
@@ -21338,6 +21364,8 @@ function programStoryMismatch(def, ctx) {
   if (rec.last != null && season - rec.last < (followUp ? PROGRAM_STORY_TUNING.followUpGap : PROGRAM_STORY_TUNING.programGap)) return 'écart entre deux histoires';
   if (w.stage && !asList(w.stage).includes(ctx.stage)) return 'étape de vie';
   if (w.form && !asList(w.form).includes(ctx.form)) return 'forme';
+  if (w.gravityMin != null && (ctx.gravity || 0) < w.gravityMin) return 'gravité insuffisante';
+  if (w.gravityMax != null && (ctx.gravity || 0) > w.gravityMax) return 'gravité trop forte';
   if (w.minSeasons != null && ctx.seasons < w.minSeasons) return 'ancienneté';
   if (w.maxSeasons != null && ctx.seasons > w.maxSeasons) return 'ancienneté';
   if (w.minWear != null && ctx.wear < w.minWear) return 'usure';
@@ -21373,11 +21401,13 @@ function programStoryCandidates(excludeProgramIds = []) {
     const keys = new Set(specific.map(def => def.genericKey).filter(Boolean));
     const steps = new Map(specific.map(def => [def, storySpecificStepArc(def, contract.id)]).filter(([, open]) => open));
     const stepArcs = new Set([...steps.values()].map(open => open.arcId));
-    const generic = GENRE_STORY_BANK.map(def => ({ def, m: genericStoryCheck(def, ctx, keys, stepArcs) })).filter(x => x.m.ok);
+    // Plan de relance : cartes composées pour cette case (ouverture ou étape suivante).
+    const generic = [...GENRE_STORY_BANK, ...composeRelanceStories(ctx)]
+      .map(def => ({ def, m: genericStoryCheck(def, ctx, keys, stepArcs) })).filter(x => x.m.ok);
     // Poids de la source : les ouvertures génériques d'un programme se partagent le poids
     // d'une histoire générique (il ne croît pas avec le nombre de définitions applicables) ;
     // une suite d'arc garde le sien.
-    const openers = generic.filter(({ m }) => !m.arc).length;
+    const openers = generic.filter(({ def, m }) => !m.arc && def.weight == null).length;
     return [
       ...specific.map(def => {
         const open = steps.get(def), baseWeight = def.weight || 1;
@@ -21423,6 +21453,384 @@ function programStoryFinance(cost, contract, scale = 1) {
   if (cost?.saving) return { recurring: -Math.min(amount(cost.saving), Math.round((contract.annual || 0) * 5) / 10), purchase: 0, commercial: 0, category: 'E' };
   if (cost?.commercial) return { recurring: 0, purchase: 0, commercial: amount(cost.commercial), category: 'C' };
   return { recurring: 0, purchase: 0, commercial: 0, category: 'N' };
+}
+
+// ---------------------------------------------------------------------------
+// PLAN DE RELANCE D'UN PROGRAMME EN BAISSE (arc « relance », v2.0)
+// ---------------------------------------------------------------------------
+// Une case en difficulté ouvre un plan en trois étapes (constat → déroulé → bilan). La
+// banque fournit les textes (RELANCE_TEXTS), la composition (composeRelanceStories) produit
+// chaque carte avec ses montants, ses probabilités et son contexte. La gravité (0 à 6) ne
+// change que le dilemme (options, prix de l'inaction), jamais le prix d'une campagne : celui-ci
+// suit la valeur restante de la case ; la promesse suit la santé du contenu, la lassitude de
+// l'antenne et la crédibilité des bandes-annonces. Aucun état persistant nouveau : les jauges
+// sont lues dans la mémoire des programmes (étiquettes tags des décisions), le régime et la
+// gravité d'ouverture sont gardés sur l'arc.
+const RELANCE_TUNING = {
+  // Gravité : usure du contenu à partir de wearMin (1 pt), profondeur du décrochage (1 pt au-delà
+  // de depth[0], 2 pts au-delà de depth[1]), persistance (saisons difficiles passées, 2 pts au
+  // plus), pression concurrentielle (1 pt). Régimes : Alerte 1–2, Crise 3–4, Urgence 5–6.
+  gravity: { wearMin: 60, depth: [0.25, 0.6], depthSpan: 0.4, crise: 3, urgence: 5 },
+  weight: 1.2,                 // poids d'une ouverture dans la sélection pondérée
+  promise: 0.12,               // promesse de base d'une campagne (part de la puissance de base)
+  costCap: 0.25,               // plafond d'une option (part du coût annuel du programme)
+  inaction: 1.5,               // notoriété perdue par point de gravité en attendant
+  urgencyWear: 4,              // attendre en Urgence : le contenu s'use (déprogrammation plus probable)
+  inventory: 0.7,              // autopromo : écrans pris sur l'inventaire (remplissage non modélisé)
+  alerteLight: 0.6,            // autopromo légère en Alerte
+  consolidationDrop: 2,        // bilan : consolidation si la gravité a baissé d'au moins 2 points
+  // Renfort éditorial : usure retirée, au plus renfortWear, proportionnelle à l'usure présente
+  // entre renfortFloor (rien à corriger) et renfortFull (plein effet). Un contenu frais n'a
+  // presque rien à corriger : la promotion y est plus utile.
+  renfortWear: 12, renfortFloor: 20, renfortFull: 60, renfortMinLasting: 0.2,
+  lasting: 0.05,               // bonus durable de la consolidation (≤ 0,05, plafonné par lastingCap)
+  // Coûts de base (part du coût annuel, avant la valeur de la case).
+  costs: { etude: 0.02, autopromo: 0.05, digital: 0.07, visages: 0.06, renfort: 0.06, arret: 0.15,
+    secondWave: 0.04, hammer: 0.04, followUp: 0.03, message: 0.03, retreat: 0.04, refonte: 0.06, install: 0.03 },
+  // Lassitude de la case (plans promo sur le même programme, 4 saisons), de l'antenne
+  // (autopromos de toute la grille, 2 saisons, 0,25 par passage) et crédibilité des
+  // bandes-annonces (échecs nets sur 4 saisons).
+  promoFatigue: [1, 0.8, 0.55, 0.35], promoWindow: 4, antennaWindow: 2, antennaStep: 0.25,
+  credibility: [1, 0.85, 0.7, 0.6], credibilityWindow: 4,
+  // Chances de succès d'une campagne (relanceOdds), bornées.
+  odds: { base: 0.2, health: 0.6, pressure: 0.15, antenna: 0.25, hammer: 0.1, min: 0.1, max: 0.85, recul: [0.35, 0.3] },
+  // Étude d'audience : pronostic favorable, incertain ou défavorable.
+  pronostic: { favorable: 0.6, incertain: 0.35, health: 0.7 }
+};
+const RELANCE_PROMO_BRANCHES = ['autopromo', 'digital', 'visages'];
+const relanceClamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const relanceRegime = gravity => gravity >= RELANCE_TUNING.gravity.urgence ? 'urgence' : gravity >= RELANCE_TUNING.gravity.crise ? 'crise' : 'alerte';
+const relanceHealth = wear => 1 - 0.6 * Math.min(100, wear || 0) / 100;
+const relanceRenfortReach = wear => relanceClamp(((wear || 0) - RELANCE_TUNING.renfortFloor) / (RELANCE_TUNING.renfortFull - RELANCE_TUNING.renfortFloor), 0, 1);
+const relanceRenfortWear = ctx => -Math.round(RELANCE_TUNING.renfortWear * relanceRenfortReach(ctx.wear));
+
+// Gravité d'une case (programStoryContext) : nulle hors forme « difficulté ». La persistance
+// compte les saisons difficiles consécutives déjà closes, hors celle qui fonde le constat
+// actuel (quand la difficulté vient de l'écart de la dernière saison et non de la part
+// actuelle de la case).
+function relanceGravity({ form, ratio, wear, pressure, history, season }) {
+  const T = PROGRAM_STORY_TUNING, G = RELANCE_TUNING.gravity;
+  const past = (history || []).filter(h => h.season < season);
+  const hard = h => h.performance - h.expected <= T.struggleGap;
+  let persist = 0;
+  for (let i = past.length - 1 - (ratio > T.struggleRatio ? 1 : 0); i >= 0 && hard(past[i]); i--) persist++;
+  const declineDepth = relanceClamp((1 - ratio) / G.depthSpan, 0, 1);
+  const pts = { persist: Math.min(2, persist), depth: declineDepth >= G.depth[1] ? 2 : declineDepth >= G.depth[0] ? 1 : 0,
+    wear: wear >= G.wearMin ? 1 : 0, pressure: pressure ? 1 : 0 };
+  const gravity = form === 'difficulte' ? Math.max(1, pts.persist + pts.depth + pts.wear + pts.pressure) : 0;
+  return { gravity, declineDepth, points: pts };
+}
+// Jauges de chaîne et de programme, lues dans la mémoire des programmes (lecture seule).
+function relanceGauges(programId) {
+  const R = RELANCE_TUNING, season = gameState.season, stories = gameState.player.programStories || {};
+  const logs = Object.values(stories).flatMap(r => r.log || []);
+  const sum = (list, tag, n) => list.filter(l => season - l.season <= n).reduce((s, l) => s + (l.tags?.[tag] || 0), 0);
+  const antennaFatigue = Math.min(1, sum(logs, 'autopromo', R.antennaWindow) * R.antennaStep);
+  const net = sum(logs, 'promo_echec', R.credibilityWindow) - sum(logs, 'promo_succes', R.credibilityWindow);
+  const promoCredibility = R.credibility[relanceClamp(net, 0, R.credibility.length - 1)];
+  const recentPromos = (stories[programId]?.log || []).filter(l => season - l.season <= R.promoWindow && l.tags?.plan_promo).length;
+  return { antennaFatigue, promoCredibility, recentPromos };
+}
+// Économie d'une option : le prix suit la valeur restante de la case, la promesse la santé du
+// contenu, la lassitude (case et antenne) et la crédibilité ; la gravité ne fixe que le prix
+// de l'inaction.
+function relanceScale(ctx, branch) {
+  const R = RELANCE_TUNING;
+  const slotValue = relanceClamp(ctx.ratio, 0.5, 1.1);
+  const fatigue = R.promoFatigue[Math.min(R.promoFatigue.length - 1, ctx.recentPromos || 0)];
+  const antenna = branch === 'autopromo' ? 1 - 0.3 * (ctx.antennaFatigue || 0) : 1;
+  return { costScale: slotValue, boostScale: relanceHealth(ctx.wear) * fatigue * (ctx.promoCredibility ?? 1) * antenna,
+    inactionAwareness: -R.inaction * (ctx.gravity || 0) };
+}
+// Chances d'une campagne : un contenu usé répond mal à la réclame, et l'échec penche alors
+// vers le recul plutôt que vers l'effet mitigé.
+function relanceOdds(ctx, branch, { hammer = false } = {}) {
+  const O = RELANCE_TUNING.odds, health = relanceHealth(ctx.wear);
+  const succes = relanceClamp(O.base + O.health * health * (ctx.promoCredibility ?? 1) - (ctx.pressure ? O.pressure : 0)
+    - (branch === 'autopromo' ? O.antenna * (ctx.antennaFatigue || 0) : 0) - (hammer ? O.hammer : 0), O.min, O.max);
+  const recul = (1 - succes) * (O.recul[0] + O.recul[1] * (1 - health));
+  const r6 = v => Math.round(v * 1e6) / 1e6;
+  return { succes: r6(succes), mitige: r6(1 - succes - recul), recul: r6(recul) };
+}
+// Pronostic de l'étude d'audience (sans chiffre) : meilleure campagne disponible, cause dominante.
+function relancePronostic(ctx) {
+  const P = RELANCE_TUNING.pronostic;
+  const best = Math.max(...RELANCE_PROMO_BRANCHES.filter(b => b !== 'visages' || ctx.talent).map(b => relanceOdds(ctx, b).succes));
+  const verdict = best >= P.favorable ? 'favorable' : best >= P.incertain ? 'incertain' : 'défavorable';
+  const cause = relanceHealth(ctx.wear) >= P.health ? 'le public ne connaît pas assez le programme' : 'le public connaît le programme et s’en lasse';
+  return `L’étude d’audience rend un pronostic ${verdict} pour une campagne de promotion : ${cause}.`;
+}
+// Jauge qui pèse le plus, nommée sur la carte (chaque échec doit être lisible).
+function relanceGaugeLine(ctx) {
+  if ((ctx.antennaFatigue || 0) >= 0.5) return 'L’antenne sature d’autopromo.';
+  if ((ctx.promoCredibility ?? 1) <= 0.7) return 'Le public ne croit plus nos bandes-annonces.';
+  if (relanceHealth(ctx.wear) < 0.7) return 'Le contenu de {programme} s’use.';
+  if (ctx.pressure) return `${esc(ctx.rival)} pèse sur la case.`;
+  return '';
+}
+// Cause d'un échec de campagne (texte de l'issue).
+function relanceFailureCause(ctx, branch) {
+  if (relanceHealth(ctx.wear) < 0.7) return 'Ce qui a pesé : le contenu est usé, la promo n’y peut rien.';
+  if (branch === 'autopromo' && (ctx.antennaFatigue || 0) >= 0.5) return 'Ce qui a pesé : l’antenne sature d’autopromo.';
+  if ((ctx.promoCredibility ?? 1) < 1) return 'Ce qui a pesé : le public ne croit plus nos bandes-annonces.';
+  if (ctx.pressure) return `Ce qui a pesé : la concurrence de ${esc(ctx.rival)} sur la case.`;
+  return 'Ce qui a pesé : le public n’a pas suivi.';
+}
+
+// Textes (ce que les auteurs écrivent) : ouvertures par régime, déroulés par branche et issue,
+// diagnostic après étude, bilans. {jauge} et {pronostic} sont remplis à la composition.
+const RELANCE_TEXTS = {
+  open: {
+    alerte: { titre: '{programme} marque le pas',
+      desc: 'La case {creneau} décroche par rapport à la moyenne de la chaîne. Rien d’alarmant encore, mais la tendance inquiète la direction des programmes. {jauge}' },
+    crise: { titre: 'Plan de relance pour {programme}',
+      desc: '{programme} perd du terrain et la case {creneau} passe sous la moyenne de la chaîne. Les équipes demandent un plan de relance. {jauge}' },
+    urgence: { titre: '{programme} : la case {creneau} est en danger',
+      desc: 'Le décrochage de {programme} s’installe et pèse désormais sur toute la case {creneau}. Il faut tenter un sauvetage ou préparer la suite. {jauge}' }
+  },
+  etude: { titre: 'Étude d’audience : le diagnostic sur {programme}',
+    desc: '{pronostic} {jauge} Les équipes attendent votre arbitrage.' },
+  step2: {
+    autopromo: {
+      succes: { titre: 'L’autopromo de {programme} a porté', desc: 'Les bandes-annonces ont ramené du public sur la case {creneau}. Reste à transformer l’essai.' },
+      mitige: { titre: 'L’autopromo de {programme} donne un effet limité', desc: 'Le programme est plus visible, mais la case {creneau} ne retrouve pas tout son public.' },
+      recul: { titre: 'L’autopromo de {programme} ne mord pas', desc: 'Les bandes-annonces tournent sur toutes nos antennes, le JT a évoqué le programme, mais la courbe ne décolle pas.' }
+    },
+    digital: {
+      succes: { titre: 'La campagne en ligne de {programme} a porté', desc: 'Extraits partagés, rendez-vous en ligne : un nouveau public découvre {programme}.' },
+      mitige: { titre: 'Campagne en ligne de {programme} : des vues, peu de téléspectateurs', desc: 'Les extraits circulent, mais peu de curieux rejoignent la case {creneau}.' },
+      recul: { titre: 'La campagne en ligne de {programme} tombe à plat', desc: 'Les extraits passent inaperçus et la case {creneau} continue de reculer.' }
+    },
+    visages: {
+      succes: { titre: 'Les visages de la chaîne ont relancé {programme}', desc: 'Les apparitions des talents de la chaîne ont ramené du public vers la case {creneau}.' },
+      mitige: { titre: 'Les visages de la chaîne n’ont pas suffi à {programme}', desc: 'Les apparitions plaisent, sans changer vraiment la courbe de la case {creneau}.' },
+      recul: { titre: 'Les visages de la chaîne n’ont pas relancé {programme}', desc: 'Le public salue les invités, mais ne revient pas pour autant au programme.' }
+    },
+    renfort: {
+      succes: { titre: 'Le renfort éditorial remet {programme} d’aplomb', desc: 'Nouvelles rubriques, rythme revu : la case {creneau} se redresse sans campagne de promotion.' },
+      mitige: { titre: 'Le renfort éditorial de {programme} met du temps à payer', desc: 'Le programme gagne en qualité, mais le public de la case {creneau} tarde à le remarquer.' },
+      recul: { titre: 'Le renfort éditorial ne suffit pas à {programme}', desc: 'Malgré le travail de l’équipe, la case {creneau} continue de reculer.' }
+    }
+  },
+  bilan: {
+    consolidation: { titre: 'Plan de relance de {programme} : la case se redresse',
+      desc: 'Depuis le début du plan, {programme} a retrouvé des couleurs sur la case {creneau}. Il reste à installer ce redressement.' },
+    echec: { titre: 'Plan de relance de {programme} : le bilan est sévère',
+      desc: 'Le plan n’a pas suffi : {programme} reste en difficulté sur la case {creneau}. {jauge}' }
+  }
+};
+// Identifiants stables : étape, branche (ou régime) et issue, jamais la gravité.
+function relanceModuleId(step, key, outcome = null) { return `gs_relance_${step}_${key}${outcome ? `_${outcome}` : ''}`; }
+function relanceModuleText(id) {
+  const m = /^gs_relance_(\d)_([a-z]+)(?:_([a-z]+))?$/.exec(id);
+  if (!m) return null;
+  const [, step, key, outcome] = m, T = RELANCE_TEXTS;
+  return key === 'etude' ? T.etude : step === '1' ? T.open[key] : step === '3' ? T.bilan[key] : T.step2[key]?.[outcome] || null;
+}
+// Définition minimale d'un module déjà joué (mémoire des programmes, thème, situation).
+const relanceDefCache = new Map();
+function relanceStoredDef(id) {
+  if (!relanceDefCache.has(id)) {
+    const text = relanceModuleText(id), step = Number(id.split('_')[2]);
+    relanceDefCache.set(id, text ? { id, isGeneric: true, genericKey: 'relance', family: 'audience', theme: 'grille', phase: 2, repeat: 8,
+      titre: text.titre, desc: text.desc, c: [], ...(step > 1 || /_etude$/.test(id) ? { arc: { id: 'relance', step } } : { opensArc: 'relance' }) } : null);
+  }
+  return relanceDefCache.get(id);
+}
+
+// Options (part du coût annuel avant plafond). cost : { purchase | recurring | saving }.
+function relanceCost(kind, rate, ctx, extra = 1) {
+  const R = RELANCE_TUNING;
+  const value = Math.round(Math.min(R.costCap, rate * relanceScale(ctx, null).costScale * extra) * 10000) / 10000;
+  return { [kind]: value };
+}
+// Issues d'une campagne : probabilités figées à la composition (modèle pondéré).
+function relanceCampaignOutcomes(ctx, branch, opts = {}) {
+  const R = RELANCE_TUNING, odds = relanceOdds(ctx, branch, opts), promise = R.promise * relanceScale(ctx, branch).boostScale;
+  const r3 = v => Math.round(v * 10000) / 10000;
+  const saturated = branch === 'autopromo' && (opts.hammer || (ctx.antennaFatigue || 0) >= 0.5);
+  return { model: 'pondere', odds: [odds.succes, odds.mitige, odds.recul], outcomes: [
+    { key: 'succes', label: 'La campagne porte', boost: r3(promise), career: { awareness: 3 }, tag: 'promo_succes', arcHint: 'succes',
+      r: 'Le public revient : la case de {programme} se redresse.' },
+    { key: 'mitige', label: 'Effet limité', boost: r3(promise * 0.4), career: { awareness: 1 }, arcHint: 'mitige',
+      r: 'Le programme gagne en visibilité, sans retrouver tout son public.' },
+    // Autopromo martelée ou antenne saturée : l'échec agace et coûte de l'audience.
+    { key: 'recul', label: saturated ? 'L’antenne sature' : 'La campagne ne prend pas', career: { loyalty: -2 }, tag: 'promo_echec', arcHint: 'recul',
+      ...(saturated ? { boost: r3(-0.25 * promise) } : {}),
+      r: saturated ? `Trop vue, l’autopromo agace : on retient la lassitude plus que le programme. ${relanceFailureCause(ctx, branch)}`
+        : `La courbe ne décolle pas. ${relanceFailureCause(ctx, branch)}` }
+  ] };
+}
+// Choix de campagne ou d'action, réutilisés par l'ouverture et le diagnostic. arc : objet
+// d'ouverture ({ open }) à l'étape 1, de suite ({ advance, branch }) après une étude.
+function relanceActionChoices(ctx, regime, arcFor) {
+  const R = RELANCE_TUNING, C = R.costs, light = regime === 'alerte' ? R.alerteLight : 1;
+  const promoTags = branch => ({ plan_promo: 1, ...(branch === 'autopromo' ? { autopromo: 1 } : {}) });
+  const rescue = regime === 'urgence';
+  const choices = [
+    { key: 'autopromo', l: rescue ? 'Plan de sauvetage : l’autopromo sur toutes nos antennes' : regime === 'alerte' ? 'Lancer une autopromo légère' : 'Lancer une campagne d’autopromo',
+      icon: '📣', cost: relanceCost('purchase', C.autopromo, ctx, R.inventory * light), lightable: true, career: { awareness: 3 },
+      tags: promoTags('autopromo'), arc: arcFor('autopromo', 'vous aviez lancé une campagne d’autopromo pour {programme}'),
+      r: 'Les bandes-annonces de {programme} tournent sur l’antenne.', uncertain: relanceCampaignOutcomes(ctx, 'autopromo') },
+    { key: 'digital', l: gameState.player.isPlatform ? (rescue ? 'Plan de sauvetage : campagne sur la plateforme et les réseaux' : 'Campagne sur la plateforme et les réseaux')
+      : (rescue ? 'Plan de sauvetage : campagne sur les réseaux sociaux' : 'Campagne sur les réseaux sociaux'),
+      icon: '📱', cost: relanceCost('purchase', C.digital, ctx), lightable: true, career: { awareness: 3 },
+      tags: promoTags('digital'), arc: arcFor('digital', 'vous aviez lancé une campagne en ligne pour {programme}'),
+      r: 'Extraits, coulisses et rendez-vous en ligne : {programme} se montre ailleurs qu’à l’antenne.', uncertain: relanceCampaignOutcomes(ctx, 'digital') },
+    { key: 'visages', l: 'Mobiliser {talent} pour porter {programme}', needs: 'talent',
+      icon: '⭐', cost: relanceCost('purchase', C.visages, ctx), lightable: true, career: { awareness: 2, loyalty: 2 },
+      tags: promoTags('visages'), arc: arcFor('visages', 'vous aviez mobilisé {talent} pour porter {programme}'),
+      r: '{talent} multiplie les apparitions pour {programme}.', uncertain: relanceCampaignOutcomes(ctx, 'visages') },
+    { key: 'renfort', l: 'Renforcer l’éditorial plutôt que la promo', icon: '🧱', cost: relanceCost('recurring', C.renfort, ctx),
+      career: { wear: relanceRenfortWear(ctx), loyalty: 2 }, arc: arcFor('renfort', 'vous aviez renforcé l’éditorial de {programme}'),
+      r: 'Nouvelles rubriques, rythme revu : l’équipe retravaille le fond de {programme}.' },
+    { key: 'attendre', l: 'Attendre la fin de saison', icon: '⏳',
+      career: { awareness: relanceScale(ctx, null).inactionAwareness, ...(rescue ? { wear: R.urgencyWear } : {}) },
+      r: rescue ? 'Rien ne bouge : {programme} s’enfonce et sa place sur la grille devient fragile.' : 'Vous attendez de voir : {programme} perd encore un peu de sa notoriété.' }
+  ];
+  return choices;
+}
+// Ouverture : options selon le régime (figé sur l'arc).
+function relanceOpening(ctx, regime) {
+  const R = RELANCE_TUNING, open = (branch, recall, step = 1) => ({ open: 'relance', branch, recall, meta: { regime, gravity: ctx.gravity, wear: Math.round(ctx.wear || 0), step } });
+  const actions = relanceActionChoices(ctx, regime, open);
+  const pick = keys => keys.map(k => actions.find(a => a.key === k));
+  const etude = { key: 'etude', l: 'Commander une étude d’audience', icon: '🔎', cost: relanceCost('purchase', R.costs.etude, ctx), flag: 'etude_relance',
+    arc: open('etude', 'vous aviez commandé une étude d’audience sur {programme}', 0),
+    r: 'L’institut interroge le public de la case : ses conclusions arrivent pour la prochaine étape.' };
+  const arret = { key: 'arret', l: 'Programmer l’arrêt de {programme} en fin de saison', icon: '🛑', cost: relanceCost('saving', R.costs.arret, ctx), stopProgram: true,
+    r: '{programme} terminera la saison à l’antenne, puis laissera sa case.' };
+  if (regime === 'alerte') return [etude, ...pick(['autopromo', 'attendre'])];
+  if (regime === 'crise') return [etude, ...pick(['autopromo', 'digital', 'visages', 'renfort', 'attendre'])];
+  return [...pick(['autopromo', 'digital', 'visages', 'renfort', 'attendre']), arret];
+}
+// Étape 2 : déroulé selon la branche et l'issue (tirée à l'étape 1 ; observée pour le renfort).
+function relanceStep2Choices(ctx, branch, outcome) {
+  const R = RELANCE_TUNING, C = R.costs, promise = R.promise * relanceScale(ctx, branch).boostScale;
+  const tags = { plan_promo: 1, ...(branch === 'autopromo' ? { autopromo: 1 } : {}) };
+  const toRefonte = { l: branch === 'autopromo' ? 'Retirer les bandes-annonces et miser sur le fond' : 'Arrêter la campagne et miser sur le fond', icon: '🧱',
+    cost: relanceCost('saving', C.retreat, ctx), career: { awareness: -3, wear: -4 },
+    arc: { open: 'refonte', branch: 'relance', recall: 'vous aviez renoncé à la promotion pour revoir le fond de {programme}' },
+    r: 'L’antenne respire ; on admet que le problème est le programme lui-même.' };
+  if (branch === 'renfort') {
+    if (outcome === 'succes') return [
+      { l: 'Consolider le renfort', icon: '🧱', cost: relanceCost('recurring', C.followUp, ctx), career: { wear: -4, loyalty: 2 }, arc: 'advance',
+        r: 'Le renfort devient la norme : {programme} garde ses nouveaux moyens.' },
+      { l: 'Revenir au budget initial', icon: '✂️', cost: relanceCost('saving', C.followUp, ctx), career: { wear: 2 }, arc: 'resolve',
+        r: 'Le programme repart sur son budget d’origine, redressé.' }];
+    if (outcome === 'mitige') return [
+      { l: 'Poursuivre le travail de fond', icon: '🛠️', cost: relanceCost('recurring', C.followUp, ctx), career: { wear: -6 }, arc: 'advance',
+        r: 'L’équipe continue de retravailler {programme}.' },
+      { l: 'Faire connaître la nouvelle formule par l’autopromo', icon: '📣', cost: relanceCost('purchase', C.secondWave, ctx, R.inventory), lightable: true,
+        career: { awareness: 2 }, tags: { plan_promo: 1, autopromo: 1 }, arc: { advance: true, branch: 'autopromo' },
+        r: 'Les bandes-annonces présentent la nouvelle formule de {programme}.', uncertain: relanceCampaignOutcomes(ctx, 'autopromo') }];
+    return [
+      { l: 'Engager une vraie refonte de la formule', icon: '🛠️', cost: relanceCost('purchase', C.refonte, ctx), career: { wear: -8 },
+        arc: { open: 'refonte', branch: 'relance', recall: 'vous aviez engagé la refonte de {programme} après un renfort sans effet' },
+        r: 'Le renfort n’a pas suffi : {programme} entre en refonte.' },
+      { l: 'Poursuivre malgré tout', icon: '🧭', arc: 'advance', career: { loyalty: 1 },
+        r: 'Vous laissez le temps au travail de fond.' }];
+  }
+  if (outcome === 'succes') return [
+    { l: 'Transformer l’essai : une seconde vague ciblée', icon: '🎯', cost: relanceCost('purchase', C.followUp, ctx, branch === 'autopromo' ? R.inventory : 1), lightable: true,
+      boost: Math.round(promise * 0.5 * 10000) / 10000, career: { awareness: 2 }, tags, arc: 'advance',
+      r: 'La seconde vague installe le rendez-vous de {programme}.' },
+    { l: 'Arrêter la campagne : le public est revenu', icon: '🏁', lasting: 0.02, career: { loyalty: 2 }, arc: 'resolve',
+      r: 'Vous arrêtez la promotion au bon moment : {programme} a retrouvé son public.' }];
+  if (outcome === 'mitige') return [
+    { l: 'Relancer une seconde vague', icon: '🔁', cost: relanceCost('purchase', C.secondWave, ctx, branch === 'autopromo' ? R.inventory : 1), lightable: true,
+      career: { awareness: 2 }, tags, arc: 'advance', r: 'Une seconde vague de promotion démarre.', uncertain: relanceCampaignOutcomes(ctx, branch) },
+    { l: 'Basculer vers un renfort éditorial', icon: '🧱', cost: relanceCost('recurring', C.renfort, ctx), career: { wear: relanceRenfortWear(ctx), loyalty: 2 },
+      arc: { advance: true, branch: 'renfort' }, r: 'Fin de la promotion : l’effort porte désormais sur le fond de {programme}.' },
+    { l: 'Laisser la case se stabiliser', icon: '🧭', arc: 'advance', r: 'Vous laissez le public trancher.' }];
+  const hammerLabel = branch === 'autopromo' ? 'Marteler : doubler la fréquence de diffusion' : 'Insister : doubler la campagne';
+  return [
+    { l: hammerLabel, icon: '📣', cost: relanceCost('purchase', C.hammer, ctx, branch === 'autopromo' ? R.inventory : 1), lightable: true,
+      career: { awareness: 3 }, tags: branch === 'autopromo' ? { plan_promo: 1, autopromo: 2 } : tags, arc: 'advance',
+      r: 'La campagne redouble d’intensité.', uncertain: relanceCampaignOutcomes(ctx, branch, { hammer: true }) },
+    { l: 'Changer de message : une soirée spéciale coulisses', icon: '🎬', cost: relanceCost('purchase', C.message, ctx), career: { loyalty: 4 }, arc: 'resolve',
+      r: 'Le making-of captive les curieux : la promotion devient du contenu.' },
+    toRefonte];
+}
+// Étape 3 : bilan. Consolidation si la gravité relue a baissé d'au moins consolidationDrop
+// points (ou si la case n'est plus en difficulté) ; la branche renfort y mène sans risque.
+function relanceBilan(ctx, arc) {
+  const R = RELANCE_TUNING, C = R.costs;
+  const recovered = arc.branch === 'renfort' || ctx.gravity === 0 || ctx.gravity <= (arc.gravity ?? ctx.gravity) - R.consolidationDrop;
+  // Consolidation d'un renfort : bonus durable à la mesure de l'usure qu'il a corrigée (un
+  // contenu frais n'avait presque rien à corriger), au moins une part renfortMinLasting.
+  const lasting = Math.round(R.lasting * (arc.branch === 'renfort' && !(ctx.gravity === 0 || ctx.gravity <= (arc.gravity ?? ctx.gravity) - R.consolidationDrop)
+    ? Math.max(R.renfortMinLasting, relanceRenfortReach(arc.wear ?? ctx.wear)) : 1) * 10000) / 10000;
+  if (recovered) return { key: 'consolidation', choices: [
+    { l: 'Installer durablement le redressement', icon: '🏁', cost: relanceCost('recurring', C.install, ctx), lasting, career: { loyalty: 2 }, arc: 'resolve',
+      r: 'Le redressement est installé : {programme} repart pour plusieurs saisons.' },
+    { l: 'Récupérer le budget du plan', icon: '✂️', cost: relanceCost('saving', C.install, ctx), career: { loyalty: 1 }, arc: 'resolve',
+      r: 'Le plan s’arrête : {programme} devra tenir seul.' }] };
+  return { key: 'echec', choices: [
+    { l: 'Ouvrir une refonte de la formule', icon: '🛠️', cost: relanceCost('purchase', C.refonte, ctx), career: { wear: -8 },
+      arc: { open: 'refonte', branch: 'relance', recall: 'vous aviez engagé la refonte de {programme} après l’échec du plan de relance' },
+      r: 'Le plan a montré où était le problème : {programme} entre en refonte.' },
+    { l: 'Laisser {programme} finir son contrat', icon: '🧭', career: { awareness: -2 }, arc: 'resolve',
+      r: 'Vous n’investissez plus : {programme} ira au bout de son contrat.' },
+    ...(ctx.gravity >= R.gravity.urgence ? [{ l: 'Arrêter {programme} en fin de saison', icon: '🛑', cost: relanceCost('saving', C.arret, ctx), stopProgram: true, arc: 'resolve',
+      r: '{programme} terminera la saison à l’antenne, puis laissera sa case.' }] : [])
+  ] };
+}
+// Étude commandée : le diagnostic arrive dans la même saison, juste après la carte de l'étude
+// (même mécanisme que l'arbitrage des renouvellements au cas par cas).
+function insertRelanceDiagnosis(dilemma, contract) {
+  const slot = dilemma.storySlot, ctx = programStoryContext(slot, contract, getCalculatedPDAs());
+  const open = openStoryArcs(contract.id).find(a => a.arcId === 'relance');
+  const def = open?.step === 0 ? composeRelanceStories(ctx)[0] : null;
+  if (!def) return null;
+  const arc = storyArcView(open, storyArcOutcome(open, ctx)), choices = storyChoicesFor(def, ctx, arc);
+  if (choices.length < 2) return null;
+  const next = buildProgramStoryDilemma({ def, slot, contract, ctx, arc, choices });
+  gameState.dilemmaQueue.splice(gameState.currentDilemmaIndex + 1, 0, next);
+  narrativeLog('diagnostic inséré', { dilemme: next.id, programme: contract.id });
+  return next;
+}
+// Composition : la carte de la prochaine étape du plan pour cette case (ou son ouverture).
+function composeRelanceStories(ctx) {
+  const open = openStoryArcs(ctx.contract.id).find(a => a.arcId === 'relance');
+  if (!open && ctx.gravity < 1) return [];
+  const step = open ? open.step + 1 : 1;
+  if (step > NARRATIVE_ARCS.relance.steps) return [];
+  const regime = open?.regime || relanceRegime(ctx.gravity);
+  const study = ctx.record.flags?.etude_relance != null;
+  const fillGauges = text => text.replace('{jauge}', relanceGaugeLine(ctx)).replace('{pronostic}', study ? relancePronostic(ctx) : '').replace(/\s+$/, '');
+  const base = { isGeneric: true, genericKey: 'relance', family: 'audience', theme: 'grille', phase: 2, repeat: 8, maxChoices: 6,
+    genres: null, isRelance: true };
+  let id, choices, extra = {};
+  if (!open) {
+    id = relanceModuleId(1, regime);
+    choices = relanceOpening(ctx, regime);
+    extra = { opensArc: 'relance', weight: RELANCE_TUNING.weight, when: { form: 'difficulte', gravityMin: 1 } };
+  } else if (step === 1) {
+    // Après l'étude (arc ouvert à l'étape 0) : diagnostic et choix de la branche, inséré dans
+    // la saison en cours (insertRelanceDiagnosis), puis le déroulé et le bilan comme sans étude.
+    // L'information coûte son prix, ni une saison ni une action.
+    id = relanceModuleId(1, 'etude');
+    const advance = (branch, recall) => ({ advance: true, branch, recall });
+    choices = relanceActionChoices(ctx, regime, advance).filter(c => c.key !== 'visages' || regime !== 'alerte')
+      .map(c => c.key === 'attendre' ? { ...c, arc: 'resolve' } : c);
+    extra = { arc: { id: 'relance', step: 1, branch: ['etude'] } };
+  } else if (step === 2) {
+    const outcome = storyArcOutcome(open, ctx);
+    id = relanceModuleId(2, open.branch, outcome);
+    choices = relanceStep2Choices(ctx, open.branch, outcome);
+    extra = { arc: { id: 'relance', step: 2, branch: [open.branch] } };
+  } else {
+    const b = relanceBilan(ctx, open);
+    id = relanceModuleId(3, b.key);
+    choices = b.choices;
+    extra = { arc: { id: 'relance', step: 3 } };
+  }
+  const text = relanceModuleText(id);
+  if (!text || !choices?.length) return [];
+  const desc = fillGauges(text.desc) + (step === 2 && study ? ` ${relancePronostic(ctx)}` : '');
+  // Une étape d'arc n'est bloquée que par une carte jouée la même saison (repeat 1).
+  return [{ ...base, ...extra, ...(open ? { repeat: 1 } : {}), id, titre: text.titre, desc, c: choices }];
 }
 
 // ---------------------------------------------------------------------------
@@ -21493,10 +21901,13 @@ function storyOutcomeNote(parts, fill) {
 }
 // Issues d'un choix, prêtes à afficher et à tirer (textes remplis, probabilités figées).
 function storyUncertainty(spec, ctx, fill) {
-  const u = spec.uncertain, odds = storyOutcomeOdds(u.model, storyOutcomeFactors(ctx));
-  return { model: u.model, note: storyOutcomeNote(odds.parts, fill),
+  // Probabilités fournies par la composition (plan de relance, modèle pondéré) ou calculées
+  // par le modèle du choix.
+  const u = spec.uncertain, odds = u.odds ? { p: u.odds, parts: [] } : storyOutcomeOdds(u.model, storyOutcomeFactors(ctx));
+  return { model: u.model, note: u.odds ? '' : storyOutcomeNote(odds.parts, fill),
     outcomes: u.outcomes.map((o, i) => ({ key: o.key, label: o.label, p: Math.round(odds.p[i] * 1e6) / 1e6, r: fill(o.r),
-      career: o.career || null, boost: o.boost || 0, lasting: o.lasting || 0, pop: o.pop || 0, arcHint: o.arcHint || null })) };
+      career: o.career || null, boost: o.boost || 0, lasting: o.lasting || 0, pop: o.pop || 0, arcHint: o.arcHint || null,
+      ...(o.tag ? { tag: o.tag } : {}) })) };
 }
 // Estimation lisible : « chances élevées (~65 %) ».
 function storyChanceLabel(p) {
@@ -21516,6 +21927,7 @@ function resolveStoryOutcome(dilemma, choiceIndex, choice) {
   Object.entries(o.career || {}).forEach(([key, v]) => { career[key] = (career[key] || 0) + v; });
   return { ...choice, r: [choice.r, o.r].filter(Boolean).join(' '), pop: (choice.pop || 0) + o.pop,
     story: { ...s, career, boost: (s.boost || 0) + o.boost, lasting: (s.lasting || 0) + o.lasting,
+      ...(o.tag ? { tags: { ...(s.tags || {}), [o.tag]: ((s.tags || {})[o.tag] || 0) + 1 } } : {}),
       outcome: { key: o.key, label: o.label, p: o.p, arcHint: o.arcHint },
       recall: `${s.recall} — ${o.label.charAt(0).toLowerCase()}${o.label.slice(1)}` } };
 }
@@ -21531,7 +21943,7 @@ function storyChoiceArc(def, spec, index, link, arc, ctx, fill) {
     if (l && typeof l === 'object' && storyLinkOpenable(l, ctx)) return { arc: { open: l.open, branch: l.branch }, recall: fill(l.recall) };
     return { arc: null, recall: chosen };
   }
-  return { arc: spec.arc?.open ? { open: spec.arc.open, branch: spec.arc.branch } : spec.arc || (def.arc ? 'resolve' : null),
+  return { arc: spec.arc?.open ? { open: spec.arc.open, branch: spec.arc.branch, ...(spec.arc.meta || {}) } : spec.arc || (def.arc ? 'resolve' : null),
     recall: spec.arc?.recall ? fill(spec.arc.recall) : chosen };
 }
 
@@ -21557,7 +21969,8 @@ function buildProgramStoryDilemma(cand) {
     c: choices.map(({ spec, index }) => {
       // Trésorerie dans le rouge : l'option la plus coûteuse est proposée en version allégée,
       // moins chère mais aussi moins efficace.
-      const lighter = tight && (spec.cost?.purchase || 0) >= PROGRAM_STORY_TUNING.heavyPurchaseRate;
+      // Plan de relance : toute campagne payante passe en formule allégée.
+      const lighter = tight && ((spec.cost?.purchase || 0) >= PROGRAM_STORY_TUNING.heavyPurchaseRate || (spec.lightable && !!spec.cost?.purchase));
       const scale = lighter ? PROGRAM_STORY_TUNING.tightCashScale : 1;
       return {
         l: fill(spec.l) + (lighter ? ' (formule allégée)' : ''), r: fill(spec.r),
@@ -21568,6 +21981,7 @@ function buildProgramStoryDilemma(cand) {
         audienceImpacts: [{ slot, value: 0, targets: {}, programId: contract.id }],
         story: { index, scale, career: spec.career || null, boost: spec.boost || 0, lasting: spec.lasting || 0,
           flag: spec.flag || null, clearFlag: spec.clearFlag || null,
+          ...(spec.tags ? { tags: { ...spec.tags } } : {}), ...(spec.stopProgram ? { stopProgram: true } : {}),
           ...(spec.uncertain ? { uncertain: storyUncertainty(spec, ctx, fill) } : {}),
           ...storyChoiceArc(def, spec, index, link, arc, ctx, fill) }
       };
@@ -21616,7 +22030,8 @@ function applyProgramStoryChoice(dilemma, choice) {
   // Mémoire du programme d'abord (avec l'issue tirée, s'il y en a une), puis les effets.
   const rec = programStoryRecord(contract.id);
   const defId = dilemma.storyDefId ?? dilemma.id;
-  rec.log.push({ id: defId, choice: s.index, season: gameState.season, ...(s.outcome ? { outcome: s.outcome.key } : {}) });
+  rec.log.push({ id: defId, choice: s.index, season: gameState.season, ...(s.outcome ? { outcome: s.outcome.key } : {}),
+    ...(s.tags ? { tags: { ...s.tags } } : {}) });
   rec.last = gameState.season;
   const clamp = v => Math.max(0, Math.min(100, v));
   if (s.career) {
@@ -21632,6 +22047,10 @@ function applyProgramStoryChoice(dilemma, choice) {
   if (s.flag) rec.flags[s.flag] = gameState.season;
   if (s.clearFlag) delete rec.flags[s.clearFlag];
   if (s.arc) storyArcApply(dilemma, s, contract);
+  // Arrêt programmé : le programme finit la saison à l'antenne et quitte la grille à
+  // l'ouverture suivante (expireContracts) ; l'économie a été appliquée au coût annuel.
+  if (s.stopProgram) { contract.end = Math.min(contract.end ?? gameState.season, gameState.season); contract.stopped = true; }
+  if (s.arc?.open === 'relance' && s.arc.step === 0) insertRelanceDiagnosis(dilemma, contract);
   // Le drapeau posé par ce choix suit les arcs ouverts du programme, y compris celui que le
   // choix vient d'ouvrir : il est retiré à leur clôture.
   if (s.flag) openStoryArcs(contract.id).forEach(arc => { if (!arc.flags.includes(s.flag)) arc.flags.push(s.flag); });
@@ -21712,7 +22131,8 @@ function narrativeToneFor(theme, text = '') {
 }
 let narrativeStoryDefs = null;
 const programStoryDef = id => (narrativeStoryDefs ??= new Map([...PROGRAM_STORY_BANK,
-  ...(typeof GENRE_STORY_BANK !== 'undefined' ? GENRE_STORY_BANK : [])].map(def => [def.id, def]))).get(id) || null;
+  ...(typeof GENRE_STORY_BANK !== 'undefined' ? GENRE_STORY_BANK : [])].map(def => [def.id, def]))).get(id)
+  || (/^gs_relance_/.test(id) ? relanceStoredDef(id) : null);
 const programStoryTheme = def => def.arc || def.when?.after || def.when?.flag ? 'suite' : def.theme || PROGRAM_STORY_FAMILY_THEMES[def.family] || 'grille';
 // Thème, tonalité et entités d'un dilemme déjà construit ou joué (identifiant seul accepté :
 // historique des décisions). Renvoie null pour une décision hors file narrative.

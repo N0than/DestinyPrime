@@ -1,0 +1,64 @@
+Histoires génériques et arcs (2 graines × 60 saisons × 6 types, choix aléatoires) — 56 s
+Saisons jouées : 720 {"generaliste":120,"cinema":120,"culture":120,"jeunesse":120,"sport":120,"info":120} ; parties : 54
+
+| Par arc | jury | animateur | refonte | offensive | surcout | digital | relance | total |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| Ouvertures éligibles (saison × programme) | 27 | 666 | 659 | 0 | 99 | 0 | 987 | 2438 |
+| Ouvertures proposées dans la file | 0 | 18 | 39 | 0 | 3 | 0 | 86 | 146 |
+| Arcs ouverts | 0 | 7 | 18 | 0 | 3 | 0 | 53 | 81 |
+| … dont par une histoire propre au titre | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 1 |
+| Occasions de suite (saison × arc ouvert) | 0 | 14 | 39 | 0 | 5 | 0 | 123 | 181 |
+| Suites proposées dans la file | 0 | 5 | 10 | 0 | 1 | 0 | 32 | 48 |
+| Suites jouées (étapes) | 0 | 5 | 9 | 0 | 1 | 0 | 49 | 64 |
+| Résolus | 0 (—) | 5 (71.4 %) | 4 (22.2 %) | 0 (—) | 1 (33.3 %) | 0 (—) | 23 (43.4 %) | 33 (40.7 %) |
+| Expirés sans suite devenue éligible | 0 | 0 | 4 | 0 | 0 | 0 | 0 | 4 |
+| Expirés malgré des suites éligibles non retenues | 0 | 0 | 7 | 0 | 1 | 0 | 10 | 18 |
+| Abandonnés (programme retiré) | 0 | 1 | 1 | 0 | 0 | 0 | 6 | 8 |
+| Ouverts en fin de partie | 0 | 1 | 2 | 0 | 1 | 0 | 14 | 18 |
+| Cohorte (échéance atteinte avant la fin) | 0 | 5 | 12 | 0 | 0 | 0 | 22 | 39 |
+| … dont résolus | 0 (—) | 4 (80.0 %) | 1 (8.3 %) | 0 (—) | 0 (—) | 0 (—) | 14 (63.6 %) | 19 (48.7 %) |
+
+Motifs d’exclusion des ouvertures génériques (saison × programme × définition) :
+- jury : capacité : jury 3117 ; plafond d’arcs 2 ; conditions : écart entre deux histoires 1
+- animateur : capacité : host 2166 ; conditions : ancienneté 136 ; conditions : écart entre deux histoires 82 ; conditions : déjà jouée 71
+- refonte : genre 1710 ; conditions : usure 292 ; conditions : ancienneté 182 ; conditions : écart entre deux histoires 146
+- offensive : conditions : pression concurrentielle 2270 ; genre 527 ; conditions : écart entre deux histoires 350
+- surcout : genre 2379 ; capacité : shoot 646 ; conditions : déjà jouée 10 ; conditions : écart entre deux histoires 9
+- digital : ressource : platform 2620 ; genre 527
+- relance : —
+Motifs d’absence de suite pour un arc ouvert (saison × arc) :
+- jury : —
+- animateur : —
+- refonte : genre 14
+- offensive : —
+- surcout : —
+- digital : —
+- relance : —
+
+| Contrôles | Valeur |
+|---|---|
+| Histoires de programmes jouées | 397 (0.55 par saison) |
+| … propres au titre / génériques | 177 / 220 (55.4 % génériques) |
+| … dont suites d'arcs | 64 |
+| Génériques : histoires propres encore jouables (autres situations) 188 (85.5 %) ; histoires propres épuisées 25 (11.4 %) ; programme sans histoire propre 7 (3.2 %) | |
+| Génériques jouées alors qu'une histoire propre de la même situation était éligible | 0 |
+| Ouvertures refusées au moment du choix (plafond) | 0 |
+| Arcs ouverts simultanés : maximum / moyenne par saison | 2 / 0.29 (plafond 3) |
+| Arcs ouverts sur un même programme (maximum) / même arc ouvert deux fois | 1 (plafond 1) / 0 |
+| Cause d'expiration enregistrée ≠ cause observée | 0 |
+| Deux histoires du même programme dans une saison | 0 |
+| Même histoire rejouée sur un programme avant son délai | 0 |
+| Options contextuelles retenues (talent / plateforme / partenaire / commande réduite / concurrent / droits) | 0 / 0 / 0 / 0 / 0 / 0 |
+| Collecte ou diagnostic impur (tirage ou écriture) | 0 sur 742 collectes |
+| Textes incomplets | 0 |
+| Issues incertaines : anomalies (non tirée, non enregistrée, hors bornes, somme ≠ 1) | 0 |
+| Files vides / bloquées / erreurs | 0 / 0 / 0 |
+
+
+| Issues incertaines (lot 4) | choix joués | issues : observé / attendu (somme des probabilités affichées) |
+|---|---:|---|
+| pondere | 38 | succes 20 / 19.9 ; mitige 8 / 9.1 ; recul 10 / 9.0 |
+| persistance | 3 | adoption 1 / 1.7 ; decrochage 2 / 1.3 |
+| refonte | 5 | favorable 3 / 2.5 ; partage 2 / 1.6 ; rejet 0 / 0.9 |
+
+Situations génériques jouées : gs_relance_1_crise 45, gs_relance_1_alerte 32, gs_formule_usee 23, gs_jeunesse_vieillissante 23, gs_relance_1_etude 17, gs_animateur_depart 15, gs_relance_2_autopromo_succes 8, gs_relance_3_echec 6, gs_animateur_suite_mitige 5, gs_droits_film 5, gs_relance_2_digital_succes 5, gs_relance_2_renfort_recul 4, gs_refonte_recul 4, gs_invite_desiste 3, gs_surcout_tournage 3, gs_enquete_sensible 3, gs_refonte_cloture 3, gs_relance_2_autopromo_recul 3, gs_relance_3_consolidation 2, gs_refonte_succes 2, gs_relance_2_autopromo_mitige 2, gs_production_sport 2, gs_surcout_suite 1, gs_suite_fiction_chere 1, gs_declinaison 1, gs_relance_2_visages_recul 1, gs_relance_2_digital_recul 1

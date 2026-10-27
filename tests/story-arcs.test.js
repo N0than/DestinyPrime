@@ -48,7 +48,7 @@ const followIds=pid=>programStoryCandidates().filter(k=>k.contract.id===C(pid).i
 // ——— 1. Clés de situation ———
 Object.entries(STORY_SITUATION_KEYS).forEach(([id,key])=>{
   ok(S(id),'clé sur une histoire existante : '+id);
-  ok(GENRE_STORY_BANK.some(d=>d.genericKey===key),'clé d’une situation générique : '+id+' → '+key);
+  ok(GENRE_STORY_BANK.some(d=>d.genericKey===key)||(key==='relance'&&NARRATIVE_ARCS.relance?.composed),'clé d’une situation générique : '+id+' → '+key);
 });
 ok(S('ps_p152_film_animation_annee').genericKey!=='animateur','« animation » n’est pas « animateur »');
 ok(S('ps_p472_maison_couture').genericKey===null,'« couture » n’est pas un surcoût');

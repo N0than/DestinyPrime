@@ -186,12 +186,17 @@ applyProgramStoryChoice = function (dilemma, choice) {
     if (o) row.observed[o.key] = (row.observed[o.key] || 0) + 1;
     const sum = u.outcomes.reduce((a, x) => a + x.p, 0);
     if (!o || !dilemma.resolvedOutcome || dilemma.resolvedOutcome.key !== o.key || Math.abs(sum - 1) > 1e-5
-      || u.outcomes.some(x => x.p < T.min - 1e-6 || x.p > T.max + 1e-6)) M.outcomeErrors++;
+      // Plan de relance (modèle pondéré) : succès borné par RELANCE_TUNING.odds, autres issues
+      // libres ; issues du lot 4 : bornes NARRATIVE_TUNING.outcomes.
+      || (u.model === 'pondere' && typeof RELANCE_TUNING !== 'undefined'
+        ? u.outcomes[0].p < RELANCE_TUNING.odds.min - 1e-6 || u.outcomes[0].p > RELANCE_TUNING.odds.max + 1e-6 || u.outcomes.some(x => x.p < -1e-9)
+        : u.outcomes.some(x => x.p < T.min - 1e-6 || x.p > T.max + 1e-6))) M.outcomeErrors++;
   }
   const spec = def?.c[choice.story?.index];
   if (spec?.needs) bump(M.contextual, spec.needs);
   const k = M.games + ':' + gameState.season + ':' + dilemma.programId;
-  if (playedThisSeason[k]) M.samePrograms++;
+  // Le diagnostic d'une étude d'audience suit l'étude dans la même saison (par construction).
+  if (playedThisSeason[k] && dilemma.storyDefId !== 'gs_relance_1_etude') M.samePrograms++;
   playedThisSeason[k] = true;
   const rec = gameState.player.programStories?.[dilemma.programId];
   if (rec?.log.some(l => l.id === (dilemma.storyDefId ?? dilemma.id) && def?.repeat && gameState.season - l.season < def.repeat)) M.repeatDef++;

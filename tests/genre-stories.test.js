@@ -19,7 +19,7 @@ const KNOWN=['programme','saisons','anciennete','creneau','rival','rivalProgramm
 const openers=GENRE_STORY_BANK.filter(d=>!d.arc);
 ok(openers.length>=15,'au moins 15 situations ('+openers.length+')');
 ok(Object.keys(NARRATIVE_ARCS).length>=5,'au moins 5 arcs');
-Object.entries(NARRATIVE_ARCS).forEach(([id,a])=>{
+Object.entries(NARRATIVE_ARCS).filter(([,a])=>!a.composed).forEach(([id,a])=>{
   ok(openers.some(d=>d.opensArc===id),'arc ouvert par une situation : '+id);
   for(let step=2;step<=a.steps;step++) ok(GENRE_STORY_BANK.some(d=>d.arc?.id===id&&d.arc.step===step),'étape '+step+' de l’arc '+id);
 });
