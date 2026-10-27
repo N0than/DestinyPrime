@@ -534,6 +534,7 @@ button.radar-row:focus-visible { outline: 2px solid var(--bleu); outline-offset:
   text-transform: uppercase; letter-spacing: 0.4px; color: var(--gris); margin-bottom: 4px;
 }
 .radar-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.radar-stats.radar-stats-fin { grid-template-columns: repeat(2, 1fr); }
 .radar-stat {
   padding: 8px 6px; border-radius: 12px; text-align: center;
   background: rgba(255,255,255,0.55); border: 1px solid rgba(255,255,255,0.85);
@@ -23460,6 +23461,7 @@ function launchFirstSeason() {
   // Les chaînes installées arrêtent leur grille avant la rentrée : leurs programmes
   // pèsent dès l'ouverture sur les audiences et donc sur les recettes estimées.
   planCompetitorSeasons();
+  openCompetitorSeasons();
   careerSeasonStart();
   captureSeasonBaseline();
   const player = gameState.player;
@@ -23500,6 +23502,7 @@ function startNewSeason() {
   expireTalents();
   applyContractRevaluations();
   planCompetitorSeasons();
+  openCompetitorSeasons();
   careerSeasonStart();
   // Arcs narratifs : abandon si le programme a quitté la grille, expiration sans suite.
   updateStoryArcs();
@@ -25823,7 +25826,8 @@ function computeCompetitorSportsMaxBid(competitor, event) {
   const alreadyOwned = new Set(gameState.sportsRights.owned.filter(o => o.ownerName === competitor.name && o.broadcastSeason >= gameState.season).map(o => o.eventId)).size;
   const noise = 0.92 + sportsRandom() * 0.16;
   const wanted = mid * typeFit * (0.85 + 0.15 * targetFit) * (styles[competitor.strategy] || 1) * commercial * (1 - 0.12 * alreadyOwned) * noise;
-  const cap = Math.max(0, (competitor.budget || 0) * (0.45 + 0.45 * profile.riskTolerance) - event.productionCost);
+  // Enveloppe : capacité d'investissement commune (réserve, charges et engagements déduits).
+  const cap = competitorAusterity(competitor) ? 0 : Math.max(0, competitorCapacity(competitor) * (0.45 + 0.45 * profile.riskTolerance) - event.productionCost);
   return roundHalf(Math.max(0, Math.min(wanted, cap)));
 }
 function sportsInterest(max, event) {
@@ -26057,7 +26061,7 @@ function resolveSportsRenewalsAtSeasonEnd() {
     const keep = { offensive: 0.85, premium: 0.8, jeune: 0.75, rentable: 0.6 }[c.strategy] ?? 0.7;
     const profitable = rec.perf && rec.perf.revenueGain >= rec.perf.cost * 0.6 ? 0.1 : 0;
     const chance = keep + profitable - 0.12 * (sportsRightSeasonsHeld(rec) - 1);
-    if ((c.budget || 0) >= rec.initialPrice * 1.1 && sportsRandom() < chance) renewSportsRight(rec);
+    if (!competitorAusterity(c) && competitorCapacity(c) >= rec.initialPrice * 1.1 && sportsRandom() < chance) renewSportsRight(rec);
     else releaseSportsRight(rec);
   });
   // Filet de sécurité : un droit du joueur non arbitré est lâché.
@@ -26136,7 +26140,7 @@ function applySportsRenewalChoice(eventId, action) {
 function acquireSportsRight(eventId, { owner, price, renewal = false, initialPrice = null, term = 1 }) {
   const event = SPORT_RIGHTS_EVENTS[eventId];
   const isPlayer = owner === 'player';
-  if (!isPlayer) owner.budget = Math.max(0, (owner.budget || 0) - price);
+  if (!isPlayer) competitorBook(owner, 'sportsRights', price, `Droits : ${event.name}`);
   const termId = `${eventId}:${gameState.season}`;
   const records = Array.from({ length: Math.max(1, term) }, (_, i) => ({
     ...(event.recurring ? { recurring: true, initialPrice: initialPrice ?? price, renewal } : {}),
@@ -26279,7 +26283,7 @@ function activateSportsBroadcasts() {
       const c = gameState.competitors.find(x => x.name === rec.ownerName);
       const priceDue = rec.pricePending ? rec.acquisitionPrice : 0;
       rec.pricePending = false;
-      if (c) c.budget = Math.max(0, (c.budget || 0) - rec.productionCost - priceDue);
+      if (c) { competitorBook(c, 'sportsRights', priceDue, `Droits : ${event.name}`); competitorBook(c, 'sportsProduction', rec.productionCost, `Production : ${event.name}`); }
     }
   });
 }
@@ -26316,7 +26320,8 @@ function evaluateSportsBroadcasts() {
     rec.perf = { pdaGain, revenueGain, popGain: rec.popGain || 0, cost, verdict };
   });
   // Droits des concurrents : écart d'audience de la chaîne et du joueur avec / sans
-  // l'événement ; les recettes supplémentaires abondent le budget du diffuseur.
+  // l'événement. Bilan informatif : les recettes de l'événement sont déjà comprises dans les
+  // recettes publicitaires du diffuseur (moteur commun), elles ne sont pas créditées en plus.
   sr.owned.filter(o => o.ownerId !== 'player' && o.broadcastSeason === gameState.season && o.status === 'broadcast').forEach(rec => {
     const c = gameState.competitors.find(x => x.name === rec.ownerName);
     if (c && !rec.perf) {
@@ -26327,8 +26332,8 @@ function evaluateSportsBroadcasts() {
       delete rec.suppressed;
       const pdaOf = (rows, ch, t) => rows.find(r => r.channel === ch).pda[t];
       const pdaWith = pdaOf(rowsWith, c, c.target), pdaWithout = pdaOf(rowsWithout, c, c.target);
-      const revenueGain = Math.max(0, Math.round((pdaWith * COMPETITOR_INCOME_RATE * factor - pdaWithout * COMPETITOR_INCOME_RATE) * 10) / 10);
-      c.budget = (c.budget || 0) + revenueGain;
+      // Gain estimé : recettes avec l'événement moins recettes sans lui (audience et facteur sportif retirés).
+      const revenueGain = Math.max(0, Math.round((competitorAdRevenue(c, rowsWith) - competitorAdRevenue(c, rowsWithout) / Math.max(0.01, factor)) * 10) / 10);
       rec.perf = { pdaGain: pdaWith - pdaWithout, revenueGain, cost: rec.acquisitionPrice + rec.productionCost,
         playerImpact: pdaOf(rowsWith, p, p.target) - pdaOf(rowsWithout, p, p.target) };
     }
@@ -27871,7 +27876,7 @@ function strategicCompetitors() {
     const threat = threats[0];
     if (!threat) { competitor.lastAction = 'Observe le marché'; return; }
     const probability = Math.min(0.9, profile.reactionStrength * (0.35 + Math.min(1, threat.gap / 5)));
-    if (seededRandom() > probability || competitor.budget < 0.5) {
+    if (seededRandom() > probability || competitorAusterity(competitor) || competitorCapacity(competitor) < 0.5) {
       competitor.lastAction = profile.label === 'Rentable' ? 'Préserve sa rentabilité' : 'N’engage pas de riposte';
       return;
     }
@@ -27883,9 +27888,9 @@ function strategicCompetitors() {
     const destination = action === 'retrait stratégique'
       ? TIME_SLOTS.map(s=>s.key).find(key => key !== threat.slot && competitorRow.slots[key][target] >= playerRow.slots[key][target]) || 'matin'
       : threat.slot;
-    const spend = Math.min(competitor.budget, 0.6 + profile.budgetAggressiveness * 1.8);
+    const spend = Math.min(competitorCapacity(competitor), 0.6 + profile.budgetAggressiveness * 1.8);
     const power = Math.min(GAME_BALANCE.competitors.maxPressurePower, spend * profile.reactionStrength);
-    competitor.budget -= spend;
+    competitorBook(competitor, 'oneOff', spend, `Riposte : ${action}`);
     competitor.slotInvestments[destination] = { targets: {
       [target]: power,
       ...(competitor.strategy === 'jeune' ? { a2549: power * 0.55 } : {})
@@ -27907,6 +27912,7 @@ function migrateCompetitorStrategy(competitor, index=0) {
   competitor.slotInvestments ??= {}; competitor.strategyHistory ??= [];
   competitor.budget ??= CHANNEL_TYPES[competitor.type]?.baseBudget || 20;
   competitor.contracts ??= {}; competitor.talents ??= []; competitor.plan ??= null;
+  ensureCompetitorFinance(competitor);
   return competitor;
 }
 
@@ -28098,18 +28104,21 @@ function releaseCompetitorProgram(competitor, slot, fee) {
   const market = GAME_BALANCE.market;
   const profile = GAME_BALANCE.competitors.profiles[competitor.strategy];
   const lost = competitor.contracts[slot];
-  competitor.budget = (competitor.budget || 0) + fee * GAME_BALANCE.exclusivity.compensationShare;
+  competitorBook(competitor, 'income', fee * GAME_BALANCE.exclusivity.compensationShare, `Indemnité de rachat : ${lost.name}`);
   const genre = profile.reactionStrength >= 0.5 ? lost.editorial?.genre : null;
   const program = pickCompetitorProgram(competitor, slot, { excludeId: lost.id, genre });
   let level = contractInvestLevel(lost);
   let tag = 'nouveaute';
   const step = level < 3 ? market.investCost[level + 1] - market.investCost[level] : Infinity;
-  if (competitor.budget >= step && marketRandom() < profile.riskTolerance) {
-    level += 1; competitor.budget -= step; tag = 'offensive';
-  } else if (competitor.budget < market.investCost[level] * 0.5 && level > 0) {
+  const capacity = competitorCapacity(competitor);
+  if (!competitorAusterity(competitor) && capacity >= step && marketRandom() < profile.riskTolerance) {
+    level += 1; competitorBook(competitor, 'oneOff', step, `Production renforcée : ${program.name}`); tag = 'offensive';
+  } else if (capacity < market.investCost[level] * 0.5 && level > 0) {
     level -= 1; tag = 'economie';
   }
   competitor.contracts[slot] = makeCompetitorContract(competitor, program, slot, level, { seasonsCount: 0, tag });
+  if (lost?.paidSeason === gameState.season) competitor.contracts[slot].paidSeason = gameState.season;
+  if (program.rights > 0) competitorBook(competitor, 'oneOff', program.rights, `Droits d’entrée : ${program.name}`);
   if (competitor.plan?.slots) {
     const prevLevel = competitor.plan.slots[slot]?.level ?? null;
     competitor.plan.slots[slot] = { programId: program.id, name: program.name, genre: program.editorial.genre,
@@ -28182,6 +28191,8 @@ function slotTrend(competitor, slot) {
 function makeCompetitorContract(competitor, program, slot, level, { seasonsCount = 0, tag, extraPower = 0 } = {}) {
   return {
     ...program, slot, target: program.target, investLevel: level, strategyTag: tag,
+    // Coût annuel facturé : programme (catalogue) + surcoût du niveau de production.
+    productionAnnual: GAME_BALANCE.market.investCost[level] ?? 0,
     power: competitorContractPower(competitor, program, level, slot, extraPower),
     end: gameState.season + Math.max(1, program.years) - 1,
     career: { seasonsCount, awareness: 20 + seasonsCount * 10, loyalty: 15 + seasonsCount * 8, wear: seasonsCount * 8,
@@ -28223,7 +28234,7 @@ function planCompetitorSeason(competitor, index) {
 
     // Riposte : un programme culte du joueur attire un concurrent du même genre.
     const playerCult = playerContracts[slot]?.career?.historic ? playerContracts[slot] : null;
-    if (!firstSeason && playerCult && !riposteUsed && !playerCult.career.ripostedBy
+    if (!firstSeason && playerCult && !riposteUsed && !playerCult.career.ripostedBy && !competitorAusterity(competitor)
       && profile.reactionStrength >= 0.6 && marketRandom() < profile.reactionStrength) {
       const similar = pickCompetitorProgram(competitor, slot, { excludeId: previous?.id, genre: playerCult.editorial?.genre });
       if (similar && similar.editorial.genre === playerCult.editorial?.genre) {
@@ -28264,29 +28275,56 @@ function planCompetitorSeason(competitor, index) {
     slots[slot] = { program, level, tag, isNew, seasonsCount, extraPower, prevName: previous?.name || null, prevLevel };
   });
 
-  // Contrainte budgétaire : on réduit d'abord les cases les moins stratégiques.
-  const cap = Math.max(1, competitor.budget * (market.budgetShare + 0.3 * profile.riskTolerance));
-  // L'événement est payé à part (droits puis production) : il sort du budget de grille.
-  const cost = () => Object.values(slots).reduce((s, d) => s + (d.sportsRight ? 0 : market.investCost[d.level]), 0);
+  // Budget prévisionnel : trésorerie + recettes attendues − talents et droits sportifs dus
+  // − engagements − réserve du profil. La grille (coût annuel des programmes, surcoût de
+  // production, droits d'entrée des nouvelles acquisitions) doit y tenir ; sinon la chaîne
+  // réduit d'abord ses niveaux de production sur les cases les moins stratégiques, puis
+  // remplace ses nouvelles acquisitions par des programmes moins chers. Les contrats en cours
+  // restent dus. Une chaîne sous austérité (après un apport d'actionnaire) plafonne ses niveaux.
+  const fin = ensureCompetitorFinance(competitor), L = competitorLedger(competitor);
+  const sports = competitorSportsDues(competitor);
+  const talentsDue = competitorTalentsActive(competitor).reduce((sum, t) => sum + (t.paidSeason === gameState.season ? 0 : t.annual || 0), 0);
+  const reserveRate = COMPETITOR_ECONOMY.reserve[competitor.strategy] ?? 0.35;
+  const available = gameState.season < fin.boundary ? Infinity
+    : (competitor.budget || 0) + (fin.openedSeason === gameState.season ? 0 : L.revenueHint ?? 0) - talentsDue - sports.now - sports.future;
+  const austerity = competitorAusterity(competitor);
+  if (austerity) Object.values(slots).forEach(d => { if (!d.sportsRight && d.level > COMPETITOR_ECONOMY.support.austerityLevel) { d.level = COMPETITOR_ECONOMY.support.austerityLevel; d.tag = 'economie'; } });
+  const rightsOf = d => !d.sportsRight && d.isNew && !firstSeason ? (d.program.rights || 0) : 0;
+  const annualOf = d => d.sportsRight ? 0 : (d.program.annual || 0) + (market.investCost[d.level] ?? 0);
+  // La réserve porte sur les charges annuelles de la grille projetée (et des talents).
+  const cost = () => Object.values(slots).reduce((s, d) => s + annualOf(d) * (1 + reserveRate) + rightsOf(d), 0) + talentsDue * reserveRate;
   const byImportance = TIME_SLOTS.map(s => s.key).filter(s => !slots[s].sportsRight)
     .sort((a, b) => (market.strategicSlots[a] ?? 0) - (market.strategicSlots[b] ?? 0));
   let guard = 0;
-  while (cost() > cap && guard++ < 20) {
+  while (cost() > available && guard++ < 20) {
     const slot = byImportance.find(s => slots[s].level > 0);
     if (!slot) break;
     slots[slot].level -= 1;
     if (slots[slot].tag === 'renforcement' || slots[slot].tag === 'maintien') slots[slot].tag = 'economie';
   }
-  competitor.budget = Math.max(0, competitor.budget - cost());
+  // Remplacements moins coûteux : nouvelles acquisitions ramenées au programme le moins cher.
+  byImportance.forEach(slot => {
+    const d = slots[slot];
+    if (cost() <= available || !d.isNew || firstSeason) return;
+    const cheap = availablePrograms(competitor.type, slot).filter(p => !isProgramTaken(p, competitor) && !playerOptionOn(p.id))
+      .sort((a, b) => (a.annual + a.rights) - (b.annual + b.rights))[0];
+    if (cheap && cheap.annual + cheap.rights < d.program.annual + d.program.rights) { d.program = cheap; d.tag = 'economie'; }
+  });
+  L.planned = { available: Number.isFinite(available) ? Math.round(available * 100) / 100 : null, cost: Math.round(cost() * 100) / 100 };
 
   // Application : la programmation confirmée est celle simulée dès l'ouverture.
-  const announced = {};
+  const announced = {}, rightsDue = {};
   TIME_SLOTS.forEach(({ key: slot }) => {
     const d = slots[slot];
     if (d.sportsRight) { announced[slot] = { level: d.level, masked: false }; return; }
+    const previous = competitor.contracts[slot];
+    // Programme maintenu sous contrat : même échéance, même règlement de la saison.
+    const kept = !d.isNew && previous && sameProgram(previous, d.program) && previous.end >= gameState.season ? previous : null;
     competitor.contracts[slot] = makeCompetitorContract(competitor, d.program, slot, d.level,
       { seasonsCount: d.seasonsCount, tag: d.tag, extraPower: d.extraPower });
+    if (kept) { competitor.contracts[slot].end = kept.end; if (kept.paidSeason != null) competitor.contracts[slot].paidSeason = kept.paidSeason; }
     if (firstSeason) competitor.contracts[slot].end = gameState.season + Math.floor(marketRandom() * 3);
+    if (rightsOf(d) > 0) (rightsDue[slot] = Math.round(rightsOf(d) * 100) / 100);
     // Part d'incertitude des intentions : le niveau annoncé peut être approximatif. Le
     // programme, lui, est toujours dévoilé (un vrai titre dans la grille, jamais un projet anonyme).
     const noisy = marketRandom() < GAME_BALANCE.market.intentionNoise;
@@ -28296,7 +28334,7 @@ function planCompetitorSeason(competitor, index) {
     };
   });
   competitor.plan = {
-    season: gameState.season, confirmed: false, announced,
+    season: gameState.season, confirmed: false, announced, rightsDue,
     slots: Object.fromEntries(Object.entries(slots).map(([slot, d]) => {
       if (d.sportsRight) {
         const event = SPORT_RIGHTS_EVENTS[d.sportsRight.eventId];
@@ -28316,6 +28354,9 @@ function planCompetitorSeason(competitor, index) {
 
 function planCompetitorSeasons() {
   ensureCampaign();
+  // Budget prévisionnel : recettes attendues (audiences du moment), avant toute décision.
+  const rows = getCalculatedPDAs();
+  gameState.competitors.forEach(c => { const L = competitorLedger(c); if (L.revenueHint == null) L.revenueHint = Math.round(competitorAdRevenue(c, rows) * 100) / 100; });
   gameState.competitors.forEach((c, i) => planCompetitorSeason(c, i));
 }
 
@@ -28676,7 +28717,7 @@ function competitorTalentInterest(competitor, talent) {
   const profile = GAME_BALANCE.competitors.profiles[competitor.strategy];
   const fit = slotsMatchingGenre(competitor, talent.specialty) / TIME_SLOTS.length;
   const targetFit = talent.affinities[profile.targetPriority] ?? 0.5;
-  const wallet = competitor.budget > 6 ? 0.05 : -0.2;
+  const wallet = !competitorAusterity(competitor) && competitorCapacity(competitor) > 6 ? 0.05 : -0.2;
   return Math.max(0, Math.min(1, fit * 0.9 + targetFit * 0.35 * profile.budgetAggressiveness + wallet));
 }
 
@@ -28768,10 +28809,17 @@ function resolveMercato(offerIndex) {
         : `Offre impossible : votre trésorerie ne permet pas d’accueillir ${offer.name}.` });
       outcomes[i] = { status: affordable ? 'refused' : 'unaffordable' };
     }
-    const suitor = offer.suitors[0] && gameState.competitors.find(c => c.name === offer.suitors[0].name);
+    // Premier prétendant qui peut payer le salaire de la saison sur sa capacité d'investissement.
+    const suitor = offer.suitors.map(s => gameState.competitors.find(c => c.name === s.name))
+      .find(c => c && !competitorAusterity(c) && competitorCapacity(c) >= offer.annual);
     if (suitor) {
       suitor.talents = [...(suitor.talents || []), signed];
-      suitor.budget = Math.max(0, suitor.budget - offer.annual);
+      // Salaire annuel : celui de la saison en cours tout de suite (si elle est ouverte), les
+      // suivants à chaque ouverture de saison.
+      if (suitor.finance?.openedSeason === gameState.season) {
+        signed.paidSeason = gameState.season;
+        competitorBook(suitor, 'recurring', offer.annual, `Talent : ${offer.name}`);
+      }
       suitor.strategyHistory.push({ kind: 'talent', season: gameState.season, name: offer.name, specialty: offer.specialty });
       lines.push({ won: false, text: `${suitor.name} recrute ${offer.name} (${(GENRE_LABELS[offer.specialty] || offer.specialty).toLowerCase()}).` });
       outcomes[i] = { ...(outcomes[i] || {}), rival: suitor.name };
@@ -29765,6 +29813,8 @@ function installCompetitorProgram(competitor, program, slot, level, tag = 'nouve
   const lost = competitor.contracts?.[slot];
   competitor.contracts ??= {};
   competitor.contracts[slot] = makeCompetitorContract(competitor, program, slot, level, { seasonsCount: 0, tag });
+  // Case déjà réglée pour la saison : le programme installé en cours de saison la reprend.
+  if (lost?.paidSeason === gameState.season) competitor.contracts[slot].paidSeason = gameState.season;
   if (competitor.plan?.slots) {
     competitor.plan.slots[slot] = { programId: program.id, name: program.name, genre: program.editorial.genre,
       format: program.format, target: program.target, level, tag, isNew: true, prevName: lost?.name || null,
@@ -29790,7 +29840,7 @@ function biddingCoveted() {
       && (contract.career?.seasonsCount || 0) >= 1);
 }
 function interestedCompetitor(budgetNeeded, program) {
-  const pool = (gameState.competitors || []).filter(c => (c.budget || 0) >= budgetNeeded);
+  const pool = (gameState.competitors || []).filter(c => !competitorAusterity(c) && competitorCapacity(c) >= budgetNeeded);
   return pool.find(c => c.type === program.channelType) || pool[0] || null;
 }
 
@@ -30008,7 +30058,7 @@ function applyBiddingWarChoice(dilemma, choice) {
   const record = { programId: w.programId, season: gameState.season, kind: w.kind, rival: w.rival };
   if (choice.concede && rival) {
     installCompetitorProgram(rival, program, program.slot, 2, 'offensive');
-    rival.budget = Math.max(0, (rival.budget || 0) - w.offer);
+    competitorBook(rival, 'oneOff', w.offer, `Acquisition : ${program.name}`);
     record.outcome = 'conceded'; record.indemnity = choice.concede.indemnity;
   }
   if (choice.keepProgram) {
@@ -30022,7 +30072,7 @@ function applyBiddingWarChoice(dilemma, choice) {
       delete p.contracts[w.slot];
       p.coutTalentsSaison = Math.max(0, (p.coutTalentsSaison || 0) - (leaving.talentAnnual || 0));
       installCompetitorProgram(rival, program, w.slot, contractInvestLevel(leaving), 'offensive');
-      rival.budget = Math.max(0, (rival.budget || 0) - w.offer);
+      competitorBook(rival, 'oneOff', w.offer, `Acquisition : ${program.name}`);
       delete p.grilleOverrides?.[w.slot];
       record.outcome = 'transferred'; record.indemnity = w.offer;
       // Dilemme de remplacement, joué juste après celui-ci.
@@ -30983,6 +31033,28 @@ const RADAR_CLASH_SHORT = {
   'Positionnement alternatif': { label: 'Alternatif', cls: 'clash-none' }
 };
 
+// Situation financière d'un concurrent (lecture seule : aucun calcul n'écrit dans l'état). Saison
+// en cours : recettes et résultat prévisionnels ; saison clôturée : valeurs définitives figées.
+function competitorFinanceHtml(c) {
+  const f = c.finance;
+  if (!f) return '';
+  const season = gameState.season, closed = f.closedSeason === season ? f.history.at(-1) : null;
+  const L = competitorLedgerView(c), charges = competitorAnnualCharges(c);
+  const opened = f.openedSeason === season && season >= f.boundary;
+  const ca = closed ? closed.adRevenue : opened ? L.ad : (L.revenueHint ?? f.history.at(-1)?.adRevenue ?? 0);
+  const result = closed ? closed.result : ca + L.income - (opened ? L.recurring : charges.total) - L.sportsRights - L.sportsProduction - L.oneOff;
+  const state = competitorFinanceState(c);
+  const money = v => `${nf1(v)} M€`;
+  return `<div>
+      <div class="radar-section-title">Situation financière <span class="pg-pda-badge pg-badge-${state.accent}">${esc(state.label)}</span></div>
+      <div class="radar-stats radar-stats-fin">
+        <div class="radar-stat"><div class="radar-stat-value">${money(c.budget ?? 0)}</div><div class="radar-stat-label">Trésorerie</div></div>
+        <div class="radar-stat"><div class="radar-stat-value">${money(ca)}</div><div class="radar-stat-label">CA publicitaire${closed ? '' : ' (prév.)'}</div></div>
+        <div class="radar-stat"><div class="radar-stat-value">${money(charges.grid)}</div><div class="radar-stat-label">Coût annuel de grille</div></div>
+        <div class="radar-stat"><div class="radar-stat-value ${result > 0.05 ? 'eco-pos' : result < -0.05 ? 'eco-neg' : ''}">${result >= 0 ? '+' : '−'}${money(Math.abs(result))}</div><div class="radar-stat-label">Résultat ${closed ? `S${season} (définitif)` : 'prévisionnel'}</div></div>
+      </div>
+    </div>`;
+}
 function renderCompetitorSheet(c) {
   const p = gameState.player;
   const target = p.target;
@@ -31027,6 +31099,7 @@ function renderCompetitorSheet(c) {
         <div class="radar-stat"><div class="radar-stat-value">${signed(gap)} pt</div><div class="radar-stat-label">Écart avec vous</div></div>
       </div>
     </div>
+    ${competitorFinanceHtml(c)}
     <div class="radar-sheet-grid">
       <div class="radar-section-title">Grille ${c.plan?.confirmed ? 'confirmée' : 'annoncée'}</div>
       ${view.map(v => `<div class="radar-grid-row">
@@ -31269,8 +31342,224 @@ function campaignProgress() {
     {name:'Conformité ≥ 75 et trésorerie positive',done:computeArcomCompliance().arcomScore>=75&&p.tresorerie>=0,value:computeArcomCompliance().arcomScore+'/100'}
   ];
 }
-// Recettes annuelles d'une chaîne concurrente par point de PDA sur sa cible.
-const COMPETITOR_INCOME_RATE = 0.4;
+// ---------------------------------------------------------------------------
+// ÉCONOMIE DES CONCURRENTS — trésorerie, recettes, charges, capacité d'investissement
+// ---------------------------------------------------------------------------
+// Source de vérité : competitor.budget est la trésorerie de la chaîne (nom conservé pour la
+// compatibilité des sauvegardes). Tout flux passe par competitorBook, qui l'enregistre dans le
+// grand livre de la saison (competitor.finance.season) : la trésorerie de clôture est toujours
+// l'ouverture + recettes + apports − dépenses − distributions.
+// Calendrier (celui du joueur) : à l'ouverture, charges annuelles (grille, talents) et droits
+// d'entrée des programmes acquis, puis crédit des recettes publicitaires prévisionnelles ; à la
+// clôture, régularisation de la seule différence avec les recettes définitives. Les recettes
+// viennent du moteur commun (computeRevenusPub) : aucune rentrée forfaitaire.
+const COMPETITOR_ECONOMY = {
+  // Réserve de sécurité, en part des charges annuelles (grille et talents), selon le profil.
+  reserve: { offensive: 0.15, rentable: 0.5, jeune: 0.3, premium: 0.35 },
+  // Soutien d'actionnaire : seulement si la trésorerie est négative à la clôture. Apport plafonné
+  // (cap × capital de départ du format), au plus maxSupports sur `window` saisons, suivi
+  // d'une austérité de `austerity` saisons (niveaux de production plafonnés, ni riposte, ni
+  // acquisition coûteuse, ni enchère).
+  support: { cap: 0.5, maxSupports: 2, window: 10, austerity: 2, austerityLevel: 1 },
+  // Distribution aux actionnaires : à la clôture, la trésorerie au-delà de la cible (le plus
+  // grand du capital de départ du format et de `target` × charges annuelles, engagements sportifs
+  // en plus) est distribuée pour la part `share`. Flux de financement : il réduit la
+  // trésorerie, jamais le résultat d'exploitation. Le profil fixe la cible et la part.
+  payout: { target: { offensive: 3, rentable: 2, jeune: 2.5, premium: 2.5 }, share: { offensive: 0.5, rentable: 0.8, jeune: 0.6, premium: 0.6 } },
+  // État financier : trésorerie rapportée aux charges annuelles.
+  state: { comfortable: 0.75, tension: 0.2 },
+  historyLength: 40
+};
+const COMPETITOR_FLOW_KINDS = {
+  ad: { sign: 1, label: 'Recettes publicitaires' },
+  income: { sign: 1, label: 'Autres recettes' },
+  contribution: { sign: 1, label: 'Apport d’actionnaire' },
+  recurring: { sign: -1, label: 'Charges récurrentes' },
+  sportsRights: { sign: -1, label: 'Droits sportifs' },
+  sportsProduction: { sign: -1, label: 'Production sportive' },
+  oneOff: { sign: -1, label: 'Dépenses ponctuelles' },
+  distribution: { sign: -1, label: 'Distribution aux actionnaires' }
+};
+const emptyCompetitorLedger = (season, opening) => ({ season, opening, ad: 0, adForecast: null, adFinal: null, revenueHint: null,
+  income: 0, contribution: 0, recurring: 0, sportsRights: 0, sportsProduction: 0, oneOff: 0, distribution: 0, items: [] });
+// Initialisation (et migration) : une partie antérieure garde son solde comme point de départ ;
+// une saison déjà entamée sous les anciennes règles est une saison de transition (boundary =
+// saison suivante) : rien n'y est refacturé, seules ses recettes définitives sont créditées à la
+// clôture si elle n'a pas encore eu lieu.
+function ensureCompetitorFinance(c) {
+  if (c.finance?.version === 1) return c.finance;
+  const season = gameState.season || 1;
+  const started = !!(c.plan && c.plan.season === season);
+  const closed = (gameState.history || []).some(h => h.season === season);
+  c.finance = { version: 1, boundary: started ? season + 1 : season, migratedSeason: started ? season : null,
+    openedSeason: started ? season : null, closedSeason: closed ? season : null, austerityUntil: null,
+    supports: [], history: [], season: emptyCompetitorLedger(season, c.budget ?? 0) };
+  return c.finance;
+}
+// Grand livre de la saison en cours (créé à la première écriture de la saison).
+function competitorLedger(c) {
+  const f = ensureCompetitorFinance(c);
+  if (!f.season || f.season.season !== gameState.season) f.season = emptyCompetitorLedger(gameState.season, c.budget ?? 0);
+  return f.season;
+}
+// Lecture seule (affichage, capacité) : jamais d'écriture.
+function competitorLedgerView(c) {
+  const L = c.finance?.season;
+  return L && L.season === gameState.season ? L : emptyCompetitorLedger(gameState.season, c.budget ?? 0);
+}
+function competitorBook(c, kind, amount, label) {
+  const k = COMPETITOR_FLOW_KINDS[kind];
+  if (!k || !Number.isFinite(amount) || amount === 0) return 0;
+  const L = competitorLedger(c), v = Math.round(amount * 1000) / 1000;
+  L[kind] = Math.round((L[kind] + v) * 1000) / 1000;
+  c.budget = Math.round(((c.budget ?? 0) + k.sign * v) * 1000) / 1000;
+  L.items.push({ kind, label: label || k.label, amount: v });
+  if (L.items.length > 60) L.items.splice(0, L.items.length - 60);
+  return v;
+}
+// Coût annuel d'un contrat : coût du programme (catalogue) + surcoût du niveau de production.
+function competitorContractAnnual(contract) {
+  if (!contract) return 0;
+  return (contract.annual || 0) + (contract.productionAnnual ?? GAME_BALANCE.market.investCost[contractInvestLevel(contract)] ?? 0);
+}
+const competitorTalentsActive = (c, season = gameState.season) => (c.talents || []).filter(t => (t.until ?? Infinity) >= season);
+// Charges annuelles de la saison : contrats à l'antenne (hors pause pour un droit sportif) et talents.
+function competitorAnnualCharges(c, season = gameState.season) {
+  const grid = TIME_SLOTS.reduce((sum, { key }) => {
+    const k = c.contracts?.[key];
+    return sum + (k && k.end >= season && k.sportsPause !== season && !competitorSportsRightOn(c, key) ? competitorContractAnnual(k) : 0);
+  }, 0);
+  const talents = competitorTalentsActive(c, season).reduce((sum, t) => sum + (t.annual || 0), 0);
+  return { grid: Math.round(grid * 100) / 100, talents: Math.round(talents * 100) / 100, total: Math.round((grid + talents) * 100) / 100 };
+}
+// Droits sportifs : sommes encore dues cette saison (prix différé, production non engagée) et
+// engagements des saisons suivantes.
+function competitorSportsDues(c) {
+  const season = gameState.season;
+  let now = 0, future = 0;
+  (gameState.sportsRights?.owned || []).forEach(o => {
+    if (o.ownerName !== c.name || o.ownerId === 'player') return;
+    const due = (o.pricePending ? o.acquisitionPrice : 0) + (o.status === 'broadcast' || o.status === 'done' ? 0 : o.productionCost || 0);
+    if (o.broadcastSeason === season) now += due; else if (o.broadcastSeason > season) future += due;
+  });
+  return { now, future };
+}
+function competitorReserve(c) {
+  return (COMPETITOR_ECONOMY.reserve[c.strategy] ?? 0.35) * competitorAnnualCharges(c).total;
+}
+// Recettes publicitaires de la chaîne : moteur commun, avec ses caractéristiques (audience sur sa
+// cible, valeur du GRP, popularité, puissance commerciale, effet des événements sportifs).
+function competitorAdRevenue(c, rows = getCalculatedPDAs()) {
+  ensureCompetitorCommercial(c);
+  const row = rows.find(r => r.channel === c);
+  return row ? computeRevenusPub(row.adPda[c.target], c.target, c.popularite, c.puissanceCommerciale, c) : 0;
+}
+const competitorAusterity = c => (c.finance?.austerityUntil ?? -Infinity) >= gameState.season;
+// Capacité d'investissement : trésorerie + recettes de la saison pas encore créditées − charges
+// dues pas encore payées − sommes sportives dues et engagées − réserve. Une dépense réduit la
+// trésorerie, donc la capacité suivante : une même enveloppe ne finance jamais deux opérations.
+function competitorCapacity(c) {
+  const f = c.finance, L = competitorLedgerView(c), season = gameState.season;
+  const opened = !f || f.openedSeason === season || season < f.boundary;
+  const pendingRevenue = opened ? 0 : (L.revenueHint ?? f.history.at(-1)?.adRevenue ?? 0);
+  const pendingCharges = opened ? 0 : competitorAnnualCharges(c).total;
+  const sports = competitorSportsDues(c);
+  return Math.round(((c.budget ?? 0) + pendingRevenue - pendingCharges - sports.now - sports.future - competitorReserve(c)) * 100) / 100;
+}
+// Ouverture de saison (après la programmation de toutes les chaînes) : charges annuelles, droits
+// d'entrée des acquisitions du plan, puis recettes prévisionnelles. Une seule fois par saison.
+function openCompetitorSeason(c, rows = null) {
+  const f = ensureCompetitorFinance(c), season = gameState.season;
+  if (season < f.boundary || f.openedSeason === season) return false;
+  f.openedSeason = season;
+  const L = competitorLedger(c);
+  TIME_SLOTS.forEach(({ key }) => {
+    const k = c.contracts?.[key];
+    if (!k || k.end < season || k.sportsPause === season || competitorSportsRightOn(c, key) || k.paidSeason === season) return;
+    k.paidSeason = season;
+    competitorBook(c, 'recurring', competitorContractAnnual(k), `Grille : ${k.name}`);
+  });
+  competitorTalentsActive(c).forEach(t => {
+    if (t.paidSeason === season) return;
+    t.paidSeason = season;
+    competitorBook(c, 'recurring', t.annual || 0, `Talent : ${t.name}`);
+  });
+  if (c.plan?.season === season && !c.plan.rightsCharged) {
+    c.plan.rightsCharged = true;
+    Object.entries(c.plan.rightsDue || {}).forEach(([slot, amount]) => competitorBook(c, 'oneOff', amount, `Droits d’entrée : ${c.contracts?.[slot]?.name || slot}`));
+  }
+  L.adForecast = Math.round(competitorAdRevenue(c, rows || getCalculatedPDAs()) * 100) / 100;
+  competitorBook(c, 'ad', L.adForecast, 'Recettes publicitaires prévisionnelles');
+  return true;
+}
+function openCompetitorSeasons() {
+  const rows = getCalculatedPDAs();
+  (gameState.competitors || []).forEach(c => openCompetitorSeason(c, rows));
+}
+// Clôture : régularisation des recettes (seulement la différence), soutien d'actionnaire
+// éventuel, historique figé. Une seule fois par saison.
+function closeCompetitorSeason(c, rows) {
+  const f = ensureCompetitorFinance(c), season = gameState.season;
+  if (f.closedSeason === season) return false;
+  const L = competitorLedger(c);
+  const final = Math.round(competitorAdRevenue(c, rows) * 100) / 100;
+  if (season < f.boundary) {
+    // Saison de transition (partie antérieure) : charges déjà réglées sous les anciennes règles,
+    // seules les recettes définitives de la saison sont créditées, une fois.
+    competitorBook(c, 'ad', final, 'Recettes publicitaires (saison de transition)');
+  } else {
+    openCompetitorSeason(c, rows);
+    competitorBook(c, 'ad', final - (L.adForecast || 0), 'Régularisation des recettes publicitaires');
+  }
+  L.adFinal = final;
+  competitorShareholderSupport(c);
+  competitorDistribution(c);
+  f.closedSeason = season;
+  const sports = competitorSportsDues(c);
+  const result = L.ad + L.income - L.recurring - L.sportsRights - L.sportsProduction - L.oneOff;
+  f.history.push({ season, opening: L.opening, closing: c.budget, adRevenue: L.ad, otherIncome: L.income, recurring: L.recurring,
+    sportsRights: L.sportsRights, sportsProduction: L.sportsProduction, oneOff: L.oneOff, contributions: L.contribution,
+    distributions: L.distribution, result: Math.round(result * 100) / 100, commitments: Math.round(sports.future * 100) / 100,
+    transition: season < f.boundary || undefined });
+  if (f.history.length > COMPETITOR_ECONOMY.historyLength) f.history.splice(0, f.history.length - COMPETITOR_ECONOMY.historyLength);
+  return true;
+}
+// Soutien d'actionnaire : explicite, plafonné, historisé, avec une période d'austérité. Il
+// augmente la trésorerie sans améliorer le résultat d'exploitation.
+function competitorShareholderSupport(c) {
+  const f = c.finance, S = COMPETITOR_ECONOMY.support, season = gameState.season;
+  if ((c.budget ?? 0) >= 0) return 0;
+  const recent = f.supports.filter(s => season - s.season < S.window).length;
+  if (recent >= S.maxSupports) return 0;
+  const cap = S.cap * (CHANNEL_TYPES[c.type]?.baseBudget || 25);
+  const amount = Math.round(Math.min(cap, -(c.budget ?? 0) + competitorReserve(c)) * 10) / 10;
+  if (amount <= 0) return 0;
+  competitorBook(c, 'contribution', amount, 'Apport d’actionnaire');
+  f.austerityUntil = season + S.austerity;
+  f.supports.push({ season, amount, austerityUntil: f.austerityUntil });
+  c.strategyHistory?.push({ kind: 'support', season, amount });
+  return amount;
+}
+function competitorTreasuryTarget(c) {
+  const P = COMPETITOR_ECONOMY.payout;
+  return Math.max(CHANNEL_TYPES[c.type]?.baseBudget || 25,
+    (P.target[c.strategy] ?? 2.5) * competitorAnnualCharges(c).total + competitorSportsDues(c).future);
+}
+function competitorDistribution(c) {
+  const P = COMPETITOR_ECONOMY.payout;
+  if (competitorAusterity(c)) return 0;
+  const excess = (c.budget ?? 0) - competitorTreasuryTarget(c);
+  if (excess <= 0) return 0;
+  return competitorBook(c, 'distribution', Math.round(excess * (P.share[c.strategy] ?? 0.6) * 10) / 10, 'Distribution aux actionnaires');
+}
+// État financier affiché : trésorerie rapportée aux charges annuelles.
+function competitorFinanceState(c) {
+  const charges = Math.max(1, competitorAnnualCharges(c).total);
+  const ratio = (c.budget ?? 0) / charges;
+  return ratio >= COMPETITOR_ECONOMY.state.comfortable ? { key: 'ok', label: 'Confortable', accent: 'vert' }
+    : ratio >= COMPETITOR_ECONOMY.state.tension ? { key: 'tension', label: 'Sous tension', accent: 'gold' }
+    : { key: 'critical', label: 'Critique', accent: 'rouge' };
+}
 function closeCampaignSeason() {
   refreshEconomy(); const p=gameState.player, h=gameState.history.at(-1);
   h.resultatSaison=p.resultatSaison; h.commercial=p.commercialSaison; h.achats=p.achatsSaison;
@@ -31279,13 +31568,16 @@ function closeCampaignSeason() {
   recordCompetitorSeasonResults();
   // Marché publicitaire : instantané de la saison (avant l'évolution commerciale des concurrents).
   if (!h.pub) h.pub = adMarketSnapshot();
-  { const rows = getCalculatedPDAs(); gameState.competitors.forEach(c => evolveCompetitorCommercial(c, rows.find(r => r.channel === c))); }
+  { const rows = getCalculatedPDAs();
+    // Comptes des concurrents : recettes définitives de la saison (état commercial de la saison),
+    // puis évolution commerciale pour la suivante.
+    gameState.competitors.forEach(c => closeCompetitorSeason(c, rows));
+    gameState.competitors.forEach(c => evolveCompetitorCommercial(c, rows.find(r => r.channel === c))); }
   // Revalorisation régie : une saison qui recule sur la cible déçoit les annonceurs.
   if(p.regieVolatileSeason===gameState.season && p.pdaFinSaison < (p.pdaSeasonBaseline ?? p.pdaFinSaison)) {
     p.puissanceCommerciale=Math.max(0.85,p.puissanceCommerciale-GAME_BALANCE.regie.backlash);
     h.regieBacklash=true;
   }
-  gameState.competitors.forEach(c=>{c.budget+=Math.max(1,c.pda[c.target]*COMPETITOR_INCOME_RATE);});
   if(gameState.campaign.status==='active' && gameState.season>=gameState.campaign.deadline) {
     const authorized=effectiveRenewalOutcome().key!=='refused';
     gameState.campaign.status=campaignProgress().filter(x=>x.done).length>=2 && authorized && p.tresorerie>=TRESORERIE_CRITIQUE?'won':'lost';
@@ -32380,7 +32672,7 @@ const CAREER_RULES = {
     adFactor() { return gameState.season <= 3 ? 0.6 : 1; },
     seasonStart(c) {
       if (gameState.season > 3) { c.note = 'Le marché publicitaire repart enfin.'; return; }
-      gameState.competitors.forEach(r => { r.budget = Math.round((r.budget || 0) * 1.15); });
+      gameState.competitors.forEach(r => { competitorBook(r, 'contribution', Math.round(Math.max(0, r.budget || 0) * 0.15 * 10) / 10, 'Apport d’actionnaire (plan social)'); });
       c.note = `Saison ${gameState.season} : le marché pub reste 40 % sous la normale. Les rivales licencient et reconstituent leur trésorerie.`;
     },
     queue(c, q) {

@@ -615,7 +615,7 @@ assert(sportsAdFactor(rv)>1&&sportsAdFactor(gameState.player)===1,'commercial at
 assert(computeMarketWeather().items[0].title.includes('Off'),'market weather announces the competitor event');
 const budgetBefore=rv.budget;evaluateSportsBroadcasts();
 assert(offRec.status==='broadcast'&&activeContract(rv,'prime')?.isSportsEvent&&offRec.perf.pdaGain>0&&offRec.perf.revenueGain>0&&offRec.perf.playerImpact<0,'competitor broadcast evaluated');
-assert(Math.abs(rv.budget-budgetBefore-offRec.perf.revenueGain)<1e-9,'extra revenue credited to the competitor budget');
+assert(rv.budget===budgetBefore,'event revenue already in the common ad engine: nothing credited on top');
 assert(renderSportsRightsBilanHtml().includes('CONCURRENT'),'season report shows the competitor broadcast');
 const budgetAfter=rv.budget;evaluateSportsBroadcasts();assert(rv.budget===budgetAfter,'competitor revenue credited once');
 gameState.season=3;closeSportsBroadcasts();assert(offRec.status==='done','competitor broadcast closed next season');rv.budget=50;planCompetitorSeasons();
