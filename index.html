@@ -1423,13 +1423,19 @@ button.radar-row:focus-visible { outline: 2px solid var(--bleu); outline-offset:
 .welcome-cta svg { width: 16px; height: 16px; transition: transform 0.2s ease; }
 .welcome-cta.welcome-cta-outline { background: rgba(255,255,255,0.85); color: #0f172a; border: 1.5px solid #0f172a; box-shadow: 0 8px 18px -10px rgba(15,23,42,0.25); }
 .welcome-cta.welcome-cta-tight { margin-top: 10px; }
-/* Prêt de sauvetage (écran de dépôt de bilan), à la manière d'une enchère */
-.loan-card { margin-top: 14px; padding: 14px; }
-.loan-kicker { display: flex; }
+/* Prêt de sauvetage : même mise en forme que le bloc de dépôt de bilan, qu'il remplace */
+.loan-card::before { background: linear-gradient(90deg, var(--vert), rgba(16,185,129,0.35)); }
+.dc-live-pill.sanction-pill.loan-pill { color: #047857; background: rgba(16,185,129,0.12); border-color: rgba(16,185,129,0.3); }
+.dc-live-pill.loan-pill .dc-live-dot { background: var(--vert); }
+.loan-gauge { margin-bottom: 10px; }
 .loan-card .sa-gauge-value.loan-years { color: var(--ink); }
 .loan-years-range::-webkit-slider-runnable-track { background: linear-gradient(90deg, #c7d2fe, #6366f1) !important; }
 .loan-years-range::-moz-range-track { background: linear-gradient(90deg, #c7d2fe, #6366f1) !important; }
+.sanction-stat.ok { background: rgba(16,185,129,0.1); border-color: rgba(16,185,129,0.3); }
+.sanction-stat.ok .sanction-stat-value { color: var(--vert); }
+.loan-warn { margin: 0 0 12px; font-size: 12.5px; color: #b91c1c; }
 .loan-warn:empty { display: none; }
+.loan-note { background: rgba(16,185,129,0.07); border-left-color: var(--vert); }
 #btn-loan-sign:disabled { opacity: 0.45; cursor: not-allowed; }
 @media (hover: hover) { .welcome-cta:hover svg { transform: translateX(3px); } }
 .welcome-cta-shine {
@@ -25289,10 +25295,11 @@ function render() {
           { value: `S${gameState.season}`, label: 'Saison atteinte' },
           { value: `${Math.round(p.popularite)}/100`, label: 'Popularité finale' }
         ];
+    const loanView = !!loan && !!gameState.loanPanelOpen;
     app.innerHTML = `
       ${renderMasthead("Fin de partie", "Audience Masters", true)}
       ${renderHudHeadOnly({ status: 'gameOver' })}
-      <div class="card bilan-card sanction-card">
+      ${loanView ? loanPanelHtml(loan) : `<div class="card bilan-card sanction-card">
         <div class="kicker-row sanction-kicker-row">
           <span class="dc-live-pill sanction-pill"><span class="dc-live-dot"></span>${endCopy ? endCopy.pill : isArcom ? 'Autorisation retirée' : 'Mise sous tutelle'}</span>
           <span class="dc-season-pill">Saison ${gameState.season}</span>
@@ -25314,18 +25321,18 @@ function render() {
             : "La chaîne est placée sous administration provisoire : la direction est suspendue et la grille gelée."}</span>
         </div>
       </div>
-      ${loan && !gameState.loanPanelOpen ? `<button class="welcome-cta welcome-cta-outline" id="btn-loan-open"><span>🏦 Demander un prêt</span></button>` : ''}
-      ${loan && gameState.loanPanelOpen ? loanPanelHtml(loan) : ''}
-      <button class="welcome-cta${loan ? ' welcome-cta-tight' + (gameState.loanPanelOpen ? ' welcome-cta-outline' : '') : ''}" id="btn-restart">
+      ${loan ? `<button class="welcome-cta welcome-cta-outline" id="btn-loan-open"><span>🏦 Demander un prêt</span></button>` : ''}
+      <button class="welcome-cta${loan ? ' welcome-cta-tight' : ''}" id="btn-restart">
         <span class="welcome-cta-shine"></span>
         <span>${careerFail ? 'Retour aux scénarios' : 'Recommencer une chaîne'}</span>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </button>
+      </button>`}
     `;
     const loanOpen = document.getElementById('btn-loan-open');
     if (loanOpen) loanOpen.onclick = () => { gameState.loanPanelOpen = true; render(); };
-    if (loan && gameState.loanPanelOpen) bindLoanPanel(app);
-    document.getElementById('btn-restart').onclick = () => {
+    if (loanView) bindLoanPanel(app);
+    const restartBtn = document.getElementById('btn-restart');
+    if (restartBtn) restartBtn.onclick = () => {
       resetGame();
       if (careerFail) { gameState.homeView = 'career'; render(); }
     };
@@ -28334,58 +28341,63 @@ function loanMaxAmount(offer, years) {
 function loanFeasible(offer = loanOffer()) {
   return !!offer && offer.needed <= LOAN.max && loanMaxAmount(offer, LOAN.years[1]) >= offer.needed;
 }
-// Module de prêt, à la manière d'une enchère : illustration, indicateurs, jauges, décision.
+// Module de prêt, à la manière du bloc de dépôt de bilan (qu'il remplace à l'écran) : tuiles,
+// jauges du montant et de la durée, simulation, conditions de la banque.
 function loanPanelHtml(offer) {
   const y0 = Math.min(LOAN.years[1], Math.max(LOAN.years[0], [3, 5, 7, 10].find(y => loanMaxAmount(offer, y) >= offer.needed) || LOAN.years[1]));
   const a0 = Math.min(loanMaxAmount(offer, y0), Math.max(LOAN.min, Math.ceil(offer.needed + 2)));
-  const pct = v => `${(offer.rate * 100).toFixed(1).replace('.', ',')} %`;
-  const pop = (d, cls) => `class="sa-pop ${cls}" style="--d:${d}s"`;
-  return `<div class="card loan-card sa-inline" id="loan-panel">
-      <div class="loan-kicker"><span class="dc-live-pill"><span class="dc-live-dot"></span>Prêt de sauvetage</span></div>
-      <figure class="sa-illu"><img src="${directionSceneArt('banque')}" alt="" aria-hidden="true">
-        <span class="sa-illu-badges"><span class="sa-illu-tier">Taux ${pct(offer.rate)}</span></span>
-        <figcaption class="sa-illu-cap"><span class="sa-illu-name">La banque vous reçoit</span></figcaption></figure>
-      <div ${pop(0.05, 'sa-stats')}>
-        <div class="sa-stat"><span>Taux d’intérêt</span><b>${pct(offer.rate)}</b></div>
-        <div class="sa-stat"><span>Annuité max.</span><b>${nf1(offer.room)} M€</b></div>
-        <div class="sa-stat"><span>Montant minimal</span><b>${nf1(offer.needed)} M€</b></div>
+  const pct = `${(offer.rate * 100).toFixed(1).replace('.', ',')} %`;
+  const tile = (value, label, cls = '') => `<div class="sanction-stat${cls ? ` ${cls}` : ''}"><div class="sanction-stat-value">${value}</div><div class="sanction-stat-label">${label}</div></div>`;
+  return `<div class="card bilan-card sanction-card loan-card" id="loan-panel">
+      <div class="kicker-row sanction-kicker-row">
+        <span class="dc-live-pill sanction-pill loan-pill"><span class="dc-live-dot"></span>Prêt de sauvetage</span>
+        <span class="dc-season-pill">Saison ${gameState.season}</span>
       </div>
-      <div ${pop(0.12, 'sa-gauge')}>
+      <h2>La banque vous reçoit</h2>
+      <p class="sanction-lead">Pour lever la tutelle, la trésorerie doit repasser au-dessus de ${nf1(TRESORERIE_CRITIQUE)} M€. La banque prête au taux de ${pct} : choisissez le montant et la durée de remboursement.</p>
+      <div class="sanction-stats">
+        ${tile(pct, 'Taux d’intérêt')}
+        ${tile(`${nf1(offer.room)} M€`, 'Annuité max.')}
+        ${tile(`${nf1(offer.needed)} M€`, 'Montant minimal')}
+        ${tile(`${nf1(gameState.player.tresorerie)} M€`, 'Trésorerie', 'alert')}
+      </div>
+      <div class="sa-gauge loan-gauge">
         <div class="sa-gauge-head"><span class="sa-gauge-label">Montant du prêt</span><output class="sa-gauge-value" id="loan-amount-out">${nf1(a0)} M€</output></div>
         <input type="range" class="sa-gauge-range" id="loan-amount" min="${LOAN.min}" max="${LOAN.max}" step="1" value="${Math.round(a0)}" aria-label="Montant du prêt">
         <div class="sa-gauge-scale"><span>${LOAN.min} M€</span><span class="sa-gauge-est" id="loan-zone"></span><span>${LOAN.max} M€</span></div>
       </div>
-      <div ${pop(0.18, 'sa-gauge')}>
+      <div class="sa-gauge loan-gauge">
         <div class="sa-gauge-head"><span class="sa-gauge-label">Durée de remboursement</span><output class="sa-gauge-value loan-years" id="loan-years-out">${y0} saisons</output></div>
         <input type="range" class="sa-gauge-range loan-years-range" id="loan-years" min="${LOAN.years[0]}" max="${LOAN.years[1]}" step="1" value="${y0}" aria-label="Durée du prêt">
         <div class="sa-gauge-scale"><span>${LOAN.years[0]} saison</span><span>${LOAN.years[1]} saisons</span></div>
       </div>
-      <div ${pop(0.24, 'sa-stats')} id="loan-summary"></div>
-      <p ${pop(0.28, 'sa-note sa-warn loan-warn')} id="loan-warn"></p>
-      <p ${pop(0.3, 'sa-note')}>Chaque annuité est prélevée à l’ouverture de la saison et annoncée dans vos engagements. Capacité d’endettement : 33 % des recettes d’une saison (${nf1(offer.revenue)} M€)${offer.existing > 0 ? `, dont ${nf1(offer.existing)} M€ déjà engagés` : ''}.</p>
-      <div ${pop(0.34, 'sa-actions')}>
-        <button type="button" class="sa-btn primary" id="btn-loan-sign">Signer le prêt</button>
-        <button type="button" class="sa-btn" id="btn-loan-cancel">Renoncer</button>
+      <div class="sanction-stats" id="loan-summary"></div>
+      <p class="loan-warn" id="loan-warn"></p>
+      <div class="sanction-note loan-note">
+        <span class="sanction-note-title">🏦 Conditions de la banque</span>
+        <span>Chaque annuité est prélevée à l’ouverture de la saison et annoncée dans vos engagements. Capacité d’endettement : 33 % des recettes d’une saison (${nf1(offer.revenue)} M€)${offer.existing > 0 ? `, dont ${nf1(offer.existing)} M€ d’annuités déjà engagées` : ''}.</span>
       </div>
-    </div>`;
+    </div>
+    <button class="welcome-cta" id="btn-loan-sign"><span class="welcome-cta-shine"></span><span>Signer le prêt et reprendre</span></button>
+    <button class="welcome-cta welcome-cta-outline welcome-cta-tight" id="btn-loan-cancel"><span>Revenir au bilan</span></button>`;
 }
 function bindLoanPanel(app) {
   const offer = loanOffer();
   const a = app.querySelector('#loan-amount'), y = app.querySelector('#loan-years');
   if (!offer || !a || !y) return;
   const pctOf = v => `${(v - LOAN.min) / (LOAN.max - LOAN.min) * 100}%`;
+  const tile = (value, label, cls = '') => `<div class="sanction-stat${cls ? ` ${cls}` : ''}"><div class="sanction-stat-value">${value}</div><div class="sanction-stat-label">${label}</div></div>`;
   const update = () => {
     const amount = Number(a.value), years = Number(y.value), c = loanCheck(offer, amount, years);
     // Zone verte de la jauge : montants possibles pour cette durée.
     const hi = loanMaxAmount(offer, years), lo = Math.min(hi, offer.needed);
     a.style.setProperty('--est-a', pctOf(lo)); a.style.setProperty('--est-b', pctOf(Math.max(lo, hi)));
-    y.style.setProperty('--est-a', '0%'); y.style.setProperty('--est-b', '100%');
     app.querySelector('#loan-zone').textContent = hi >= offer.needed ? `Possible : ${nf1(offer.needed)}–${nf1(hi)} M€` : 'Durée trop courte';
     app.querySelector('#loan-amount-out').textContent = `${nf1(amount)} M€`;
     app.querySelector('#loan-years-out').textContent = `${years} saison${years > 1 ? 's' : ''}`;
-    app.querySelector('#loan-summary').innerHTML = `<div class="sa-stat"><span>Annuité</span><b>${nf1(c.annuity)} M€</b></div>
-      <div class="sa-stat"><span>Intérêts</span><b>${nf1(c.interest)} M€</b></div>
-      <div class="sa-stat"><span>Trésorerie après</span><b>${nf1(gameState.player.tresorerie + amount)} M€</b></div>`;
+    const after = gameState.player.tresorerie + amount;
+    app.querySelector('#loan-summary').innerHTML = tile(`${nf1(c.annuity)} M€`, 'Annuité') + tile(`${nf1(c.interest)} M€`, 'Intérêts')
+      + tile(`${nf1(c.total)} M€`, 'Total remboursé') + tile(`${nf1(after)} M€`, 'Trésorerie après', after < TRESORERIE_CRITIQUE ? 'alert' : 'ok');
     app.querySelector('#loan-warn').textContent = c.ok ? '' : `⚠️ ${c.reasons.join(' ; ').replace(/^./, m => m.toUpperCase())}.`;
     app.querySelector('#btn-loan-sign').disabled = !c.ok;
   };
@@ -32393,6 +32405,10 @@ const CHANNEL_APPROACH = {
   negotiation: { chance: [0.3, 0.75], bump: 0.2, maxContribution: 0.6 },
   // Objectif renégocié après un entretien préalable de licenciement : durée.
   renegotiation: { seasons: 2 },
+  // Refus d'une proposition : le propriétaire de la chaîne actuelle verse un bonus de
+  // trésorerie en gage de reconnaissance (part du capital de départ du format, de la première
+  // à la seconde valeur selon l'intérêt de l'offre). Financement : hors résultat d'exploitation.
+  loyaltyBonus: [0.08, 0.2],
   mandateSeasons: 3
 };
 const APPROACH_MOTIVES = {
@@ -32949,8 +32965,8 @@ function buildChannelOfferChoice(dilemma) {
   const o = ensureDirector().approach.offer || {}, decision = o.decision || 'decline';
   const name = o.channelName || 'la chaîne';
   const r = { accept: `Contrat signé : vous prenez immédiatement les commandes de ${name}. Objectif fixé par le propriétaire : ${o.objective?.text || ''}`,
-    decline: `Vous déclinez la proposition de ${name} : vous restez à la tête de votre chaîne, sans conséquence.`,
-    refuse: `Vous refusez d’étudier la proposition de ${name} : vous restez à la tête de votre chaîne, sans conséquence.`,
+    decline: `Vous déclinez la proposition de ${name} et restez à la tête de votre chaîne. Touché par votre fidélité, votre propriétaire vous verse un bonus de ${nf1(channelLoyaltyBonus(o))} M€ en gage de reconnaissance.`,
+    refuse: `Vous refusez la proposition de ${name} et restez à la tête de votre chaîne. Touché par votre fidélité, votre propriétaire vous verse un bonus de ${nf1(channelLoyaltyBonus(o))} M€ en gage de reconnaissance.`,
     withdrawn: `Le propriétaire de ${name} n’accepte pas de revoir ses conditions et retire sa proposition. Vous restez à la tête de votre chaîne.` }[decision];
   return { l: { accept: 'Accepter la proposition', decline: 'Décliner la proposition', refuse: 'Refuser la proposition', withdrawn: 'Proposition retirée' }[decision],
     r, finance: { recurring: 0, purchase: 0, commercial: 0, category: 'N' }, pda: {}, pop: 0, audienceImpacts: [], channelOffer: { decision } };
@@ -32965,7 +32981,24 @@ function applyChannelOfferDecision({ decision }) {
     if (c) { const s = competitorSituation(c, getCalculatedPDAs()), r1 = v => Math.round(v * 10) / 10;
       Object.assign(o, { objective: mandateObjective(o.mandate, s), pda4: r1(s.row.globalPda), pdaTarget: r1(s.row.pda[c.target]), rank: s.rank }); }
   } else if (decision === 'withdrawn') closeChannelOffer(o, 'withdrawn');
-  else declineChannelOffer();
+  else { const bonus = channelLoyaltyBonus(o); declineChannelOffer(); payLoyaltyBonus(o, bonus); }
+}
+// Bonus de reconnaissance du propriétaire actuel quand le joueur refuse une offre.
+function channelLoyaltyBonus(o) {
+  const B = CHANNEL_APPROACH.loyaltyBonus, T = CHANNEL_APPROACH.threshold, p = gameState.player;
+  const interest = clamp01(((o.scores?.base ?? T) - T) / Math.max(0.01, 1 - T));
+  const base = CHANNEL_TYPES[p.type]?.baseBudget || 25;
+  return Math.round(base * (B[0] + (B[1] - B[0]) * interest) * 10) / 10;
+}
+function payLoyaltyBonus(o, amount) {
+  const p = gameState.player;
+  if (!(amount > 0) || o.loyaltyBonusPaid) return 0;
+  o.loyaltyBonusPaid = amount;
+  p.tresorerie = Math.round((p.tresorerie + amount) * 100) / 100;
+  // Apport du propriétaire : exclu des recettes et du résultat (comme une recette exceptionnelle).
+  p.exceptionalSaison = (p.exceptionalSaison || 0) + amount;
+  (p.shareholderBonuses ??= []).push({ season: gameState.season, amount, offer: o.channelName });
+  return amount;
 }
 // Entre deux saisons : prise de fonction d'une offre signée. Point de départ et objectif du
 // mandat actualisés à la situation de la chaîne au moment de la reprise.
@@ -33006,8 +33039,7 @@ function renderChannelOfferZone(dilemma) {
       <span class="sa-illu-corner">Mandat ${CHANNEL_APPROACH.mandateSeasons} saisons</span>
       <figcaption class="sa-illu-cap"><span class="sa-illu-name">${esc(o.channelName)}</span></figcaption></figure>`;
   const objective = `<div ${pop(0.12, 'sa-row co-objective')}><span class="sa-row-label">Objectif du propriétaire</span>
-      <p class="co-objective-text">🎯 ${esc(o.objective.text)}</p>
-      <p class="sa-note">Objectif manqué : entretien préalable de licenciement.</p></div>`;
+      <p class="co-objective-text">🎯 ${esc(o.objective.text)}</p></div>`;
   if (o.ui === 'study' || o.ui === 'negotiated') {
     const improved = o.ui === 'negotiated';
     return `<div class="sa-inline co-zone" data-co-zone>

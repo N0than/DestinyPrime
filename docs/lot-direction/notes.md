@@ -177,3 +177,4 @@ Calibrage par simulation :
   - Convocation sans réponse : licenciement.
 
 - **Chaînes jeunesse.** Elles ne participent plus aux enchères de droits sportifs (Ligue 1, F1, JO, Coupe du monde…) et ne reconduisent pas un droit sportif détenu. Les droits thématiques (jeunesse) restent possibles.
+- **Refus d'une proposition.** Le propriétaire de la chaîne actuelle verse un bonus de trésorerie en gage de reconnaissance : de 8 à 20 % du capital de départ du format, selon l'intérêt de l'offre (`CHANNEL_APPROACH.loyaltyBonus`). Il est versé une fois, hors résultat d'exploitation. Une offre restée sans réponse ou retirée après négociation ne donne pas de bonus.

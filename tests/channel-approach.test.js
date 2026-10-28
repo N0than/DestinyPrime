@@ -223,8 +223,12 @@ function offreEnFile(seed=4242){ const r=transfert('generaliste',seed); const o=
   const h=p.finance.history.at(-1); ok(h.season===S&&Math.abs(h.opening+h.adRevenue+h.otherIncome+h.contributions-h.recurring-h.sportsRights-h.sportsProduction-h.oneOff-h.distributions-h.closing)<0.01,'ancienne chaîne : comptes de la saison de bascule équilibrés');
   ok(gameState.history.at(-1).season===S&&gameState.history.at(-1).perf.channel===name,'bilan de la saison au nom de la chaîne rejointe');
   suivante(); ok(gameState.player===np&&gameState.season===S+1,'saison suivante sur la nouvelle chaîne'); }
-{ const { p, o }=offreEnFile(); o.decision='refuse'; chooseDilemmaOption(0);
-  ok(o.status==='refused'&&!gameState.director.approach.offer&&gameState.player===p,'refus d’étudier : offre close, aucune conséquence'); }
+{ const { p, o }=offreEnFile(); const t0=p.tresorerie, x0=p.exceptionalSaison||0, bonus=channelLoyaltyBonus(o); o.decision='refuse'; chooseDilemmaOption(0);
+  ok(o.status==='refused'&&!gameState.director.approach.offer&&gameState.player===p,'refus : offre close');
+  const base=CHANNEL_TYPES[p.type].baseBudget;
+  ok(bonus>=base*0.08-0.05&&bonus<=base*0.2+0.05&&o.loyaltyBonusPaid===bonus&&near(p.exceptionalSaison-x0,bonus),'refus : bonus de reconnaissance versé, hors résultat ('+bonus+' M€)');
+  ok(p.tresorerie>=t0+bonus-50&&/gage de reconnaissance/.test(gameState.lastConsequence?.resultat||gameState.logs.at(-1)?.result||''),'bonus annoncé dans le résultat');
+  applyChannelOfferDecision({decision:'decline'}); ok(p.shareholderBonuses.length===1,'bonus versé une seule fois'); }
 { const { p, o }=offreEnFile(); o.ui='study'; o.decision='decline'; chooseDilemmaOption(0);
   ok(o.status==='refused'&&gameState.player===p,'déclin après étude'); }
 { const { o }=offreEnFile(); const c0=o.contribution||0;
