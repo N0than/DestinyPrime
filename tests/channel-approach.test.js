@@ -109,7 +109,8 @@ function transfert(type='generaliste', seed=4242, scores={audience:0.8,finance:0
   ok(near(np.tresorerie,before.compCash+o.contribution)&&near(ai.budget,before.playerCash),'trésoreries conservées (+ apport explicite)');
   ok(transferSnapshot(np,ai).audience===before.audience,'audiences inchangées : aucun bonus');
   // Contrats repris au prix du marché (jamais sous leur coût), échéance de la saison close prolongée d'une saison.
-  Object.entries(before.compContracts).forEach(([s,k])=>{ const n=np.contracts[s], tm=before.terms[s];
+  Object.entries(before.compContracts).forEach(([s,k])=>{ if(k.end<S0){ ok(!np.contracts[s],'contrat déjà échu non repris : '+s); return; }
+    const n=np.contracts[s], tm=before.terms[s];
     ok(n===k.obj&&n.id===k.id&&near(n.annual,tm.annual,0.011)&&n.annual>=k.cost-0.011,'contrat repris au prix du marché : '+s);
     ok(n.end===(k.end===S0?S0+1:k.end),'échéance de reprise : '+s); });
   const sumBase=Object.values(before.terms).reduce((a,x)=>a+x.base,0), marketGrid=Object.values(before.terms).reduce((a,x)=>a+x.annual,0);
@@ -206,12 +207,22 @@ function offreEnFile(seed=4242){ const r=transfert('generaliste',seed); const o=
   ok(dil.c.map(c=>c.l).join('|')==='Étudier la proposition|Refuser la proposition','intitulés simples');
   ok(pendingChannelOffer()===o,'offre en cours pendant la saison');
   o.ui='study'; o.decision='accept'; gameState.currentDilemmaIndex=0; gameState.dilemmaPhase='choosing'; chooseDilemmaOption(0);
-  ok(o.status==='signed'&&o.signedSeason===gameState.season&&gameState.player===p,'acceptation : contrat signé, prise de fonction différée');
-  continueAfterConsequence(); joue();
-  ok(!gameState.director.approach.evaluated[gameState.season],'pas de nouvelle évaluation tant qu’une offre est signée');
-  const name=o.channelName; suivante();
-  ok(gameState.player.name===name&&gameState.director.transfers.length===1&&gameState.director.mandate?.status==='running'&&gameState.director.mandate.startSeason===gameState.season,'prise de fonction entre les deux saisons, mandat lancé');
-  ok(gameState.competitors.length===5&&gameState.competitors.some(c=>c===p),'ancienne chaîne passée à l’IA'); }
+  ok(o.status==='signed'&&o.signedSeason===gameState.season&&gameState.player===p,'acceptation : contrat signé');
+  const name=o.channelName, S=gameState.season, c=gameState.competitors.find(x=>x.name===name);
+  const cash={ player:p.tresorerie, comp:c.budget }, credited=c.finance.season.ad;
+  continueAfterConsequence();
+  const np=gameState.player;
+  ok(np===c&&np.name===name&&gameState.director.transfers.length===1,'reprise instantanée, dans la saison');
+  ok(near(np.tresorerie,cash.comp+(o.contribution||0))&&near(p.budget,cash.player),'trésoreries conservées');
+  ok(np.grillePayeeSaison===S&&near(np.revenusPubPrevisionnels,credited)&&gameState.step===6&&gameState.dilemmaPhase==='choosing','saison de la chaîne rejointe : grille réglée, recettes déjà créditées');
+  const m=gameState.director.mandate; ok(m?.status==='running'&&m.startSeason===S&&m.endSeason===S+CHANNEL_APPROACH.mandateSeasons-1,'mandat lancé dès la saison en cours');
+  ok(p.plan?.season===S&&p.finance.openedSeason===S&&gameState.competitors.includes(p),'ancienne chaîne sous IA, saison ouverte, sans reprogrammation');
+  ok(Object.values(np.contracts).every(k=>!k.nextAnnual||(k.nextAnnualFrom===S+1&&k.nextAnnual>k.annual)),'prix du marché à partir de la saison suivante');
+  ok(gameState.dilemmaQueue.length>gameState.currentDilemmaIndex,'dilemmes de la saison retirés pour la nouvelle chaîne');
+  joue();
+  const h=p.finance.history.at(-1); ok(h.season===S&&Math.abs(h.opening+h.adRevenue+h.otherIncome+h.contributions-h.recurring-h.sportsRights-h.sportsProduction-h.oneOff-h.distributions-h.closing)<0.01,'ancienne chaîne : comptes de la saison de bascule équilibrés');
+  ok(gameState.history.at(-1).season===S&&gameState.history.at(-1).perf.channel===name,'bilan de la saison au nom de la chaîne rejointe');
+  suivante(); ok(gameState.player===np&&gameState.season===S+1,'saison suivante sur la nouvelle chaîne'); }
 { const { p, o }=offreEnFile(); o.decision='refuse'; chooseDilemmaOption(0);
   ok(o.status==='refused'&&!gameState.director.approach.offer&&gameState.player===p,'refus d’étudier : offre close, aucune conséquence'); }
 { const { p, o }=offreEnFile(); o.ui='study'; o.decision='decline'; chooseDilemmaOption(0);
@@ -225,7 +236,7 @@ function offreEnFile(seed=4242){ const r=transfert('generaliste',seed); const o=
 { // Négociation forcée dans les deux sens (même règle, issue imposée).
   const { o }=offreEnFile(); o.negotiation={ outcome:'improved', bump:5, before:o.contribution||0 }; o.contribution=(o.contribution||0)+5; o.ui='negotiated';
   o.decision='accept'; chooseDilemmaOption(0); ok(o.status==='signed','nouvelle proposition acceptée');
-  continueAfterConsequence(); joue(); const cash=gameState.competitors.find(c=>c.name===o.channelName).budget; suivante();
+  continueAfterConsequence();
   ok(gameState.player.name===o.channelName&&o.contributionPaid&&(gameState.player.shareholder.contributions||[]).some(x=>x.amount===o.contribution),'enveloppe négociée versée une fois à la prise de fonction'); }
 { const { o }=offreEnFile(); continueAfterConsequence; gameState.currentDilemmaIndex=1; gameState.dilemmaPhase='choosing';
   // Saison menée sans répondre : l'offre vaut refus à l'ouverture suivante.

@@ -162,7 +162,12 @@ Calibrage par simulation :
   - Présentation : deux choix, « Étudier la proposition » et « Refuser la proposition ».
   - Étude : six indicateurs (PDA 4+ et rang, PDA cible, recettes pub prévues, coût de grille, trésorerie, enveloppe) et l'objectif du propriétaire. Trois choix : accepter, négocier ou décliner.
   - Négociation : le propriétaire relève l'enveloppe (tirage mémorisé, chance de 30 à 75 % selon l'intérêt pour le candidat et sa réputation) ou retire son offre (`CHANNEL_APPROACH.negotiation`).
-  - Une offre acceptée est signée. La prise de fonction a lieu entre les deux saisons ; le mandat commence à la saison suivante, avec un objectif calé sur la situation du moment.
+  - Reprise instantanée. Une offre acceptée prend effet dès le clic sur « Continuer », en cours de saison :
+    - chaque chaîne garde ce qui a déjà été payé et encaissé ;
+    - la chaîne rejointe paie cette saison ses contrats au tarif déjà réglé, puis au prix du marché dès la saison suivante (revalorisation) ;
+    - l'ancienne chaîne reçoit un grand livre de saison ouverte (identité comptable exacte) et un plan « maintien » : elle ne se reprogramme pas en pleine saison ;
+    - les dilemmes restants de la saison sont tirés pour la nouvelle chaîne ;
+    - le mandat commence dès la saison en cours.
   - Une offre sans réponse vaut refus, sans sanction.
 - **Prix du marché à la reprise.** La grille reprise vaut 55 % des recettes publicitaires attendues de la chaîne, répartis entre les cases au prorata de leur audience. Un contrat déjà plus cher garde son prix (`CHANNEL_APPROACH.market`). Un contrat dont l'échéance tombe à la saison close est prolongé d'une saison au lieu de retomber sur la programmation de base. Exemple : une chaîne sport à 110 M€ de recettes passe de 17 à 62 M€ de grille.
 - **Entretien préalable de licenciement.** Un mandat manqué entraîne une convocation en tête de la saison suivante.
@@ -170,3 +175,5 @@ Calibrage par simulation :
   - Négocier : un objectif plus modeste est fixé sur 2 saisons (`CHANNEL_APPROACH.renegotiation`).
   - Objectif renégocié manqué : démis de ses fonctions.
   - Convocation sans réponse : licenciement.
+
+- **Chaînes jeunesse.** Elles ne participent plus aux enchères de droits sportifs (Ligue 1, F1, JO, Coupe du monde…) et ne reconduisent pas un droit sportif détenu. Les droits thématiques (jeunesse) restent possibles.

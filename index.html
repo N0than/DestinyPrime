@@ -23909,6 +23909,8 @@ function chooseMaterialized(choiceIndex, dilemma) {
 
 function continueAfterConsequence() {
   if (gameState.dilemmaPhase !== 'result' || gameState.pendingNextStep === null) return;
+  // Proposition acceptée : reprise immédiate de la chaîne, avant la suite de la saison.
+  takeOfficeNow();
   gameState.step = gameState.pendingNextStep;
   gameState.pendingNextStep = null;
   gameState.dilemmaPhase = 'choosing';
@@ -26319,7 +26321,10 @@ function evaluateSportsRight(event, player) {
 }
 
 // Plafond privé d'une chaîne IA : valeur perçue de l'événement × profil, borné par le budget.
+// Chaîne jeunesse : jamais de droits sportifs (enchère ni reconduction), comme côté joueur.
+const sportsRightBarred = (channel, event) => channel?.type === 'jeunesse' && isSportRight(event);
 function computeCompetitorSportsMaxBid(competitor, event) {
+  if (sportsRightBarred(competitor, event)) return 0;
   const profile = GAME_BALANCE.competitors.profiles[competitor.strategy] || GAME_BALANCE.competitors.profiles.rentable;
   const mid = (event.estimatedValueMin + event.estimatedValueMax) / 2;
   const typeFit = SPORT_RIGHTS_TUNING.channelFit[competitor.type]?.[event.sport] ?? 1;
@@ -26528,9 +26533,11 @@ function sportsRightSeasonsHeld(rec) {
 // programmation et son prix rejoint le coût de grille de la saison de diffusion (débité
 // avec la grille à l'ouverture de celle-ci). Une chaîne IA paie sur son budget.
 function renewSportsRight(rec) {
-  rec.renewalDecided = 'renew';
   const isPlayer = rec.ownerId === 'player';
   const owner = isPlayer ? 'player' : gameState.competitors.find(c => c.name === rec.ownerName);
+  // Chaîne jeunesse (par exemple reprise avec des droits sportifs) : pas de reconduction.
+  if (sportsRightBarred(isPlayer ? gameState.player : owner, SPORT_RIGHTS_EVENTS[rec.eventId])) { releaseSportsRight(rec); return; }
+  rec.renewalDecided = 'renew';
   acquireSportsRight(rec.eventId, { owner, price: rec.initialPrice, renewal: true, initialPrice: rec.initialPrice });
   if (isPlayer) gameState.sportsRights.owned[gameState.sportsRights.owned.length - 1].gridAnnual = rec.initialPrice;
   gameState.sportsRights.history.push({ type: 'sports_rights_renewal', eventId: rec.eventId, season: gameState.season, owner: rec.ownerName, price: rec.initialPrice });
@@ -26567,7 +26574,7 @@ function rollSportsRightsIntoGrid() {
 function resolveSportsRenewalsAtSeasonEnd() {
   recurringRightsToRenew(o => o.ownerId !== 'player').forEach(rec => {
     const c = gameState.competitors.find(x => x.name === rec.ownerName);
-    if (!c) { releaseSportsRight(rec); return; }
+    if (!c || sportsRightBarred(c, SPORT_RIGHTS_EVENTS[rec.eventId])) { releaseSportsRight(rec); return; }
     const keep = { offensive: 0.85, premium: 0.8, jeune: 0.75, rentable: 0.6 }[c.strategy] ?? 0.7;
     const profitable = rec.perf && rec.perf.revenueGain >= rec.perf.cost * 0.6 ? 0.1 : 0;
     const chance = keep + profitable - 0.12 * (sportsRightSeasonsHeld(rec) - 1);
@@ -32623,6 +32630,8 @@ function convertCompetitorToPlayer(c, terms = takeoverContractTerms(c)) {
   c.aiArchive = { strategy: c.strategy, finance: c.finance, strategyHistory: c.strategyHistory, plan: c.plan };
   ['budget', 'finance', 'strategy', 'strategyHistory', 'plan', 'lastAction', 'commercialSeason', 'commercialPdaRef'].forEach(k => delete c[k]);
   c.grilleOverrides = {};
+  // Contrat déjà échu (la case diffusait la programmation de base) : il n'est pas repris.
+  Object.entries(c.contracts || {}).forEach(([slot, k]) => { if (k && !k.isSportsEvent && k.end < season) delete c.contracts[slot]; });
   Object.entries(c.contracts || {}).forEach(([slot, k]) => {
     // Prix du marché et échéance de reprise (takeoverContractTerms).
     const t = terms[slot];
@@ -32719,8 +32728,9 @@ function transferSnapshot(p, c, { market = false } = {}) {
   return {
     names: [p.name, ...gameState.competitors.map(x => x.name)].sort().join('|'),
     playerCash: p.tresorerie, compCash: c.budget,
-    playerContracts: Object.fromEntries(Object.entries(p.contracts || {}).map(([s, k]) => [s, `${k.id}|${k.end}|${roundCent(k.annual || 0)}`])),
-    compContracts: Object.fromEntries(Object.entries(c.contracts || {}).map(([s, k]) => [s, terms?.[s] ? `${k.id}|${terms[s].end}|${terms[s].annual}` : `${k.id}|${k.end}|${roundCent(competitorContractAnnual(k))}`])),
+    // Contrats en cours ou s'achevant cette saison (un contrat déjà échu n'est plus à l'antenne).
+    playerContracts: Object.fromEntries(Object.entries(p.contracts || {}).filter(([, k]) => k.end >= gameState.season).map(([s, k]) => [s, `${k.id}|${k.end}|${roundCent(k.annual || 0)}`])),
+    compContracts: Object.fromEntries(Object.entries(c.contracts || {}).filter(([, k]) => k.end >= gameState.season).map(([s, k]) => [s, terms?.[s] ? `${k.id}|${terms[s].end}|${terms[s].annual}` : `${k.id}|${k.end}|${roundCent(competitorContractAnnual(k))}`])),
     playerTalents: (p.talents || []).map(t => `${t.id}|${t.annual}|${t.until}`).sort().join(','),
     compTalents: (c.talents || []).map(t => `${t.id}|${t.annual}|${t.until}`).sort().join(','),
     rights: (gameState.sportsRights?.owned || []).filter(o => [p.name, c.name].includes(o.ownerName)).map(o => `${o.eventId}|${o.ownerName}|${o.broadcastSeason}`).sort().join(','),
@@ -32735,8 +32745,68 @@ function transferSnapshot(p, c, { market = false } = {}) {
     })()
   };
 }
+// ---- Reprise instantanée, en cours de saison (proposition acceptée pendant la saison) ----
+// Les deux chaînes ont ouvert leur saison : chacune garde ce qui a déjà été payé et encaissé.
+// La chaîne rejointe garde cette saison le coût déjà réglé de ses contrats ; le prix du marché
+// s'applique dès la saison suivante (revalorisation convenue, nextAnnual). Ses contrats qui
+// s'achèvent cette saison passeront par le renouvellement de fin de saison du joueur.
+function convertCompetitorToPlayerLive(c, terms) {
+  const season = gameState.season, L = competitorLedgerView(c);
+  const live = { opening: L.opening, ad: L.ad, oneOff: L.oneOff, income: L.income };
+  const paid = Object.fromEntries(Object.entries(terms).map(([slot, t]) => [slot, { ...t, annual: t.base, end: c.contracts[slot].end }]));
+  const p = convertCompetitorToPlayer(c, paid);
+  Object.entries(terms).forEach(([slot, t]) => {
+    const k = p.contracts[slot];
+    // Contrat qui s'achève cette saison : la revalorisation ne s'applique que s'il est renouvelé
+    // (un contrat échu quitte la grille avant les revalorisations, à l'ouverture).
+    if (k && t.annual > t.base) { k.nextAnnual = t.annual; k.nextAnnualFrom = season + 1; k.takeoverRevalued = { from: t.base, to: t.annual, season }; }
+  });
+  Object.assign(p, { tresorerieDebutSaison: live.opening, revenusPubPrevisionnels: live.ad, revenusPubFinals: 0,
+    achatsSaison: live.oneOff, commercialSaison: live.income, grillePayeeSaison: season, resultatSaison: 0 });
+  const row = getCalculatedPDAs().find(r => r.channel === p);
+  if (row) { const pda = row.pda[p.target]; p.pdaHistorySeason = [pda]; p.pdaMoyenneSaison = pda; p.pdaFinSaison = pda; p.pdaSeasonBaseline ??= pda; }
+  return p;
+}
+// Ancienne chaîne : grand livre IA de la saison déjà ouverte (recettes prévisionnelles
+// créditées, grille et achats réglés), et plan « maintien » de la saison : elle ne se
+// reprogramme qu'à l'ouverture suivante.
+function convertPlayerToCompetitorLive(p, strategy) {
+  const season = gameState.season;
+  const live = { opening: p.tresorerieDebutSaison ?? p.tresorerie, ad: p.revenusPubPrevisionnels || 0,
+    income: p.commercialSaison || 0, oneOff: (p.achatsSaison || 0) + (p.eventCostSaison || 0) };
+  const ai = convertPlayerToCompetitor(p, strategy);
+  const f = ai.finance;
+  f.boundary = Math.min(f.boundary, season); f.openedSeason = season; f.closedSeason = null;
+  const L = f.season = emptyCompetitorLedger(season, live.opening);
+  L.ad = roundCent(live.ad); L.adForecast = L.ad; L.income = roundCent(live.income); L.oneOff = roundCent(live.oneOff);
+  // Charges : solde, pour que l'identité comptable de la saison reste exacte.
+  L.recurring = roundCent(live.opening + L.ad + L.income - L.oneOff - ai.budget);
+  ai.plan = { season, confirmed: true, announced: {}, rightsDue: {}, rightsCharged: true,
+    slots: Object.fromEntries(Object.entries(ai.contracts || {}).filter(([, k]) => k && k.end >= season).map(([slot, k]) => [slot, {
+      programId: k.id, name: k.name, genre: k.editorial?.genre || null, format: k.format, target: k.target,
+      level: contractInvestLevel(k), tag: 'maintien', isNew: false, prevName: k.name, prevLevel: contractInvestLevel(k) }])) };
+  return ai;
+}
+// Après la validation du choix (« Continuer ») : la reprise est exécutée tout de suite, les
+// dilemmes restants de la saison sont tirés pour la nouvelle chaîne.
+function takeOfficeNow() {
+  const A = gameState.director?.approach, o = A?.offer;
+  if (o?.status !== 'signed' || !o.instant || o.signedSeason !== gameState.season) return null;
+  const res = acceptChannelOffer({ instant: true });
+  if (!res.ok) {
+    pushSignal(`La prise de fonction chez ${o.channelName} n’a pas pu aboutir : vous restez à la tête de votre chaîne.`, { kind: 'director', tone: 'warn' });
+    if (A.offer === o) closeChannelOffer(o, 'void');
+    return res;
+  }
+  const done = gameState.dilemmaQueue.slice(0, gameState.currentDilemmaIndex);
+  gameState.dilemmaQueue = [...done, ...pickDilemmaQueue()];
+  gameState.seasonKickoffProposal = null; gameState.seasonKickoffPending = false;
+  pushSignal(`Vous prenez les commandes de ${gameState.player.name}. Objectif : ${o.objective.text}`, { kind: 'director', tone: 'good', key: `office:${o.id}` });
+  return res;
+}
 // Acceptation atomique : conversion des deux chaînes, validations, sinon retour à l'état initial.
-function acceptChannelOffer() {
+// instant : en cours de saison (saisons ouvertes), sinon entre deux saisons.
+function acceptChannelOffer({ instant = false } = {}) {
   const d = ensureDirector(), A = d.approach, o = A.offer;
   if (!o || !(o.status === 'signed' || (o.status === 'pending' && o.season === gameState.season))) return { ok: false, reason: 'aucune offre en cours' };
   const index = gameState.competitors.findIndex(x => x.name === o.channelName);
@@ -32748,10 +32818,10 @@ function acceptChannelOffer() {
     // Conditions de reprise arrêtées avant toute conversion (les droits sportifs changent de
     // détenteur ensuite).
     const terms = takeoverContractTerms(c);
-    const before = transferSnapshot(oldP, c, { market: true });
+    const before = transferSnapshot(oldP, c, { market: !instant });
     convertSportsOwnership(c, oldP);
-    const newPlayer = convertCompetitorToPlayer(c, terms);
-    const newAi = convertPlayerToCompetitor(oldP, o.strategy || 'rentable');
+    const newPlayer = instant ? convertCompetitorToPlayerLive(c, terms) : convertCompetitorToPlayer(c, terms);
+    const newAi = instant ? convertPlayerToCompetitorLive(oldP, o.strategy || 'rentable') : convertPlayerToCompetitor(oldP, o.strategy || 'rentable');
     gameState.competitors[index] = newAi;
     gameState.player = newPlayer;
     // Apport de l'actionnaire : une seule fois, à la prise de fonction, hors résultat.
@@ -32767,9 +32837,11 @@ function acceptChannelOffer() {
     validateTransfer(before, after, o);
     o.status = 'accepted'; o.decidedSeason = season;
     d.transfers.push({ season, from: oldP.name, fromType: oldP.type, to: newPlayer.name, toType: newPlayer.type, motive: o.motive, contribution: o.contribution });
-    d.channel = newPlayer.name; d.since = season + 1;
-    d.mandate = { channel: newPlayer.name, kind: o.mandate, label: o.mandateLabel, objective: o.objective, startSeason: season + 1,
-      endSeason: season + CHANNEL_APPROACH.mandateSeasons,
+    // Mandat : dès la saison en cours pour une reprise instantanée, sinon à la suivante.
+    const first = instant ? season : season + 1;
+    d.channel = newPlayer.name; d.since = first;
+    d.mandate = { channel: newPlayer.name, kind: o.mandate, label: o.mandateLabel, objective: o.objective, startSeason: first,
+      endSeason: first + CHANNEL_APPROACH.mandateSeasons - 1,
       start: { pdaTarget: o.pdaTarget, pda4: o.pda4, rank: o.rank, result: o.lastSeason?.result ?? null }, status: 'running' };
     A.nextEvalSeason = season + approachDraw(`transfer|${season}`, CHANNEL_APPROACH.transferWait);
     (A.past ??= []).push(o); A.offer = null;
@@ -32876,7 +32948,7 @@ function closeChannelOffer(o, status) {
 function buildChannelOfferChoice(dilemma) {
   const o = ensureDirector().approach.offer || {}, decision = o.decision || 'decline';
   const name = o.channelName || 'la chaîne';
-  const r = { accept: `Contrat signé : vous prendrez les commandes de ${name} à l’issue de la saison. Objectif fixé par le propriétaire : ${o.objective?.text || ''}`,
+  const r = { accept: `Contrat signé : vous prenez immédiatement les commandes de ${name}. Objectif fixé par le propriétaire : ${o.objective?.text || ''}`,
     decline: `Vous déclinez la proposition de ${name} : vous restez à la tête de votre chaîne, sans conséquence.`,
     refuse: `Vous refusez d’étudier la proposition de ${name} : vous restez à la tête de votre chaîne, sans conséquence.`,
     withdrawn: `Le propriétaire de ${name} n’accepte pas de revoir ses conditions et retire sa proposition. Vous restez à la tête de votre chaîne.` }[decision];
@@ -32887,8 +32959,11 @@ function applyChannelOfferDecision({ decision }) {
   const A = ensureDirector().approach, o = A.offer;
   if (!o || o.status !== 'pending') return;
   if (decision === 'accept') {
-    o.status = 'signed'; o.signedSeason = gameState.season;
-    pushSignal(`Contrat signé avec ${o.channelName} : prise de fonction à l’issue de la saison ${gameState.season}.`, { kind: 'director', tone: 'good', key: `signed:${o.id}` });
+    o.status = 'signed'; o.signedSeason = gameState.season; o.instant = true;
+    // Objectif et point de départ : situation de la chaîne au moment de la signature.
+    const c = gameState.competitors.find(x => x.name === o.channelName);
+    if (c) { const s = competitorSituation(c, getCalculatedPDAs()), r1 = v => Math.round(v * 10) / 10;
+      Object.assign(o, { objective: mandateObjective(o.mandate, s), pda4: r1(s.row.globalPda), pdaTarget: r1(s.row.pda[c.target]), rank: s.rank }); }
   } else if (decision === 'withdrawn') closeChannelOffer(o, 'withdrawn');
   else declineChannelOffer();
 }
