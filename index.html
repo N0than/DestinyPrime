@@ -1428,6 +1428,7 @@ button.radar-row:focus-visible { outline: 2px solid var(--bleu); outline-offset:
 .dc-live-pill.sanction-pill.loan-pill { color: #047857; background: rgba(16,185,129,0.12); border-color: rgba(16,185,129,0.3); }
 .dc-live-pill.loan-pill .dc-live-dot { background: var(--vert); }
 .loan-gauge { margin-bottom: 10px; }
+.loan-illu { margin: 0 0 12px; }
 .loan-card .sa-gauge-value.loan-years { color: var(--ink); }
 .loan-years-range::-webkit-slider-runnable-track { background: linear-gradient(90deg, #c7d2fe, #6366f1) !important; }
 .loan-years-range::-moz-range-track { background: linear-gradient(90deg, #c7d2fe, #6366f1) !important; }
@@ -28354,7 +28355,10 @@ function loanPanelHtml(offer) {
         <span class="dc-season-pill">Saison ${gameState.season}</span>
       </div>
       <h2>La banque vous reçoit</h2>
-      <p class="sanction-lead">Pour lever la tutelle, la trésorerie doit repasser au-dessus de ${nf1(TRESORERIE_CRITIQUE)} M€. La banque prête au taux de ${pct} : choisissez le montant et la durée de remboursement.</p>
+      <figure class="sa-illu loan-illu"><img src="${directionSceneArt('banque')}" alt="" aria-hidden="true">
+        <span class="sa-illu-badges"><span class="sa-illu-tier">Taux ${pct}</span></span>
+        <figcaption class="sa-illu-cap"><span class="sa-illu-name">Prêt de sauvetage</span></figcaption></figure>
+      <p class="sanction-lead">La banque propose un taux de <b>${pct}</b>. Vos annuités ne peuvent dépasser <b>${nf1(offer.room)} M€</b> par saison (33 % des recettes d’une saison, ${nf1(offer.revenue)} M€${offer.existing > 0 ? `, dont ${nf1(offer.existing)} M€ déjà engagés` : ''}). Pour lever la tutelle, la trésorerie doit repasser au-dessus de ${nf1(TRESORERIE_CRITIQUE)} M€ : choisissez le montant et la durée de remboursement.</p>
       <div class="sanction-stats">
         ${tile(pct, 'Taux d’intérêt')}
         ${tile(`${nf1(offer.room)} M€`, 'Annuité max.')}
