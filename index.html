@@ -21701,7 +21701,7 @@ function relanceActionChoices(ctx, regime, arcFor) {
   const promoTags = branch => ({ plan_promo: 1, ...(branch === 'autopromo' ? { autopromo: 1 } : {}) });
   const rescue = regime === 'urgence';
   const choices = [
-    { key: 'autopromo', l: rescue ? 'Plan de sauvetage : l’autopromo sur toutes nos antennes' : regime === 'alerte' ? 'Lancer une autopromo légère' : 'Lancer une campagne d’autopromo',
+    { key: 'autopromo', l: rescue ? 'Plan de sauvetage : l’autopromo sur toutes nos antennes' : regime === 'alerte' ? 'Renforcer le plan d’auto-promotion' : 'Lancer une campagne d’autopromo',
       icon: '📣', cost: relanceCost('purchase', C.autopromo, ctx, R.inventory * light), lightable: true, career: { awareness: 3 },
       tags: promoTags('autopromo'), arc: arcFor('autopromo', 'vous aviez lancé une campagne d’autopromo pour {programme}'),
       r: 'Les bandes-annonces de {programme} tournent sur l’antenne.', uncertain: relanceCampaignOutcomes(ctx, 'autopromo') },
@@ -21728,7 +21728,7 @@ function relanceOpening(ctx, regime) {
   const R = RELANCE_TUNING, open = (branch, recall, step = 1) => ({ open: 'relance', branch, recall, meta: { regime, gravity: ctx.gravity, wear: Math.round(ctx.wear || 0), step } });
   const actions = relanceActionChoices(ctx, regime, open);
   const pick = keys => keys.map(k => actions.find(a => a.key === k));
-  const etude = { key: 'etude', l: 'Commander une étude d’audience', icon: '🔎', cost: relanceCost('purchase', R.costs.etude, ctx), flag: 'etude_relance',
+  const etude = { key: 'etude', l: 'Commander une étude qualitative', icon: '🔎', cost: relanceCost('purchase', R.costs.etude, ctx), flag: 'etude_relance',
     arc: open('etude', 'vous aviez commandé une étude d’audience sur {programme}', 0),
     r: 'L’institut interroge le public de la case : ses conclusions arrivent pour la prochaine étape.' };
   const arret = { key: 'arret', l: 'Programmer l’arrêt de {programme} en fin de saison', icon: '🛑', cost: relanceCost('saving', R.costs.arret, ctx), stopProgram: true,
@@ -22006,7 +22006,7 @@ function buildProgramStoryDilemma(cand) {
       const lighter = tight && ((spec.cost?.purchase || 0) >= PROGRAM_STORY_TUNING.heavyPurchaseRate || (spec.lightable && !!spec.cost?.purchase));
       const scale = lighter ? PROGRAM_STORY_TUNING.tightCashScale : 1;
       return {
-        l: fill(spec.l) + (lighter ? ' (formule allégée)' : ''), r: fill(spec.r),
+        l: fill(spec.l) + (lighter && !def.isRelance ? ' (formule allégée)' : ''), r: fill(spec.r),
         icon: spec.icon, pop: spec.pop || 0,
         finance: programStoryFinance(spec.cost, contract, scale),
         pda: { j1524: 0, a2549: 0, s50: 0, csp: 0 },

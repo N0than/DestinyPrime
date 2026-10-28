@@ -79,7 +79,7 @@ const arc=()=>openStoryArcs(C(PID).id).find(a=>a.arcId==='relance');
   const ctx=rctx({ratio:0.85,wear:30,pressure:false,history:[hard(1)]});
   ok(ctx.gravity===1,'(a) gravité 1');
   const d=carte(ctx); ok(d.storyDefId==='gs_relance_1_alerte','(a) ouverture Alerte : '+d.storyDefId);
-  ok(d.c.length===3&&/étude/i.test(d.c[0].l)&&/légère/.test(d.c[1].l)&&/Attendre/.test(d.c[2].l),'(a) Alerte : étude, autopromo légère, attendre');
+  ok(d.c.length===3&&/étude/i.test(d.c[0].l)&&/Renforcer le plan d’auto-promotion/.test(d.c[1].l)&&/qualitative/.test(d.c[0].l)&&/Attendre/.test(d.c[2].l),'(a) Alerte : étude, autopromo légère, attendre');
   ok(d.c[1].story.uncertain?.outcomes.length===3&&d.c[1].story.uncertain.model==='pondere','(a) campagne à issues pondérées');
   ok(near(d.c[1].story.uncertain.outcomes.reduce((a,o)=>a+o.p,0),1),'(a) probabilités inscrites dans la carte');
   ok(!d.c.some(c=>/%|chances/.test(c.l)),'aucune probabilité dans les intitulés');
@@ -104,7 +104,7 @@ const arc=()=>openStoryArcs(C(PID).id).find(a=>a.arcId==='relance');
   const n=carte(ctx), t=carte({...ctx,cash:'serre'});
   ok(n.storyDefId==='gs_relance_1_crise','(c) crise');
   const a=idx(n,/autopromo/), b=idx(t,/autopromo/);
-  ok(/formule allégée/.test(t.c[b].l)&&!/formule allégée/.test(n.c[a].l),'(c) campagne en formule allégée');
+  ok(t.c[b].l===n.c[a].l&&!/formule allégée/.test(t.c[b].l),'(c) intitulé inchangé, formule allégée appliquée');
   ok(t.c[b].story.scale===PROGRAM_STORY_TUNING.tightCashScale&&t.c[b].finance.purchase<n.c[a].finance.purchase,'(c) moins chère et moins efficace');
   ok(n.c.every(c=>(c.finance.purchase||0)+(c.finance.recurring>0?c.finance.recurring:0)<=0.25*C(PID).annual+0.11),'plafond : 0,25 du coût annuel');
 }
