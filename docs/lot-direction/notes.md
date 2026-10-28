@@ -155,3 +155,18 @@ Calibrage par simulation :
 6. **Austérité** : chez le joueur, l'austérité héritée est informative ; elle ne bride pas ses décisions comme elle bride l'IA.
 7. **Nouveaux formats** : l'IA ne programme pas de recettes de nouveaux formats après la reprise de l'ancienne chaîne.
 8. **Mode carrière** : seules les évaluations sont reportées tant qu'un scénario est actif. Après une victoire de carrière, les approches reprennent normalement.
+
+## Évolutions (retours de jeu)
+
+- **Proposition de poste.** Ce n'est plus un écran du bilan : c'est le premier dilemme de la saison qui suit l'évaluation, au format des enchères, avec l'illustration du propriétaire à son bureau et le contrat sur la table.
+  - Présentation : deux choix, « Étudier la proposition » et « Refuser la proposition ».
+  - Étude : six indicateurs (PDA 4+ et rang, PDA cible, recettes pub prévues, coût de grille, trésorerie, enveloppe) et l'objectif du propriétaire. Trois choix : accepter, négocier ou décliner.
+  - Négociation : le propriétaire relève l'enveloppe (tirage mémorisé, chance de 30 à 75 % selon l'intérêt pour le candidat et sa réputation) ou retire son offre (`CHANNEL_APPROACH.negotiation`).
+  - Une offre acceptée est signée. La prise de fonction a lieu entre les deux saisons ; le mandat commence à la saison suivante, avec un objectif calé sur la situation du moment.
+  - Une offre sans réponse vaut refus, sans sanction.
+- **Prix du marché à la reprise.** La grille reprise vaut 55 % des recettes publicitaires attendues de la chaîne, répartis entre les cases au prorata de leur audience. Un contrat déjà plus cher garde son prix (`CHANNEL_APPROACH.market`). Un contrat dont l'échéance tombe à la saison close est prolongé d'une saison au lieu de retomber sur la programmation de base. Exemple : une chaîne sport à 110 M€ de recettes passe de 17 à 62 M€ de grille.
+- **Entretien préalable de licenciement.** Un mandat manqué entraîne une convocation en tête de la saison suivante.
+  - Accepter le licenciement : le dirigeant est démis de ses fonctions (fin de partie).
+  - Négocier : un objectif plus modeste est fixé sur 2 saisons (`CHANNEL_APPROACH.renegotiation`).
+  - Objectif renégocié manqué : démis de ses fonctions.
+  - Convocation sans réponse : licenciement.

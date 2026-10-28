@@ -198,7 +198,55 @@ function transfert(type='generaliste', seed=4242, scores={audience:0.8,finance:0
   const d=ensureDirector(); d.approach.nextEvalSeason=1;
   ok(evaluateChannelApproach()===null&&!Object.keys(d.approach.evaluated).length,'bilans non documentés : aucune évaluation');
   suivante(); joue(); ok(directorWindow()===null,'il faut trois saisons documentées'); }
+// ——— 12. Proposition en dilemme de début de saison : étudier, négocier, signer, prise de fonction ———
+function offreEnFile(seed=4242){ const r=transfert('generaliste',seed); const o=r.o; o.season=gameState.season; suivante();
+  const d=gameState.dilemmaQueue[0]; return { ...r, o, dil:d }; }
+{ const { p, o, dil }=offreEnFile();
+  ok(dil?.isChannelOffer&&dil.offerId===o.id&&o.presented===gameState.season&&o.ui==='intro','offre : premier dilemme de la saison suivante');
+  ok(dil.c.map(c=>c.l).join('|')==='Étudier la proposition|Refuser la proposition','intitulés simples');
+  ok(pendingChannelOffer()===o,'offre en cours pendant la saison');
+  o.ui='study'; o.decision='accept'; gameState.currentDilemmaIndex=0; gameState.dilemmaPhase='choosing'; chooseDilemmaOption(0);
+  ok(o.status==='signed'&&o.signedSeason===gameState.season&&gameState.player===p,'acceptation : contrat signé, prise de fonction différée');
+  continueAfterConsequence(); joue();
+  ok(!gameState.director.approach.evaluated[gameState.season],'pas de nouvelle évaluation tant qu’une offre est signée');
+  const name=o.channelName; suivante();
+  ok(gameState.player.name===name&&gameState.director.transfers.length===1&&gameState.director.mandate?.status==='running'&&gameState.director.mandate.startSeason===gameState.season,'prise de fonction entre les deux saisons, mandat lancé');
+  ok(gameState.competitors.length===5&&gameState.competitors.some(c=>c===p),'ancienne chaîne passée à l’IA'); }
+{ const { p, o }=offreEnFile(); o.decision='refuse'; chooseDilemmaOption(0);
+  ok(o.status==='refused'&&!gameState.director.approach.offer&&gameState.player===p,'refus d’étudier : offre close, aucune conséquence'); }
+{ const { p, o }=offreEnFile(); o.ui='study'; o.decision='decline'; chooseDilemmaOption(0);
+  ok(o.status==='refused'&&gameState.player===p,'déclin après étude'); }
+{ const { o }=offreEnFile(); const c0=o.contribution||0;
+  const n=negotiateChannelOffer(o), again=negotiateChannelOffer(o);
+  ok(n===again&&['improved','withdrawn'].includes(n.outcome)&&n.chance>=0.3&&n.chance<=0.75,'négociation : tirage unique et mémorisé');
+  const base=CHANNEL_TYPES[o.type].baseBudget;
+  if(n.outcome==='improved') ok(o.contribution>c0&&o.contribution<=0.6*base+1e-9,'enveloppe relevée dans la limite');
+  else { o.decision='withdrawn'; chooseDilemmaOption(0); ok(o.status==='withdrawn'&&!gameState.director.approach.offer,'offre retirée'); } }
+{ // Négociation forcée dans les deux sens (même règle, issue imposée).
+  const { o }=offreEnFile(); o.negotiation={ outcome:'improved', bump:5, before:o.contribution||0 }; o.contribution=(o.contribution||0)+5; o.ui='negotiated';
+  o.decision='accept'; chooseDilemmaOption(0); ok(o.status==='signed','nouvelle proposition acceptée');
+  continueAfterConsequence(); joue(); const cash=gameState.competitors.find(c=>c.name===o.channelName).budget; suivante();
+  ok(gameState.player.name===o.channelName&&o.contributionPaid&&(gameState.player.shareholder.contributions||[]).some(x=>x.amount===o.contribution),'enveloppe négociée versée une fois à la prise de fonction'); }
+{ const { o }=offreEnFile(); continueAfterConsequence; gameState.currentDilemmaIndex=1; gameState.dilemmaPhase='choosing';
+  // Saison menée sans répondre : l'offre vaut refus à l'ouverture suivante.
+  const qq=gameState.dilemmaQueue; gameState.dilemmaQueue=qq.slice(1); gameState.currentDilemmaIndex=0; joue(); suivante();
+  ok(o.status==='refused'&&!gameState.director.approach.offer,'offre sans réponse : refus sans sanction'); }
+// ——— 13. Entretien préalable de licenciement ———
+function mandatEchoue(){ const r=offreEnFile(); r.o.ui='study'; r.o.decision='accept'; chooseDilemmaOption(0); continueAfterConsequence(); joue(); suivante();
+  const d=gameState.director, m=d.mandate; m.objective={ kind:'pdaGain', value:99, text:'Gagner 99 pt de PDA.' };
+  for(let s=0;s<CHANNEL_APPROACH.mandateSeasons;s++){ const q=gameState.dilemmaQueue; if(q[0]?.isDismissalInterview) break; joue(); if(gameState.step===8) break; suivante(); }
+  return d; }
+{ const d=mandatEchoue();
+  ok(d.mandates.at(-1).status==='failure'&&d.interview?.presented===gameState.season,'objectif manqué : convocation');
+  const dil=gameState.dilemmaQueue[0]; ok(dil?.isDismissalInterview&&dil.c.map(c=>c.l).join('|')==='Accepter le licenciement|Négocier un nouvel objectif','entretien en tête de saison, deux choix');
+  gameState.currentDilemmaIndex=0; gameState.dilemmaPhase='choosing'; chooseDilemmaOption(0); continueAfterConsequence();
+  ok(gameState.step===8&&gameState.gameOverReason==='dismissed'&&dismissalCopy().pill==='Démis de ses fonctions','licenciement accepté : démis de ses fonctions'); }
+{ const d=mandatEchoue(); gameState.currentDilemmaIndex=0; gameState.dilemmaPhase='choosing'; chooseDilemmaOption(1); continueAfterConsequence();
+  const m=d.mandate; ok(m?.renegotiated&&m.status==='running'&&m.endSeason===gameState.season+CHANNEL_APPROACH.renegotiation.seasons-1&&!d.interview,'nouvel objectif négocié sur deux saisons');
+  m.objective={ kind:'pdaGain', value:99, text:'x' };
+  for(let s=0;s<3&&gameState.step!==8;s++){ joue(); if(gameState.step===8) break; suivante(); }
+  ok(gameState.step===8&&gameState.gameOverReason==='dismissed'&&d.dismissed?.reason==='renegotiated','objectif renégocié manqué : démis de ses fonctions'); }
 `;
 const context = { console };
 vm.runInNewContext(scripts.slice(0, -1).join('\n') + tests, context, { filename: 'audience-masters-channel-approach.js' });
-console.log('OK channel approach: calendar, audience-only and finance-only eligibility, contributions excluded, memorized draw, waits, refusal, atomic transfer (6 channels, assets, contracts, talents, rights, commitments, contribution once), old channel under AI, distribution, mandate, reload, career guard, old saves');
+console.log('OK channel approach: calendar, audience-only and finance-only eligibility, contributions excluded, memorized draw, waits, refusal, atomic transfer (6 channels, assets, contracts, talents, rights, commitments, contribution once), old channel under AI, distribution, mandate, reload, career guard, old saves, offer as a season-opening dilemma (study, negotiate, sign, take office), dismissal interview');

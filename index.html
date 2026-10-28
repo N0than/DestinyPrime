@@ -2741,6 +2741,16 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .sa-budget b { color:var(--ink); }
 .sa-note { margin:0; font-size:11px; line-height:1.4; color:var(--gris); }
 .sa-actions { display:flex; gap:8px; }
+/* Proposition de poste et convocation (dilemmes de direction) */
+.co-actions { flex-wrap:wrap; }
+.co-actions .sa-btn { min-width:0; flex:1 1 30%; padding:0 10px; }
+.co-objective { display:flex; flex-direction:column; gap:4px; padding:10px 12px; border-radius:12px; background:rgba(255,255,255,0.75); border:1px solid rgba(22,19,14,0.06); }
+.co-objective-text { margin:0; font-size:13.5px; line-height:1.4; font-weight:600; color:var(--ink); }
+.sa-stat.co-up { background:rgba(16,185,129,0.12); border-color:rgba(16,185,129,0.35); }
+.sa-stat.co-up b { color:var(--vert); }
+.co-nego { color:var(--ink); }
+.sa-illu-tier.co-alert { color:var(--rouge); }
+.co-stats sup, .sa-stats sup { font-size:0.65em; }
 .sa-btn { flex:1; min-height:42px; border-radius:999px; border:1.5px solid var(--border); background:#fff; color:var(--ink); cursor:pointer;
   font-family:'Anton', sans-serif; font-size:13px; letter-spacing:.4px; text-transform:uppercase; }
 .sa-btn.primary { background:var(--ink); border-color:var(--ink); color:#fff; }
@@ -23573,6 +23583,7 @@ function chooseMaterialized(choiceIndex, dilemma) {
   let choice = isSportsAuction ? buildSportsAuctionChoice(dilemma)
     : dilemma.c[choiceIndex].gridRenewal === 'custom' ? buildGridRenewalCustomChoice(dilemma, dilemma.c[choiceIndex])
     : dilemma.c[choiceIndex].talentRenewal ? buildTalentRenewalChoice(dilemma, dilemma.c[choiceIndex])
+    : dilemma.isChannelOffer ? buildChannelOfferChoice(dilemma)
     : dilemma.c[choiceIndex];
   ensureCampaign();
   // Conséquence aléatoire (scoop confirmé ou démenti…) : tirée au moment du choix.
@@ -23613,6 +23624,9 @@ function chooseMaterialized(choiceIndex, dilemma) {
   if (dilemma.isProgramStory) applyProgramStoryChoice(dilemma, choice);
   // Démarchage accepté : le programme est signé sur sa case (le flux financier, déjà
   // chiffré dans le choix, est appliqué plus bas avec celui des autres dilemmes).
+  // Direction : décision sur une proposition de poste, issue d'un entretien préalable.
+  if (choice.channelOffer) applyChannelOfferDecision(choice.channelOffer);
+  if (choice.directorDismissal) applyDismissalChoice(choice);
   if (choice.producerDeal) {
     const deal = choice.producerDeal;
     const q = quoteProgram(deal.slot, deal.programId, deal.talentId);
@@ -23883,6 +23897,10 @@ function chooseMaterialized(choiceIndex, dilemma) {
   } else {
     gameState.pendingNextStep = 6;
   }
+  // Dirigeant démis (licenciement accepté, objectif renégocié manqué) : fin de partie.
+  if (gameState.director?.dismissed && !gameState.director.dismissed.shown) {
+    gameState.pendingNextStep = 8; gameState.gameOverReason = 'dismissed'; gameState.director.dismissed.shown = true;
+  }
   careerAfterChoice(dilemma, choice, careerBefore);
   gameState.dilemmaPhase = 'result';
 
@@ -23948,8 +23966,15 @@ function declareBankruptcy(phase) {
 }
 function startNewSeason() {
   if (!gameState.history.some(h => h.season === gameState.season)) return;
-  // Proposition restée sans réponse (l'écran impose un choix) : elle vaut refus, sans sanction.
-  if (gameState.director?.approach?.offer?.status === 'pending') declineChannelOffer();
+  // Direction : prise de fonction d'une offre signée pendant la saison ; une proposition ou une
+  // convocation restée sans réponse vaut refus (proposition) ou licenciement accepté (entretien).
+  const director = gameState.director, offer = director?.approach?.offer;
+  if (offer?.status === 'signed') takeOfficeSignedOffer();
+  else if (offer?.status === 'pending' && offer.presented) declineChannelOffer();
+  if (director?.interview?.presented) director.dismissed = { season: gameState.season, channel: director.interview.mandate.channel, reason: 'absent' };
+  if (director?.dismissed && !director.dismissed.shown) {
+    director.dismissed.shown = true; gameState.gameOverReason = 'dismissed'; gameState.step = 8; render(); return;
+  }
   captureSeasonBaseline();
   const player = gameState.player;
   gameState.season++;
@@ -23971,6 +23996,8 @@ function startNewSeason() {
   gameState.currentDilemmaIndex = 0;
   gameState.dilemmaQueue = pickDilemmaQueue();
   careerShapeQueue();
+  // Proposition de poste ou entretien préalable : premier dilemme de la saison.
+  insertDirectorDilemmas();
   gameState.dilemmaPhase = 'choosing';
   gameState.renewalDue = false;
   gameState.competitorEvents = [];
@@ -24901,10 +24928,12 @@ function render() {
     // place : seuls ses éléments apparaissent et disparaissent.
     const entrance = entranceClass(`dilemma|${gameState.season}|${dilemmaIndex}|${phase}|${dilemma?.id}`, phase === 'choosing' ? 'slide-in' : 'slide-in-up');
     const sportsBlock = sportsResult ? renderSportsVerdictInline(gameState.lastConsequence)
-      : phase === 'choosing' && sportEvent ? renderSportsAuctionZone(dilemma) : '';
+      : phase === 'choosing' && sportEvent ? renderSportsAuctionZone(dilemma)
+      : phase === 'choosing' && dilemma.isChannelOffer ? renderChannelOfferZone(dilemma)
+      : dilemma.isDismissalInterview ? dismissalInterviewHtml(dilemma) : '';
     if (sportsResult) {
       zoneHtml = renderSportsVerdictZone(gameState.lastConsequence);
-    } else if (phase === 'choosing' && (sportEvent || dilemma.isReplacementChoice)) {
+    } else if (phase === 'choosing' && (sportEvent || dilemma.isReplacementChoice || dilemma.isChannelOffer)) {
       // Enchère, ou remplacement : les actions sont portées par les cartes.
       zoneHtml = '';
     } else if (phase === 'result') {
@@ -25000,7 +25029,7 @@ function render() {
       <div class="dilemma-container${phase === 'choosing' ? entrance : ''}${negRevealing ? ' neg-revealing' : ''}" style="--neg-think:${NEG_REVEAL.think}ms;--neg-offer:${NEG_REVEAL.offer}ms;--neg-choices:${NEG_REVEAL.choices}ms">
         <div class="dilemma-card dilemma-hero${phase === 'result' ? ' is-result' : ''}${sportEvent ? ` sa-hero sa-phase-${phase === 'result' ? 'verdict' : gameState.sportsRights?.activeAuction?.phase || 'market'}` : ''}">
           <div class="dc-head">
-            <span class="dc-head-left"><span class="dc-live-pill"><span class="dc-live-dot"></span>${sportEvent ? rightsMarketLabel(sportEvent) : dilemma.isProgramStory ? esc(dilemma.storyLabel) : dilemma.careerLabel ? esc(dilemma.careerLabel) : dilemma.isCareerScripted ? 'Mode carrière' : 'Événement'}</span>${channelPillHtml()}</span>
+            <span class="dc-head-left"><span class="dc-live-pill"><span class="dc-live-dot"></span>${sportEvent ? rightsMarketLabel(sportEvent) : dilemma.isChannelOffer ? '📨 Proposition de poste' : dilemma.isDismissalInterview ? '📨 Convocation' : dilemma.isProgramStory ? esc(dilemma.storyLabel) : dilemma.careerLabel ? esc(dilemma.careerLabel) : dilemma.isCareerScripted ? 'Mode carrière' : 'Événement'}</span>${channelPillHtml()}</span>
             <span class="dc-season-pill">${seasonPillLabel()}</span>
           </div>
           <div class="dc-body">
@@ -25076,9 +25105,10 @@ function render() {
     bindRenewalCarousel(app);
     if (phase === 'choosing' && (dilemma.isGridRenewal || dilemma.isTalentRenewal)) bindRenewalCards(app, dilemma);
     if (phase === 'choosing' && dilemma.isReplacementChoice) bindReplacementCards(app);
+    if (phase === 'choosing' && dilemma.isChannelOffer) bindChannelOfferZone(app);
     if (phase === 'choosing' && sportEvent) {
       bindSportsAuctionZone(app);
-    } else if (phase === 'choosing') {
+    } else if (phase === 'choosing' && !dilemma.isChannelOffer) {
       const zone = document.getElementById('choice-zone');
       if (negRevealing) runNegotiationReveal(app);
       app.querySelectorAll('button.choice').forEach(btn => {
@@ -25104,7 +25134,7 @@ function render() {
           }, 220);
         };
       });
-    } else {
+    } else if (phase !== 'choosing') {
       document.getElementById('btn-continue').onclick = () => {
         continueAfterConsequence();
       };
@@ -25191,7 +25221,6 @@ function render() {
         </ul>`) : ''}
 
       ${renderCampaignPanel()}
-      ${channelOfferTeaserHtml()}
       ${careerDecisionHtml}
       ${renderSportsRightsBilanHtml()}
       ${bilanFoldHtml('engagements', `📅 ENGAGEMENTS${nextSeasonCommitment().cashAfterRevenue < TRESORERIE_CRITIQUE ? ' ⚠️' : ''}<span class="bilan-fold-long">&nbsp;DE LA SAISON SUIVANTE</span>`, 'les engagements de la saison suivante', `
@@ -25201,16 +25230,13 @@ function render() {
         <p>Trésorerie après paiement : <b>${nf1(nextSeasonCommitment().cash)} M€</b>, puis <b>${nf1(nextSeasonCommitment().cashAfterRevenue)} M€</b> une fois les recettes publicitaires attendues créditées (${nf1(nextSeasonCommitment().adRevenue)} M€ à audience constante), avant décisions.${nextSeasonCommitment().cashAfterRevenue<TRESORERIE_CRITIQUE?' La saison s’ouvrirait sous le seuil de faillite.':''}</p>`)}
       <button class="welcome-cta" id="btn-next-season" style="margin-top: 2px;" ${careerContract?'disabled title="Décidez d’abord de l’avenir du programme"':''}>
         <span class="welcome-cta-shine"></span>
-        <span>${careerContract ? 'Choisissez l’avenir du programme ci-dessus' : pendingChannelOffer() ? 'Consulter la proposition' : gameState.renewalDue ? 'Voir le renouvellement de convention' : `Lancer la Saison ${gameState.season + 1}`}</span>
+        <span>${careerContract ? 'Choisissez l’avenir du programme ci-dessus' : gameState.renewalDue ? 'Voir le renouvellement de convention' : `Lancer la Saison ${gameState.season + 1}`}</span>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
     `;
 
     document.getElementById('btn-next-season').onclick = () => {
-      if (pendingChannelOffer()) {
-        gameState.step = 12;
-        render();
-      } else if (gameState.renewalDue) {
+      if (gameState.renewalDue) {
         gameState.step = 10;
         render();
       } else {
@@ -25228,21 +25254,19 @@ function render() {
     return;
   }
 
-  if (gameState.step === 12) {
-    renderChannelOfferScreen(app);
-    return;
-  }
-
   if (gameState.step === 8) {
     const isArcom = gameState.gameOverReason === 'arcom';
     const careerFail = gameState.gameOverReason === 'career' ? careerFailureCopy() : null;
+    // Dirigeant démis de ses fonctions (mandat) : même écran, textes propres.
+    const dismissal = gameState.gameOverReason === 'dismissed' ? dismissalCopy() : null;
+    const endCopy = careerFail || dismissal;
     const p = gameState.player;
     const arcomScore = p.lastArcomResult?.arcomScore ?? computeArcomCompliance().arcomScore;
     const pdaCibleFinale = getCalculatedPDAs().find(item => item.channel === p).pda[p.target];
     const targetShort = TARGET_STRATEGIES[p.target].nom.replace(/\s*\([^)]*\)/, '');
     // Dépôt de bilan hors mode Carrière : un prêt de sauvetage peut être demandé.
     // Bouton masqué si aucune hypothèse de prêt n'est possible (montant ou capacité).
-    const loan = !careerFail && !isArcom && loanFeasible() ? loanOffer() : null;
+    const loan = !endCopy && !isArcom && loanFeasible() ? loanOffer() : null;
     const stats = careerFail
       ? [
           { value: `${nf1(p.tresorerie)} M€`, label: 'Trésorerie', alert: p.tresorerie < 0 },
@@ -25268,11 +25292,11 @@ function render() {
       ${renderHudHeadOnly({ status: 'gameOver' })}
       <div class="card bilan-card sanction-card">
         <div class="kicker-row sanction-kicker-row">
-          <span class="dc-live-pill sanction-pill"><span class="dc-live-dot"></span>${careerFail ? careerFail.pill : isArcom ? 'Autorisation retirée' : 'Mise sous tutelle'}</span>
+          <span class="dc-live-pill sanction-pill"><span class="dc-live-dot"></span>${endCopy ? endCopy.pill : isArcom ? 'Autorisation retirée' : 'Mise sous tutelle'}</span>
           <span class="dc-season-pill">Saison ${gameState.season}</span>
         </div>
-        <h2>${careerFail ? esc(careerFail.title) : `${esc(p.name)} ${isArcom ? "perd son autorisation d'émettre" : 'dépose le bilan'}`}</h2>
-        <p class="sanction-lead">${careerFail ? esc(careerFail.lead) : isArcom
+        <h2>${endCopy ? esc(endCopy.title) : `${esc(p.name)} ${isArcom ? "perd son autorisation d'émettre" : 'dépose le bilan'}`}</h2>
+        <p class="sanction-lead">${endCopy ? esc(endCopy.lead) : isArcom
           ? "L'ARCOM a refusé le renouvellement de votre convention : les manquements répétés à vos obligations éditoriales ont eu raison de votre autorisation d'émettre."
           : `La trésorerie de la chaîne est tombée à ${nf1(p.tresorerie)} M€, sous le seuil critique de ${nf1(TRESORERIE_CRITIQUE)} M€.`}</p>
         <div class="sanction-stats">
@@ -25282,8 +25306,8 @@ function render() {
           </div>`).join('')}
         </div>
         <div class="sanction-note">
-          <span class="sanction-note-title">${careerFail ? careerFail.noteTitle : "⚖️ Décision de l'ARCOM"}</span>
-          <span>${careerFail ? esc(careerFail.note) : isArcom
+          <span class="sanction-note-title">${endCopy ? endCopy.noteTitle : "⚖️ Décision de l'ARCOM"}</span>
+          <span>${endCopy ? esc(endCopy.note) : isArcom
             ? "Fréquence retirée : la chaîne cesse d'émettre à l'issue de la saison."
             : "La chaîne est placée sous administration provisoire : la direction est suspendue et la grille gelée."}</span>
         </div>
@@ -32356,6 +32380,12 @@ const CHANNEL_APPROACH = {
   // jusqu'à la saison close (échéance atteinte, pas encore arbitrée) est prolongé d'une saison :
   // son renouvellement se décidera en fin de saison suivante, comme pour tout contrat du joueur.
   market: { gridShare: 0.55 },
+  // Négociation de la proposition : chance que le propriétaire relève l'enveloppe (de la
+  // première à la seconde valeur selon l'intérêt pour le candidat, ± réputation), hausse
+  // (part du capital de départ du format) et enveloppe maximale ; sinon, il retire son offre.
+  negotiation: { chance: [0.3, 0.75], bump: 0.2, maxContribution: 0.6 },
+  // Objectif renégocié après un entretien préalable de licenciement : durée.
+  renegotiation: { seasons: 2 },
   mandateSeasons: 3
 };
 const APPROACH_MOTIVES = {
@@ -32448,7 +32478,7 @@ function approachProbability(base, d = ensureDirector()) {
 // Évaluation à la clôture (une fois par saison au plus).
 function evaluateChannelApproach() {
   const d = ensureDirector(), A = d.approach, season = gameState.season, p = gameState.player;
-  if (A.evaluated[season] || A.offer?.status === 'pending' || season < A.nextEvalSeason) return null;
+  if (A.evaluated[season] || A.offer || season < A.nextEvalSeason) return null;
   // Scénario carrière en cours : différé jusqu'à la poursuite libre (sans consommer l'évaluation).
   if (careerActive()) return null;
   const w = directorWindow();
@@ -32708,7 +32738,7 @@ function transferSnapshot(p, c, { market = false } = {}) {
 // Acceptation atomique : conversion des deux chaînes, validations, sinon retour à l'état initial.
 function acceptChannelOffer() {
   const d = ensureDirector(), A = d.approach, o = A.offer;
-  if (!o || o.status !== 'pending' || o.season !== gameState.season) return { ok: false, reason: 'aucune offre en cours' };
+  if (!o || !(o.status === 'signed' || (o.status === 'pending' && o.season === gameState.season))) return { ok: false, reason: 'aucune offre en cours' };
   const index = gameState.competitors.findIndex(x => x.name === o.channelName);
   if (index < 0) return { ok: false, reason: 'chaîne introuvable' };
   const backup = cloneGameStateValue(gameState);
@@ -32778,10 +32808,16 @@ function evaluateDirectorMandate() {
     : w.filter(x => x.operating > 0).length >= o.value;
   const R = CHANNEL_APPROACH.reputation;
   m.status = ok ? 'success' : 'failure'; m.closedSeason = season; m.final = { pdaTarget: last.pdaTarget, rank: last.rank };
-  d.reputation = Math.max(0, Math.min(100, d.reputation + (ok ? R.success : R.failure)));
+  if (!m.renegotiated) d.reputation = Math.max(0, Math.min(100, d.reputation + (ok ? R.success : R.failure)));
   if (!ok) d.approach.malusUntil = season + R.malusSeasons;
   d.mandates.push(m); d.mandate = null;
-  pushSignal(ok ? `Mandat « ${m.label} » réussi : votre réputation de dirigeant progresse.` : `Mandat « ${m.label} » non atteint : votre réputation de dirigeant recule.`,
+  // Objectif manqué : entretien préalable de licenciement en tête de la saison suivante ;
+  // objectif renégocié manqué : démis de ses fonctions.
+  if (!ok && m.renegotiated) d.dismissed = { season, channel: m.channel, reason: 'renegotiated' };
+  else if (!ok) d.interview = { season, mandate: JSON.parse(JSON.stringify(m)) };
+  pushSignal(ok ? `Mandat « ${m.label} » réussi : votre réputation de dirigeant progresse.`
+    : m.renegotiated ? `Objectif renégocié non atteint : le propriétaire de ${m.channel} met fin à votre mandat.`
+    : `Mandat « ${m.label} » non atteint : le propriétaire vous convoque à un entretien préalable de licenciement.`,
     { kind: 'consequence', tone: ok ? 'good' : 'warn', key: `mandate:${season}` });
   return m;
 }
@@ -32794,92 +32830,208 @@ function closeDirectorSeason(h, rows) {
   evaluateDirectorMandate();
   evaluateChannelApproach();
 }
-// Annonce dans le bilan de saison (l'offre se consulte avant d'ouvrir la saison suivante).
-function channelOfferTeaserHtml() {
-  const o = pendingChannelOffer();
-  if (!o) return '';
-  return `<div class="card bilan-card offer-teaser">
-      <div class="kicker-badge">📨 PROPOSITION DE POSTE</div>
-      <h3>${esc(o.channelName)} vous veut aux commandes</h3>
-      <p>${esc(o.motiveText)} Consultez la proposition avant de lancer la saison ${gameState.season + 1}.</p>
+// ---- Proposition de poste : dilemme en tête de la saison suivant l'évaluation ----
+// Étapes : présentation (étudier / refuser), étude (indicateurs clés et objectif ; accepter,
+// négocier, décliner), puis, après une négociation réussie, la nouvelle proposition. Le
+// propriétaire relève l'enveloppe financière ou retire son offre (tirage mémorisé). Une offre
+// acceptée est signée : la prise de fonction a lieu entre les deux saisons (après la clôture),
+// comme toute reprise, et le mandat commence à la saison suivante.
+function channelOfferDilemma(o) {
+  const N = { recurring: 0, purchase: 0, commercial: 0, category: 'N' }, Z = { j1524: 0, a2549: 0, s50: 0, csp: 0 };
+  return { id: `channel-offer-${gameState.season}`, isChannelOffer: true, offerId: o.id,
+    titre: `${o.channelName} vous veut aux commandes`,
+    desc: `Le propriétaire de ${o.channelName} vous reçoit dans son bureau, un contrat sur la table. « ${o.motiveText} »`,
+    c: [{ l: 'Étudier la proposition', finance: N, pda: Z, audienceImpacts: [], pop: 0, r: '' },
+      { l: 'Refuser la proposition', finance: N, pda: Z, audienceImpacts: [], pop: 0, r: '' }] };
+}
+// Saison qui s'ouvre : l'offre de la clôture précédente devient le premier dilemme.
+function insertDirectorDilemmas() {
+  const d = gameState.director, o = d?.approach?.offer, queue = gameState.dilemmaQueue || [];
+  if (d?.interview && !d.interview.presented) { queue.unshift(dismissalInterviewDilemma(d.interview)); d.interview.presented = gameState.season; }
+  else if (o?.status === 'pending' && !o.presented) { queue.unshift(channelOfferDilemma(o)); o.presented = gameState.season; o.ui = 'intro'; }
+}
+// Négociation : le propriétaire relève l'enveloppe ou retire son offre. Chance selon l'intérêt
+// porté au candidat (score de l'évaluation) et sa réputation ; tirage mémorisé sur l'offre.
+function negotiateChannelOffer(o) {
+  if (o.negotiation) return o.negotiation;
+  const N = CHANNEL_APPROACH.negotiation, T = CHANNEL_APPROACH.threshold, d = ensureDirector();
+  const interest = clamp01(((o.scores?.base ?? T) - T) / Math.max(0.01, 1 - T));
+  const chance = Math.max(N.chance[0], Math.min(N.chance[1], N.chance[0] + (N.chance[1] - N.chance[0]) * interest + (d.reputation - 50) / 200));
+  const roll = approachRandom(`nego|${o.id}`);
+  const base = CHANNEL_TYPES[o.type]?.baseBudget || 25;
+  const bump = Math.round(Math.min(N.bump * base, Math.max(0, N.maxContribution * base - (o.contribution || 0))) * 10) / 10;
+  const improved = roll < chance && bump > 0;
+  o.negotiation = { outcome: improved ? 'improved' : 'withdrawn', chance: Math.round(chance * 1000) / 1000, roll: Math.round(roll * 1000) / 1000,
+    before: o.contribution || 0, bump: improved ? bump : 0 };
+  if (improved) { o.contribution = Math.round(((o.contribution || 0) + bump) * 10) / 10; o.available = Math.round((o.available + bump) * 10) / 10; }
+  return o.negotiation;
+}
+function closeChannelOffer(o, status) {
+  const A = ensureDirector().approach;
+  o.status = status; o.decidedSeason = gameState.season;
+  A.nextEvalSeason = gameState.season + approachDraw(`${status}|${gameState.season}`, CHANNEL_APPROACH.refusalWait);
+  (A.past ??= []).push(o); A.offer = null;
+}
+// Choix synthétique passé au circuit des dilemmes (sans flux financier immédiat).
+function buildChannelOfferChoice(dilemma) {
+  const o = ensureDirector().approach.offer || {}, decision = o.decision || 'decline';
+  const name = o.channelName || 'la chaîne';
+  const r = { accept: `Contrat signé : vous prendrez les commandes de ${name} à l’issue de la saison. Objectif fixé par le propriétaire : ${o.objective?.text || ''}`,
+    decline: `Vous déclinez la proposition de ${name} : vous restez à la tête de votre chaîne, sans conséquence.`,
+    refuse: `Vous refusez d’étudier la proposition de ${name} : vous restez à la tête de votre chaîne, sans conséquence.`,
+    withdrawn: `Le propriétaire de ${name} n’accepte pas de revoir ses conditions et retire sa proposition. Vous restez à la tête de votre chaîne.` }[decision];
+  return { l: { accept: 'Accepter la proposition', decline: 'Décliner la proposition', refuse: 'Refuser la proposition', withdrawn: 'Proposition retirée' }[decision],
+    r, finance: { recurring: 0, purchase: 0, commercial: 0, category: 'N' }, pda: {}, pop: 0, audienceImpacts: [], channelOffer: { decision } };
+}
+function applyChannelOfferDecision({ decision }) {
+  const A = ensureDirector().approach, o = A.offer;
+  if (!o || o.status !== 'pending') return;
+  if (decision === 'accept') {
+    o.status = 'signed'; o.signedSeason = gameState.season;
+    pushSignal(`Contrat signé avec ${o.channelName} : prise de fonction à l’issue de la saison ${gameState.season}.`, { kind: 'director', tone: 'good', key: `signed:${o.id}` });
+  } else if (decision === 'withdrawn') closeChannelOffer(o, 'withdrawn');
+  else declineChannelOffer();
+}
+// Entre deux saisons : prise de fonction d'une offre signée. Point de départ et objectif du
+// mandat actualisés à la situation de la chaîne au moment de la reprise.
+function takeOfficeSignedOffer() {
+  const A = ensureDirector().approach, o = A.offer;
+  if (o?.status !== 'signed') return null;
+  const c = gameState.competitors.find(x => x.name === o.channelName);
+  if (!c) { closeChannelOffer(o, 'void'); return { ok: false, reason: 'chaîne introuvable' }; }
+  const rows = getCalculatedPDAs(), s = competitorSituation(c, rows), r1 = v => Math.round(v * 10) / 10;
+  Object.assign(o, { objective: mandateObjective(o.mandate, s), pda4: r1(s.row.globalPda), pdaTarget: r1(s.row.pda[c.target]), rank: s.rank });
+  const last = c.finance?.history?.find(h => h.season === gameState.season);
+  if (last) o.lastSeason = { revenue: r1(last.adRevenue), result: r1(last.result), distributions: r1(last.distributions || 0) };
+  const res = acceptChannelOffer();
+  if (!res.ok) { pushSignal(`La prise de fonction chez ${o.channelName} n’a pas pu aboutir : vous restez à la tête de votre chaîne.`, { kind: 'director', tone: 'warn' }); if (A.offer === o) closeChannelOffer(o, 'void'); }
+  else pushSignal(`Vous prenez les commandes de ${o.channelName}. Objectif : ${o.objective.text}`, { kind: 'director', tone: 'good', key: `office:${o.id}` });
+  return res;
+}
+// Indicateurs clés de l'offre, au format des enchères (rectangles).
+function channelOfferStatsHtml(o, { highlight = false } = {}) {
+  const target = TARGET_STRATEGIES[o.target]?.nom.replace(/\s*\([^)]*\)/, '') || o.target;
+  const stat = (label, value, cls = '') => `<div class="sa-stat${cls ? ` ${cls}` : ''}"><span>${label}</span><b>${value}</b></div>`;
+  return `<div class="sa-stats co-stats">
+    ${stat('PDA 4+', `${nf1(o.pda4)} % · ${o.rank}<sup>e</sup>`)}
+    ${stat(`PDA ${esc(target)}`, `${nf1(o.pdaTarget)} %`)}
+    ${stat('Recettes pub prévues', `${nf1(o.forecast.revenue)} M€`)}
+    ${stat('Coût de grille', `${nf1(o.forecast.charges)} M€`)}
+    ${stat('Trésorerie', `${nf1(o.treasury)} M€`)}
+    ${stat('Enveloppe', o.contribution > 0 ? `+${nf1(o.contribution)} M€` : 'Aucune', highlight ? 'co-up' : '')}
+  </div>`;
+}
+function renderChannelOfferZone(dilemma) {
+  const o = gameState.director?.approach?.offer;
+  if (!o || o.status !== 'pending') return '';
+  const pop = (d, cls) => `class="sa-pop ${cls}" style="--d:${d}s" data-sa-leave`;
+  const type = CHANNEL_TYPES[o.type]?.label || o.type;
+  const illu = `<figure class="sa-illu"><img src="${directionSceneArt('bureau')}" alt="" aria-hidden="true">
+      <span class="sa-illu-badges"><span class="sa-illu-tier">${esc(type)}</span></span>
+      <span class="sa-illu-corner">Mandat ${CHANNEL_APPROACH.mandateSeasons} saisons</span>
+      <figcaption class="sa-illu-cap"><span class="sa-illu-name">${esc(o.channelName)}</span></figcaption></figure>`;
+  const objective = `<div ${pop(0.12, 'sa-row co-objective')}><span class="sa-row-label">Objectif du propriétaire</span>
+      <p class="co-objective-text">🎯 ${esc(o.objective.text)}</p>
+      <p class="sa-note">Objectif manqué : entretien préalable de licenciement.</p></div>`;
+  if (o.ui === 'study' || o.ui === 'negotiated') {
+    const improved = o.ui === 'negotiated';
+    return `<div class="sa-inline co-zone" data-co-zone>
+      ${illu}
+      <div ${pop(0.05, '')}>${channelOfferStatsHtml(o, { highlight: improved })}</div>
+      ${improved ? `<p ${pop(0.08, 'sa-note co-nego')}>🤝 Le propriétaire revoit sa copie : enveloppe portée à <b>${nf1(o.contribution)} M€</b> (+${nf1(o.negotiation.bump)} M€).</p>` : ''}
+      ${objective}
+      <div ${pop(0.2, 'sa-actions co-actions')}>
+        <button type="button" class="sa-btn primary" data-co-action="accept">${improved ? 'Accepter l’offre revue' : 'Accepter'}</button>
+        ${improved ? '' : '<button type="button" class="sa-btn" data-co-action="negotiate">Négocier</button>'}
+        <button type="button" class="sa-btn" data-co-action="decline">Décliner</button>
+      </div>
     </div>`;
-}
-// Écran de la proposition : chaîne, motif, mandat, comptes, marge réelle, comparaison, grille.
-function renderChannelOfferScreen(app) {
-  const o = pendingChannelOffer();
-  if (!o) { gameState.step = 7; render(); return; }
-  const d = ensureDirector();
-  const money = v => `${nf1(v)} M€`;
-  const signedMoney = v => `${v >= 0 ? '+' : '−'}${nf1(Math.abs(v))} M€`;
-  const targetLabel = TARGET_STRATEGIES[o.target]?.nom.replace(/\s*\([^)]*\)/, '') || o.target;
-  const stat = (value, label, cls = '') => `<div class="radar-stat"><div class="radar-stat-value ${cls}">${value}</div><div class="radar-stat-label">${label}</div></div>`;
-  const cmp = (label, mine, theirs) => `<tr><td>${label}</td><td>${mine}</td><td><b>${theirs}</b></td></tr>`;
-  const next = gameState.season + 1;
-  app.innerHTML = `
-    ${renderMasthead('Proposition', 'Audience Masters', true)}
-    ${renderHudHeadOnly()}
-    <div class="card bilan-card offer-card">
-      <div class="kicker-badge">UNE AUTRE CHAÎNE VOUS VEUT AUX COMMANDES</div>
-      <h2>${esc(o.channelName)}</h2>
-      <div class="career-stats-badges">
-        <span class="pg-pda-badge pg-badge-bleu">${esc(CHANNEL_TYPES[o.type]?.label || o.type)}</span>
-        <span class="pg-pda-badge pg-badge-gris">Cible publicitaire : ${esc(targetLabel)}</span>
-      </div>
-      <p class="offer-motive">« ${esc(o.motiveText)} »</p>
-      <div class="radar-section-title">Audience (fin de saison ${o.season})</div>
-      <div class="radar-stats">${stat(`${nf1(o.pda4)} %`, 'PDA 4+')}${stat(`${nf1(o.pdaTarget)} %`, `PDA ${esc(targetLabel)}`)}${stat(`${o.rank}<sup>e</sup>`, 'Classement 4+')}</div>
-      <div class="radar-section-title">Comptes de la saison ${o.season} (clôturée)</div>
-      <div class="radar-stats radar-stats-fin">
-        ${stat(money(o.lastSeason?.revenue ?? 0), 'CA publicitaire')}
-        ${stat(signedMoney(o.lastSeason?.result ?? 0), 'Résultat d’exploitation', (o.lastSeason?.result ?? 0) >= 0 ? 'eco-pos' : 'eco-neg')}
-        ${stat(money(o.treasury), 'Trésorerie après clôture')}
-        ${stat(money(o.engaged + o.sportsLater), 'Engagements à venir')}
-      </div>
-      <div class="radar-section-title">Votre marge de manœuvre</div>
-      <table class="grid-table offer-table"><tbody>
-        <tr><td>1. Trésorerie héritée</td><td><b>${money(o.treasury)}</b></td></tr>
-        <tr><td>2. Apport de l’actionnaire${o.contribution > 0 ? ' (une fois, à la prise de fonction)' : ''}</td><td><b>${o.contribution > 0 ? money(o.contribution) : 'Aucun'}</b></td></tr>
-        <tr><td>3. Dépenses déjà engagées en saison ${next} (grille, talents, droits)</td><td><b>−${money(o.engaged)}</b></td></tr>
-        ${o.sportsLater > 0 ? `<tr><td>Droits sportifs engagés au-delà</td><td><b>−${money(o.sportsLater)}</b></td></tr>` : ''}
-        <tr><td>Recettes publicitaires prévues (audience actuelle)</td><td><b>+${money(o.forecast.revenue)}</b></td></tr>
-        <tr><td>4. Marge réellement disponible pour investir</td><td><b class="${o.available >= 0 ? 'eco-pos' : 'eco-neg'}">${money(o.available)}</b></td></tr>
-      </tbody></table>
-      <p class="offer-note">Prévisionnel de la saison ${next}, distinct de l’historique : ${money(o.forecast.revenue)} de recettes, ${money(o.forecast.charges + o.forecast.sports)} de charges, soit ${signedMoney(o.forecast.result)} avant vos décisions.${o.austerityUntil && o.austerityUntil >= next ? ` L’actionnaire impose un plan d’austérité jusqu’à la saison ${o.austerityUntil}.` : ''}</p>
-      <div class="radar-section-title">Mandat de ${CHANNEL_APPROACH.mandateSeasons} saisons : ${esc(o.mandateLabel)}</div>
-      <p class="offer-note">${esc(o.objective.text)} En cas de succès, votre réputation de dirigeant progresse ; en cas d’échec, elle recule et les approches se font plus rares pendant ${CHANNEL_APPROACH.reputation.malusSeasons} saisons.</p>
-      <div class="radar-section-title">Comparaison</div>
-      <table class="grid-table offer-table"><thead><tr><th></th><th>${esc(o.current.name)} (vous)</th><th>${esc(o.channelName)}</th></tr></thead><tbody>
-        ${cmp('PDA 4+', `${nf1(o.current.pda4)} %`, `${nf1(o.pda4)} %`)}
-        ${cmp('Classement 4+', o.current.rank ? `${o.current.rank}<sup>e</sup>` : '—', `${o.rank}<sup>e</sup>`)}
-        ${cmp('CA de la saison', money(o.current.revenue), money(o.lastSeason?.revenue ?? 0))}
-        ${cmp('Résultat d’exploitation', signedMoney(o.current.result), signedMoney(o.lastSeason?.result ?? 0))}
-        ${cmp('Trésorerie', money(o.current.treasury), money(o.treasury))}
-      </tbody></table>
-      <details class="offer-details">
-        <summary>Consulter la programmation et les engagements</summary>
-        <table class="grid-table offer-table"><thead><tr><th>Créneau</th><th>Programme</th><th>Coût / an</th><th>Échéance</th></tr></thead><tbody>
-          ${o.contracts.map(k => `<tr><td>${esc(slotLabelOf(k.slot))}</td><td>${esc(k.name)}</td><td>${k.annual ? money(k.annual) : '—'}</td><td>${k.end != null ? `S${k.end}` : '—'}</td></tr>`).join('')}
-        </tbody></table>
-        ${o.talents.length ? `<p class="offer-note"><b>Talents :</b> ${o.talents.map(t => `${esc(t.name)} (${money(t.annual)}/an, jusqu’en S${t.until})`).join(' · ')}</p>` : ''}
-        ${o.sports.length ? `<p class="offer-note"><b>Droits sportifs :</b> ${o.sports.map(x => `${esc(x.name)} en S${x.season}${x.due ? ` (reste dû ${money(x.due)})` : ''}`).join(' · ')}</p>` : ''}
-      </details>
+  }
+  return `<div class="sa-inline co-zone" data-co-zone>
+    ${illu}
+    <div ${pop(0.1, 'sa-actions')}>
+      <button type="button" class="sa-btn primary" data-co-action="study">Étudier la proposition</button>
+      <button type="button" class="sa-btn" data-co-action="refuse">Refuser la proposition</button>
     </div>
-    <button class="welcome-cta" id="btn-offer-accept">
-      <span class="welcome-cta-shine"></span><span>Accepter le poste</span>
-    </button>
-    <button class="choice offer-decline" id="btn-offer-decline"><span class="cl">Rester à la tête de ${esc(gameState.player.name)}</span><span class="choice-caption">Aucune conséquence : vous poursuivez avec votre chaîne.</span></button>
-    ${o.error ? `<p class="offer-note" role="alert">${esc(o.error)}</p>` : ''}`;
-  const proceed = () => { if (gameState.renewalDue) { gameState.step = 10; render(); } else startNewSeason(); };
-  document.getElementById('btn-offer-accept').onclick = () => {
-    const r = acceptChannelOffer();
-    if (!r.ok) { render(); return; }
-    pushSignal(`Vous prenez la direction de ${gameState.player.name}. Mandat : ${d.mandate?.label || ''}.`, { kind: 'consequence', tone: 'good', key: `transfer:${gameState.season}` });
-    proceed();
-  };
-  document.getElementById('btn-offer-decline').onclick = () => { declineChannelOffer(); proceed(); };
-  app.querySelector('.masthead').onclick = goHome;
+  </div>`;
 }
-const pendingChannelOffer = () => { const o = gameState.director?.approach?.offer; return o?.status === 'pending' && o.season === gameState.season ? o : null; };
+function bindChannelOfferZone(app) {
+  const zone = app.querySelector('[data-co-zone]');
+  const o = gameState.director?.approach?.offer;
+  if (!zone || !o) return;
+  const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  let busy = false;
+  const leaveThen = fn => { if (busy) return; busy = true; zone.querySelectorAll('[data-sa-leave]').forEach(el => el.classList.add('sa-leaving')); setTimeout(fn, reduce ? 0 : 240); };
+  zone.addEventListener('click', e => {
+    const btn = e.target.closest('[data-co-action]');
+    if (!btn) return;
+    const action = btn.dataset.coAction;
+    if (action === 'study') leaveThen(() => { o.ui = 'study'; render(); });
+    else if (action === 'negotiate') leaveThen(() => {
+      const n = negotiateChannelOffer(o);
+      if (n.outcome === 'improved') { o.ui = 'negotiated'; render(); } else { o.decision = 'withdrawn'; chooseDilemmaOption(0); }
+    });
+    else leaveThen(() => { o.decision = action; chooseDilemmaOption(0); });
+  });
+}
+
+// ---- Entretien préalable de licenciement ----
+// Mandat non atteint : convocation en tête de la saison suivante. Accepter le licenciement
+// met fin à la partie ; négocier accorde un nouvel objectif, plus modeste, sur deux saisons.
+// Un objectif renégocié manqué : le dirigeant est démis de ses fonctions.
+function renegotiatedObjective(m) {
+  const o = m.objective, n = CHANNEL_APPROACH.renegotiation.seasons;
+  if (o.kind === 'pdaGain') { const v = Math.max(0.5, Math.round(o.value / 2 * 10) / 10); return { kind: 'pdaGain', value: v, text: `Gagner ${nf1(v)} pt de PDA sur la cible en ${n} saisons.` }; }
+  if (o.kind === 'hold') return { kind: 'hold', value: o.value + 0.5, text: `Ne pas reculer de plus de ${nf1(o.value + 0.5)} pt de PDA cible ni au classement pendant ${n} saisons.` };
+  return { kind: 'profit', value: 1, text: `Dégager un résultat d’exploitation positif sur au moins 1 des ${n} saisons.` };
+}
+function dismissalCopy() {
+  const d = gameState.director, ch = d?.dismissed?.channel || gameState.player.name;
+  const renegotiated = d?.dismissed?.reason === 'renegotiated';
+  return { pill: 'Démis de ses fonctions', title: 'Vous êtes démis de vos fonctions',
+    lead: renegotiated ? `L’objectif renégocié n’a pas été atteint : le propriétaire de ${ch} met fin à votre mandat.`
+      : `Vous avez accepté votre licenciement : vous quittez la direction de ${ch}.`,
+    noteTitle: '📨 Décision du propriétaire', note: 'Votre mandat prend fin : la chaîne est confiée à une nouvelle direction.' };
+}
+function dismissalInterviewDilemma(iv) {
+  const m = iv.mandate, N = { recurring: 0, purchase: 0, commercial: 0, category: 'N' }, Z = { j1524: 0, a2549: 0, s50: 0, csp: 0 };
+  const next = renegotiatedObjective(m);
+  return { id: `dismissal-interview-${gameState.season}`, isDismissalInterview: true,
+    titre: 'Entretien préalable de licenciement',
+    desc: `Le propriétaire de ${m.channel} vous convoque : l’objectif de votre mandat n’a pas été atteint.`,
+    interview: { objective: m.objective.text, start: m.start, final: m.final, next: next.text },
+    c: [{ l: 'Accepter le licenciement', icon: '📦', directorDismissal: 'accept', finance: N, pda: Z, audienceImpacts: [], pop: 0,
+        r: `Vous quittez la direction de ${m.channel}. Fin de votre parcours de dirigeant.` },
+      { l: 'Négocier un nouvel objectif', icon: '🤝', directorDismissal: 'negotiate', finance: N, pda: Z, audienceImpacts: [], pop: 0,
+        r: `Le propriétaire vous accorde un sursis : ${next.text} Faute de résultat, vous serez démis de vos fonctions.` }] };
+}
+function dismissalInterviewHtml(dilemma) {
+  const iv = dilemma?.interview;
+  if (!iv) return '';
+  const stat = (label, value) => `<div class="sa-stat"><span>${label}</span><b>${value}</b></div>`;
+  return `<div class="sa-inline">
+    <figure class="sa-illu"><img src="${directionSceneArt('entretien')}" alt="" aria-hidden="true">
+      <span class="sa-illu-badges"><span class="sa-illu-tier co-alert">Convocation</span></span>
+      <figcaption class="sa-illu-cap"><span class="sa-illu-name">Bureau du propriétaire</span></figcaption></figure>
+    <div class="sa-stats">
+      ${stat('PDA cible au départ', `${nf1(iv.start?.pdaTarget ?? 0)} %`)}
+      ${stat('PDA cible atteinte', `${nf1(iv.final?.pdaTarget ?? 0)} %`)}
+      ${stat('Classement', iv.final?.rank ? `${iv.final.rank}<sup>e</sup>` : '—')}
+    </div>
+    <div class="sa-row co-objective"><span class="sa-row-label">Objectif manqué</span><p class="co-objective-text">🎯 ${esc(iv.objective)}</p></div>
+  </div>`;
+}
+function applyDismissalChoice(choice) {
+  const d = ensureDirector(), iv = d.interview;
+  if (!iv) return;
+  if (choice.directorDismissal === 'accept') { d.dismissed = { season: gameState.season, channel: iv.mandate.channel, reason: 'accepted' }; d.interview = null; return; }
+  const n = CHANNEL_APPROACH.renegotiation.seasons, season = gameState.season;
+  d.mandate = { ...iv.mandate, objective: renegotiatedObjective(iv.mandate), renegotiated: true, status: 'running',
+    startSeason: season, endSeason: season + n - 1, start: { ...iv.mandate.final } };
+  delete d.mandate.final; delete d.mandate.closedSeason;
+  d.interview = null;
+}
+const pendingChannelOffer = () => { const o = gameState.director?.approach?.offer; return o?.status === 'pending' && (o.season === gameState.season || o.presented === gameState.season) ? o : null; };
 
 function competitorTreasuryTarget(c) {
   const P = COMPETITOR_ECONOMY.payout;
