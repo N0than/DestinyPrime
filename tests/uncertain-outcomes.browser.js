@@ -44,7 +44,7 @@ const i = process.argv.indexOf('--shots'), SHOTS = i > 0 ? process.argv[i + 1] :
     const after = await page.evaluate(() => {
       const n = NARRATIVE_RANDOM_CALLS.count, d = gameState.dilemmaQueue[0];
       for (let k = 0; k < 10; k++) render();
-      return { callsAtValidation: n, callsAfterRerender: NARRATIVE_RANDOM_CALLS.count, outcome: d.resolvedOutcome, shown: document.querySelector('.story-outcome')?.innerText };
+      return { callsAtValidation: n, callsAfterRerender: NARRATIVE_RANDOM_CALLS.count, outcome: d.resolvedOutcome, shown: !document.querySelector('.story-outcome') && /\S/.test(document.querySelector('.consequence-card .dc-body p')?.innerText || '') };
     });
     if (SHOTS) await page.screenshot({ path: `${SHOTS}/lot4-issue-${label}.png`, fullPage: true });
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
@@ -57,5 +57,5 @@ const i = process.argv.indexOf('--shots'), SHOTS = i > 0 ? process.argv[i + 1] :
   // (réactions concurrentes) : on vérifie qu'aucun rendu n'en ajoute.
   const bad = results.filter(r => r.renderCalls !== 0 || r.callsAfterRerender !== r.callsAtValidation || !r.outcome || !r.shown || r.overflow || r.errors.length || r.encart || /Certain|incertaine|chances/.test(r.card));
   if (bad.length) { console.error('ÉCHEC', bad.map(b => b.label)); process.exitCode = 1; }
-  else console.log('OK browser: 10 renders without draw, one validation, choices show labels only, outcome shown, 10 result renders without draw, no horizontal overflow (mobile, desktop)');
+  else console.log('OK browser: 10 renders without draw, one validation, choices show labels only, outcome told by the result text (no odds shown), 10 result renders without draw, no horizontal overflow (mobile, desktop)');
 })();

@@ -1423,17 +1423,13 @@ button.radar-row:focus-visible { outline: 2px solid var(--bleu); outline-offset:
 .welcome-cta svg { width: 16px; height: 16px; transition: transform 0.2s ease; }
 .welcome-cta.welcome-cta-outline { background: rgba(255,255,255,0.85); color: #0f172a; border: 1.5px solid #0f172a; box-shadow: 0 8px 18px -10px rgba(15,23,42,0.25); }
 .welcome-cta.welcome-cta-tight { margin-top: 10px; }
-/* Prêt de sauvetage (écran de dépôt de bilan) */
-.loan-card { margin-top: 14px; display: flex; flex-direction: column; gap: 12px; }
-.loan-card .kicker-badge { align-self: flex-start; }
-.loan-lead { margin: 0; font-size: 14px; line-height: 1.5; color: #334155; }
-.loan-field { display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; align-items: center; font-size: 13px; color: #475569; }
-.loan-field b { color: #0f172a; font-size: 15px; }
-.loan-field input[type=range] { grid-column: 1 / -1; width: 100%; accent-color: #0f172a; }
-.loan-summary { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
-.loan-summary li { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; color: #475569; border-top: 1px solid rgba(15,23,42,0.08); padding-top: 6px; }
-.loan-summary b { color: #0f172a; white-space: nowrap; }
-.loan-warn { margin: 0; font-size: 12.5px; color: #b91c1c; min-height: 1em; }
+/* Prêt de sauvetage (écran de dépôt de bilan), à la manière d'une enchère */
+.loan-card { margin-top: 14px; padding: 14px; }
+.loan-kicker { display: flex; }
+.loan-card .sa-gauge-value.loan-years { color: var(--ink); }
+.loan-years-range::-webkit-slider-runnable-track { background: linear-gradient(90deg, #c7d2fe, #6366f1) !important; }
+.loan-years-range::-moz-range-track { background: linear-gradient(90deg, #c7d2fe, #6366f1) !important; }
+.loan-warn:empty { display: none; }
 #btn-loan-sign:disabled { opacity: 0.45; cursor: not-allowed; }
 @media (hover: hover) { .welcome-cta:hover svg { transform: translateX(3px); } }
 .welcome-cta-shine {
@@ -24952,7 +24948,7 @@ function render() {
           <div class="dilemma-card consequence-card">
             <div class="dc-body">
               <p>${esc(cq.resultat)}</p>
-              ${cq.outcome ? `<div class="story-outcome ${cq.outcome.best ? 'good' : cq.outcome.worst ? 'bad' : 'mid'}"><b>Issue :</b> ${esc(cq.outcome.label)} <span class="so-odds">· ${storyChanceLabel(cq.outcome.p)}</span></div>` : ''}
+              ${'' /* Issue tirée : racontée par le texte du résultat, sans libellé ni estimation. */}
               ${cq.pilotTest ? pilotResultHtml(cq.pilotTest) : ''}
               ${cq.competitorEvent ? `<div class="program-manager-note"><b>🚨 LA CONCURRENCE RÉAGIT</b><br>${esc(cq.competitorEvent.channel)} lance une ${esc(cq.competitorEvent.action)} sur le créneau ${esc(TIME_SLOTS.find(s=>s.key===cq.competitorEvent.slot)?.label || cq.competitorEvent.slot)}.</div>` : ''}
               ${badgesHtml ? `<div class="impact-badges">${badgesHtml}</div>` : ''}
@@ -25010,7 +25006,7 @@ function render() {
           <div class="dc-body">
             <h2>${sportEvent ? esc(sportEvent.headline) : dilemma.isCareerDilemma || dilemma.isTalentRenewal || dilemma.isSportsRenewal || dilemma.isProgramStory || dilemma.isBiddingWar || dilemma.isProducerPitch || dilemma.isReplacementChoice ? dilemma.titre.replace(/« [^»]*»(?: \?)?/, m => `<span class="dc-title-keep">${m}</span>`) : dilemma.titre}</h2>
             <p>${sportEvent ? esc(sportEvent.pitch) : dilemma.desc}</p>
-            ${dilemma.isProgramStory && (dilemma.storyRecall || dilemma.storyContext) ? `<p class="dc-story-context">${dilemma.storyRecall ? `<span class="dc-story-recall">${dilemma.storyRecall}</span>` : ''}${dilemma.storyContext || ''}</p>` : ''}
+            ${'' /* Lignes de contexte et rappel de décision masqués (usure, évolution de la case, saison du choix). */}
             ${sportsBlock}
             ${dilemmaShowcaseHtml(dilemma)}
             ${blindLotHtml(dilemma, phase)}
@@ -25245,7 +25241,8 @@ function render() {
     const pdaCibleFinale = getCalculatedPDAs().find(item => item.channel === p).pda[p.target];
     const targetShort = TARGET_STRATEGIES[p.target].nom.replace(/\s*\([^)]*\)/, '');
     // Dépôt de bilan hors mode Carrière : un prêt de sauvetage peut être demandé.
-    const loan = !careerFail && !isArcom ? loanOffer() : null;
+    // Bouton masqué si aucune hypothèse de prêt n'est possible (montant ou capacité).
+    const loan = !careerFail && !isArcom && loanFeasible() ? loanOffer() : null;
     const stats = careerFail
       ? [
           { value: `${nf1(p.tresorerie)} M€`, label: 'Trésorerie', alert: p.tresorerie < 0 },
@@ -25645,7 +25642,7 @@ const SPORT_RIGHTS_EVENTS = {
     id: 'world_cup', name: 'Coupe du monde', the: 'la Coupe du monde', sport: 'football', icon: '⚽', tier: 'mega',
     headline: 'La Coupe du monde change de diffuseur',
     pitch: 'Les droits de la prochaine Coupe du monde de football arrivent sur le marché : avant-match, match et après-match occuperont toute la soirée. Plusieurs chaînes préparent déjà leur offre.',
-    reservePrice: 14, estimatedValueMin: 20.5, estimatedValueMax: 28.5, productionCost: 4, exclusive: true, duration: 1,
+    reservePrice: 14, estimatedValueMin: 20.5, estimatedValueMax: 28.5, productionCost: 4, exclusive: true, duration: 1, edition: true,
     audiencePower: { j1524: 1.30, a2549: 1.45, s50: 1.30, csp: 1.20 },
     commercialAttractiveness: 1.35,
     // Avant-match en access, match en prime, après-match et matchs tardifs en nuit.
@@ -25771,7 +25768,7 @@ const SPORT_RIGHTS_EVENTS = {
     id: 'olympic_games', name: 'Jeux olympiques', the: 'les Jeux olympiques', sport: 'multisports', icon: '🏅', tier: 'mega',
     headline: 'Les Jeux olympiques sont mis aux enchères',
     pitch: 'Quinze jours de compétitions en continu, de l’après-midi jusqu’à la nuit. Le package complet est sur la table.',
-    reservePrice: 13.5, estimatedValueMin: 20, estimatedValueMax: 29, productionCost: 4, exclusive: true, duration: 1,
+    reservePrice: 13.5, estimatedValueMin: 20, estimatedValueMax: 29, productionCost: 4, exclusive: true, duration: 1, edition: true,
     audiencePower: { j1524: 1.20, a2549: 1.30, s50: 1.35, csp: 1.25 },
     commercialAttractiveness: 1.25,
     preferredSlots: ['apresmidi', 'access', 'prime', 'nuit'],
@@ -25783,7 +25780,7 @@ const SPORT_RIGHTS_EVENTS = {
     id: 'winter_olympics', name: 'Jeux olympiques d’hiver', the: 'les Jeux olympiques d’hiver', sport: 'hiver', icon: '⛷️', tier: 'premium',
     headline: 'Les Jeux olympiques d’hiver sont mis aux enchères',
     pitch: 'Ski alpin, biathlon, patinage : quinze jours d’épreuves en direct, du matin jusqu’en fin de journée. Le package complet est sur la table.',
-    reservePrice: 6.5, estimatedValueMin: 9.5, estimatedValueMax: 14.5, productionCost: 2.5, exclusive: true, duration: 1,
+    reservePrice: 6.5, estimatedValueMin: 9.5, estimatedValueMax: 14.5, productionCost: 2.5, exclusive: true, duration: 1, edition: true,
     audiencePower: { j1524: 1.00, a2549: 1.15, s50: 1.35, csp: 1.25 },
     commercialAttractiveness: 1.15,
     preferredSlots: ['matin', 'apresmidi', 'access'],
@@ -26128,7 +26125,17 @@ function ensureSportsRightsState() {
   Object.values(SPORT_RIGHTS_EVENTS).filter(hasOwnAuctionCalendar).forEach(e => {
     sr.recurring[e.id] ??= { nextAuctionSeason: (gameState.season || 1) + sportsChoice(e.firstAuction || [0, 1, 2]) };
   });
+  pruneOneShotTerms(sr);
   return sr;
+}
+// Anciennes parties : une édition unique vendue avec un engagement de plusieurs saisons
+// (Jeux olympiques diffusés plusieurs saisons de suite). Les saisons supplémentaires pas
+// encore diffusées sont retirées, sans rien facturer ; l'édition achetée reste.
+function pruneOneShotTerms(sr) {
+  const oneShot = o => SPORT_RIGHTS_EVENTS[o.eventId]?.edition && o.termLength > 1;
+  if (!sr.owned.some(oneShot)) return;
+  sr.owned = sr.owned.filter(o => !(oneShot(o) && o.termIndex > 0 && !o.broadcasted && o.broadcastSeason > (gameState.season || 0)));
+  sr.owned.filter(oneShot).forEach(o => { delete o.termId; delete o.termIndex; delete o.termLength; if (o.renewalDecided === 'term') delete o.renewalDecided; });
 }
 // Flux déterministe propre aux droits sportifs (même générateur que les autres flux) :
 // il ne décale ni le tirage des dilemmes, ni le marché concurrentiel.
@@ -26324,7 +26331,9 @@ function startSportsRightsAuction(eventId, dilemmaId) {
     const max = recurringSlotClash(event, c) ? 0 : computeCompetitorSportsMaxBid(c, event);
     return { idx, name: c.name, max, interest: sportsInterest(max, event), status: max >= event.reservePrice ? 'in' : 'out', lastBid: null };
   });
-  const term = event.termChoices ? sportsChoice(event.termChoices) : isSportRight(event) ? sportsChoice(SPORTS_TERM_CHOICES) : 1;
+  // Engagement pluriannuel : compétitions annuelles seulement. Une édition unique (Jeux
+  // olympiques, Coupe du monde : event.edition) se vend pour une seule saison.
+  const term = event.termChoices ? sportsChoice(event.termChoices) : isSportRight(event) && !event.edition ? sportsChoice(SPORTS_TERM_CHOICES) : 1;
   sr.activeAuction = { eventId, dilemmaId, season: gameState.season, phase: 'market', price: null, leader: null,
     playerLastBid: null, rivals, draft: null, reveal: null, result: null, term };
   return sr.activeAuction;
@@ -28285,36 +28294,73 @@ function loanCommitmentHtml() {
     .map(l => `${nf1(l.annuity)} M€ (échéance ${next - l.season}/${l.years}, prêt de ${nf1(l.amount)} M€ à ${(l.rate * 100).toFixed(1).replace('.', ',')} %)`);
   return `<p>🏦 Remboursement de prêt à l’ouverture de la saison ${next} : <b>${nf1(due)} M€</b> — ${lines.join(' ; ')}.</p>`;
 }
+// Montant maximal empruntable sur une durée, dans la marge d'endettement restante.
+function loanMaxAmount(offer, years) {
+  const r = offer.rate, factor = r > 0 ? (1 - Math.pow(1 + r, -years)) / r : years;
+  return Math.min(LOAN.max, Math.floor(offer.room * factor * 10) / 10);
+}
+// Au moins une hypothèse possible (montant suffisant, durée la plus longue) : sinon, pas de bouton.
+function loanFeasible(offer = loanOffer()) {
+  return !!offer && offer.needed <= LOAN.max && loanMaxAmount(offer, LOAN.years[1]) >= offer.needed;
+}
+// Module de prêt, à la manière d'une enchère : illustration, indicateurs, jauges, décision.
 function loanPanelHtml(offer) {
-  const a0 = Math.min(LOAN.max, Math.max(LOAN.min, Math.ceil(offer.needed))), y0 = 5;
-  return `<div class="card loan-card" id="loan-panel">
-      <div class="kicker-badge">🏦 PRÊT DE SAUVETAGE</div>
-      <p class="loan-lead">La banque propose un taux de <b>${(offer.rate * 100).toFixed(1).replace('.', ',')} %</b>. Vos annuités ne peuvent dépasser <b>${nf1(offer.capacity)} M€</b> par saison (33 % des recettes d’une saison, ${nf1(offer.revenue)} M€)${offer.existing > 0 ? `, dont ${nf1(offer.existing)} M€ déjà engagés` : ''}.</p>
-      <label class="loan-field"><span>Montant du prêt</span><b id="loan-amount-out">${nf1(a0)} M€</b>
-        <input type="range" id="loan-amount" min="${LOAN.min}" max="${LOAN.max}" step="1" value="${a0}"></label>
-      <label class="loan-field"><span>Durée de remboursement</span><b id="loan-years-out">${y0} saisons</b>
-        <input type="range" id="loan-years" min="${LOAN.years[0]}" max="${LOAN.years[1]}" step="1" value="${y0}"></label>
-      <ul class="loan-summary" id="loan-summary"></ul>
-      <p class="loan-warn" id="loan-warn"></p>
-    </div>
-    <button class="welcome-cta" id="btn-loan-sign"><span class="welcome-cta-shine"></span><span>Signer le prêt et reprendre</span></button>`;
+  const y0 = Math.min(LOAN.years[1], Math.max(LOAN.years[0], [3, 5, 7, 10].find(y => loanMaxAmount(offer, y) >= offer.needed) || LOAN.years[1]));
+  const a0 = Math.min(loanMaxAmount(offer, y0), Math.max(LOAN.min, Math.ceil(offer.needed + 2)));
+  const pct = v => `${(offer.rate * 100).toFixed(1).replace('.', ',')} %`;
+  const pop = (d, cls) => `class="sa-pop ${cls}" style="--d:${d}s"`;
+  return `<div class="card loan-card sa-inline" id="loan-panel">
+      <div class="loan-kicker"><span class="dc-live-pill"><span class="dc-live-dot"></span>Prêt de sauvetage</span></div>
+      <figure class="sa-illu"><img src="${directionSceneArt('banque')}" alt="" aria-hidden="true">
+        <span class="sa-illu-badges"><span class="sa-illu-tier">Taux ${pct(offer.rate)}</span></span>
+        <figcaption class="sa-illu-cap"><span class="sa-illu-name">La banque vous reçoit</span></figcaption></figure>
+      <div ${pop(0.05, 'sa-stats')}>
+        <div class="sa-stat"><span>Taux d’intérêt</span><b>${pct(offer.rate)}</b></div>
+        <div class="sa-stat"><span>Annuité max.</span><b>${nf1(offer.room)} M€</b></div>
+        <div class="sa-stat"><span>Montant minimal</span><b>${nf1(offer.needed)} M€</b></div>
+      </div>
+      <div ${pop(0.12, 'sa-gauge')}>
+        <div class="sa-gauge-head"><span class="sa-gauge-label">Montant du prêt</span><output class="sa-gauge-value" id="loan-amount-out">${nf1(a0)} M€</output></div>
+        <input type="range" class="sa-gauge-range" id="loan-amount" min="${LOAN.min}" max="${LOAN.max}" step="1" value="${Math.round(a0)}" aria-label="Montant du prêt">
+        <div class="sa-gauge-scale"><span>${LOAN.min} M€</span><span class="sa-gauge-est" id="loan-zone"></span><span>${LOAN.max} M€</span></div>
+      </div>
+      <div ${pop(0.18, 'sa-gauge')}>
+        <div class="sa-gauge-head"><span class="sa-gauge-label">Durée de remboursement</span><output class="sa-gauge-value loan-years" id="loan-years-out">${y0} saisons</output></div>
+        <input type="range" class="sa-gauge-range loan-years-range" id="loan-years" min="${LOAN.years[0]}" max="${LOAN.years[1]}" step="1" value="${y0}" aria-label="Durée du prêt">
+        <div class="sa-gauge-scale"><span>${LOAN.years[0]} saison</span><span>${LOAN.years[1]} saisons</span></div>
+      </div>
+      <div ${pop(0.24, 'sa-stats')} id="loan-summary"></div>
+      <p ${pop(0.28, 'sa-note sa-warn loan-warn')} id="loan-warn"></p>
+      <p ${pop(0.3, 'sa-note')}>Chaque annuité est prélevée à l’ouverture de la saison et annoncée dans vos engagements. Capacité d’endettement : 33 % des recettes d’une saison (${nf1(offer.revenue)} M€)${offer.existing > 0 ? `, dont ${nf1(offer.existing)} M€ déjà engagés` : ''}.</p>
+      <div ${pop(0.34, 'sa-actions')}>
+        <button type="button" class="sa-btn primary" id="btn-loan-sign">Signer le prêt</button>
+        <button type="button" class="sa-btn" id="btn-loan-cancel">Renoncer</button>
+      </div>
+    </div>`;
 }
 function bindLoanPanel(app) {
   const offer = loanOffer();
   const a = app.querySelector('#loan-amount'), y = app.querySelector('#loan-years');
   if (!offer || !a || !y) return;
+  const pctOf = v => `${(v - LOAN.min) / (LOAN.max - LOAN.min) * 100}%`;
   const update = () => {
     const amount = Number(a.value), years = Number(y.value), c = loanCheck(offer, amount, years);
+    // Zone verte de la jauge : montants possibles pour cette durée.
+    const hi = loanMaxAmount(offer, years), lo = Math.min(hi, offer.needed);
+    a.style.setProperty('--est-a', pctOf(lo)); a.style.setProperty('--est-b', pctOf(Math.max(lo, hi)));
+    y.style.setProperty('--est-a', '0%'); y.style.setProperty('--est-b', '100%');
+    app.querySelector('#loan-zone').textContent = hi >= offer.needed ? `Possible : ${nf1(offer.needed)}–${nf1(hi)} M€` : 'Durée trop courte';
     app.querySelector('#loan-amount-out').textContent = `${nf1(amount)} M€`;
     app.querySelector('#loan-years-out').textContent = `${years} saison${years > 1 ? 's' : ''}`;
-    app.querySelector('#loan-summary').innerHTML = `<li><span>Annuité</span><b>${nf1(c.annuity)} M€ / saison</b></li>
-      <li><span>Coût total des intérêts</span><b>${nf1(c.interest)} M€</b></li>
-      <li><span>Trésorerie après le prêt</span><b>${nf1(gameState.player.tresorerie + amount)} M€</b></li>`;
-    app.querySelector('#loan-warn').textContent = c.ok ? '' : `Prêt refusé : ${c.reasons.join(' ; ')}.`;
+    app.querySelector('#loan-summary').innerHTML = `<div class="sa-stat"><span>Annuité</span><b>${nf1(c.annuity)} M€</b></div>
+      <div class="sa-stat"><span>Intérêts</span><b>${nf1(c.interest)} M€</b></div>
+      <div class="sa-stat"><span>Trésorerie après</span><b>${nf1(gameState.player.tresorerie + amount)} M€</b></div>`;
+    app.querySelector('#loan-warn').textContent = c.ok ? '' : `⚠️ ${c.reasons.join(' ; ').replace(/^./, m => m.toUpperCase())}.`;
     app.querySelector('#btn-loan-sign').disabled = !c.ok;
   };
   a.oninput = update; y.oninput = update; update();
   app.querySelector('#btn-loan-sign').onclick = () => { if (takeLoan(Number(a.value), Number(y.value)).ok) render(); };
+  app.querySelector('#btn-loan-cancel').onclick = () => { gameState.loanPanelOpen = false; render(); };
 }
 
 function nextSeasonCommitment() {
@@ -29735,6 +29781,72 @@ function dilemmaProgramFiche(id, channel = gameState.player) {
 }
 function findProgram(id) {
   return PROGRAM_CATALOG.find(x => x.id === id) || dilemmaProgramFiche(id) || gameState.player?.originalFormats?.[id] || null;
+}
+// Illustrations de scènes de direction (bureau du propriétaire, banque, entretien), au style
+// plat des illustrations de programmes : SVG 16/9 en data URI.
+function directionSceneArt(kind) {
+  const person = (x, y, suit, skin, hair, { tie = '#e11d48', glasses = false } = {}) => `
+    <g transform="translate(${x} ${y})">
+      <path d="M-30 70 Q-30 28 0 26 Q30 28 30 70 Z" fill="${suit}"/>
+      <path d="M-8 27 L0 46 L8 27 Z" fill="#fff"/><path d="M-3 30 L0 50 L3 30 Z" fill="${tie}"/>
+      <rect x="-6" y="14" width="12" height="14" rx="5" fill="${skin}"/>
+      <circle cx="0" cy="0" r="17" fill="${skin}"/>
+      <path d="M-17 -2 Q-18 -20 0 -20 Q18 -20 17 -2 Q12 -12 0 -12 Q-10 -12 -17 -2 Z" fill="${hair}"/>
+      <circle cx="-6" cy="1" r="2" fill="#1f2937"/><circle cx="6" cy="1" r="2" fill="#1f2937"/>
+      <path d="M-5 9 Q0 12 5 9" stroke="#1f2937" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+      ${glasses ? '<g fill="none" stroke="#1f2937" stroke-width="1.4"><circle cx="-6" cy="1" r="5"/><circle cx="6" cy="1" r="5"/><path d="M-1 1h2"/></g>' : ''}
+    </g>`;
+  const scenes = {
+    // Propriétaire de chaîne dans son bureau, contrat sur la table.
+    bureau: `
+      <rect width="320" height="180" fill="#e7ecfb"/>
+      <rect x="0" y="128" width="320" height="52" fill="#c7cfe8"/>
+      <g transform="translate(18 20)"><rect width="92" height="80" rx="4" fill="#2f3b6e"/>
+        <rect x="6" y="6" width="80" height="68" fill="#45528f"/>
+        <g fill="#7b88c9"><rect x="10" y="44" width="12" height="30"/><rect x="26" y="34" width="14" height="40"/><rect x="44" y="50" width="10" height="24"/><rect x="58" y="28" width="12" height="46"/><rect x="73" y="46" width="10" height="28"/></g>
+        <path d="M64 28 L64 12" stroke="#ffd166" stroke-width="2"/><circle cx="64" cy="10" r="3" fill="#ef476f"/>
+        <path d="M46 6 V74 M6 40 H86" stroke="#2f3b6e" stroke-width="3"/></g>
+      <g transform="translate(232 22)"><rect width="66" height="48" rx="6" fill="#fff" stroke="#cbd5e1" stroke-width="2"/>
+        <rect x="8" y="8" width="50" height="30" rx="4" fill="#0f172a"/><text x="33" y="29" font-family="Anton, Impact, sans-serif" font-size="16" fill="#ffd166" text-anchor="middle">TV</text></g>
+      <path d="M128 132 V60 Q128 44 160 44 Q192 44 192 60 V132 Z" fill="#7c2d12"/>
+      ${person(160, 62, '#1e293b', '#f2c4a0', '#5b3a29')}
+      <rect x="40" y="122" width="240" height="14" rx="3" fill="#92400e"/>
+      <rect x="52" y="136" width="216" height="40" fill="#78350f"/>
+      <g transform="translate(150 98) rotate(-6)"><rect width="58" height="34" rx="2" fill="#fff" stroke="#e2e8f0"/>
+        <path d="M8 9h42M8 15h36M8 21h40" stroke="#94a3b8" stroke-width="2"/><path d="M30 28 q6 -6 10 0 t10 -2" stroke="#1d4ed8" stroke-width="1.8" fill="none"/>
+        <circle cx="12" cy="27" r="4" fill="#e11d48"/></g>
+      <path d="M216 118 L240 104" stroke="#0f172a" stroke-width="4" stroke-linecap="round"/><path d="M240 104 L244 102" stroke="#ffd166" stroke-width="4" stroke-linecap="round"/>
+      <rect x="84" y="112" width="40" height="11" rx="2" fill="#fde68a"/><text x="104" y="120" font-family="Arial, sans-serif" font-size="7" font-weight="700" fill="#78350f" text-anchor="middle">PDG</text>`,
+    // Banquier à son guichet, coffre-fort et pièces.
+    banque: `
+      <rect width="320" height="180" fill="#ecf5ef"/>
+      <rect x="0" y="130" width="320" height="50" fill="#b7d8c4"/>
+      <g fill="#cfe5d7"><rect x="20" y="20" width="14" height="110"/><rect x="286" y="20" width="14" height="110"/></g>
+      <path d="M12 20 H308 L300 8 H20 Z" fill="#9cc7ad"/>
+      <g transform="translate(228 46)"><circle r="40" fill="#64748b"/><circle r="32" fill="#94a3b8"/><circle r="9" fill="#475569"/>
+        <path d="M0 -26 V26 M-26 0 H26" stroke="#475569" stroke-width="5" stroke-linecap="round"/></g>
+      ${person(120, 62, '#14532d', '#e8b48f', '#1f2937', { tie: '#ffd166', glasses: true })}
+      <rect x="40" y="122" width="200" height="14" rx="3" fill="#166534"/>
+      <rect x="50" y="136" width="180" height="40" fill="#14532d"/>
+      <g fill="#ffd166" stroke="#d97706" stroke-width="1.5"><ellipse cx="190" cy="118" rx="12" ry="4"/><ellipse cx="190" cy="113" rx="12" ry="4"/><ellipse cx="190" cy="108" rx="12" ry="4"/>
+        <ellipse cx="214" cy="118" rx="12" ry="4"/><ellipse cx="214" cy="113" rx="12" ry="4"/></g>
+      <circle cx="60" cy="102" r="16" fill="#ffd166"/><text x="60" y="109" font-family="Anton, Impact, sans-serif" font-size="20" fill="#92400e" text-anchor="middle">€</text>`,
+    // Entretien préalable : la convocation sur la table, une horloge.
+    entretien: `
+      <rect width="320" height="180" fill="#f3eef8"/>
+      <rect x="0" y="130" width="320" height="50" fill="#d9cfe6"/>
+      <g transform="translate(270 36)"><circle r="20" fill="#fff" stroke="#7e57c2" stroke-width="3"/><path d="M0 0 V-12 M0 0 L9 5" stroke="#3e2a3c" stroke-width="2.5" stroke-linecap="round"/></g>
+      <rect x="24" y="24" width="70" height="52" rx="4" fill="#fff" stroke="#d8cbe8" stroke-width="2"/><path d="M34 40h50M34 50h40M34 60h46" stroke="#c4b5d9" stroke-width="3"/>
+      ${person(160, 62, '#3e2a3c', '#f0c09a', '#2d1b2e', { tie: '#7e57c2', glasses: true })}
+      <rect x="40" y="122" width="240" height="14" rx="3" fill="#5b4a6b"/>
+      <rect x="52" y="136" width="216" height="40" fill="#3e2a3c"/>
+      <g transform="translate(118 96) rotate(-4)"><rect width="84" height="30" rx="2" fill="#fff" stroke="#e2e8f0"/>
+        <path d="M0 0 L42 18 L84 0" stroke="#cbd5e1" stroke-width="1.5" fill="none"/>
+        <rect x="18" y="20" width="48" height="8" rx="2" fill="#fee2e2"/><text x="42" y="26.5" font-family="Arial, sans-serif" font-size="5.6" font-weight="700" fill="#b91c1c" text-anchor="middle">CONVOCATION</text>
+        <circle cx="42" cy="15" r="6" fill="#e11d48"/></g>`
+  };
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180" width="320" height="180">${scenes[kind] || scenes.bureau}</svg>`;
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 }
 function programArt(program) {
   return program && typeof TvPrograms !== 'undefined' ? TvPrograms.forProgram(program) : '';
@@ -31960,8 +32072,8 @@ const STORY_EVENTS = [
  {id:'story_sponsor',titre:'Le sponsor demande un droit de regard',desc:'Il n’a pas seulement acheté de la visibilité : il veut désormais censurer, corriger et valider chaque publication.',eligible:p=>p.decisionHistory.some(x=>x.commercial>0),c:[
   {l:'Refuser et indemniser le partenaire',b:-2,pop:3,pda:{csp:2},r:'Votre indépendance est préservée.',finance:{recurring:0,purchase:2,commercial:0,category:'P'}},
   {l:'Accepter une opération sponsorisée',b:4,pop:-4,pda:{a2549:1},r:'La marque paie cette opération ponctuelle.',finance:{recurring:0,purchase:0,commercial:4,category:'C'}}]},
- {id:'story_talent',titre:'Votre vedette reçoit une offre concurrente',desc:'Le recrutement d’une vedette a attiré l’attention des autres chaînes.',eligible:p=>Object.values(p.contracts).some(c=>c.talent==='Prod. Internationale'),c:[
-  {l:'Financer une campagne autour de la vedette',b:-2,pop:2,pda:{a2549:2},r:'La campagne renforce le rendez-vous.',finance:{recurring:0,purchase:2,commercial:0,category:'P'}},
+ {id:'story_talent',titre:'Votre animateur star reçoit une offre concurrente',desc:'Le recrutement de votre animateur star a attiré l’attention des autres chaînes : une chaîne concurrente lui fait une offre.',eligible:p=>Object.values(p.contracts).some(c=>c.talent==='Prod. Internationale'),c:[
+  {l:'Financer une campagne autour de votre animateur star',b:-2,pop:2,pda:{a2549:2},r:'La campagne renforce le rendez-vous.',finance:{recurring:0,purchase:2,commercial:0,category:'P'}},
   {l:'S’en tenir au contrat signé',b:0,pop:-1,pda:{a2549:-1},r:'Le contrat reste en vigueur, mais la concurrence brouille votre communication.',finance:{recurring:0,purchase:0,commercial:0,category:'N'}}]}
 ];
 function campaignProgress() {
@@ -32238,6 +32350,12 @@ const CHANNEL_APPROACH = {
   maxProbability: 0.8,
   reputation: { start: 50, success: 10, failure: -10, malus: 0.5, malusSeasons: 4, factor: [0.75, 1.25] },
   contributionCap: 0.3,      // apport d'actionnaire : au plus 30 % du capital de départ du format
+  // Reprise d'une chaîne : les contrats sont réévalués au prix du marché. La grille vaut
+  // gridShare des recettes publicitaires attendues de la chaîne, répartie entre les cases au
+  // prorata de leur audience ; un contrat déjà plus cher garde son prix. Un contrat diffusé
+  // jusqu'à la saison close (échéance atteinte, pas encore arbitrée) est prolongé d'une saison :
+  // son renouvellement se décidera en fin de saison suivante, comme pour tout contrat du joueur.
+  market: { gridShare: 0.55 },
   mandateSeasons: 3
 };
 const APPROACH_MOTIVES = {
@@ -32391,18 +32509,20 @@ function buildChannelOffer(scores) {
 // Offre : instantané sérialisable, affiché tel quel (aucun recalcul à l'affichage).
 function describeChannelOffer({ c, s, motive, mandate }, scores, rows, myRow) {
   const p = gameState.player, season = gameState.season, r1 = v => Math.round(v * 10) / 10;
+  // Contrats aux conditions de reprise : prix du marché, échéance prolongée si elle est atteinte.
+  const terms = takeoverContractTerms(c, rows);
   const contracts = TIME_SLOTS.map(({ key }) => {
-    const k = c.contracts?.[key];
+    const k = c.contracts?.[key], t = terms[key];
     const sport = competitorSportsRightOn(c, key);
-    return { slot: key, name: k?.name || (sport ? SPORT_RIGHTS_EVENTS[sport.eventId]?.name : '—'), annual: k ? r1(competitorContractAnnual(k)) : 0,
-      end: k?.end ?? null, level: k ? contractInvestLevel(k) : null };
+    return { slot: key, name: k?.name || (sport ? SPORT_RIGHTS_EVENTS[sport.eventId]?.name : '—'), annual: k ? r1(t?.annual ?? competitorContractAnnual(k)) : 0,
+      end: t?.end ?? k?.end ?? null, level: k ? contractInvestLevel(k) : null };
   });
   const talents = competitorTalentsActive(c, season + 1).map(t => ({ name: t.name, role: t.role || '', annual: t.annual, until: t.until }));
   const sports = (gameState.sportsRights?.owned || []).filter(o => o.ownerName === c.name && o.ownerId !== 'player' && o.broadcastSeason > season)
     .map(o => ({ eventId: o.eventId, name: SPORT_RIGHTS_EVENTS[o.eventId]?.name || o.eventId, season: o.broadcastSeason,
       due: r1((o.pricePending ? o.acquisitionPrice : 0) + (o.productionCost || 0)) }));
   const last = c.finance?.history?.find(h => h.season === season) || c.finance?.history?.at(-1) || null;
-  const nextCharges = TIME_SLOTS.reduce((sum, { key }) => { const k = c.contracts?.[key]; return sum + (k && k.end >= season + 1 ? competitorContractAnnual(k) : 0); }, 0)
+  const nextCharges = TIME_SLOTS.reduce((sum, { key }) => { const t = terms[key]; return sum + (t && t.end >= season + 1 ? t.annual : 0); }, 0)
     + talents.reduce((sum, t) => sum + (t.annual || 0), 0);
   const sportsNext = sports.filter(x => x.season === season + 1).reduce((a, x) => a + x.due, 0);
   const sportsLater = sports.filter(x => x.season > season + 1).reduce((a, x) => a + x.due, 0);
@@ -32451,9 +32571,21 @@ function declineChannelOffer() {
 }
 // ---- Conversion des structures ----
 const roundCent = v => Math.round(v * 100) / 100;
+// Conditions de reprise des contrats d'une chaîne IA : prix du marché et échéance (lecture seule).
+function takeoverContractTerms(c, rows = getCalculatedPDAs()) {
+  const season = gameState.season, row = rows.find(r => r.channel === c);
+  const weights = Object.fromEntries(TIME_SLOTS.map(({ key }) => [key, Math.max(0, row?.slots?.[key]?.[c.target] || 0)]));
+  const total = Object.values(weights).reduce((a, v) => a + v, 0) || 1;
+  const budget = competitorAdRevenue(c, rows) * CHANNEL_APPROACH.market.gridShare;
+  return Object.fromEntries(Object.entries(c.contracts || {}).filter(([, k]) => k && !k.isSportsEvent).map(([slot, k]) => {
+    const base = competitorContractAnnual(k), market = budget * weights[slot] / total;
+    return [slot, { base: roundCent(base), annual: roundCent(Math.max(base, Math.round(market * 10) / 10)),
+      end: k.end === season ? season + 1 : k.end, extended: k.end === season }];
+  }));
+}
 // Chaîne IA → joueur : coût annuel replié dans le contrat (programme + production), contrats,
 // talents, droits et trésorerie conservés ; champs de saison du joueur initialisés.
-function convertCompetitorToPlayer(c) {
+function convertCompetitorToPlayer(c, terms = takeoverContractTerms(c)) {
   const season = gameState.season;
   c.tresorerie = c.budget ?? 0;
   // Les investissements de case en cours (slotInvestments) restent : ils pèsent sur l'audience
@@ -32462,7 +32594,10 @@ function convertCompetitorToPlayer(c) {
   ['budget', 'finance', 'strategy', 'strategyHistory', 'plan', 'lastAction', 'commercialSeason', 'commercialPdaRef'].forEach(k => delete c[k]);
   c.grilleOverrides = {};
   Object.entries(c.contracts || {}).forEach(([slot, k]) => {
-    k.annual = roundCent((k.annual || 0) + (k.productionAnnual ?? GAME_BALANCE.market.investCost[contractInvestLevel(k)] ?? 0));
+    // Prix du marché et échéance de reprise (takeoverContractTerms).
+    const t = terms[slot];
+    k.annual = t ? t.annual : roundCent((k.annual || 0) + (k.productionAnnual ?? GAME_BALANCE.market.investCost[contractInvestLevel(k)] ?? 0));
+    if (t) { k.end = t.end; if (t.annual > t.base) k.takeoverRevalued = { from: t.base, season }; }
     k.productionAnnual = 0;
     k.talent ??= 'Prod. Interne'; k.talentAnnual ??= 0; k.ownership ??= 'licence';
     k.powerModel ??= 'ai';
@@ -32547,13 +32682,15 @@ function duplicatedPrograms() {
   }));
   return [...dups].sort().join(',');
 }
-function transferSnapshot(p, c) {
+// market : contrats de la chaîne IA aux conditions de reprise (prix du marché, échéance).
+function transferSnapshot(p, c, { market = false } = {}) {
+  const terms = market ? takeoverContractTerms(c) : null;
   const sumAnnual = ch => Object.values(ch.contracts || {}).reduce((s, k) => s + (k.annual || 0) + (k.productionAnnual ?? 0), 0);
   return {
     names: [p.name, ...gameState.competitors.map(x => x.name)].sort().join('|'),
     playerCash: p.tresorerie, compCash: c.budget,
     playerContracts: Object.fromEntries(Object.entries(p.contracts || {}).map(([s, k]) => [s, `${k.id}|${k.end}|${roundCent(k.annual || 0)}`])),
-    compContracts: Object.fromEntries(Object.entries(c.contracts || {}).map(([s, k]) => [s, `${k.id}|${k.end}|${roundCent(competitorContractAnnual(k))}`])),
+    compContracts: Object.fromEntries(Object.entries(c.contracts || {}).map(([s, k]) => [s, terms?.[s] ? `${k.id}|${terms[s].end}|${terms[s].annual}` : `${k.id}|${k.end}|${roundCent(competitorContractAnnual(k))}`])),
     playerTalents: (p.talents || []).map(t => `${t.id}|${t.annual}|${t.until}`).sort().join(','),
     compTalents: (c.talents || []).map(t => `${t.id}|${t.annual}|${t.until}`).sort().join(','),
     rights: (gameState.sportsRights?.owned || []).filter(o => [p.name, c.name].includes(o.ownerName)).map(o => `${o.eventId}|${o.ownerName}|${o.broadcastSeason}`).sort().join(','),
@@ -32578,9 +32715,12 @@ function acceptChannelOffer() {
   try {
     const season = gameState.season, oldP = gameState.player, c = gameState.competitors[index];
     channelId(oldP); channelId(c);
-    const before = transferSnapshot(oldP, c);
+    // Conditions de reprise arrêtées avant toute conversion (les droits sportifs changent de
+    // détenteur ensuite).
+    const terms = takeoverContractTerms(c);
+    const before = transferSnapshot(oldP, c, { market: true });
     convertSportsOwnership(c, oldP);
-    const newPlayer = convertCompetitorToPlayer(c);
+    const newPlayer = convertCompetitorToPlayer(c, terms);
     const newAi = convertPlayerToCompetitor(oldP, o.strategy || 'rentable');
     gameState.competitors[index] = newAi;
     gameState.player = newPlayer;

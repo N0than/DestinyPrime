@@ -98,16 +98,22 @@ function transfert(type='generaliste', seed=4242, scores={audience:0.8,finance:0
     compTalents:(c.talents||[]).map(t=>t.id+'|'+t.annual+'|'+t.until).sort().join(), oldTalents:(oldP.talents||[]).map(t=>t.id+'|'+t.annual+'|'+t.until).sort().join(),
     rights:(gameState.sportsRights.owned||[]).filter(r=>[oldP.name,c.name].includes(r.ownerName)).length,
     // Hors événement de la saison close (pondéré par la popularité chez le joueur, pas chez une IA).
-    audience:transferSnapshot(oldP,c).audience };
+    audience:transferSnapshot(oldP,c).audience, terms:takeoverContractTerms(c), adRevenue:competitorAdRevenue(c) };
   // Engagement différé de l'ancienne chaîne : il la suit.
   registerCommitment({ kind:'adGuarantee', key:'test-guarantee', amount:2, season:gameState.season });
+  const S0=gameState.season;
   const r=acceptChannelOffer(); ok(r.ok,'acceptation : '+r.reason);
   ok(!acceptChannelOffer().ok,'pas de double acceptation');
   const np=gameState.player, ai=gameState.competitors.find(x=>x.name===oldP.name);
   ok(np===c&&ai===oldP&&gameState.competitors.length===5,'six chaînes : rôles échangés, objets conservés');
   ok(near(np.tresorerie,before.compCash+o.contribution)&&near(ai.budget,before.playerCash),'trésoreries conservées (+ apport explicite)');
   ok(transferSnapshot(np,ai).audience===before.audience,'audiences inchangées : aucun bonus');
-  Object.entries(before.compContracts).forEach(([s,k])=>{ const n=np.contracts[s]; ok(n===k.obj&&n.id===k.id&&n.end===k.end&&near(n.annual,k.cost,0.011),'contrat repris tel quel : '+s); });
+  // Contrats repris au prix du marché (jamais sous leur coût), échéance de la saison close prolongée d'une saison.
+  Object.entries(before.compContracts).forEach(([s,k])=>{ const n=np.contracts[s], tm=before.terms[s];
+    ok(n===k.obj&&n.id===k.id&&near(n.annual,tm.annual,0.011)&&n.annual>=k.cost-0.011,'contrat repris au prix du marché : '+s);
+    ok(n.end===(k.end===S0?S0+1:k.end),'échéance de reprise : '+s); });
+  const sumBase=Object.values(before.terms).reduce((a,x)=>a+x.base,0), marketGrid=Object.values(before.terms).reduce((a,x)=>a+x.annual,0);
+  ok(marketGrid>=sumBase-0.01&&(before.adRevenue*CHANNEL_APPROACH.market.gridShare<=sumBase||marketGrid>sumBase),'grille réévaluée au prix du marché ('+sumBase.toFixed(1)+' → '+marketGrid.toFixed(1)+' M€)');
   Object.entries(before.oldContracts).forEach(([s,k])=>{ const n=ai.contracts[s]; ok(n===k.obj&&n.end===k.end&&near(competitorContractAnnual(n),k.annual),'contrat de l’ancienne chaîne conservé : '+s); });
   ok((np.talents||[]).map(t=>t.id+'|'+t.annual+'|'+t.until).sort().join()===before.compTalents&&(ai.talents||[]).map(t=>t.id+'|'+t.annual+'|'+t.until).sort().join()===before.oldTalents,'talents et salaires conservés');
   // Coût de grille reporté : tous les contrats (hors pause) et les talents ; expireContracts et

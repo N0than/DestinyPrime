@@ -70,6 +70,9 @@ function saison(){ gameState.seasonKickoffPending=false; gameState.mercatoPendin
   const o=loanOffer(); ok(near(o.room,0.5),'marge restante');
   ok(!takeLoan(10,1).ok&&!loanCheck(o,10,10).ok,'nouveau prêt refusé au-delà de la capacité');
   ok(loanCheck(o,1,10).ok===(loanAnnuity(1,o.rate,10)<=0.5+1e-9),'petit prêt dans la marge');
+  ok(loanFeasible()===(loanMaxAmount(o,10)>=o.needed),'faisabilité : montant minimal finançable sur 10 saisons');
+  p.loans[0].annuity=o.capacity; ok(!loanFeasible(),'aucune hypothèse possible : bouton masqué');
+  p.loans[0].annuity=0; p.tresorerie=TRESORERIE_CRITIQUE-80; ok(!loanFeasible(),'besoin supérieur à 60 M€ : bouton masqué');
 }
 // ——— 3. Faillite pendant les dilemmes : reprise au dilemme suivant ———
 { const p=partie(); gameState.seasonKickoffPending=false; gameState.mercatoPending=false;
