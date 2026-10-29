@@ -168,7 +168,7 @@ function transfert(type='generaliste', seed=4242, scores={audience:0.8,finance:0
 
 // ——— 8. Ancienne chaîne sous IA sur plusieurs saisons ; distribution ———
 { const { o }=transfert('jeunesse',31);
-  ok(acceptChannelOffer().ok,'acceptation');
+  ok(acceptChannelOffer().ok,'acceptation'); gameState.director.mandate=null; // hors sujet ici (durée tirée)
   const ai=gameState.competitors.find(x=>x.finance?.history?.some(h=>h.directedByPlayer));
   ok(ai,'ancienne chaîne : historique propre reconstitué');
   competitorBook(ai,'income',400,'Recette test');
@@ -215,7 +215,7 @@ function offreEnFile(seed=4242){ const r=transfert('generaliste',seed); const o=
   ok(np===c&&np.name===name&&gameState.director.transfers.length===1,'reprise instantanée, dans la saison');
   ok(near(np.tresorerie,cash.comp+(o.contribution||0))&&near(p.budget,cash.player),'trésoreries conservées');
   ok(np.grillePayeeSaison===S&&near(np.revenusPubPrevisionnels,credited)&&gameState.step===6&&gameState.dilemmaPhase==='choosing','saison de la chaîne rejointe : grille réglée, recettes déjà créditées');
-  const m=gameState.director.mandate; ok(m?.status==='running'&&m.startSeason===S&&m.endSeason===S+CHANNEL_APPROACH.mandateSeasons-1,'mandat lancé dès la saison en cours');
+  const m=gameState.director.mandate; ok(m?.status==='running'&&m.startSeason===S&&m.endSeason===S+o.mandateSeasons-1,'mandat lancé dès la saison en cours');
   ok(p.plan?.season===S&&p.finance.openedSeason===S&&gameState.competitors.includes(p),'ancienne chaîne sous IA, saison ouverte, sans reprogrammation');
   ok(Object.values(np.contracts).every(k=>!k.nextAnnual||(k.nextAnnualFrom===S+1&&k.nextAnnual>k.annual)),'prix du marché à partir de la saison suivante');
   ok(gameState.dilemmaQueue.length>gameState.currentDilemmaIndex,'dilemmes de la saison retirés pour la nouvelle chaîne');
@@ -248,7 +248,7 @@ function offreEnFile(seed=4242){ const r=transfert('generaliste',seed); const o=
   ok(o.status==='refused'&&!gameState.director.approach.offer,'offre sans réponse : refus sans sanction'); }
 // ——— 13. Entretien préalable de licenciement ———
 function mandatEchoue(){ const r=offreEnFile(); r.o.ui='study'; r.o.decision='accept'; chooseDilemmaOption(0); continueAfterConsequence(); joue(); suivante();
-  const d=gameState.director, m=d.mandate; m.objective={ kind:'pdaGain', value:99, text:'Gagner 99 pt de PDA.' };
+  const d=gameState.director, m=d.mandate; m.objective={ kind:'pdaGain', value:99, text:'Gagner 99 pt de PDA.' }; m.endSeason=gameState.season;
   for(let s=0;s<CHANNEL_APPROACH.mandateSeasons;s++){ const q=gameState.dilemmaQueue; if(q[0]?.isDismissalInterview) break; joue(); if(gameState.step===8) break; suivante(); }
   return d; }
 { const d=mandatEchoue();
@@ -261,6 +261,20 @@ function mandatEchoue(){ const r=offreEnFile(); r.o.ui='study'; r.o.decision='ac
   m.objective={ kind:'pdaGain', value:99, text:'x' };
   for(let s=0;s<3&&gameState.step!==8;s++){ joue(); if(gameState.step===8) break; suivante(); }
   ok(gameState.step===8&&gameState.gameOverReason==='dismissed'&&d.dismissed?.reason==='renegotiated','objectif renégocié manqué : démis de ses fonctions'); }
+// ——— 14. Durée de mandat tirée, mandat réussi ———
+{ const { o }=offreEnFile(); ok(o.mandateSeasons>=2&&o.mandateSeasons<=5&&new RegExp(o.mandateSeasons+' saisons').test(o.objective.text+(o.mandate==='consolider'?'':'')+o.objective.text)||o.mandate==='rentabilite','durée tirée, objectif proportionné');
+  o.ui='study'; o.decision='accept'; chooseDilemmaOption(0); continueAfterConsequence();
+  const d=gameState.director, m=d.mandate; ok(m.endSeason-m.startSeason+1===o.mandateSeasons,'mandat de la durée tirée');
+  m.objective={ kind:'hold', value:99, text:'Tenir.' }; m.start.rank=6; m.endSeason=gameState.season; joue();
+  ok(d.success&&d.mandates.at(-1).status==='success','objectif atteint');
+  suivante(); const dil=gameState.dilemmaQueue[0]; ok(dil?.isMandateSuccess&&dil.c.length===2,'dilemme de mandat réussi en tête de saison');
+  const c0=gameState.player.commercialSaison||0; gameState.currentDilemmaIndex=0; gameState.dilemmaPhase='choosing'; chooseDilemmaOption(0);
+  ok(dil.interview.bonus>0&&near(gameState.player.commercialSaison-c0,dil.interview.bonus),'bonus versé ('+dil.interview.bonus+' M€)'); ok(!d.success,'continuer');
+  continueAfterConsequence(); ok(gameState.step===6,'la partie continue'); }
+{ const { o }=offreEnFile(); o.ui='study'; o.decision='accept'; chooseDilemmaOption(0); continueAfterConsequence();
+  const d=gameState.director, m=d.mandate; m.objective={ kind:'hold', value:99, text:'Tenir.' }; m.start.rank=6; m.endSeason=gameState.season; joue(); suivante();
+  gameState.currentDilemmaIndex=0; gameState.dilemmaPhase='choosing'; chooseDilemmaOption(1); continueAfterConsequence();
+  ok(gameState.step===8&&gameState.gameOverReason==='dismissed'&&dismissalCopy().pill==='Démission','démission : fin de partie'); }
 `;
 const context = { console };
 vm.runInNewContext(scripts.slice(0, -1).join('\n') + tests, context, { filename: 'audience-masters-channel-approach.js' });

@@ -23642,6 +23642,7 @@ function chooseMaterialized(choiceIndex, dilemma) {
   // Direction : décision sur une proposition de poste, issue d'un entretien préalable.
   if (choice.channelOffer) applyChannelOfferDecision(choice.channelOffer);
   if (choice.directorDismissal) applyDismissalChoice(choice);
+  if (choice.mandateSuccess) { const dd = ensureDirector(); if (choice.mandateSuccess === 'resign') dd.dismissed = { season: gameState.season, channel: dd.success?.mandate.channel || player.name, reason: 'resigned' }; dd.success = null; }
   if (choice.producerDeal) {
     const deal = choice.producerDeal;
     const q = quoteProgram(deal.slot, deal.programId, deal.talentId);
@@ -23988,6 +23989,7 @@ function startNewSeason() {
   const director = gameState.director, offer = director?.approach?.offer;
   if (offer?.status === 'signed') takeOfficeSignedOffer();
   else if (offer?.status === 'pending' && offer.presented) declineChannelOffer();
+  if (director?.success?.presented) director.success = null;
   if (director?.interview?.presented) director.dismissed = { season: gameState.season, channel: director.interview.mandate.channel, reason: 'absent' };
   if (director?.dismissed && !director.dismissed.shown) {
     director.dismissed.shown = true; gameState.gameOverReason = 'dismissed'; gameState.step = 8; render(); return;
@@ -24947,7 +24949,7 @@ function render() {
     const sportsBlock = sportsResult ? renderSportsVerdictInline(gameState.lastConsequence)
       : phase === 'choosing' && sportEvent ? renderSportsAuctionZone(dilemma)
       : phase === 'choosing' && dilemma.isChannelOffer ? renderChannelOfferZone(dilemma)
-      : dilemma.isDismissalInterview ? dismissalInterviewHtml(dilemma) : '';
+      : dilemma.isDismissalInterview || dilemma.isMandateSuccess ? dismissalInterviewHtml(dilemma) : '';
     if (sportsResult) {
       zoneHtml = renderSportsVerdictZone(gameState.lastConsequence);
     } else if (phase === 'choosing' && (sportEvent || dilemma.isReplacementChoice || dilemma.isChannelOffer)) {
@@ -25046,7 +25048,7 @@ function render() {
       <div class="dilemma-container${phase === 'choosing' ? entrance : ''}${negRevealing ? ' neg-revealing' : ''}" style="--neg-think:${NEG_REVEAL.think}ms;--neg-offer:${NEG_REVEAL.offer}ms;--neg-choices:${NEG_REVEAL.choices}ms">
         <div class="dilemma-card dilemma-hero${phase === 'result' ? ' is-result' : ''}${sportEvent ? ` sa-hero sa-phase-${phase === 'result' ? 'verdict' : gameState.sportsRights?.activeAuction?.phase || 'market'}` : ''}">
           <div class="dc-head">
-            <span class="dc-head-left"><span class="dc-live-pill"><span class="dc-live-dot"></span>${sportEvent ? rightsMarketLabel(sportEvent) : dilemma.isChannelOffer ? '📨 Proposition de poste' : dilemma.isDismissalInterview ? '📨 Convocation' : dilemma.isProgramStory ? esc(dilemma.storyLabel) : dilemma.careerLabel ? esc(dilemma.careerLabel) : dilemma.isCareerScripted ? 'Mode carrière' : 'Événement'}</span>${channelPillHtml()}</span>
+            <span class="dc-head-left"><span class="dc-live-pill"><span class="dc-live-dot"></span>${sportEvent ? rightsMarketLabel(sportEvent) : dilemma.isChannelOffer ? '📨 Proposition de poste' : dilemma.isDismissalInterview ? '📨 Convocation' : dilemma.isMandateSuccess ? '🏆 Mandat réussi' : dilemma.isProgramStory ? esc(dilemma.storyLabel) : dilemma.careerLabel ? esc(dilemma.careerLabel) : dilemma.isCareerScripted ? 'Mode carrière' : 'Événement'}</span>${channelPillHtml()}</span>
             <span class="dc-season-pill">${seasonPillLabel()}</span>
           </div>
           <div class="dc-body">
@@ -32456,7 +32458,11 @@ const CHANNEL_APPROACH = {
   // trésorerie en gage de reconnaissance (part du capital de départ du format, de la première
   // à la seconde valeur selon l'intérêt de l'offre). Financement : hors résultat d'exploitation.
   loyaltyBonus: [0.08, 0.2],
-  mandateSeasons: 3
+  mandateSeasons: 3,
+  // Durée du mandat proposé : tirée (mémorisée) entre ces bornes ; l'objectif s'y proportionne.
+  mandateRange: [2, 5],
+  // Objectif atteint : bonus de trésorerie du propriétaire (part du capital de départ du format).
+  successBonus: 0.25
 };
 const APPROACH_MOTIVES = {
   audience: 'Vos résultats d’audience ont retenu notre attention.',
@@ -32635,10 +32641,11 @@ function describeChannelOffer({ c, s, motive, mandate }, scores, rows, myRow) {
   const treasury = r1(c.budget || 0);
   const engaged = r1(nextCharges + sportsNext);
   const myPerf = gameState.history.find(h => h.season === season)?.perf;
-  return {
+  const mandateSeasons = approachDraw(`mandate|${season}|${channelId(c)}`, CHANNEL_APPROACH.mandateRange);
+  return { mandateSeasons,
     id: `offer-${season}-${channelId(c)}`, season, status: 'pending', channelName: c.name, channelId: channelId(c), type: c.type, target: c.target,
     strategy: c.strategy, motive, motiveText: APPROACH_MOTIVES[motive], mandate, mandateLabel: DIRECTOR_MANDATES[mandate].label,
-    objective: mandateObjective(mandate, s), path: scores.path, scores,
+    objective: mandateObjective(mandate, s, mandateSeasons), path: scores.path, scores,
     pda4: r1(s.row.globalPda), pdaTarget: r1(s.row.pda[c.target]), rank: s.rank,
     contracts, talents, sports,
     lastSeason: last ? { revenue: r1(last.adRevenue), result: r1(last.result), distributions: r1(last.distributions || 0) } : null,
@@ -32650,13 +32657,14 @@ function describeChannelOffer({ c, s, motive, mandate }, scores, rows, myRow) {
       rank: myPerf?.rank ?? null, revenue: r1(myPerf?.revenue ?? p.revenusPubFinals ?? 0), result: r1(myPerf?.operating ?? 0), treasury: r1(p.tresorerie) }
   };
 }
-function mandateObjective(mandate, s) {
+function mandateObjective(mandate, s, n = CHANNEL_APPROACH.mandateSeasons) {
   const pda = Math.round(s.row.pda[s.row.channel.target] * 10) / 10;
+  const gain = v => Math.round(v * n / 3 * 10) / 10, profit = Math.max(1, Math.ceil(2 * n / 3));
   return {
-    developper: { kind: 'pdaGain', value: 1.5, text: `Gagner 1,5 pt de PDA sur la cible en ${CHANNEL_APPROACH.mandateSeasons} saisons (départ : ${nf1(pda)} %).` },
-    relance: { kind: 'pdaGain', value: 1, text: `Regagner 1 pt de PDA sur la cible en ${CHANNEL_APPROACH.mandateSeasons} saisons (départ : ${nf1(pda)} %).` },
-    consolider: { kind: 'hold', value: 1, text: `Rester au rang ${s.rank} ou mieux, sans perdre plus de 1 pt de PDA cible (départ : ${nf1(pda)} %).` },
-    rentabilite: { kind: 'profit', value: 2, text: `Dégager un résultat d’exploitation positif sur au moins 2 des ${CHANNEL_APPROACH.mandateSeasons} saisons.` }
+    developper: { kind: 'pdaGain', value: gain(1.5), text: `Gagner ${nf1(gain(1.5))} pt de PDA sur la cible en ${n} saisons (départ : ${nf1(pda)} %).` },
+    relance: { kind: 'pdaGain', value: gain(1), text: `Regagner ${nf1(gain(1))} pt de PDA sur la cible en ${n} saisons (départ : ${nf1(pda)} %).` },
+    consolider: { kind: 'hold', value: 1, text: `Rester au rang ${s.rank} ou mieux pendant ${n} saisons, sans perdre plus de 1 pt de PDA cible (départ : ${nf1(pda)} %).` },
+    rentabilite: { kind: 'profit', value: profit, text: `Dégager un résultat d’exploitation positif sur au moins ${profit} des ${n} saisons.` }
   }[mandate];
 }
 // Refus : aucune sanction, nouvelle évaluation 2 à 3 saisons plus tard.
@@ -32904,7 +32912,7 @@ function acceptChannelOffer({ instant = false } = {}) {
     const first = instant ? season : season + 1;
     d.channel = newPlayer.name; d.since = first;
     d.mandate = { channel: newPlayer.name, kind: o.mandate, label: o.mandateLabel, objective: o.objective, startSeason: first,
-      endSeason: first + CHANNEL_APPROACH.mandateSeasons - 1,
+      endSeason: first + (o.mandateSeasons || CHANNEL_APPROACH.mandateSeasons) - 1,
       start: { pdaTarget: o.pdaTarget, pda4: o.pda4, rank: o.rank, result: o.lastSeason?.result ?? null }, status: 'running' };
     A.nextEvalSeason = season + approachDraw(`transfer|${season}`, CHANNEL_APPROACH.transferWait);
     (A.past ??= []).push(o); A.offer = null;
@@ -32948,6 +32956,8 @@ function evaluateDirectorMandate() {
   d.mandates.push(m); d.mandate = null;
   // Objectif manqué : entretien préalable de licenciement en tête de la saison suivante ;
   // objectif renégocié manqué : démis de ses fonctions.
+  if (ok && !m.renegotiated) d.success = { season, mandate: JSON.parse(JSON.stringify(m)),
+    bonus: Math.round((CHANNEL_TYPES[gameState.player.type]?.baseBudget || 25) * CHANNEL_APPROACH.successBonus * 10) / 10 };
   if (!ok && m.renegotiated) d.dismissed = { season, channel: m.channel, reason: 'renegotiated' };
   else if (!ok) d.interview = { season, mandate: JSON.parse(JSON.stringify(m)) };
   pushSignal(ok ? `Mandat « ${m.label} » réussi : votre réputation de dirigeant progresse.`
@@ -32983,6 +32993,7 @@ function channelOfferDilemma(o) {
 function insertDirectorDilemmas() {
   const d = gameState.director, o = d?.approach?.offer, queue = gameState.dilemmaQueue || [];
   if (d?.interview && !d.interview.presented) { queue.unshift(dismissalInterviewDilemma(d.interview)); d.interview.presented = gameState.season; }
+  else if (d?.success && !d.success.presented) { queue.unshift(mandateSuccessDilemma(d.success)); d.success.presented = gameState.season; }
   else if (o?.status === 'pending' && !o.presented) { queue.unshift(channelOfferDilemma(o)); o.presented = gameState.season; o.ui = 'intro'; }
 }
 // Négociation : le propriétaire relève l'enveloppe ou retire son offre. Chance selon l'intérêt
@@ -33026,7 +33037,7 @@ function applyChannelOfferDecision({ decision }) {
     // Objectif et point de départ : situation de la chaîne au moment de la signature.
     const c = gameState.competitors.find(x => x.name === o.channelName);
     if (c) { const s = competitorSituation(c, getCalculatedPDAs()), r1 = v => Math.round(v * 10) / 10;
-      Object.assign(o, { objective: mandateObjective(o.mandate, s), pda4: r1(s.row.globalPda), pdaTarget: r1(s.row.pda[c.target]), rank: s.rank }); }
+      Object.assign(o, { objective: mandateObjective(o.mandate, s, o.mandateSeasons), pda4: r1(s.row.globalPda), pdaTarget: r1(s.row.pda[c.target]), rank: s.rank }); }
   } else if (decision === 'withdrawn') closeChannelOffer(o, 'withdrawn');
   else { const bonus = channelLoyaltyBonus(o); declineChannelOffer(); payLoyaltyBonus(o, bonus); }
 }
@@ -33055,7 +33066,7 @@ function takeOfficeSignedOffer() {
   const c = gameState.competitors.find(x => x.name === o.channelName);
   if (!c) { closeChannelOffer(o, 'void'); return { ok: false, reason: 'chaîne introuvable' }; }
   const rows = getCalculatedPDAs(), s = competitorSituation(c, rows), r1 = v => Math.round(v * 10) / 10;
-  Object.assign(o, { objective: mandateObjective(o.mandate, s), pda4: r1(s.row.globalPda), pdaTarget: r1(s.row.pda[c.target]), rank: s.rank });
+  Object.assign(o, { objective: mandateObjective(o.mandate, s, o.mandateSeasons), pda4: r1(s.row.globalPda), pdaTarget: r1(s.row.pda[c.target]), rank: s.rank });
   const last = c.finance?.history?.find(h => h.season === gameState.season);
   if (last) o.lastSeason = { revenue: r1(last.adRevenue), result: r1(last.result), distributions: r1(last.distributions || 0) };
   const res = acceptChannelOffer();
@@ -33092,7 +33103,7 @@ function renderChannelOfferZone(dilemma) {
   const type = CHANNEL_TYPES[o.type]?.label || o.type;
   const illu = `<figure class="sa-illu"><img src="${directionSceneArt('bureau')}" alt="" aria-hidden="true">
       <span class="sa-illu-badges"><span class="sa-illu-tier">${esc(type)}</span></span>
-      <span class="sa-illu-corner">Mandat ${CHANNEL_APPROACH.mandateSeasons} saisons</span>
+      <span class="sa-illu-corner">Mandat ${o.mandateSeasons || CHANNEL_APPROACH.mandateSeasons} saisons</span>
       <figcaption class="sa-illu-cap"><span class="sa-illu-name">${esc(o.channelName)}</span></figcaption></figure>`;
   const objective = `<div ${pop(0.12, 'sa-row co-objective')}><span class="sa-row-label">Objectif du propriétaire</span>
       <p class="co-objective-text">🎯 ${esc(o.objective.text)}</p></div>`;
@@ -33149,9 +33160,24 @@ function renegotiatedObjective(m) {
   if (o.kind === 'hold') return { kind: 'hold', value: o.value + 0.5, text: `Ne pas reculer de plus de ${nf1(o.value + 0.5)} pt de PDA cible ni au classement pendant ${n} saisons.` };
   return { kind: 'profit', value: 1, text: `Dégager un résultat d’exploitation positif sur au moins 1 des ${n} saisons.` };
 }
+// Objectif du mandat atteint : le propriétaire félicite et verse un bonus ; continuer ou démissionner.
+function mandateSuccessDilemma(sc) {
+  const m = sc.mandate, N = { recurring: 0, purchase: 0, commercial: 0, category: 'N' }, Z = { j1524: 0, a2549: 0, s50: 0, csp: 0 };
+  return { id: `mandate-success-${gameState.season}`, isMandateSuccess: true,
+    titre: 'Objectif atteint : le propriétaire vous félicite',
+    desc: `Le propriétaire de ${m.channel} vous reçoit : l’objectif de votre mandat est atteint. En gage de reconnaissance, il vous verse un bonus de ${nf1(sc.bonus)} M€.`,
+    interview: { objective: m.objective.text, start: m.start, final: m.final, success: true, bonus: sc.bonus },
+    c: [{ l: 'Continuer à la tête de la chaîne', icon: '🚀', mandateSuccess: 'continue', pillLabel: `Bonus : +${nf1(sc.bonus)} M€`, finance: { ...N, commercial: sc.bonus, category: 'C' }, pda: Z, audienceImpacts: [], pop: 1,
+        r: `Bonus de ${nf1(sc.bonus)} M€ versé : vous poursuivez l’aventure à la tête de ${m.channel}.` },
+      { l: 'Démissionner', icon: '👋', mandateSuccess: 'resign', finance: N, pda: Z, audienceImpacts: [], pop: 0,
+        r: `Vous quittez ${m.channel} sur un succès. Fin de votre parcours de dirigeant.` }] };
+}
 function dismissalCopy() {
   const d = gameState.director, ch = d?.dismissed?.channel || gameState.player.name;
   const renegotiated = d?.dismissed?.reason === 'renegotiated';
+  if (d?.dismissed?.reason === 'resigned') return { pill: 'Démission', title: 'Vous quittez la direction sur un succès',
+    lead: `Objectif atteint : vous démissionnez de la direction de ${ch} au sommet.`,
+    noteTitle: '🏆 Fin de mandat', note: 'Votre parcours de dirigeant s’achève sur un mandat réussi.' };
   return { pill: 'Démis de ses fonctions', title: 'Vous êtes démis de vos fonctions',
     lead: renegotiated ? `L’objectif renégocié n’a pas été atteint : le propriétaire de ${ch} met fin à votre mandat.`
       : `Vous avez accepté votre licenciement : vous quittez la direction de ${ch}.`,
@@ -33172,6 +33198,21 @@ function dismissalInterviewDilemma(iv) {
 function dismissalInterviewHtml(dilemma) {
   const iv = dilemma?.interview;
   if (!iv) return '';
+  if (iv.success) {
+    const stat = (label, value, cls = '') => `<div class="sa-stat${cls ? ` ${cls}` : ''}"><span>${label}</span><b>${value}</b></div>`;
+    return `<div class="sa-inline">
+      <figure class="sa-illu"><img src="${directionSceneArt('bureau')}" alt="" aria-hidden="true">
+        <span class="sa-illu-badges"><span class="sa-illu-tier">Objectif atteint</span></span>
+        <figcaption class="sa-illu-cap"><span class="sa-illu-name">Bureau du propriétaire</span></figcaption></figure>
+      <div class="sa-stats co-stats">
+        ${stat('PDA cible départ', `${nf1(iv.start?.pdaTarget ?? 0)} %`)}
+        ${stat('PDA cible atteinte', `${nf1(iv.final?.pdaTarget ?? 0)} %`)}
+        ${stat('Classement', iv.final?.rank ? `${iv.final.rank}<sup>e</sup>` : '—')}
+        ${stat('Bonus', `+${nf1(iv.bonus)} M€`, 'co-up')}
+      </div>
+      <div class="sa-row co-objective"><span class="sa-row-label">Objectif réalisé</span><p class="co-objective-text">🎯 ${esc(iv.objective)}</p></div>
+    </div>`;
+  }
   const stat = (label, value) => `<div class="sa-stat"><span>${label}</span><b>${value}</b></div>`;
   return `<div class="sa-inline">
     <figure class="sa-illu"><img src="${directionSceneArt('entretien')}" alt="" aria-hidden="true">
