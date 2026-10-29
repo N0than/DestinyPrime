@@ -35228,6 +35228,13 @@ function applyCareerSetup() {
   if (rule.start?.popularite != null) p.popularite = rule.start.popularite;
   if (rule.start?.grille != null) p.budgetGrilleAnnuel = p.coutGrilleEngageSaison = rule.start.grille;
   applyCareerStartShares(rule);
+  // Chaîne installée : grille au prix du marché (même règle que les concurrents et une reprise),
+  // jamais sous le forfait de lancement ; une grille fixée par le défi est conservée.
+  if (rule.start?.grille == null) {
+    const row = getCalculatedPDAs().find(r => r.channel === p);
+    const market = Math.round(computeRevenusPub(row.adPda[p.target], p.target, p.popularite, p.puissanceCommerciale) * CHANNEL_APPROACH.market.gridShare * 10) / 10;
+    if (market > (p.coutGrilleEngageSaison || 0)) p.budgetGrilleAnnuel = p.coutGrilleEngageSaison = market;
+  }
 }
 // Ouverture de saison, une fois les grilles rivales arrêtées : parts de départ recalées en
 // saison 1 (les rivales viennent de bâtir leur grille), puis effets de la contrainte.
