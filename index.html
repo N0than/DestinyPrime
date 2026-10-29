@@ -26338,7 +26338,8 @@ function evaluateSportsRight(event, player) {
 
 // Plafond privé d'une chaîne IA : valeur perçue de l'événement × profil, borné par le budget.
 // Chaîne jeunesse : jamais de droits sportifs (enchère ni reconduction), comme côté joueur.
-const sportsRightBarred = (channel, event) => channel?.type === 'jeunesse' && isSportRight(event);
+// Chaînes jeunesse et culture : pas de droits sportifs.
+const sportsRightBarred = (channel, event) => ['jeunesse', 'culture'].includes(channel?.type) && isSportRight(event);
 function computeCompetitorSportsMaxBid(competitor, event) {
   if (sportsRightBarred(competitor, event)) return 0;
   const profile = GAME_BALANCE.competitors.profiles[competitor.strategy] || GAME_BALANCE.competitors.profiles.rentable;
@@ -31837,6 +31838,25 @@ const RADAR_CLASH_SHORT = {
 
 // Situation financière d'un concurrent (lecture seule : aucun calcul n'écrit dans l'état). Saison
 // en cours : recettes et résultat prévisionnels ; saison clôturée : valeurs définitives figées.
+// Coût de grille d'une chaîne IA pour la saison : contrats et talents, plus les droits des
+// événements diffusés cette saison au prix de l'enchère et leur production.
+function competitorSportsSeasonCost(c, season = gameState.season) {
+  return (gameState.sportsRights?.owned || []).filter(o => o.ownerName === c.name && o.ownerId !== 'player' && o.broadcastSeason === season)
+    .reduce((sum, o) => sum + (o.acquisitionPrice || 0) + (o.productionCost || 0), 0);
+}
+function competitorGridCost(c) {
+  return Math.round((competitorAnnualCharges(c).total + competitorSportsSeasonCost(c)) * 10) / 10;
+}
+// Chiffres clés d'une chaîne IA, partagés par le volet Concurrence et la proposition de poste.
+function competitorKeyFigures(c, rows = getCalculatedPDAs()) {
+  const f = c.finance, season = gameState.season, closed = f?.closedSeason === season ? f.history.at(-1) : null;
+  const L = competitorLedgerView(c), opened = f?.openedSeason === season && season >= (f?.boundary ?? 0);
+  const revenue = closed ? closed.adRevenue : opened ? L.ad : (L.revenueHint ?? f?.history.at(-1)?.adRevenue ?? competitorAdRevenue(c, rows));
+  const row = rows.find(r => r.channel === c);
+  const rank = [...rows].sort((a, b) => b.globalPda - a.globalPda).findIndex(r => r.channel === c) + 1;
+  return { treasury: c.budget ?? 0, revenue, revenueFinal: !!closed, grid: competitorGridCost(c),
+    pda4: row?.globalPda ?? 0, pdaTarget: row?.pda[c.target] ?? 0, rank };
+}
 function competitorFinanceHtml(c) {
   const f = c.finance;
   if (!f) return '';
@@ -31852,7 +31872,7 @@ function competitorFinanceHtml(c) {
       <div class="radar-stats radar-stats-fin">
         <div class="radar-stat"><div class="radar-stat-value">${money(c.budget ?? 0)}</div><div class="radar-stat-label">Trésorerie</div></div>
         <div class="radar-stat"><div class="radar-stat-value">${money(ca)}</div><div class="radar-stat-label">CA publicitaire${closed ? '' : ' (prév.)'}</div></div>
-        <div class="radar-stat"><div class="radar-stat-value">${money(charges.grid)}</div><div class="radar-stat-label">Coût annuel de grille</div></div>
+        <div class="radar-stat"><div class="radar-stat-value">${money(competitorGridCost(c))}</div><div class="radar-stat-label">Coût annuel de grille</div></div>
         <div class="radar-stat"><div class="radar-stat-value ${result > 0.05 ? 'eco-pos' : result < -0.05 ? 'eco-neg' : ''}">${result >= 0 ? '+' : '−'}${money(Math.abs(result))}</div><div class="radar-stat-label">Résultat ${closed ? `S${season} (définitif)` : 'prévisionnel'}</div></div>
       </div>
     </div>`;
@@ -32222,7 +32242,18 @@ function competitorBook(c, kind, amount, label) {
 // Coût annuel d'un contrat : coût du programme (catalogue) + surcoût du niveau de production.
 function competitorContractAnnual(contract) {
   if (!contract) return 0;
-  return (contract.annual || 0) + (contract.productionAnnual ?? GAME_BALANCE.market.investCost[contractInvestLevel(contract)] ?? 0);
+  const base = (contract.annual || 0) + (contract.productionAnnual ?? GAME_BALANCE.market.investCost[contractInvestLevel(contract)] ?? 0);
+  // Prix du marché (arrêté à l'ouverture de la saison) : une grille qui rapporte beaucoup coûte en conséquence.
+  return Math.max(base, contract.marketFloor || 0);
+}
+// Ouverture de saison d'une IA : prix du marché de ses contrats, part des recettes attendues
+// répartie entre les cases au prorata de leur audience (même règle qu'une reprise).
+function setCompetitorMarketFloors(c, rows) {
+  const row = rows.find(r => r.channel === c);
+  const weights = Object.fromEntries(TIME_SLOTS.map(({ key }) => [key, Math.max(0, row?.slots?.[key]?.[c.target] || 0)]));
+  const total = Object.values(weights).reduce((a, v) => a + v, 0) || 1;
+  const budget = competitorAdRevenue(c, rows) * CHANNEL_APPROACH.market.gridShare;
+  Object.entries(c.contracts || {}).forEach(([slot, k]) => { if (k && !k.isSportsEvent && k.powerModel !== 'player') k.marketFloor = Math.round(budget * weights[slot] / total * 10) / 10; });
 }
 const competitorTalentsActive = (c, season = gameState.season) => (c.talents || []).filter(t => (t.until ?? Infinity) >= season);
 // Charges annuelles de la saison : contrats à l'antenne (hors pause pour un droit sportif) et talents.
@@ -32281,6 +32312,7 @@ function openCompetitorSeason(c, rows = null) {
     if (x?.nextAnnual != null && season >= (x.nextAnnualFrom ?? season)) { x.annual = x.nextAnnual; delete x.nextAnnual; delete x.nextAnnualFrom; }
   });
   processCompetitorCommitments(c);
+  setCompetitorMarketFloors(c, rows || getCalculatedPDAs());
   TIME_SLOTS.forEach(({ key }) => {
     const k = c.contracts?.[key];
     if (!k || k.end < season || k.sportsPause === season || competitorSportsRightOn(c, key) || k.paidSeason === season) return;
@@ -33034,6 +33066,10 @@ function takeOfficeSignedOffer() {
 // Indicateurs de l'offre, au format des enchères (rectangles) : audience et trésorerie dès la
 // présentation ; coût de grille, recettes et enveloppe à l'étude.
 function channelOfferStatsHtml(o, { study = false, highlight = false } = {}) {
+  // Valeurs du moment, identiques au volet Concurrence (chaîne encore sous IA).
+  const live = gameState.competitors.find(x => x.name === o.channelName);
+  if (live) { const k = competitorKeyFigures(live); o = { ...o, pda4: k.pda4, rank: k.rank, pdaTarget: k.pdaTarget, treasury: k.treasury,
+    forecast: { ...o.forecast, charges: k.grid, revenue: k.revenue } }; }
   const target = TARGET_STRATEGIES[o.target]?.nom.replace(/\s*\([^)]*\)/, '') || o.target;
   const stat = (label, value, cls = '') => `<div class="sa-stat${cls ? ` ${cls}` : ''}"><span>${label}</span><b>${value}</b></div>`;
   const first = `<div class="sa-stats co-stats">
@@ -33045,7 +33081,7 @@ function channelOfferStatsHtml(o, { study = false, highlight = false } = {}) {
   if (!study) return first;
   return first + `<div class="sa-stats co-stats co-stats-3">
     ${stat('Coût de grille', `${nf1(o.forecast.charges)} M€`)}
-    ${stat('Recettes pub prévues', `${nf1(o.forecast.revenue)} M€`)}
+    ${stat('CA publicitaire', `${nf1(o.forecast.revenue)} M€`)}
     ${stat('Enveloppe', o.contribution > 0 ? `+${nf1(o.contribution)} M€` : 'Aucune', highlight ? 'co-up' : '')}
   </div>`;
 }
