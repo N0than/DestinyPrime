@@ -1251,6 +1251,8 @@ button.radar-row:focus-visible { outline: 2px solid var(--bleu); outline-offset:
 /* Espace classique de 18px entre la carte et le premier bouton ; le bloc de renégociation
    reprend l'écart des blocs de la carte. */
 .renewal-card + .welcome-cta { margin-top: 18px; }
+/* Boutons du renouvellement et de la négociation : même hauteur, pleins ou contour. */
+.renewal-card ~ .welcome-cta { box-sizing: border-box; height: 52px; padding-top: 0; padding-bottom: 0; line-height: 1; }
 .renewal-card .sanction-note { margin-top: 12px; margin-bottom: 0; }
 
 /* ---- CONVENTION ARCOM (page de détail) ---- */
@@ -25679,7 +25681,8 @@ function render() {
     ];
 
     app.innerHTML = `
-      ${renderMasthead("Détails de votre convention", "Audience Masters")}
+      ${renderMasthead("Détails de votre convention", "Audience Masters", true)}
+      ${renderHudHeadOnly()}
       <div class="card bilan-card renewal-card renewal-${tone} arcom-card">
         <div class="kicker-row renewal-kicker-row">
           <span class="kicker-badge">⚖️ Convention ARCOM</span>
@@ -25735,7 +25738,11 @@ function render() {
       gameState.step = 6;
       render();
     };
-    app.querySelector('.masthead').onclick = () => { gameState.step = 1; render(); };
+    // Même en-tête que le bilan de saison : le badge de marque ramène à l'accueil.
+    fitHudBrand();
+    const arcomBrand = document.getElementById('hud-brand');
+    if (arcomBrand) arcomBrand.onclick = goHome;
+    app.querySelector('.masthead').onclick = goHome;
     return;
   }
 
