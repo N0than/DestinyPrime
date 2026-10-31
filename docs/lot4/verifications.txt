@@ -1,0 +1,202 @@
+{
+ "liste": [
+  {
+   "def": "gs_jury_conteste",
+   "choix": 1,
+   "label": "Confier un fauteuil du jury à {talent}",
+   "model": "fauteuilJury",
+   "issues": [
+    "Le jury trouve son équilibre",
+    "Greffe difficile"
+   ],
+   "base": [
+    0.55,
+    0.45
+   ],
+   "facteurs": {
+    "affinity": 0.3,
+    "awareness": 0.15,
+    "wear": -0.1
+   }
+  },
+  {
+   "def": "gs_animateur_depart",
+   "choix": 0,
+   "label": "Confier {programme} à {talent}",
+   "model": "relevePresentation",
+   "issues": [
+    "Adoption rapide",
+    "Période de rodage",
+    "Greffe difficile"
+   ],
+   "base": [
+    0.4,
+    0.35,
+    0.25
+   ],
+   "facteurs": {
+    "affinity": 0.3,
+    "loyalty": -0.2,
+    "awareness": 0.15
+   }
+  },
+  {
+   "def": "gs_formule_usee",
+   "choix": 0,
+   "label": "Lancer une refonte complète",
+   "model": "refonte",
+   "issues": [
+    "Accueil favorable",
+    "Accueil partagé",
+    "Rejet des fidèles"
+   ],
+   "base": [
+    0.4,
+    0.35,
+    0.25
+   ],
+   "facteurs": {
+    "wear": 0.25,
+    "loyalty": -0.2,
+    "production": 0.2,
+    "pressure": -0.15
+   }
+  },
+  {
+   "def": "gs_refonte_recul",
+   "choix": 1,
+   "label": "Persévérer dans la transformation",
+   "model": "persistance",
+   "issues": [
+    "Le public adopte la transformation",
+    "Les fidèles décrochent"
+   ],
+   "base": [
+    0.5,
+    0.5
+   ],
+   "facteurs": {
+    "awareness": 0.2,
+    "production": 0.2,
+    "loyalty": 0.15,
+    "pressure": -0.2
+   }
+  },
+  {
+   "def": "gs_finale_exceptionnelle",
+   "choix": 0,
+   "label": "Finale en direct dans une grande salle",
+   "model": "finale",
+   "issues": [
+    "Triomphe",
+    "Belle soirée",
+    "Déception"
+   ],
+   "base": [
+    0.35,
+    0.45,
+    0.2
+   ],
+   "facteurs": {
+    "awareness": 0.2,
+    "loyalty": 0.2,
+    "production": 0.15,
+    "pressure": -0.2
+   }
+  },
+  {
+   "def": "gs_declinaison",
+   "choix": 0,
+   "label": "Produire une édition spéciale en prime",
+   "model": "editionSpeciale",
+   "issues": [
+    "Soirée réussie",
+    "Soirée en demi-teinte"
+   ],
+   "base": [
+    0.55,
+    0.45
+   ],
+   "facteurs": {
+    "awareness": 0.2,
+    "wear": -0.25,
+    "pressure": -0.15
+   }
+  }
+ ],
+ "balayage": 612360,
+ "frequences": [
+  {
+   "key": "favorable",
+   "p": 0.568676,
+   "obs": 0.5626
+  },
+  {
+   "key": "partage",
+   "p": 0.281324,
+   "obs": 0.2856
+  },
+  {
+   "key": "rejet",
+   "p": 0.15,
+   "obs": 0.1518
+  }
+ ],
+ "tirage": {
+  "issue": "deception",
+  "p": 0.402288,
+  "roll": 0.781252
+ }
+}
+OK uncertain outcomes: 6 choices, 612360 bounded odds (sum 1), 10 000 draws within 4σ, single draw at validation, idempotence (double click, back, reload), save before/after, effects once, arc orientation, talent affinity
+[
+ {
+  "label": "mobile",
+  "renderCalls": 0,
+  "odds": [
+   "Triomphe 41 %",
+   "Belle soirée 44 %",
+   "Déception 15 %"
+  ],
+  "card": "Certain : Achat ponctuel : 1,0 M€\nIssue incertaine :\nTriomphe : chances moyennes (~40 %)\nBelle soirée : chances moyennes (~45 %)\nDéception : chances faibles (~15 %)\nLe programme est très connu, mais la concurrence est forte sur la case.",
+  "callsAtValidation": 1,
+  "callsAfterRerender": 1,
+  "outcome": {
+   "choice": 0,
+   "index": 2,
+   "key": "deception",
+   "label": "Déception",
+   "p": 0.15,
+   "roll": 0.866622,
+   "season": 1
+  },
+  "shown": "Issue : Déception · chances faibles (~15 %)",
+  "overflow": false,
+  "errors": []
+ },
+ {
+  "label": "desktop",
+  "renderCalls": 0,
+  "odds": [
+   "Triomphe 41 %",
+   "Belle soirée 44 %",
+   "Déception 15 %"
+  ],
+  "card": "Certain : Achat ponctuel : 1,0 M€\nIssue incertaine :\nTriomphe : chances moyennes (~40 %)\nBelle soirée : chances moyennes (~45 %)\nDéception : chances faibles (~15 %)\nLe programme est très connu, mais la concurrence est forte sur la case.",
+  "callsAtValidation": 1,
+  "callsAfterRerender": 1,
+  "outcome": {
+   "choice": 0,
+   "index": 1,
+   "key": "reussie",
+   "label": "Belle soirée",
+   "p": 0.440843,
+   "roll": 0.56008,
+   "season": 1
+  },
+  "shown": "Issue : Belle soirée · chances moyennes (~45 %)",
+  "overflow": false,
+  "errors": []
+ }
+]
+OK browser: 10 renders without draw, one validation, outcome shown, 10 result renders without draw, no horizontal overflow (mobile, desktop)

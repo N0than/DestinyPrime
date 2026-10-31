@@ -1,0 +1,54 @@
+Histoires génériques et arcs — version 54deb70 (5 graines × 120 saisons × 6 types, choix aléatoires) — 302 s
+Saisons jouées : 3600 {"generaliste":600,"cinema":600,"culture":600,"jeunesse":600,"sport":600,"info":600} ; parties : 256
+
+| Par arc | jury | animateur | refonte | offensive | surcout | digital | total |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Ouvertures éligibles (saison × programme) | 164 | 1403 | 3079 | 4 | 3062 | 146 | 7858 |
+| Ouvertures proposées dans la file | 1 | 41 | 262 | 1 | 85 | 7 | 397 |
+| Arcs ouverts | 1 | 18 | 168 | 1 | 47 | 2 | 237 |
+| … dont par une histoire propre au titre | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| Occasions de suite (saison × arc ouvert) | 1 | 30 | 428 | 3 | 101 | 4 | 567 |
+| Suites proposées dans la file | 1 | 3 | 113 | 0 | 11 | 0 | 128 |
+| Suites jouées (étapes) | 1 | 2 | 100 | 0 | 11 | 0 | 114 |
+| Résolus | 1 (100.0 %) | 2 (11.1 %) | 60 (35.7 %) | 0 (0.0 %) | 11 (23.4 %) | 0 (0.0 %) | 74 (31.2 %) |
+| Expirés sans suite devenue éligible | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| Expirés malgré des suites éligibles non retenues | 0 | 3 | 48 | 1 | 15 | 0 | 67 |
+| Abandonnés (programme retiré) | 0 | 3 | 16 | 0 | 8 | 1 | 28 |
+| Ouverts en fin de partie | 0 | 10 | 44 | 0 | 13 | 1 | 68 |
+| Cohorte (échéance atteinte avant la fin) | 1 | 4 | 99 | 1 | 17 | 1 | 123 |
+| … dont résolus | 1 (100.0 %) | 2 (50.0 %) | 47 (47.5 %) | 0 (0.0 %) | 4 (23.5 %) | 0 (0.0 %) | 54 (43.9 %) |
+
+Motifs d’exclusion des ouvertures génériques (saison × programme × définition) :
+- jury : genre 15554 ; conditions 29 ; priorité : histoire propre éligible 18 ; plafond d’arcs 13
+- animateur : genre 13632 ; conditions 667 ; priorité : histoire propre éligible 38 ; plafond d’arcs 37
+- refonte : genre 8705 ; conditions 3962 ; plafond d’arcs 23 ; fenêtre de situation 6
+- offensive : conditions 13062 ; genre 2713
+- surcout : genre 12036 ; conditions 622 ; priorité : histoire propre éligible 40 ; plafond d’arcs 18
+- digital : ressource : platform 12867 ; genre 2713 ; conditions 51 ; plafond d’arcs 2
+Motifs d’absence de suite pour un arc ouvert (saison × arc) :
+- jury : —
+- animateur : —
+- refonte : conditions 3
+- offensive : —
+- surcout : —
+- digital : —
+
+| Contrôles | Valeur |
+|---|---|
+| Histoires de programmes jouées | 1785 (0.50 par saison) |
+| … propres au titre / génériques | 952 / 833 (46.7 % génériques) |
+| … dont suites d'arcs | 114 |
+| Génériques : histoires propres encore jouables (autres situations) 685 (82.2 %) ; histoires propres épuisées 107 (12.8 %) ; programme sans histoire propre 41 (4.9 %) | |
+| Génériques jouées alors qu'une histoire propre de la même situation était éligible | 0 |
+| Ouvertures refusées au moment du choix (plafond) | 0 |
+| Arcs ouverts simultanés : maximum / moyenne par saison | 2 / 0.17 (plafond 3) |
+| Arcs ouverts sur un même programme (maximum) / même arc ouvert deux fois | 1 (plafond 1) / 0 |
+| Cause d'expiration enregistrée ≠ cause observée | 0 |
+| Deux histoires du même programme dans une saison | 0 |
+| Même histoire rejouée sur un programme avant son délai | 0 |
+| Options contextuelles retenues (talent / plateforme / partenaire / commande réduite / concurrent / droits) | 5 / 0 / 7 / 1 / 0 / 0 |
+| Collecte ou diagnostic impur (tirage ou écriture) | 0 sur 3699 collectes |
+| Textes incomplets | 0 |
+| Files vides / bloquées / erreurs | 0 / 0 / 0 |
+
+Situations génériques jouées : gs_formule_usee 244, gs_jeunesse_vieillissante 135, gs_droits_film 87, gs_surcout_tournage 72, gs_production_sport 59, gs_refonte_recul 42, gs_animateur_depart 38, gs_invite_desiste 26, gs_refonte_succes 23, gs_refonte_cloture 21, gs_suite_fiction_chere 18, gs_enquete_sensible 14, gs_refonte_mitige 14, gs_surcout_suite 11, gs_declinaison 7, gs_candidat_depart 6, gs_valorisation_digitale 6, gs_debat_clivant 4, gs_animateur_suite_mitige 2, gs_jury_conteste 1, gs_jury_suite_succes 1, gs_pression_concurrente 1, gs_finale_exceptionnelle 1

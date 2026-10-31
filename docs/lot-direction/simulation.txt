@@ -1,0 +1,30 @@
+Approches de chaînes concurrentes — 6 formats × 3 politiques × 3 graines × 30 saisons — 110 s
+Carrières : 54 ; saisons jouées : 1350 ; évaluations : 562 ; faillites : 17
+
+Distribution des scores aux évaluations (p25 / p50 / p75 / p90) :
+- audience : 0,00 / 0,07 / 0,42 / 0,70
+- rentabilité : 0,00 / 0,11 / 0,86 / 0,86
+- score retenu : 0,07 / 0,56 / 0,87 / 0,96
+Évaluations éligibles : 50 % ; offres : 14 % des évaluations
+
+| Politique | Carrières avec offre | 1re approche (médiane, min–max) | Offres par carrière (moy.) | Voie audience / rentabilité | Transferts |
+|---|---:|---:|---:|---:|---:|
+| aleatoire | 5/18 | S8 (S4–S26) | 0,89 | 3 / 13 | 3 |
+| audience | 5/18 | S7 (S4–S28) | 0,72 | 6 / 7 | 5 |
+| econome | 18/18 | S11 (S6–S27) | 2,89 | 1 / 51 | 12 |
+
+| Format de départ | Carrières avec offre | Offres | Évaluations éligibles |
+|---|---:|---:|---:|
+| generaliste | 4/9 | 6 | 31 % |
+| cinema | 4/9 | 8 | 59 % |
+| culture | 5/9 | 20 | 65 % |
+| jeunesse | 5/9 | 13 | 35 % |
+| sport | 7/9 | 25 | 69 % |
+| info | 3/9 | 9 | 25 % |
+
+Motifs : relance 30, cap 40, audience 4, couts 7
+Mandats : relance 30, consolider 40, developper 4, rentabilite 7
+Formats des chaînes qui approchent : cinema 17, generaliste 9, jeunesse 17, culture 12, sport 26
+Transferts : 20 ; trésorerie avant → après la reprise (moy.) : 185.8 → 107.0 M€ ; apports : 0
+Mandats jugés : failure, failure, failure, success, success, success, failure, failure, failure, success, failure, failure, failure, success, success, failure, success, failure, failure
+Six chaînes en fin de partie : oui ; files bloquées : 0 ; erreurs : 0
