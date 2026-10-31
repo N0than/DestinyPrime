@@ -1271,6 +1271,24 @@ button.radar-row:focus-visible { outline: 2px solid var(--bleu); outline-offset:
 .arcom-oblig-name { flex: 1; min-width: 0; font-size: 12.5px; font-weight: 700; color: #334155; }
 .arcom-oblig-figure { flex-shrink: 0; font-family: 'Anton', sans-serif; font-size: 14px; color: var(--ink); white-space: nowrap; }
 .arcom-oblig-figure span { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10.5px; font-weight: 700; color: var(--gris); }
+/* Écran « Détails de votre convention » : blocs espacés de 18px, obligations en cartes. */
+.card.arcom-card, .card.arcom-oblig-card { margin-bottom: 0; }
+.arcom-card + .arcom-oblig-card { margin-top: 18px; }
+.arcom-oblig-card + .welcome-cta.arcom-back { margin-top: 18px; }
+.arcom-oblig-grid { display: grid; grid-template-columns: 1fr; gap: 8px; }
+@media (min-width: 560px) { .arcom-oblig-grid { grid-template-columns: repeat(2, 1fr); } }
+.arcom-oblig-card .arcom-oblig-item { padding: 12px; border-radius: 14px; background: rgba(255,255,255,0.7); border: 1px solid rgba(255,255,255,0.9); }
+.arcom-oblig-card .arcom-oblig-top { margin-bottom: 4px; }
+.arcom-oblig-pill { flex-shrink: 0; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 9.5px; text-transform: uppercase; letter-spacing: .4px; padding: 3px 8px; border-radius: 999px; }
+.arcom-oblig-pill.ok { color: #047857; background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.3); }
+.arcom-oblig-pill.warn { color: #92400e; background: rgba(217,119,6,0.12); border: 1px solid rgba(217,119,6,0.3); }
+.arcom-oblig-pill.bad { color: var(--rouge); background: rgba(225,29,72,0.08); border: 1px solid rgba(225,29,72,0.25); }
+.arcom-oblig-figures { display: flex; align-items: baseline; gap: 6px; margin-bottom: 8px; }
+.arcom-oblig-card .arcom-oblig-figure { font-size: 20px; line-height: 1; }
+.arcom-oblig-min { font-size: 10.5px; font-weight: 700; color: var(--gris); text-transform: uppercase; letter-spacing: .3px; }
+.arcom-oblig-card .arcom-oblig-bar-track { position: relative; overflow: visible; }
+.arcom-oblig-card .arcom-oblig-bar-fill { position: absolute; left: 0; top: 0; bottom: 0; }
+.arcom-oblig-mark { position: absolute; left: 50%; top: -3px; width: 2px; height: 12px; border-radius: 2px; background: rgba(15,23,42,0.45); transform: translateX(-1px); }
 .arcom-oblig-item .arcom-oblig-bar-track { height: 6px; border-radius: 999px; background: rgba(148,163,184,0.22); }
 .arcom-oblig-item .arcom-oblig-bar-fill { border-radius: 999px; }
 .arcom-oblig-item .arcom-oblig-bar-fill.ok { background: linear-gradient(90deg, #34d399, var(--vert)); }
@@ -25715,20 +25733,26 @@ function render() {
           <span class="kicker-badge">📋 Obligations éditoriales</span>
         </div>
         <div class="arcom-oblig-grid">
-          ${compliance.obligations.map(ob => `
+          ${compliance.obligations.map(ob => {
+            // Le seuil est placé au milieu de la jauge : à droite, l'obligation est tenue.
+            const fill = Math.min(100, ob.rate * 50);
+            const pill = { ok: 'Tenue', warn: 'Fragile', bad: 'Manquement' }[levelOf(ob)];
+            return `
             <div class="arcom-oblig-item arcom-oblig-${levelOf(ob)}">
               <div class="arcom-oblig-top">
-                <span class="arcom-mini-dot ${levelOf(ob)}"></span>
                 <span class="arcom-oblig-name">${esc(ob.label)}</span>
-                <span class="arcom-oblig-figure">${nf1(ob.actualValue)}${unitOf(ob)} <span>/ ${ob.minimum}${unitOf(ob)}</span></span>
+                <span class="arcom-oblig-pill ${levelOf(ob)}">${pill}</span>
               </div>
-              <div class="arcom-oblig-bar-track"><div class="arcom-oblig-bar-fill ${levelOf(ob)}" style="width:${Math.min(100, ob.rate * 100).toFixed(0)}%"></div></div>
-            </div>
-          `).join('')}
+              <div class="arcom-oblig-figures">
+                <span class="arcom-oblig-figure">${nf1(ob.actualValue)}${unitOf(ob)}</span>
+                <span class="arcom-oblig-min">seuil ${ob.minimum}${unitOf(ob)}</span>
+              </div>
+              <div class="arcom-oblig-bar-track"><div class="arcom-oblig-bar-fill ${levelOf(ob)}" style="width:${fill.toFixed(0)}%"></div><span class="arcom-oblig-mark" aria-hidden="true"></span></div>
+            </div>`; }).join('')}
         </div>
       </div>
 
-      <button class="welcome-cta" id="btn-arcom-back" style="margin-top: 2px;">
+      <button class="welcome-cta arcom-back" id="btn-arcom-back">
         <span class="welcome-cta-shine"></span>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" stroke-linecap="round" stroke-linejoin="round"/></svg>
         <span>Retour au jeu</span>
