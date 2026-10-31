@@ -23764,7 +23764,7 @@ function conventionNegotiationHtml() {
       </div>
       <h2>${counter ? 'Négociation ARCOM' : "Négocier avec l'ARCOM"}</h2>
       ${counter ? `<div class="sanction-note nego-response"><span class="sanction-note-title">🏛️ Réponse de l'Autorité</span><span>${esc(n.message)}</span></div>`
-        : `<p class="renewal-lead">Ajustez chaque obligation puis soumettez votre demande : l'ARCOM y répondra par une contre-proposition. Une hausse compense une baisse selon son poids et sa difficulté.</p>`}
+        : `<p class="renewal-lead">Ajustez chaque obligation puis soumettez votre demande. Une hausse compense une baisse selon son poids et sa difficulté.</p>`}
       <div class="nego-list">${conv.obligations.map((ob, i) => { const b = negotiationBounds(base[ob.id]); const u = ob.unit === '%' ? ' %' : ' ' + ob.unit;
         const v = counter ? n.counter[ob.id] : ob.minimum;
         return `<div class="sa-gauge nego-gauge" style="--i:${i}">
