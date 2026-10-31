@@ -2857,10 +2857,14 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .nego-delta.down { color:#92400e; background:rgba(217,119,6,0.12); border-color:rgba(217,119,6,0.3); }
 .nego-gauge .sa-gauge-scale { font-size:9.5px; }
 /* Négociation : apparition en cascade, réponse de l'ARCOM, jauges qui glissent. */
-.renewal-card + .nego-panel { margin-top: 18px; }
+.renewal-card.block-out, .renewal-card ~ .welcome-cta.block-out { animation: blockOut .23s ease forwards; pointer-events: none; }
+.renewal-card.block-in, .renewal-card.block-in ~ .welcome-cta, .nego-panel.nego-anim ~ .welcome-cta { animation: negoIn .42s cubic-bezier(.2,.8,.2,1) both; }
+.renewal-card.block-in ~ .welcome-cta, .nego-panel.nego-anim ~ .welcome-cta { animation-delay: 120ms; }
+@keyframes blockOut { to { opacity: 0; transform: translateY(-8px) scale(.985); } }
 .nego-panel.nego-anim { animation: negoIn .45s cubic-bezier(.2,.8,.2,1) both; }
 .nego-panel.nego-anim .nego-gauge { animation: negoGauge .42s cubic-bezier(.2,.8,.2,1) both; animation-delay: calc(var(--i) * 70ms + 120ms); }
 .nego-panel.nego-anim .nego-response, .nego-panel.nego-anim .nego-summary { animation: negoIn .4s ease both; animation-delay: 80ms; }
+.nego-panel.nego-reply .nego-response, .nego-panel.nego-reply .nego-summary, .nego-panel.nego-reply ~ .welcome-cta { animation: negoIn .4s cubic-bezier(.2,.8,.2,1) both; }
 .nego-panel .nego-response { margin: 0 0 12px; border-left-color: var(--gold); background: rgba(217,119,6,0.07); }
 .nego-panel .nego-response .sanction-note-title { color: #92400e; }
 .nego-panel .sa-gauge-range:disabled { cursor: default; opacity: 1; }
@@ -2869,7 +2873,7 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 @keyframes negoIn { from { opacity: 0; transform: translateY(14px) scale(.985); } }
 @keyframes negoGauge { from { opacity: 0; transform: translateX(-14px); } }
 @keyframes negoPulse { 40% { box-shadow: 0 0 0 3px rgba(217,119,6,0.28); } }
-@media (prefers-reduced-motion: reduce) { .nego-panel.nego-anim, .nego-panel.nego-anim *, .nego-gauge.nego-moved { animation: none !important; } }
+@media (prefers-reduced-motion: reduce) { .nego-panel.nego-anim, .nego-panel.nego-anim *, .nego-gauge.nego-moved, .renewal-card.block-in, .renewal-card ~ .welcome-cta { animation: none !important; } }
 .nego-table { display:flex; flex-direction:column; border-radius:14px; background:rgba(255,255,255,0.55); border:1px solid rgba(255,255,255,0.85); padding:4px 10px; }
 .nego-row { display:grid; grid-template-columns:minmax(0,1.6fr) 1fr 1fr 1.25fr; gap:6px; align-items:center; padding:8px 0; border-bottom:1px solid rgba(148,163,184,0.25);
   font-size:12px; font-variant-numeric:tabular-nums; text-align:right; color:#334155; }
@@ -23735,7 +23739,16 @@ function renounceConventionNegotiation() {
 }
 // Panneau de négociation, sous la carte du renouvellement : réglage des jauges, puis réponse de
 // l'ARCOM sur le même écran (jauges glissant vers la contre-proposition).
-let negotiationAnimKey = null;
+let negotiationAnimKey = null, renewalBlockIn = false;
+// Bascule dans le bloc du renouvellement : le contenu courant s'efface, puis le suivant
+// apparaît (récapitulatif au retour, négociation à l'ouverture).
+function swapRenewalBlock(app, change, back = false) {
+  const reduce = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const done = () => { change(); renewalBlockIn = back && !reduce; render(); };
+  if (reduce || !app?.querySelectorAll) return done();
+  app.querySelectorAll('.renewal-card, .renewal-card ~ .welcome-cta').forEach(e => { e.classList.add('block-out'); if (e.tagName === 'BUTTON') e.disabled = true; });
+  setTimeout(done, 230);
+}
 function conventionNegotiationHtml() {
   const p = gameState.player, n = currentConventionNegotiation(), ctx = negotiationContext(p);
   const counter = n?.phase === 'counter';
@@ -23783,7 +23796,8 @@ function bindConventionNegotiation(app) {
   const key = `${gameState.season}:${n?.phase}:${n?.round || 0}:${n?.verdict || ''}`;
   const animate = negotiationAnimKey !== key && !(typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches);
   negotiationAnimKey = key;
-  if (animate) { panel.classList.add('nego-anim'); panel.scrollIntoView?.({ behavior: 'smooth', block: 'start' }); }
+  // Réponse de l'ARCOM : le bloc reste en place, seuls le message et les jauges bougent.
+  if (animate) panel.classList.add(n?.phase === 'counter' ? 'nego-reply' : 'nego-anim');
   if (n?.phase === 'counter') {
     // Les jauges partent de la demande et glissent vers la proposition de l'ARCOM.
     const moveTo = () => ranges.forEach(r => { r.value = r.dataset.target; setNegotiationPill(app, r); });
@@ -23799,10 +23813,10 @@ function bindConventionNegotiation(app) {
       };
       requestAnimationFrame(step);
     }
-    app.querySelector('#btn-counter-accept').onclick = () => { acceptConventionCounter(); render(); };
+    app.querySelector('#btn-counter-accept').onclick = () => swapRenewalBlock(app, acceptConventionCounter, true);
     const m = app.querySelector('#btn-counter-maintain');
-    if (m) m.onclick = () => { maintainConventionRequest(); render(); };
-    app.querySelector('#btn-counter-renounce').onclick = () => { renounceConventionNegotiation(); render(); };
+    if (m) m.onclick = () => { if (maintainConventionRequest()?.status) swapRenewalBlock(app, () => {}, true); else render(); };
+    app.querySelector('#btn-counter-renounce').onclick = () => swapRenewalBlock(app, renounceConventionNegotiation, true);
     return;
   }
   const terms = () => Object.fromEntries(ranges.map(r => [r.dataset.nego, Number(r.value)]));
@@ -23822,8 +23836,9 @@ function bindConventionNegotiation(app) {
       : "⚠️ Demande excessive : l'ARCOM la rejettera.";
   };
   ranges.forEach(r => r.oninput = update); update();
-  app.querySelector('#btn-nego-submit').onclick = () => { submitConventionNegotiation(terms()); render(); };
-  app.querySelector('#btn-nego-cancel').onclick = () => { gameState.conventionNegotiation = null; negotiationAnimKey = null; render(); };
+  // Réponse de l'ARCOM : contre-proposition dans le même bloc, sinon retour au récapitulatif.
+  app.querySelector('#btn-nego-submit').onclick = () => { if (submitConventionNegotiation(terms())?.status) swapRenewalBlock(app, () => {}, true); else render(); };
+  app.querySelector('#btn-nego-cancel').onclick = () => swapRenewalBlock(app, () => { gameState.conventionNegotiation = null; negotiationAnimKey = null; }, true);
 }
 const bindConventionCounter = bindConventionNegotiation;
 // Résultat du renouvellement, appel compris.
@@ -25757,7 +25772,7 @@ function render() {
     app.innerHTML = `
       ${renderMasthead("Renouvellement de convention", "Audience Masters", true)}
       ${renderHudHeadOnly({ status: 'convention' })}
-      <div class="card bilan-card renewal-card renewal-${tone}">
+      ${negoView ? conventionNegotiationHtml() : `<div class="card bilan-card renewal-card renewal-${tone}${renewalBlockIn ? ' block-in' : ''}">
         <div class="kicker-row renewal-kicker-row">
           <span class="kicker-badge">⚖️ Renouvellement<span class="renewal-xs-hide">&nbsp;de convention</span></span>
           <span class="dc-season-pill">Saison ${gameState.season}</span>
@@ -25783,8 +25798,7 @@ function render() {
           </div>`).join('')}
         </div>
         ${negoNote}
-      </div>
-      ${negoView ? conventionNegotiationHtml() : ''}
+      </div>`}
       ${!negoView && outcome.key !== 'refused' && !nego?.result ? `<button class="welcome-cta welcome-cta-outline" id="btn-renewal-nego">
         <span>🤝 Renégocier la convention</span>
       </button>` : ''}
@@ -25799,9 +25813,10 @@ function render() {
     `;
     // Même en-tête que le bilan de saison : le badge de marque ramène à l'accueil.
     fitHudBrand();
+    renewalBlockIn = false;
     if (negoView) bindConventionNegotiation(app);
     const negoBtn = document.getElementById('btn-renewal-nego');
-    if (negoBtn) negoBtn.onclick = () => { gameState.conventionNegotiation = { season: gameState.season, open: true, phase: 'edit' }; render(); };
+    if (negoBtn) negoBtn.onclick = () => swapRenewalBlock(app, () => { gameState.conventionNegotiation = { season: gameState.season, open: true, phase: 'edit' }; });
     const renewalBrand = document.getElementById('hud-brand');
     if (renewalBrand) renewalBrand.onclick = goHome;
     app.querySelector('.masthead').onclick = goHome;
