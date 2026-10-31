@@ -2837,6 +2837,22 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .sa-gauge-range:active::-webkit-slider-thumb { transform:scale(1.12); }
 .sa-gauge-scale { display:flex; justify-content:space-between; gap:6px; font-size:10px; font-weight:700; color:var(--gris); font-variant-numeric:tabular-nums; }
 .sa-gauge-est { color:var(--vert); text-align:center; }
+/* Renégociation de convention : jauges compactes, dans le style des obligations ARCOM. */
+.nego-list { display:flex; flex-direction:column; gap:8px; margin-bottom:12px; }
+.nego-gauge { gap:4px; padding:10px 12px 8px; }
+.nego-gauge .sa-gauge-head { align-items:center; }
+.nego-gauge .sa-gauge-label { flex:1; min-width:0; font-family:'Plus Jakarta Sans', sans-serif; font-size:12.5px; font-weight:700; letter-spacing:0; text-transform:none; color:#334155; }
+.nego-gauge .sa-gauge-value { font-size:18px; color:var(--ink); }
+.nego-gauge .sa-gauge-range { height:24px; }
+.nego-gauge .sa-gauge-range::-webkit-slider-runnable-track { height:6px; background:linear-gradient(90deg, #fbbf24 0, #fde68a calc(var(--ref) - 1px), var(--ink) calc(var(--ref) - 1px), var(--ink) calc(var(--ref) + 1px), #a7f3d0 calc(var(--ref) + 1px), #10b981 100%); }
+.nego-gauge .sa-gauge-range::-moz-range-track { height:6px; background:linear-gradient(90deg, #fbbf24 0, #fde68a calc(var(--ref) - 1px), var(--ink) calc(var(--ref) - 1px), var(--ink) calc(var(--ref) + 1px), #a7f3d0 calc(var(--ref) + 1px), #10b981 100%); }
+.nego-gauge .sa-gauge-range::-webkit-slider-thumb { width:20px; height:20px; margin-top:-7px; }
+.nego-gauge .sa-gauge-est { color:var(--gris); }
+.nego-delta { font-family:'Plus Jakarta Sans', sans-serif; font-weight:800; font-size:9.5px; text-transform:uppercase; letter-spacing:.3px; padding:3px 8px; border-radius:999px; white-space:nowrap;
+  color:var(--gris); background:rgba(148,163,184,0.14); border:1px solid rgba(148,163,184,0.3); }
+.nego-delta.up { color:#047857; background:rgba(16,185,129,0.12); border-color:rgba(16,185,129,0.3); }
+.nego-delta.down { color:#92400e; background:rgba(217,119,6,0.12); border-color:rgba(217,119,6,0.3); }
+.nego-gauge .sa-gauge-scale { font-size:9.5px; }
 .sa-gauge-flags { display:flex; flex-wrap:wrap; gap:6px; min-height:24px; }
 .sa-flag { display:inline-flex; align-items:center; font-size:11px; font-weight:700; padding:4px 10px; border-radius:999px; }
 .sa-flag.low { color:#475569; background:rgba(100,116,139,0.14); }
@@ -23600,12 +23616,12 @@ function conventionNegotiationHtml() {
       </div>
       <h2>Négocier avec l'ARCOM</h2>
       <p class="renewal-lead">Ajustez chaque obligation. Avec un score de renouvellement de <b>${score}/100</b>, l'ARCOM accepte une baisse moyenne de <b>${Math.round(margin * 100)} %</b> au plus ; les hausses compensent les baisses${margin === 0 ? ' (aucune baisse nette possible)' : ''}.</p>
-      ${conv.obligations.map(ob => { const b = negotiationBounds(base[ob.id]); const u = ob.unit === '%' ? ' %' : ' ' + ob.unit; return `<div class="sa-gauge">
-        <div class="sa-gauge-head"><span class="sa-gauge-label">${esc(ob.label)}</span><output class="sa-gauge-value" data-nego-out="${ob.id}">${ob.minimum}${u}</output></div>
-        <input type="range" class="sa-gauge-range" data-nego="${ob.id}" data-unit="${u}" min="${b.min}" max="${b.max}" step="1" value="${ob.minimum}" aria-label="${esc(ob.label)}" style="--est-a:${(base[ob.id].minimum - b.min) / (b.max - b.min) * 100}%;--est-b:${(base[ob.id].minimum - b.min) / (b.max - b.min) * 100 + 1}%">
+      <div class="nego-list">${conv.obligations.map(ob => { const b = negotiationBounds(base[ob.id]); const u = ob.unit === '%' ? ' %' : ' ' + ob.unit; return `<div class="sa-gauge nego-gauge">
+        <div class="sa-gauge-head"><span class="sa-gauge-label">${esc(ob.label)}</span><span class="nego-delta" data-nego-delta="${ob.id}" data-ref="${base[ob.id].minimum}">Référence</span><output class="sa-gauge-value" data-nego-out="${ob.id}">${ob.minimum}${u}</output></div>
+        <input type="range" class="sa-gauge-range" data-nego="${ob.id}" data-unit="${u}" min="${b.min}" max="${b.max}" step="1" value="${ob.minimum}" aria-label="${esc(ob.label)}" style="--ref:${(base[ob.id].minimum - b.min) / (b.max - b.min) * 100}%">
         <div class="sa-gauge-scale"><span>${b.min}${u}</span><span class="sa-gauge-est">Référence ${base[ob.id].minimum}${u}</span><span>${b.max}${u}</span></div>
-      </div>`; }).join('')}
-      <div class="renewal-stats arcom-stats" id="conv-nego-summary"></div>
+      </div>`; }).join('')}</div>
+      <div class="renewal-stats arcom-stats" id="conv-nego-summary" style="grid-template-columns:repeat(3,1fr)"></div>
       <p class="loan-warn" id="conv-nego-warn"></p>
     </div>
     <button class="welcome-cta" id="btn-nego-submit"><span class="welcome-cta-shine"></span><span>Soumettre à l'ARCOM</span></button>
@@ -23615,7 +23631,12 @@ function bindConventionNegotiation(app) {
   const ranges = [...app.querySelectorAll('[data-nego]')];
   const terms = () => Object.fromEntries(ranges.map(r => [r.dataset.nego, Number(r.value)]));
   const update = () => {
-    ranges.forEach(r => { app.querySelector(`[data-nego-out="${r.dataset.nego}"]`).textContent = r.value + r.dataset.unit; });
+    ranges.forEach(r => {
+      app.querySelector(`[data-nego-out="${r.dataset.nego}"]`).textContent = r.value + r.dataset.unit;
+      const pill = app.querySelector(`[data-nego-delta="${r.dataset.nego}"]`), d = Number(r.value) - Number(pill.dataset.ref);
+      pill.className = 'nego-delta' + (d > 0 ? ' up' : d < 0 ? ' down' : '');
+      pill.textContent = d === 0 ? 'Référence' : `${d > 0 ? '+' : '−'}${Math.abs(d)} pt${Math.abs(d) > 1 ? 's' : ''}`;
+    });
     const e = evaluateConventionNegotiation(terms());
     const pct = v => `${v > 0 ? '+' : ''}${Math.round(v * 100)} %`;
     app.querySelector('#conv-nego-summary').innerHTML = [
