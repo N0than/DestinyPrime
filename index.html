@@ -2856,6 +2856,20 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .nego-delta.up { color:#047857; background:rgba(16,185,129,0.12); border-color:rgba(16,185,129,0.3); }
 .nego-delta.down { color:#92400e; background:rgba(217,119,6,0.12); border-color:rgba(217,119,6,0.3); }
 .nego-gauge .sa-gauge-scale { font-size:9.5px; }
+/* Négociation : apparition en cascade, réponse de l'ARCOM, jauges qui glissent. */
+.renewal-card + .nego-panel { margin-top: 18px; }
+.nego-panel.nego-anim { animation: negoIn .45s cubic-bezier(.2,.8,.2,1) both; }
+.nego-panel.nego-anim .nego-gauge { animation: negoGauge .42s cubic-bezier(.2,.8,.2,1) both; animation-delay: calc(var(--i) * 70ms + 120ms); }
+.nego-panel.nego-anim .nego-response, .nego-panel.nego-anim .nego-summary { animation: negoIn .4s ease both; animation-delay: 80ms; }
+.nego-panel .nego-response { margin: 0 0 12px; border-left-color: var(--gold); background: rgba(217,119,6,0.07); }
+.nego-panel .nego-response .sanction-note-title { color: #92400e; }
+.nego-panel .sa-gauge-range:disabled { cursor: default; opacity: 1; }
+.nego-gauge.nego-moved { animation: negoPulse .6s ease; }
+.nego-gauge .nego-delta { transition: background-color .25s, color .25s, border-color .25s; }
+@keyframes negoIn { from { opacity: 0; transform: translateY(14px) scale(.985); } }
+@keyframes negoGauge { from { opacity: 0; transform: translateX(-14px); } }
+@keyframes negoPulse { 40% { box-shadow: 0 0 0 3px rgba(217,119,6,0.28); } }
+@media (prefers-reduced-motion: reduce) { .nego-panel.nego-anim, .nego-panel.nego-anim *, .nego-gauge.nego-moved { animation: none !important; } }
 .nego-table { display:flex; flex-direction:column; border-radius:14px; background:rgba(255,255,255,0.55); border:1px solid rgba(255,255,255,0.85); padding:4px 10px; }
 .nego-row { display:grid; grid-template-columns:minmax(0,1.6fr) 1fr 1fr 1.25fr; gap:6px; align-items:center; padding:8px 0; border-bottom:1px solid rgba(148,163,184,0.25);
   font-size:12px; font-variant-numeric:tabular-nums; text-align:right; color:#334155; }
@@ -23719,38 +23733,82 @@ function renounceConventionNegotiation() {
   if (conventionNegotiationClosed()) return currentConventionNegotiation().result;
   return closeConventionNegotiation('renounced');
 }
+// Panneau de négociation, sous la carte du renouvellement : réglage des jauges, puis réponse de
+// l'ARCOM sur le même écran (jauges glissant vers la contre-proposition).
+let negotiationAnimKey = null;
 function conventionNegotiationHtml() {
-  const p = gameState.player, conv = playerConvention(p), ctx = negotiationContext(p);
+  const p = gameState.player, n = currentConventionNegotiation(), ctx = negotiationContext(p);
+  const counter = n?.phase === 'counter';
+  const conv = playerConvention(p);
   const base = Object.fromEntries(ARCOM_CONVENTIONS[p.type].obligations.map(ob => [ob.id, ob]));
-  return `<div class="card bilan-card renewal-card renewal-watch" id="conv-nego">
+  const soft = counter ? conv.obligations.filter(ob => n.counter[ob.id] < base[ob.id].minimum).length : 0;
+  const firm = counter ? conv.obligations.filter(ob => n.counter[ob.id] > base[ob.id].minimum).length : 0;
+  return `<div class="card bilan-card renewal-card renewal-watch nego-panel${counter ? ' nego-counter' : ''}" id="conv-nego">
       <div class="kicker-row renewal-kicker-row">
-        <span class="kicker-badge">🤝 Renégociation</span>
+        <span class="kicker-badge">${counter ? `⚖️ Arbitrage ${n.round}/2` : '🤝 Renégociation'}</span>
         <span class="dc-season-pill">Saison ${gameState.season}</span>
       </div>
-      <h2>Négocier avec l'ARCOM</h2>
-      <p class="renewal-lead">Ajustez chaque obligation. Avec un score de renouvellement de <b>${ctx.score}/100</b>, l'ARCOM tolère un assouplissement moyen de <b>${Math.round(ctx.margin * 100)} %</b>${ctx.prior ? `, réduit par ${ctx.prior > 1 ? 'vos assouplissements passés' : 'votre assouplissement passé'}` : ''}. Une hausse compense une baisse selon son poids et sa difficulté.</p>
-      <div class="nego-list">${conv.obligations.map(ob => { const b = negotiationBounds(base[ob.id]); const u = ob.unit === '%' ? ' %' : ' ' + ob.unit; return `<div class="sa-gauge nego-gauge">
-        <div class="sa-gauge-head"><span class="sa-gauge-label">${esc(ob.label)}</span><span class="nego-delta" data-nego-delta="${ob.id}" data-ref="${base[ob.id].minimum}">Référence</span><output class="sa-gauge-value" data-nego-out="${ob.id}">${ob.minimum}${u}</output></div>
-        <input type="range" class="sa-gauge-range" data-nego="${ob.id}" data-unit="${u}" min="${b.min}" max="${b.max}" step="1" value="${ob.minimum}" aria-label="${esc(ob.label)}" style="--ref:${(base[ob.id].minimum - b.min) / (b.max - b.min) * 100}%">
-        <div class="sa-gauge-scale"><span>${b.min}${u}</span><span class="sa-gauge-est">Référence ${base[ob.id].minimum}${u}</span><span>${b.max}${u}</span></div>
+      <h2>${counter ? 'Négociation ARCOM' : "Négocier avec l'ARCOM"}</h2>
+      ${counter ? `<div class="sanction-note nego-response"><span class="sanction-note-title">🏛️ Réponse de l'Autorité</span><span>${esc(n.message)}</span></div>`
+        : `<p class="renewal-lead">Ajustez chaque obligation. Avec un score de renouvellement de <b>${ctx.score}/100</b>, l'ARCOM tolère un assouplissement moyen de <b>${Math.round(ctx.margin * 100)} %</b>${ctx.prior ? `, réduit par ${ctx.prior > 1 ? 'vos assouplissements passés' : 'votre assouplissement passé'}` : ''}. Une hausse compense une baisse selon son poids et sa difficulté.</p>`}
+      <div class="nego-list">${conv.obligations.map((ob, i) => { const b = negotiationBounds(base[ob.id]); const u = ob.unit === '%' ? ' %' : ' ' + ob.unit;
+        const v = counter ? n.counter[ob.id] : ob.minimum;
+        return `<div class="sa-gauge nego-gauge" style="--i:${i}">
+        <div class="sa-gauge-head"><span class="sa-gauge-label">${esc(ob.label)}</span><span class="nego-delta" data-nego-delta="${ob.id}" data-ref="${base[ob.id].minimum}">Référence</span><output class="sa-gauge-value" data-nego-out="${ob.id}">${v}${u}</output></div>
+        <input type="range" class="sa-gauge-range" data-nego="${ob.id}" data-unit="${u}" min="${b.min}" max="${b.max}" step="1" value="${counter ? n.request[ob.id] : v}" data-target="${v}"${counter ? ' disabled' : ''} aria-label="${esc(ob.label)}" style="--ref:${(base[ob.id].minimum - b.min) / (b.max - b.min) * 100}%">
+        <div class="sa-gauge-scale"><span>${b.min}${u}</span><span class="sa-gauge-est">${counter ? `Demandé ${n.request[ob.id]}${u} · en vigueur ${n.inForce[ob.id]}${u}` : `Référence ${base[ob.id].minimum}${u}`}</span><span>${b.max}${u}</span></div>
       </div>`; }).join('')}</div>
-      <div class="renewal-stats arcom-stats" id="conv-nego-summary" style="grid-template-columns:repeat(3,1fr)"></div>
-      <p class="loan-warn" id="conv-nego-warn"></p>
+      <div class="renewal-stats arcom-stats nego-summary" id="conv-nego-summary" style="grid-template-columns:repeat(${counter ? 2 : 3},1fr)">${counter ? `
+        <div class="renewal-stat"><div class="renewal-stat-value">${soft}</div><div class="renewal-stat-label">Assouplissement${soft > 1 ? 's' : ''}</div></div>
+        <div class="renewal-stat"><div class="renewal-stat-value">${firm}</div><div class="renewal-stat-label">Engagement${firm > 1 ? 's' : ''} renforcé${firm > 1 ? 's' : ''}</div></div>` : ''}</div>
+      ${counter ? '' : '<p class="loan-warn" id="conv-nego-warn"></p>'}
     </div>
-    <button class="welcome-cta" id="btn-nego-submit"><span class="welcome-cta-shine"></span><span>Soumettre à l'ARCOM</span></button>
-    <button class="welcome-cta welcome-cta-outline welcome-cta-tight" id="btn-nego-cancel"><span>Revenir au renouvellement</span></button>`;
+    ${counter ? `<button class="welcome-cta" id="btn-counter-accept"><span class="welcome-cta-shine"></span><span>Accepter</span></button>
+    ${n.round === 1 ? `<button class="welcome-cta welcome-cta-outline welcome-cta-tight" id="btn-counter-maintain"><span>Maintenir la demande</span></button>` : ''}
+    <button class="welcome-cta welcome-cta-outline welcome-cta-tight" id="btn-counter-renounce"><span>Renoncer</span></button>`
+    : `<button class="welcome-cta" id="btn-nego-submit"><span class="welcome-cta-shine"></span><span>Soumettre à l'ARCOM</span></button>
+    <button class="welcome-cta welcome-cta-outline welcome-cta-tight" id="btn-nego-cancel"><span>Annuler</span></button>`}`;
+}
+const conventionCounterHtml = conventionNegotiationHtml;
+function setNegotiationPill(app, r) {
+  app.querySelector(`[data-nego-out="${r.dataset.nego}"]`).textContent = r.value + r.dataset.unit;
+  const pill = app.querySelector(`[data-nego-delta="${r.dataset.nego}"]`), d = Number(r.value) - Number(pill.dataset.ref);
+  pill.className = 'nego-delta' + (d > 0 ? ' up' : d < 0 ? ' down' : '');
+  pill.textContent = d === 0 ? 'Référence' : `${d > 0 ? '+' : '−'}${Math.abs(d)} pt${Math.abs(d) > 1 ? 's' : ''}`;
 }
 function bindConventionNegotiation(app) {
+  const n = currentConventionNegotiation(), panel = app.querySelector('#conv-nego');
   const ranges = [...app.querySelectorAll('[data-nego]')];
+  // Effets : apparition en cascade à l'ouverture et à chaque nouvelle réponse de l'ARCOM.
+  const key = `${gameState.season}:${n?.phase}:${n?.round || 0}:${n?.verdict || ''}`;
+  const animate = negotiationAnimKey !== key && !(typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  negotiationAnimKey = key;
+  if (animate) { panel.classList.add('nego-anim'); panel.scrollIntoView?.({ behavior: 'smooth', block: 'start' }); }
+  if (n?.phase === 'counter') {
+    // Les jauges partent de la demande et glissent vers la proposition de l'ARCOM.
+    const moveTo = () => ranges.forEach(r => { r.value = r.dataset.target; setNegotiationPill(app, r); });
+    if (!animate) moveTo();
+    else {
+      ranges.forEach(r => setNegotiationPill(app, r));
+      const t0 = performance.now() + 450, dur = 700, from = ranges.map(r => Number(r.value));
+      const step = now => {
+        const k = Math.max(0, Math.min(1, (now - t0) / dur)), e = 1 - Math.pow(1 - k, 3);
+        ranges.forEach((r, i) => { const to = Number(r.dataset.target); r.value = Math.round(from[i] + (to - from[i]) * e); setNegotiationPill(app, r);
+          if (k >= 1 && to !== from[i]) r.closest('.nego-gauge').classList.add('nego-moved'); });
+        if (k < 1 && panel.isConnected) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    }
+    app.querySelector('#btn-counter-accept').onclick = () => { acceptConventionCounter(); render(); };
+    const m = app.querySelector('#btn-counter-maintain');
+    if (m) m.onclick = () => { maintainConventionRequest(); render(); };
+    app.querySelector('#btn-counter-renounce').onclick = () => { renounceConventionNegotiation(); render(); };
+    return;
+  }
   const terms = () => Object.fromEntries(ranges.map(r => [r.dataset.nego, Number(r.value)]));
   const ctx = negotiationContext();
   const update = () => {
-    ranges.forEach(r => {
-      app.querySelector(`[data-nego-out="${r.dataset.nego}"]`).textContent = r.value + r.dataset.unit;
-      const pill = app.querySelector(`[data-nego-delta="${r.dataset.nego}"]`), d = Number(r.value) - Number(pill.dataset.ref);
-      pill.className = 'nego-delta' + (d > 0 ? ' up' : d < 0 ? ' down' : '');
-      pill.textContent = d === 0 ? 'Référence' : `${d > 0 ? '+' : '−'}${Math.abs(d)} pt${Math.abs(d) > 1 ? 's' : ''}`;
-    });
+    ranges.forEach(r => setNegotiationPill(app, r));
     const e = evaluateConventionNegotiation(terms(), ctx);
     const pct = v => `${v > 0 ? '+' : ''}${Math.round(v * 100)} %`;
     const avis = { accept: 'Recevable', counter: 'À arbitrer', refuse: 'Excessive' }[e.verdict];
@@ -23765,46 +23823,9 @@ function bindConventionNegotiation(app) {
   };
   ranges.forEach(r => r.oninput = update); update();
   app.querySelector('#btn-nego-submit').onclick = () => { submitConventionNegotiation(terms()); render(); };
-  app.querySelector('#btn-nego-cancel').onclick = () => { gameState.conventionNegotiation = null; render(); };
+  app.querySelector('#btn-nego-cancel').onclick = () => { gameState.conventionNegotiation = null; negotiationAnimKey = null; render(); };
 }
-// Carte de contre-proposition : seuils en vigueur, demandés et proposés.
-function conventionCounterHtml() {
-  const n = currentConventionNegotiation(), p = gameState.player;
-  const obs = ARCOM_CONVENTIONS[p.type].obligations;
-  const pill = (v, ref) => { const d = v - ref; return `<span class="nego-delta${d > 0 ? ' up' : d < 0 ? ' down' : ''}">${d === 0 ? '=' : `${d > 0 ? '+' : '−'}${Math.abs(d)}`}</span>`; };
-  const unit = ob => ob.unit === '%' ? ' %' : '';
-  const soft = obs.filter(ob => n.counter[ob.id] < ob.minimum).length, firm = obs.filter(ob => n.counter[ob.id] > ob.minimum).length;
-  return `<div class="card bilan-card renewal-card renewal-watch nego-counter" id="conv-counter">
-      <div class="kicker-row renewal-kicker-row">
-        <span class="kicker-badge">⚖️ Arbitrage ${n.round}/2</span>
-        <span class="dc-season-pill">Saison ${gameState.season}</span>
-      </div>
-      <h2>Négociation ARCOM</h2>
-      <p class="renewal-lead">${esc(n.message)}</p>
-      <div class="nego-table" role="table">
-        <div class="nego-row nego-row-head" role="row"><span>Obligation</span><span>En vigueur</span><span>Demandé</span><span>Proposé</span></div>
-        ${obs.map(ob => `<div class="nego-row" role="row">
-          <span class="nego-ob">${esc(ob.label)}</span>
-          <span>${n.inForce[ob.id]}${unit(ob)}</span>
-          <span>${n.request[ob.id]}${unit(ob)}</span>
-          <span class="nego-prop"><b>${n.counter[ob.id]}${unit(ob)}</b>${pill(n.counter[ob.id], ob.minimum)}</span>
-        </div>`).join('')}
-      </div>
-      <div class="renewal-stats arcom-stats" style="grid-template-columns:repeat(2,1fr);margin-top:12px">
-        <div class="renewal-stat"><div class="renewal-stat-value">${soft}</div><div class="renewal-stat-label">Assouplissement${soft > 1 ? 's' : ''}</div></div>
-        <div class="renewal-stat"><div class="renewal-stat-value">${firm}</div><div class="renewal-stat-label">Engagement${firm > 1 ? 's' : ''} renforcé${firm > 1 ? 's' : ''}</div></div>
-      </div>
-    </div>
-    <button class="welcome-cta" id="btn-counter-accept"><span class="welcome-cta-shine"></span><span>Accepter</span></button>
-    ${n.round === 1 ? `<button class="welcome-cta welcome-cta-outline welcome-cta-tight" id="btn-counter-maintain"><span>Maintenir la demande</span></button>` : ''}
-    <button class="welcome-cta welcome-cta-outline welcome-cta-tight" id="btn-counter-renounce"><span>Renoncer</span></button>`;
-}
-function bindConventionCounter(app) {
-  app.querySelector('#btn-counter-accept').onclick = () => { acceptConventionCounter(); render(); };
-  const m = app.querySelector('#btn-counter-maintain');
-  if (m) m.onclick = () => { maintainConventionRequest(); render(); };
-  app.querySelector('#btn-counter-renounce').onclick = () => { renounceConventionNegotiation(); render(); };
-}
+const bindConventionCounter = bindConventionNegotiation;
 // Résultat du renouvellement, appel compris.
 function effectiveRenewalOutcome(score = computeRenewalScore().renewalScore) {
   const outcome = getRenewalOutcome(score);
@@ -25731,13 +25752,9 @@ function render() {
 
     const nego = currentConventionNegotiation();
     const negoView = outcome.key !== 'refused' && nego?.open && !nego.result;
-    const negoCounter = negoView && nego.phase === 'counter';
     const negoNote = nego?.result ? `<div class="sanction-note"><span class="sanction-note-title">🤝 Renégociation</span><span>${esc(nego.result.message
       || (nego.result.accepted ? NEGOTIATION_COPY.accepted : NEGOTIATION_COPY.refused))}</span></div>` : '';
-    app.innerHTML = negoView ? `
-      ${renderMasthead("Renouvellement de convention", "Audience Masters", true)}
-      ${renderHudHeadOnly({ status: 'convention' })}
-      ${negoCounter ? conventionCounterHtml() : conventionNegotiationHtml()}` : `
+    app.innerHTML = `
       ${renderMasthead("Renouvellement de convention", "Audience Masters", true)}
       ${renderHudHeadOnly({ status: 'convention' })}
       <div class="card bilan-card renewal-card renewal-${tone}">
@@ -25767,21 +25784,22 @@ function render() {
         </div>
         ${negoNote}
       </div>
-      ${outcome.key !== 'refused' && !nego?.result ? `<button class="welcome-cta welcome-cta-outline" id="btn-renewal-nego">
+      ${negoView ? conventionNegotiationHtml() : ''}
+      ${!negoView && outcome.key !== 'refused' && !nego?.result ? `<button class="welcome-cta welcome-cta-outline" id="btn-renewal-nego">
         <span>🤝 Renégocier la convention</span>
       </button>` : ''}
       ${outcome.key === 'refused' && !appeal ? `<button class="welcome-cta welcome-cta-outline" id="btn-renewal-appeal">
         <span>⚖️ Faire appel</span>
       </button>` : ''}
-      <button class="welcome-cta${(outcome.key === 'refused' && !appeal) || (outcome.key !== 'refused' && !nego?.result) ? ' welcome-cta-tight' : ''}" id="btn-renewal-continue">
+      ${negoView ? '' : `<button class="welcome-cta${(outcome.key === 'refused' && !appeal) || (outcome.key !== 'refused' && !nego?.result) ? ' welcome-cta-tight' : ''}" id="btn-renewal-continue">
         <span class="welcome-cta-shine"></span>
         <span>${outcome.key === 'refused' ? 'Voir le bilan final' : 'Continuer'}</span>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </button>
+      </button>`}
     `;
     // Même en-tête que le bilan de saison : le badge de marque ramène à l'accueil.
     fitHudBrand();
-    if (negoView) (negoCounter ? bindConventionCounter : bindConventionNegotiation)(app);
+    if (negoView) bindConventionNegotiation(app);
     const negoBtn = document.getElementById('btn-renewal-nego');
     if (negoBtn) negoBtn.onclick = () => { gameState.conventionNegotiation = { season: gameState.season, open: true, phase: 'edit' }; render(); };
     const renewalBrand = document.getElementById('hud-brand');

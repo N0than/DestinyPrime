@@ -76,7 +76,7 @@ const minOf=id=>()=>computeArcomCompliance().obligations.find(o=>o.id===id).mini
   ok(conventionNegotiationClosed()&&submitConventionNegotiation(req({information:9})).status==='accepted','décision définitive');
   ok(renounceConventionNegotiation().status==='accepted'&&acceptConventionCounter().status==='accepted','aucun nouveau tour');
   ok(/Arbitrage|Soumettre/.test(conventionNegotiationHtml()),'panneau'); }
-{ partie(); submitConventionNegotiation(req({information:9,fiction:15,culture:6})); ok(/Négociation ARCOM/.test(conventionCounterHtml())&&/Maintenir la demande/.test(conventionCounterHtml()),'carte de contre-proposition');
+{ partie(); submitConventionNegotiation(req({information:9,fiction:15,culture:6})); ok(/Négociation ARCOM/.test(conventionNegotiationHtml())&&/Maintenir la demande/.test(conventionCounterHtml()),'carte de contre-proposition');
   ROLL=0.995; maintainConventionRequest(); ok(!/Maintenir la demande/.test(conventionCounterHtml()),'second arbitrage : plus de maintien'); }
 // Compatibilité : ancienne sauvegarde (seuils directs, résultat booléen) et appel.
 { const p=partie(); p.conventionTerms={information:12}; delete p.conventionAgreement; ok(minOf('information')()===12,'ancien format de seuils');
