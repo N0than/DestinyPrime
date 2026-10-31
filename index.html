@@ -23439,7 +23439,7 @@ function getArcomStatusMeta(score) {
 
 function computeArcomCompliance() {
   const player = gameState.player;
-  const convention = ARCOM_CONVENTIONS[player.type];
+  const convention = playerConvention(player);
   const editoMix = gridEditorialMix(player);
 
   const rawValues = convention.obligations.map(ob => computeObligationActual(ob, editoMix, player));
@@ -23549,6 +23549,86 @@ function fileRenewalAppeal() {
 }
 function currentRenewalAppeal() {
   return gameState.renewalAppeal?.season === gameState.season ? gameState.renewalAppeal : null;
+}
+// Renégociation de la convention au renouvellement : le joueur fait varier chaque seuil
+// (±40 % du seuil de référence) ; l'ARCOM accepte si la baisse moyenne pondérée reste dans la
+// marge que lui vaut son score (hausses comprises, qui compensent les baisses). Une seule
+// demande par renouvellement ; les seuils acceptés s'appliquent au calcul des obligations.
+const CONVENTION_NEGOTIATION = { range: 0.4, margin: s => s >= 80 ? 0.2 : s >= 65 ? 0.1 : s >= 50 ? 0.04 : 0, reward: 2 };
+function playerConvention(p = gameState.player) {
+  const base = ARCOM_CONVENTIONS[p.type], terms = p.conventionTerms || {};
+  return { ...base, obligations: base.obligations.map(ob => terms[ob.id] != null ? { ...ob, minimum: terms[ob.id] } : ob) };
+}
+function negotiationBounds(ob) {
+  const r = CONVENTION_NEGOTIATION.range;
+  return { min: Math.max(1, Math.round(ob.minimum * (1 - r))), max: Math.round(ob.minimum * (1 + r)) || ob.minimum + 1 };
+}
+// Écart moyen pondéré des nouveaux seuils par rapport à la convention de référence.
+function negotiationBalance(terms, p = gameState.player) {
+  const obs = ARCOM_CONVENTIONS[p.type].obligations;
+  const w = obs.reduce((s, ob) => s + ob.weight, 0);
+  return obs.reduce((s, ob) => s + ob.weight * ((terms[ob.id] ?? ob.minimum) - ob.minimum) / ob.minimum, 0) / w;
+}
+function evaluateConventionNegotiation(terms, score = computeRenewalScore().renewalScore) {
+  const balance = negotiationBalance(terms), margin = CONVENTION_NEGOTIATION.margin(score);
+  return { balance, margin, accepted: balance >= -margin - 1e-9 };
+}
+function currentConventionNegotiation() {
+  return gameState.conventionNegotiation?.season === gameState.season ? gameState.conventionNegotiation : null;
+}
+function submitConventionNegotiation(terms) {
+  const p = gameState.player;
+  if (currentConventionNegotiation()?.result) return currentConventionNegotiation().result;
+  const result = evaluateConventionNegotiation(terms);
+  if (result.accepted) {
+    p.conventionTerms = {};
+    ARCOM_CONVENTIONS[p.type].obligations.forEach(ob => { const v = terms[ob.id] ?? ob.minimum; if (v !== ob.minimum) p.conventionTerms[ob.id] = v; });
+    // Engagements renforcés : l'ARCOM et le public saluent l'effort.
+    if (result.balance > 0) p.popularite = Math.min(100, p.popularite + CONVENTION_NEGOTIATION.reward);
+  }
+  gameState.conventionNegotiation = { season: gameState.season, open: false, result };
+  return result;
+}
+function conventionNegotiationHtml() {
+  const p = gameState.player, conv = playerConvention(p), score = computeRenewalScore().renewalScore;
+  const margin = CONVENTION_NEGOTIATION.margin(score);
+  const base = Object.fromEntries(ARCOM_CONVENTIONS[p.type].obligations.map(ob => [ob.id, ob]));
+  return `<div class="card bilan-card renewal-card renewal-watch" id="conv-nego">
+      <div class="kicker-row renewal-kicker-row">
+        <span class="kicker-badge">🤝 Renégociation</span>
+        <span class="dc-season-pill">Saison ${gameState.season}</span>
+      </div>
+      <h2>Négocier avec l'ARCOM</h2>
+      <p class="renewal-lead">Ajustez chaque obligation. Avec un score de renouvellement de <b>${score}/100</b>, l'ARCOM accepte une baisse moyenne de <b>${Math.round(margin * 100)} %</b> au plus ; les hausses compensent les baisses${margin === 0 ? ' (aucune baisse nette possible)' : ''}.</p>
+      ${conv.obligations.map(ob => { const b = negotiationBounds(base[ob.id]); const u = ob.unit === '%' ? ' %' : ' ' + ob.unit; return `<div class="sa-gauge">
+        <div class="sa-gauge-head"><span class="sa-gauge-label">${esc(ob.label)}</span><output class="sa-gauge-value" data-nego-out="${ob.id}">${ob.minimum}${u}</output></div>
+        <input type="range" class="sa-gauge-range" data-nego="${ob.id}" data-unit="${u}" min="${b.min}" max="${b.max}" step="1" value="${ob.minimum}" aria-label="${esc(ob.label)}" style="--est-a:${(base[ob.id].minimum - b.min) / (b.max - b.min) * 100}%;--est-b:${(base[ob.id].minimum - b.min) / (b.max - b.min) * 100 + 1}%">
+        <div class="sa-gauge-scale"><span>${b.min}${u}</span><span class="sa-gauge-est">Référence ${base[ob.id].minimum}${u}</span><span>${b.max}${u}</span></div>
+      </div>`; }).join('')}
+      <div class="renewal-stats arcom-stats" id="conv-nego-summary"></div>
+      <p class="loan-warn" id="conv-nego-warn"></p>
+    </div>
+    <button class="welcome-cta" id="btn-nego-submit"><span class="welcome-cta-shine"></span><span>Soumettre à l'ARCOM</span></button>
+    <button class="welcome-cta welcome-cta-outline welcome-cta-tight" id="btn-nego-cancel"><span>Revenir au renouvellement</span></button>`;
+}
+function bindConventionNegotiation(app) {
+  const ranges = [...app.querySelectorAll('[data-nego]')];
+  const terms = () => Object.fromEntries(ranges.map(r => [r.dataset.nego, Number(r.value)]));
+  const update = () => {
+    ranges.forEach(r => { app.querySelector(`[data-nego-out="${r.dataset.nego}"]`).textContent = r.value + r.dataset.unit; });
+    const e = evaluateConventionNegotiation(terms());
+    const pct = v => `${v > 0 ? '+' : ''}${Math.round(v * 100)} %`;
+    app.querySelector('#conv-nego-summary').innerHTML = [
+      [pct(e.balance), 'Écart moyen', e.balance < 0],
+      [`−${Math.round(e.margin * 100)} %`, 'Marge accordée', false],
+      [e.accepted ? 'Recevable' : 'Refusée', 'Avis ARCOM', !e.accepted]
+    ].map(([v, l, a]) => `<div class="renewal-stat${a ? ' alert' : ''}"><div class="renewal-stat-value">${v}</div><div class="renewal-stat-label">${l}</div></div>`).join('');
+    app.querySelector('#conv-nego-warn').textContent = e.accepted ? '' : "⚠️ Les baisses dépassent la marge accordée : relevez d'autres obligations ou modérez vos demandes.";
+    app.querySelector('#btn-nego-submit').disabled = !e.accepted;
+  };
+  ranges.forEach(r => r.oninput = update); update();
+  app.querySelector('#btn-nego-submit').onclick = () => { submitConventionNegotiation(terms()); render(); };
+  app.querySelector('#btn-nego-cancel').onclick = () => { gameState.conventionNegotiation = null; render(); };
 }
 // Résultat du renouvellement, appel compris.
 function effectiveRenewalOutcome(score = computeRenewalScore().renewalScore) {
@@ -24277,7 +24357,7 @@ function renderTicker() {
   // Bilan de fin de saison : le résultat ARCOM arrêté (celui de l'historique et du renouvellement).
   const compliance = p.lastArcomResult || computeArcomCompliance();
   const statStarsHtml = renderStatStars(p, pdaCible, compliance);
-  const arcomSlideHtml = renderArcomSlide(compliance, ARCOM_CONVENTIONS[p.type]);
+  const arcomSlideHtml = renderArcomSlide(compliance, playerConvention(p));
   const ecoBilanSlideHtml = renderEcoBilanSlide(p);
   const talentsSlideHtml = renderTalentsSlide();
   const slide = Math.min(gameState.hudSlide || 0, hudSlideCount() - 1);
@@ -25368,7 +25448,7 @@ function render() {
   if (gameState.step === 9) {
     const player = gameState.player;
     const compliance = player.lastArcomResult || computeArcomCompliance();
-    const convention = ARCOM_CONVENTIONS[player.type];
+    const convention = playerConvention(player);
     // Échéance de la convention en cours : la saison multiple de la durée, saison courante comprise.
     const nextEcheance = Math.ceil(gameState.season / CONVENTION_DURATION) * CONVENTION_DURATION;
     const renewal = computeRenewalScore();
@@ -25474,7 +25554,15 @@ function render() {
       { value: `${player.arcomSanctionsCount}`, label: 'Sanctions cumulées', alert: player.arcomSanctionsCount > 0 }
     ];
 
-    app.innerHTML = `
+    const nego = currentConventionNegotiation();
+    const negoView = outcome.key !== 'refused' && nego?.open;
+    const negoNote = nego?.result ? `<div class="sanction-note"><span class="sanction-note-title">🤝 Renégociation</span><span>${nego.result.accepted
+      ? 'L’ARCOM accepte vos nouveaux engagements : ils s’appliquent dès la saison prochaine au calcul de vos obligations.'
+      : 'L’ARCOM rejette votre demande : la convention reste inchangée.'}</span></div>` : '';
+    app.innerHTML = negoView ? `
+      ${renderMasthead("Renouvellement de convention", "Audience Masters", true)}
+      ${renderHudHeadOnly({ status: 'convention' })}
+      ${conventionNegotiationHtml()}` : `
       ${renderMasthead("Renouvellement de convention", "Audience Masters", true)}
       ${renderHudHeadOnly({ status: 'convention' })}
       <div class="card bilan-card renewal-card renewal-${tone}">
@@ -25502,11 +25590,15 @@ function render() {
             <div class="renewal-stat-label">${st.label}</div>
           </div>`).join('')}
         </div>
+        ${negoNote}
       </div>
+      ${outcome.key !== 'refused' && !nego?.result ? `<button class="welcome-cta welcome-cta-outline" id="btn-renewal-nego">
+        <span>🤝 Renégocier la convention</span>
+      </button>` : ''}
       ${outcome.key === 'refused' && !appeal ? `<button class="welcome-cta welcome-cta-outline" id="btn-renewal-appeal">
         <span>⚖️ Faire appel</span>
       </button>` : ''}
-      <button class="welcome-cta${outcome.key === 'refused' && !appeal ? ' welcome-cta-tight' : ''}" id="btn-renewal-continue">
+      <button class="welcome-cta${(outcome.key === 'refused' && !appeal) || (outcome.key !== 'refused' && !nego?.result) ? ' welcome-cta-tight' : ''}" id="btn-renewal-continue">
         <span class="welcome-cta-shine"></span>
         <span>${outcome.key === 'refused' ? 'Voir le bilan final' : 'Continuer'}</span>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -25514,12 +25606,16 @@ function render() {
     `;
     // Même en-tête que le bilan de saison : le badge de marque ramène à l'accueil.
     fitHudBrand();
+    if (negoView) bindConventionNegotiation(app);
+    const negoBtn = document.getElementById('btn-renewal-nego');
+    if (negoBtn) negoBtn.onclick = () => { gameState.conventionNegotiation = { season: gameState.season, open: true }; render(); };
     const renewalBrand = document.getElementById('hud-brand');
     if (renewalBrand) renewalBrand.onclick = goHome;
     app.querySelector('.masthead').onclick = goHome;
     const appealBtn = document.getElementById('btn-renewal-appeal');
     if (appealBtn) appealBtn.onclick = () => { fileRenewalAppeal(); render(); };
-    document.getElementById('btn-renewal-continue').onclick = () => {
+    const continueBtn = document.getElementById('btn-renewal-continue');
+    if (continueBtn) continueBtn.onclick = () => {
       if (outcome.key === 'refused') {
         gameState.gameOverReason = 'arcom';
         gameState.step = 8;
