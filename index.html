@@ -2842,6 +2842,7 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .sa-gauge-est { color:var(--vert); text-align:center; }
 /* Renégociation de convention : jauges compactes, dans le style des obligations ARCOM. */
 .nego-list { display:flex; flex-direction:column; gap:8px; margin-bottom:12px; }
+.nego-counter .nego-list { margin-bottom:0; }
 .nego-gauge { gap:4px; padding:10px 12px 8px; }
 .nego-gauge .sa-gauge-head { align-items:center; }
 .nego-gauge .sa-gauge-label { flex:1; min-width:0; font-family:'Plus Jakarta Sans', sans-serif; font-size:12.5px; font-weight:700; letter-spacing:0; text-transform:none; color:#334155; }
@@ -23672,8 +23673,8 @@ const conventionNegotiationClosed = () => !!currentConventionNegotiation()?.resu
 const NEGOTIATION_COPY = {
   accepted: "L'ARCOM accepte vos nouveaux engagements : ils s'appliqueront dès la saison prochaine.",
   countered: "Accord conclu sur la proposition de l'ARCOM : les nouveaux seuils s'appliqueront dès la saison prochaine.",
-  refused: "L'ARCOM rejette la demande : les assouplissements excèdent ce que justifie votre bilan. La convention reste inchangée.",
-  counter: "L'Autorité reconnaît vos efforts mais juge la demande trop large. Elle propose un assouplissement plus mesuré.",
+  refused: "L'ARCOM rejette la demande : elle excède ce que justifie votre bilan. La convention reste inchangée.",
+  counter: "L'Autorité a examiné votre demande et formule une contre-proposition.",
   improved: "Après un nouvel examen, l'Autorité consent à un effort supplémentaire. C'est sa dernière proposition.",
   maintained: "L'Autorité maintient sa proposition : elle ne peut aller plus loin au regard de votre bilan.",
   withdrawn: "L'Autorité retire son offre : la demande maintenue n'est pas compatible avec vos engagements passés. La convention reste inchangée.",
@@ -23702,9 +23703,10 @@ function submitConventionNegotiation(request) {
   if (conventionNegotiationClosed()) return currentConventionNegotiation().result;
   const ctx = negotiationContext(), e = evaluateConventionNegotiation(request, ctx);
   const inForce = Object.fromEntries(ctx.obs.map(ob => [ob.id, conventionTermsInForce()[ob.id] ?? ob.minimum]));
-  if (e.verdict === 'accept') return closeConventionNegotiation('accepted', { ...request });
-  const counter = e.verdict === 'counter' ? buildCounterProposal(request, e.margin, ctx) : null;
-  if (!counter || sameTerms(counter, inForce, ctx.obs)) return closeConventionNegotiation('refused');
+  // L'ARCOM répond toujours par une contre-proposition : au plus 75 % de la baisse nette
+  // demandée, et jamais au-delà de sa marge.
+  const target = Math.min(e.margin, 0.75 * Math.max(0, -e.balance));
+  const counter = buildCounterProposal(request, target, ctx);
   gameState.conventionNegotiation = { season: gameState.season, open: true, phase: 'counter', round: 1, request: { ...request }, inForce, counter, verdict: 'counter', message: NEGOTIATION_COPY.counter };
   return gameState.conventionNegotiation;
 }
@@ -23754,8 +23756,6 @@ function conventionNegotiationHtml() {
   const counter = n?.phase === 'counter';
   const conv = playerConvention(p);
   const base = Object.fromEntries(ARCOM_CONVENTIONS[p.type].obligations.map(ob => [ob.id, ob]));
-  const soft = counter ? conv.obligations.filter(ob => n.counter[ob.id] < base[ob.id].minimum).length : 0;
-  const firm = counter ? conv.obligations.filter(ob => n.counter[ob.id] > base[ob.id].minimum).length : 0;
   return `<div class="card bilan-card renewal-card renewal-watch nego-panel${counter ? ' nego-counter' : ''}" id="conv-nego">
       <div class="kicker-row renewal-kicker-row">
         <span class="kicker-badge">${counter ? `⚖️ Arbitrage ${n.round}/2` : '🤝 Renégociation'}</span>
@@ -23763,7 +23763,7 @@ function conventionNegotiationHtml() {
       </div>
       <h2>${counter ? 'Négociation ARCOM' : "Négocier avec l'ARCOM"}</h2>
       ${counter ? `<div class="sanction-note nego-response"><span class="sanction-note-title">🏛️ Réponse de l'Autorité</span><span>${esc(n.message)}</span></div>`
-        : `<p class="renewal-lead">Ajustez chaque obligation. Avec un score de renouvellement de <b>${ctx.score}/100</b>, l'ARCOM tolère un assouplissement moyen de <b>${Math.round(ctx.margin * 100)} %</b>${ctx.prior ? `, réduit par ${ctx.prior > 1 ? 'vos assouplissements passés' : 'votre assouplissement passé'}` : ''}. Une hausse compense une baisse selon son poids et sa difficulté.</p>`}
+        : `<p class="renewal-lead">Ajustez chaque obligation puis soumettez votre demande : l'ARCOM y répondra par une contre-proposition. Une hausse compense une baisse selon son poids et sa difficulté.</p>`}
       <div class="nego-list">${conv.obligations.map((ob, i) => { const b = negotiationBounds(base[ob.id]); const u = ob.unit === '%' ? ' %' : ' ' + ob.unit;
         const v = counter ? n.counter[ob.id] : ob.minimum;
         return `<div class="sa-gauge nego-gauge" style="--i:${i}">
@@ -23771,9 +23771,7 @@ function conventionNegotiationHtml() {
         <input type="range" class="sa-gauge-range" data-nego="${ob.id}" data-unit="${u}" min="${b.min}" max="${b.max}" step="1" value="${counter ? n.request[ob.id] : v}" data-target="${v}"${counter ? ' disabled' : ''} aria-label="${esc(ob.label)}" style="--ref:${(base[ob.id].minimum - b.min) / (b.max - b.min) * 100}%">
         <div class="sa-gauge-scale"><span>${b.min}${u}</span><span class="sa-gauge-est">${counter ? `Demandé ${n.request[ob.id]}${u} · en vigueur ${n.inForce[ob.id]}${u}` : `Référence ${base[ob.id].minimum}${u}`}</span><span>${b.max}${u}</span></div>
       </div>`; }).join('')}</div>
-      <div class="renewal-stats arcom-stats nego-summary" id="conv-nego-summary" style="grid-template-columns:repeat(${counter ? 2 : 3},1fr)">${counter ? `
-        <div class="renewal-stat"><div class="renewal-stat-value">${soft}</div><div class="renewal-stat-label">Assouplissement${soft > 1 ? 's' : ''}</div></div>
-        <div class="renewal-stat"><div class="renewal-stat-value">${firm}</div><div class="renewal-stat-label">Engagement${firm > 1 ? 's' : ''} renforcé${firm > 1 ? 's' : ''}</div></div>` : ''}</div>
+      ${counter ? '' : '<div class="renewal-stats arcom-stats nego-summary" id="conv-nego-summary" style="grid-template-columns:repeat(2,1fr)"></div>'}
       ${counter ? '' : '<p class="loan-warn" id="conv-nego-warn"></p>'}
     </div>
     ${counter ? `<button class="welcome-cta" id="btn-counter-accept"><span class="welcome-cta-shine"></span><span>Accepter</span></button>
@@ -23828,12 +23826,11 @@ function bindConventionNegotiation(app) {
     const avis = { accept: 'Recevable', counter: 'À arbitrer', refuse: 'Excessive' }[e.verdict];
     app.querySelector('#conv-nego-summary').innerHTML = [
       [pct(e.balance), 'Écart pondéré', e.balance < 0],
-      [`−${Math.round(e.margin * 100)} %`, 'Marge accordée', false],
       [avis, 'Avis ARCOM', e.verdict === 'refuse']
     ].map(([v, l, a]) => `<div class="renewal-stat${a ? ' alert' : ''}"><div class="renewal-stat-value">${v}</div><div class="renewal-stat-label">${l}</div></div>`).join('');
     app.querySelector('#conv-nego-warn').textContent = e.verdict === 'accept' ? ''
-      : e.verdict === 'counter' ? "ℹ️ Au-delà de la marge : l'ARCOM formulera une contre-proposition."
-      : "⚠️ Demande excessive : l'ARCOM la rejettera.";
+      : e.verdict === 'counter' ? "ℹ️ Demande ambitieuse : l'ARCOM la révisera nettement."
+      : "⚠️ Demande excessive : l'ARCOM s'en tiendra à une proposition très éloignée.";
   };
   ranges.forEach(r => r.oninput = update); update();
   // Réponse de l'ARCOM : contre-proposition dans le même bloc, sinon retour au récapitulatif.

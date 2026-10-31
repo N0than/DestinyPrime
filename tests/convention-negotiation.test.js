@@ -24,12 +24,14 @@ const REF={information:15,fiction:25,culture:10,prodFrancaise:30,prodEuropeenne:
 const req=o=>({...REF,...o});
 const minOf=id=>()=>computeArcomCompliance().obligations.find(o=>o.id===id).minimum;
 
-// 1. Acceptation directe, appliquée la saison suivante seulement (7).
-{ const p=partie(); const r=submitConventionNegotiation(req({information:13}));
-  ok(r.status==='accepted','acceptation directe'); reload();
+// 1. Toujours une contre-proposition, même dans la marge ; appliquée la saison suivante (7).
+{ const p=partie(); const n=submitConventionNegotiation(req({information:13}));
+  ok(n.phase==='counter'&&n.counter.information>13&&n.counter.information<15,'contre-proposition dans la marge'); reload();
+  const r=acceptConventionCounter(); ok(r.status==='countered','accord'); reload();
   ok(minOf('information')()===15,'seuil inchangé pendant la saison en cours');
-  gameState.season++; ok(minOf('information')()===13,'appliqué à la saison suivante');
-  ok(gameState.player.conventionHistory.at(-1).status==='accepted','accord enregistré'); }
+  gameState.season++; ok(minOf('information')()===n.counter.information,'appliqué à la saison suivante');
+  ok(gameState.player.conventionHistory.at(-1).status==='countered','accord enregistré'); }
+{ partie(); const n=submitConventionNegotiation(req({fiction:30})); ok(n.phase==='counter'&&n.counter.fiction===30,'hausse seule : proposée telle quelle'); }
 // 2. Contre-proposition acceptée.
 { const p=partie(); const n=submitConventionNegotiation(req({information:9,fiction:15,culture:6}));
   ok(n.phase==='counter'&&n.round===1,'contre-proposition'); reload();
@@ -60,7 +62,8 @@ const minOf=id=>()=>computeArcomCompliance().obligations.find(o=>o.id===id).mini
   ok(gameState.player.conventionHistory.at(-1).status==='renounced','retrait enregistré'); }
 // 9. Planchers, marges, refus motivé, poids et difficulté, concessions passées.
 { partie(); const b=negotiationBounds(ARCOM_CONVENTIONS.generaliste.obligations[0]); ok(b.min===9&&b.max===21,'planchers et plafonds');
-  ok(submitConventionNegotiation(req({information:9,fiction:15,culture:6,prodFrancaise:18,prodEuropeenne:12})).status==='refused','refus motivé'); }
+  const n=submitConventionNegotiation(req({information:9,fiction:15,culture:6,prodFrancaise:18,prodEuropeenne:12}));
+  ok(n.phase==='counter'&&negotiationBalance(n.counter)>=-negotiationContext().margin-1e-9,'demande excessive : contre-proposition dans la marge'); }
 { partie(); const ctx=negotiationContext();
   // Une hausse déjà tenue à l'antenne compte moins qu'une hausse exigeante.
   ctx.actual={...ctx.actual,fiction:99}; const easy=negotiationBalance(req({fiction:30}),ctx);
@@ -72,9 +75,9 @@ const minOf=id=>()=>computeArcomCompliance().obligations.find(o=>o.id===id).mini
 { const p=partie(); p.conventionHistory=[{season:0,status:'accepted',balance:-0.1}];
   ok(Math.abs(negotiationContext().margin-0.17)<1e-9,'concessions passées : marge réduite'); }
 // 10. Pas de nouvelle négociation après décision ; sauvegarde (8).
-{ partie(); const r=submitConventionNegotiation(req({information:13})); reload();
-  ok(conventionNegotiationClosed()&&submitConventionNegotiation(req({information:9})).status==='accepted','décision définitive');
-  ok(renounceConventionNegotiation().status==='accepted'&&acceptConventionCounter().status==='accepted','aucun nouveau tour');
+{ partie(); submitConventionNegotiation(req({information:13})); acceptConventionCounter(); reload();
+  ok(conventionNegotiationClosed()&&submitConventionNegotiation(req({information:9})).status==='countered','décision définitive');
+  ok(renounceConventionNegotiation().status==='countered'&&acceptConventionCounter().status==='countered','aucun nouveau tour');
   ok(/Arbitrage|Soumettre/.test(conventionNegotiationHtml()),'panneau'); }
 { partie(); submitConventionNegotiation(req({information:9,fiction:15,culture:6})); ok(/Négociation ARCOM/.test(conventionNegotiationHtml())&&/Maintenir la demande/.test(conventionCounterHtml()),'carte de contre-proposition');
   ROLL=0.995; maintainConventionRequest(); ok(!/Maintenir la demande/.test(conventionCounterHtml()),'second arbitrage : plus de maintien'); }
@@ -82,6 +85,6 @@ const minOf=id=>()=>computeArcomCompliance().obligations.find(o=>o.id===id).mini
 { const p=partie(); p.conventionTerms={information:12}; delete p.conventionAgreement; ok(minOf('information')()===12,'ancien format de seuils');
   gameState.conventionNegotiation={season:gameState.season,open:false,result:{accepted:true}}; ok(conventionNegotiationClosed(),'ancien résultat clos');
   SCORE=30; const a=fileRenewalAppeal(); ok(a&&currentRenewalAppeal()===a,'appel intact'); }
-console.log('OK convention negotiation: direct accept, counter accepted, maintain improved / maintained / withdrawn, renounce, next-season thresholds, save/reload, floors & margins, past concessions, single decision, legacy saves, appeal');
+console.log('OK convention negotiation: always counter, counter accepted, maintain improved / maintained / withdrawn, renounce, next-season thresholds, save/reload, floors & margins, past concessions, single decision, legacy saves, appeal');
 `;
 vm.runInNewContext(scripts.slice(0, -1).join('\n') + tests, { console, structuredClone, URLSearchParams }, { filename: 'audience-masters-nego.js' });
