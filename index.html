@@ -1247,8 +1247,11 @@ button.radar-row:focus-visible { outline: 2px solid var(--bleu); outline-offset:
 .renewal-stat.alert .renewal-stat-value { color: var(--rouge); }
 .renewal-stat-label { font-size: 9.5px; color: var(--gris); text-transform: uppercase; letter-spacing: 0.3px; margin-top: 3px; }
 /* Même écart que les écrans de configuration : 4 px sous le bloc + 14 px au-dessus du bouton. */
-.card.renewal-card { margin-bottom: 4px; }
-.renewal-card + .welcome-cta { margin-top: 14px; }
+.card.renewal-card { margin-bottom: 0; }
+/* Espace classique de 18px entre la carte et le premier bouton ; le bloc de renégociation
+   reprend l'écart des blocs de la carte. */
+.renewal-card + .welcome-cta { margin-top: 18px; }
+.renewal-card .sanction-note { margin-top: 12px; margin-bottom: 0; }
 
 /* ---- CONVENTION ARCOM (page de détail) ---- */
 .arcom-gauge-legend { position: relative; height: 12px; margin-top: 6px; font-size: 9.5px; color: var(--gris); text-transform: uppercase; letter-spacing: 0.3px; white-space: nowrap; }
