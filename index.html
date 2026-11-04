@@ -8287,6 +8287,8 @@ function getEligibleDilemmas() {
     // Dilemme relié à la grille active (polar, Noël, streamer, « Le Grodeal ») : ses conditions
     // réelles doivent être remplies au moment du tirage.
     if (DYNAMIC_DILEMMAS[d.id] && !DYNAMIC_DILEMMAS[d.id].eligible()) return false;
+    // Enchère de droits : seulement pour les chaînes autorisées à les diffuser.
+    if (d.type === 'sports_rights_auction' && !rightsEventEligible(SPORT_RIGHTS_EVENTS[d.rightsEventId] || {}, gameState.player)) return false;
     if (d.types) return d.types.includes(type);
     if (type === 'sport') return SPORT_RELATED_UNIVERSAL_IDS.includes(d.id);
     return true;
@@ -26671,9 +26673,21 @@ function evaluateSportsRight(event, player) {
 }
 
 // Plafond privé d'une chaîne IA : valeur perçue de l'événement × profil, borné par le budget.
-// Chaîne jeunesse : jamais de droits sportifs (enchère ni reconduction), comme côté joueur.
-// Chaînes jeunesse et culture : pas de droits sportifs.
-const sportsRightBarred = (channel, event) => ['jeunesse', 'culture'].includes(channel?.type) && isSportRight(event);
+// Droits sportifs réservés aux chaînes généralistes et sportives, comme côté joueur : les
+// chaînes Cinéma, Jeunesse, Culture et Info n'enchérissent pas et ne reconduisent pas.
+const sportsRightBarred = (channel, event) => isSportRight(event) && !SPORTS_RIGHTS_CHANNEL_TYPES.includes(channel?.type);
+// Droits sportifs à venir d'une chaîne qui ne peut pas les diffuser (ancienne partie) : ils
+// retournent sur le marché dès la saison suivante.
+function purgeBarredSportsRights(channel) {
+  const sr = gameState.sportsRights;
+  if (!sr?.owned || !channel) return;
+  sr.owned = sr.owned.filter(o => {
+    if (o.ownerName !== channel.name || o.broadcastSeason <= gameState.season || !sportsRightBarred(channel, SPORT_RIGHTS_EVENTS[o.eventId])) return true;
+    sr.history.push({ type: 'sports_rights_release', eventId: o.eventId, season: gameState.season, owner: o.ownerName });
+    if (sr.recurring?.[o.eventId]) sr.recurring[o.eventId].nextAuctionSeason = gameState.season + 1;
+    return false;
+  });
+}
 function computeCompetitorSportsMaxBid(competitor, event) {
   if (sportsRightBarred(competitor, event)) return 0;
   const profile = GAME_BALANCE.competitors.profiles[competitor.strategy] || GAME_BALANCE.competitors.profiles.rentable;
@@ -33218,6 +33232,8 @@ function acceptChannelOffer({ instant = false } = {}) {
   try {
     const season = gameState.season, oldP = gameState.player, c = gameState.competitors[index];
     channelId(oldP); channelId(c);
+    // Une chaîne Cinéma, Jeunesse, Culture ou Info ne garde aucun droit sportif à venir.
+    purgeBarredSportsRights(c);
     // Conditions de reprise arrêtées avant toute conversion (les droits sportifs changent de
     // détenteur ensuite).
     const terms = takeoverContractTerms(c);

@@ -443,7 +443,8 @@ assert(!pickDilemmaQueue().some(d=>d.rightsEventId==='f1')&&sr().history.some(h=
   const ce=sportsEventEditorial(SPORT_RIGHTS_EVENTS.comedie_francaise,pc,'prime');
   assert(ce.genre==='culture'&&ce.mix.culture===100&&ce.mix.direct===100&&ce.mix.prodFR===100,'culture event counts as live French culture');
 }
-['generaliste','sport','info','cinema'].forEach(type=>assert(computeCompetitorSportsMaxBid({...mk('X','offensive',type),budget:200},SPORT_RIGHTS_EVENTS.world_cup)>0,'AI bids from '+type));
+['generaliste','sport'].forEach(type=>assert(computeCompetitorSportsMaxBid({...mk('X','offensive',type),budget:200},SPORT_RIGHTS_EVENTS.world_cup)>0,'AI bids from '+type));
+['info','cinema'].forEach(type=>assert(computeCompetitorSportsMaxBid({...mk('X','offensive',type),budget:200},SPORT_RIGHTS_EVENTS.world_cup)===0,'no AI sports bid from '+type));
 // Chaîne jeunesse : aucun droit sportif (Coupe du monde, Ligue 1…), droits thématiques possibles.
 ['jeunesse','culture'].forEach(ty=>['world_cup','ligue1','f1','olympic_games'].forEach(id=>assert(computeCompetitorSportsMaxBid({...mk('X','offensive',ty),budget:200},SPORT_RIGHTS_EVENTS[id])===0,'no sports right for a '+ty+' channel: '+id)));
 // Chaîne Sport : ses dilemmes dédiés (d89, d145) sont préférés.

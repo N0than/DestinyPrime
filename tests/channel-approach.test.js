@@ -145,6 +145,7 @@ function transfert(type='generaliste', seed=4242, scores={audience:0.8,finance:0
 // ——— 6. Droits sportifs : titulaire, sommes dues, aucune refacturation ———
 { const { o }=transfert('sport',99);
   const c=gameState.competitors.find(x=>x.name===o.channelName), ev=Object.values(SPORT_RIGHTS_EVENTS).find(e=>!e.category&&!e.recurring);
+  if(sportsRightBarred(c,ev)) c.type='generaliste'; // seules généralistes et sportives détiennent des droits sportifs
   acquireSportsRight(ev.id,{owner:c,price:9,term:2}); // saison suivante payée, la seconde due
   const paidBefore=c.finance.season.sportsRights;
   ok(acceptChannelOffer().ok,'acceptation');
