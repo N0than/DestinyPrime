@@ -25293,6 +25293,7 @@ function render() {
     const sportsBlock = sportsResult ? renderSportsVerdictInline(gameState.lastConsequence)
       : phase === 'choosing' && sportEvent ? renderSportsAuctionZone(dilemma)
       : phase === 'choosing' && dilemma.isChannelOffer ? renderChannelOfferZone(dilemma)
+      : phase === 'result' && dilemma.isChannelOffer && channelOfferOfDilemma(dilemma) ? `<div class="sa-inline co-zone">${channelOfferIlluHtml(channelOfferOfDilemma(dilemma))}</div>`
       : dilemma.isDismissalInterview || dilemma.isMandateSuccess ? dismissalInterviewHtml(dilemma) : '';
     if (sportsResult) {
       zoneHtml = renderSportsVerdictZone(gameState.lastConsequence);
@@ -33478,15 +33479,23 @@ function channelOfferStatsHtml(o, { study = false, highlight = false } = {}) {
     ${stat('Enveloppe', o.contribution > 0 ? `+${nf1(o.contribution)} M€` : 'Aucune', highlight ? 'co-up' : '')}
   </div>`;
 }
+// Illustration de la proposition de poste : gardée après la réponse (acceptée ou refusée).
+function channelOfferIlluHtml(o) {
+  const type = CHANNEL_TYPES[o.type]?.label || o.type;
+  return `<figure class="sa-illu"><img src="${directionSceneArt('bureau')}" alt="" aria-hidden="true">
+      <span class="sa-illu-badges"><span class="sa-illu-tier">${esc(type)}</span></span>
+      <span class="sa-illu-corner">Mandat ${o.mandateSeasons || CHANNEL_APPROACH.mandateSeasons} saisons</span>
+      <figcaption class="sa-illu-cap"><span class="sa-illu-name">${esc(o.channelName)}</span></figcaption></figure>`;
+}
+function channelOfferOfDilemma(dilemma) {
+  const A = gameState.director?.approach;
+  return [A?.offer, ...(A?.past || [])].find(x => x && x.id === dilemma.offerId) || null;
+}
 function renderChannelOfferZone(dilemma) {
   const o = gameState.director?.approach?.offer;
   if (!o || o.status !== 'pending') return '';
   const pop = (d, cls) => `class="sa-pop ${cls}" style="--d:${d}s" data-sa-leave`;
-  const type = CHANNEL_TYPES[o.type]?.label || o.type;
-  const illu = `<figure class="sa-illu"><img src="${directionSceneArt('bureau')}" alt="" aria-hidden="true">
-      <span class="sa-illu-badges"><span class="sa-illu-tier">${esc(type)}</span></span>
-      <span class="sa-illu-corner">Mandat ${o.mandateSeasons || CHANNEL_APPROACH.mandateSeasons} saisons</span>
-      <figcaption class="sa-illu-cap"><span class="sa-illu-name">${esc(o.channelName)}</span></figcaption></figure>`;
+  const illu = channelOfferIlluHtml(o);
   const objective = `<div ${pop(0.12, 'sa-row co-objective')}><span class="sa-row-label">Objectif du propriétaire</span>
       <p class="co-objective-text">🎯 ${esc(o.objective.text)}</p></div>`;
   if (o.ui === 'study' || o.ui === 'negotiated') {
