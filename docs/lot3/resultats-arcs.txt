@@ -1,0 +1,25 @@
+Lot 3 — histoires génériques et arcs (5 graines × 120 saisons × 6 types, choix aléatoires) — 326 s
+Saisons jouées : 3600 {"generaliste":600,"cinema":600,"culture":600,"jeunesse":600,"sport":600,"info":600} ; parties : 256
+
+| Mesure | Valeur |
+|---|---|
+| Histoires de programmes jouées | 1785 (0.50 par saison) |
+| … dont variantes génériques par genre | 833 (46.7 %) |
+| … dont suites d'arcs | 114 |
+| Arcs ouverts | 237 (6.6 % des saisons) |
+| Étapes intermédiaires (arc avancé) | 40 |
+| Arcs résolus | 74 (31.2 % des ouvertures) |
+| Arcs expirés | 67 (28.3 %) |
+| Arcs abandonnés (programme retiré) | 28 (11.8 %) |
+| Ouvertures refusées (plafond) | 0 |
+| Arcs ouverts simultanés : maximum / moyenne par saison | 2 / 0.15 (plafond 3) |
+| Arcs ouverts sur un même programme (maximum) | 1 (plafond 1) |
+| Arc ouvert sur un programme absent de la grille | 0 |
+| Deux histoires du même programme dans une saison | 0 |
+| Même histoire rejouée sur un programme avant son délai | 0 |
+| Options contextuelles retenues (talent / plateforme / partenaire / commande réduite) | 5 / 0 / 7 / 1 |
+| Textes incomplets (undefined, variable non remplacée) | 0 |
+| Files vides / bloquées / erreurs | 0 / 0 / 0 |
+
+Situations génériques jouées : gs_formule_usee 244, gs_jeunesse_vieillissante 135, gs_droits_film 87, gs_surcout_tournage 72, gs_production_sport 59, gs_refonte_recul 42, gs_animateur_depart 38, gs_invite_desiste 26, gs_refonte_succes 23, gs_refonte_cloture 21, gs_suite_fiction_chere 18, gs_enquete_sensible 14, gs_refonte_mitige 14, gs_surcout_suite 11, gs_declinaison 7, gs_candidat_depart 6, gs_valorisation_digitale 6, gs_debat_clivant 4, gs_animateur_suite_mitige 2, gs_jury_conteste 1, gs_jury_suite_succes 1, gs_pression_concurrente 1, gs_finale_exceptionnelle 1
+États finaux des arcs (par arc) : animateur:abandonne 3, animateur:expire 3, animateur:open 10, animateur:resolu 2, digital:abandonne 1, digital:open 1, jury:resolu 1, offensive:expire 1, refonte:abandonne 16, refonte:expire 48, refonte:open 44, refonte:resolu 60, surcout:abandonne 8, surcout:expire 15, surcout:open 13, surcout:resolu 11

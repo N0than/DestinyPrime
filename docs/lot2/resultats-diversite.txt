@@ -1,0 +1,26 @@
+Lot 2 — diversité des saisons (5 graines × 500 saisons × 6 types, choix aléatoires) ; référence lot 1 : 615e519
+Saisons jouées : lot 1 15264, lot 2 15221 — 2342 s
+
+| Indicateur | Lot 1 | Lot 2 | Cible proposée |
+|---|---|---|---|
+| Part moyenne du thème dominant par saison | 50.1 % | 44.5 % | ≤ 45 % (33 % = trois thèmes distincts) |
+| Saisons avec deux dilemmes du même thème | 13.1 % | 0.2 % | ≤ 10 % |
+| Saisons avec deux sollicitations du même programme | 0.2 % | 0.0 % | ≤ 1 % |
+| Saisons avec une crise facultative | 16.4 % | 20.0 % | 20 à 35 % |
+| Saisons avec deux crises facultatives ou plus | 0.5 % | 0.0 % | 0 % |
+| Saisons avec au moins un dilemme neutre ou positif | 99.9 % | 100.0 % | ≥ 60 % |
+| … chaînes en difficulté (trésorerie < 15 M€ ou popularité < 40) | 99.9 % (5135 saisons) | 100.0 % (7639 saisons) | ≥ 60 % |
+| Histoires contextuelles / (histoires + banque générale) | 19.6 % | 28.0 % | 15 à 35 % |
+| Saisons avec démarchage | 47.1 % | 52.8 % | proche du lot 1 |
+| Saisons avec mise en concurrence | 18.9 % | 14.7 % | proche du lot 1 |
+| Saisons avec opportunité régie | 6.6 % | 5.9 % | proche du lot 1 |
+| Saisons avec crise contextuelle | 8.3 % | 11.3 % | proche du lot 1 |
+| Saisons avec histoire de programme | 17.1 % | 23.2 % | proche du lot 1 |
+| Obligations perdues (droit diffusé, événement consommé sans être joué) | 0 | 0 | 0 |
+| Renouvellements dus absents | 0 | 0 | 0 |
+| Événements de campagne reportés (non consommés) | 5.7 % | 0.0 % | information |
+| Files vides / bloquées | 0 / 0 | 0 / 0 | 0 / 0 |
+| Erreurs | 0 | 0 | 0 |
+
+Distribution des thèmes — lot 1 : droits 24.9 %, opportunite 22.3 %, commercial 21.1 %, concurrence 9.5 %, crise 7.3 %, grille 4.5 %, economie 3.2 %, surprise 2.8 %, humain 2.6 %, suite 1.8 %
+Distribution des thèmes — lot 2 : droits 24.8 %, opportunite 24.1 %, commercial 14.3 %, crise 8.6 %, concurrence 8.1 %, grille 6.6 %, economie 4.1 %, humain 3.7 %, surprise 3.3 %, suite 2.4 %

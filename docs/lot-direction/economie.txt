@@ -1,0 +1,22 @@
+Économie des concurrents IA — 2 graines × 6 types (joueur) × 30 saisons, choix aléatoires — 34 s
+Parties : 12 ; saisons jouées : 341 ; saisons-concurrent clôturées : 1685
+
+| Profil | Trésorerie moy. (fin) | Trésorerie min / max | Recettes pub moy. | Charges récurrentes moy. | Ponctuel moy. (droits, ripostes) | Droits + prod. sportifs moy. | Résultat moy. | Saisons en déficit | Apports (nb / M€) | Distributions moy. | Saisons sous austérité | PDA moy. |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| offensive | 134,8 | 29,3 / 255,2 | 98,3 | 23,1 | 7,5 | 18,9 | 48,9 | 8 % | 0 / 0,0 | 45,7 | 0 % | 25,2 |
+| rentable | 48,9 | 43,5 / 88,7 | 65,4 | 12,4 | 6,6 | 3,0 | 43,6 | 0 % | 0 / 0,0 | 43,3 | 0 % | 21,8 |
+| jeune | 121,8 | 85,1 / 175,2 | 133,6 | 13,5 | 2,0 | 5,2 | 113,2 | 0 % | 0 / 0,0 | 109,7 | 0 % | 32,8 |
+| premium | 78,8 | 48,4 / 130,4 | 81,5 | 11,0 | 5,9 | 10,5 | 54,2 | 0 % | 0 / 0,0 | 52,3 | 0 % | 33,3 |
+
+| Type de chaîne (concurrent) | Trésorerie moy. (fin) | Recettes pub moy. | Charges récurrentes moy. | Résultat moy. | PDA moy. |
+|---|---:|---:|---:|---:|---:|
+| generaliste | 108,9 | 67,4 | 32,6 | 17,6 | 22,2 |
+| cinema | 49,4 | 65,4 | 12,4 | 43,6 | 21,8 |
+| culture | 118,6 | 133,6 | 13,5 | 113,2 | 32,8 |
+| jeunesse | 74,8 | 81,5 | 11,0 | 54,2 | 33,3 |
+| sport | 159,7 | 129,3 | 13,5 | 80,3 | 28,1 |
+
+Trésorerie moyenne par saison : S1 72,1 · S5 103,3 · S10 103,0 · S15 100,7 · S20 103,1 · S25 104,4 · S30 102,3
+Trajectoires : 60 ; enrichissement continu (fin > 1,5 × mi-partie et > 3 × charges) : 1 ; ≥ 5 déficits consécutifs : 0
+Identité comptable (clôture = ouverture + recettes + apports − dépenses) : 1685/1685 saisons conformes
+Cases sans programme (hors événement) en fin de saison : 0 ; files bloquées : 0 ; erreurs : 0
