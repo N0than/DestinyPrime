@@ -2878,6 +2878,16 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .nego-delta.up { color:#047857; background:rgba(16,185,129,0.12); border-color:rgba(16,185,129,0.3); }
 .nego-delta.down { color:#92400e; background:rgba(217,119,6,0.12); border-color:rgba(217,119,6,0.3); }
 .nego-gauge .sa-gauge-scale { font-size:9.5px; }
+.nego-track { position:relative; }
+.nego-actual-mark { position:absolute; top:50%; width:10px; height:10px; margin:-11px 0 0 -5px; pointer-events:none;
+  background:var(--bleu, #2563eb); clip-path:polygon(0 0, 100% 0, 50% 100%); }
+.nego-actual { display:flex; flex-wrap:wrap; align-items:center; gap:4px 8px; font-size:11px; color:#334155; }
+.nego-actual b { font-family:'Anton', sans-serif; font-weight:400; font-size:13px; color:var(--ink); }
+.nego-actual-dot { width:7px; height:7px; border-radius:50%; background:var(--bleu, #2563eb); }
+.nego-actual-status { font-weight:800; font-size:9.5px; text-transform:uppercase; letter-spacing:.3px; padding:2px 7px; border-radius:999px; }
+.nego-actual.held .nego-actual-status { color:#047857; background:rgba(16,185,129,0.12); }
+.nego-actual.short .nego-actual-status { color:#92400e; background:rgba(217,119,6,0.12); }
+.nego-actual-hist { margin-left:auto; font-size:10px; font-weight:700; color:var(--gris); }
 /* Négociation : apparition en cascade, réponse de l'ARCOM, jauges qui glissent. */
 .renewal-card.block-out, .renewal-card ~ .welcome-cta.block-out { animation: blockOut .23s ease forwards; pointer-events: none; }
 .renewal-card.block-in, .renewal-card.block-in ~ .welcome-cta, .nego-panel.nego-anim ~ .welcome-cta { animation: negoIn .42s cubic-bezier(.2,.8,.2,1) both; }
@@ -23791,7 +23801,12 @@ function conventionNegotiationHtml() {
         const v = counter ? n.counter[ob.id] : ob.minimum;
         return `<div class="sa-gauge nego-gauge" style="--i:${i}">
         <div class="sa-gauge-head"><span class="sa-gauge-label">${esc(ob.label)}</span><span class="nego-delta" data-nego-delta="${ob.id}" data-ref="${base[ob.id].minimum}">Référence</span><output class="sa-gauge-value" data-nego-out="${ob.id}">${v}${u}</output></div>
-        <input type="range" class="sa-gauge-range" data-nego="${ob.id}" data-unit="${u}" min="${b.min}" max="${b.max}" step="1" value="${counter ? n.request[ob.id] : v}" data-target="${v}"${counter ? ' disabled' : ''} aria-label="${esc(ob.label)}" style="--ref:${(base[ob.id].minimum - b.min) / (b.max - b.min) * 100}%">
+        ${negotiationActualHtml(p, ob, b, ctx)}
+        <div class="nego-track">
+  <input type="range" class="sa-gauge-range" data-nego="${ob.id}" data-unit="${u}" min="${b.min}" max="${b.max}" step="1" value="${counter ? n.request[ob.id] : v}" data-target="${v}"${counter ? ' disabled' : ''} aria-label="${esc(ob.label)}" style="--ref:${(base[ob.id].minimum - b.min) / (b.max - b.min) * 100}%">
+          <span class="nego-actual-mark" style="left:calc(10px + (100% - 20px) * ${Math.max(0, Math.min(1, ((ctx.actual[ob.id] ?? 0) - b.min) / (b.max - b.min)))})" title="À l'antenne" aria-hidden="true"></span>
+        </div>
+
         <div class="sa-gauge-scale"><span>${b.min}${u}</span><span class="sa-gauge-est">${counter ? `Demandé ${n.request[ob.id]}${u} · en vigueur ${n.inForce[ob.id]}${u}` : `Référence ${base[ob.id].minimum}${u}`}</span><span>${b.max}${u}</span></div>
       </div>`; }).join('')}</div>
       ${counter ? '' : '<div class="renewal-stats arcom-stats nego-summary" id="conv-nego-summary" style="grid-template-columns:repeat(2,1fr)"></div>'}
@@ -23804,11 +23819,30 @@ function conventionNegotiationHtml() {
     <button class="welcome-cta welcome-cta-outline welcome-cta-tight" id="btn-nego-cancel"><span>Annuler</span></button>`}`;
 }
 const conventionCounterHtml = conventionNegotiationHtml;
+// Données actuelles du joueur pour une obligation : valeur à l'antenne, écart au seuil
+// choisi (mis à jour avec la jauge) et saisons sans manquement de la convention.
+function negotiationActualHtml(p, ob, b, ctx) {
+  const actual = ctx.actual[ob.id] ?? 0, u = ob.unit === '%' ? ' %' : ' ' + ob.unit;
+  const span = Math.max(1, Math.min(CONVENTION_DURATION, gameState.season));
+  const misses = new Set((p.arcomViolations || []).filter(v => v.obligation === ob.id && v.season > gameState.season - CONVENTION_DURATION).map(v => v.season)).size;
+  return `<div class="nego-actual" data-nego-actual="${ob.id}" data-actual="${actual}" data-unit="${u}">
+          <span class="nego-actual-dot"></span><span>À l'antenne <b>${nf1(actual)}${u}</b></span>
+          <span class="nego-actual-status" data-nego-status></span>
+          <span class="nego-actual-hist">${span - misses}/${span} saison${span > 1 ? 's' : ''} conforme${span - misses > 1 ? 's' : ''}</span>
+        </div>`;
+}
 function setNegotiationPill(app, r) {
   app.querySelector(`[data-nego-out="${r.dataset.nego}"]`).textContent = r.value + r.dataset.unit;
   const pill = app.querySelector(`[data-nego-delta="${r.dataset.nego}"]`), d = Number(r.value) - Number(pill.dataset.ref);
   pill.className = 'nego-delta' + (d > 0 ? ' up' : d < 0 ? ' down' : '');
   pill.textContent = d === 0 ? 'Référence' : `${d > 0 ? '+' : '−'}${Math.abs(d)} pt${Math.abs(d) > 1 ? 's' : ''}`;
+  // Seuil choisi face à la valeur à l'antenne : tenu, ou écart à combler.
+  const row = app.querySelector(`[data-nego-actual="${r.dataset.nego}"]`);
+  if (row) {
+    const gap = Number(r.value) - Number(row.dataset.actual), held = gap <= 0;
+    row.classList.toggle('held', held); row.classList.toggle('short', !held);
+    row.querySelector('[data-nego-status]').textContent = held ? 'Seuil tenu' : `À combler : +${nf1(gap)}${row.dataset.unit}`;
+  }
 }
 function bindConventionNegotiation(app) {
   const n = currentConventionNegotiation(), panel = app.querySelector('#conv-nego');
