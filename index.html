@@ -2300,6 +2300,20 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .of-ind { display:flex; align-items:center; justify-content:space-between; gap:8px; font-size:12px; color:#334155; }
 .of-card-cost { font-size:11px; color:var(--gris); }
 .of-card-note { margin:0; font-size:11px; font-weight:700; color:var(--vert); }
+/* Catalogue du studio : formats maison hors antenne, actifs de la chaîne. */
+.of-head-actions { display:flex; gap:6px; }
+.of-catalog { flex:1; min-height:0; overflow-y:auto; display:flex; flex-direction:column; gap:8px; }
+.of-catalog-lead { margin:0; font-size:11px; font-weight:600; color:var(--gris); }
+.of-catalog-head { display:flex; align-items:center; justify-content:space-between; font:800 9.5px 'Space Grotesk', sans-serif; text-transform:uppercase; letter-spacing:.5px; color:var(--gris); }
+.of-catalog-head b { min-width:18px; padding:2px 6px; border-radius:999px; background:rgba(148,163,184,0.18); color:var(--ink); text-align:center; }
+.of-cat-item { display:flex; flex-direction:column; gap:8px; padding:10px; border-radius:14px; background:rgba(255,255,255,0.7); border:1px solid rgba(255,255,255,0.9); }
+.of-cat-top { display:flex; align-items:center; gap:10px; min-width:0; }
+.of-cat-art { width:64px; height:40px; flex:none; border-radius:8px; object-fit:cover; }
+.of-cat-info { display:flex; flex-direction:column; gap:2px; min-width:0; }
+.of-cat-name { font-family:'Anton', sans-serif; font-size:15px; line-height:1.1; color:var(--ink); }
+.of-cat-meta { font-size:10.5px; font-weight:600; color:var(--gris); }
+.of-cat-item .of-actions button { display:flex; flex-direction:column; align-items:center; gap:1px; line-height:1.15; padding-top:6px; padding-bottom:6px; white-space:normal; }
+.of-cat-item .of-actions button b { font-size:10px; font-weight:700; opacity:.85; }
 .of-actions { display:flex; flex-wrap:nowrap; gap:6px; margin-top:2px; }
 .of-actions button { flex:1 1 0; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font:700 11px 'Space Grotesk', sans-serif;
   padding:7px 6px; border-radius:999px; border:1px solid rgba(37,99,235,0.3); background:rgba(37,99,235,0.06); color:var(--bleu); cursor:pointer; }
@@ -31753,6 +31767,9 @@ function abandonOriginalFormat(id) {
 // évaluation à la saison suivante (une seule par saison et par programme).
 function scheduleFormatRevenues() {
   Object.entries(gameState.player.contracts || {}).forEach(([slot, c]) => {
+    // Format maison : dernière valeur connue (coût, notoriété), pour son passage au catalogue.
+    const fmt = gameState.player.originalFormats?.[c.id];
+    if (fmt && c.original) { fmt.lastAnnual = c.annual; fmt.lastAwareness = c.career?.awareness || 0; fmt.seasonsAired = (fmt.seasonsAired || 0) + 1; }
     if (c.ownership !== 'owned' && c.ownership !== 'coproduction') return;
     registerCommitment({ kind: 'formatRevenue', key: `fmtrev:${c.id}:${gameState.season}`, programId: c.id, slot, programName: c.name });
   });
@@ -31807,6 +31824,87 @@ function payFormatRoyalties() {
 }
 function formatResaleValue(contract) {
   return Math.round(contract.annual * (ORIGINAL_FORMATS.resaleBase + (contract.career?.awareness || 0) / 100) * 10) / 10;
+}
+// Catalogue du studio : un format maison qui quitte l'antenne sans avoir été cédé (non
+// renouvelé ou remplacé) reste un actif de la chaîne. Il ne prend pas de place dans le studio
+// et peut être relancé (début de saison) ou cédé à un diffuseur national ou étranger.
+function originalOnAir(f, p = gameState.player) {
+  return Object.values(p.contracts || {}).some(c => c?.id === f.id && c.end >= gameState.season && !c.stopped);
+}
+function originalShelved(f, p = gameState.player) {
+  return !!f && f.stage === 'launched' && !f.soldSeason && !originalOnAir(f, p);
+}
+function studioCatalogFormats() {
+  return Object.values(ensureConsequenceState().originalFormats).filter(f => originalShelved(f))
+    .sort((a, b) => (b.launchedSeason - a.launchedSeason) || a.id.localeCompare(b.id));
+}
+function catalogSaleOffers(f) {
+  const cfg = ORIGINAL_FORMATS.sale, r = v => Math.round(v * 10) / 10;
+  const base = r((f.lastAnnual || f.annual) * (ORIGINAL_FORMATS.resaleBase + (f.lastAwareness || 0) / 100));
+  const buyer = [...(gameState.competitors || [])].sort((a, b) => (b.budget || 0) - (a.budget || 0))[0] || null;
+  return { foreign: { upfront: r(base * cfg.foreignUpfront), royalty: r(base * cfg.foreignRoyalty) },
+    national: { price: r(base * cfg.national), buyer: buyer?.name || null } };
+}
+// Relance sur sa case d'origine, avec les mécanismes de signature d'un programme interne.
+function relaunchOriginalFormat(id) {
+  const p = ensureConsequenceState(), f = p.originalFormats[id];
+  if (!originalShelved(f) || !studioCanLaunch()) return false;
+  const q = quoteProgram(f.slot, f.id, 'interne');
+  if (!q?.allowed) return false;
+  executeProgramSigning(f.slot, q);
+  const c = p.contracts[f.slot];
+  if (c) { c.ownership = 'owned'; c.original = true; c.partnerId = null; c.exclusive = true; }
+  f.relaunchedSeason = gameState.season;
+  registerCommitment({ kind: 'formatRevenue', key: `fmtrev:${f.id}:${gameState.season}`, programId: f.id, slot: f.slot, programName: f.name });
+  pushSignal(`« ${f.name} » revient à l’antenne (${slotLabelOf(f.slot)}).`, { kind: 'format', tone: 'good', key: `relaunch:${id}:${gameState.season}` });
+  return true;
+}
+// Cession d'un format du catalogue : à l'étranger (avance et royalties, il reste au catalogue)
+// ou à une chaîne nationale (il rejoint sa grille la saison suivante).
+function sellCatalogFormat(id, mode = 'national') {
+  const p = ensureConsequenceState(), f = p.originalFormats[id];
+  if (!originalShelved(f)) return 0;
+  const offers = catalogSaleOffers(f);
+  if (mode === 'foreign') {
+    if (f.foreignSale) return 0;
+    const { upfront, royalty } = offers.foreign;
+    applyFinance({ recurring: 0, purchase: 0, commercial: upfront, category: 'C' });
+    p.exceptionalSaison = (p.exceptionalSaison || 0) + upfront;
+    f.foreignSale = { season: gameState.season, upfront, royalty };
+    pushSignal(`« ${f.name} » adapté à l’étranger : ${nf1(upfront)} M€ encaissés, puis ${nf1(royalty)} M€ de royalties chaque saison.`, { kind: 'format', tone: 'good', key: `foreign:${id}` });
+    return upfront;
+  }
+  const { price, buyer } = offers.national;
+  applyFinance({ recurring: 0, purchase: 0, commercial: price, category: 'C' });
+  p.exceptionalSaison = (p.exceptionalSaison || 0) + price;
+  f.soldSeason = gameState.season; f.buyer = buyer;
+  if (buyer) registerCommitment({ kind: 'formatSold', key: `fmtsold:${id}`, programId: id, rival: buyer, programName: f.name });
+  pushSignal(`Droits de « ${f.name} » cédés${buyer ? ` à ${buyer}` : ''} : +${nf1(price)} M€.`, { kind: 'format', tone: 'good', key: `sold:${id}` });
+  return price;
+}
+function studioCatalogHtml(editable) {
+  const list = studioCatalogFormats();
+  if (!list.length) return '';
+  const canLaunch = studioCanLaunch();
+  return `<div class="of-catalog">
+      <p class="of-catalog-lead">Formats de la chaîne hors antenne : relancez-les en début de saison ou cédez leurs droits.</p>
+      ${list.map(f => {
+        const q = canLaunch ? quoteProgram(f.slot, f.id, 'interne') : null, o = catalogSaleOffers(f), art = programArt(f);
+        return `<article class="of-cat-item" data-of-id="${esc(f.id)}">
+          <div class="of-cat-top">
+            ${art ? `<img class="of-cat-art" src="${art}" alt="" decoding="async">` : ''}
+            <div class="of-cat-info">
+              <span class="of-cat-name">${esc(f.name)}</span>
+              <span class="of-cat-meta">${esc(originalConceptLabel(f))} · ${esc(slotLabelOf(f.slot))} · ${f.seasonsAired || 1} saison${(f.seasonsAired || 1) > 1 ? 's' : ''} à l’antenne${f.foreignSale ? ' · adapté à l’étranger' : ''}</span>
+            </div>
+          </div>
+          <div class="of-actions">
+            <button type="button" class="primary" data-of-action="relaunch"${editable && canLaunch && q?.allowed ? '' : ' disabled'} title="${canLaunch ? '' : 'Relance en début de saison, avant le premier dilemme'}"><span>Relancer</span><b>${canLaunch ? `${nf1(q?.finance.purchase ?? 0)} M€` : `saison ${gameState.season + 1}`}</b></button>
+            <button type="button" data-of-action="catsell" data-of-mode="national"${editable ? '' : ' disabled'}><span>Céder</span><b>${nf1(o.national.price)} M€</b></button>
+            ${f.foreignSale ? '' : `<button type="button" data-of-action="catsell" data-of-mode="foreign"${editable ? '' : ' disabled'}><span>Étranger</span><b>${nf1(o.foreign.upfront)} M€</b></button>`}
+          </div>
+        </article>`; }).join('')}
+    </div>`;
 }
 function ownershipLabel(contract) {
   return { owned: 'Format détenu par la chaîne', coproduction: 'Coproduction', licence: 'Sous licence' }[contract?.ownership || 'licence'];
@@ -33758,7 +33856,7 @@ function studioMaxProjects() {
 }
 function studioSlotFormats() {
   const p = ensureConsequenceState();
-  const onAir = Object.values(p.originalFormats).filter(f => f.stage === 'launched' && p.contracts?.[f.slot]?.id === f.id);
+  const onAir = Object.values(p.originalFormats).filter(f => f.stage === 'launched' && (f.soldSeason ? p.contracts?.[f.slot]?.id === f.id : originalOnAir(f, p)));
   return [...originalProjects(), ...onAir].sort((a, b) => (a.designedSeason - b.designedSeason) || a.id.localeCompare(b.id));
 }
 // Carte programme d'un format : illustration, récapitulatif, potentiel en étoiles, actions.
@@ -33866,6 +33964,9 @@ function renderStudioSlide() {
   const current = formats[sel];
   // « + » de la carte vierge : la carte laisse place aux critères de conception.
   const showForm = editable && gameState.studioForm && !current && formats.length < studioMaxProjects();
+  // Catalogue : formats maison hors antenne, affichés à la place des emplacements du studio.
+  const catalogCount = studioCatalogFormats().length;
+  const catalogView = !!gameState.studioCatalog && catalogCount > 0;
   const draft = studioDraft();
   const form = `<div class="of-form">
       ${studioGaugeHtml('slot', 'Créneau', draft, off)}
@@ -33889,17 +33990,21 @@ function renderStudioSlide() {
   return `<div class="of-studio" data-of-studio>
     <div class="perf-head of-studio-head">
       <div class="eh-title">Studio de création</div>
-      <button type="button" class="radar-toggle of-info-toggle" data-of-action="info" aria-expanded="false">Infos</button>
+      <span class="of-head-actions">
+        ${catalogCount ? `<button type="button" class="radar-toggle of-info-toggle${catalogView ? ' active' : ''}" data-of-action="catalog" aria-pressed="${catalogView}">Catalogue ${catalogCount}</button>` : ''}
+        <button type="button" class="radar-toggle of-info-toggle" data-of-action="info" aria-expanded="false">Infos</button>
+      </span>
     </div>
     <div class="of-info" hidden>
       <p>Un format maison coûte moins cher dans la durée et peut rapporter des droits, mais son potentiel réel reste incertain.</p>
       <p>Conception du format — 250 000 €, débités immédiatement et non remboursables. Le pilote et le lancement sont facturés séparément.</p>
       <p>Un pilote affine l’estimation et décale le lancement d’une saison.</p>
       <p>Trois formats au plus en même temps : un format lancé reste dans le studio tant qu’il est à l’antenne.</p>
+      <p>Un format qui quitte l’antenne sans être cédé reste un actif de la chaîne : il rejoint le catalogue, d’où il peut être relancé en début de saison ou cédé.</p>
       <p>Conception, pilote et cession des droits à tout moment de la saison ; lancement en début de saison. Cession à l’étranger : avance et royalties chaque saison, le programme reste chez vous. Cession nationale : un prix plus élevé, sans royalties, et le programme part chez le concurrent.</p>
     </div>
     <div class="of-main">
-      ${showForm ? form : `<div class="of-tabs">${tabs}</div>${current ? studioFormatCardHtml(current, editable, cfg) : blank}`}
+      ${catalogView ? studioCatalogHtml(editable) : showForm ? form : `<div class="of-tabs">${tabs}</div>${current ? studioFormatCardHtml(current, editable, cfg) : blank}`}
     </div>
   </div>`;
 }
@@ -33938,6 +34043,7 @@ function bindOriginalStudio(app) {
       // Choix de l'emplacement affiché (première ligne).
       if (action === 'select') { gameState.studioSel = Number(btn.dataset.ofSel); gameState.studioForm = false; render(); return; }
       if (action === 'cancel') { gameState.studioForm = false; render(); return; }
+      if (action === 'catalog') { gameState.studioCatalog = !gameState.studioCatalog; gameState.studioForm = false; render(); return; }
       if (!studioEditable()) return;
       const id = btn.closest('[data-of-id]')?.dataset.ofId;
       if (action === 'new') {
@@ -33960,6 +34066,14 @@ function bindOriginalStudio(app) {
         }
       } else if (action === 'abandon') abandonOriginalFormat(id);
       else if (action === 'sell') { if (sellOriginalFormat(id, btn.dataset.ofMode)) refreshEconomy(); }
+      else if (action === 'catsell') { if (sellCatalogFormat(id, btn.dataset.ofMode)) refreshEconomy(); }
+      else if (action === 'relaunch') {
+        if (relaunchOriginalFormat(id)) {
+          const p = gameState.player, audience = getCalculatedPDAs().find(c => c.channel === p).pda[p.target];
+          p.pdaHistorySeason = [audience]; p.pdaMoyenneSaison = audience; p.pdaFinSaison = audience;
+          reevaluateAdRevenue(); refreshRenewalDilemmas(); refreshEconomy();
+        }
+      }
       render();
     });
   });
