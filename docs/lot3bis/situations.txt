@@ -1,0 +1,28 @@
+Histoires propres au titre : 1015 ; avec clé de situation : 69 ; sans clé : 946 ; liens vers un arc : 19
+
+Clés attribuées (table explicite) :
+- finale (5) : ps_p032_finale, ps_p031_finale_dans_stade, ps_p277_finale_dans_rue, ps_p334_finale_entre_grandes, ps_p380_finale_salon_agriculture
+- jury (3) : ps_p032_jury, ps_p032_jury_suite, ps_p489_jure
+- declinaison (23) : ps_p032_junior, ps_p014_magazine_tournee, ps_p018_version_grandes_tables, ps_p028_remake_americain, ps_p088_troupe_tournee, ps_p130_spectacle_tournee, ps_p211_meteo_version_spectacle, ps_p230_spectacle_des_chroniqueurs, ps_p258_livre_rangement, ps_p269_les_familles_tournee, ps_p278_livre_des_recettes, ps_p284_version_des_enfants, ps_p293_ascenseur_tournee, ps_p366_comptoir_tournee, ps_p368_spectacle_tournee, ps_p382_patisserie_tournee, ps_p385_livre_des_recettes, ps_p402_docteur_tournee, ps_p418_version_video_courte, ps_p437_emission_tournee, ps_p455_livre_recettes, ps_p471_tournee_des_humoristes, ps_p477_version_famille
+- concurrence (6) : ps_p034_duel, ps_p001_bataille, ps_p012_rival_apres_midi, ps_p025_quiz_rival, ps_p106_face_magazine_rival, ps_p168_bataille_des_journaux
+- refonte (4) : ps_p034_refonte, ps_p034_refonte_suite, ps_p029_vieillissement, ps_p489_relance
+- animateur (3) : ps_p020_animatrice, ps_p227_presentateur, ps_p040_animateur_negocie_son
+- numerique (6) : ps_p020_numerique, ps_p008_une_application_pour, ps_p131_application_eveil, ps_p214_application_des_bons, ps_p476_application_jeu, ps_p483_version_web
+- enquete (6) : ps_p232_pressions, ps_p232_lanceur, ps_p017_enquete_sur_grande, ps_p118_les_pressions_une, ps_p179_enquete_sur_dopage, ps_p461_lanceur_alerte
+- droits (4) : ps_p146_simulcast, ps_p073_serie_premium_coute, ps_p152_film_animation_annee, ps_p160_simulcast_des_anime
+- candidat (2) : ps_p489_gagnant, ps_p451_candidat_epuise
+- surcout (2) : ps_p052_serie_coute_trop, ps_p358_cout_grille_geante
+- debat (5) : ps_p107_debat_qui_tourne, ps_p187_debat_qui_derape, ps_p225_debat_trop_houleux, ps_p421_debat_qui_derape, ps_p460_debat_trop_vif
+
+Sans clé, signalées par un indice de l'identifiant (84) — à examiner, aucune équivalence supposée :
+- animateur (10) : ps_p029_depart, ps_p029_releve_suite, ps_p184_consultant, ps_p014_presentateur_veut_parler, ps_p058_consultant_police_judiciaire, ps_p161_animation_francaise_pour, ps_p172_consultant_chambreur, ps_p205_consultant_partial, ps_p482_animateur_retard, ps_p496_duo_animateurs
+- candidat (18) : ps_p022_casting, ps_p025_les_vignettes_gagnant, ps_p031_candidat_mineur_sous, ps_p140_candidat_qui_pleure, ps_p191_les_sportifs_candidats, ps_p251_candidat_detresse, ps_p253_ville_gagnante, ps_p259_candidat_qui_dit, ps_p271_gagnant_ruine, ps_p285_candidat_allergique, ps_p288_candidat_qui_mise, ps_p352_candidat_verbalise, ps_p389_candidate_ans, ps_p422_les_villes_candidates, ps_p441_les_regions_candidates, ps_p450_candidat_qui_triche, ps_p476_candidat_elimine_injustement, ps_p486_gagnant_historique
+- enquete (9) : ps_p001_scoop, ps_p005_temoignage_qui_derange, ps_p005_faire_temoigner_les, ps_p113_marche_art_enquete, ps_p113_enquete_long_cours, ps_p168_scoop_transfert, ps_p238_enquete_participative, ps_p322_enquete_direct, ps_p500_temoignage_qui_divise
+- invite (15) : ps_p020_invite, ps_p023_crise_logement_invite, ps_p039_invite_qui_derape, ps_p042_invite_qui_ment, ps_p070_invite_conteste, ps_p141_champion_olympique_invite, ps_p156_invite_star_des, ps_p208_invite_politique_matin, ps_p224_invite_qui_exige, ps_p424_invite_malmene, ps_p452_invite_qui_ment, ps_p452_invite_etranger, ps_p456_invite_ivre, ps_p496_invitee_decue, ps_p499_invite_presidentiel
+- declinaison (8) : ps_p146_salon, ps_p013_crossover, ps_p084_film_culte_version, ps_p086_version_originale_doublee, ps_p145_salon_jeu_video, ps_p296_salon_des_metiers, ps_p321_salon_travail_demain, ps_p447_salon_automobile
+- numerique (2) : ps_p155_jeu_video, ps_p145_jeu_video_violent
+- refonte (1) : ps_p071_duree
+- surcout (7) : ps_p009_boule_noire_coute, ps_p261_les_cachets_des, ps_p278_budget_irrealiste, ps_p372_les_cachets_des, ps_p378_budget_depasse, ps_p440_budget_irrealiste, ps_p472_maison_couture
+- debat (10) : ps_p042_debat_ronronne, ps_p107_debat_public, ps_p116_debat_sans_contradicteur, ps_p116_debat_trop_long, ps_p159_debat_des_fans, ps_p225_debat_avec_les, ps_p242_debat_nuit_sans, ps_p242_debat_direct_des, ps_p421_debat_public, ps_p460_debat_prime
+- finale (3) : ps_p175_les_archives_finale, ps_p197_equipe_france_finale, ps_p406_saison_finale
+- concurrence (1) : ps_p252_duel_des_extremes

@@ -1,0 +1,222 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900">
+<defs>
+<g id="sw">
+<polygon points="-7,-30 0,-200 7,-30" fill="#151b2e"/>
+<polygon points="0,-36 0,-186 4,-36" fill="#8d9bb0" opacity=".3"/>
+<rect x="-20" y="-32" width="40" height="8" rx="2" fill="#151b2e"/>
+<rect x="-18" y="-31" width="36" height="2" fill="#8d9bb0" opacity=".45"/>
+<rect x="-4" y="-24" width="8" height="20" fill="#151b2e"/>
+<circle cy="-2" r="6" fill="#151b2e"/>
+</g>
+<g id="fl">
+<path d="M0,0 C-26,0 -30,-28 -14,-48 C-12,-36 -4,-34 -2,-40 C-6,-56 4,-70 12,-80 C10,-60 30,-46 24,-18 C22,-6 12,0 0,0Z" fill="#ef476f"/>
+<path d="M0,0 C-14,0 -16,-16 -8,-28 C-4,-20 2,-22 2,-30 C10,-22 16,-12 12,-4 C10,0 4,0 0,0Z" fill="#ffd166"/>
+</g>
+<path id="ar" d="M0,640 V330 A120,120 0 0 1 60,230 A120,120 0 0 1 120,330 V640Z"/>
+</defs>
+
+<rect width="1600" height="900" fill="#2f3b6e"/>
+
+<g fill="#232c58">
+<use href="#ar" x="20"/>
+<use href="#ar" x="240"/>
+<use href="#ar" x="1240"/>
+<use href="#ar" x="1460"/>
+</g>
+<g fill="#45528f" opacity=".35">
+<rect x="0" y="600" width="1600" height="40"/>
+</g>
+
+<path d="M540,660 V330 A320,320 0 0 1 800,70 A320,320 0 0 1 1060,330 V660Z" fill="#3a4766"/>
+<path d="M590,660 V340 A270,270 0 0 1 800,130 A270,270 0 0 1 1010,340 V660Z" fill="#45528f"/>
+<path d="M640,660 V360 A220,220 0 0 1 800,190 A220,220 0 0 1 960,360 V660Z" fill="#4c5996" opacity=".8"/>
+
+<path d="M0,0 H1600 V300 C1560,120 1500,60 1450,60 C1350,60 1240,120 1220,200 L1140,200 C1110,120 1040,30 800,30 C560,30 490,120 460,200 L380,200 C360,120 250,60 150,60 C100,60 40,120 0,300Z" fill="#1c2342"/>
+
+<g>
+<rect x="150" y="70" width="80" height="590" fill="#3a4766"/>
+<rect x="200" y="70" width="30" height="590" fill="#28324d"/>
+<rect x="140" y="110" width="100" height="22" fill="#45528f"/>
+<rect x="140" y="630" width="100" height="30" fill="#28324d"/>
+<rect x="380" y="180" width="80" height="480" fill="#3a4766"/>
+<rect x="430" y="180" width="30" height="480" fill="#28324d"/>
+<rect x="370" y="200" width="100" height="22" fill="#45528f"/>
+<rect x="370" y="630" width="100" height="30" fill="#28324d"/>
+<rect x="1140" y="180" width="80" height="480" fill="#3a4766"/>
+<rect x="1140" y="180" width="30" height="480" fill="#28324d"/>
+<rect x="1130" y="200" width="100" height="22" fill="#45528f"/>
+<rect x="1130" y="630" width="100" height="30" fill="#28324d"/>
+<rect x="1370" y="70" width="80" height="590" fill="#3a4766"/>
+<rect x="1370" y="70" width="30" height="590" fill="#28324d"/>
+<rect x="1360" y="110" width="100" height="22" fill="#45528f"/>
+<rect x="1360" y="630" width="100" height="30" fill="#28324d"/>
+</g>
+
+<g>
+<circle cx="190" cy="360" r="40" fill="#ffd166" opacity=".1"/>
+<rect x="180" y="380" width="20" height="10" fill="#151b2e"/>
+<polygon points="172,372 208,372 200,384 180,384" fill="#151b2e"/>
+<use href="#fl" transform="translate(190,372) scale(.45)"/>
+<circle cx="1410" cy="360" r="40" fill="#ffd166" opacity=".1"/>
+<rect x="1400" y="380" width="20" height="10" fill="#151b2e"/>
+<polygon points="1392,372 1428,372 1420,384 1400,384" fill="#151b2e"/>
+<use href="#fl" transform="translate(1410,372) scale(.45)"/>
+</g>
+
+<rect x="0" y="650" width="1600" height="250" fill="#28324d"/>
+<g fill="#3a4766" opacity=".45">
+<rect x="0" y="650" width="1600" height="6"/>
+<rect x="0" y="690" width="1600" height="4"/>
+<rect x="0" y="745" width="1600" height="5"/>
+<rect x="0" y="830" width="1600" height="6"/>
+</g>
+<g stroke="#3a4766" stroke-width="3" opacity=".4">
+<line x1="700" y1="650" x2="300" y2="900"/>
+<line x1="600" y1="650" x2="-100" y2="900"/>
+<line x1="500" y1="650" x2="-500" y2="900"/>
+<line x1="900" y1="650" x2="1300" y2="900"/>
+<line x1="1000" y1="650" x2="1700" y2="900"/>
+<line x1="1100" y1="650" x2="2100" y2="900"/>
+</g>
+
+<ellipse cx="800" cy="835" rx="420" ry="20" fill="#151b2e" opacity=".45"/>
+<polygon points="470,780 1130,780 1170,795 430,795" fill="#3a4766"/>
+<rect x="430" y="795" width="740" height="35" fill="#28324d"/>
+<polygon points="520,735 1080,735 1110,750 490,750" fill="#3a4766"/>
+<rect x="490" y="750" width="620" height="30" fill="#28324d"/>
+<polygon points="560,690 1040,690 1060,705 540,705" fill="#3a4766"/>
+<rect x="540" y="705" width="520" height="30" fill="#28324d"/>
+<g fill="#8d9bb0" opacity=".18">
+<rect x="430" y="795" width="740" height="3"/>
+<rect x="490" y="750" width="620" height="3"/>
+<rect x="540" y="705" width="520" height="3"/>
+</g>
+
+<g>
+<ellipse cx="380" cy="832" rx="60" ry="9" fill="#151b2e" opacity=".5"/>
+<circle cx="380" cy="640" r="80" fill="#ffd166" opacity=".08"/>
+<circle cx="380" cy="640" r="45" fill="#ffd166" opacity=".1"/>
+<polygon points="355,830 405,830 392,815 368,815" fill="#151b2e"/>
+<rect x="373" y="680" width="14" height="140" fill="#151b2e"/>
+<rect x="383" y="680" width="3" height="140" fill="#8d9bb0" opacity=".3"/>
+<polygon points="340,660 420,660 405,684 355,684" fill="#151b2e"/>
+<rect x="340" y="660" width="80" height="4" fill="#8d9bb0" opacity=".4"/>
+<use href="#fl" transform="translate(380,662) scale(.85)"/>
+<ellipse cx="1220" cy="832" rx="60" ry="9" fill="#151b2e" opacity=".5"/>
+<circle cx="1220" cy="640" r="80" fill="#ffd166" opacity=".08"/>
+<circle cx="1220" cy="640" r="45" fill="#ffd166" opacity=".1"/>
+<polygon points="1195,830 1245,830 1232,815 1208,815" fill="#151b2e"/>
+<rect x="1213" y="680" width="14" height="140" fill="#151b2e"/>
+<rect x="1214" y="680" width="3" height="140" fill="#8d9bb0" opacity=".3"/>
+<polygon points="1180,660 1260,660 1245,684 1195,684" fill="#151b2e"/>
+<rect x="1180" y="660" width="80" height="4" fill="#8d9bb0" opacity=".4"/>
+<use href="#fl" transform="translate(1220,662) scale(-.85,.85)"/>
+</g>
+
+<ellipse cx="800" cy="694" rx="190" ry="12" fill="#151b2e" opacity=".6"/>
+
+<g transform="translate(800,640)">
+<use href="#sw" transform="rotate(-80) scale(1.1,1.2)"/>
+<use href="#sw" transform="rotate(-70) scale(1.2,1.5)"/>
+<use href="#sw" transform="rotate(-60) scale(1.3,1.8)"/>
+<use href="#sw" transform="rotate(-50) scale(1.3,2)"/>
+<use href="#sw" transform="rotate(-41) scale(1.4,2.3)"/>
+<use href="#sw" transform="rotate(-32) scale(1.4,2.5)"/>
+<use href="#sw" transform="rotate(-23) scale(1.5,2.7)"/>
+<use href="#sw" transform="rotate(-14) scale(1.5,2.5)"/>
+<use href="#sw" transform="rotate(-6) scale(1.6,2.9)"/>
+<use href="#sw" transform="rotate(3) scale(1.5,2.4)"/>
+<use href="#sw" transform="rotate(11) scale(1.5,2.6)"/>
+<use href="#sw" transform="rotate(19) scale(1.4,2.2)"/>
+<use href="#sw" transform="rotate(28) scale(1.4,2.3)"/>
+<use href="#sw" transform="rotate(37) scale(1.3,1.9)"/>
+<use href="#sw" transform="rotate(47) scale(1.3,1.8)"/>
+<use href="#sw" transform="rotate(58) scale(1.2,1.5)"/>
+<use href="#sw" transform="rotate(69) scale(1.2,1.3)"/>
+<use href="#sw" transform="rotate(80) scale(1.1,1.1)"/>
+</g>
+
+<g transform="translate(800,600)">
+<use href="#sw" transform="rotate(-65) scale(1.2,1.3)"/>
+<use href="#sw" transform="rotate(-48) scale(1.2,1.6)"/>
+<use href="#sw" transform="rotate(-30) scale(1.3,1.7)"/>
+<use href="#sw" transform="rotate(-18) scale(1.3,2)"/>
+<use href="#sw" transform="rotate(-8) scale(1.3,1.6)"/>
+<use href="#sw" transform="rotate(8) scale(1.3,1.8)"/>
+<use href="#sw" transform="rotate(22) scale(1.3,1.5)"/>
+<use href="#sw" transform="rotate(36) scale(1.2,1.6)"/>
+<use href="#sw" transform="rotate(52) scale(1.2,1.4)"/>
+<use href="#sw" transform="rotate(68) scale(1.2,1.2)"/>
+</g>
+
+<g>
+<use href="#sw" transform="translate(745,300) rotate(200) scale(1.1)"/>
+<use href="#sw" transform="translate(865,320) rotate(165) scale(1)"/>
+<use href="#sw" transform="translate(805,250) rotate(178) scale(1.2,1.1)"/>
+<use href="#sw" transform="translate(690,360) rotate(215) scale(1,.9)"/>
+<use href="#sw" transform="translate(915,380) rotate(150) scale(1,.9)"/>
+</g>
+
+<polygon points="712,600 712,430 750,370 790,300 830,330 860,380 888,440 888,600" fill="#151b2e"/>
+
+<g transform="translate(800,600)">
+<use href="#sw" transform="translate(-75,0) scale(1.2,1.3)"/>
+<use href="#sw" transform="translate(-60,0) scale(1.2,1.6)"/>
+<use href="#sw" transform="translate(-45,0) scale(1.2,1.9)"/>
+<use href="#sw" transform="translate(-30,0) scale(1.2,1.7)"/>
+<use href="#sw" transform="translate(-15,0) scale(1.2,2.1)"/>
+<use href="#sw" transform="translate(0,0) scale(1.2,1.8)"/>
+<use href="#sw" transform="translate(15,0) scale(1.2,2)"/>
+<use href="#sw" transform="translate(30,0) scale(1.2,1.6)"/>
+<use href="#sw" transform="translate(45,0) scale(1.2,1.7)"/>
+<use href="#sw" transform="translate(60,0) scale(1.2,1.4)"/>
+<use href="#sw" transform="translate(75,0) scale(1.2,1.2)"/>
+</g>
+
+<g>
+<rect x="725" y="520" width="150" height="60" fill="#151b2e"/>
+<g fill="#8d9bb0" opacity=".45">
+<rect x="735" y="528" width="40" height="4" rx="2"/>
+<rect x="800" y="548" width="44" height="4" rx="2"/>
+<rect x="752" y="562" width="36" height="4" rx="2"/>
+</g>
+</g>
+
+<polygon points="640,555 720,555 720,690 650,690" fill="#151b2e"/>
+<polygon points="880,555 960,555 950,690 880,690" fill="#151b2e"/>
+<use href="#sw" transform="translate(655,560) rotate(180) scale(.9,.65)"/>
+<use href="#sw" transform="translate(705,560) rotate(180) scale(.9,.65)"/>
+<use href="#sw" transform="translate(895,560) rotate(180) scale(.9,.65)"/>
+<use href="#sw" transform="translate(945,560) rotate(180) scale(.9,.65)"/>
+
+<polygon points="700,575 900,575 925,600 675,600" fill="#151b2e"/>
+<rect x="700" y="575" width="200" height="3" fill="#8d9bb0" opacity=".5"/>
+<rect x="675" y="600" width="250" height="90" fill="#151b2e"/>
+<rect x="675" y="600" width="250" height="3" fill="#8d9bb0" opacity=".35"/>
+<use href="#sw" transform="translate(672,620) rotate(90) scale(1,1.25)"/>
+<use href="#sw" transform="translate(928,646) rotate(-90) scale(1,1.25)"/>
+<use href="#sw" transform="translate(672,672) rotate(90) scale(1,1.25)"/>
+<rect x="675" y="684" width="250" height="6" fill="#0e1222" opacity=".6"/>
+
+<use href="#sw" transform="translate(612,552) rotate(90) scale(.8,.65)"/>
+<use href="#sw" transform="translate(742,546) rotate(-86) scale(.8,.65)"/>
+<use href="#sw" transform="translate(988,552) rotate(-90) scale(.8,.65)"/>
+<use href="#sw" transform="translate(858,546) rotate(86) scale(.8,.65)"/>
+<rect x="640" y="546" width="80" height="3" fill="#8d9bb0" opacity=".35"/>
+<rect x="880" y="546" width="80" height="3" fill="#8d9bb0" opacity=".35"/>
+
+<g fill="#8d9bb0" opacity=".25">
+<polygon points="790,300 830,330 822,334 790,312"/>
+<rect x="716" y="440" width="3" height="150"/>
+</g>
+
+<rect x="0" y="0" width="90" height="900" fill="#1a2038"/>
+<rect x="60" y="0" width="30" height="900" fill="#151b2e"/>
+<rect x="0" y="40" width="110" height="26" fill="#28324d"/>
+<rect x="0" y="840" width="110" height="60" fill="#151b2e"/>
+<rect x="1510" y="0" width="90" height="900" fill="#1a2038"/>
+<rect x="1510" y="0" width="30" height="900" fill="#151b2e"/>
+<rect x="1490" y="40" width="110" height="26" fill="#28324d"/>
+<rect x="1490" y="840" width="110" height="60" fill="#151b2e"/>
+<rect x="0" y="0" width="1600" height="24" fill="#151b2e" opacity=".7"/>
+</svg>
