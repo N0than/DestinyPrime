@@ -24630,6 +24630,8 @@ function renderTicker() {
   const playerCalc = calculated.find(item => item.channel === p);
   const pdaCible = playerCalc.pda[p.target];
   const open = !!gameState.hudExpanded;
+  // Slider replié : le studio rouvre sur ses emplacements, catalogue refermé.
+  if (!open) gameState.studioCatalog = false;
 
   // La trésorerie du HUD reflète le cash réellement disponible : à partir de la
   // saison 2, la grille est provisionnée à l'ouverture ; les ajustements et
@@ -24743,7 +24745,10 @@ function bindTickerInteractions(app) {
     document.getElementById('hud-toggle').setAttribute('aria-expanded', isOpen);
     gameState.hudExpanded = isOpen;
     // Refermé, le slider revient à la grille de la chaîne à sa réouverture.
-    if (!isOpen) { gameState.hudSlide = 0; gameState.ecoDetail = false; gameState.studioCatalog = false; syncHudSliderLock(); goToHudSlide(0); }
+    if (!isOpen) { gameState.hudSlide = 0; gameState.ecoDetail = false; gameState.studioCatalog = false; syncHudSliderLock(); goToHudSlide(0);
+      // Le studio retrouve ses emplacements (catalogue refermé) pour la prochaine ouverture.
+      const studioSlide = document.querySelector('#app .studio-slide');
+      if (studioSlide?.querySelector('.of-catalog')) { studioSlide.innerHTML = renderStudioSlide(); bindOriginalStudio(document.getElementById('app')); } }
   };
   // Un clic sur le dilemme referme le slider ouvert.
   document.querySelector('#app .dilemma-container')?.addEventListener('pointerdown', () => {
@@ -31902,7 +31907,7 @@ function studioCatalogHtml(editable) {
   if (!list.length) return '';
   const canLaunch = studioCanLaunch();
   return `<div class="of-catalog">
-      <p class="of-catalog-lead">Formats de la chaîne hors antenne : relancez-les en début de saison ou cédez leurs droits.</p>
+      <p class="of-catalog-lead">Formats disponibles : relancer ou céder les droits.</p>
       ${list.map(f => {
         const q = canLaunch ? quoteProgram(f.slot, f.id, 'interne') : null, o = catalogSaleOffers(f), art = programArt(f);
         const seasons = f.seasonsAired || 1;

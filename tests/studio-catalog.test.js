@@ -20,7 +20,7 @@ function lance(p){ const f=designOriginalFormat({concept:'jeu',positioning:'popu
   p.contracts.access.end=gameState.season-1; expireContracts();
   ok(studioCatalogFormats().map(x=>x.id).join()===f.id,'non renouvelé : au catalogue');
   ok(!studioSlotFormats().some(x=>x.id===f.id),'ne prend plus de place dans le studio');
-  ok(/hors antenne/.test(studioCatalogHtml(true))&&/Relancer/.test(studioCatalogHtml(true)),'catalogue affiché');
+  ok(/Formats disponibles/.test(studioCatalogHtml(true))&&/Relancer/.test(studioCatalogHtml(true)),'catalogue affiché');
   gameState=JSON.parse(JSON.stringify(gameState));
   ok(studioCatalogFormats().length===1,'catalogue conservé après rechargement');
   // Relance : de nouveau à l'antenne, sorti du catalogue.
