@@ -2644,6 +2644,22 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .pm-quote .bad { color:var(--rouge); font-weight:700; }
 .pm-quote .muted { font-style:italic; }
 .pm-back-btn { border:0; background:none; padding:2px 0 0; font-size:9.5px; font-weight:700; color:var(--gris); cursor:pointer; }
+/* Choix par genre : cartes genre, carte retour, retournement à l'aller et au retour. */
+.pm-card[hidden] { display:none !important; }
+.pm-genre-face { width:100%; padding:0; text-align:left; font:inherit; cursor:pointer; }
+.pm-genre-card .pm-name { font-family:'Anton', sans-serif; font-weight:400; font-size:14px; letter-spacing:.2px; }
+.pm-genre-card .pm-buy { text-align:center; }
+.pm-nav-card { flex-basis:22%; }
+.pm-nav-btn { width:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; padding:8px 4px; border-radius:12px;
+  border:1.5px dashed rgba(37,99,235,0.45); background:rgba(37,99,235,0.06); color:var(--bleu); cursor:pointer; font:inherit; }
+.pm-nav-arrow { width:30px; height:30px; display:grid; place-items:center; border-radius:50%; background:var(--bleu); color:#fff; font-size:16px; font-weight:800; }
+.pm-nav-label { font-family:'Space Grotesk', sans-serif; font-size:9px; font-weight:800; letter-spacing:.4px; text-transform:uppercase; }
+.pm-nav-genre { font-size:9.5px; font-weight:700; color:var(--ink); text-align:center; line-height:1.2; overflow-wrap:anywhere; }
+.pm-card.pm-turn-out { animation:pmTurnOut .18s ease-in forwards; pointer-events:none; }
+.pm-card.pm-turn-in { animation:pmTurnIn .32s cubic-bezier(.2,.7,.2,1) both; animation-delay:calc(var(--i, 0) * 45ms); }
+@keyframes pmTurnOut { to { transform:perspective(700px) rotateY(90deg); opacity:.3; } }
+@keyframes pmTurnIn { from { transform:perspective(700px) rotateY(-90deg); opacity:.3; } to { transform:none; opacity:1; } }
+@media (prefers-reduced-motion: reduce) { .pm-card.pm-turn-in, .pm-card.pm-turn-out { animation:none; } }
 /* Créneau ouvert : le panneau occupe toute la hauteur libérée. */
 .pg-rows.pg-focus > .pg-focused > .program-manager { display:flex; flex-direction:column; height:var(--pm-h, auto); box-sizing:border-box; }
 .pm-carousel { flex:1 0 auto; min-height:170px; align-items:stretch; }
@@ -34197,8 +34213,9 @@ function renderProgramManager(slot) {
     ${c?programOverviewHtml(slot,c,editable):''}
     ${editable?`
     <div class="pm-pick-head"><span>Choisir un programme</span>${c?'<button type="button" class="pm-pick-cancel" data-pm-cancel>Annuler</button>':''}</div>
-    <div class="pm-carousel" data-pm-carousel="${slot}" aria-label="Programmes disponibles">
-      ${ordered.map(x=>programCardHtml(slot,x,c)).join('')}
+    <div class="pm-carousel" data-pm-carousel="${slot}" data-mode="genres" aria-label="Programmes disponibles">
+      ${programGenreCardsHtml(ordered,c)}
+      ${ordered.map(x=>programCardHtml(slot,x,c).replace('<article class="pm-card', `<article hidden data-genre="${esc(programGenreLabel(x))}" class="pm-card`)).join('')}
     </div>
     <span class="program-manager-feedback" aria-live="polite"></span>`:(c?'':note)}
     </section>`;
@@ -34522,6 +34539,36 @@ function productionLevelOf(talentName) {
   return PRODUCTION_LEVELS.find(l => l.id === t?.id) || PRODUCTION_LEVELS[0];
 }
 // Carte du carrousel de programmes : recto (fiche + Acheter), verso (production en étoiles + devis).
+// Choix en deux temps : une carte par genre disponible (programme à l'antenne d'abord), puis
+// les programmes du genre choisi, précédés d'une carte retour vers les genres.
+function programGenreCardsHtml(ordered, current) {
+  const genres = new Map();
+  ordered.forEach(x => { const g = programGenreLabel(x); if (!genres.has(g)) genres.set(g, []); genres.get(g).push(x); });
+  const back = `<article class="pm-card pm-nav-card" data-pm-genre-back hidden>
+    <button type="button" class="pm-nav-btn" aria-label="Revenir aux genres">
+      <span class="pm-nav-arrow" aria-hidden="true">←</span>
+      <span class="pm-nav-label">Genres</span>
+      <span class="pm-nav-genre" data-pm-genre-name></span>
+    </button>
+  </article>`;
+  return back + [...genres].map(([g, list]) => {
+    const lead = list.find(x => sameProgram(current, x)) || list[0];
+    const art = typeof TvPrograms !== 'undefined' ? TvPrograms.forProgram(lead) : '';
+    const onAir = list.some(x => sameProgram(current, x));
+    return `<article class="pm-card pm-genre-card${onAir ? ' is-current' : ''}" data-pm-genre="${esc(g)}">
+      <button type="button" class="pm-face pm-genre-face" aria-label="${esc(g)} : ${list.length} programme${list.length > 1 ? 's' : ''}">
+        <span class="pm-art">${art ? `<img src="${art}" alt="" width="320" height="180" decoding="async" loading="lazy">` : ''}
+          ${onAir ? '<span class="pm-tag">À l’antenne</span>' : ''}</span>
+        <span class="pm-body">
+          <span class="pm-genre">Genre</span>
+          <span class="pm-name">${esc(g)}</span>
+          <span class="pm-meta">${list.length} programme${list.length > 1 ? 's' : ''}</span>
+          <span class="pm-buy">Voir</span>
+        </span>
+      </button>
+    </article>`;
+  }).join('');
+}
 function programCardHtml(slot, x, current) {
   const onAir = sameProgram(current, x);
   const holder = onAir ? null : programHolder(x);
@@ -36993,7 +37040,7 @@ function bindCampaignPanel(app) {
     if(manager.dataset.bound) return;
     manager.dataset.bound='1';
     manager.addEventListener('click',e=>{
-      if(e.target.closest('[data-pm-modify]')) manager.classList.add('picking');
+      if(e.target.closest('[data-pm-modify]')) { manager.querySelector('[data-pm-carousel]')?.resetGenres?.(); manager.classList.add('picking'); }
       else if(e.target.closest('[data-pm-cancel]')) manager.classList.remove('picking');
     });
   });
@@ -37029,7 +37076,31 @@ function bindCampaignPanel(app) {
       card.querySelector('[data-pm-quote]').innerHTML=lines.join('');
       card.querySelector('[data-pm-confirm]').disabled=!q?.allowed;
     };
+    // Genres ↔ programmes : les cartes se retournent, la carte retour mène aux genres.
+    const showMode=(genre)=>{
+      const cards=[...carousel.children];
+      const leaving=cards.filter(x=>!x.hidden);
+      const apply=()=>{
+        carousel.dataset.mode=genre?'programs':'genres';
+        cards.forEach(x=>{
+          x.classList.remove('pm-turn-out','pm-turn-in');
+          if(x.matches('[data-pm-genre-back]')) x.hidden=!genre;
+          else if(x.matches('[data-pm-genre]')) x.hidden=!!genre;
+          else { x.hidden=!genre||x.dataset.genre!==genre; if(x.classList.contains('flipped')) setFlipped(x,false); }
+        });
+        const name=carousel.querySelector('[data-pm-genre-name]'); if(name) name.textContent=genre||'';
+        carousel.scrollLeft=0;
+        cards.filter(x=>!x.hidden).forEach((x,i)=>{ x.style.setProperty('--i',i); x.classList.add('pm-turn-in'); x.addEventListener('animationend',()=>x.classList.remove('pm-turn-in'),{once:true}); });
+      };
+      if(prefersReducedMotion()) return apply();
+      leaving.forEach(x=>x.classList.add('pm-turn-out'));
+      setTimeout(apply,180);
+    };
+    carousel.resetGenres=()=>{ if(carousel.dataset.mode!=='genres') showMode(null); };
     carousel.addEventListener('click',e=>{
+      const genreCard=e.target.closest('[data-pm-genre]');
+      if(genreCard){ showMode(genreCard.dataset.pmGenre); return; }
+      if(e.target.closest('[data-pm-genre-back]')){ showMode(null); return; }
       const card=e.target.closest('.pm-card');
       if(!card) return;
       feedback.textContent='';
