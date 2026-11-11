@@ -1733,6 +1733,10 @@ button.radar-row:focus-visible { outline: 2px solid var(--bleu); outline-offset:
 .career-stream .cs-value { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 17px; color: var(--ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .career-stream .cs-unit { font-size: 10.5px; color: var(--gris); }
 .career-stream .cs-tarif { padding-right: 36px; }
+.career-stream .cs-bar.ok i, .career-stream .ok > .cs-bar i { background: var(--vert); }
+.career-stream .cs-tile.low .cs-value { color: var(--rouge); }
+.career-goals .cs-tile .cs-bar { margin-top: 4px; height: 4px; }
+.career-goals .cs-label { letter-spacing: .5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .career-stream .cs-steps { position: absolute; top: 6px; right: 6px; bottom: 6px; display: flex; flex-direction: column; justify-content: space-between; }
 .career-stream .cs-steps button {
   width: 24px; height: 24px; border-radius: 50%; border: 0; padding: 0; cursor: pointer; line-height: 1;
@@ -36298,11 +36302,90 @@ function careerAfterChoice(dilemma, choice, before) {
 
 // Ligne du défi en cours, collée sous les indicateurs du HUD : famille, numéro, titre et saison ;
 // le « + » déplie (push down) objectif, contrainte, jauges, suivi et dernier événement.
+// Tableau de bord commun à tous les défis (même logique que « Le tournant du streaming ») :
+// une jauge par objectif à tenir, puis les jauges propres au défi. L'énoncé (objectif,
+// contrainte, suivi) est derrière le « i ».
+// G(libellé, valeur, cible, { from: départ, unit, fmt, lower: plus bas = mieux, show })
+function careerGoal(label, value, goal, o = {}) { return { label, value, goal, from: o.from ?? 0, unit: o.unit ?? '', fmt: o.fmt, lower: !!o.lower, show: o.show, gauge: o.gauge }; }
+// Objectif porté par une jauge du défi (moral, crédibilité…) : valeur entière, la jauge n'est pas répétée.
+function careerGaugeGoal(c, key, label, goal, o = {}) { const g = CAREER_GAUGES[key]; return careerGoal(label, c.g[key], goal, { fmt: v => `${Math.round(v)}${g.unit || ''}`, gauge: key, ...o }); }
+function careerSeasonsGoal(n, label = 'Saisons tenues') { const v = Math.min(gameState.season, n); return careerGoal(label, v, n, { fmt: x => `${x} saison${x > 1 ? 's' : ''}`, show: `Saison ${v}` }); }
+const CAREER_GOALS = {
+  1: c => [careerGoal('Trésorerie', gameState.player.tresorerie, 0, { from: -40, unit: ' M€' }), careerSeasonsGoal(3, 'Saisons')],
+  2: c => [careerSeasonsGoal(5, 'Saisons sans faillite'), careerGoal('Trésorerie', gameState.player.tresorerie, 0, { unit: ' M€', show: `${nf1(gameState.player.tresorerie)} M€` })],
+  3: c => [careerGaugeGoal(c, 'moral', 'Moral', 70, { from: 10 }), careerGoal(careerPdaLabel(), careerPda(), 8, { unit: ' %' })],
+  4: c => [careerGaugeGoal(c, 'credibilite', 'Crédibilité', 60, { from: 5 })],
+  5: c => [careerSeasonsGoal(6, 'Saisons au sommet'), careerGoal('Classement', careerRank(), 1, { lower: true, from: 6, fmt: v => `n°${v}` })],
+  6: c => [careerGoal('Écart avec le 2e', careerGap(), 5, { unit: ' pt' }), careerGoal('Classement', careerRank(), 1, { lower: true, from: 6, fmt: v => `n°${v}` })],
+  7: c => { const n = ['j1524', 'a2549', 's50'].filter(k => careerRank(k) === 1).length;
+    return [careerGoal('Cibles où vous êtes n°1', n, 3, { fmt: v => `${v}` }), careerGoal('Saisons tenues', c.frontStreak || 0, 3, { fmt: v => `${v}` })]; },
+  8: c => [careerSeasonsGoal(10, 'Saisons sur le podium'), careerGoal('Classement', careerRank(), 3, { lower: true, from: 6, fmt: v => `n°${v}` })],
+  9: c => [careerGoal('Classement', careerRank(), 1, { lower: true, from: 6, fmt: v => `n°${v}` }), careerSeasonsGoal(10, 'Saisons')],
+  10: c => [careerGoal(careerPdaLabel(), careerPda(), 5, { from: 0.8, unit: ' %' }), careerSeasonsGoal(4, 'Saisons')],
+  11: c => [careerGoal(careerPdaLabel(), careerPda(), 8, { from: 1.5, unit: ' %' }), careerGaugeGoal(c, 'credibilite', 'Crédibilité (min 60)', 60)],
+  12: c => [careerGaugeGoal(c, 'couverture', 'Couverture', 100, { from: 20 }), careerGoal(careerPdaLabel(), careerPda(), 6, { unit: ' %' })],
+  13: c => [careerSeasonsGoal(5, 'Saisons sans perte'), careerGaugeGoal(c, 'credibilite', 'Crédibilité (min 50)', 50)],
+  14: c => { const v0 = c.val0 || careerValuation(); return [careerGoal('Valorisation', careerValuation(), v0 * 1.6, { from: v0 })]; },
+  15: c => [careerGoal('PDA 25-49 ans', careerPda(gameState.player, 'a2549'), (c.a2549Start ?? 0) + 10, { from: c.a2549Start ?? 0, unit: ' %' })],
+  16: c => [careerSeasonsGoal(6, 'Saisons sans cession')],
+  17: c => [careerGoal(careerPdaLabel(), careerPda(), 12, { from: 8, unit: ' %' }), careerGaugeGoal(c, 'credibilite', 'Crédibilité (min 75)', 75)],
+  18: c => [careerSeasonsGoal(4, 'Saisons traversées'), careerGaugeGoal(c, 'effectifs', 'Effectifs (min 90 %)', 90)],
+  19: c => [careerGoal('PDA 15-24 ans (min 15 %)', careerPda(gameState.player, 'j1524'), 15, { unit: ' %' }), careerSeasonsGoal(5, 'Saisons')],
+  20: c => [careerSeasonsGoal(6, 'Saisons en tête'), careerGoal('Classement', careerRank(), 1, { lower: true, from: 6, fmt: v => `n°${v}` })],
+  21: c => [careerGaugeGoal(c, 'credibilite', 'Crédibilité', 70), careerGoal(careerPdaLabel(), careerPda(), 8, { unit: ' %' })],
+  22: c => [careerSeasonsGoal(4, 'Saisons rentables'), careerGoal('Trésorerie', gameState.player.tresorerie, 0, { unit: ' M€', show: `${nf1(gameState.player.tresorerie)} M€` })],
+  23: c => [careerGoal(careerPdaLabel(), careerPda(), 15, { from: 10, unit: ' %' }), careerSeasonsGoal(5, 'Saisons')],
+  24: c => [careerGoal('PDA 15-24 ans', careerPda(gameState.player, 'j1524'), 8, { from: 2, unit: ' %' }), careerGoal('PDA 25-49 ans', careerPda(gameState.player, 'a2549'), 6, { from: 1.5, unit: ' %' })],
+  25: c => [careerGoal('Fiction maison rentable en soirée', careerFictionEvening().length, 1, { fmt: v => `${v}` }), careerSeasonsGoal(5, 'Saisons')],
+  26: c => { const s0 = c.pdaStart ?? careerPda(); return [careerGoal(careerPdaLabel(), careerPda(), s0 + 2, { from: s0, unit: ' %' }), careerGoal('Trésorerie', gameState.player.tresorerie, 0, { unit: ' M€', show: `${nf1(gameState.player.tresorerie)} M€` })]; },
+  27: c => [careerSeasonsGoal(3, 'Saisons survécues')],
+  28: c => [careerSeasonsGoal(3, 'Saisons sans faute')],
+  29: c => [careerGoal('PDA en prime', careerRow()?.slots.prime[gameState.player.target] || 0, 15, { unit: ' %' }), careerGoal('Popularité', gameState.player.popularite, 100, { fmt: v => `${Math.round(v)}` })],
+  30: c => [careerSeasonsGoal(5, 'Saisons aux commandes')],
+  31: c => [careerGoal('Suspects écartés', (c.cleared || []).length, CAREER_SUSPECTS.length - 1, { fmt: v => `${v}` }), careerSeasonsGoal(2, 'Saisons')],
+  32: c => [careerGoal('Classement', careerRank(), 3, { lower: true, from: 6, fmt: v => `n°${v}` }), careerSeasonsGoal(4, 'Saisons')],
+  33: c => [careerGoal('Trésorerie', gameState.player.tresorerie, 0, { from: -35, unit: ' M€' }), careerGoal(careerPdaLabel() + ' (min 12 %)', careerPda(), 12, { unit: ' %' }),
+    careerGoal('Coût de grille', gameState.player.coutGrilleEngageSaison, CAREER_RULES[33].gridGoal, { lower: true, from: Math.max(gameState.player.coutGrilleEngageSaison, CAREER_RULES[33].gridGoal * 1.6), unit: ' M€' })],
+  35: c => [careerGoal('Action', c.action || 100, 130, { from: 100 }), careerGaugeGoal(c, 'actionnaires', 'Actionnaires (min 25)', 25)],
+  36: c => { const rival = gameState.competitors.find(r => r.name === c.rival), left = CAREER_RULES[36].evening.filter(sl => !(c.renewed || []).includes(sl)).length;
+    return [careerGoal('Soirée renouvelée', 2 - left, 2, { fmt: v => `${v}` }), careerGoal(`${careerPdaLabel()} vs ${c.rival || 'rival'}`, careerPda(), rival ? careerPda(rival) + 0.1 : 0, { unit: ' %' })]; },
+  37: c => [careerGoal(careerPdaLabel(), careerPda(), 12, { from: 8.5, unit: ' %' }), careerGaugeGoal(c, 'eco', 'Score éco-responsable', 80, { from: 50 })],
+  38: c => [careerGoal('Recettes pub nettes', adRevenueTotal(gameState.player) - (c.penalties || 0), 50, { unit: ' M€' }), careerGoal('Pic de la finale', CAREER_RULES[38].finalPda(c), 25, { unit: ' %' })]
+};
+function careerGoalPct(g) {
+  const span = g.lower ? g.from - g.goal : g.goal - g.from;
+  if (!(span > 0)) return (g.lower ? g.value <= g.goal : g.value >= g.goal) ? 100 : 0;
+  return Math.max(0, Math.min(100, (g.lower ? g.from - g.value : g.value - g.from) / span * 100));
+}
+function careerGoalText(g, v) { return g.fmt ? g.fmt(v) : `${nf1(v)}${g.unit}`; }
+function careerGoalsPanelHtml(c) {
+  const goals = (CAREER_GOALS[c.scenarioId]?.(c) || []).filter(g => Number.isFinite(g.value));
+  const done = g => g.lower ? g.value <= g.goal + 1e-9 : g.value >= g.goal - 1e-9;
+  const bar = (g, big) => `<span class="cs-bar${done(g) ? ' ok' : ''}" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(careerGoalPct(g))}"><i style="width:${careerGoalPct(g)}%"></i></span>`;
+  const [main, ...rest] = goals;
+  const used = new Set(goals.map(g => g.gauge).filter(Boolean));
+  const gaugeTiles = Object.entries(c.g || {}).filter(([k]) => !used.has(k)).map(([k, v]) => {
+    const g = CAREER_GAUGES[k], hidden = g.hidden;
+    const value = hidden ? (v > 66 ? 'Serein' : v > 33 ? 'Agacé' : 'À bout') : `${Math.round(v)}${g.unit || ''}`;
+    return `<div class="cs-tile${!hidden && v < 30 ? ' low' : ''}"><span class="cs-label">${g.icon} ${esc(g.label)}</span><b class="cs-value">${value}</b>
+      <span class="cs-bar"><i style="width:${Math.max(0, Math.min(100, v))}%"></i></span></div>`;
+  });
+  const goalTiles = rest.map(g => `<div class="cs-tile${done(g) ? ' ok' : ''}"><span class="cs-label">${esc(g.label)}</span><b class="cs-value">${g.show || careerGoalText(g, g.value)}</b>
+      <span class="cs-unit">objectif ${careerGoalText(g, g.goal)}</span>${bar(g)}</div>`);
+  const tiles = [...goalTiles, ...gaugeTiles];
+  return `<div class="career-stream career-goals">
+    ${main ? `<div class="cs-users${done(main) ? ' ok' : ''}"><span class="cs-label">${esc(main.label)}</span>
+      <b class="cs-users-value">${main.show || careerGoalText(main, main.value)} <span>/ ${careerGoalText(main, main.goal)}</span></b>${bar(main, true)}</div>` : ''}
+    ${tiles.length ? `<div class="cs-tiles" style="grid-template-columns:repeat(${Math.min(3, tiles.length)}, minmax(0, 1fr))">${tiles.join('')}</div>` : ''}
+  </div>`;
+}
 function careerBannerHtml() {
   const c = careerActive();
   if (!c) return '';
-  const s = careerScenarioById(c.scenarioId), rule = CAREER_RULES[c.scenarioId];
-  if (!s || !rule) return '';
+  const s = careerScenarioById(c.scenarioId), baseRule = CAREER_RULES[c.scenarioId];
+  if (!s || !baseRule) return '';
+  // Tous les défis : tableau de bord des objectifs, énoncé derrière le « i ».
+  const rule = baseRule.panelHtml || !CAREER_GOALS[c.scenarioId] ? baseRule : { ...baseRule, panelHtml: careerGoalsPanelHtml };
   const fam = careerFamilyById(s.famille);
   const [ruleLabel, ruleText] = s.contrainte ? ['Contrainte', s.contrainte] : ['Règle spéciale', s.regleSpeciale];
   const status = rule.status ? rule.status(c) : '';
