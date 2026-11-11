@@ -2306,14 +2306,23 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
 .of-catalog-lead { margin:0; font-size:11px; font-weight:600; color:var(--gris); }
 .of-catalog-head { display:flex; align-items:center; justify-content:space-between; font:800 9.5px 'Space Grotesk', sans-serif; text-transform:uppercase; letter-spacing:.5px; color:var(--gris); }
 .of-catalog-head b { min-width:18px; padding:2px 6px; border-radius:999px; background:rgba(148,163,184,0.18); color:var(--ink); text-align:center; }
-.of-cat-item { display:flex; flex-direction:column; gap:8px; padding:10px; border-radius:14px; background:rgba(255,255,255,0.7); border:1px solid rgba(255,255,255,0.9); }
-.of-cat-top { display:flex; align-items:center; gap:10px; min-width:0; }
-.of-cat-art { width:64px; height:40px; flex:none; border-radius:8px; object-fit:cover; }
-.of-cat-info { display:flex; flex-direction:column; gap:2px; min-width:0; }
-.of-cat-name { font-family:'Anton', sans-serif; font-size:15px; line-height:1.1; color:var(--ink); }
-.of-cat-meta { font-size:10.5px; font-weight:600; color:var(--gris); }
-.of-cat-item .of-actions button { display:flex; flex-direction:column; align-items:center; gap:1px; line-height:1.15; padding-top:6px; padding-bottom:6px; white-space:normal; }
-.of-cat-item .of-actions button b { font-size:10px; font-weight:700; opacity:.85; }
+.of-cat-item { display:flex; flex-direction:column; gap:10px; padding:10px; border-radius:16px; background:#fff; border:1px solid rgba(15,23,42,0.08); box-shadow:0 6px 16px -12px rgba(15,23,42,0.35); }
+.of-cat-top { display:flex; align-items:center; gap:12px; min-width:0; }
+.of-cat-art { position:relative; margin:0; width:92px; height:60px; flex:none; border-radius:10px; overflow:hidden; background:rgba(148,163,184,0.18); }
+.of-cat-art img { width:100%; height:100%; object-fit:cover; display:block; filter:saturate(.75); }
+.of-cat-badge { position:absolute; left:4px; bottom:4px; font:800 8px 'Space Grotesk', sans-serif; text-transform:uppercase; letter-spacing:.4px; padding:2px 6px; border-radius:999px; background:rgba(15,23,42,0.75); color:#fff; }
+.of-cat-info { display:flex; flex-direction:column; gap:4px; min-width:0; }
+.of-cat-name { font-family:'Anton', sans-serif; font-size:16px; line-height:1.1; color:var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.of-cat-chips { display:flex; flex-wrap:wrap; gap:4px; }
+.of-cat-chips span { font:700 9.5px 'Space Grotesk', sans-serif; padding:2px 7px; border-radius:999px; background:rgba(37,99,235,0.08); color:var(--bleu); }
+.of-cat-chips span.ok { background:rgba(16,185,129,0.12); color:#047857; }
+.of-cat-meta { font-size:10px; font-weight:600; color:var(--gris); }
+.of-cat-actions { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:6px; }
+.of-cat-actions button { display:flex; flex-direction:column; align-items:center; gap:2px; padding:7px 4px; border-radius:10px; border:1.5px solid rgba(37,99,235,0.25); background:#fff; color:var(--ink); cursor:pointer; font:700 11px 'Space Grotesk', sans-serif; line-height:1.15; }
+.of-cat-actions button b { font-size:10px; font-weight:700; color:var(--gris); }
+.of-cat-actions button.primary { background:var(--bleu); border-color:var(--bleu); color:#fff; }
+.of-cat-actions button.primary b { color:rgba(255,255,255,0.85); }
+.of-cat-actions button:disabled { opacity:.45; cursor:not-allowed; }
 .of-actions { display:flex; flex-wrap:nowrap; gap:6px; margin-top:2px; }
 .of-actions button { flex:1 1 0; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font:700 11px 'Space Grotesk', sans-serif;
   padding:7px 6px; border-radius:999px; border:1px solid rgba(37,99,235,0.3); background:rgba(37,99,235,0.06); color:var(--bleu); cursor:pointer; }
@@ -24699,8 +24708,14 @@ function hudSlideCount() { return studioSlideHidden() ? 7 : 8; }
 
 // En mode Concurrence, le slider est figé sur la grille : on n'en sort
 // qu'après être revenu sur « Ma grille ».
+// Écran imposé au slider : la grille pendant le radar, le studio pendant le catalogue.
+function lockedHudSlide() {
+  if (gameState.radar?.open && gameState.competitors?.length) return 0;
+  if (gameState.studioCatalog && !studioSlideHidden() && studioCatalogFormats().length) return 1;
+  return null;
+}
 function isHudSliderLocked() {
-  return !!(gameState.radar?.open && gameState.competitors?.length);
+  return lockedHudSlide() != null;
 }
 
 function syncHudSliderLock() {
@@ -24728,14 +24743,14 @@ function bindTickerInteractions(app) {
     document.getElementById('hud-toggle').setAttribute('aria-expanded', isOpen);
     gameState.hudExpanded = isOpen;
     // Refermé, le slider revient à la grille de la chaîne à sa réouverture.
-    if (!isOpen) { gameState.hudSlide = 0; gameState.ecoDetail = false; goToHudSlide(0); }
+    if (!isOpen) { gameState.hudSlide = 0; gameState.ecoDetail = false; gameState.studioCatalog = false; syncHudSliderLock(); goToHudSlide(0); }
   };
   // Un clic sur le dilemme referme le slider ouvert.
   document.querySelector('#app .dilemma-container')?.addEventListener('pointerdown', () => {
     if (gameState.hudExpanded) document.getElementById('hud-toggle').click();
   }, true);
   const goToHudSlide = idx => {
-    if (isHudSliderLocked()) idx = 0;
+    idx = lockedHudSlide() ?? idx;
     const clamped = Math.max(0, Math.min(hudSlideCount() - 1, idx));
     gameState.hudSlide = clamped;
     document.getElementById('eh-slider-track').style.transform = `translateX(-${clamped * 100}%)`;
@@ -31890,18 +31905,20 @@ function studioCatalogHtml(editable) {
       <p class="of-catalog-lead">Formats de la chaîne hors antenne : relancez-les en début de saison ou cédez leurs droits.</p>
       ${list.map(f => {
         const q = canLaunch ? quoteProgram(f.slot, f.id, 'interne') : null, o = catalogSaleOffers(f), art = programArt(f);
+        const seasons = f.seasonsAired || 1;
         return `<article class="of-cat-item" data-of-id="${esc(f.id)}">
           <div class="of-cat-top">
-            ${art ? `<img class="of-cat-art" src="${art}" alt="" decoding="async">` : ''}
+            <figure class="of-cat-art">${art ? `<img src="${art}" alt="" decoding="async">` : ''}<span class="of-cat-badge">Hors antenne</span></figure>
             <div class="of-cat-info">
               <span class="of-cat-name">${esc(f.name)}</span>
-              <span class="of-cat-meta">${esc(originalConceptLabel(f))} · ${esc(slotLabelOf(f.slot))} · ${f.seasonsAired || 1} saison${(f.seasonsAired || 1) > 1 ? 's' : ''} à l’antenne${f.foreignSale ? ' · adapté à l’étranger' : ''}</span>
+              <span class="of-cat-chips"><span>${esc(originalConceptLabel(f))}</span><span>${esc(slotLabelOf(f.slot))}</span>${f.foreignSale ? '<span class="ok">🌍 Adapté</span>' : ''}</span>
+              <span class="of-cat-meta">${seasons} saison${seasons > 1 ? 's' : ''} à l’antenne${f.lastAwareness ? ` · notoriété ${Math.round(f.lastAwareness)}` : ''}</span>
             </div>
           </div>
-          <div class="of-actions">
-            <button type="button" class="primary" data-of-action="relaunch"${editable && canLaunch && q?.allowed ? '' : ' disabled'} title="${canLaunch ? '' : 'Relance en début de saison, avant le premier dilemme'}"><span>Relancer</span><b>${canLaunch ? `${nf1(q?.finance.purchase ?? 0)} M€` : `saison ${gameState.season + 1}`}</b></button>
-            <button type="button" data-of-action="catsell" data-of-mode="national"${editable ? '' : ' disabled'}><span>Céder</span><b>${nf1(o.national.price)} M€</b></button>
-            ${f.foreignSale ? '' : `<button type="button" data-of-action="catsell" data-of-mode="foreign"${editable ? '' : ' disabled'}><span>Étranger</span><b>${nf1(o.foreign.upfront)} M€</b></button>`}
+          <div class="of-cat-actions">
+            <button type="button" class="primary" data-of-action="relaunch"${editable && canLaunch && q?.allowed ? '' : ' disabled'} title="${canLaunch ? '' : 'Relance en début de saison, avant le premier dilemme'}"><span>▶ Relancer</span><b>${canLaunch ? `${nf1(q?.finance.purchase ?? 0)} M€` : `saison ${gameState.season + 1}`}</b></button>
+            <button type="button" data-of-action="catsell" data-of-mode="national"${editable ? '' : ' disabled'}><span>📺 Céder</span><b>+${nf1(o.national.price)} M€</b></button>
+            ${f.foreignSale ? '' : `<button type="button" data-of-action="catsell" data-of-mode="foreign"${editable ? '' : ' disabled'}><span>🌍 Étranger</span><b>+${nf1(o.foreign.upfront)} M€</b></button>`}
           </div>
         </article>`; }).join('')}
     </div>`;
