@@ -31685,6 +31685,373 @@ const ORIGINAL_FORMATS = {
   expandedProjects: 6,       // emplacements après l'agrandissement du studio (dilemme « Agrandir le studio »)
   spinoffAwareness: 55
 };
+// Réserve de noms supplémentaires par genre (une dizaine par genre au total), puis suffixes
+// pour composer un nom quand toute la réserve est déjà prise.
+const ORIGINAL_NAME_EXTRAS = {
+  "jeu": [
+  "Le Bon Compte",
+  "Chrono Quiz",
+  "La Roue des millions",
+  "Trois pour gagner",
+  "Le Duel des familles",
+  "Mémoire vive"
+  ],
+  "divertissement": [
+  "Le Cabaret du samedi",
+  "Rires en direct",
+  "La Grande Parade",
+  "Coup de théâtre",
+  "Les Années lumière",
+  "Surprise sur scène"
+  ],
+  "fiction": [
+  "Les Liens du sang",
+  "Brigade des quais",
+  "Les Saisons de Marie",
+  "Cap Lumière",
+  "Le Domaine",
+  "Fausse Note"
+  ],
+  "magazine": [
+  "Les Coulisses du quotidien",
+  "Tout s’explique",
+  "Carnets de route",
+  "L’Œil du témoin",
+  "Vivre mieux",
+  "Près de chez vous"
+  ],
+  "realite": [
+  "Les Apprentis chefs",
+  "Le Village",
+  "Mariés à vue",
+  "La Ferme des défis",
+  "Destination inconnue",
+  "Les Colocs"
+  ],
+  "talk_show": [
+  "Le Grand Comptoir",
+  "Minuit pile",
+  "La Table ronde",
+  "Tête-à-tête",
+  "Les Insomniaques",
+  "Sans filtre",
+  "Le Club du soir",
+  "Parole libre"
+  ],
+  "sport_magazine": [
+  "Sport Hebdo",
+  "Le Mag des supporters",
+  "Ligne de touche",
+  "Esprit sport",
+  "Au bord du terrain",
+  "Le Vestiaire",
+  "Sports passion",
+  "Cap sur la victoire"
+  ],
+  "sport_talk": [
+  "La Mi-temps",
+  "Le Club des légendes",
+  "Tribune libre",
+  "Prolongations",
+  "Le Banc de touche",
+  "Arrêt de jeu",
+  "Coup de sifflet",
+  "Les Supporters"
+  ],
+  "sport_documentaire": [
+  "La Route du titre",
+  "Destins de sportifs",
+  "Les Grandes Finales",
+  "Le Prix de l’effort",
+  "Champions d’hier",
+  "Dans la peau d’un athlète",
+  "Médailles d’or",
+  "L’Envers du stade"
+  ],
+  "sport_competition": [
+  "La Coupe des villes",
+  "Le Tournoi des étoiles",
+  "Le Grand Prix des amateurs",
+  "Le Challenge national",
+  "Les Jeux des quartiers",
+  "La Course aux trophées",
+  "Le Match des légendes",
+  "Le Défi des provinces"
+  ],
+  "sport_debat": [
+  "Carton rouge",
+  "Le Tribunal du sport",
+  "Hors-jeu",
+  "La Polémique du lundi",
+  "Le Ring des experts",
+  "VAR et contre tous",
+  "Le Grand Débrief",
+  "Ça se discute au stade"
+  ],
+  "sport_divertissement": [
+  "Les Olympiades des stars",
+  "Le Défi des champions",
+  "Stade en folie",
+  "Sport en famille",
+  "Les Folies du terrain",
+  "La Grande Kermesse",
+  "Le Show des médaillés",
+  "Tous sportifs !"
+  ],
+  "culture_documentaire": [
+  "Civilisations",
+  "Le Fil de l’histoire",
+  "Grands Bâtisseurs",
+  "Trésors cachés",
+  "Les Empires oubliés",
+  "Visages du passé",
+  "Terres de légendes",
+  "Le Siècle en images"
+  ],
+  "culture_magazine": [
+  "Le Rendez-vous des arts",
+  "Grand Écran, petit écran",
+  "La Galerie",
+  "Esprits libres",
+  "Culture club",
+  "La Scène",
+  "Pages et images",
+  "L’Atelier"
+  ],
+  "culture_vulgarisation": [
+  "Eurêka !",
+  "Le Labo des curieux",
+  "Tout comprendre",
+  "Les Petits Pourquoi des grands",
+  "Science en clair",
+  "Expériences",
+  "Le Monde en questions",
+  "Savoir plus"
+  ],
+  "culture_investigation": [
+  "Les Énigmes de l’histoire",
+  "Dossiers secrets",
+  "Les Mystères du passé",
+  "Contre-enquête historique",
+  "Les Faussaires",
+  "Mémoire et vérité",
+  "Affaires classées",
+  "Sur les traces de…"
+  ],
+  "culture_debat": [
+  "Le Banquet des idées",
+  "La Controverse",
+  "Penser le monde",
+  "Le Forum",
+  "À contre-courant",
+  "Les Mots du temps",
+  "Agora",
+  "Le Cercle des penseurs"
+  ],
+  "culture_exploration": [
+  "Expéditions",
+  "Les Derniers Territoires",
+  "Planète inconnue",
+  "Grand Nord",
+  "Odyssées",
+  "Carnets d’explorateurs",
+  "Au bout du monde",
+  "Terra incognita"
+  ],
+  "info_talk": [
+  "Le Grand Soir",
+  "L’Info du soir",
+  "Café actu",
+  "Le Rendez-vous de 19 h",
+  "Midi chrono",
+  "Ça fait débat",
+  "Le Fil",
+  "Point de vue"
+  ],
+  "info_debat": [
+  "La Grande Confrontation",
+  "Pour ou contre",
+  "Face à face",
+  "Le Grand Oral",
+  "Droit de réponse",
+  "L’Arène",
+  "Questions de société",
+  "Débat national"
+  ],
+  "info_documentaire": [
+  "Le Monde en face",
+  "Grand Format",
+  "Les Dessous de l’actu",
+  "Une année en France",
+  "Reportages",
+  "Témoins",
+  "Vies ordinaires",
+  "Envoyé sur place"
+  ],
+  "info_investigation": [
+  "Pièces à conviction",
+  "Révélations",
+  "Les Dossiers de la rédaction",
+  "Complément d’enquête",
+  "Zone d’ombre",
+  "Investigations",
+  "Source sûre",
+  "Le Fond de l’affaire"
+  ],
+  "info_interview": [
+  "L’Invité du matin",
+  "Questions directes",
+  "Sans détour",
+  "En tête-à-tête",
+  "Le Portrait",
+  "La Grande Interview",
+  "Parole d’invité",
+  "Face à vous"
+  ],
+  "info_decryptage": [
+  "L’Actu décodée",
+  "En clair",
+  "Le Dessous des cartes",
+  "Trois minutes pour comprendre",
+  "Les Chiffres de la semaine",
+  "Vrai ou faux",
+  "L’Explication",
+  "Le Décodeur"
+  ],
+  "cinema_drame": [
+  "Les Années d’or",
+  "La Promesse",
+  "Les Enfants du fleuve",
+  "Après la tempête",
+  "Les Silences",
+  "Au nom des miens",
+  "Le Dernier Été",
+  "Les Exilés"
+  ],
+  "cinema_comedie": [
+  "Les Bras cassés",
+  "Coloc à vie",
+  "Mon beau-père et moi",
+  "La Bande à Lulu",
+  "Bienvenue au bureau",
+  "Les Mariés de l’an deux",
+  "Super Mamie",
+  "Camping des Pins"
+  ],
+  "cinema_polar": [
+  "Section criminelle",
+  "Nuit blanche",
+  "Le Témoin",
+  "Cold Case Paris",
+  "Les Disparues",
+  "Fausse Piste",
+  "Brigade nocturne",
+  "Le Silence des quais"
+  ],
+  "cinema_imaginaire": [
+  "Les Gardiens",
+  "Station Orion",
+  "Le Septième Monde",
+  "Les Éveillés",
+  "Chronos",
+  "Les Mutants de Brocéliande",
+  "Réalité parallèle",
+  "Dernière Frontière"
+  ],
+  "cinema_telefilm": [
+  "Un Noël en Provence",
+  "La Lettre retrouvée",
+  "Mariage à la campagne",
+  "L’Héritière",
+  "Le Phare",
+  "Retour à Saint-Malo",
+  "Les Vignes du bonheur",
+  "Une seconde chance"
+  ],
+  "cinema_magazine": [
+  "Plan séquence",
+  "Le Ciné-club",
+  "Clap de fin",
+  "Hors champ",
+  "Bobines",
+  "Avant-première",
+  "Les Toiles du soir",
+  "Coulisses de tournage"
+  ],
+  "jeunesse_animation": [
+  "Les Supers Mini-héros",
+  "Pipo et Lila",
+  "Les Pirates de la baignoire",
+  "Zoé et les dragons",
+  "Les Lapins ninjas",
+  "Galaxie Junior",
+  "Les Monstres gentils",
+  "Le Royaume des jouets"
+  ],
+  "jeunesse_fiction": [
+  "Les Copains d’abord",
+  "Classe verte",
+  "La Bande du phare",
+  "Mystère au pensionnat",
+  "Les Détectives en herbe",
+  "Vacances à la ferme",
+  "Mon ami le fantôme",
+  "Les Rebelles du lycée"
+  ],
+  "jeunesse_jeu": [
+  "Qui sera le plus malin ?",
+  "La Course aux étoiles",
+  "Le Grand Quiz des écoles",
+  "Défis en classe",
+  "Le Labyrinthe",
+  "Super Cerveaux",
+  "Le Trésor de la récré",
+  "À toi de jouer !"
+  ],
+  "jeunesse_educatif": [
+  "C’est pas sorcier junior",
+  "Les Petits Savants",
+  "Le Monde en 3 minutes",
+  "Dis-moi comment",
+  "L’École des animaux",
+  "Mes premières découvertes",
+  "Planète curieuse",
+  "Le Coin des inventeurs"
+  ],
+  "jeunesse_divertissement": [
+  "Le Club des 10-12",
+  "Mercredi fou",
+  "Le Show des copains",
+  "La Fête des enfants",
+  "Pyjama party",
+  "Délires et compagnie",
+  "Tous en piste !",
+  "La Bande à Bob"
+  ],
+  "jeunesse_aventure": [
+  "Les Explorateurs du dimanche",
+  "Expédition jungle",
+  "Mission océan",
+  "Le Camp des aventuriers",
+  "À la recherche du trésor perdu",
+  "Les Robinsons",
+  "Cap sur l’aventure",
+  "Les Chasseurs d’énigmes"
+  ]
+  };
+Object.entries(ORIGINAL_NAME_EXTRAS).forEach(([k, names]) => {
+  const c = ORIGINAL_FORMATS.concepts[k];
+  if (c) c.names = [...new Set([...c.names, ...names])];
+});
+const ORIGINAL_NAME_SUFFIXES = [' : la revanche', ' — Édition prestige', ' : nouvelle génération', ' — Le retour', ' : saison spéciale', ' — Grand format', ' : l’héritage', ' — Version XXL'];
+// Nom libre d'un format : un nom de la réserve, sinon un nom composé (base + complément).
+function pickOriginalFormatName(c, taken, seed) {
+  const free = c.names.filter(x => !taken.has(x));
+  if (free.length) return free[Math.floor(stableRandom(`ofname|${seed}`) * free.length)];
+  const composed = c.names.flatMap(base => ORIGINAL_NAME_SUFFIXES.map(sfx => base + sfx)).filter(x => !taken.has(x));
+  if (composed.length) return composed[Math.floor(stableRandom(`ofname2|${seed}`) * composed.length)];
+  return `${c.names[0]} ${taken.size + 1}`;
+}
 function slotReference(type, slot) {
   const pool = PROGRAM_CATALOG.filter(x => x.channelType === type && x.slot === slot);
   const med = arr => { const v = [...arr].sort((a, b) => a - b); return v.length ? v[Math.floor(v.length / 2)] : 0; };
@@ -31709,8 +32076,7 @@ function designOriginalFormat({ concept, positioning, slot, budget, requestId = 
   const id = `of-${gameState.season}-${n}`;
   const ref = slotReference(p.type, slot);
   const taken = new Set([...PROGRAM_CATALOG.map(x => x.name), ...Object.values(p.originalFormats).map(x => x.name)]);
-  const names = c.names.filter(x => !taken.has(x));
-  const name = names.length ? names[Math.floor(stableRandom(`ofname|${id}`) * names.length)] : `${c.names[0]} ${n}`;
+  const name = pickOriginalFormatName(c, taken, id);
   // Au plus 4 % de modulation entre créneaux : aucune prime de puissance supplémentaire.
   const fit = (pos.fit[slot] || 0.96) * 1.04 * (c.slots.includes(slot) ? 1 : 0.96);
   const luck = cfg.luck[0] + stableRandom(`ofpot|${concept}|${positioning}|${target}|${slot}|${budget}|${id}`) * (cfg.luck[1] - cfg.luck[0]);
