@@ -25375,7 +25375,8 @@ function render() {
             : { icon: '📋', label: 'Coût de grille', val: 0, decimals: 1, suffix: ' M€', invert: true },
         { icon: '📺', label: 'Revenus pub', val: d.revenusPub, decimals: 1, suffix: ' M€', invert: false },
         { icon: '🚀', label: 'Accélérateur régie', val: d.regie || 0, decimals: 1, suffix: d.regieRecurrente ? ' M€ / saison' : ' M€', invert: false },
-        { icon: '⭐', label: 'Popularité', val: d.popularite, decimals: 0, suffix: ' pts', invert: false }
+        { icon: '⭐', label: 'Popularité', val: d.popularite, decimals: 0, suffix: ' pts', invert: false },
+        ...(cq.careerGauges || []).map(x => ({ icon: CAREER_GAUGES[x.key].icon, label: CAREER_GAUGES[x.key].label, val: Math.round(x.delta), decimals: 0, suffix: ' pts', invert: false }))
       ];
       // Seuls les indicateurs qui bougent réellement (valeur affichée non nulle) sont montrés.
       const changed = r => Number.isFinite(r.val) && Math.round(Math.abs(r.val) * 10 ** r.decimals) !== 0;
@@ -25424,7 +25425,6 @@ function render() {
                     <span class="choice-eyebrow ${accent}">Option ${i + 1}</span>
                   </div>
                   <span class="cl">${choice.l}</span>
-                  ${careerChoiceHint(dilemma, choice)}
                 </div>
                 <span class="choice-pill ${badgeCls}">${badgeText}</span>
               </div>
@@ -36278,6 +36278,7 @@ function careerChoiceHint(dilemma, choice) {
 function careerAfterChoice(dilemma, choice, before) {
   const c = careerActive(), rule = careerRule();
   if (!c) return;
+  const gBefore = c.g ? { ...c.g } : null;
   if (dilemma && choice && rule) {
     const fx = choice.fx || {};
     if (c.g) Object.entries(fx).forEach(([k, v]) => { if (typeof v === 'number') careerGauge(c, k, v); });
@@ -36286,6 +36287,9 @@ function careerAfterChoice(dilemma, choice, before) {
     const v = rule.afterChoice?.(c, { dilemma, choice, t, fx, before, after: careerSnapshot() });
     if (v && !c.verdict) c.verdict = v;
   }
+  // Incidences sur les jauges du défi : révélées après le choix, en badges (comme les autres indicateurs).
+  if (gBefore && gameState.lastConsequence) gameState.lastConsequence.careerGauges = Object.keys(c.g)
+    .map(k => ({ key: k, delta: (c.g[k] ?? 0) - (gBefore[k] ?? 0) })).filter(x => Math.round(x.delta) && !CAREER_GAUGES[x.key]?.hidden);
   if (gameState.pendingNextStep === 8) { c.status = 'lost'; return; }
   if (!c.verdict) return;
   c.status = c.verdict.status;

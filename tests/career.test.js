@@ -171,7 +171,10 @@ for(let id=1;id<=38;id++){ startCareerGame(id); const rule=CAREER_RULES[id];
 { startCareerGame(15); const prime=PROGRAM_CATALOG.find(x=>x.channelType==='generaliste'&&x.slot==='prime'); ok(/veto/.test(quoteProgram('prime',prime.id,'interne').careerBlocked),'n°15 : veto du fondateur');
   const m=PROGRAM_CATALOG.find(x=>x.channelType==='generaliste'&&x.slot==='matin'&&quoteProgram('matin',x.id,'interne')?.allowed); ok(signProgram('matin',m.id,'interne')&&gameState.career.g.patience===80,'n°15 : changement de grille, patience −20'); }
 { startCareerGame(16); const c=gameState.career; c.g.blocDivert=22; const d={}; CAREER_RULES[16].drift(c,d,{info:true,divert:false},{pda:{}}); careerGauge(c,'blocInfo',d.blocInfo); careerGauge(c,'blocDivert',d.blocDivert); ok(CAREER_RULES[16].afterChoice(c).status==='lost','n°16 : un bloc sous 20 vend ses parts');
-  startCareerGame(16); const b=gameState.dilemmaQueue.find(x=>!x.isCareerScripted&&x.c&&!x.type); ok(b&&/Bloc info/.test(careerChoiceHint(b,b.c[0])),'n°16 : effet sur les blocs affiché sous l’option'); }
+  startCareerGame(16); const b=gameState.dilemmaQueue.find(x=>!x.isCareerScripted&&x.c&&!x.type); ok(b,'n°16 : dilemme ordinaire');
+  const g0={...gameState.career.g}; gameState.lastConsequence={deltas:{}}; careerAfterChoice(b,b.c[0],careerSnapshot());
+  const moved=Object.keys(g0).some(k=>Math.round(gameState.career.g[k]-g0[k]));
+  ok(!moved||(gameState.lastConsequence.careerGauges||[]).length>0,'n°16 : incidences sur les blocs révélées après le choix (badges)'); }
 { startCareerGame(17); ok(careerAdSlotFactor(gameState.player,'prime')===0&&careerAdSlotFactor(gameState.player,'access')===1,'n°17 : pas de pub en prime'); ok(/Dotation/.test(gameState.career.note),'n°17 : dotation du Parlement'); }
 { startCareerGame(18); ok(careerAdFactor()===0.6&&premier().titre==="Plan d'économies",'n°18 : hiver publicitaire'); gameState.career.g.effectifs=92; joue(0); ok(gameState.step===8&&gameState.gameOverReason==='career','n°18 : sous 90 % des effectifs, défaite'); }
 { startCareerGame(19); ok(gameState.player.target==='j1524'&&near(careerPda(),18,0.4),'n°19 : 15-24 ans à 18 %'); }
