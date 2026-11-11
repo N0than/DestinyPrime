@@ -34178,6 +34178,8 @@ function renderProgramManager(slot) {
   // Carrousel : le programme à l'antenne d'abord, puis le reste du catalogue du créneau.
   const catalog=availablePrograms(p.type,slot);
   const ordered=[...catalog.filter(x=>sameProgram(c,x)),...catalog.filter(x=>!sameProgram(c,x))];
+  // Un seul genre disponible : les programmes s'affichent directement, sans étape « genres ».
+  const single=new Set(ordered.map(programGenreLabel)).size<=1;
   const note='<p class="program-manager-note">Modifications disponibles au début de la prochaine saison, avant le premier dilemme.</p>';
   const sportOn=sportsBroadcastOn(p,slot);
   if(sportOn) {
@@ -34208,9 +34210,9 @@ function renderProgramManager(slot) {
     ${c?programOverviewHtml(slot,c,editable):''}
     ${editable?`
     <div class="pm-pick-head"><span>Choisir un programme</span>${c?'<button type="button" class="pm-pick-cancel" data-pm-cancel>Annuler</button>':''}</div>
-    <div class="pm-carousel" data-pm-carousel="${slot}" data-mode="genres" aria-label="Programmes disponibles">
-      ${programGenreCardsHtml(ordered,c)}
-      ${ordered.map(x=>programCardHtml(slot,x,c).replace('<article class="pm-card', `<article hidden data-genre="${esc(programGenreLabel(x))}" class="pm-card`)).join('')}
+    <div class="pm-carousel" data-pm-carousel="${slot}" data-mode="${single?'programs':'genres'}"${single?' data-single':''} aria-label="Programmes disponibles">
+      ${programGenreCardsHtml(ordered,c,single)}
+      ${ordered.map(x=>programCardHtml(slot,x,c).replace('<article class="pm-card', `<article${single?'':' hidden'} data-genre="${esc(programGenreLabel(x))}" class="pm-card`)).join('')}
     </div>
     <span class="program-manager-feedback" aria-live="polite"></span>`:(c?'':note)}
     </section>`;
@@ -34536,7 +34538,7 @@ function productionLevelOf(talentName) {
 // Carte du carrousel de programmes : recto (fiche + Acheter), verso (production en étoiles + devis).
 // Choix en deux temps : une carte par genre disponible (programme à l'antenne d'abord), puis
 // les programmes du genre choisi, précédés d'une carte retour vers les genres.
-function programGenreCardsHtml(ordered, current) {
+function programGenreCardsHtml(ordered, current, single = false) {
   const genres = new Map();
   ordered.forEach(x => { const g = programGenreLabel(x); if (!genres.has(g)) genres.set(g, []); genres.get(g).push(x); });
   const back = `<article class="pm-card pm-nav-card" data-pm-genre-back hidden>
@@ -34554,6 +34556,7 @@ function programGenreCardsHtml(ordered, current) {
       <span class="pm-nav-genre">${esc(current.name)}</span>
     </button>
   </article>` : '';
+  if (single) return home;
   return back + home + [...genres].map(([g, list]) => {
     const lead = list.find(x => sameProgram(current, x)) || list[0];
     const art = typeof TvPrograms !== 'undefined' ? TvPrograms.forProgram(lead) : '';
@@ -37111,7 +37114,7 @@ function bindCampaignPanel(app) {
         inn.onfinish=inn.oncancel=()=>{ swapping=false; };
       };
     };
-    carousel.resetGenres=()=>{ if(carousel.dataset.mode!=='genres') showMode(null); };
+    carousel.resetGenres=()=>{ if(!carousel.hasAttribute('data-single')&&carousel.dataset.mode!=='genres') showMode(null); };
     carousel.addEventListener('click',e=>{
       const genreCard=e.target.closest('[data-pm-genre]');
       if(genreCard){ showMode(genreCard.dataset.pmGenre); return; }
