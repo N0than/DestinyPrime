@@ -34546,7 +34546,15 @@ function programGenreCardsHtml(ordered, current) {
       <span class="pm-nav-genre" data-pm-genre-name></span>
     </button>
   </article>`;
-  return back + [...genres].map(([g, list]) => {
+  // Programme à l'antenne : carte retour vers sa fiche (vue des genres seulement).
+  const home = current ? `<article class="pm-card pm-nav-card" data-pm-overview-back>
+    <button type="button" class="pm-nav-btn" aria-label="Revenir au programme à l’antenne">
+      <span class="pm-nav-arrow" aria-hidden="true">←</span>
+      <span class="pm-nav-label">À l’antenne</span>
+      <span class="pm-nav-genre">${esc(current.name)}</span>
+    </button>
+  </article>` : '';
+  return back + home + [...genres].map(([g, list]) => {
     const lead = list.find(x => sameProgram(current, x)) || list[0];
     const art = typeof TvPrograms !== 'undefined' ? TvPrograms.forProgram(lead) : '';
     const onAir = list.some(x => sameProgram(current, x));
@@ -37083,6 +37091,7 @@ function bindCampaignPanel(app) {
         carousel.dataset.mode=genre?'programs':'genres';
         cards.forEach(x=>{
           if(x.matches('[data-pm-genre-back]')) x.hidden=!genre;
+          else if(x.matches('[data-pm-overview-back]')) x.hidden=!!genre;
           else if(x.matches('[data-pm-genre]')) x.hidden=!!genre;
           else { x.hidden=!genre||x.dataset.genre!==genre; if(x.classList.contains('flipped')) setFlipped(x,false); }
         });
@@ -37107,6 +37116,7 @@ function bindCampaignPanel(app) {
       const genreCard=e.target.closest('[data-pm-genre]');
       if(genreCard){ showMode(genreCard.dataset.pmGenre); return; }
       if(e.target.closest('[data-pm-genre-back]')){ showMode(null); return; }
+      if(e.target.closest('[data-pm-overview-back]')){ carousel.closest('.program-manager')?.classList.remove('picking'); return; }
       const card=e.target.closest('.pm-card');
       if(!card) return;
       feedback.textContent='';
