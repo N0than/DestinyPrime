@@ -28439,6 +28439,22 @@ function bindRenewalCarousel(root) {
   });
 }
 // Libellé de genre affiché sur les cartes illustrées (conférence de rentrée, choix du programme).
+// Grandes familles de genres pour le choix d'un programme : les sous-genres (fiction policière,
+// jeu de plateau, dating…) sont regroupés ; la carte du programme garde son genre précis.
+const GENRE_FAMILY_OF = { drame: 'Fiction', policier: 'Fiction', aventure: 'Divertissement', cuisine: 'Divertissement', dating: 'Divertissement',
+  divertissement: 'Divertissement', humour: 'Divertissement', jeu: 'Divertissement', talent: 'Divertissement', telerealite: 'Divertissement',
+  documentaire: 'Documentaire', info: 'Information', jeunesse: 'Jeunesse', magazine: 'Magazine', sport: 'Sport' };
+const ORIGINAL_FORMAT_FAMILY = { fiction: 'Fiction', jeu: 'Divertissement', divertissement: 'Divertissement', magazine: 'Magazine', documentaire: 'Documentaire', animation: 'Jeunesse', sport: 'Sport' };
+function programGenreFamily(program) {
+  if (program.original && program.concept) {
+    const c = ORIGINAL_FORMATS.concepts[program.concept];
+    if (c?.editorialGenre === 'jeunesse') return 'Jeunesse';
+    return ORIGINAL_FORMAT_FAMILY[c?.format] || 'Divertissement';
+  }
+  const tvp = typeof TvPrograms !== 'undefined' ? TvPrograms : null;
+  const family = tvp ? tvp.classify(program).genre : 'generique';
+  return GENRE_FAMILY_OF[family] || programGenreLabel(program);
+}
 function programGenreLabel(program) {
   if (program.original && program.concept) return originalConceptLabel(program);
   const tvp = typeof TvPrograms !== 'undefined' ? TvPrograms : null;
@@ -34183,7 +34199,7 @@ function renderProgramManager(slot) {
   const catalog=availablePrograms(p.type,slot);
   const ordered=[...catalog.filter(x=>sameProgram(c,x)),...catalog.filter(x=>!sameProgram(c,x))];
   // Un ou deux genres disponibles : les programmes s'affichent directement, sans étape « genres ».
-  const single=new Set(ordered.map(programGenreLabel)).size<=2;
+  const single=new Set(ordered.map(programGenreFamily)).size<=2;
   const note='<p class="program-manager-note">Modifications disponibles au début de la prochaine saison, avant le premier dilemme.</p>';
   const sportOn=sportsBroadcastOn(p,slot);
   if(sportOn) {
@@ -34216,7 +34232,7 @@ function renderProgramManager(slot) {
     <div class="pm-pick-head"><span>Choisir un programme</span>${c?'<button type="button" class="pm-pick-cancel" data-pm-cancel>Annuler</button>':''}</div>
     <div class="pm-carousel" data-pm-carousel="${slot}" data-mode="${single?'programs':'genres'}"${single?' data-single':''} aria-label="Programmes disponibles">
       ${programGenreCardsHtml(ordered,c,single)}
-      ${ordered.map(x=>programCardHtml(slot,x,c).replace('<article class="pm-card', `<article${single?'':' hidden'} data-genre="${esc(programGenreLabel(x))}" class="pm-card`)).join('')}
+      ${ordered.map(x=>programCardHtml(slot,x,c).replace('<article class="pm-card', `<article${single?'':' hidden'} data-genre="${esc(programGenreFamily(x))}" class="pm-card`)).join('')}
     </div>
     <span class="program-manager-feedback" aria-live="polite"></span>`:(c?'':note)}
     </section>`;
@@ -34544,7 +34560,7 @@ function productionLevelOf(talentName) {
 // les programmes du genre choisi, précédés d'une carte retour vers les genres.
 function programGenreCardsHtml(ordered, current, single = false) {
   const genres = new Map();
-  ordered.forEach(x => { const g = programGenreLabel(x); if (!genres.has(g)) genres.set(g, []); genres.get(g).push(x); });
+  ordered.forEach(x => { const g = programGenreFamily(x); if (!genres.has(g)) genres.set(g, []); genres.get(g).push(x); });
   const back = `<article class="pm-card pm-nav-card" data-pm-genre-back hidden>
     <button type="button" class="pm-nav-btn" aria-label="Revenir aux genres">
       <span class="pm-nav-arrow" aria-hidden="true">←</span>
