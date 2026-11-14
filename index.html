@@ -3354,6 +3354,44 @@ body.mobile-picker-lock { overflow:hidden; }
   .hud-wrap .studio-slide .of-info { font-size: 14px; }
   .hud-wrap .studio-slide .of-catalog { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); align-content: start; gap: 14px; }
   .hud-wrap .studio-slide .of-catalog-lead { grid-column: 1 / -1; font-size: 13px; }
+  .hud-wrap .studio-slide .of-studio-head { justify-content: flex-start; gap: 18px; }
+  .hud-wrap .studio-slide .of-studio-head .of-head-actions { margin-left: auto; }
+  .hud-wrap .studio-slide .eh-title { font-size: 30px; }
+  .sd-tagline { font-size: 15px; color: var(--gris); }
+  .hud-wrap .studio-slide .of-main:has(> .sd-form) { display: block; height: auto; }
+  .hud-wrap .studio-slide .of-studio:has(.sd-form) .of-desk-catalog { display: none; }
+  .sd-form { display: flex; flex-direction: column; gap: 16px; }
+  .sd-cols { display: grid; grid-template-columns: 0.8fr 0.8fr 1.15fr 1.15fr; gap: 16px; }
+  .sd-col { display: flex; flex-direction: column; gap: 10px; padding: 18px 16px; border-radius: 18px; background: rgba(255,255,255,0.55); border: 1px solid rgba(255,255,255,0.9); }
+  .sd-col header { display: flex; align-items: center; gap: 12px; }
+  .sd-num { display: grid; place-items: center; width: 36px; height: 32px; border-radius: 9px; background: rgba(37,99,235,0.12); color: var(--bleu); font: 800 15px 'Plus Jakarta Sans', sans-serif; }
+  .sd-col h3 { margin: 0; font: 400 24px 'Anton', sans-serif; text-transform: uppercase; color: var(--ink); line-height: 1; }
+  .sd-sub { margin: 0 0 6px; font-size: 13.5px; color: #475569; line-height: 1.4; }
+  .sd-opts { display: flex; flex-direction: column; gap: 10px; }
+  .sd-opt { display: flex; align-items: center; gap: 12px; width: 100%; padding: 14px 16px; border-radius: 14px; border: 1.5px solid rgba(148,163,184,0.35); background: #fff;
+    cursor: pointer; text-align: left; font: inherit; color: var(--ink); box-shadow: 0 6px 16px -12px rgba(15,23,42,0.35); transition: border-color .15s, box-shadow .15s, background .15s; }
+  .sd-opt:hover:not(:disabled) { border-color: rgba(37,99,235,0.5); }
+  .sd-opt.on { border-color: var(--bleu); background: rgba(37,99,235,0.06); box-shadow: 0 0 0 3px rgba(37,99,235,0.15); }
+  .sd-opt:disabled { opacity: .5; cursor: not-allowed; }
+  .sd-ic { font-size: 22px; width: 30px; text-align: center; flex: none; }
+  .sd-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+  .sd-txt b { font-size: 17px; font-weight: 800; }
+  .sd-txt small { font-size: 12.5px; color: #475569; line-height: 1.35; }
+  .sd-check { flex: none; width: 24px; height: 24px; border-radius: 50%; border: 2px solid rgba(148,163,184,0.6); position: relative; }
+  .sd-opt.on .sd-check { border-color: var(--bleu); background: var(--bleu); }
+  .sd-opt.on .sd-check::after { content: ''; position: absolute; left: 7px; top: 3px; width: 6px; height: 11px; border: solid #fff; border-width: 0 2.5px 2.5px 0; transform: rotate(45deg); }
+  .sd-opts.rich .sd-opt { align-items: center; padding: 14px; min-height: 118px; }
+  .sd-art { flex: none; width: 84px; height: 84px; border-radius: 50%; display: grid; place-items: center; overflow: hidden;
+    background: radial-gradient(circle, rgba(37,99,235,0.14), rgba(225,29,72,0.06)); }
+  .sd-art img { width: 84px; height: 84px; object-fit: cover; }
+  .sd-art .sd-ic { font-size: 40px; width: auto; }
+  .sd-foot { display: flex; align-items: center; gap: 18px; padding: 14px 16px; border-radius: 18px; background: rgba(255,255,255,0.6); border: 1px solid rgba(255,255,255,0.9); }
+  .sd-cancel { padding: 12px 22px; border-radius: 12px; border: 1px solid rgba(148,163,184,0.35); background: #fff; font: 700 15px 'Plus Jakarta Sans', sans-serif; cursor: pointer; color: var(--ink); }
+  .sd-recap { flex: 1; font: 800 17px 'Plus Jakarta Sans', sans-serif; color: var(--ink); padding-left: 18px; border-left: 1px solid rgba(148,163,184,0.35); }
+  .sd-recap i { font-style: normal; color: var(--gris); margin: 0 6px; }
+  .sd-warn { font-size: 13px; font-weight: 700; color: var(--rouge); }
+  .sd-go { flex: 0 0 44%; padding: 16px 20px; border-radius: 12px; border: 0; background: var(--bleu); color: #fff; font: 800 17px 'Plus Jakarta Sans', sans-serif; cursor: pointer; box-shadow: 0 12px 24px -12px rgba(37,99,235,0.7); }
+  .sd-go:disabled { opacity: .45; cursor: not-allowed; }
   .hud-wrap .studio-slide .of-studio { overflow-y: auto; }
   .hud-wrap .studio-slide .of-main { flex: 0 0 auto; height: 400px; min-height: 0; }
   .hud-wrap .studio-slide .of-cat-empty { padding: 18px; }
@@ -34773,6 +34811,51 @@ function studioGaugeHtml(field, label, draft, off) {
       `<button type="button" role="radio" class="of-seg${i === idx ? ' on' : cumulative && i < idx ? ' fill' : ''}" aria-checked="${i === idx}" data-of-action="pick" data-of-field="${field}" data-of-value="${esc(o.value)}" data-of-label="${esc(o.label)}" aria-label="${esc(o.label)}" title="${esc(o.label)}"${off}>${esc(o.short)}</button>`).join('')}</div>
   </div>`;
 }
+// Bureau : conception d'un format en quatre colonnes de cartes à cocher (créneau, genre,
+// positionnement, niveau de production), récapitulatif et validation en pied.
+const STUDIO_DESK_COPY = {
+  slot: ['Créneau', 'Choisissez le moment de diffusion qui correspond à votre format.'],
+  concept: ['Genre', 'Définissez le genre éditorial de votre programme.'],
+  positioning: ['Positionnement', 'Choisissez le public visé et le ton éditorial de votre programme.'],
+  budget: ['Niveau de production', 'Déterminez l’ampleur des moyens de production à engager.']
+};
+const STUDIO_DESK_DESC = {
+  populaire: 'Un programme fédérateur et accessible au plus grand nombre.', premium: 'Une proposition exigeante, au traitement soigné et à forte valeur ajoutée.',
+  jeune: 'Un format original, au ton singulier et à l’identité marquée.',
+  1: 'Une production légère et agile, optimisée en moyens.', 2: 'Un niveau de production équilibré, d’une qualité professionnelle.', 3: 'Une production de grande ampleur, aux moyens renforcés.'
+};
+const STUDIO_DESK_ICONS = { matin: '🌅', apresmidi: '☀️', access: '🌆', prime: '🌙', nuit: '🌌', 1: '🔦', 2: '🎬', 3: '🎥' };
+const STUDIO_GENRE_ICONS = [[/fiction|drame|série|polar|thriller|téléfilm|comédie|imaginaire/i, '🎬'], [/jeu|quiz/i, '🎮'], [/réalité|real/i, '📹'], [/talk|débat|interview/i, '💬'],
+  [/magazine|mag/i, '📖'], [/document|enquête|investigation|exploration/i, '🔎'], [/sport|compétition/i, '🏆'], [/anim|jeunesse|aventure|éducatif/i, '🧸'], [/./, '🎤']];
+function studioDeskFormHtml(draft, editable, cfg) {
+  const avatars = Object.values(typeof MERCATO_AVATARS !== 'undefined' ? MERCATO_AVATARS : {});
+  const col = (field, n) => {
+    const [title, sub] = STUDIO_DESK_COPY[field], opts = studioGaugeOptions(field), rich = field === 'positioning' || field === 'budget';
+    return `<section class="sd-col" data-of-gauge="${field}">
+      <header><span class="sd-num">0${n}</span><h3>${title}</h3></header>
+      <p class="sd-sub">${sub}</p>
+      <div class="sd-opts${rich ? ' rich' : ''}" role="radiogroup" aria-label="${title}">${opts.map((o, i) => {
+        const on = String(draft[field]) === String(o.value);
+        const icon = field === 'concept' ? STUDIO_GENRE_ICONS.find(([re]) => re.test(o.label))[1] : STUDIO_DESK_ICONS[o.value];
+        const art = field === 'positioning' && avatars.length ? `<img src="${avatars[(i * 7 + 3) % avatars.length]}" alt="">` : `<span class="sd-ic">${icon || '📺'}</span>`;
+        return `<button type="button" role="radio" class="sd-opt${on ? ' on' : ''}" aria-checked="${on}" data-of-action="pick" data-of-field="${field}" data-of-value="${esc(o.value)}"${editable ? '' : ' disabled'}>
+          ${rich ? `<span class="sd-art">${art}</span>` : `<span class="sd-ic">${icon || '📺'}</span>`}
+          <span class="sd-txt"><b>${esc(o.label)}</b>${rich && STUDIO_DESK_DESC[o.value] ? `<small>${STUDIO_DESK_DESC[o.value]}</small>` : ''}</span>
+          <span class="sd-check" aria-hidden="true"></span></button>`; }).join('')}</div>
+    </section>`;
+  };
+  const label = f => studioGaugeOptions(f).find(o => String(o.value) === String(draft[f]))?.label || '—';
+  const poor = gameState.player.tresorerie < cfg.designCost;
+  return `<div class="sd-form">
+    <div class="sd-cols">${col('slot', 1)}${col('concept', 2)}${col('positioning', 3)}${col('budget', 4)}</div>
+    <footer class="sd-foot">
+      <button type="button" class="sd-cancel" data-of-action="cancel">Annuler</button>
+      <span class="sd-recap">${['slot', 'concept', 'positioning', 'budget'].map(label).map(esc).join(' <i>/</i> ')}</span>
+      ${poor ? '<span class="sd-warn">Trésorerie insuffisante</span>' : ''}
+      <button type="button" class="sd-go" data-of-action="design"${!editable || poor ? ' disabled' : ''}>Concevoir le format — 250 000 €</button>
+    </footer>
+  </div>`;
+}
 function renderStudioSlide() {
   const cfg = ORIGINAL_FORMATS, editable = studioEditable();
   const formats = studioSlotFormats();
@@ -34808,6 +34891,7 @@ function renderStudioSlide() {
   return `<div class="of-studio" data-of-studio>
     <div class="perf-head of-studio-head">
       <div class="eh-title">Studio de création</div>
+      ${isDesktopLayout() ? '<span class="sd-tagline">Donnez vie à votre prochain programme.</span>' : ''}
       <span class="of-head-actions">
         ${catalogCount && !isDesktopLayout() ? `<button type="button" class="radar-toggle of-info-toggle${catalogView ? ' active' : ''}" data-of-action="catalog" aria-pressed="${catalogView}">Catalogue</button>` : ''}
         <button type="button" class="radar-toggle of-info-toggle" data-of-action="info" aria-expanded="false">Infos</button>
@@ -34822,7 +34906,7 @@ function renderStudioSlide() {
       <p>Conception, pilote et cession des droits à tout moment de la saison ; lancement en début de saison. Cession à l’étranger : avance et royalties chaque saison, le programme reste chez vous. Cession nationale : un prix plus élevé, sans royalties, et le programme part chez le concurrent.</p>
     </div>
     <div class="of-main">
-      ${catalogView && !isDesktopLayout() ? studioCatalogHtml(editable) : showForm ? form : `<div class="of-tabs">${tabs}</div>${current ? studioFormatCardHtml(current, editable, cfg) : blank}`}
+      ${catalogView && !isDesktopLayout() ? studioCatalogHtml(editable) : showForm ? (isDesktopLayout() ? studioDeskFormHtml(draft, editable, cfg) : form) : `<div class="of-tabs">${tabs}</div>${current ? studioFormatCardHtml(current, editable, cfg) : blank}`}
     </div>
     ${isDesktopLayout() ? `<div class="of-desk-catalog">${studioCatalogHtml(editable)}</div>` : ''}
   </div>`;
@@ -34846,6 +34930,13 @@ function bindOriginalStudio(app) {
         if (!studioEditable()) return;
         const field = btn.dataset.ofField;
         gameState.studioDraft = { ...studioDraft(), [field]: btn.dataset.ofValue };
+        if (btn.classList.contains('sd-opt')) {
+          btn.closest('.sd-opts').querySelectorAll('.sd-opt').forEach(b => { const on = b === btn; b.classList.toggle('on', on); b.setAttribute('aria-checked', String(on)); });
+          const d = studioDraft(), lab = f => studioGaugeOptions(f).find(x => String(x.value) === String(d[f]))?.label || '—';
+          const recap = studio.querySelector('.sd-recap');
+          if (recap) recap.innerHTML = ['slot', 'concept', 'positioning', 'budget'].map(lab).map(esc).join(' <i>/</i> ');
+          return;
+        }
         const gauge = btn.closest('[data-of-gauge]'), segs = [...gauge.querySelectorAll('.of-seg')], idx = segs.indexOf(btn);
         segs.forEach((b, i) => { b.classList.toggle('on', i === idx); b.classList.toggle('fill', !!gauge.dataset.cumulative && i < idx); b.setAttribute('aria-checked', String(i === idx)); });
         return;
