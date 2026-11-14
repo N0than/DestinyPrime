@@ -3102,23 +3102,41 @@ body.mobile-picker-lock { overflow:hidden; }
 }
 
 /* ---- VERSION BUREAU (≥ 1100px) ----
-   Écran de jeu en trois colonnes : barre latérale, dilemme, panneau de gestion (les écrans
-   du slider, toujours ouvert). Le HUD passe en bandeau d'indicateurs sous la mire TV. */
+   Tableau de bord pleine largeur : barre latérale à gauche, HUD en bandeau sous la mire TV,
+   puis les panneaux de l'univers choisi (les écrans du slider mobile, affichés ensemble). */
 .desk-side, .desk-title { display: none; }
 @media (min-width: 1100px) {
   #app:has(> .hud-wrap > #hud-details) {
-    max-width: 1440px; display: grid; grid-template-columns: 240px minmax(0, 1fr) 448px; grid-template-rows: auto auto 1fr;
-    column-gap: 22px; align-items: start; padding: 22px 28px 40px;
-    grid-template-areas: "side mire mire" "side hud hud" "side main panel";
+    max-width: none; display: grid; grid-template-columns: 248px minmax(380px, 0.85fr) minmax(0, 2fr); grid-template-rows: auto auto 1fr;
+    column-gap: 22px; align-items: start; padding: 20px 26px 40px;
   }
   #app:has(> .hud-wrap > #hud-details) > * { grid-column: 2 / -1; }
-  #app:has(> .hud-wrap > #hud-details) > .masthead { grid-area: mire; margin: 0; padding: 0; }
+  #app:has(> .hud-wrap > #hud-details) > .masthead { grid-column: 2 / -1; grid-row: 1; margin: 0; padding: 0; }
   #app:has(> .hud-wrap > #hud-details) > .masthead > div:last-child { height: 10px !important; border-radius: 14px 14px 0 0 !important; }
   #app:has(> .hud-wrap > #hud-details) > .hud-wrap { display: contents; }
-  #app:has(> .hud-wrap > #hud-details) > .dilemma-container { grid-area: main; }
-  .hud-wrap > .hud-panel { grid-area: hud; position: relative; margin: 0 0 20px; padding: 16px 22px 18px; border-radius: 0 0 20px 20px; }
-  .hud-wrap > .hud-details { grid-area: panel; position: sticky; top: 22px; max-height: none; opacity: 1; overflow: visible; transition: none; }
-  .hud-wrap > .hud-details .hud-details-inner { margin-top: 0; border-radius: 20px; padding: 16px 18px; }
+  #app:has(> .hud-wrap > #hud-details) > .dilemma-container { grid-column: 2; grid-row: 3; }
+  .hud-wrap:not([data-desk-view="board"]) ~ .dilemma-container { display: none; }
+  .hud-wrap > .hud-panel { grid-column: 2 / -1; grid-row: 2; position: relative; margin: 0 0 20px; padding: 16px 22px 18px; border-radius: 0 0 20px 20px; }
+  .hud-wrap > .hud-details { grid-column: 3; grid-row: 3; max-height: none; opacity: 1; overflow: visible; transition: none; }
+  .hud-wrap:not([data-desk-view="board"]) > .hud-details { grid-column: 2 / -1; }
+  /* Les écrans du slider deviennent des cartes posées côte à côte. */
+  .hud-wrap > .hud-details .hud-details-inner { margin: 0; padding: 0; border: 0; background: none; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; border-radius: 0; }
+  .hud-wrap .eh-slider { overflow: visible; cursor: default; user-select: auto; touch-action: auto; }
+  .hud-wrap .eh-slider-track { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 20px; align-items: start; transform: none !important; transition: none; }
+  .hud-wrap .eh-slide { display: none; min-width: 0; padding: 16px 18px; border-radius: 20px; box-sizing: border-box; position: relative;
+    background: rgba(255,255,255,0.65); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border: 1px solid rgba(255,255,255,0.85);
+    box-shadow: 0 25px 50px -12px rgba(15,23,42,0.12), 0 0 0 1px rgba(255,255,255,0.8) inset; }
+  .hud-wrap[data-desk-view="board"] :is(.programming-slide, .radar-slide, .audience-slide),
+  .hud-wrap[data-desk-view="prog"] :is(.programming-slide, .studio-slide, .radar-slide),
+  .hud-wrap[data-desk-view="talents"] :is(.talents-slide, .perf-slide-wrap),
+  .hud-wrap[data-desk-view="audiences"] :is(.audience-slide, .radar-slide, .evo-slide, .perf-slide-wrap),
+  .hud-wrap[data-desk-view="finances"] :is(.eco-slide-wrap, .evo-slide),
+  .hud-wrap[data-desk-view="arcom"] :is(.arcom-slide-wrap, .perf-slide-wrap) { display: block; }
+  /* Panneaux à hauteur imposée (contenu en absolu sur mobile) : hauteur fixe, marges de la carte. */
+  .hud-wrap :is(.studio-slide, .talents-slide, .evo-slide, .perf-slide-wrap, .arcom-slide-wrap, .eco-slide-wrap) { min-height: 440px; }
+  .hud-wrap :is(.of-studio, .tl-panel, .evo-panel, .perf-slide, .arcom-slide, .eco-slide) { inset: 16px 18px; }
+  .hud-wrap .radar-slide .pg-slide { height: 440px; }
+  .hud-wrap [data-radar-action="toggle"] { display: none; }
   .hud-wrap .eh-slider-nav, .hud-wrap .hud-toggle, .hud-wrap .hud-brand-badge { display: none; }
   .hud-wrap .hud-panel-head { justify-content: flex-end; min-height: 40px; padding-bottom: 12px; margin-bottom: 12px; }
   .desk-title { display: flex; align-items: center; gap: 12px; position: absolute; left: 22px; top: 16px; height: 40px; max-width: 60%; }
@@ -3134,9 +3152,9 @@ body.mobile-picker-lock { overflow:hidden; }
   .hud-wrap .hud-cell .val { font-size: 30px; line-height: 1.05; }
   /* Barre latérale. */
   .hud-wrap > .desk-side {
-    grid-area: side; position: sticky; top: 22px; display: flex; flex-direction: column; gap: 4px; padding: 16px 12px; border-radius: 20px;
+    grid-column: 1; grid-row: 1 / -1; position: sticky; top: 20px; display: flex; flex-direction: column; gap: 4px; padding: 16px 12px; border-radius: 20px;
     background: rgba(255,255,255,0.65); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border: 1px solid rgba(255,255,255,0.85);
-    box-shadow: 0 25px 50px -12px rgba(15,23,42,0.12), 0 0 0 1px rgba(255,255,255,0.8) inset; min-height: calc(100vh - 66px); box-sizing: border-box;
+    box-shadow: 0 25px 50px -12px rgba(15,23,42,0.12), 0 0 0 1px rgba(255,255,255,0.8) inset; min-height: calc(100vh - 60px); box-sizing: border-box;
   }
   .desk-brand { display: flex; align-items: center; gap: 8px; padding: 6px 10px 12px; border: 0; background: none; cursor: pointer; text-align: left;
     font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink); }
@@ -3149,10 +3167,10 @@ body.mobile-picker-lock { overflow:hidden; }
     font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13.5px; font-weight: 700; color: #334155; transition: background .15s, color .15s; }
   .desk-nav:hover:not(:disabled) { background: rgba(37,99,235,0.08); }
   .desk-nav.active { background: #fff; color: var(--ink); box-shadow: 0 6px 16px -8px rgba(15,23,42,0.3); }
-  .desk-nav:disabled { opacity: .4; cursor: not-allowed; }
   .desk-nav:focus-visible, .desk-brand:focus-visible { outline: 2px solid var(--bleu); outline-offset: 2px; }
   .desk-ic { width: 26px; height: 26px; flex: none; display: grid; place-items: center; border-radius: 8px; background: rgba(148,163,184,0.16); font-size: 14px; }
   .desk-nav.active .desk-ic { background: rgba(37,99,235,0.14); }
+  .desk-pill { margin-left: auto; padding: 2px 7px; border-radius: 999px; font-size: 9.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .3px; color: #fff; background: var(--rouge); }
   .desk-nav[data-desk-home]:last-child { margin-top: auto; }
 }
 </style>
@@ -24698,20 +24716,33 @@ if (typeof matchMedia === 'function') matchMedia('(min-width: 1100px)').addEvent
 function isDesktopLayout() {
   return typeof matchMedia === 'function' && matchMedia('(min-width: 1100px)').matches;
 }
-// Barre latérale du bureau : marque, chaîne, puis un accès direct à chaque écran du slider.
-function renderDeskSide(p, slide) {
-  const items = [['📺', 'Grille de la chaîne'], ...(studioSlideHidden() ? [] : [['🎬', 'Studio de création']]), ['🎙️', 'Talents'], ['📊', 'Audiences'],
-    ['💶', 'Bilan économique'], ['📈', 'Évolution'], ['⭐', 'Performances'], ['⚖️', 'Convention ARCOM']];
+// Barre latérale du bureau : marque, chaîne, puis les univers du tableau de bord. Chaque univers
+// affiche ensemble les panneaux qui le concernent (les écrans du slider mobile).
+const DESK_VIEWS = [
+  ['board', '🏠', 'Tableau de bord'], ['prog', '📺', 'Programmation'], ['talents', '🎙️', 'Talents'],
+  ['audiences', '📊', 'Audiences'], ['finances', '💶', 'Finances'], ['arcom', '⚖️', 'Convention ARCOM']
+];
+function deskView() { return DESK_VIEWS.some(v => v[0] === gameState.deskView) ? gameState.deskView : 'board'; }
+function renderDeskSide(p) {
+  const view = deskView();
   const typeLabel = CHANNEL_TYPES[p.type].label.replace(/^\S+\s/, '');
+  const pending = gameState.dilemmaPhase === 'choosing';
   return `<nav class="desk-side" aria-label="Navigation de la chaîne">
       <button type="button" class="desk-brand" data-desk-home title="Retour à l’accueil"><span class="dot"></span>Audience Masters</button>
       <div class="desk-channel"><b>${esc(p.name)}</b><span>Saison ${gameState.season} · ${esc(typeLabel)}</span></div>
       <span class="desk-sec">Pilotage</span>
-      ${items.map(([icon, label], i) => `<button type="button" class="desk-nav${i === slide ? ' active' : ''}" data-desk-slide="${i}"><span class="desk-ic" aria-hidden="true">${icon}</span>${label}</button>`).join('')}
+      ${DESK_VIEWS.map(([id, icon, label]) => `<button type="button" class="desk-nav${id === view ? ' active' : ''}" data-desk-view="${id}"><span class="desk-ic" aria-hidden="true">${icon}</span>${label}${id === 'board' && pending ? '<span class="desk-pill">Décision</span>' : ''}</button>`).join('')}
       <span class="desk-sec">Chaîne</span>
       <button type="button" class="desk-nav" data-desk-arcom><span class="desk-ic" aria-hidden="true">📜</span>Convention complète</button>
-      <button type="button" class="desk-nav" data-desk-home><span class="desk-ic" aria-hidden="true">🏠</span>Accueil</button>
+      <button type="button" class="desk-nav" data-desk-home><span class="desk-ic" aria-hidden="true">🚪</span>Accueil</button>
     </nav>`;
+}
+// Bureau : la grille et la concurrence sont deux panneaux distincts (sur mobile, un seul écran bascule).
+function deskRadarHtml(p) {
+  if (!gameState.competitors?.length) return '';
+  const radar = radarState(), was = radar.open;
+  radar.open = true;
+  try { return renderProgramGrid(p.type, null, p.grilleOverrides); } finally { radar.open = was; }
 }
 function renderTicker() {
   ensureCompetitorPlans();
@@ -24730,6 +24761,8 @@ function renderTicker() {
 
   const chartPoints = evolutionChartPoints(p, pdaCible);
 
+  const desk = isDesktopLayout();
+  if (desk) radarState().open = false;
   const programGridHtml = renderProgramGrid(p.type, pdaCible, p.grilleOverrides);
   const globalAudienceShareHtml = renderGlobalAudienceShare();
   const evolutionChartHtml = renderEvolutionChart(chartPoints);
@@ -24742,8 +24775,8 @@ function renderTicker() {
   const slide = Math.min(gameState.hudSlide || 0, hudSlideCount() - 1);
 
   return `
-    <div class="hud-wrap"${careerHudAttr()}>
-      ${renderDeskSide(p, slide)}
+    <div class="hud-wrap"${careerHudAttr()} data-desk-view="${deskView()}">
+      ${renderDeskSide(p)}
       <div class="hud-panel">
         <div class="desk-title"><span class="dot"></span><b>${esc(p.name)}</b><span>Saison ${gameState.season}</span></div>
         ${renderHudHead(p, { toggle: true, open })}
@@ -24778,11 +24811,12 @@ function renderTicker() {
               <div class="eh-slide programming-slide">${programGridHtml}</div>
               ${studioSlideHidden() ? '' : `<div class="eh-slide studio-slide">${renderStudioSlide()}</div>`}
               <div class="eh-slide talents-slide">${talentsSlideHtml}</div>
-              <div class="eh-slide">${globalAudienceShareHtml}</div>
+              <div class="eh-slide audience-slide">${globalAudienceShareHtml}</div>
               <div class="eh-slide eco-slide-wrap">${ecoBilanSlideHtml}</div>
               <div class="eh-slide evo-slide">${evolutionChartHtml}</div>
               <div class="eh-slide perf-slide-wrap">${statStarsHtml}</div>
               <div class="eh-slide arcom-slide-wrap">${arcomSlideHtml}</div>
+              ${desk && gameState.competitors?.length ? `<div class="eh-slide radar-slide">${deskRadarHtml(p)}</div>` : ''}
             </div>
           </div>
           <div class="eh-slider-nav">
@@ -24815,7 +24849,6 @@ function isHudSliderLocked() {
 function syncHudSliderLock() {
   const locked = isHudSliderLocked();
   document.querySelector('.eh-slider-nav')?.classList.toggle('nav-locked', locked);
-  document.querySelectorAll('[data-desk-slide]').forEach(b => { b.disabled = locked && !b.classList.contains('active'); });
   document.querySelectorAll('.eh-dot').forEach(d => {
     d.disabled = locked;
     if (locked) d.setAttribute('aria-disabled', 'true'); else d.removeAttribute('aria-disabled');
@@ -24853,10 +24886,19 @@ function bindTickerInteractions(app) {
     gameState.hudSlide = clamped;
     document.getElementById('eh-slider-track').style.transform = `translateX(-${clamped * 100}%)`;
     document.querySelectorAll('.eh-dot').forEach(d => d.classList.toggle('active', parseInt(d.dataset.slide, 10) === clamped));
-    document.querySelectorAll('[data-desk-slide]').forEach(b => b.classList.toggle('active', Number(b.dataset.deskSlide) === clamped));
   };
-  // Barre latérale du bureau : écrans du slider, convention complète, accueil.
-  document.querySelectorAll('[data-desk-slide]').forEach(b => { b.onclick = () => { if (!isHudSliderLocked()) goToHudSlide(Number(b.dataset.deskSlide)); }; });
+  // Barre latérale du bureau : changer d'univers remplace les panneaux affichés (apparition en cascade).
+  document.querySelectorAll('[data-desk-view]').forEach(b => { b.onclick = () => {
+    const wrap = b.closest('.hud-wrap'), view = b.dataset.deskView;
+    if (!wrap || wrap.dataset.deskView === view) return;
+    gameState.deskView = view; wrap.dataset.deskView = view;
+    wrap.querySelectorAll('[data-desk-view]').forEach(x => x.classList.toggle('active', x === b));
+    fitTalentCards(); fitEcoLegends();
+    if (prefersReducedMotion()) return;
+    [...wrap.querySelectorAll('.eh-slide'), document.querySelector('#app > .dilemma-container')].filter(el => el && el.offsetParent !== null)
+      .forEach((el, i) => el.animate?.([{ opacity: 0, transform: 'translate3d(0,14px,0)' }, { opacity: 1, transform: 'translate3d(0,0,0)' }],
+        { duration: 300, delay: i * 50, easing: 'cubic-bezier(.16,1,.3,1)', fill: 'backwards' }));
+  }; });
   document.querySelectorAll('[data-desk-home]').forEach(b => { b.onclick = () => document.querySelector('#app .masthead')?.click(); });
   document.querySelectorAll('[data-desk-arcom]').forEach(b => { b.onclick = () => { gameState.step = 9; render(); }; });
   document.querySelectorAll('.eh-dot').forEach(dot => {
@@ -24873,7 +24915,7 @@ function bindTickerInteractions(app) {
   ehSlider.addEventListener('pointerdown', e => {
     pressTarget = e.target;
     if (e.target.closest('button, select, input, label, summary, .program-manager, [data-of-action], [data-eco-expand]')) return;
-    if (isHudSliderLocked()) return;
+    if (isHudSliderLocked() || isDesktopLayout()) return;
     isDragging = true;
     dragStartX = e.clientX;
     dragDeltaX = 0;
@@ -32943,6 +32985,8 @@ function refreshProgrammingSlide() {
   const el = document.querySelector('.programming-slide');
   if (!el) return;
   const p = gameState.player;
+  const radarEl = document.querySelector('.radar-slide');
+  if (radarEl) { radarState().open = false; radarEl.innerHTML = deskRadarHtml(p); }
   el.innerHTML = renderProgramGrid(p.type, null, p.grilleOverrides);
   bindCampaignPanel(document.getElementById('app'));
   fitRadarToGridHeight();
@@ -33017,7 +33061,7 @@ if (typeof document !== 'undefined' && document.fonts?.ready) document.fonts.rea
 function handleRadarAction(btn) {
   const radar = radarState();
   const action = btn.dataset.radarAction;
-  if (action === 'toggle') { radar.open = !radar.open; radar.sheet = null; }
+  if (action === 'toggle') { if (document.querySelector('.radar-slide')) return; radar.open = !radar.open; radar.sheet = null; }
   if (action === 'slot') radar.slot = btn.dataset.slot;
   if (action === 'sheet') radar.sheet = parseInt(btn.dataset.idx, 10);
   if (action === 'back') radar.sheet = null;
