@@ -3263,6 +3263,69 @@ body.mobile-picker-lock { overflow:hidden; }
   #app > .dilemma-container .choice-eyebrow { font-size: 10.5px; }
   #app > .dilemma-container .choice-pill { font-size: 12.5px; white-space: nowrap; }
   #app > .dilemma-container .impact-badge { font-size: 13px; }
+  /* ---- Talents (bureau) : une carte par talent, fiche et actions côte à côte ---- */
+  .hud-wrap .talents-slide .tl-panel { inset: 22px 24px; }
+  .hud-wrap .talents-slide .eh-title { font-size: 22px; }
+  .hud-wrap .talents-slide .tl-summary { font-size: 13.5px; margin: 6px 0 12px; }
+  .hud-wrap .talents-slide .tl-cards { grid-template-columns: 1fr; grid-auto-rows: minmax(0, 1fr); gap: 14px; }
+  .hud-wrap .talents-slide .tl-card { perspective: none; container-type: normal; }
+  .hud-wrap .talents-slide .tl-flip { display: grid; grid-template-columns: minmax(260px, 0.9fr) minmax(0, 1.1fr); transform: none !important; transition: none; }
+  .hud-wrap .talents-slide .tl-face { position: relative; inset: auto; transform: none; backface-visibility: visible; -webkit-backface-visibility: visible; padding: 18px 22px; gap: 6px; }
+  .hud-wrap .talents-slide .tl-front { border-radius: 16px 0 0 16px; cursor: default; flex-direction: row; flex-wrap: wrap; align-content: center; justify-content: flex-start; text-align: left; column-gap: 16px; }
+  .hud-wrap .talents-slide .tl-front > .tl-avatar-wrap { margin: 6px 0 0; }
+  .hud-wrap .talents-slide .tl-back { border-radius: 0 16px 16px 0; border-left: 0; background: rgba(255,255,255,0.8); align-items: stretch; text-align: left; justify-content: center; }
+  .hud-wrap .talents-slide .tl-card-ghost { border-radius: 16px; }
+  .hud-wrap .talents-slide :is(.tl-flip-hint, .tl-back-close) { display: none !important; }
+  .hud-wrap .talents-slide .tl-back :is(.tl-back-avatar, .tl-name) { display: none; }
+  .hud-wrap .talents-slide .tl-flip > .tl-face { z-index: 1; }
+  /* Recrutement : candidats en colonnes, cartes simples. */
+  .hud-wrap .talents-slide .tl-cards:has(.tl-cand) { grid-template-columns: repeat(3, minmax(0, 1fr)); grid-auto-rows: auto; }
+  .hud-wrap .talents-slide .tl-cand .tl-face { position: absolute; inset: 0; border-radius: 16px; padding: 22px 20px; gap: 8px; }
+  .hud-wrap .talents-slide .tl-back { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-content: center; gap: 10px 12px; }
+  .hud-wrap .talents-slide .tl-back > .tl-back-sub { grid-column: 1 / -1; font-size: 13.5px; }
+  .hud-wrap .talents-slide .tl-back > :not(.tl-action):not(.tl-back-sub) { grid-column: 1 / -1; }
+  .hud-wrap .talents-slide .tl-action { min-height: 58px; padding: 10px 12px; border-radius: 12px; }
+  .hud-wrap .studio-slide .of-seg { min-height: 40px; font-size: 13px; }
+  .hud-wrap .studio-slide .of-form label, .hud-wrap .studio-slide .of-gauge-label { font-size: 12px; }
+  .hud-wrap .talents-slide .mercato-avatar.tl-avatar { width: 84px; height: 84px; }
+  .hud-wrap .talents-slide .mercato-avatar.tl-avatar img { width: 78px; height: 78px; }
+  .hud-wrap .talents-slide .tl-name { font-size: 22px; }
+  .hud-wrap .talents-slide :is(.tl-effect, .tl-programs, .tl-back-sub, .tl-criterion-label) { font-size: 13px; }
+  .hud-wrap .talents-slide .tl-badge { font-size: 10px; padding: 3px 8px; }
+  .hud-wrap .talents-slide .tl-plus-label { font-size: 14px; }
+  .hud-wrap .talents-slide :is(.tl-action-label) { font-size: 13.5px; }
+  .hud-wrap .talents-slide :is(.tl-action-sub, .tl-action-note) { font-size: 11px; }
+  /* ---- Studio de création (bureau) : projets en colonne, fiche illustrée en grand ---- */
+  .hud-wrap .studio-slide .of-studio { inset: 22px 24px; gap: 14px; }
+  .hud-wrap .studio-slide .eh-title { font-size: 22px; }
+  .hud-wrap .studio-slide .of-main { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 18px; min-height: 0; }
+  .hud-wrap .studio-slide .of-main > .of-form, .hud-wrap .studio-slide .of-main > .of-catalog { grid-column: 1 / -1; }
+  .hud-wrap .studio-slide .of-tabs { display: flex; flex-direction: column; gap: 10px; }
+  .hud-wrap .studio-slide .of-tab { flex: none; min-height: 64px; padding: 12px 14px; border-radius: 14px; font-size: 14px; text-align: left; white-space: normal; }
+  .hud-wrap .studio-slide .of-tab.active { box-shadow: 0 10px 22px -12px rgba(37,99,235,0.6); }
+  .hud-wrap .studio-slide .of-card { flex-direction: row; min-height: 0; border-radius: 20px; }
+  .hud-wrap .studio-slide .of-card-art { flex: 0 0 56%; height: auto; min-height: 100%; }
+  .hud-wrap .studio-slide .of-card-art figcaption { padding: 18px 20px; }
+  .hud-wrap .studio-slide .of-card-name { font-size: 30px; }
+  .hud-wrap .studio-slide .of-card-slot, .hud-wrap .studio-slide .of-card-tag { font-size: 12px; }
+  .hud-wrap .studio-slide .of-card-body { flex: 1; padding: 24px 26px; gap: 14px; justify-content: center; }
+  .hud-wrap .studio-slide .of-card-genre { font-size: 13px; }
+  .hud-wrap .studio-slide .of-ind { font-size: 13px; }
+  .hud-wrap .studio-slide .of-stars { font-size: 26px; }
+  .hud-wrap .studio-slide .of-card-cost { font-size: 14px; }
+  .hud-wrap .studio-slide .of-actions { flex-wrap: wrap; gap: 10px; }
+  .hud-wrap .studio-slide .of-actions button { flex: 1 1 140px; padding: 12px 14px; font-size: 13.5px; border-radius: 12px; }
+  .hud-wrap .studio-slide .of-card-blank { flex-direction: column; background: linear-gradient(135deg, rgba(37,99,235,0.06), rgba(225,29,72,0.05)); }
+  .hud-wrap .studio-slide .of-card-blank .tl-plus { width: 72px; height: 72px; }
+  .hud-wrap .studio-slide .of-card-blank .tl-plus-label { font-size: 16px; }
+  .hud-wrap .studio-slide .of-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 22px; align-content: start; }
+  .hud-wrap .studio-slide .of-form > :is(.of-form-actions, .of-card-note) { grid-column: 1 / -1; }
+  .hud-wrap .studio-slide .of-form-actions button { padding: 12px 18px; font-size: 14px; }
+  .hud-wrap .studio-slide .of-info { font-size: 14px; }
+  .hud-wrap .studio-slide .of-catalog { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); align-content: start; gap: 14px; }
+  .hud-wrap .studio-slide .of-catalog-lead { grid-column: 1 / -1; font-size: 13px; }
+  .hud-wrap .studio-slide .of-cat-art { width: 140px; height: 88px; }
+  .hud-wrap .studio-slide .of-cat-name { font-size: 20px; }
   .desk-pill { margin-left: auto; padding: 2px 7px; border-radius: 999px; font-size: 9.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .3px; color: #fff; background: var(--rouge); }
   .desk-nav[data-desk-home]:last-child { margin-top: auto; }
 }
@@ -25119,6 +25182,8 @@ function bindTickerInteractions(app) {
     document.querySelectorAll('.eh-dot').forEach(d => d.classList.toggle('active', parseInt(d.dataset.slide, 10) === clamped));
   };
   syncDeskHeight();
+  // Bureau : les actions des talents (verso) restent accessibles à côté de la fiche.
+  if (isDesktopLayout()) document.querySelectorAll('.talents-slide .tl-face').forEach(f => f.removeAttribute('inert'));
   // Barre latérale du bureau : changer d'univers remplace les panneaux affichés (apparition en cascade).
   document.querySelectorAll('[data-desk-view]').forEach(b => { b.onclick = () => {
     const wrap = b.closest('.hud-wrap'), view = b.dataset.deskView;
@@ -25200,6 +25265,7 @@ function bindTickerInteractions(app) {
       if (Math.abs(dragDeltaX) > 6) return;
       const toBack = !talentCard.classList.contains('flipped');
       if (toBack) document.querySelectorAll('.tl-card.flipped').forEach(c => c !== talentCard && setTalentCardFlipped(c, false));
+      if (isDesktopLayout()) return; // bureau : recto et verso côte à côte, pas de retournement
       setTalentCardFlipped(talentCard, toBack);
       return;
     }
