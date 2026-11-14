@@ -3100,6 +3100,61 @@ body.mobile-picker-lock { overflow:hidden; }
   .program-manager-box { height:30px; padding:0 11px; font-size:9px; }
   .program-manager-box.cancel { padding:0 2px; }
 }
+
+/* ---- VERSION BUREAU (≥ 1100px) ----
+   Écran de jeu en trois colonnes : barre latérale, dilemme, panneau de gestion (les écrans
+   du slider, toujours ouvert). Le HUD passe en bandeau d'indicateurs sous la mire TV. */
+.desk-side, .desk-title { display: none; }
+@media (min-width: 1100px) {
+  #app:has(> .hud-wrap > #hud-details) {
+    max-width: 1440px; display: grid; grid-template-columns: 240px minmax(0, 1fr) 448px; grid-template-rows: auto auto 1fr;
+    column-gap: 22px; align-items: start; padding: 22px 28px 40px;
+    grid-template-areas: "side mire mire" "side hud hud" "side main panel";
+  }
+  #app:has(> .hud-wrap > #hud-details) > * { grid-column: 2 / -1; }
+  #app:has(> .hud-wrap > #hud-details) > .masthead { grid-area: mire; margin: 0; padding: 0; }
+  #app:has(> .hud-wrap > #hud-details) > .masthead > div:last-child { height: 10px !important; border-radius: 14px 14px 0 0 !important; }
+  #app:has(> .hud-wrap > #hud-details) > .hud-wrap { display: contents; }
+  #app:has(> .hud-wrap > #hud-details) > .dilemma-container { grid-area: main; }
+  .hud-wrap > .hud-panel { grid-area: hud; position: relative; margin: 0 0 20px; padding: 16px 22px 18px; border-radius: 0 0 20px 20px; }
+  .hud-wrap > .hud-details { grid-area: panel; position: sticky; top: 22px; max-height: none; opacity: 1; overflow: visible; transition: none; }
+  .hud-wrap > .hud-details .hud-details-inner { margin-top: 0; border-radius: 20px; padding: 16px 18px; }
+  .hud-wrap .eh-slider-nav, .hud-wrap .hud-toggle, .hud-wrap .hud-brand-badge { display: none; }
+  .hud-wrap .hud-panel-head { justify-content: flex-end; min-height: 40px; padding-bottom: 12px; margin-bottom: 12px; }
+  .desk-title { display: flex; align-items: center; gap: 12px; position: absolute; left: 22px; top: 16px; height: 40px; max-width: 60%; }
+  .desk-title .dot { width: 14px; height: 14px; border-radius: 50%; flex: none; background: var(--danger); box-shadow: 0 0 10px var(--danger); animation: blink 2.2s ease-in-out infinite; }
+  .desk-title b { font-family: 'Anton', sans-serif; font-weight: 400; font-size: 30px; line-height: 1; letter-spacing: .5px; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .desk-title span:last-child { font-size: 13px; font-weight: 700; color: var(--gris); white-space: nowrap; }
+  /* Indicateurs : cinq tuiles en ligne, libellé et valeur alignés à gauche. */
+  .hud-wrap .hud { gap: 0; }
+  .hud-wrap .hud-cell { align-items: flex-start; text-align: left; padding: 4px 20px; gap: 8px; }
+  .hud-wrap .hud-cell:first-child { padding-left: 2px; }
+  .hud-wrap .hud-cell .lab { flex-direction: row; align-items: center; gap: 8px; font-size: 11px; letter-spacing: .6px; }
+  .hud-wrap .hud-cell .ic { width: 28px; height: 28px; border-radius: 9px; font-size: 15px; }
+  .hud-wrap .hud-cell .val { font-size: 30px; line-height: 1.05; }
+  /* Barre latérale. */
+  .hud-wrap > .desk-side {
+    grid-area: side; position: sticky; top: 22px; display: flex; flex-direction: column; gap: 4px; padding: 16px 12px; border-radius: 20px;
+    background: rgba(255,255,255,0.65); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border: 1px solid rgba(255,255,255,0.85);
+    box-shadow: 0 25px 50px -12px rgba(15,23,42,0.12), 0 0 0 1px rgba(255,255,255,0.8) inset; min-height: calc(100vh - 66px); box-sizing: border-box;
+  }
+  .desk-brand { display: flex; align-items: center; gap: 8px; padding: 6px 10px 12px; border: 0; background: none; cursor: pointer; text-align: left;
+    font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink); }
+  .desk-brand .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--danger); box-shadow: 0 0 8px var(--danger); animation: blink 2.2s ease-in-out infinite; }
+  .desk-channel { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; margin-bottom: 6px; border-radius: 14px; background: var(--ink); color: #fff; min-width: 0; }
+  .desk-channel b { font-family: 'Anton', sans-serif; font-weight: 400; font-size: 18px; letter-spacing: .4px; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .desk-channel span { font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.7); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .desk-sec { padding: 12px 12px 4px; font-family: 'Space Grotesk', sans-serif; font-size: 9.5px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--gris); }
+  .desk-nav { display: flex; align-items: center; gap: 10px; width: 100%; padding: 9px 12px; border: 0; border-radius: 12px; background: none; cursor: pointer; text-align: left;
+    font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13.5px; font-weight: 700; color: #334155; transition: background .15s, color .15s; }
+  .desk-nav:hover:not(:disabled) { background: rgba(37,99,235,0.08); }
+  .desk-nav.active { background: #fff; color: var(--ink); box-shadow: 0 6px 16px -8px rgba(15,23,42,0.3); }
+  .desk-nav:disabled { opacity: .4; cursor: not-allowed; }
+  .desk-nav:focus-visible, .desk-brand:focus-visible { outline: 2px solid var(--bleu); outline-offset: 2px; }
+  .desk-ic { width: 26px; height: 26px; flex: none; display: grid; place-items: center; border-radius: 8px; background: rgba(148,163,184,0.16); font-size: 14px; }
+  .desk-nav.active .desk-ic { background: rgba(37,99,235,0.14); }
+  .desk-nav[data-desk-home]:last-child { margin-top: auto; }
+}
 </style>
 </head>
 <body>
@@ -24638,13 +24693,33 @@ function renderHudHeadOnly({ status = null } = {}) {
 
 // Tableau de bord « Vigilance » : signaux faibles, conséquences de la saison et
 // engagements en cours. Aucune nouvelle ressource à gérer, seulement de l'information.
+// Version bureau (≥ 1100px) : écran de jeu en trois colonnes, panneau de gestion toujours ouvert.
+if (typeof matchMedia === 'function') matchMedia('(min-width: 1100px)').addEventListener?.('change', () => { if (typeof render === 'function' && document.getElementById('hud-details')) render(); });
+function isDesktopLayout() {
+  return typeof matchMedia === 'function' && matchMedia('(min-width: 1100px)').matches;
+}
+// Barre latérale du bureau : marque, chaîne, puis un accès direct à chaque écran du slider.
+function renderDeskSide(p, slide) {
+  const items = [['📺', 'Grille de la chaîne'], ...(studioSlideHidden() ? [] : [['🎬', 'Studio de création']]), ['🎙️', 'Talents'], ['📊', 'Audiences'],
+    ['💶', 'Bilan économique'], ['📈', 'Évolution'], ['⭐', 'Performances'], ['⚖️', 'Convention ARCOM']];
+  const typeLabel = CHANNEL_TYPES[p.type].label.replace(/^\S+\s/, '');
+  return `<nav class="desk-side" aria-label="Navigation de la chaîne">
+      <button type="button" class="desk-brand" data-desk-home title="Retour à l’accueil"><span class="dot"></span>Audience Masters</button>
+      <div class="desk-channel"><b>${esc(p.name)}</b><span>Saison ${gameState.season} · ${esc(typeLabel)}</span></div>
+      <span class="desk-sec">Pilotage</span>
+      ${items.map(([icon, label], i) => `<button type="button" class="desk-nav${i === slide ? ' active' : ''}" data-desk-slide="${i}"><span class="desk-ic" aria-hidden="true">${icon}</span>${label}</button>`).join('')}
+      <span class="desk-sec">Chaîne</span>
+      <button type="button" class="desk-nav" data-desk-arcom><span class="desk-ic" aria-hidden="true">📜</span>Convention complète</button>
+      <button type="button" class="desk-nav" data-desk-home><span class="desk-ic" aria-hidden="true">🏠</span>Accueil</button>
+    </nav>`;
+}
 function renderTicker() {
   ensureCompetitorPlans();
   const p = gameState.player;
   const calculated = getCalculatedPDAs();
   const playerCalc = calculated.find(item => item.channel === p);
   const pdaCible = playerCalc.pda[p.target];
-  const open = !!gameState.hudExpanded;
+  const open = isDesktopLayout() || !!gameState.hudExpanded;
   // Slider replié : le studio rouvre sur ses emplacements, catalogue refermé.
   if (!open) gameState.studioCatalog = false;
 
@@ -24668,7 +24743,9 @@ function renderTicker() {
 
   return `
     <div class="hud-wrap"${careerHudAttr()}>
+      ${renderDeskSide(p, slide)}
       <div class="hud-panel">
+        <div class="desk-title"><span class="dot"></span><b>${esc(p.name)}</b><span>Saison ${gameState.season}</span></div>
         ${renderHudHead(p, { toggle: true, open })}
         <div class="hud">
           <div class="hud-cell hero${tresorerieLive < 0 ? ' alert' : ''}">
@@ -24738,6 +24815,7 @@ function isHudSliderLocked() {
 function syncHudSliderLock() {
   const locked = isHudSliderLocked();
   document.querySelector('.eh-slider-nav')?.classList.toggle('nav-locked', locked);
+  document.querySelectorAll('[data-desk-slide]').forEach(b => { b.disabled = locked && !b.classList.contains('active'); });
   document.querySelectorAll('.eh-dot').forEach(d => {
     d.disabled = locked;
     if (locked) d.setAttribute('aria-disabled', 'true'); else d.removeAttribute('aria-disabled');
@@ -24767,7 +24845,7 @@ function bindTickerInteractions(app) {
   };
   // Un clic sur le dilemme referme le slider ouvert.
   document.querySelector('#app .dilemma-container')?.addEventListener('pointerdown', () => {
-    if (gameState.hudExpanded) document.getElementById('hud-toggle').click();
+    if (gameState.hudExpanded && !isDesktopLayout()) document.getElementById('hud-toggle').click();
   }, true);
   const goToHudSlide = idx => {
     idx = lockedHudSlide() ?? idx;
@@ -24775,7 +24853,12 @@ function bindTickerInteractions(app) {
     gameState.hudSlide = clamped;
     document.getElementById('eh-slider-track').style.transform = `translateX(-${clamped * 100}%)`;
     document.querySelectorAll('.eh-dot').forEach(d => d.classList.toggle('active', parseInt(d.dataset.slide, 10) === clamped));
+    document.querySelectorAll('[data-desk-slide]').forEach(b => b.classList.toggle('active', Number(b.dataset.deskSlide) === clamped));
   };
+  // Barre latérale du bureau : écrans du slider, convention complète, accueil.
+  document.querySelectorAll('[data-desk-slide]').forEach(b => { b.onclick = () => { if (!isHudSliderLocked()) goToHudSlide(Number(b.dataset.deskSlide)); }; });
+  document.querySelectorAll('[data-desk-home]').forEach(b => { b.onclick = () => document.querySelector('#app .masthead')?.click(); });
+  document.querySelectorAll('[data-desk-arcom]').forEach(b => { b.onclick = () => { gameState.step = 9; render(); }; });
   document.querySelectorAll('.eh-dot').forEach(dot => {
     dot.onclick = () => goToHudSlide(parseInt(dot.dataset.slide, 10));
   });
