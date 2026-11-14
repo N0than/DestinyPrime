@@ -3126,16 +3126,79 @@ body.mobile-picker-lock { overflow:hidden; }
   .hud-wrap .eh-slide { display: none; min-width: 0; padding: 16px 18px; border-radius: 20px; box-sizing: border-box; position: relative;
     background: rgba(255,255,255,0.65); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border: 1px solid rgba(255,255,255,0.85);
     box-shadow: 0 25px 50px -12px rgba(15,23,42,0.12), 0 0 0 1px rgba(255,255,255,0.8) inset; }
-  .hud-wrap[data-desk-view="board"] :is(.programming-slide, .radar-slide, .audience-slide),
-  .hud-wrap[data-desk-view="prog"] :is(.programming-slide, .studio-slide, .radar-slide),
-  .hud-wrap[data-desk-view="talents"] :is(.talents-slide, .perf-slide-wrap),
-  .hud-wrap[data-desk-view="audiences"] :is(.audience-slide, .radar-slide, .evo-slide, .perf-slide-wrap),
-  .hud-wrap[data-desk-view="finances"] :is(.eco-slide-wrap, .evo-slide),
-  .hud-wrap[data-desk-view="arcom"] :is(.arcom-slide-wrap, .perf-slide-wrap) { display: block; }
-  /* Panneaux à hauteur imposée (contenu en absolu sur mobile) : hauteur fixe, marges de la carte. */
-  .hud-wrap :is(.studio-slide, .talents-slide, .evo-slide, .perf-slide-wrap, .arcom-slide-wrap, .eco-slide-wrap) { min-height: 440px; }
-  .hud-wrap :is(.of-studio, .tl-panel, .evo-panel, .perf-slide, .arcom-slide, .eco-slide) { inset: 16px 18px; }
-  .hud-wrap .radar-slide .pg-slide { height: 440px; }
+  /* Univers : panneaux visibles et disposition (hauteur disponible : --desk-h). */
+  .hud-wrap[data-desk-view="board"] :is(.radar-slide, .audience-slide),
+  .hud-wrap[data-desk-view="prog"] :is(.programming-slide, .radar-slide),
+  .hud-wrap[data-desk-view="studio"] .studio-slide,
+  .hud-wrap[data-desk-view="talents"] .talents-slide,
+  .hud-wrap[data-desk-view="audiences"] .desk-aud-slide,
+  .hud-wrap[data-desk-view="finances"] .desk-fin-slide,
+  .hud-wrap[data-desk-view="arcom"] .desk-arcom-slide { display: block; }
+  #app:has(> .hud-wrap[data-desk-view="board"] > #hud-details) { grid-template-columns: 248px minmax(0, 2fr) minmax(0, 1fr); }
+  #app:has(> .hud-wrap[data-desk-view="board"]) > .dilemma-container { min-height: var(--desk-h, 640px); }
+  .hud-wrap[data-desk-view="board"] .eh-slider-track { grid-template-columns: 1fr; }
+  .hud-wrap[data-desk-view="board"] .eh-slide { height: calc((var(--desk-h, 640px) - 20px) / 2); overflow-y: auto; overscroll-behavior: contain; }
+  .hud-wrap[data-desk-view="board"] .audience-slide { order: -1; }
+  .hud-wrap[data-desk-view="prog"] .eh-slider-track { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); }
+  .hud-wrap:is([data-desk-view="prog"], [data-desk-view="studio"], [data-desk-view="talents"]) .eh-slide { height: var(--desk-h, 640px); overflow-y: auto; overscroll-behavior: contain; }
+  :is(.hud-wrap[data-desk-view="studio"], .hud-wrap[data-desk-view="talents"], .hud-wrap[data-desk-view="audiences"], .hud-wrap[data-desk-view="finances"], .hud-wrap[data-desk-view="arcom"]) .eh-slider-track { grid-template-columns: 1fr; }
+  .hud-wrap .radar-slide .pg-slide { height: 100%; }
+  .hud-wrap[data-desk-view="prog"] .programming-slide .pg-slide { min-height: 100%; }
+  .hud-wrap .studio-slide .of-studio, .hud-wrap .talents-slide .tl-panel { inset: 16px 18px; }
+  .hud-wrap .studio-slide, .hud-wrap .talents-slide { min-height: 0; }
+  /* Grille de la chaîne : illustration du programme à l'antenne (bureau seulement). */
+  .pg-art { display: none; }
+  .hud-wrap .programming-slide .pg-art { display: block; flex: none; width: 112px; height: 63px; border-radius: 10px; overflow: hidden; background: rgba(148,163,184,0.15); }
+  .hud-wrap .programming-slide .pg-art img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .hud-wrap[data-desk-view="prog"] .programming-slide .pg-row { min-height: 76px; gap: 14px; }
+  .hud-wrap .programming-slide .pm-carousel { flex: none; align-items: flex-start; }
+  .hud-wrap .programming-slide .pm-card { height: 270px; flex-basis: 200px; }
+  /* Audiences : histogrammes par cible et tableau par créneau. */
+  .hud-wrap .desk-aud-slide, .hud-wrap .desk-fin-slide, .hud-wrap .desk-arcom-slide { min-height: var(--desk-h, 640px); }
+  .dk-hists { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; margin: 10px 0 22px; }
+  .dk-hist { padding: 12px 12px 10px; border-radius: 16px; background: rgba(255,255,255,0.7); border: 1px solid rgba(255,255,255,0.9); min-width: 0; }
+  .dk-hist.is-target { box-shadow: 0 0 0 2px rgba(225,29,72,0.35); }
+  .dk-hist-head { display: flex; align-items: baseline; gap: 6px; margin-bottom: 8px; min-width: 0; }
+  .dk-hist-title { font-family: 'Anton', sans-serif; font-size: 18px; color: var(--ink); }
+  .dk-hist-sub { flex: 1; min-width: 0; font-size: 10px; font-weight: 600; color: var(--gris); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .dk-hist-rank { font: 800 10px 'Space Grotesk', sans-serif; padding: 2px 7px; border-radius: 999px; background: rgba(225,29,72,0.1); color: var(--rouge); }
+  .dk-hist-bars { display: flex; align-items: flex-end; gap: 5px; height: 190px; }
+  .dk-col { flex: 1; min-width: 0; height: 100%; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .dk-col b { font: 800 10px 'Plus Jakarta Sans', sans-serif; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .dk-col-bar { flex: 1; width: 100%; display: flex; align-items: flex-end; border-radius: 6px; background: rgba(148,163,184,0.12); overflow: hidden; }
+  .dk-col-bar i { width: 100%; border-radius: 6px; background: repeating-linear-gradient(135deg, #3b82f6 0 6px, #2563eb 6px 12px); transform-origin: bottom; animation: dkGrow .6s cubic-bezier(.16,1,.3,1) both; animation-delay: calc(var(--i) * 40ms); }
+  .dk-col.me .dk-col-bar i { background: repeating-linear-gradient(135deg, #fb7185 0 6px, var(--rouge) 6px 12px); }
+  .dk-col.me b, .dk-col.me .dk-col-name { color: var(--rouge); }
+  .dk-col-name { width: 100%; font: 700 8.5px 'Space Grotesk', sans-serif; text-transform: uppercase; text-align: center; color: var(--gris); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  @keyframes dkGrow { from { transform: scaleY(0); } }
+  .dk-sub { margin-top: 4px; }
+  .dk-slots { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+  .dk-slot-row { display: grid; grid-template-columns: 150px repeat(var(--n), minmax(0, 1fr)) 64px; gap: 6px; align-items: center; }
+  .dk-slot-head span { font: 800 9.5px 'Space Grotesk', sans-serif; text-transform: uppercase; letter-spacing: .4px; color: var(--gris); text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .dk-slot-head span:first-child { text-align: left; }
+  .dk-slot-head span.me { color: var(--rouge); }
+  .dk-slot-name { display: flex; flex-direction: column; }
+  .dk-slot-name b { font-size: 13px; color: var(--ink); }
+  .dk-slot-name small { font-size: 10.5px; color: var(--gris); }
+  .dk-cell { padding: 9px 4px; border-radius: 10px; text-align: center; font: 800 12.5px 'Plus Jakarta Sans', sans-serif; font-variant-numeric: tabular-nums;
+    background: rgba(37,99,235, calc(0.06 + var(--a) * 0.3)); color: var(--ink); }
+  .dk-cell.me { background: rgba(225,29,72, calc(0.08 + var(--a) * 0.35)); color: var(--rouge); }
+  .dk-rank { justify-self: center; font: 800 11px 'Space Grotesk', sans-serif; padding: 4px 9px; border-radius: 999px; background: rgba(148,163,184,0.18); color: var(--ink); }
+  .dk-rank.lead { background: rgba(16,185,129,0.15); color: #047857; }
+  /* Finances : bilan, dépenses, recettes, évolution. */
+  .hud-wrap .desk-fin-slide { padding: 0; background: none; border: 0; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; }
+  .dk-fin { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+  .dk-fin-card { position: relative; min-height: calc((var(--desk-h, 640px) - 20px) / 2); padding: 16px 18px; border-radius: 20px;
+    background: rgba(255,255,255,0.65); border: 1px solid rgba(255,255,255,0.85); box-shadow: 0 25px 50px -12px rgba(15,23,42,0.12), 0 0 0 1px rgba(255,255,255,0.8) inset; }
+  .dk-fin-card .eco-slide, .dk-fin-card .evo-panel { inset: 16px 18px; overflow-y: auto; }
+  .dk-fin-card [data-eco-back], .dk-fin-card .eco-d-chevron { display: none; }
+  .dk-fin-card .eco-flow-expand { cursor: default; pointer-events: none; }
+  /* Convention : écran complet intégré, sans bouton de retour. */
+  .hud-wrap .desk-arcom-slide { padding: 0; background: none; border: 0; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; }
+  .desk-arcom-slide { display: none; }
+  .hud-wrap[data-desk-view="arcom"] .desk-arcom-slide { display: grid !important; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 20px; align-items: stretch; }
+  .desk-arcom-slide > .card { margin: 0 !important; min-height: var(--desk-h, 640px); box-sizing: border-box; }
+  .desk-arcom-slide .arcom-oblig-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .hud-wrap [data-radar-action="toggle"] { display: none; }
   .hud-wrap .eh-slider-nav, .hud-wrap .hud-toggle, .hud-wrap .hud-brand-badge { display: none; }
   .hud-wrap .hud-panel-head { justify-content: flex-end; min-height: 40px; padding-bottom: 12px; margin-bottom: 12px; }
@@ -3395,6 +3458,9 @@ function renderProgramGrid(type, pdaCible, overrides) {
     return `
       <details class="pg-slot-editor" data-slot-editor="${slot.key}">
       <summary class="pg-row${isKeySlot ? ' pg-row-key' : ''}" aria-label="Modifier le créneau ${slot.label}">
+        ${(() => { const ct = gameState.player.contracts?.[slot.key]; const fiche = ct || (programme ? { id: `grid-${slot.key}`, name: String(programme).replace(/<[^>]*>/g, ''), slot: slot.key } : null);
+          let art = ''; try { art = !sportOn && fiche && typeof TvPrograms !== 'undefined' && isDesktopLayout() ? TvPrograms.forProgram(fiche) : ''; } catch (e) { art = ''; }
+          return art ? `<span class="pg-art" aria-hidden="true"><img src="${art}" alt="" decoding="async"></span>` : ''; })()}
         <span class="pg-time-pill">${slot.range}</span>
         <span class="pg-info">
           <span class="pg-info-title">${slot.label}${showKeyTag ? '<span class="pg-key-tag">Clé</span>' : ''}${sportOn ? '<span class="pg-key-tag pg-sport-tag">Événement</span>' : ''}${indicators ? ` <span title="Locomotive, usure, concurrence ou franchise">${indicators}</span>` : ''}</span>
@@ -4145,6 +4211,85 @@ function renderStatStars(player, pdaCible, compliance) {
   `;
 }
 
+// Convention complète (écran « Détails de votre convention ») : réutilisée par la version bureau.
+function arcomConventionCardsHtml(player = gameState.player) {
+    const compliance = player.lastArcomResult || computeArcomCompliance();
+    const convention = playerConvention(player);
+    // Échéance de la convention en cours : la saison multiple de la durée, saison courante comprise.
+    const nextEcheance = Math.ceil(gameState.season / CONVENTION_DURATION) * CONVENTION_DURATION;
+    const renewal = computeRenewalScore();
+    const renewalOutcome = effectiveRenewalOutcome(renewal.renewalScore);
+
+    // Présentation dans les codes du jeu (cartes bilan, jauge et tuiles de la convention).
+    const statusKey = compliance.status.key;
+    const tone = statusKey === 'excellent' || statusKey === 'conforme' ? 'renewed' : statusKey === 'vigilance' ? 'watch' : 'refused';
+    const score = Math.max(0, Math.min(100, compliance.arcomScore));
+    const met = compliance.obligations.filter(ob => ob.rate >= 1).length;
+    const levelOf = ob => ob.rate >= 1 ? 'ok' : ob.rate >= 0.75 ? 'warn' : 'bad';
+    const unitOf = ob => ob.unit === '%' ? '%' : ' ' + ob.unit;
+    const renewalTone = renewalOutcome.key === 'refused' ? 'alert' : '';
+    const renewalLabel = { renewed: 'Favorable', conditional: 'Sous conditions', watch: 'Sous surveillance', refused: 'Refus' }[renewalOutcome.key];
+    const stats = [
+      { value: `${met}/${compliance.obligations.length}`, label: 'Obligations tenues', alert: met < compliance.obligations.length },
+      { value: `${player.arcomSanctionsCount}`, label: 'Sanctions cumulées', alert: player.arcomSanctionsCount > 0 },
+      { value: `Saison ${nextEcheance}`, label: 'Prochaine échéance' },
+      { value: renewalLabel, label: 'Renouvellement', alert: !!renewalTone }
+    ];
+
+  return `
+      <div class="card bilan-card renewal-card renewal-${tone} arcom-card">
+        <div class="kicker-row renewal-kicker-row">
+          <span class="kicker-badge">⚖️ Convention ARCOM</span>
+          <span class="dc-season-pill">Saison ${gameState.season}</span>
+        </div>
+        <h2>${esc(convention.label)}</h2>
+        <p class="renewal-lead">Les engagements éditoriaux de votre chaîne et leur niveau de respect sur la saison en cours.${player.conventionAgreement?.from > gameState.season ? ` Nouveaux seuils négociés avec l'ARCOM applicables dès la saison ${player.conventionAgreement.from}.` : ''}</p>
+        <div class="renewal-score">
+          <div class="renewal-score-head">
+            <span class="renewal-score-value">${score}<span>/100</span></span>
+            <span class="renewal-score-pill renewal-pill-${tone}">${compliance.status.emoji} ${esc(compliance.status.label)}</span>
+          </div>
+          <div class="renewal-gauge" role="img" aria-label="Score ARCOM : ${score} sur 100">
+            <div class="renewal-gauge-fill" style="width:${score}%"></div>
+            <span class="renewal-gauge-mark" style="left:60%" title="Vigilance : 60"></span>
+            <span class="renewal-gauge-mark" style="left:75%" title="Conforme : 75"></span>
+          </div>
+          <div class="arcom-gauge-legend"><span style="left:0">0</span><span style="left:60%">60</span><span style="left:75%">75</span><span style="right:0">100</span></div>
+        </div>
+        <div class="renewal-stats arcom-stats">
+          ${stats.map(st => `<div class="renewal-stat${st.alert ? ' alert' : ''}">
+            <div class="renewal-stat-value">${st.value}</div>
+            <div class="renewal-stat-label">${st.label}</div>
+          </div>`).join('')}
+        </div>
+      </div>
+
+      <div class="card bilan-card arcom-oblig-card">
+        <div class="kicker-row">
+          <span class="kicker-badge">📋 Obligations éditoriales</span>
+        </div>
+        <div class="arcom-oblig-grid">
+          ${compliance.obligations.map(ob => {
+            // Le seuil est placé au milieu de la jauge : à droite, l'obligation est tenue.
+            const fill = Math.min(100, ob.rate * 50);
+            const pill = { ok: 'Tenue', warn: 'Fragile', bad: 'Manquement' }[levelOf(ob)];
+            return `
+            <div class="arcom-oblig-item arcom-oblig-${levelOf(ob)}">
+              <div class="arcom-oblig-top">
+                <span class="arcom-oblig-name">${esc(ob.label)}</span>
+                <span class="arcom-oblig-pill ${levelOf(ob)}">${pill}</span>
+              </div>
+              <div class="arcom-oblig-figures">
+                <span class="arcom-oblig-figure">${nf1(ob.actualValue)}${unitOf(ob)}</span>
+                <span class="arcom-oblig-min">seuil ${ob.minimum}${unitOf(ob)}</span>
+              </div>
+              <div class="arcom-oblig-bar-track"><div class="arcom-oblig-bar-fill ${levelOf(ob)}" style="width:${fill.toFixed(0)}%"></div><span class="arcom-oblig-mark" aria-hidden="true"></span></div>
+            </div>`; }).join('')}
+        </div>
+      </div>
+
+`;
+}
 function renderArcomSlide(compliance, convention) {
   const levelOf = ob => ob.rate >= 1 ? 'good' : (ob.rate >= 0.75 ? 'warn' : 'bad');
   const unitOf = ob => ob.unit === '%' ? '%' : '';
@@ -24713,6 +24858,14 @@ function renderHudHeadOnly({ status = null } = {}) {
 // engagements en cours. Aucune nouvelle ressource à gérer, seulement de l'information.
 // Version bureau (≥ 1100px) : écran de jeu en trois colonnes, panneau de gestion toujours ouvert.
 if (typeof matchMedia === 'function') matchMedia('(min-width: 1100px)').addEventListener?.('change', () => { if (typeof render === 'function' && document.getElementById('hud-details')) render(); });
+// Hauteur disponible sous le HUD (bureau) : les panneaux occupent toute la hauteur de la fenêtre.
+function syncDeskHeight() {
+  const hud = document.querySelector('#app > .hud-wrap > .hud-panel');
+  if (!hud || !isDesktopLayout()) return;
+  const top = hud.getBoundingClientRect().bottom + window.scrollY + 20;
+  document.documentElement.style.setProperty('--desk-h', `${Math.max(520, window.innerHeight - top - 24)}px`);
+}
+if (typeof window !== 'undefined') window.addEventListener('resize', () => syncDeskHeight());
 function isDesktopLayout() {
   return typeof matchMedia === 'function' && matchMedia('(min-width: 1100px)').matches;
 }
@@ -24720,7 +24873,7 @@ function isDesktopLayout() {
 // affiche ensemble les panneaux qui le concernent (les écrans du slider mobile).
 const DESK_VIEWS = [
   ['board', '🏠', 'Tableau de bord'], ['prog', '📺', 'Programmation'], ['talents', '🎙️', 'Talents'],
-  ['audiences', '📊', 'Audiences'], ['finances', '💶', 'Finances'], ['arcom', '⚖️', 'Convention ARCOM']
+  ['studio', '🎬', 'Studio de création'], ['audiences', '📊', 'Audiences'], ['finances', '💶', 'Finances'], ['arcom', '⚖️', 'Convention ARCOM']
 ];
 function deskView() { return DESK_VIEWS.some(v => v[0] === gameState.deskView) ? gameState.deskView : 'board'; }
 function renderDeskSide(p) {
@@ -24732,10 +24885,53 @@ function renderDeskSide(p) {
       <div class="desk-channel"><b>${esc(p.name)}</b><span>Saison ${gameState.season} · ${esc(typeLabel)}</span></div>
       <span class="desk-sec">Pilotage</span>
       ${DESK_VIEWS.map(([id, icon, label]) => `<button type="button" class="desk-nav${id === view ? ' active' : ''}" data-desk-view="${id}"><span class="desk-ic" aria-hidden="true">${icon}</span>${label}${id === 'board' && pending ? '<span class="desk-pill">Décision</span>' : ''}</button>`).join('')}
-      <span class="desk-sec">Chaîne</span>
-      <button type="button" class="desk-nav" data-desk-arcom><span class="desk-ic" aria-hidden="true">📜</span>Convention complète</button>
       <button type="button" class="desk-nav" data-desk-home><span class="desk-ic" aria-hidden="true">🚪</span>Accueil</button>
     </nav>`;
+}
+// Bureau, univers Audiences : un histogramme par cible (toutes les chaînes), puis les audiences
+// de chaque créneau sur la cible de la chaîne.
+function deskAudienceHtml() {
+  const p = gameState.player, calc = getCalculatedPDAs();
+  const targets = [...AUDIENCE_TARGETS.filter(t => t.key === p.target), ...AUDIENCE_TARGETS.filter(t => t.key !== p.target), AUDIENCE_TARGET_4P];
+  const hist = targets.map(t => {
+    const rows = calc.map(r => ({ name: r.name, me: r.channel === p, v: audienceShareOf(r, t.key) })).sort((a, b) => b.v - a.v);
+    const max = Math.max(...rows.map(r => r.v), 1), rank = rows.findIndex(r => r.me) + 1;
+    return `<div class="dk-hist${t.key === p.target ? ' is-target' : ''}">
+      <div class="dk-hist-head"><span class="dk-hist-title">${esc(t.short)}</span><span class="dk-hist-sub">${esc(t.full)}</span><span class="dk-hist-rank">#${rank}</span></div>
+      <div class="dk-hist-bars">${rows.map((r, i) => `<div class="dk-col${r.me ? ' me' : ''}" style="--i:${i}" title="${esc(r.name)} : ${nf1(r.v)} %">
+        <b>${nf1(r.v)}</b><span class="dk-col-bar"><i style="height:${Math.max(2, r.v / max * 100).toFixed(1)}%"></i></span><span class="dk-col-name">${esc(r.name)}</span></div>`).join('')}</div>
+    </div>`;
+  }).join('');
+  const chans = [calc.find(r => r.channel === p), ...calc.filter(r => r.channel !== p)];
+  const slotMax = Math.max(...TIME_SLOTS.flatMap(sl => chans.map(r => r.slots[sl.key][p.target])), 1);
+  const table = `<div class="dk-slots" style="--n:${chans.length}">
+      <div class="dk-slot-row dk-slot-head"><span>Créneau</span>${chans.map(r => `<span class="${r.channel === p ? 'me' : ''}">${esc(r.name)}</span>`).join('')}<span>Rang</span></div>
+      ${TIME_SLOTS.map(sl => { const vals = chans.map(r => r.slots[sl.key][p.target]); const rank = 1 + vals.filter(v => v > vals[0] + 1e-9).length;
+        return `<div class="dk-slot-row"><span class="dk-slot-name"><b>${esc(sl.label)}</b><small>${esc(sl.range)}</small></span>${vals.map((v, i) => `<span class="dk-cell${i === 0 ? ' me' : ''}" style="--a:${(v / slotMax).toFixed(2)}">${nf1(v)}</span>`).join('')}<span class="dk-rank${rank === 1 ? ' lead' : ''}">#${rank}</span></div>`; }).join('')}
+    </div>`;
+  return `<div class="dk-aud">
+    <div class="perf-head"><div class="eh-title">Audiences par cible</div><div class="perf-overall good">PDA ${nf1(audienceShareOf(chans[0], p.target))} %</div></div>
+    <div class="eh-subtitle">Part d'audience de chaque chaîne, cible par cible.</div>
+    <div class="dk-hists">${hist}</div>
+    <div class="perf-head dk-sub"><div class="eh-title">Audiences par créneau</div></div>
+    <div class="eh-subtitle">PDA sur la cible ${esc((AUDIENCE_TARGETS.find(t => t.key === p.target) || {}).full || p.target)}, créneau par créneau.</div>
+    ${table}
+  </div>`;
+}
+// Bureau, univers Finances : bilan, détail des dépenses et des recettes côte à côte, évolution.
+function deskFinanceHtml() {
+  const p = gameState.player, was = gameState.ecoDetail;
+  try {
+    gameState.ecoDetail = false; const bilan = renderEcoBilanSlide(p);
+    gameState.ecoDetail = 'depenses'; const dep = renderEcoBilanSlide(p);
+    gameState.ecoDetail = 'recettes'; const rec = renderEcoBilanSlide(p);
+    return `<div class="dk-fin">
+      <div class="dk-fin-card dk-fin-bilan">${bilan}</div>
+      <div class="dk-fin-card">${dep}</div>
+      <div class="dk-fin-card">${rec}</div>
+      <div class="dk-fin-card dk-fin-evo">${renderEvolutionChart(evolutionChartPoints(p, getCalculatedPDAs().find(r => r.channel === p).pda[p.target]))}</div>
+    </div>`;
+  } finally { gameState.ecoDetail = was; }
 }
 // Bureau : la grille et la concurrence sont deux panneaux distincts (sur mobile, un seul écran bascule).
 function deskRadarHtml(p) {
@@ -24817,6 +25013,7 @@ function renderTicker() {
               <div class="eh-slide perf-slide-wrap">${statStarsHtml}</div>
               <div class="eh-slide arcom-slide-wrap">${arcomSlideHtml}</div>
               ${desk && gameState.competitors?.length ? `<div class="eh-slide radar-slide">${deskRadarHtml(p)}</div>` : ''}
+              ${desk ? `<div class="eh-slide desk-aud-slide">${deskAudienceHtml()}</div><div class="eh-slide desk-fin-slide">${deskFinanceHtml()}</div><div class="eh-slide desk-arcom-slide">${arcomConventionCardsHtml(p)}</div>` : ''}
             </div>
           </div>
           <div class="eh-slider-nav">
@@ -24887,6 +25084,7 @@ function bindTickerInteractions(app) {
     document.getElementById('eh-slider-track').style.transform = `translateX(-${clamped * 100}%)`;
     document.querySelectorAll('.eh-dot').forEach(d => d.classList.toggle('active', parseInt(d.dataset.slide, 10) === clamped));
   };
+  syncDeskHeight();
   // Barre latérale du bureau : changer d'univers remplace les panneaux affichés (apparition en cascade).
   document.querySelectorAll('[data-desk-view]').forEach(b => { b.onclick = () => {
     const wrap = b.closest('.hud-wrap'), view = b.dataset.deskView;
@@ -25886,83 +26084,10 @@ function render() {
 
   if (gameState.step === 9) {
     const player = gameState.player;
-    const compliance = player.lastArcomResult || computeArcomCompliance();
-    const convention = playerConvention(player);
-    // Échéance de la convention en cours : la saison multiple de la durée, saison courante comprise.
-    const nextEcheance = Math.ceil(gameState.season / CONVENTION_DURATION) * CONVENTION_DURATION;
-    const renewal = computeRenewalScore();
-    const renewalOutcome = effectiveRenewalOutcome(renewal.renewalScore);
-
-    // Présentation dans les codes du jeu (cartes bilan, jauge et tuiles de la convention).
-    const statusKey = compliance.status.key;
-    const tone = statusKey === 'excellent' || statusKey === 'conforme' ? 'renewed' : statusKey === 'vigilance' ? 'watch' : 'refused';
-    const score = Math.max(0, Math.min(100, compliance.arcomScore));
-    const met = compliance.obligations.filter(ob => ob.rate >= 1).length;
-    const levelOf = ob => ob.rate >= 1 ? 'ok' : ob.rate >= 0.75 ? 'warn' : 'bad';
-    const unitOf = ob => ob.unit === '%' ? '%' : ' ' + ob.unit;
-    const renewalTone = renewalOutcome.key === 'refused' ? 'alert' : '';
-    const renewalLabel = { renewed: 'Favorable', conditional: 'Sous conditions', watch: 'Sous surveillance', refused: 'Refus' }[renewalOutcome.key];
-    const stats = [
-      { value: `${met}/${compliance.obligations.length}`, label: 'Obligations tenues', alert: met < compliance.obligations.length },
-      { value: `${player.arcomSanctionsCount}`, label: 'Sanctions cumulées', alert: player.arcomSanctionsCount > 0 },
-      { value: `Saison ${nextEcheance}`, label: 'Prochaine échéance' },
-      { value: renewalLabel, label: 'Renouvellement', alert: !!renewalTone }
-    ];
-
     app.innerHTML = `
       ${renderMasthead("Détails de votre convention", "Audience Masters", true)}
       ${renderHudHeadOnly()}
-      <div class="card bilan-card renewal-card renewal-${tone} arcom-card">
-        <div class="kicker-row renewal-kicker-row">
-          <span class="kicker-badge">⚖️ Convention ARCOM</span>
-          <span class="dc-season-pill">Saison ${gameState.season}</span>
-        </div>
-        <h2>${esc(convention.label)}</h2>
-        <p class="renewal-lead">Les engagements éditoriaux de votre chaîne et leur niveau de respect sur la saison en cours.${player.conventionAgreement?.from > gameState.season ? ` Nouveaux seuils négociés avec l'ARCOM applicables dès la saison ${player.conventionAgreement.from}.` : ''}</p>
-        <div class="renewal-score">
-          <div class="renewal-score-head">
-            <span class="renewal-score-value">${score}<span>/100</span></span>
-            <span class="renewal-score-pill renewal-pill-${tone}">${compliance.status.emoji} ${esc(compliance.status.label)}</span>
-          </div>
-          <div class="renewal-gauge" role="img" aria-label="Score ARCOM : ${score} sur 100">
-            <div class="renewal-gauge-fill" style="width:${score}%"></div>
-            <span class="renewal-gauge-mark" style="left:60%" title="Vigilance : 60"></span>
-            <span class="renewal-gauge-mark" style="left:75%" title="Conforme : 75"></span>
-          </div>
-          <div class="arcom-gauge-legend"><span style="left:0">0</span><span style="left:60%">60</span><span style="left:75%">75</span><span style="right:0">100</span></div>
-        </div>
-        <div class="renewal-stats arcom-stats">
-          ${stats.map(st => `<div class="renewal-stat${st.alert ? ' alert' : ''}">
-            <div class="renewal-stat-value">${st.value}</div>
-            <div class="renewal-stat-label">${st.label}</div>
-          </div>`).join('')}
-        </div>
-      </div>
-
-      <div class="card bilan-card arcom-oblig-card">
-        <div class="kicker-row">
-          <span class="kicker-badge">📋 Obligations éditoriales</span>
-        </div>
-        <div class="arcom-oblig-grid">
-          ${compliance.obligations.map(ob => {
-            // Le seuil est placé au milieu de la jauge : à droite, l'obligation est tenue.
-            const fill = Math.min(100, ob.rate * 50);
-            const pill = { ok: 'Tenue', warn: 'Fragile', bad: 'Manquement' }[levelOf(ob)];
-            return `
-            <div class="arcom-oblig-item arcom-oblig-${levelOf(ob)}">
-              <div class="arcom-oblig-top">
-                <span class="arcom-oblig-name">${esc(ob.label)}</span>
-                <span class="arcom-oblig-pill ${levelOf(ob)}">${pill}</span>
-              </div>
-              <div class="arcom-oblig-figures">
-                <span class="arcom-oblig-figure">${nf1(ob.actualValue)}${unitOf(ob)}</span>
-                <span class="arcom-oblig-min">seuil ${ob.minimum}${unitOf(ob)}</span>
-              </div>
-              <div class="arcom-oblig-bar-track"><div class="arcom-oblig-bar-fill ${levelOf(ob)}" style="width:${fill.toFixed(0)}%"></div><span class="arcom-oblig-mark" aria-hidden="true"></span></div>
-            </div>`; }).join('')}
-        </div>
-      </div>
-
+      ${arcomConventionCardsHtml(player)}
       <button class="welcome-cta arcom-back" id="btn-arcom-back">
         <span class="welcome-cta-shine"></span>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" stroke-linecap="round" stroke-linejoin="round"/></svg>
