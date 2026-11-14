@@ -34813,6 +34813,18 @@ function studioGaugeHtml(field, label, draft, off) {
 }
 // Bureau : conception d'un format en quatre colonnes de cartes à cocher (créneau, genre,
 // positionnement, niveau de production), récapitulatif et validation en pied.
+// Positionnement « Décalé » : bouffon du roi (bonnet à grelots, collerette).
+const STUDIO_JESTER_SVG = `<svg viewBox="0 0 84 84" width="84" height="84" aria-hidden="true">
+  <path d="M42 30 L18 8 Q14 22 24 34 Z" fill="#e11d48"/><path d="M42 30 L66 8 Q70 22 60 34 Z" fill="#7c3aed"/><path d="M42 30 L42 4 Q50 16 48 32 Z" fill="#fbbf24"/>
+  <circle cx="18" cy="8" r="4.5" fill="#fbbf24"/><circle cx="66" cy="8" r="4.5" fill="#fbbf24"/><circle cx="42" cy="4" r="4.5" fill="#e11d48"/>
+  <rect x="22" y="28" width="40" height="7" rx="3.5" fill="#1e293b"/>
+  <circle cx="42" cy="47" r="15" fill="#fcd5b5"/>
+  <path d="M33 44 q3 -3 6 0 M45 44 q3 -3 6 0" stroke="#1e293b" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+  <path d="M34 52 q8 8 16 0" stroke="#1e293b" stroke-width="2.4" fill="#fff" stroke-linecap="round"/>
+  <circle cx="31" cy="51" r="3" fill="#fb7185" opacity=".55"/><circle cx="53" cy="51" r="3" fill="#fb7185" opacity=".55"/>
+  <path d="M20 70 L28 61 L35 70 L42 61 L49 70 L56 61 L64 70 L62 84 L22 84 Z" fill="#7c3aed"/><path d="M28 61 L35 70 L42 61 L49 70 L56 61" stroke="#fbbf24" stroke-width="2" fill="none"/>
+  <circle cx="35" cy="70" r="2.5" fill="#fbbf24"/><circle cx="49" cy="70" r="2.5" fill="#fbbf24"/>
+</svg>`;
 const STUDIO_DESK_COPY = {
   slot: ['Créneau', 'Choisissez le moment de diffusion qui correspond à votre format.'],
   concept: ['Genre', 'Définissez le genre éditorial de votre programme.'],
@@ -34837,7 +34849,7 @@ function studioDeskFormHtml(draft, editable, cfg) {
       <div class="sd-opts${rich ? ' rich' : ''}" role="radiogroup" aria-label="${title}">${opts.map((o, i) => {
         const on = String(draft[field]) === String(o.value);
         const icon = field === 'concept' ? STUDIO_GENRE_ICONS.find(([re]) => re.test(o.label))[1] : STUDIO_DESK_ICONS[o.value];
-        const art = field === 'positioning' && avatars.length ? `<img src="${avatars[(i * 7 + 3) % avatars.length]}" alt="">` : `<span class="sd-ic">${icon || '📺'}</span>`;
+        const art = field === 'positioning' && o.value === 'jeune' ? STUDIO_JESTER_SVG : field === 'positioning' && avatars.length ? `<img src="${avatars[(i * 7 + 3) % avatars.length]}" alt="">` : `<span class="sd-ic">${icon || '📺'}</span>`;
         return `<button type="button" role="radio" class="sd-opt${on ? ' on' : ''}" aria-checked="${on}" data-of-action="pick" data-of-field="${field}" data-of-value="${esc(o.value)}"${editable ? '' : ' disabled'}>
           ${rich ? `<span class="sd-art">${art}</span>` : `<span class="sd-ic">${icon || '📺'}</span>`}
           <span class="sd-txt"><b>${esc(o.label)}</b>${rich && STUDIO_DESK_DESC[o.value] ? `<small>${STUDIO_DESK_DESC[o.value]}</small>` : ''}</span>
