@@ -3311,6 +3311,37 @@ body.mobile-picker-lock { overflow:hidden; }
   .hud-wrap .talents-slide .tl-cand .tl-action-offer { width: 100%; min-height: 56px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border-radius: 14px; }
   .hud-wrap .talents-slide .tl-cand .tl-action-offer .tl-action-label { font-size: 18px; letter-spacing: .5px; }
   .hud-wrap .talents-slide .tl-header-actions .tl-cancel { font-size: 13px; padding: 9px 18px; }
+  /* Recrutement (bureau) : en-tête de carte portrait + identité, compatibilité, coût, bouton. */
+  .hud-wrap .talents-slide .tl-cand .tl-face { display: grid; grid-template-columns: 124px minmax(0, 1fr); grid-template-rows: auto auto auto auto 1fr auto auto;
+    column-gap: 18px; row-gap: 4px; align-content: start; justify-items: start; text-align: left; padding: 22px 20px 20px;
+    background: linear-gradient(160deg, rgba(37,99,235,0.08), #fff 38%); }
+  .hud-wrap .talents-slide .tl-cand:nth-child(3n+1) .tl-face { background: linear-gradient(160deg, rgba(16,185,129,0.1), #fff 38%); }
+  .hud-wrap .talents-slide .tl-cand:nth-child(3n+2) .tl-face { background: linear-gradient(160deg, rgba(124,58,237,0.1), #fff 38%); }
+  .hud-wrap .talents-slide .tl-cand .tl-avatar-wrap { grid-column: 1; grid-row: 1 / 4; width: auto; padding: 0; margin: 0; background: none; }
+  .hud-wrap .talents-slide .tl-cand .tl-name { grid-column: 2; grid-row: 1; align-self: end; font-size: 28px; line-height: 1.05; }
+  .hud-wrap .talents-slide .tl-cand .tl-role { grid-column: 2; grid-row: 2; font-size: 14.5px; }
+  .hud-wrap .talents-slide .tl-cand .tl-genre { grid-column: 2; grid-row: 3; align-self: start; font-size: 14px; padding: 5px 14px; }
+  .hud-wrap .talents-slide .tl-cand .tl-criteria { grid-column: 1 / -1; grid-row: 4; width: 100%; margin: 18px 0 0; padding: 16px 0 0; border-radius: 0; background: none;
+    border-top: 1px solid rgba(148,163,184,0.3); display: flex; flex-direction: column; gap: 6px; }
+  .hud-wrap .talents-slide .tl-cand .tl-criteria::before { content: 'Profil & compatibilité'; font: 800 12.5px 'Space Grotesk', sans-serif; letter-spacing: .8px; text-transform: uppercase; color: #334155; margin-bottom: 6px; }
+  .hud-wrap .talents-slide .tl-cand .tl-criterion { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border-radius: 10px; background: rgba(148,163,184,0.09); }
+  .hud-wrap .talents-slide .tl-cand .tl-criterion-label { font-size: 14.5px; font-weight: 700; color: var(--ink); }
+  .hud-wrap .talents-slide .tl-cand .tl-criterion .mercato-stars { font-size: 17px; }
+  .hud-wrap .talents-slide .tl-cand .tl-chips { grid-column: 1 / -1; grid-row: 6; width: 100%; margin: 14px 0 0; padding: 14px 18px; border-radius: 14px; background: rgba(148,163,184,0.12);
+    display: grid; grid-template-columns: auto 1fr; align-items: center; column-gap: 22px; }
+  .hud-wrap .talents-slide .tl-cand .tl-chip { all: unset; }
+  .hud-wrap .talents-slide .tl-cand .tl-chip-pay { font: 400 34px 'Anton', sans-serif; color: var(--ink); line-height: 1; padding-top: 18px; position: relative; }
+  .hud-wrap .talents-slide .tl-cand .tl-chip-pay::before { content: 'Coût par saison'; position: absolute; top: 0; left: 0; white-space: nowrap; font: 800 11px 'Space Grotesk', sans-serif; letter-spacing: .6px; text-transform: uppercase; color: var(--gris); }
+  .hud-wrap .talents-slide .tl-cand .tl-chip-pay .tl-chip-unit { display: none; }
+  .hud-wrap .talents-slide .tl-cand .tl-chip-term { padding-left: 22px; border-left: 1px solid rgba(148,163,184,0.45); font-size: 16px; font-weight: 600; color: #334155; }
+  .hud-wrap .talents-slide .tl-cand .tl-chip-term::before { content: 'Contrat de'; display: block; font-size: 15px; font-weight: 500; color: #475569; }
+  .hud-wrap .talents-slide .tl-cand .tl-cand-footer { grid-column: 1 / -1; grid-row: 7; width: 100%; margin: 14px 0 0; }
+  .hud-wrap .talents-slide .tl-cand .tl-action-offer .tl-action-label { font-size: 22px; }
+  .hud-wrap .talents-slide .tl-cand .tl-action-offer .tl-action-label::after { content: ' →'; }
+  .hud-wrap .talents-slide .tl-cand .tl-face { position: relative; inset: auto; height: 100%; box-sizing: border-box; }
+  .hud-wrap .talents-slide .tl-cards:has(.tl-cand) { grid-template-rows: auto auto; align-content: start; overflow-y: auto; }
+  .hud-wrap .talents-slide .tl-cards:has(.tl-cand)::after { content: 'Comparez les profils et choisissez votre prochain talent.'; grid-column: 1 / -1; text-align: center; font-size: 14px; font-style: italic; color: #475569; padding-top: 4px; }
+  .hud-wrap .talents-slide .tl-header-actions .tl-cancel { font-size: 15px; padding: 11px 22px; }
   .hud-wrap .talents-slide .tl-back { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-content: center; gap: 10px 12px; }
   .hud-wrap .talents-slide .tl-back > .tl-back-sub { grid-column: 1 / -1; font-size: 13.5px; }
   .hud-wrap .talents-slide .tl-back > :not(.tl-action):not(.tl-back-sub) { grid-column: 1 / -1; }
