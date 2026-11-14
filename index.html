@@ -3104,10 +3104,10 @@ body.mobile-picker-lock { overflow:hidden; }
 /* ---- VERSION BUREAU (≥ 1100px) ----
    Tableau de bord pleine largeur : barre latérale à gauche, HUD en bandeau sous la mire TV,
    puis les panneaux de l'univers choisi (les écrans du slider mobile, affichés ensemble). */
-.desk-side, .desk-title { display: none; }
+.desk-side, .desk-title, .hud-cell.desk-only { display: none; }
 @media (min-width: 1100px) {
   #app:has(> .hud-wrap > #hud-details) {
-    max-width: none; display: grid; grid-template-columns: 248px minmax(380px, 0.85fr) minmax(0, 2fr); grid-template-rows: auto auto 1fr;
+    max-width: none; display: grid; grid-template-columns: 290px minmax(380px, 0.85fr) minmax(0, 2fr); grid-template-rows: auto auto 1fr;
     column-gap: 22px; align-items: start; padding: 20px 26px 40px;
   }
   #app:has(> .hud-wrap > #hud-details) > * { grid-column: 2 / -1; }
@@ -3134,7 +3134,7 @@ body.mobile-picker-lock { overflow:hidden; }
   .hud-wrap[data-desk-view="audiences"] .desk-aud-slide,
   .hud-wrap[data-desk-view="finances"] .desk-fin-slide,
   .hud-wrap[data-desk-view="arcom"] .desk-arcom-slide { display: block; }
-  #app:has(> .hud-wrap[data-desk-view="board"] > #hud-details) { grid-template-columns: 248px minmax(0, 2fr) minmax(0, 1fr); }
+  #app:has(> .hud-wrap[data-desk-view="board"] > #hud-details) { grid-template-columns: 290px minmax(0, 2fr) minmax(0, 1fr); }
   #app:has(> .hud-wrap[data-desk-view="board"]) > .dilemma-container { min-height: var(--desk-h, 640px); }
   .hud-wrap[data-desk-view="board"] .eh-slider-track { grid-template-columns: 1fr; }
   .hud-wrap[data-desk-view="board"] .eh-slide { height: calc((var(--desk-h, 640px) - 20px) / 2); overflow-y: auto; overscroll-behavior: contain; }
@@ -3233,6 +3233,36 @@ body.mobile-picker-lock { overflow:hidden; }
   .desk-nav:focus-visible, .desk-brand:focus-visible { outline: 2px solid var(--bleu); outline-offset: 2px; }
   .desk-ic { width: 26px; height: 26px; flex: none; display: grid; place-items: center; border-radius: 8px; background: rgba(148,163,184,0.16); font-size: 14px; }
   .desk-nav.active .desk-ic { background: rgba(37,99,235,0.14); }
+  .desk-nav { white-space: nowrap; font-size: 14.5px; }
+  /* Conformité ARCOM : sixième indicateur du HUD, bureau seulement. */
+  .hud-wrap .hud:has(> .desk-only) { grid-template-columns: repeat(6, 1fr); }
+  .hud-wrap .hud-cell:nth-child(6) .ic { background: rgba(79,70,229,0.12); }
+  .hud-wrap .hud-cell .val small { font-size: 15px; color: var(--gris); margin-left: 2px; }
+  /* Lisibilité : polices agrandies sur bureau. */
+  .hud-wrap .eh-title { font-size: 19px; }
+  .hud-wrap .eh-subtitle { font-size: 13px; }
+  .hud-wrap .hud-cell .lab { font-size: 12px; }
+  .hud-wrap .pg-info-title { font-size: 15px; }
+  .hud-wrap .pg-info-program { font-size: 13px; }
+  .hud-wrap .pg-time-pill, .hud-wrap .pg-pda-badge, .hud-wrap .pg-rank { font-size: 12px; }
+  .hud-wrap .ga-name, .hud-wrap .ga-pct { font-size: 13px; }
+  .hud-wrap .ga-target-btn { font-size: 11.5px; }
+  .hud-wrap .radar-slide :is(.radar-name, .radar-channel-name) { font-size: 14.5px; }
+  .hud-wrap .radar-slide { font-size: 13.5px; }
+  .hud-wrap .eco-flow-name, .hud-wrap .eco-d-name b { font-size: 15px; }
+  .hud-wrap .eco-legend, .hud-wrap .eco-d-row { font-size: 12.5px; }
+  .hud-wrap .arcom-oblig-name, .hud-wrap .renewal-lead { font-size: 15px; }
+  .hud-wrap .renewal-stat-label, .hud-wrap .arcom-oblig-min { font-size: 11.5px; }
+  .hud-wrap .dk-hist-sub, .hud-wrap .dk-col b { font-size: 11.5px; }
+  .hud-wrap .dk-col-name, .hud-wrap .dk-slot-head span { font-size: 10.5px; }
+  .hud-wrap .dk-cell { font-size: 14px; }
+  .hud-wrap .dk-slot-name b { font-size: 15px; }
+  .hud-wrap .hud-cell.desk-only { display: flex; }
+  #app > .dilemma-container :is(.dc-body p, .choice-label, .dc-desc) { font-size: 16.5px; }
+  #app > .dilemma-container .cl { font-size: 19px; }
+  #app > .dilemma-container .choice-eyebrow { font-size: 10.5px; }
+  #app > .dilemma-container .choice-pill { font-size: 12.5px; white-space: nowrap; }
+  #app > .dilemma-container .impact-badge { font-size: 13px; }
   .desk-pill { margin-left: auto; padding: 2px 7px; border-radius: 999px; font-size: 9.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .3px; color: #fff; background: var(--rouge); }
   .desk-nav[data-desk-home]:last-child { margin-top: auto; }
 }
@@ -24997,6 +25027,10 @@ function renderTicker() {
             <div class="lab"><span class="ic">⭐</span>Popularité</div>
             <div class="val">${Math.round(p.popularite)}%</div>
           </div>
+          ${desk ? `<div class="hud-cell desk-only${compliance.arcomScore < 60 ? ' alert' : ''}" title="Score de conformité ARCOM : ${compliance.arcomScore}/100 (${esc(compliance.status.label)})">
+            <div class="lab"><span class="ic">⚖️</span>Conformité ARCOM</div>
+            <div class="val">${compliance.arcomScore}<small>/100</small></div>
+          </div>` : ''}
         </div>
         ${careerBannerHtml()}
       </div>
