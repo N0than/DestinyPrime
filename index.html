@@ -3324,6 +3324,16 @@ body.mobile-picker-lock { overflow:hidden; }
   .hud-wrap .studio-slide .of-info { font-size: 14px; }
   .hud-wrap .studio-slide .of-catalog { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); align-content: start; gap: 14px; }
   .hud-wrap .studio-slide .of-catalog-lead { grid-column: 1 / -1; font-size: 13px; }
+  .hud-wrap .studio-slide .of-studio { overflow-y: auto; }
+  .hud-wrap .studio-slide .of-main { flex: 0 0 auto; height: 400px; min-height: 0; }
+  .hud-wrap .studio-slide .of-cat-empty { padding: 18px; }
+  .hud-wrap .studio-slide .of-desk-catalog { flex: none; padding-top: 16px; border-top: 1px solid rgba(148,163,184,0.25); }
+  .hud-wrap .studio-slide .of-catalog-lead:first-child { font: 400 19px 'Anton', sans-serif; text-transform: uppercase; color: var(--ink); }
+  .hud-wrap .studio-slide .of-cat-empty { grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 26px; border-radius: 16px;
+    border: 1.5px dashed rgba(148,163,184,0.45); text-align: center; color: var(--gris); }
+  .hud-wrap .studio-slide .of-cat-empty span { font-size: 30px; }
+  .hud-wrap .studio-slide .of-cat-empty b { font-size: 15px; color: var(--ink); }
+  .hud-wrap .studio-slide .of-cat-empty small { font-size: 13px; max-width: 520px; }
   .hud-wrap .studio-slide .of-cat-art { width: 140px; height: 88px; }
   .hud-wrap .studio-slide .of-cat-name { font-size: 20px; }
   .desk-pill { margin-left: auto; padding: 2px 7px; border-radius: 999px; font-size: 9.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .3px; color: #fff; background: var(--rouge); }
@@ -32651,7 +32661,11 @@ function sellCatalogFormat(id, mode = 'national') {
 }
 function studioCatalogHtml(editable) {
   const list = studioCatalogFormats();
-  if (!list.length) return '';
+  // Bureau : le catalogue reste visible, avec un état vide.
+  if (!list.length) return isDesktopLayout() ? `<div class="of-catalog of-catalog-empty">
+      <p class="of-catalog-lead">Catalogue de la chaîne</p>
+      <div class="of-cat-empty"><span aria-hidden="true">🎞️</span><b>Aucun format hors antenne</b><small>Un format maison qui quitte l’antenne sans être cédé rejoint ce catalogue : vous pourrez le relancer ou céder ses droits.</small></div>
+    </div>` : '';
   const canLaunch = studioCanLaunch();
   return `<div class="of-catalog">
       <p class="of-catalog-lead">Formats disponibles : relancer ou céder les droits.</p>
@@ -34765,7 +34779,7 @@ function renderStudioSlide() {
     <div class="perf-head of-studio-head">
       <div class="eh-title">Studio de création</div>
       <span class="of-head-actions">
-        ${catalogCount ? `<button type="button" class="radar-toggle of-info-toggle${catalogView ? ' active' : ''}" data-of-action="catalog" aria-pressed="${catalogView}">Catalogue</button>` : ''}
+        ${catalogCount && !isDesktopLayout() ? `<button type="button" class="radar-toggle of-info-toggle${catalogView ? ' active' : ''}" data-of-action="catalog" aria-pressed="${catalogView}">Catalogue</button>` : ''}
         <button type="button" class="radar-toggle of-info-toggle" data-of-action="info" aria-expanded="false">Infos</button>
       </span>
     </div>
@@ -34778,8 +34792,9 @@ function renderStudioSlide() {
       <p>Conception, pilote et cession des droits à tout moment de la saison ; lancement en début de saison. Cession à l’étranger : avance et royalties chaque saison, le programme reste chez vous. Cession nationale : un prix plus élevé, sans royalties, et le programme part chez le concurrent.</p>
     </div>
     <div class="of-main">
-      ${catalogView ? studioCatalogHtml(editable) : showForm ? form : `<div class="of-tabs">${tabs}</div>${current ? studioFormatCardHtml(current, editable, cfg) : blank}`}
+      ${catalogView && !isDesktopLayout() ? studioCatalogHtml(editable) : showForm ? form : `<div class="of-tabs">${tabs}</div>${current ? studioFormatCardHtml(current, editable, cfg) : blank}`}
     </div>
+    ${isDesktopLayout() ? `<div class="of-desk-catalog">${studioCatalogHtml(editable)}</div>` : ''}
   </div>`;
 }
 function bindOriginalStudio(app) {
