@@ -25210,8 +25210,6 @@ function deskAudienceHtml() {
       : `<span class="dka-cell${v === top ? ' top' : ''}" style="--a:${((v - lo) / (hi - lo)).toFixed(2)}">${nf1(v)}</span>`).join('')}<span class="dka-r">#${rank}</span></div>`;
   }).join('');
   return `<div class="dka">
-    <div class="dka-head"><h2>Audiences</h2><span class="dka-lead">Comparez votre chaîne par cible <b>et par créneau.</b></span>
-      <span class="dka-me"><b>${esc(p.name)} · Vous</b><span>PDA cible ${nf1(audienceShareOf(me, p.target))} % · Rang ${rankOf(p.target)} / ${n}</span></span></div>
     <section class="dka-box"><h3>Performances par cible</h3><div class="dka-cards">${cards}</div></section>
     <section class="dka-box">
       <div class="dka-tabs"><h3>Audiences par créneau</h3>${slotTargets.map(t => `<button type="button" class="dka-tab${t.key === key ? ' on' : ''}" data-dk-target="${t.key}">${label(t)}</button>`).join('')}<span class="dka-unit">Part d'audience en %</span></div>
