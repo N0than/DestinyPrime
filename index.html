@@ -3139,7 +3139,7 @@ body.mobile-picker-lock { overflow:hidden; }
   .hud-wrap[data-desk-view="board"] .eh-slider-track { grid-template-columns: 1fr; }
   .hud-wrap[data-desk-view="board"] .eh-slide { height: calc((var(--desk-h, 640px) - 20px) / 2); overflow-y: auto; overscroll-behavior: contain; }
   .hud-wrap[data-desk-view="board"] .audience-slide { order: -1; }
-  .hud-wrap[data-desk-view="prog"] .eh-slider-track { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); }
+  .hud-wrap[data-desk-view="prog"] .eh-slider-track { grid-template-columns: minmax(0, 1.55fr) minmax(0, 1.2fr); }
   .hud-wrap:is([data-desk-view="prog"], [data-desk-view="studio"], [data-desk-view="talents"]) .eh-slide { height: var(--desk-h, 640px); overflow-y: auto; overscroll-behavior: contain; }
   :is(.hud-wrap[data-desk-view="studio"], .hud-wrap[data-desk-view="talents"], .hud-wrap[data-desk-view="audiences"], .hud-wrap[data-desk-view="finances"], .hud-wrap[data-desk-view="arcom"]) .eh-slider-track { grid-template-columns: 1fr; }
   .hud-wrap .radar-slide .pg-slide { height: 100%; }
@@ -3150,7 +3150,40 @@ body.mobile-picker-lock { overflow:hidden; }
   .pg-art { display: none; }
   .hud-wrap .programming-slide .pg-art { display: block; flex: none; width: 112px; height: 63px; border-radius: 10px; overflow: hidden; background: rgba(148,163,184,0.15); }
   .hud-wrap .programming-slide .pg-art img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .hud-wrap[data-desk-view="prog"] .programming-slide .pg-row { min-height: 76px; gap: 14px; }
+  /* ---- Programmation (bureau) : grille en tableau, concurrence avec barres de PDA ---- */
+  .hud-wrap[data-desk-view="prog"] .programming-slide .pg-rows { display: flex; flex-direction: column; gap: 10px; }
+  .hud-wrap[data-desk-view="prog"] .programming-slide .pg-rows::before { content: 'PDA\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0\00a0Rang'; align-self: flex-end; margin: 4px 104px -2px 0;
+    font: 800 12px 'Space Grotesk', sans-serif; letter-spacing: .6px; text-transform: uppercase; color: #475569; white-space: pre; }
+  .hud-wrap[data-desk-view="prog"] .programming-slide .pg-slot-editor { border-radius: 16px; background: rgba(255,255,255,0.75); border: 1px solid rgba(148,163,184,0.22); box-shadow: 0 8px 20px -16px rgba(15,23,42,0.4); }
+  .hud-wrap[data-desk-view="prog"] .programming-slide .pg-row { min-height: 88px; gap: 18px; padding: 10px 16px 10px 12px; border: 0; border-radius: 16px; }
+  .hud-wrap[data-desk-view="prog"] .programming-slide .pg-row-key { box-shadow: inset 5px 0 0 var(--rouge); background: rgba(225,29,72,0.07); }
+  .hud-wrap[data-desk-view="prog"] .programming-slide .pg-art { width: 124px; height: 70px; border-radius: 12px; }
+  .hud-wrap[data-desk-view="prog"] .programming-slide .pg-time-pill { font-size: 15px; padding: 7px 14px; }
+  .hud-wrap[data-desk-view="prog"] .programming-slide .pg-info-title { font: 400 22px 'Anton', sans-serif; letter-spacing: .3px; }
+  .hud-wrap[data-desk-view="prog"] .programming-slide .pg-info-program { font-size: 15.5px; color: #334155; }
+  .hud-wrap[data-desk-view="prog"] .programming-slide .pg-key-tag { font-size: 11px; padding: 2px 8px; }
+  .hud-wrap[data-desk-view="prog"] .programming-slide .pg-pda-badge { font-size: 16px; padding: 7px 14px; min-width: 64px; text-align: center; border-left: 0; }
+  .hud-wrap[data-desk-view="prog"] .programming-slide .pg-rank { order: 1; font-size: 15px; font-weight: 800; padding: 7px 12px; border-radius: 999px; background: rgba(148,163,184,0.15); }
+  .hud-wrap[data-desk-view="prog"] .programming-slide .pg-pda-badge { order: 0; }
+  .hud-wrap[data-desk-view="prog"] .programming-slide .pg-chevron { order: 2; display: none; }
+  .hud-wrap[data-desk-view="prog"] .programming-slide .pg-row::after { content: '✎'; order: 3; flex: none; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 12px;
+    border: 1.5px solid rgba(148,163,184,0.45); background: #fff; font-size: 20px; color: var(--ink); }
+  .hud-wrap[data-desk-view="prog"] .programming-slide .pg-row-key::after { content: '✎  Modifier'; width: auto; padding: 0 16px; border-color: var(--rouge); color: var(--rouge); font: 800 16px 'Plus Jakarta Sans', sans-serif; white-space: pre; }
+  .hud-wrap[data-desk-view="prog"] .programming-slide .pg-focused .pg-row::after { content: '✕'; }
+  .hud-wrap[data-desk-view="prog"] .programming-slide .eh-title { font-size: 30px; }
+  .hud-wrap[data-desk-view="prog"] .programming-slide .eh-subtitle { font-size: 15px; font-style: normal; color: #334155; }
+  .hud-wrap[data-desk-view="prog"] .radar-slide .eh-title { font-size: 30px; }
+  .hud-wrap[data-desk-view="prog"] .radar-slide .radar-slots button { font-size: 14px; padding: 8px 6px; }
+  .hud-wrap[data-desk-view="prog"] .radar-slide .radar-row { padding: 14px 10px; }
+  .hud-wrap[data-desk-view="prog"] .radar-slide .radar-name { font-size: 17px; }
+  .hud-wrap[data-desk-view="prog"] .radar-slide :is(.radar-type, .radar-program) { font-size: 14px; }
+  .hud-wrap[data-desk-view="prog"] .radar-slide .radar-rank-pill { width: 36px; height: 36px; font-size: 13px; }
+  .hud-wrap[data-desk-view="prog"] .radar-slide .radar-share-badge { position: relative; font-size: 15px; background: none; color: var(--rouge); padding: 0 0 8px; min-width: 110px; text-align: left; }
+  .hud-wrap[data-desk-view="prog"] .radar-slide .is-player .radar-share-badge { color: var(--rouge); }
+  .hud-wrap[data-desk-view="prog"] .radar-slide .radar-share-badge::after { content: ''; position: absolute; left: 0; bottom: 0; height: 6px; width: 110px; border-radius: 999px;
+    background: linear-gradient(90deg, #fb7185 var(--bar), rgba(225,29,72,0.12) var(--bar)); }
+  .hud-wrap[data-desk-view="prog"] .radar-slide :is(.radar-strat, .radar-invest, .radar-clash) { font-size: 13px; }
+  .hud-wrap[data-desk-view="prog"] .radar-slide .radar-pda-sfx { display: none; }
   .hud-wrap .programming-slide .pm-carousel { flex: none; align-items: flex-start; }
   .hud-wrap .programming-slide .pm-card { height: 270px; flex-basis: 200px; }
   /* Audiences : histogrammes par cible et tableau par créneau. */
@@ -33165,6 +33198,7 @@ function renderRadarCards(slot) {
     const level = Number.isInteger(v.level) ? v.level : 0;
     const strategy = STRATEGY_TAGS[v.tag] || STRATEGY_TAGS.maintien;
     const cls = `radar-row${isPlayer ? ' is-player' : ''}${rank === 0 ? ' is-leader' : ''}`;
+    const shareMax = rows[0]?.share || 1;
     const inner = `
       <span class="radar-rank-pill"${rank === 0 ? ' title="Leader sur ce créneau"' : ''}>#${rank + 1}</span>
       <span class="radar-info">
@@ -33175,7 +33209,7 @@ function renderRadarCards(slot) {
           ${v.reaction ? `<span class="radar-tag radar-tag-riposte" title="Riposte : ${esc(v.reaction)}">⚔<span class="radar-riposte-txt"> Riposte</span></span>` : ''}
           <span class="radar-spacer"></span>
           ${clashMeta ? `<span class="radar-clash ${clashMeta.cls}" title="${esc(clash)}">${clashMeta.label}</span>` : ''}
-          <span class="radar-share-badge" title="Part d'audience sur ce créneau">${nf1(r.share)}%<span class="radar-pda-sfx"> PDA</span></span>
+          <span class="radar-share-badge" title="Part d'audience sur ce créneau" style="--bar:${Math.max(3, r.share / shareMax * 100).toFixed(1)}%">${nf1(r.share)}%<span class="radar-pda-sfx"> PDA</span></span>
         </span>
         <span class="radar-line">
           <span class="radar-program"><span class="radar-program-name">${v.icon ? `${v.icon} ` : ''}${esc(programName)}</span><span class="radar-genre">· ${esc(genre)}</span></span>
