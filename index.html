@@ -3218,6 +3218,59 @@ body.mobile-picker-lock { overflow:hidden; }
   .dk-cell.me { background: rgba(225,29,72, calc(0.08 + var(--a) * 0.35)); color: var(--rouge); }
   .dk-rank { justify-self: center; font: 800 11px 'Space Grotesk', sans-serif; padding: 4px 9px; border-radius: 999px; background: rgba(148,163,184,0.18); color: var(--ink); }
   .dk-rank.lead { background: rgba(16,185,129,0.15); color: #047857; }
+  /* Audiences (bureau) : performances par cible et matrice par créneau. */
+  .hud-wrap .desk-aud-slide { padding: 0; background: none; border: 0; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; }
+  .dka { display: flex; flex-direction: column; gap: 18px; }
+  .dka-head { display: flex; align-items: center; gap: 22px; }
+  .dka-head h2 { margin: 0; font: 400 40px 'Anton', sans-serif; text-transform: uppercase; line-height: 1; padding-right: 22px; border-right: 1px solid rgba(148,163,184,0.45); }
+  .dka-lead { font-size: 17px; color: #334155; } .dka-lead b { color: var(--ink); }
+  .dka-me { margin-left: auto; display: flex; align-items: center; gap: 18px; padding: 12px 22px; border-radius: 999px; background: #fff; box-shadow: 0 10px 24px -14px rgba(15,23,42,0.4); }
+  .dka-me b { font: 400 24px 'Anton', sans-serif; color: var(--rouge); text-transform: uppercase; padding-right: 18px; border-right: 1px solid rgba(148,163,184,0.45); }
+  .dka-me span { font: 800 14px 'Plus Jakarta Sans', sans-serif; text-transform: uppercase; color: var(--ink); }
+  .dka-box { padding: 20px 22px; border-radius: 22px; background: rgba(255,255,255,0.65); border: 1px solid rgba(255,255,255,0.85); box-shadow: 0 25px 50px -12px rgba(15,23,42,0.12); }
+  .dka-box h3 { margin: 0 0 14px; font: 400 28px 'Anton', sans-serif; text-transform: uppercase; }
+  .dka-cards { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px; }
+  .dka-card { position: relative; padding: 16px 16px 14px; border-radius: 18px; background: #fff; box-shadow: 0 10px 24px -18px rgba(15,23,42,0.4); }
+  .dka-card.prio { box-shadow: 0 0 0 2px rgba(225,29,72,0.45); padding-top: 26px; }
+  .dka-prio { position: absolute; left: 16px; top: -10px; padding: 3px 10px; border-radius: 999px; background: var(--rouge); color: #fff; font: 800 10.5px 'Space Grotesk', sans-serif; text-transform: uppercase; letter-spacing: .4px; }
+  .dka-card header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .dka-card h4 { margin: 0; font: 400 20px 'Anton', sans-serif; white-space: nowrap; padding-right: 10px; border-right: 1px solid rgba(148,163,184,0.45); }
+  .dka-val { font: 400 20px 'Anton', sans-serif; color: var(--rouge); white-space: nowrap; }
+  .dka-rank { margin-left: auto; white-space: nowrap; padding: 3px 9px; border-radius: 999px; background: rgba(225,29,72,0.1); color: var(--rouge); font: 800 12px 'Plus Jakarta Sans', sans-serif; }
+  .dka-axis, .dka-bar { display: grid; grid-template-columns: 74px minmax(0, 1fr) 36px; gap: 8px; align-items: center; }
+  .dka-ticks { position: relative; height: 18px; border-bottom: 1px solid rgba(148,163,184,0.5); margin-bottom: 6px; }
+  .dka-ticks span { position: absolute; top: 0; transform: translateX(-50%); font-size: 11px; color: #475569; }
+  .dka-bar { padding: 4px 0; }
+  .dka-bar-name { font: 800 11.5px 'Space Grotesk', sans-serif; text-transform: uppercase; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .dka-bar-track { height: 13px; border-radius: 999px; background: rgba(148,163,184,0.16); overflow: hidden; }
+  .dka-bar-track i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #3b82f6, #2563eb); transform-origin: left; animation: dkaGrow .6s cubic-bezier(.16,1,.3,1) both; }
+  .dka-bar b { font: 800 13px 'Plus Jakarta Sans', sans-serif; text-align: right; font-variant-numeric: tabular-nums; }
+  .dka-bar.me { margin-top: 4px; border-top: 1px solid rgba(225,29,72,0.15); padding-top: 8px; }
+  .dka-bar.me .dka-bar-name, .dka-bar.me b { color: var(--rouge); }
+  .dka-bar.me .dka-bar-track { background: rgba(225,29,72,0.1); } .dka-bar.me .dka-bar-track i { background: var(--rouge); }
+  @keyframes dkaGrow { from { transform: scaleX(0); } }
+  .dka-tabs { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+  .dka-tabs h3 { margin: 0; padding-right: 14px; border-right: 1px solid rgba(148,163,184,0.45); }
+  .dka-tab { flex: 1; max-width: 190px; padding: 9px 14px; border-radius: 999px; border: 1.5px solid rgba(37,99,235,0.35); background: #fff; font: 800 15px 'Plus Jakarta Sans', sans-serif; color: var(--ink); cursor: pointer; }
+  .dka-tab.on { background: var(--bleu); border-color: var(--bleu); color: #fff; box-shadow: 0 8px 18px -10px rgba(37,99,235,0.7); }
+  .dka-unit { margin-left: auto; padding-left: 14px; border-left: 1px solid rgba(148,163,184,0.45); font-size: 14px; color: #334155; }
+  .dka-table { display: flex; flex-direction: column; gap: 6px; }
+  .dka-row { display: grid; grid-template-columns: 150px repeat(var(--n), minmax(0, 1fr)) 70px; gap: 6px; align-items: center; }
+  .dka-th { padding: 10px 0; border-radius: 12px; background: rgba(148,163,184,0.12); }
+  .dka-th span { font: 800 13px 'Space Grotesk', sans-serif; text-transform: uppercase; text-align: center; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .dka-th span:first-child { text-align: left; padding-left: 16px; }
+  .dka-th span.me { color: var(--rouge); }
+  .dka-th em { font-style: normal; padding: 2px 8px; border-radius: 999px; background: var(--rouge); color: #fff; font-size: 10.5px; }
+  .dka-slot { display: flex; flex-direction: column; padding-left: 16px; } .dka-slot b { font-size: 16px; } .dka-slot small { font-size: 12.5px; color: #475569; }
+  .dka-cell { padding: 10px 4px; border-radius: 10px; text-align: center; font: 800 17px 'Plus Jakarta Sans', sans-serif; font-variant-numeric: tabular-nums;
+    background: rgba(37,99,235, calc(0.07 + var(--a) * 0.3)); border: 2px solid transparent; }
+  .dka-cell.top { border-color: var(--bleu); }
+  .dka-cell.me { background: rgba(225,29,72,0.1); color: var(--rouge); }
+  .dka-r { justify-self: center; padding: 5px 12px; border-radius: 999px; background: rgba(148,163,184,0.16); font: 800 13px 'Plus Jakarta Sans', sans-serif; }
+  .dka-legend { display: flex; align-items: center; gap: 12px; margin-top: 16px; padding-top: 14px; border-top: 1px solid rgba(148,163,184,0.25); font-size: 13px; color: #334155; }
+  .dka-legend b { margin-right: 30px; } .dka-legend i { width: 28px; height: 16px; border-radius: 5px; margin: 0 -10px 0 0; }
+  .dka-legend i:nth-of-type(1) { background: rgba(37,99,235,0.08); } .dka-legend i:nth-of-type(2) { background: rgba(37,99,235,0.16); } .dka-legend i:nth-of-type(3) { background: rgba(37,99,235,0.26); }
+  .dka-legend i:nth-of-type(4) { background: rgba(37,99,235,0.38); } .dka-legend i:nth-of-type(5) { background: var(--bleu); margin-right: 0; }
   /* Finances : bilan, dépenses, recettes, évolution. */
   .hud-wrap .desk-fin-slide { padding: 0; background: none; border: 0; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; }
   .dk-fin { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
@@ -25126,31 +25179,48 @@ function renderDeskSide(p) {
 // Bureau, univers Audiences : un histogramme par cible (toutes les chaînes), puis les audiences
 // de chaque créneau sur la cible de la chaîne.
 function deskAudienceHtml() {
-  const p = gameState.player, calc = getCalculatedPDAs();
+  const p = gameState.player, calc = getCalculatedPDAs(), me = calc.find(r => r.channel === p);
   const targets = [...AUDIENCE_TARGETS.filter(t => t.key === p.target), ...AUDIENCE_TARGETS.filter(t => t.key !== p.target), AUDIENCE_TARGET_4P];
-  const hist = targets.map(t => {
-    const rows = calc.map(r => ({ name: r.name, me: r.channel === p, v: audienceShareOf(r, t.key) })).sort((a, b) => b.v - a.v);
-    const max = Math.max(...rows.map(r => r.v), 1), rank = rows.findIndex(r => r.me) + 1;
-    return `<div class="dk-hist${t.key === p.target ? ' is-target' : ''}">
-      <div class="dk-hist-head"><span class="dk-hist-title">${esc(t.short)}</span><span class="dk-hist-sub">${esc(t.full)}</span><span class="dk-hist-rank">#${rank}</span></div>
-      <div class="dk-hist-bars">${rows.map((r, i) => `<div class="dk-col${r.me ? ' me' : ''}" style="--i:${i}" title="${esc(r.name)} : ${nf1(r.v)} %">
-        <b>${nf1(r.v)}</b><span class="dk-col-bar"><i style="height:${Math.max(2, r.v / max * 100).toFixed(1)}%"></i></span><span class="dk-col-name">${esc(r.name)}</span></div>`).join('')}</div>
-    </div>`;
+  const n = calc.length, rankOf = key => 1 + calc.filter(r => audienceShareOf(r, key) > audienceShareOf(me, key) + 1e-9).length;
+  const label = t => esc(t.full.replace(/^Individus /, '').replace(/ et plus$/, ' et +'));
+  // Performances par cible : barres horizontales, la chaîne du joueur en dernier.
+  const cards = targets.map(t => {
+    const others = calc.filter(r => r !== me).map(r => ({ name: r.name, v: audienceShareOf(r, t.key) })).sort((a, b) => b.v - a.v);
+    const scale = Math.max(10, Math.ceil(Math.max(...others.map(o => o.v), audienceShareOf(me, t.key)) / 10) * 10);
+    const ticks = Array.from({ length: scale / 10 + 1 }, (_, i) => `<span style="left:${i * 10 / scale * 100}%">${i * 10}</span>`).join('');
+    const bar = (name, v, cls = '') => `<div class="dka-bar${cls}"><span class="dka-bar-name">${esc(name)}</span><span class="dka-bar-track"><i style="width:${Math.max(1.5, v / scale * 100).toFixed(1)}%"></i></span><b>${nf1(v)}</b></div>`;
+    const prio = t.key === p.target;
+    return `<article class="dka-card${prio ? ' prio' : ''}">
+      ${prio ? '<span class="dka-prio">Cible prioritaire</span>' : ''}
+      <header><h4>${label(t)}</h4><b class="dka-val">${nf1(audienceShareOf(me, t.key))} %</b><span class="dka-rank">${rankOf(t.key)}<sup>e</sup>/${n}</span></header>
+      <div class="dka-axis"><span></span><span class="dka-ticks">${ticks}</span><span></span></div>
+      ${others.map(o => bar(o.name, o.v)).join('')}${bar(me.name, audienceShareOf(me, t.key), ' me')}
+    </article>`;
   }).join('');
-  const chans = [calc.find(r => r.channel === p), ...calc.filter(r => r.channel !== p)];
-  const slotMax = Math.max(...TIME_SLOTS.flatMap(sl => chans.map(r => r.slots[sl.key][p.target])), 1);
-  const table = `<div class="dk-slots" style="--n:${chans.length}">
-      <div class="dk-slot-row dk-slot-head"><span>Créneau</span>${chans.map(r => `<span class="${r.channel === p ? 'me' : ''}">${esc(r.name)}</span>`).join('')}<span>Rang</span></div>
-      ${TIME_SLOTS.map(sl => { const vals = chans.map(r => r.slots[sl.key][p.target]); const rank = 1 + vals.filter(v => v > vals[0] + 1e-9).length;
-        return `<div class="dk-slot-row"><span class="dk-slot-name"><b>${esc(sl.label)}</b><small>${esc(sl.range)}</small></span>${vals.map((v, i) => `<span class="dk-cell${i === 0 ? ' me' : ''}" style="--a:${(v / slotMax).toFixed(2)}">${nf1(v)}</span>`).join('')}<span class="dk-rank${rank === 1 ? ' lead' : ''}">#${rank}</span></div>`; }).join('')}
-    </div>`;
-  return `<div class="dk-aud">
-    <div class="perf-head"><div class="eh-title">Audiences par cible</div><div class="perf-overall good">PDA ${nf1(audienceShareOf(chans[0], p.target))} %</div></div>
-    <div class="eh-subtitle">Part d'audience de chaque chaîne, cible par cible.</div>
-    <div class="dk-hists">${hist}</div>
-    <div class="perf-head dk-sub"><div class="eh-title">Audiences par créneau</div></div>
-    <div class="eh-subtitle">PDA sur la cible ${esc((AUDIENCE_TARGETS.find(t => t.key === p.target) || {}).full || p.target)}, créneau par créneau.</div>
-    ${table}
+  // Audiences par créneau, pour la cible choisie (créneaux : cibles d'âge seulement).
+  const slotTargets = targets.filter(t => t !== AUDIENCE_TARGET_4P);
+  const key = slotTargets.some(t => t.key === gameState.deskAudTarget) ? gameState.deskAudTarget : p.target;
+  const chans = [me, ...calc.filter(r => r !== me)];
+  const all = TIME_SLOTS.flatMap(sl => chans.slice(1).map(r => r.slots[sl.key][key]));
+  const lo = Math.min(...all), hi = Math.max(...all, lo + 1);
+  const rows = TIME_SLOTS.map(sl => {
+    const vals = chans.map(r => r.slots[sl.key][key]), top = Math.max(...vals.slice(1)), rank = 1 + vals.filter(v => v > vals[0] + 1e-9).length;
+    return `<div class="dka-row"><span class="dka-slot"><b>${esc(sl.label)}</b><small>${esc(sl.range)}</small></span>${vals.map((v, i) => i === 0
+      ? `<span class="dka-cell me">${nf1(v)}</span>`
+      : `<span class="dka-cell${v === top ? ' top' : ''}" style="--a:${((v - lo) / (hi - lo)).toFixed(2)}">${nf1(v)}</span>`).join('')}<span class="dka-r">#${rank}</span></div>`;
+  }).join('');
+  return `<div class="dka">
+    <div class="dka-head"><h2>Audiences</h2><span class="dka-lead">Comparez votre chaîne par cible <b>et par créneau.</b></span>
+      <span class="dka-me"><b>${esc(p.name)} · Vous</b><span>PDA cible ${nf1(audienceShareOf(me, p.target))} % · Rang ${rankOf(p.target)} / ${n}</span></span></div>
+    <section class="dka-box"><h3>Performances par cible</h3><div class="dka-cards">${cards}</div></section>
+    <section class="dka-box">
+      <div class="dka-tabs"><h3>Audiences par créneau</h3>${slotTargets.map(t => `<button type="button" class="dka-tab${t.key === key ? ' on' : ''}" data-dk-target="${t.key}">${label(t)}</button>`).join('')}<span class="dka-unit">Part d'audience en %</span></div>
+      <div class="dka-table" style="--n:${chans.length}">
+        <div class="dka-row dka-th"><span>Créneau</span>${chans.map((r, i) => `<span class="${i ? '' : 'me'}">${esc(r.name)}${i ? '' : ' <em>Vous</em>'}</span>`).join('')}<span>Rang</span></div>
+        ${rows}
+      </div>
+      <div class="dka-legend"><b>Intensité de part d'audience (concurrents)</b><span>Plus faible</span><i></i><i></i><i></i><i></i><i></i><span>Plus forte</span></div>
+    </section>
   </div>`;
 }
 // Bureau, univers Finances : bilan, détail des dépenses et des recettes côte à côte, évolution.
@@ -25326,6 +25396,12 @@ function bindTickerInteractions(app) {
   syncDeskHeight();
   // Bureau : les actions des talents (verso) restent accessibles à côté de la fiche.
   if (isDesktopLayout()) document.querySelectorAll('.talents-slide .tl-face').forEach(f => f.removeAttribute('inert'));
+  document.querySelector('.desk-aud-slide')?.addEventListener('click', e => {
+    const tab = e.target.closest('[data-dk-target]');
+    if (!tab) return;
+    gameState.deskAudTarget = tab.dataset.dkTarget;
+    document.querySelector('.desk-aud-slide').innerHTML = deskAudienceHtml();
+  });
   // Barre latérale du bureau : changer d'univers remplace les panneaux affichés (apparition en cascade).
   document.querySelectorAll('[data-desk-view]').forEach(b => { b.onclick = () => {
     const wrap = b.closest('.hud-wrap'), view = b.dataset.deskView;
