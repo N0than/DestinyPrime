@@ -25198,13 +25198,15 @@ function deskAudienceHtml() {
     </article>`;
   }).join('');
   // Audiences par créneau, pour la cible choisie (créneaux : cibles d'âge seulement).
-  const slotTargets = targets.filter(t => t !== AUDIENCE_TARGET_4P);
+  const slotTargets = targets;
   const key = slotTargets.some(t => t.key === gameState.deskAudTarget) ? gameState.deskAudTarget : p.target;
   const chans = [me, ...calc.filter(r => r !== me)];
-  const all = TIME_SLOTS.flatMap(sl => chans.slice(1).map(r => r.slots[sl.key][key]));
+  // 4+ : moyenne des cibles, comme la PDA globale (row.globalPda).
+  const sv = (r, slot) => key === AUDIENCE_TARGET_4P.key ? AUDIENCE_TARGETS.reduce((a, t) => a + r.slots[slot][t.key], 0) / AUDIENCE_TARGETS.length : r.slots[slot][key];
+  const all = TIME_SLOTS.flatMap(sl => chans.slice(1).map(r => sv(r, sl.key)));
   const lo = Math.min(...all), hi = Math.max(...all, lo + 1);
   const rows = TIME_SLOTS.map(sl => {
-    const vals = chans.map(r => r.slots[sl.key][key]), top = Math.max(...vals.slice(1)), rank = 1 + vals.filter(v => v > vals[0] + 1e-9).length;
+    const vals = chans.map(r => sv(r, sl.key)), top = Math.max(...vals.slice(1)), rank = 1 + vals.filter(v => v > vals[0] + 1e-9).length;
     return `<div class="dka-row"><span class="dka-slot"><b>${esc(sl.label)}</b><small>${esc(sl.range)}</small></span>${vals.map((v, i) => i === 0
       ? `<span class="dka-cell me">${nf1(v)}</span>`
       : `<span class="dka-cell${v === top ? ' top' : ''}" style="--a:${((v - lo) / (hi - lo)).toFixed(2)}">${nf1(v)}</span>`).join('')}<span class="dka-r">#${rank}</span></div>`;
