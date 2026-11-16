@@ -3187,7 +3187,7 @@ body.mobile-picker-lock { overflow:hidden; }
   .hud-wrap .programming-slide .pm-carousel { flex: none; align-items: flex-start; }
   .hud-wrap .programming-slide .pm-card { height: 270px; flex-basis: 200px; }
   /* Audiences : histogrammes par cible et tableau par créneau. */
-  .hud-wrap .desk-aud-slide, .hud-wrap .desk-fin-slide, .hud-wrap .desk-arcom-slide { min-height: var(--desk-h, 640px); }
+  .hud-wrap .desk-fin-slide, .hud-wrap .desk-arcom-slide { min-height: var(--desk-h, 640px); }
   .dk-hists { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; margin: 10px 0 22px; }
   .dk-hist { padding: 12px 12px 10px; border-radius: 16px; background: rgba(255,255,255,0.7); border: 1px solid rgba(255,255,255,0.9); min-width: 0; }
   .dk-hist.is-target { box-shadow: 0 0 0 2px rgba(225,29,72,0.35); }
@@ -3220,7 +3220,22 @@ body.mobile-picker-lock { overflow:hidden; }
   .dk-rank.lead { background: rgba(16,185,129,0.15); color: #047857; }
   /* Audiences (bureau) : performances par cible et matrice par créneau. */
   .hud-wrap .desk-aud-slide { padding: 0; background: none; border: 0; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; }
-  .dka { display: flex; flex-direction: column; gap: 18px; }
+  .dka { display: flex; flex-direction: column; gap: 18px; height: var(--desk-h, 640px); }
+  .dka > .dka-box { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; overflow: auto; }
+  .dka > .dka-box:first-child { flex: 0 1 auto; }
+  .dka > .dka-box { padding: 16px 20px; }
+  .dka .dka-box h3 { margin-bottom: 10px; font-size: 25px; }
+  .dka .dka-bar { padding: 2px 0; }
+  .dka .dka-card { padding-bottom: 10px; }
+  .dka .dka-tabs { margin-bottom: 10px; }
+  .dka .dka-legend { margin-top: 10px; padding-top: 10px; }
+  .dka .dka-slot b { font-size: 15px; } .dka .dka-slot small { font-size: 11.5px; }
+  .dka-table > .dka-row:not(.dka-th) { min-height: 0; }
+  .dka-cell { padding: 6px 4px; }
+  .dka-cards { flex: 1; align-items: stretch; }
+  .dka-card { display: flex; flex-direction: column; justify-content: space-between; }
+  .dka-table { flex: 1; } .dka-table > .dka-row:not(.dka-th) { flex: 1; }
+  .dka-cell { height: 100%; display: grid; place-items: center; box-sizing: border-box; }
   .dka-head { display: flex; align-items: center; gap: 22px; }
   .dka-head h2 { margin: 0; font: 400 40px 'Anton', sans-serif; text-transform: uppercase; line-height: 1; padding-right: 22px; border-right: 1px solid rgba(148,163,184,0.45); }
   .dka-lead { font-size: 17px; color: #334155; } .dka-lead b { color: var(--ink); }
