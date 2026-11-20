@@ -2575,6 +2575,53 @@ label { font-family: 'Anton', sans-serif; font-size: 12px; letter-spacing: 2px; 
   .kickoff-body { padding: 8px 8px 0; }
   .kickoff-pitch { font-size: 10px; }
 }
+/* ---- Conférence de rentrée, desktop : bandeau scène + cartes à bouton d'action ---- */
+.kickoff-cta, .kickoff-stage { display: none; }
+@media (min-width: 1100px) {
+  #app > .dilemma-container .kickoff-head {
+    position: relative; overflow: hidden; min-height: 200px; padding: 18px 26px 20px; gap: 10px; color: #fff;
+    background: radial-gradient(120% 140% at 70% 0%, #6d5bf5 0%, #4338ca 45%, #312e81 100%); border: 0;
+    box-shadow: 0 24px 50px -24px rgba(49,46,129,0.6);
+  }
+  #app > .dilemma-container .kickoff-head > :not(.kickoff-stage) { position: relative; z-index: 1; }
+  .kickoff-stage { display: block; position: absolute; right: 12px; bottom: 0; width: 54%; height: 100%; z-index: 0; }
+  .kickoff-head-pills { align-self: flex-start; }
+  .kickoff-head .dc-season-pill { display: none; }
+  .kickoff-head :is(.dc-live-pill, .channel-pill, .dc-head-left > span) { background: rgba(255,255,255,0.95); }
+  #app > .dilemma-container .kickoff-title { font-size: 40px; color: #fff; text-shadow: 0 2px 0 rgba(15,23,42,0.15); }
+  #app > .dilemma-container .kickoff-lead { color: rgba(255,255,255,0.88); font-size: 15px; max-width: 44%; }
+  .kickoff-head .kickoff-slot { margin-top: 8px; padding: 6px 22px 6px 6px; background: #fff; border: 0; box-shadow: 0 10px 24px -10px rgba(15,23,42,0.35); }
+  .kickoff-head .kickoff-slot-art { width: 72px; }
+  .kickoff-head .kickoff-slot-art img { filter: none; opacity: 1; }
+  .kickoff-head .kickoff-slot-kicker { font-family: 'Anton', sans-serif; font-weight: 400; font-size: 15px; letter-spacing: 0.3px; color: var(--bleu); }
+  .kickoff-head .kickoff-slot-name { font-size: 15px; color: var(--ink); }
+  .mercato-card.kickoff-card { padding: 8px 8px 14px; border-radius: 22px; }
+  .kickoff-card .kickoff-art { border-radius: 16px; overflow: hidden; aspect-ratio: 16 / 6; }
+  .kickoff-or { top: calc((50cqw - 25px) * 6 / 16 + 10px); width: 40px; height: 40px; font-size: 14px; }
+  .kickoff-card .kickoff-body { align-items: flex-start; text-align: left; gap: 4px; padding: 10px 16px 0; }
+  .kickoff-card .mercato-name { font-size: 26px; line-height: 1.05; text-align: left; }
+  .kickoff-card .kickoff-pitch { font-size: 13.5px; margin-bottom: 4px; text-align: left; }
+  .kickoff-card .mercato-criteria { width: 100%; gap: 0; border-top: 1px solid rgba(148,163,184,0.25); }
+  .kickoff-card .mercato-criterion { padding: 6px 0; border-bottom: 1px solid rgba(148,163,184,0.25); }
+  .kickoff-card .mercato-criterion-label { font-size: 14px; font-weight: 700; color: var(--ink); }
+  .kickoff-card .mercato-criterion-label::before { display: inline-block; width: 26px; }
+  .kickoff-card .mercato-criterion:nth-child(1) .mercato-criterion-label::before { content: '👥'; }
+  .kickoff-card .mercato-criterion:nth-child(2) .mercato-criterion-label::before { content: '💰'; }
+  .kickoff-card .mercato-criterion:nth-child(3) .mercato-criterion-label::before { content: '📅'; }
+  .kickoff-card .mercato-stars { font-size: 17px; }
+  .kickoff-card .kickoff-value { font-size: 15px; }
+  .kickoff-card .mercato-cost { display: none; }
+  .kickoff-cta {
+    display: flex; align-items: center; gap: 12px; align-self: stretch; margin-top: 12px; padding: 9px 12px 9px 20px; border-radius: 999px;
+    font-family: 'Anton', sans-serif; font-size: 18px; letter-spacing: 0.3px; text-transform: uppercase; color: #fff; white-space: nowrap; overflow: hidden;
+    background: linear-gradient(90deg, #e11d48, #f43f5e); box-shadow: 0 12px 24px -10px rgba(225,29,72,0.6);
+    transition: transform .15s ease, filter .15s ease;
+  }
+  .kickoff-card:nth-of-type(2) .kickoff-cta { background: linear-gradient(90deg, #10b981, #2dd4bf); box-shadow: 0 12px 24px -10px rgba(16,185,129,0.6); }
+  .kickoff-card:hover .kickoff-cta { filter: brightness(1.06); transform: translateY(-1px); }
+  .kickoff-cta-price { margin-left: auto; padding: 5px 14px; border-radius: 999px; background: rgba(255,255,255,0.25); font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 800; text-transform: none; }
+  .kickoff-cta-chev { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 26px; line-height: 1; }
+}
 .mercato-pass-note { margin: 10px 0 0; text-align: center; font-size: 12px; font-style: italic; color: var(--gris); }
 .confetti-layer { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 9999; }
 .confetti-piece {
@@ -29050,6 +29097,24 @@ function programGenreLabel(program) {
   const family = tvp ? tvp.classify(program).genre : 'generique';
   return family !== 'generique' ? tvp.GENRES[family].label : (GENRE_LABELS[program.editorial?.genre] || 'Programme');
 }
+// Scène de la conférence (desktop) : projecteurs, pupitre au nom de la chaîne, public.
+function kickoffStageSvg(name) {
+  const heads = [[60,'#1e293b','#f1c27d'],[130,'#f59e0b','#e0ac69'],[200,'#7c2d12','#c68642'],[470,'#334155','#8d5524'],[540,'#111827','#f1c27d'],[610,'#9ca3af','#e0ac69']];
+  const cones = [120, 250, 370, 500].map(x => `<path d="M${x-8} 0 L${x+8} 0 L${x+70} 230 L${x-70} 230 Z" fill="url(#ksBeam)"/><ellipse cx="${x}" cy="4" rx="16" ry="6" fill="#fff" opacity="0.9"/>`).join('');
+  const people = heads.map(([x, hair, skin]) => `<g transform="translate(${x} 0)"><path d="M-34 260 Q-34 200 0 196 Q34 200 34 260 Z" fill="#1e293b"/><circle cx="0" cy="172" r="22" fill="${skin}"/><path d="M-23 168 Q-22 144 0 144 Q23 144 23 168 Q12 156 0 158 Q-12 156 -23 168 Z" fill="${hair}"/></g>`).join('');
+  return `<svg class="kickoff-stage" viewBox="0 0 680 260" preserveAspectRatio="xMaxYMax meet" aria-hidden="true">
+    <defs><linearGradient id="ksBeam" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="0.55"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+    <radialGradient id="ksFloor" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#c7d2fe" stop-opacity="0.8"/><stop offset="1" stop-color="#c7d2fe" stop-opacity="0"/></radialGradient></defs>
+    ${cones}
+    <ellipse cx="335" cy="236" rx="150" ry="22" fill="url(#ksFloor)"/>
+    <path d="M318 96 Q306 70 290 62 M352 96 Q364 70 380 62" stroke="#0f172a" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <path d="M270 100 L400 100 L388 240 L282 240 Z" fill="#1e3a8a"/><rect x="262" y="92" width="146" height="14" rx="4" fill="#0f172a"/>
+    <rect x="315" y="130" width="40" height="28" rx="5" fill="none" stroke="#fff" stroke-width="3"/><path d="M325 124 L335 130 L345 124" stroke="#fff" stroke-width="3" fill="none"/>
+    <text x="335" y="186" text-anchor="middle" font-family="Anton, sans-serif" font-size="20" fill="#fff">${esc(String(name || '').toUpperCase().slice(0, 12))}</text>
+    ${people}
+    <g transform="translate(600 120)"><rect x="0" y="0" width="56" height="36" rx="6" fill="#1e293b"/><circle cx="20" cy="18" r="11" fill="#334155" stroke="#94a3b8" stroke-width="3"/><path d="M28 36 L10 140 M28 36 L46 140 M28 36 L28 140" stroke="#1e293b" stroke-width="4"/></g>
+  </svg>`;
+}
 function renderSeasonKickoff(app) {
   const p = gameState.player;
   const proposal = gameState.seasonKickoffProposal;
@@ -29082,6 +29147,7 @@ function renderSeasonKickoff(app) {
           <span class="mercato-criterion"><span class="mercato-criterion-label">Engagement</span><span class="kickoff-value">${program.years} saison${program.years > 1 ? 's' : ''}</span></span>
         </span>
         <span class="choice-pill cost mercato-cost">${nf1(program.annual)} M€/an</span>
+        <span class="kickoff-cta">Lancer « ${esc(program.name)} »<span class="kickoff-cta-price">${nf1(program.annual)} M€/an</span><span class="kickoff-cta-chev" aria-hidden="true">›</span></span>
       </span>
     </button>`).join('')}<span class="kickoff-or" aria-hidden="true">ou</span></div>`;
 
@@ -29116,6 +29182,7 @@ function renderSeasonKickoff(app) {
             <span class="kickoff-slot-name"><span class="kickoff-slot-caption">À l’antenne :</span> ${programLabelHtml(currentLabel)}</span>
           </span>
         </div>
+        ${isDesktopLayout() ? kickoffStageSvg(p.name) : ''}
       </header>
       <div id="choice-zone">
         <div class="choices card-choices">${optionsHtml}${noneHtml}</div>
