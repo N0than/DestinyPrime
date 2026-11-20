@@ -3144,6 +3144,10 @@ body.mobile-picker-lock { overflow:hidden; }
   .hud-wrap:is([data-desk-view="prog"], [data-desk-view="studio"], [data-desk-view="talents"]) .eh-slide { height: var(--desk-h, 640px); overflow-y: auto; overscroll-behavior: contain; }
   :is(.hud-wrap[data-desk-view="studio"], .hud-wrap[data-desk-view="talents"], .hud-wrap[data-desk-view="audiences"], .hud-wrap[data-desk-view="finances"], .hud-wrap[data-desk-view="arcom"]) .eh-slider-track { grid-template-columns: 1fr; }
   .hud-wrap .radar-slide .pg-slide { height: 100%; }
+  .hud-wrap[data-desk-view="board"] .radar-slide .pg-head { margin-bottom: 10px; }
+  .hud-wrap[data-desk-view="board"] .radar-slide .radar-slots { gap: 6px; margin-bottom: 8px; }
+  .hud-wrap[data-desk-view="board"] .radar-slide .radar-slots .ga-target-btn { padding: 5px 4px; }
+  .hud-wrap[data-desk-view="board"] .radar-slide .radar-row.is-player { margin-top: 4px; }
   .hud-wrap[data-desk-view="prog"] .programming-slide .pg-slide { min-height: 100%; }
   .hud-wrap .studio-slide .of-studio, .hud-wrap .talents-slide .tl-panel { inset: 16px 18px; }
   .hud-wrap .studio-slide, .hud-wrap .talents-slide { min-height: 0; }
