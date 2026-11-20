@@ -451,6 +451,7 @@ button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
 .radar-slots .ga-target-btn.active.acc-gold { background: var(--gold); border-color: var(--gold); }
 .radar-slots .ga-target-btn.active.acc-gris { background: var(--gris); border-color: var(--gris); }
 .radar-mode.radar-tight .radar-hint { display: none; }
+.pg-head-row .radar-hint-desk, .radar-mode.radar-tight .radar-hint-desk { display: block; margin: 0; text-align: right; white-space: nowrap; }
 .radar-cards { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 .radar-row {
   flex: 1 0 auto; display: flex; align-items: center; gap: 8px; width: 100%; min-width: 0; text-align: left;
@@ -3719,17 +3720,18 @@ function renderEvolutionChart(allPoints, title = 'Évolution de votre chaîne', 
 function renderProgramGrid(type, pdaCible, overrides) {
   if (radarState().open && gameState.competitors?.length) {
     const sheetOpen = radarState().sheet !== null && !!gameState.competitors[radarState().sheet];
+    const deskHint = !sheetOpen && isDesktopLayout();
     return `
       <div class="pg-slide radar-mode">
         <div class="pg-head${sheetOpen ? ' sheet-open' : ''}">
           <div class="pg-head-row">
             <div class="eh-title">${sheetOpen ? esc(gameState.competitors[radarState().sheet].name) : 'Concurrence'}</div>
-            <div class="radar-head-actions">
+            ${deskHint ? '<div class="eh-subtitle radar-hint radar-hint-desk">Touchez une chaîne pour sa fiche.</div>' : `<div class="radar-head-actions">
               ${sheetOpen ? '<button type="button" class="radar-toggle" data-radar-action="back">← Retour</button>' : ''}
               <button type="button" class="radar-toggle active" data-radar-action="toggle">⚔️ Ma grille</button>
-            </div>
+            </div>`}
           </div>
-          ${sheetOpen ? '' : '<div class="eh-subtitle pg-sub radar-hint">Touchez une chaîne pour sa fiche.</div>'}
+          ${sheetOpen || deskHint ? '' : '<div class="eh-subtitle pg-sub radar-hint">Touchez une chaîne pour sa fiche.</div>'}
         </div>
         ${renderRadarPanel()}
       </div>
