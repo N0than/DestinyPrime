@@ -1,0 +1,32 @@
+Lot 1 — simulation headless, référence 6fdce0a
+Parties libres : 115 ; saisons jouées par type : {"generaliste":225,"cinema":228,"culture":228,"jeunesse":228,"sport":224,"info":228}
+
+1. Équivalence avec l’ancien sélecteur (même état d’entrée à chaque tirage)
+   tirages comparés : 1776
+   files identiques (ids et ordre) : 1776 (100.0 %)
+   graine de campagne identique : 744 ; identique au tirage du genre près : 1032 ; total 100.0 %
+   flux et calendrier des droits sportifs identiques : 1776 (100.0 %)
+   divergences : {}
+
+2. Pureté des collectes (JSON de gameState et mémoire locale avant/après)
+   contrôles : 1776 ; écarts : 0
+
+3. Crises
+   tirages avec crise mûre : 76 ; placées : 38 ; mises en attente : 38
+   sorties de l’attente : expirées 6, résolues (corrigées ou jouées) 2, perdues en silence 0
+   crises jouées (historique) : 35 ; en attente en fin de partie : 0
+   scénario forcé (aucune place) : S2 — | S3 cash depuis S3 | S4 cash depuis S3 | S5 cash depuis S3 | S6 — expirée S6 | S7 — expirée S6 | S8 — expirée S6
+
+4. Ancienne sauvegarde (état sérialisé par 6fdce0a en milieu de saison 3)
+   generaliste : S3 dilemme 2/3 → S6 (étape 8), 3 saison(s) terminée(s) OK
+   sport : S3 dilemme 2/3 → S7 (étape 6), 4 saison(s) terminée(s) OK
+   jeunesse : S3 dilemme 2/3 → S7 (étape 6), 4 saison(s) terminée(s) OK
+   culture : S3 dilemme 2/3 → S7 (étape 6), 4 saison(s) terminée(s) OK
+   cinema : S3 dilemme 2/3 → S7 (étape 6), 4 saison(s) terminée(s) OK
+   info : S3 dilemme 2/3 → S7 (étape 6), 4 saison(s) terminée(s) OK
+
+5. Files
+   contrôles : 5201 ; vides : 0 ; bloquées : 0
+   renouvellements dus absents : 0
+   décisions scénarisées du mode Carrière perdues (38 défis × 2 graines) : 0
+   erreurs : 0

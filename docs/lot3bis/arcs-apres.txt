@@ -1,0 +1,54 @@
+Histoires génériques et arcs (5 graines × 120 saisons × 6 types, choix aléatoires) — 306 s
+Saisons jouées : 3600 {"generaliste":600,"cinema":600,"culture":600,"jeunesse":600,"sport":600,"info":600} ; parties : 260
+
+| Par arc | jury | animateur | refonte | offensive | surcout | digital | total |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Ouvertures éligibles (saison × programme) | 100 | 3272 | 3257 | 10 | 422 | 125 | 7186 |
+| Ouvertures proposées dans la file | 1 | 116 | 213 | 3 | 11 | 9 | 353 |
+| Arcs ouverts | 1 | 51 | 131 | 2 | 8 | 5 | 198 |
+| … dont par une histoire propre au titre | 0 | 2 | 0 | 0 | 0 | 0 | 2 |
+| Occasions de suite (saison × arc ouvert) | 3 | 105 | 291 | 4 | 18 | 6 | 427 |
+| Suites proposées dans la file | 0 | 27 | 127 | 4 | 5 | 3 | 166 |
+| Suites jouées (étapes) | 0 | 24 | 115 | 4 | 3 | 3 | 149 |
+| Résolus | 0 (0.0 %) | 24 (47.1 %) | 71 (54.2 %) | 2 (100.0 %) | 3 (37.5 %) | 3 (60.0 %) | 103 (52.0 %) |
+| Expirés sans suite devenue éligible | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| Expirés malgré des suites éligibles non retenues | 1 | 12 | 23 | 0 | 2 | 0 | 38 |
+| Abandonnés (programme retiré) | 0 | 4 | 10 | 0 | 0 | 2 | 16 |
+| Ouverts en fin de partie | 0 | 11 | 27 | 0 | 3 | 0 | 41 |
+| Cohorte (échéance atteinte avant la fin) | 1 | 27 | 70 | 1 | 1 | 4 | 104 |
+| … dont résolus | 0 (0.0 %) | 16 (59.3 %) | 49 (70.0 %) | 1 (100.0 %) | 1 (100.0 %) | 3 (75.0 %) | 70 (67.3 %) |
+
+Motifs d’exclusion des ouvertures génériques (saison × programme × définition) :
+- jury : capacité : jury 15645 ; priorité : histoire propre éligible 21 ; conditions : écart entre deux histoires 8 ; conditions : déjà jouée 7
+- animateur : capacité : host 10948 ; conditions : ancienneté 670 ; conditions : déjà jouée 461 ; conditions : écart entre deux histoires 368
+- refonte : genre 8672 ; conditions : usure 1355 ; conditions : déjà jouée 982 ; conditions : ancienneté 888
+- offensive : conditions : pression concurrentielle 11461 ; genre 2701 ; conditions : écart entre deux histoires 1582 ; conditions : déjà jouée 9
+- surcout : genre 12040 ; capacité : shoot 3209 ; conditions : déjà jouée 50 ; conditions : écart entre deux histoires 39
+- digital : ressource : platform 12899 ; genre 2701 ; conditions : déjà jouée 24 ; conditions : écart entre deux histoires 12
+Motifs d’absence de suite pour un arc ouvert (saison × arc) :
+- jury : —
+- animateur : —
+- refonte : conditions : déjà jouée 1
+- offensive : —
+- surcout : —
+- digital : —
+
+| Contrôles | Valeur |
+|---|---|
+| Histoires de programmes jouées | 1765 (0.49 par saison) |
+| … propres au titre / génériques | 1040 / 725 (41.1 % génériques) |
+| … dont suites d'arcs | 149 |
+| Génériques : histoires propres encore jouables (autres situations) 590 (81.4 %) ; histoires propres épuisées 110 (15.2 %) ; programme sans histoire propre 25 (3.4 %) | |
+| Génériques jouées alors qu'une histoire propre de la même situation était éligible | 0 |
+| Ouvertures refusées au moment du choix (plafond) | 0 |
+| Arcs ouverts simultanés : maximum / moyenne par saison | 3 / 0.13 (plafond 3) |
+| Arcs ouverts sur un même programme (maximum) / même arc ouvert deux fois | 1 (plafond 1) / 0 |
+| Cause d'expiration enregistrée ≠ cause observée | 0 |
+| Deux histoires du même programme dans une saison | 0 |
+| Même histoire rejouée sur un programme avant son délai | 0 |
+| Options contextuelles retenues (talent / plateforme / partenaire / commande réduite / concurrent / droits) | 4 / 0 / 1 / 0 / 0 / 0 |
+| Collecte ou diagnostic impur (tirage ou écriture) | 0 sur 3702 collectes |
+| Textes incomplets | 0 |
+| Files vides / bloquées / erreurs | 0 / 0 / 0 |
+
+Situations génériques jouées : gs_formule_usee 201, gs_jeunesse_vieillissante 154, gs_animateur_depart 96, gs_refonte_recul 46, gs_refonte_cloture 34, gs_droits_film 30, gs_animateur_suite_mitige 20, gs_production_sport 20, gs_refonte_succes 18, gs_refonte_mitige 17, gs_invite_desiste 16, gs_enquete_sensible 15, gs_surcout_tournage 13, gs_debat_clivant 8, gs_valorisation_digitale 7, gs_suite_fiction_chere 6, gs_declinaison 5, gs_animateur_suite_succes 4, gs_surcout_suite 3, gs_digital_recul 3, gs_candidat_depart 2, gs_pression_concurrente 2, gs_offensive_recul 2, gs_offensive_cloture 2, gs_jury_conteste 1
